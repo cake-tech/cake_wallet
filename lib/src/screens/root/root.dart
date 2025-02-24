@@ -190,16 +190,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         await Future.delayed(const Duration(seconds: 10));
 
-        await wallet?.reopenWallet();
-
         break;
       case AppLifecycleState.hidden:
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
         break;
       case AppLifecycleState.paused:
-        await wallet?.stopSync();
-        await wallet?.close();
+        if (![WalletType.monero, WalletType.wownero, WalletType.haven].contains(wallet?.type)) {
+          await wallet?.stopSync();
+          await wallet?.close();
+        }
         break;
     }
     _previousState = state;

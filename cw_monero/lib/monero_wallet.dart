@@ -231,7 +231,7 @@ abstract class MoneroWalletBase
         monero_wallet.setupBackgroundSync(
           backgroundSyncType: 2,
           walletPassword: password,
-          backgroundCachePassword: "testing-cache-password",
+          backgroundCachePassword: "production-cache-password",
         );
         monero.Wallet_startBackgroundSync(wptr!);
         final status = monero.Wallet_status(wptr!);
@@ -242,6 +242,11 @@ abstract class MoneroWalletBase
         }
         isBackgroundSyncing = true;
       } else {
+        monero_wallet.setupBackgroundSync(
+          backgroundSyncType: 2,
+          walletPassword: password,
+          backgroundCachePassword: "production-cache-password",
+        );
         monero.Wallet_stopBackgroundSync(wptr!, password);
         final status = monero.Wallet_status(wptr!);
         if (status != 0) {
