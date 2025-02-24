@@ -40,7 +40,6 @@ String getSeed() {
 
   final weirdPolyseed = wownero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
   if (weirdPolyseed != "") return weirdPolyseed;
-
   if (cakepolyseed != "") {
     if (cakepassphrase != "") {
       try {
@@ -65,11 +64,21 @@ String getSeedLegacy(String? language) {
   final cakepassphrase = getPassphrase();
   var legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   switch (language) {
-    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
-    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
-    case "Korean": language = "English"; break;
-    case "Czech": language = "English"; break;
-    case "Japanese": language = "English"; break;
+    case "Chinese (Traditional)":
+      language = "Chinese (simplified)";
+      break;
+    case "Chinese (Simplified)":
+      language = "Chinese (simplified)";
+      break;
+    case "Korean":
+      language = "English";
+      break;
+    case "Czech":
+      language = "English";
+      break;
+    case "Japanese":
+      language = "English";
+      break;
   }
   if (wownero.Wallet_status(wptr!) != 0) {
     wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
@@ -84,6 +93,7 @@ String getSeedLegacy(String? language) {
   }
   return legacy;
 }
+
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getPassphrase() {
@@ -91,14 +101,14 @@ String getPassphrase() {
 }
 
 String getAddress({int accountIndex = 0, int addressIndex = 1}) {
-  while (wownero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+  while (wownero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex) - 1 < addressIndex) {
     printV("adding subaddress");
     wownero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
   }
   addressCache[wptr!.address] ??= {};
   addressCache[wptr!.address]![accountIndex] ??= {};
-  addressCache[wptr!.address]![accountIndex]![addressIndex] ??= wownero.Wallet_address(wptr!,
-        accountIndex: accountIndex, addressIndex: addressIndex);
+  addressCache[wptr!.address]![accountIndex]![addressIndex] ??=
+      wownero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
   return addressCache[wptr!.address]![accountIndex]![addressIndex]!;
 }
 
@@ -158,13 +168,30 @@ void startRefreshSync() {
   wownero.Wallet_startRefresh(wptr!);
 }
 
+void setupBackgroundSync(
+    {required int backgroundSyncType,
+    required String walletPassword,
+    required String backgroundCachePassword}) {
+  wownero.Wallet_setupBackgroundSync(wptr!,
+      backgroundSyncType: backgroundSyncType,
+      walletPassword: walletPassword,
+      backgroundCachePassword: backgroundCachePassword);
+}
+
+void startBackgroundSync() {
+  wownero.Wallet_startBackgroundSync(wptr!);
+}
+
+void stopBackgroundSync(String password) {
+  wownero.Wallet_stopBackgroundSync(wptr!, password);
+}
+
 Future<bool> connectToNode() async {
   return true;
 }
 
 void setRefreshFromBlockHeight({required int height}) =>
-    wownero.Wallet_setRefreshFromBlockHeight(wptr!,
-        refresh_from_block_height: height);
+    wownero.Wallet_setRefreshFromBlockHeight(wptr!, refresh_from_block_height: height);
 
 void setRecoveringFromSeed({required bool isRecovery}) =>
     wownero.Wallet_setRecoveringFromSeed(wptr!, recoveringFromSeed: isRecovery);
@@ -239,8 +266,7 @@ class SyncListener {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
-    _updateSyncInfoTimer ??=
-        Timer.periodic(Duration(milliseconds: 1200), (_) async {
+    _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
         onNewTransaction();
       }
@@ -279,8 +305,8 @@ class SyncListener {
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListener setListeners(void Function(int, int, double) onNewBlock,
-    void Function() onNewTransaction) {
+SyncListener setListeners(
+    void Function(int, int, double) onNewBlock, void Function() onNewTransaction) {
   final listener = SyncListener(onNewBlock, onNewTransaction);
   // setListenerNative();
   return listener;
@@ -342,8 +368,7 @@ String getSubaddressLabel(int accountIndex, int addressIndex) {
       accountIndex: accountIndex, addressIndex: addressIndex);
 }
 
-Future setTrustedDaemon(bool trusted) async =>
-    wownero.Wallet_setTrustedDaemon(wptr!, arg: trusted);
+Future setTrustedDaemon(bool trusted) async => wownero.Wallet_setTrustedDaemon(wptr!, arg: trusted);
 
 Future<bool> trustedDaemon() async => wownero.Wallet_trustedDaemon(wptr!);
 

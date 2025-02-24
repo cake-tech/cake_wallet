@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -44,13 +48,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       : _isInactiveController = StreamController<bool>.broadcast(),
         _isInactive = false,
         _requestAuth = true,
-        _postFrameCallback = false;
+        _postFrameCallback = false,
+        _previousState = AppLifecycleState.resumed;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
   bool _isInactive;
   bool _postFrameCallback;
   bool _requestAuth;
+  AppLifecycleState _previousState;
+  bool wasInBackground = false;
+  Timer? _stateTimer;
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
@@ -125,11 +133,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    final syncingWalletTypes = [WalletType.litecoin, WalletType.monero, WalletType.bitcoin];
     switch (state) {
       case AppLifecycleState.paused:
         if (isQrScannerShown) {
-          return;
+          break;
         }
 
         if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
@@ -149,6 +158,51 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       default:
         break;
     }
+
+    // _stateTimer?.cancel();
+    // _stateTimer = Timer(const Duration(seconds: 1), () async {
+    //   getIt.get<BackgroundTasks>().lastAppState(state);
+    // });
+
+    getIt.get<BackgroundTasks>().lastAppState(state);
+
+    // background service handling:
+    printV("state: $state");
+    final appStore = widget.appStore;
+    final wallet = appStore.wallet;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        bool isBackgroundSyncing = await getIt.get<BackgroundTasks>().isBackgroundSyncing();
+
+        printV("isBackgroundSyncing: $isBackgroundSyncing");
+
+        if (!isBackgroundSyncing) {
+          return;
+        }
+
+        // await wallet?.closeWallet();
+        // restart the background service if it was running before:
+        await getIt.get<BackgroundTasks>().serviceForeground();
+
+        await Future.delayed(const Duration(seconds: 10));
+
+        await wallet?.stopSync(isBackgroundSync: true);
+
+        await Future.delayed(const Duration(seconds: 10));
+
+        await wallet?.reopenWallet();
+
+        break;
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.paused:
+        await wallet?.stopSync();
+        await wallet?.close();
+        break;
+    }
+    _previousState = state;
   }
 
   @override
