@@ -53,12 +53,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   static const apiKey = secrets.trocadorApiKey;
   static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
-  static const clearNetAuthority = 'trocador.app';
+  static const clearNetAuthority = 'api.trocador.app';
   static const markup = secrets.trocadorExchangeMarkup;
-  static const newRatePath = '/api/new_rate';
-  static const createTradePath = 'api/new_trade';
-  static const tradePath = 'api/trade';
-  static const coinPath = 'api/coin';
+  static const newRatePath = '/new_rate';
+  static const createTradePath = '/new_trade';
+  static const tradePath = '/trade';
+  static const coinPath = '/coin';
 
   String _lastUsedRateId;
   List<dynamic> _provider;
@@ -107,8 +107,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
     return Limits(
-      min: coinJson['minimum'] as double,
-      max: coinJson['maximum'] as double,
+      min: coinJson['minimum'] as double?,
+      // TODO: remove hardcoded value and call `api/new_rate` when Trocador adds min and max to it
+      max: from == CryptoCurrency.zano ? 2600 : coinJson['maximum'] as double?,
     );
   }
 
@@ -138,6 +139,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final response = await get(uri, headers: {'API-Key': apiKey});
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+      if (responseJSON['error'] != null) throw Exception(responseJSON['error']);
+
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';

@@ -1,4 +1,5 @@
-Bitcoin and Litecoin enhancements
-Solana and Nano fixes/improvements
+Zano enhancements
+Ethereum enhancements
+Ledger fixes
 UI enhancements
 Bug fixes

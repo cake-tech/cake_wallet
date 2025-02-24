@@ -21,16 +21,20 @@ class StandardListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
-
-    return InkWell(
-      onTap: () => onTap?.call(context),
-      child: Container(
+    return Container(
         height: 56,
-        padding: EdgeInsets.only(left: 24, right: 24),
-        decoration: decoration ??
-            BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
+        padding: EdgeInsets.only(left: 12, right: 12),
+      child: TextButton(
+        onPressed: () => onTap?.call(context),
+        style: ButtonStyle(
+          //backgroundColor: MaterialStateProperty.all(Theme.of(context).cardColor),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)
+              ),
             ),
+          ),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -97,10 +101,10 @@ class StandardListSeparator extends StatelessWidget {
     return Container(
       height: height,
       padding: padding,
-      color: Theme.of(context).colorScheme.background,
+      color: Colors.transparent,
       child: Container(
         height: height,
-        color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
+        color: Colors.transparent,
       ),
     );
   }
@@ -140,6 +144,7 @@ class SectionStandardList extends StatelessWidget {
 
   final int sectionCount;
   final bool hasTopSeparator;
+
   final int Function(int sectionIndex) itemCounter;
   final Widget Function(int sectionIndex, int itemIndex) itemBuilder;
   final Widget Function(int sectionIndex)? sectionTitleBuilder;

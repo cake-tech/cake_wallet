@@ -1,4 +1,5 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
@@ -211,26 +212,46 @@ class ExchangePage extends BasePage {
                               : S.of(context).fixed_pair_not_supported
                           : exchangeViewModel.isAvailableInSelected
                               ? S.of(context).amount_is_estimate
-                              : S.of(context).variable_pair_not_supported;
-                      return Center(
-                        child: Text(
-                          description,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<ExchangePageTheme>()!
-                                  .receiveAmountColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12),
-                        ),
+                              : S.of(context).this_pair_is_not_supported_warning;
+                      return Row(
+                        children: [
+                          if(description == S.of(context).this_pair_is_not_supported_warning)
+                            Expanded(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Icon(Icons.warning_amber_rounded,
+                                color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
+                                size: 26),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 8,
+                            child: Text(
+                              description,
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .extension<ExchangePageTheme>()!
+                                    .receiveAmountColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       );
                     }),
                   ),
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
                           key: ValueKey('exchange_page_exchange_button_key'),
-                          text: S.of(context).exchange,
-                          onPressed: () {
+                          text: exchangeViewModel.isAvailableInSelected ? S.of(context).exchange : S.of(context).change_selected_exchanges,
+                          onPressed: exchangeViewModel.isAvailableInSelected ? () {
+                            FocusScope.of(context).unfocus();
+
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
                               if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr) &&
@@ -257,7 +278,7 @@ class ExchangePage extends BasePage {
                                 );
                               }
                             }
-                          },
+                          } : () => PresentProviderPicker(exchangeViewModel: exchangeViewModel).presentProviderPicker(context),
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           isDisabled: exchangeViewModel.selectedProviders.isEmpty,
@@ -442,7 +463,8 @@ class ExchangePage extends BasePage {
       }
       if (state is TradeIsCreatedSuccessfully) {
         exchangeViewModel.reset();
-        (exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.thorChain)
+        (exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.thorChain ||
+         exchangeViewModel.tradesStore.trade?.provider == ExchangeProviderDescription.chainflip)
             ? Navigator.of(context).pushReplacementNamed(Routes.exchangeTrade)
             : Navigator.of(context).pushReplacementNamed(Routes.exchangeConfirm);
       }
@@ -476,6 +498,14 @@ class ExchangePage extends BasePage {
       }
     });
 
+    reaction((_) => exchangeViewModel.bestRate, (double rate) {
+      if (exchangeViewModel.isFixedRateMode) {
+        exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
+      } else {
+        exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+      }
+    });
+
     depositAddressController
         .addListener(() => exchangeViewModel.depositAddress = depositAddressController.text);
 
@@ -485,12 +515,15 @@ class ExchangePage extends BasePage {
         exchangeViewModel.isSendAllEnabled = false;
         final isThorChain = exchangeViewModel.selectedProviders
             .any((provider) => provider is ThorChainExchangeProvider);
+        final isChainflip = exchangeViewModel.selectedProviders
+            .any((provider) => provider is ChainflipExchangeProvider);
 
-        _depositAmountDebounce = isThorChain
+        _depositAmountDebounce = isThorChain || isChainflip
             ? Debounce(Duration(milliseconds: 1000))
             : Debounce(Duration(milliseconds: 500));
 
         _depositAmountDebounce.run(() {
+          exchangeViewModel.calculateBestRate();
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = false;
         });
@@ -503,6 +536,7 @@ class ExchangePage extends BasePage {
     receiveAmountController.addListener(() {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
         _receiveAmountDebounce.run(() {
+          exchangeViewModel.calculateBestRate();
           exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
           exchangeViewModel.isReceiveAmountEntered = true;
         });

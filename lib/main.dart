@@ -216,7 +216,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 46,
+    initialMigrationVersion: 47,
   );
 }
 
@@ -286,7 +286,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.disclaimer
+          ? Routes.welcome
           : Routes.login;
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness =

@@ -30,11 +30,11 @@ class DesktopDashboardActions extends StatelessWidget {
                     await MainActions.showWalletsAction.onTap(context, dashboardViewModel),
               ),
               DesktopActionButton(
-                title: MainActions.exchangeAction.name(context),
-                image: MainActions.exchangeAction.image,
-                canShow: MainActions.exchangeAction.canShow?.call(dashboardViewModel),
-                isEnabled: MainActions.exchangeAction.isEnabled?.call(dashboardViewModel),
-                onTap: () async => await MainActions.exchangeAction.onTap(context, dashboardViewModel),
+                title: MainActions.swapAction.name(context),
+                image: MainActions.swapAction.image,
+                canShow: MainActions.swapAction.canShow?.call(dashboardViewModel),
+                isEnabled: MainActions.swapAction.isEnabled?.call(dashboardViewModel),
+                onTap: () async => await MainActions.swapAction.onTap(context, dashboardViewModel),
               ),
               Row(
                 children: [

@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
@@ -60,13 +61,16 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.thorChain:
         _provider = ThorChainExchangeProvider(tradesStore: trades);
         break;
-      case ExchangeProviderDescription.quantex:
-        _provider = QuantexExchangeProvider();
+      case ExchangeProviderDescription.swapTrade:
+        _provider = SwapTradeExchangeProvider();
       case ExchangeProviderDescription.letsExchange:
         _provider = LetsExchangeExchangeProvider();
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
+        break;
+      case ExchangeProviderDescription.chainflip:
+        _provider = ChainflipExchangeProvider(tradesStore: trades);
         break;
     }
 
@@ -92,12 +96,14 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://exolix.com/transaction/${trade.id}';
       case ExchangeProviderDescription.thorChain:
         return 'https://track.ninerealms.com/${trade.id}';
-      case ExchangeProviderDescription.quantex:
-        return 'https://myquantex.com/send/${trade.id}';
+      case ExchangeProviderDescription.swapTrade:
+        return 'https://swaptrade.io/send/${trade.id}';
       case ExchangeProviderDescription.letsExchange:
         return 'https://letsexchange.io/?transactionId=${trade.id}';
       case ExchangeProviderDescription.stealthEx:
         return 'https://stealthex.io/exchange/?id=${trade.id}';
+      case ExchangeProviderDescription.chainflip:
+        return 'https://scan.chainflip.io/channels/${trade.id}';
     }
     return null;
   }
