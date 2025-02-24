@@ -146,7 +146,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                     fontWeight: FontWeight.w500,
                     color:
                         Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
-            Spacer(flex: 3),
+            Spacer(flex: 5),
+            SizedBox(height: 35),
             Container(
               width: 180,
               child: Row(
@@ -168,6 +169,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 }),
               ),
             ),
+            SizedBox(height: 35),
             Spacer(flex: 2),
             if (widget.hasLengthSwitcher) ...[
               TextButton(
@@ -204,8 +206,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                               childAspectRatio: _aspectRatio,
                               physics: const NeverScrollableScrollPhysics(),
                               children: List.generate(12, (index) {
-                                const double marginRight = 15;
-                                const double marginLeft = 15;
+                                const double marginRight = 8;
+                                const double marginLeft = 8;
 
                                 if (index == 9) {
                                   // Empty container
@@ -243,12 +245,12 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                     key: ValueKey('pin_code_button_${index}_key'),
                                     onPressed: () => _push(index),
                                     style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.background,
+                                      backgroundColor: Theme.of(context).cardColor,
                                       shape: CircleBorder(),
                                     ),
                                     child: Text('$index',
                                         style: TextStyle(
-                                            fontSize: 30.0,
+                                            fontSize: 25.0,
                                             fontWeight: FontWeight.w600,
                                             color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
                                   ),
