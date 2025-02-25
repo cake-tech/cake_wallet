@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -544,6 +545,10 @@ class SendPage extends BasePage {
           );
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
+          if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
+            newContactAddress = null;
+          }
+
           if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) newContactAddress = null;
 
           if (newContactAddress != null && sendViewModel.showAddressBookPopup) {
@@ -664,4 +669,35 @@ class SendPage extends BasePage {
             ),
         context: context);
   }
+
+  bool isRegularElectrumAddress(String address) {
+    final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
+    final excludedPatterns = [
+      RegExp(AddressValidator.silentPaymentAddressPattern),
+      RegExp(AddressValidator.mWebAddressPattern)
+    ];
+
+    final trimmed = address.trim();
+
+    bool isValid = false;
+    for (var type in supportedTypes) {
+      final addressPattern = AddressValidator.getAddressFromStringPattern(type);
+      if (addressPattern != null) {
+        final regex = RegExp('^$addressPattern\$');
+        if (regex.hasMatch(trimmed)) {
+          isValid = true;
+          break;
+        }
+      }
+    }
+
+    for (var pattern in excludedPatterns) {
+      if (pattern.hasMatch(trimmed)) {
+        return false;
+      }
+    }
+
+    return isValid;
+  }
+
 }
