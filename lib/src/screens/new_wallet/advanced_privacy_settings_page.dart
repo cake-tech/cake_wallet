@@ -219,7 +219,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                           }),
                           child: Icon(
                             Icons.remove_red_eye,
-                            color: obscurePassphrase ? Colors.black54 : Colors.black26,
+                            // color: obscurePassphrase ? Colors.black54 : Colors.black26,
                           ),
                         ),
                       ),
@@ -241,7 +241,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                           }),
                           child: Icon(
                             Icons.remove_red_eye,
-                            color: obscurePassphrase ? Colors.black54 : Colors.black26,
+                            // color: obscurePassphrase ? Colors.black54 : Colors.black26,
                           ),
                         ),
                       ),

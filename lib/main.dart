@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -8,6 +9,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -15,7 +17,6 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
@@ -43,6 +44,7 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
+import 'package:logging/logging.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -68,8 +70,18 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
     };
     await initializeAppAtRoot();
 
-    runApp(App(key: topLevelKey));
+    if (kDebugMode) {
+      final appDocDir = await getAppDir();
 
+      final ledgerFile = File('${appDocDir.path}/ledger_log.txt');
+      if (!ledgerFile.existsSync()) ledgerFile.createSync();
+      Logger.root.onRecord.listen((event) async {
+        final content = ledgerFile.readAsStringSync();
+        ledgerFile.writeAsStringSync("$content\n${event.message}");
+      });
+    }
+
+    runApp(App(key: topLevelKey));
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
@@ -78,7 +90,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       );
     }
 
-    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
@@ -153,6 +165,10 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(HavenSeedStore.typeId)) {
+    CakeHive.registerAdapter(HavenSeedStoreAdapter());
+  }
+
   if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
     CakeHive.registerAdapter(MwebUtxoAdapter());
   }
@@ -177,6 +193,12 @@ Future<void> initializeAppConfigs() async {
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
+  final havenSeedStoreBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
+  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(
+      HavenSeedStore.boxName,
+      encryptionKey: havenSeedStoreBoxKey);
+
   await initialSetup(
     sharedPreferences: await SharedPreferences.getInstance(),
     nodes: nodes,
@@ -192,7 +214,8 @@ Future<void> initializeAppConfigs() async {
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 41,
+    havenSeedStore: havenSeedStore,
+    initialMigrationVersion: 47,
   );
 }
 
@@ -211,7 +234,8 @@ Future<void> initialSetup(
     required SecureStorage secureStorage,
     required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    int initialMigrationVersion = 15}) async {
+    required Box<HavenSeedStore> havenSeedStore,
+    int initialMigrationVersion = 15, }) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -221,7 +245,8 @@ Future<void> initialSetup(
       contactSource: contactSource,
       tradeSource: tradesSource,
       nodes: nodes,
-      powNodes: powNodes);
+      powNodes: powNodes,
+      havenSeedStore: havenSeedStore);
   await setup(
     walletInfoSource: walletInfoSource,
     nodeSource: nodes,
@@ -259,7 +284,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.disclaimer
+          ? Routes.welcome
           : Routes.login;
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness =

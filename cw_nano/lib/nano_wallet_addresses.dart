@@ -1,4 +1,5 @@
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/nano_account.dart';
@@ -17,6 +18,9 @@ abstract class NanoWalletAddressesBase extends WalletAddresses with Store {
   @override
   @observable
   String address;
+
+  @override
+  String get primaryAddress => address;
 
   @observable
   NanoAccount? account;
@@ -44,7 +48,7 @@ abstract class NanoWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = '';
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 }

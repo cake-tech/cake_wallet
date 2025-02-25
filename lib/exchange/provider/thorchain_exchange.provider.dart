@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
@@ -86,7 +87,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
       return _thorChainAmountToDouble(expectedAmountOut) / amount;
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return 0.0;
     }
   }
@@ -116,9 +117,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
-    String formattedToAddress = request.toAddress.startsWith('bitcoincash:')
-        ? request.toAddress.replaceFirst('bitcoincash:', '')
-        : request.toAddress;
+
 
     final formattedFromAmount = double.parse(request.fromAmount);
 
@@ -126,11 +125,11 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       'from_asset': _normalizeCurrency(request.fromCurrency),
       'to_asset': _normalizeCurrency(request.toCurrency),
       'amount': _doubleToThorChainString(formattedFromAmount),
-      'destination': formattedToAddress,
+      'destination': _normalizeAddress(request.toAddress),
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps,
       'refund_address':
-          isRefundAddressSupported.contains(request.fromCurrency) ? request.refundAddress : '',
+          isRefundAddressSupported.contains(request.fromCurrency) ? _normalizeAddress(request.refundAddress) : '',
     };
 
     final responseJSON = await _getSwapQuote(params);
@@ -288,4 +287,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     return currentState;
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

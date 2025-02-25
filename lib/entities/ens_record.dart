@@ -1,5 +1,6 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:ens_dart/ens_dart.dart';
@@ -19,7 +20,7 @@ class EnsRecord {
     }
 
     if (_client == null) {
-      _client = Web3Client("https://ethereum.publicnode.com", Client());
+      _client = Web3Client("https://ethereum-rpc.publicnode.com", Client());
     }
 
     try {
@@ -45,7 +46,7 @@ class EnsRecord {
       final addr = await ens.withName(name).getAddress();
       return addr.hex;
     } catch (e) {
-      print(e);
+      printV(e);
       return "";
     }
   }

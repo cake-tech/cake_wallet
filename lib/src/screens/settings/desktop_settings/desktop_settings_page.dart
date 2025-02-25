@@ -20,7 +20,7 @@ class DesktopSettingsPage extends StatefulWidget {
 }
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
-  final int itemCount = SettingActions.desktopSettings.length;
+  final int itemCount = SettingActions.all.length;
 
   int? currentPage;
 
@@ -34,6 +34,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        color: Theme.of(context).colorScheme.background,
         height: MediaQuery.of(context).size.height,
         child: Row(
           children: [
@@ -53,15 +54,17 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                     child: ListView.separated(
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
-                        final item = SettingActions.desktopSettings[index];
+                        final item = SettingActions.all[index];
 
                         if (!widget.dashboardViewModel.hasSilentPayments &&
                             item.name(context) == S.of(context).silent_payments_settings) {
                           return Container();
                         }
 
-                        if (!widget.dashboardViewModel.hasMweb &&
-                            item.name(context) == S.of(context).litecoin_mweb_settings) {
+                        if ((!widget.dashboardViewModel.isMoneroViewOnly &&
+                            item.name(context) == S.of(context).export_outputs) ||
+                           (!widget.dashboardViewModel.hasMweb &&
+                            item.name(context) == S.of(context).litecoin_mweb_settings)) {
                           return Container();
                         }
 

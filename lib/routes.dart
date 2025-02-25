@@ -1,5 +1,7 @@
 class Routes {
   static const welcome = '/welcome';
+  static const welcomeWallet = '/welcome_create_restore_wallet';
+  static const welcomePage = '/welcome_page';
   static const newWallet = '/new_wallet';
   static const setupPin = '/setup_pin_code';
   static const newWalletFromWelcome = '/new_wallet_from_welcome';
@@ -51,6 +53,7 @@ class Routes {
   static const restoreWalletType = '/restore_wallet_type';
   static const restoreWallet = '/restore_wallet';
   static const preSeedPage = '/pre_seed_page';
+  static const transactionSuccessPage = '/transaction_success_info_page';
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
@@ -59,6 +62,8 @@ class Routes {
   static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
   static const buySellPage = '/buy_sell_page';
+  static const buyOptionsPage = '/buy_sell_options';
+  static const paymentMethodOptionsPage = '/payment_method_options';
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
@@ -74,6 +79,8 @@ class Routes {
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
   static const mwebSettings = '/mweb_settings';
+  static const mwebLogs = '/mweb_logs';
+  static const mwebNode = '/mweb_node';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -106,6 +113,9 @@ class Routes {
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
+  static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
+  static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
+  static const walletSeedVerificationPage = '/wallet_seed_verification_page';
 }

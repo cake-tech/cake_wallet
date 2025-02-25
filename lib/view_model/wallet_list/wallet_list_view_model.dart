@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -68,6 +69,10 @@ abstract class WalletListViewModelBase with Store {
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
+  bool requireHardwareWalletConnection(WalletListItem walletItem) =>
+      _walletLoadingService.requireHardwareWalletConnection(
+          walletItem.type, walletItem.name);
+
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
     // bool switchingToSameWalletType = walletItem.type == _appStore.wallet?.type;
@@ -76,7 +81,7 @@ abstract class WalletListViewModelBase with Store {
     await _appStore.changeCurrentWallet(wallet);
   }
 
-  WalletListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
+  FilterListOrderType? get orderType => _appStore.settingsStore.walletListOrder;
 
   bool get ascending => _appStore.settingsStore.walletListAscending;
 
@@ -86,18 +91,59 @@ abstract class WalletListViewModelBase with Store {
     multiWalletGroups.clear();
     singleWalletsList.clear();
 
-    wallets.addAll(
-      _walletInfoSource.values.map((info) => convertWalletInfoToWalletListItem(info)),
-    );
+    for (var info in _walletInfoSource.values) {
+      wallets.add(convertWalletInfoToWalletListItem(info));
+    }
 
     //========== Split into shared seed groups and single wallets list
     _walletManager.updateWalletGroups();
 
-    for (var group in _walletManager.walletGroups) {
+    final walletGroupsFromManager = _walletManager.walletGroups;
+
+    for (var group in walletGroupsFromManager) {
       if (group.wallets.length == 1) {
         singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
-      } else {
+        continue;
+      }
+
+      // Identify wallets that should be moved to singleWalletsList using the filters: the type/derivation
+      final excludedWallets = <WalletInfo>[];
+
+      for (var wallet in group.wallets) {
+        // Check for non-BIP39 wallet types
+        final isNonBIP39 = !isBIP39Wallet(wallet.type);
+
+        // Check for nano derivation type
+        final isNanoDerivation = wallet.type == WalletType.nano &&
+            wallet.derivationInfo?.derivationType == DerivationType.nano;
+
+        // Check for electrum derivation type
+        final isElectrumDerivation =
+            (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
+                wallet.derivationInfo?.derivationType == DerivationType.electrum;
+
+        if (isNonBIP39 || isNanoDerivation || isElectrumDerivation) {
+          excludedWallets.add(wallet);
+        }
+      }
+
+      // Add excluded wallets to singleWalletsList
+      for (var excludedWallet in excludedWallets) {
+        singleWalletsList.add(convertWalletInfoToWalletListItem(excludedWallet));
+      }
+
+      // Remove excluded wallets from the group's wallets to avoid duplication
+      group.wallets.removeWhere((wallet) {
+        return excludedWallets.any((excluded) => excluded.address == wallet.address);
+      });
+
+      // Check if the group has more than one wallet after the excluded wallets are removed.
+      if (group.wallets.length > 1) {
+        //Add the entire group to the multi wallet group list since its still a multi wallet
         multiWalletGroups.add(group);
+      } else if (group.wallets.length == 1) {
+        // Add the group to the wallet left to the single wallets list
+        singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
       }
     }
   }
@@ -108,7 +154,7 @@ abstract class WalletListViewModelBase with Store {
       return;
     }
 
-    _appStore.settingsStore.walletListOrder = WalletListOrderType.Custom;
+    _appStore.settingsStore.walletListOrder = FilterListOrderType.Custom;
 
     // make a copy of the walletInfoSource:
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
@@ -148,9 +194,11 @@ abstract class WalletListViewModelBase with Store {
     List<WalletInfo> walletInfoSourceCopy = _walletInfoSource.values.toList();
     await _walletInfoSource.clear();
     if (ascending) {
-      walletInfoSourceCopy.sort((a, b) => a.type.toString().compareTo(b.type.toString()));
+      walletInfoSourceCopy
+          .sort((a, b) => a.type.toString().compareTo(b.type.toString()));
     } else {
-      walletInfoSourceCopy.sort((a, b) => b.type.toString().compareTo(a.type.toString()));
+      walletInfoSourceCopy
+          .sort((a, b) => b.type.toString().compareTo(a.type.toString()));
     }
     await _walletInfoSource.addAll(walletInfoSourceCopy);
     updateList();
@@ -186,22 +234,22 @@ abstract class WalletListViewModelBase with Store {
     _appStore.settingsStore.walletListAscending = ascending;
   }
 
-  Future<void> setOrderType(WalletListOrderType? type) async {
+  Future<void> setOrderType(FilterListOrderType? type) async {
     if (type == null) return;
 
     _appStore.settingsStore.walletListOrder = type;
 
     switch (type) {
-      case WalletListOrderType.CreationDate:
+      case FilterListOrderType.CreationDate:
         await sortByCreationDate();
         break;
-      case WalletListOrderType.Alphabetical:
+      case FilterListOrderType.Alphabetical:
         await sortAlphabetically();
         break;
-      case WalletListOrderType.GroupByType:
+      case FilterListOrderType.GroupByType:
         await sortGroupByType();
         break;
-      case WalletListOrderType.Custom:
+      case FilterListOrderType.Custom:
       default:
         await reorderAccordingToWalletList();
         break;
@@ -213,7 +261,8 @@ abstract class WalletListViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.key,
-      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isCurrent: info.name == _appStore.wallet?.name &&
+          info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
     );

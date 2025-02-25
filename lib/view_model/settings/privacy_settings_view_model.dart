@@ -1,4 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -59,10 +58,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get isAppSecure => _settingsStore.isAppSecure;
 
   @computed
-  bool get disableBuy => _settingsStore.disableBuy;
-
-  @computed
-  bool get disableSell => _settingsStore.disableSell;
+  bool get disableTradeOption => _settingsStore.disableTradeOption;
 
   @computed
   bool get disableBulletin => _settingsStore.disableBulletin;
@@ -83,6 +79,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
+  bool get lookupsZanoAlias => _settingsStore.lookupsZanoAlias;
+
+  @computed
   bool get looksUpMastodon => _settingsStore.lookupsMastodon;
 
   @computed
@@ -96,6 +95,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @computed
   bool get looksUpENS => _settingsStore.lookupsENS;
+
+  @computed
+  bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
@@ -119,10 +121,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
 
   @action
-  void setDisableBuy(bool value) => _settingsStore.disableBuy = value;
-
-  @action
-  void setDisableSell(bool value) => _settingsStore.disableSell = value;
+  void setDisableTradeOption(bool value) => _settingsStore.disableTradeOption = value;
 
   @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
@@ -131,11 +130,17 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
 
   @action
+  void setLookupsZanoAlias(bool value) => _settingsStore.lookupsZanoAlias = value;
+
+  @action
   void setLookupsMastodon(bool value) => _settingsStore.lookupsMastodon = value;
 
   @action
   void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
 
+  @action
+  void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
+  
   @action
   void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
 

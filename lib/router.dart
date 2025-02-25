@@ -17,12 +17,14 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/buy/buy_options_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
+import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -48,6 +50,7 @@ import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_pag
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_description_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/wallet_group_existing_seed_description_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -64,14 +67,18 @@ import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
+import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
+import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
+import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_settings.dart';
 import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
@@ -94,13 +101,15 @@ import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dar
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
-import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
+import 'package:cake_wallet/src/screens/welcome/create_pin_welcome_page.dart';
+import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
@@ -126,7 +135,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
@@ -136,35 +146,33 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
   switch (settings.name) {
     case Routes.welcome:
-      return MaterialPageRoute<void>(builder: (_) => createWelcomePage());
+      return MaterialPageRoute<void>(
+          builder: (_) => CreatePinWelcomePage(SettingsStoreBase.walletPasswordDirectInput));
 
-    case Routes.newWalletFromWelcome:
+    case Routes.welcomeWallet:
       if (SettingsStoreBase.walletPasswordDirectInput) {
-        if (availableWalletTypes.length == 1) {
-          return createRoute(
-            RouteSettings(
-              name: Routes.newWallet,
-              arguments: NewWalletArguments(type: availableWalletTypes.first),
-            ),
-          );
-        } else {
-          return createRoute(RouteSettings(name: Routes.newWalletType));
-        }
+        return createRoute(RouteSettings(name: Routes.welcomePage));
       }
-
       return CupertinoPageRoute<void>(
           builder: (_) =>
               getIt.get<SetupPinCodePage>(param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
-                if (availableWalletTypes.length == 1) {
-                  Navigator.of(context.context).pushNamed(
-                    Routes.newWallet,
-                    arguments: NewWalletArguments(type: availableWalletTypes.first),
-                  );
-                } else {
-                  Navigator.of(context.context).pushNamed(Routes.newWalletType);
-                }
+                Navigator.of(context.context).pushNamed(Routes.welcomePage);
               }),
           fullscreenDialog: true);
+
+    case Routes.welcomePage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<WelcomePage>());
+
+    case Routes.newWalletFromWelcome:
+        if (isSingleCoin) {
+          return createRoute(
+            RouteSettings(
+              name: Routes.newWallet,
+              arguments: NewWalletArguments(type: availableWalletTypes.first)
+            ),
+          );
+        }
+        return createRoute(RouteSettings(name: Routes.newWalletType));
 
     case Routes.newWalletType:
       return CupertinoPageRoute<void>(
@@ -207,6 +215,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final type = arguments[0] as WalletType;
       final walletVM = getIt.get<WalletHardwareRestoreViewModel>(param1: type);
 
+      if (type == WalletType.monero)
+        return CupertinoPageRoute<void>(builder: (_) => MoneroHardwareWalletOptionsPage(walletVM));
+
       return CupertinoPageRoute<void>(builder: (_) => SelectHardwareWalletAccountPage(walletVM));
 
     case Routes.setupPin:
@@ -242,24 +253,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<RestoreOptionsPage>(param1: isNewInstall));
 
     case Routes.restoreWalletFromSeedKeys:
-      final isNewInstall = settings.arguments as bool;
-
-      if (isNewInstall) {
+      if (isSingleCoin) {
         return CupertinoPageRoute<void>(
-            builder: (_) => getIt.get<SetupPinCodePage>(
-                    param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
-                  if (isSingleCoin) {
-                    return Navigator.of(context.context)
-                        .pushNamed(Routes.restoreWallet, arguments: availableWalletTypes.first);
-                  }
-
-                  return Navigator.pushNamed(context.context, Routes.restoreWalletType);
-                }),
-            fullscreenDialog: true);
-      } else if (isSingleCoin) {
-        return MaterialPageRoute<void>(
             builder: (_) => getIt.get<WalletRestorePage>(param1: availableWalletTypes.first));
-      } else {
+      }
         return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
             param1: NewWalletTypeArguments(
@@ -270,21 +267,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
             ),
           ),
         );
-      }
 
     case Routes.restoreWalletFromHardwareWallet:
-      final isNewInstall = settings.arguments as bool;
-
-      if (isNewInstall) {
-        return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(
-            param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                Navigator.of(context.context)
-                    .pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: false),
-          ),
-          fullscreenDialog: true,
-        );
-      }
       if (isSingleCoin) {
         return MaterialPageRoute<void>(
             builder: (_) => ConnectDevicePage(
@@ -296,7 +280,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   ),
                   getIt.get<LedgerViewModel>(),
                 ));
-      } else {
+      }
         return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
             param1: NewWalletTypeArguments(
@@ -314,7 +298,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
             ),
           ),
         );
-      }
 
     case Routes.restoreWalletTypeFromQR:
       return CupertinoPageRoute<void>(
@@ -398,8 +381,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
 
     case Routes.walletList:
+      final onWalletLoaded = settings.arguments as Function(BuildContext)?;
       return MaterialPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<WalletListPage>(param1: onWalletLoaded),
+      );
 
     case Routes.walletEdit:
       return MaterialPageRoute<void>(
@@ -460,6 +446,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.mwebSettings:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<MwebSettingsPage>());
+
+    case Routes.mwebLogs:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<MwebLogsPage>());
+
+    case Routes.mwebNode:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<MwebNodePage>());
 
     case Routes.connectionSync:
       return CupertinoPageRoute<void>(
@@ -560,7 +554,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.buySellPage:
       final args = settings.arguments as bool;
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellOptionsPage>(param1: args));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuySellPage>(param1: args));
+
+    case Routes.buyOptionsPage:
+      final args = settings.arguments as List;
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyOptionsPage>(param1: args));
+
+    case Routes.paymentMethodOptionsPage:
+      final args = settings.arguments as List;
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<PaymentMethodOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
@@ -586,6 +588,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as int));
+
+    case Routes.walletGroupExistingSeedDescriptionPage:
+      return MaterialPageRoute<void>(
+          builder: (_) => WalletGroupExistingSeedDescriptionPage(
+              seedPhraseWordsLength: settings.arguments as int));
+
+    case Routes.transactionSuccessPage:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<TransactionSuccessPage>(param1: settings.arguments as String));
 
     case Routes.backup:
       return CupertinoPageRoute<void>(
@@ -722,6 +733,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.setup2faInfoPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAInfoPage>());
 
+    case Routes.urqrAnimatedPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
+
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<HomeSettingsPage>(param1: settings.arguments),
@@ -791,6 +805,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
         builder: (_) => WalletGroupDescriptionPage(
           selectedWalletType: walletType,
         ),
+      );
+
+    case Routes.walletSeedVerificationPage:
+      return MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<SeedVerificationPage>(),
       );
 
     default:

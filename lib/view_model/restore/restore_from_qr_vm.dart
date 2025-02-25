@@ -9,6 +9,7 @@ import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -37,7 +38,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
         spendKey = '',
         wif = '',
         address = '',
-        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel, type: type, isRecovery: true);
+        super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+          type: type, isRecovery: true);
 
   @observable
   int height;
@@ -109,10 +111,18 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               height: restoreWallet.height ?? 0,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
+              passphrase: restoreWallet.passphrase ?? '',
             );
           case WalletType.bitcoin:
           case WalletType.litecoin:
-            final derivationInfo = (await getDerivationInfoFromQRCredentials(restoreWallet)).first;
+
+          final derivationInfoList = await getDerivationInfoFromQRCredentials(restoreWallet);
+          DerivationInfo derivationInfo;
+          if (derivationInfoList.isEmpty) {
+            derivationInfo = getDefaultCreateDerivation()!;
+          } else {
+            derivationInfo = derivationInfoList.first;
+          }
             return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
               name: name,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
@@ -172,6 +182,15 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
               height: restoreWallet.height ?? 0,
               mnemonic: restoreWallet.mnemonicSeed ?? '',
               password: password,
+              passphrase: restoreWallet.passphrase ?? '',
+            );
+          case WalletType.zano:
+            return zano!.createZanoRestoreWalletFromSeedCredentials(
+              name: name,
+              password: password,
+              height: height,
+              mnemonic: restoreWallet.mnemonicSeed ?? '',
+              passphrase: restoreWallet.passphrase ?? '',
             );
           default:
             throw Exception('Unexpected type: ${type.toString()}');

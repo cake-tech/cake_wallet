@@ -9,6 +9,7 @@ import '../robots/dashboard_page_robot.dart';
 import '../robots/exchange_confirm_page_robot.dart';
 import '../robots/exchange_page_robot.dart';
 import '../robots/exchange_trade_page_robot.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -20,40 +21,46 @@ void main() {
   ExchangeTradePageRobot exchangeTradePageRobot;
   ExchangeConfirmPageRobot exchangeConfirmPageRobot;
 
-  group('Exchange Flow Tests', () {
-    testWidgets('Exchange flow', (tester) async {
-      authPageRobot = AuthPageRobot(tester);
-      commonTestFlows = CommonTestFlows(tester);
-      exchangePageRobot = ExchangePageRobot(tester);
-      dashboardPageRobot = DashboardPageRobot(tester);
-      exchangeTradePageRobot = ExchangeTradePageRobot(tester);
-      exchangeConfirmPageRobot = ExchangeConfirmPageRobot(tester);
+  testWidgets('Exchange flow', (tester) async {
+    authPageRobot = AuthPageRobot(tester);
+    commonTestFlows = CommonTestFlows(tester);
+    exchangePageRobot = ExchangePageRobot(tester);
+    dashboardPageRobot = DashboardPageRobot(tester);
+    exchangeTradePageRobot = ExchangeTradePageRobot(tester);
+    exchangeConfirmPageRobot = ExchangeConfirmPageRobot(tester);
 
-      await commonTestFlows.startAppFlow(ValueKey('exchange_app_test_key'));
-      await commonTestFlows.restoreWalletThroughSeedsFlow();
-      await dashboardPageRobot.navigateToExchangePage();
+    await commonTestFlows.startAppFlow(ValueKey('exchange_app_test_key'));
+    await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
+      CommonTestConstants.testWalletType,
+      secrets.solanaTestWalletSeeds,
+      CommonTestConstants.pin,
+    );
+    await dashboardPageRobot.navigateToExchangePage();
 
-      // ----------- Exchange Page -------------
-      await exchangePageRobot.selectDepositCurrency(CommonTestConstants.testDepositCurrency);
-      await exchangePageRobot.selectReceiveCurrency(CommonTestConstants.testReceiveCurrency);
+    // ----------- Exchange Page -------------
+    await exchangePageRobot.selectDepositCurrency(CommonTestConstants.testDepositCurrency);
+    await exchangePageRobot.selectReceiveCurrency(CommonTestConstants.testReceiveCurrency);
 
-      await exchangePageRobot.enterDepositAmount(CommonTestConstants.exchangeTestAmount);
-      await exchangePageRobot.enterDepositRefundAddress(
-        depositAddress: CommonTestConstants.testWalletAddress,
-      );
-      await exchangePageRobot.enterReceiveAddress(CommonTestConstants.testWalletAddress);
-      
-      await exchangePageRobot.onExchangeButtonPressed();
+    await exchangePageRobot.enterDepositAmount(CommonTestConstants.exchangeTestAmount);
+    await exchangePageRobot.enterDepositRefundAddress(
+      depositAddress: CommonTestConstants.testWalletAddress,
+    );
+    await exchangePageRobot.enterReceiveAddress(CommonTestConstants.testWalletAddress);
 
-      await exchangePageRobot.handleErrors(CommonTestConstants.exchangeTestAmount);
+    await exchangePageRobot.onExchangeButtonPressed();
 
-      final onAuthPage = authPageRobot.onAuthPage();
-      if (onAuthPage) {
-        await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
-      }
+    await exchangePageRobot.handleErrors(CommonTestConstants.exchangeTestAmount);
 
-      await exchangeConfirmPageRobot.onSavedTradeIdButtonPressed();
-      await exchangeTradePageRobot.onGotItButtonPressed();
-    });
+    final onAuthPage = authPageRobot.onAuthPage();
+    if (onAuthPage) {
+      await authPageRobot.enterPinCode(CommonTestConstants.pin);
+    }
+
+    final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+    if (onAuthPageDesktop) {
+      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+    }
+    await exchangeConfirmPageRobot.onSavedTradeIdButtonPressed();
+    await exchangeTradePageRobot.onGotItButtonPressed();
   });
 }

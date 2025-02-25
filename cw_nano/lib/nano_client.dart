@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_nano/nano_block_info_response.dart';
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
@@ -53,12 +54,12 @@ class NanoClient {
     }
   }
 
-  Map<String, String> getHeaders() {
+  Map<String, String> getHeaders(String host) {
     final headers = Map<String, String>.from(CAKE_HEADERS);
-    if (_node!.uri.host == "rpc.nano.to") {
+    if (host == "rpc.nano.to") {
       headers["key"] = nano_secrets.nano2ApiKey;
     }
-    if (_node!.uri.host == "nano.nownodes.io") {
+    if (host == "nano.nownodes.io") {
       headers["api-key"] = nano_secrets.nanoNowNodesApiKey;
     }
     return headers;
@@ -67,7 +68,7 @@ class NanoClient {
   Future<NanoBalance> getBalance(String address) async {
     final response = await http.post(
       _node!.uri,
-      headers: getHeaders(),
+      headers: getHeaders(_node!.uri.host),
       body: jsonEncode(
         {
           "action": "account_balance",
@@ -94,7 +95,7 @@ class NanoClient {
     try {
       final response = await http.post(
         _node!.uri,
-        headers: getHeaders(),
+        headers: getHeaders(_node!.uri.host),
         body: jsonEncode(
           {
             "action": "account_info",
@@ -106,7 +107,7 @@ class NanoClient {
       final data = await jsonDecode(response.body);
       return AccountInfoResponse.fromJson(data as Map<String, dynamic>);
     } catch (e) {
-      print("error while getting account info $e");
+      printV("error while getting account info $e");
       return null;
     }
   }
@@ -115,7 +116,7 @@ class NanoClient {
     try {
       final response = await http.post(
         _node!.uri,
-        headers: CAKE_HEADERS,
+        headers: getHeaders(_node!.uri.host),
         body: jsonEncode(
           {
             "action": "block_info",
@@ -127,7 +128,7 @@ class NanoClient {
       final data = await jsonDecode(response.body);
       return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
     } catch (e) {
-      print("error while getting block info $e");
+      printV("error while getting block info $e");
       return null;
     }
   }
@@ -182,7 +183,7 @@ class NanoClient {
   Future<String> requestWork(String hash) async {
     final response = await http.post(
       _powNode!.uri,
-      headers: getHeaders(),
+      headers: getHeaders(_powNode!.uri.host),
       body: json.encode(
         {
           "action": "work_generate",
@@ -225,7 +226,7 @@ class NanoClient {
 
     final processResponse = await http.post(
       _node!.uri,
-      headers: getHeaders(),
+      headers: getHeaders(_node!.uri.host),
       body: processBody,
     );
 
@@ -424,7 +425,7 @@ class NanoClient {
     });
     final processResponse = await http.post(
       _node!.uri,
-      headers: getHeaders(),
+      headers: getHeaders(_node!.uri.host),
       body: processBody,
     );
 
@@ -440,7 +441,7 @@ class NanoClient {
     required String privateKey,
   }) async {
     final receivableResponse = await http.post(_node!.uri,
-        headers: getHeaders(),
+        headers: getHeaders(_node!.uri.host),
         body: jsonEncode({
           "action": "receivable",
           "account": destinationAddress,
@@ -492,7 +493,7 @@ class NanoClient {
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {
     try {
       final response = await http.post(_node!.uri,
-          headers: getHeaders(),
+          headers: getHeaders(_node!.uri.host),
           body: jsonEncode({
             "action": "account_history",
             "account": address,
@@ -508,15 +509,16 @@ class NanoClient {
           .map<NanoTransactionModel>((transaction) => NanoTransactionModel.fromJson(transaction))
           .toList();
     } catch (e) {
-      print(e);
-      return [];
+      printV("error fetching transactions: $e");
+      rethrow;
     }
   }
 
   Future<List<N2Node>> getN2Reps() async {
+    final uri = Uri.parse(N2_REPS_ENDPOINT);
     final response = await http.post(
-      Uri.parse(N2_REPS_ENDPOINT),
-      headers: CAKE_HEADERS,
+      uri,
+      headers: getHeaders(uri.host),
       body: jsonEncode({"action": "reps"}),
     );
     try {
@@ -530,9 +532,10 @@ class NanoClient {
   }
 
   Future<int> getRepScore(String rep) async {
+    final uri = Uri.parse(N2_REPS_ENDPOINT);
     final response = await http.post(
-      Uri.parse(N2_REPS_ENDPOINT),
-      headers: CAKE_HEADERS,
+      uri,
+      headers: getHeaders(uri.host),
       body: jsonEncode({
         "action": "rep_info",
         "account": rep,

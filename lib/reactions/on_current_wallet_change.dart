@@ -9,10 +9,8 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/check_connection.dart';
 import 'package:cake_wallet/reactions/on_wallet_sync_status_change.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -49,7 +47,7 @@ void startCurrentWalletChangeReaction(
   //  appStore.wallet.walletInfo.yatLastUsedAddress = address;
   //  await appStore.wallet.walletInfo.save();
   //} catch (e) {
-  //  print(e.toString());
+  //  printV(e.toString());
   //}
   //});
 
@@ -65,10 +63,8 @@ void startCurrentWalletChangeReaction(
 
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
-      await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
-      await getIt
-          .get<SharedPreferences>()
-          .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+
+      await Future.delayed(Duration.zero);
 
       if (wallet.type == WalletType.monero ||
           wallet.type == WalletType.wownero ||
@@ -96,7 +92,7 @@ void startCurrentWalletChangeReaction(
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 
@@ -143,7 +139,7 @@ void startCurrentWalletChangeReaction(
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }

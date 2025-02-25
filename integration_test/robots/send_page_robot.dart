@@ -84,13 +84,11 @@ class SendPageRobot {
       return;
     }
 
-    await commonTestCases.scrollUntilVisible(
-      'picker_items_index_${receiveCurrency.name}_button_key',
-      'picker_scrollbar_key',
-    );
+    await commonTestCases.enterText(receiveCurrency.title, 'search_bar_widget_key');
+
     await commonTestCases.defaultSleepTime();
 
-    await commonTestCases.tapItemByKey('picker_items_index_${receiveCurrency.name}_button_key');
+    await commonTestCases.tapItemByKey('picker_items_index_${receiveCurrency.fullName}_button_key');
   }
 
   Future<void> enterReceiveAddress(String receiveAddress) async {
@@ -117,7 +115,7 @@ class SendPageRobot {
       return;
     }
 
-    await commonTestCases.scrollUntilVisible(
+    await commonTestCases.dragUntilVisible(
       'picker_items_index_${priority.title}_button_key',
       'picker_scrollbar_key',
     );
@@ -185,34 +183,19 @@ class SendPageRobot {
   }
 
   Future<void> _handleAuthPage() async {
-    tester.printToConsole('Inside _handleAuth');
-    await tester.pump();
-    tester.printToConsole('starting auth checks');
+    final onAuthPage = authPageRobot.onAuthPage();
+    if (onAuthPage) {
+      await authPageRobot.enterPinCode(CommonTestConstants.pin);
+    }
 
-    final authPage = authPageRobot.onAuthPage();
-
-    tester.printToConsole('hasAuth:$authPage');
-
-    if (authPage) {
-      await tester.pump();
-      tester.printToConsole('Starting inner _handleAuth loop checks');
-
-      try {
-        await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
-        tester.printToConsole('Auth done');
-
-        await tester.pump();
-
-        tester.printToConsole('Auth pump done');
-      } catch (e) {
-        tester.printToConsole('Auth failed, retrying');
-        await tester.pump();
-        _handleAuthPage();
-      }
+  final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+  if (onAuthPageDesktop) {
+      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
     }
   }
 
   Future<void> handleSendResult() async {
+    await tester.pump();
     tester.printToConsole('Inside handle function');
 
     bool hasError = false;
@@ -221,7 +204,7 @@ class SendPageRobot {
 
     tester.printToConsole('Has an Error in the handle: $hasError');
 
-    int maxRetries = 20;
+    int maxRetries = 3;
     int retries = 0;
 
     while (hasError && retries < maxRetries) {
@@ -286,6 +269,8 @@ class SendPageRobot {
       await commonTestCases.tapItemByFinder(sendText, shouldPumpAndSettle: false);
       // Loop to wait for the operation to commit transaction
       await _waitForCommitTransactionCompletion();
+
+      await tester.pump();
 
       await commonTestCases.defaultSleepTime(seconds: 4);
     } else {

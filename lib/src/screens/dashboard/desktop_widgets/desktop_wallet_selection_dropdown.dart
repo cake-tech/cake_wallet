@@ -10,8 +10,8 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -46,6 +46,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -100,6 +101,11 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         ),
       ];
 
+      final selectedItem = dropDownItems.firstWhere(
+        (element) => element.isSelected,
+        orElse: () => dropDownItems.first,
+      );
+
       return DropdownButton<DesktopDropdownItem>(
         items: dropDownItems
             .map(
@@ -115,7 +121,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         dropdownColor: themeData.extension<CakeMenuTheme>()!.backgroundColor,
         style: TextStyle(color: themeData.extension<CakeTextTheme>()!.titleColor),
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
-        value: dropDownItems.firstWhere((element) => element.isSelected),
+        value: selectedItem,
         underline: const SizedBox(),
         focusColor: Colors.transparent,
         borderRadius: BorderRadius.circular(15.0),
@@ -153,6 +159,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       case WalletType.litecoin:
         return litecoinIcon;
       case WalletType.haven:
@@ -171,8 +179,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
-      case WalletType.wownero:
-        return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
       default:
         return nonWalletTypeIcon;
     }

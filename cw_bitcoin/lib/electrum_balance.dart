@@ -24,9 +24,12 @@ class ElectrumBalance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     return ElectrumBalance(
-        confirmed: decoded['confirmed'] as int? ?? 0,
-        unconfirmed: decoded['unconfirmed'] as int? ?? 0,
-        frozen: decoded['frozen'] as int? ?? 0);
+      confirmed: decoded['confirmed'] as int? ?? 0,
+      unconfirmed: decoded['unconfirmed'] as int? ?? 0,
+      frozen: decoded['frozen'] as int? ?? 0,
+      secondConfirmed: decoded['secondConfirmed'] as int? ?? 0,
+      secondUnconfirmed: decoded['secondUnconfirmed'] as int? ?? 0,
+    );
   }
 
   int confirmed;
@@ -36,8 +39,7 @@ class ElectrumBalance extends Balance {
   int secondUnconfirmed = 0;
 
   @override
-  String get formattedAvailableBalance =>
-      bitcoinAmountToString(amount: confirmed - frozen);
+  String get formattedAvailableBalance => bitcoinAmountToString(amount: ((confirmed + unconfirmed) - frozen) );
 
   @override
   String get formattedAdditionalBalance => bitcoinAmountToString(amount: unconfirmed);
@@ -56,7 +58,7 @@ class ElectrumBalance extends Balance {
 
   @override
   String get formattedFullAvailableBalance =>
-      bitcoinAmountToString(amount: confirmed + secondConfirmed - frozen);
+      bitcoinAmountToString(amount: (confirmed + unconfirmed) + secondConfirmed - frozen);
 
   String toJSON() => json.encode({
         'confirmed': confirmed,

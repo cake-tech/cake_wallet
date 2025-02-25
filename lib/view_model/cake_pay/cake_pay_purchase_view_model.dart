@@ -49,6 +49,13 @@ abstract class CakePayPurchaseViewModelBase with Store {
 
   String get fiatCurrency => paymentCredential.fiatCurrency;
 
+  bool confirmsNoVpn = false;
+  bool confirmsVoidedRefund = false;
+  bool confirmsTermsAgreed = false;
+
+  @observable
+  bool isPurchasing = false;
+
   CryptoPaymentData? get cryptoPaymentData {
     if (order == null) return null;
 
@@ -86,9 +93,13 @@ abstract class CakePayPurchaseViewModelBase with Store {
     }
     try {
       order = await cakePayService.createOrder(
-          cardId: card.id,
-          price: paymentCredential.amount.toString(),
-          quantity: paymentCredential.quantity);
+        cardId: card.id,
+        price: paymentCredential.amount.toString(),
+        quantity: paymentCredential.quantity,
+        confirmsNoVpn: confirmsNoVpn,
+        confirmsVoidedRefund: confirmsVoidedRefund,
+        confirmsTermsAgreed: confirmsTermsAgreed,
+      );
       await confirmSending();
       expirationTime = order!.paymentData.expirationTime;
       updateRemainingTime();

@@ -1,9 +1,5 @@
-Add Litecoin MWEB
-Wallet groups (same seed, multiple wallets)
-Silent Payments enhancements
-Monero enhancements for sending and address generation
-StealthEx
-LetsExchange
-Replace-By-Fee improvements
-ERC20 tokens potential scam detection
-Visual enhancements and bug fixes
+Zano enhancements
+Ethereum enhancements
+Ledger fixes
+UI enhancements
+Bug fixes

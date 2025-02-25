@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
+import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:solana/dto.dart';
@@ -19,22 +21,23 @@ class SolanaWalletClient {
 
   bool connect(Node node) {
     try {
-      Uri? rpcUri;
-      String webSocketUrl;
-      bool isModifiedNodeUri = false;
+      Uri rpcUri = node.uri;
+      String webSocketUrl = 'wss://${node.uriRaw}';
 
       if (node.uriRaw == 'rpc.ankr.com') {
-        isModifiedNodeUri = true;
         String ankrApiKey = secrets.ankrApiKey;
 
         rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
         webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
-      } else {
-        webSocketUrl = 'wss://${node.uriRaw}';
+      } else if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
+        String chainStackApiKey = secrets.chainStackApiKey;
+
+        rpcUri = Uri.https(node.uriRaw, '/$chainStackApiKey');
+        webSocketUrl = 'wss://${node.uriRaw}/$chainStackApiKey';
       }
 
       _client = SolanaClient(
-        rpcUrl: isModifiedNodeUri ? rpcUri! : node.uri,
+        rpcUrl: rpcUri,
         websocketUrl: Uri.parse(webSocketUrl),
         timeout: const Duration(minutes: 2),
       );
@@ -113,10 +116,14 @@ class SolanaWalletClient {
     final message =
         _getMessageForNativeTransaction(ownerKeypair, ownerKeypair.address, lamportsPerSol);
 
-    final recentBlockhash = await _getRecentBlockhash(commitment);
+    final latestBlockhash = await _getLatestBlockhash(commitment);
 
-    final estimatedFee =
-        _getFeeFromCompiledMessage(message, ownerKeypair.publicKey, recentBlockhash, commitment);
+    final estimatedFee = _getFeeFromCompiledMessage(
+      message,
+      ownerKeypair.publicKey,
+      latestBlockhash,
+      commitment,
+    );
     return estimatedFee;
   }
 
@@ -129,13 +136,25 @@ class SolanaWalletClient {
     List<SolanaTransactionModel> transactions = [];
 
     try {
-      final response = await _client!.rpcClient.getTransactionsList(
-        publicKey,
+      final signatures = await _client!.rpcClient.getSignaturesForAddress(
+        publicKey.toBase58(),
         commitment: Commitment.confirmed,
-        limit: 1000,
       );
 
-      for (final tx in response) {
+      final List<TransactionDetails> transactionDetails = [];
+      for (int i = 0; i < signatures.length; i += 20) {
+        final response = await _client!.rpcClient.getMultipleTransactions(
+          signatures.sublist(i, math.min(i + 20, signatures.length)),
+          commitment: Commitment.confirmed,
+          encoding: Encoding.jsonParsed,
+        );
+        transactionDetails.addAll(response);
+
+        // to avoid reaching the node RPS limit
+        await Future.delayed(Duration(milliseconds: 500));
+      }
+
+      for (final tx in transactionDetails) {
         if (tx.transaction is ParsedTransaction) {
           final parsedTx = (tx.transaction as ParsedTransaction);
           final message = parsedTx.message;
@@ -179,7 +198,7 @@ class SolanaWalletClient {
                         bool isOutgoingTx = transfer.source == publicKey.toBase58();
 
                         double amount = (double.tryParse(transfer.amount) ?? 0.0) /
-                            pow(10, splTokenDecimal ?? 9);
+                            math.pow(10, splTokenDecimal ?? 9);
 
                         transactions.add(
                           SolanaTransactionModel(
@@ -275,6 +294,7 @@ class SolanaWalletClient {
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
     required bool isSendAll,
+    required double solBalance,
     String? tokenMint,
     List<String> references = const [],
   }) async {
@@ -289,6 +309,7 @@ class SolanaWalletClient {
         ownerKeypair: ownerKeypair,
         commitment: commitment,
         isSendAll: isSendAll,
+        solBalance: solBalance,
       );
       return pendingNativeTokenTransaction;
     } else {
@@ -300,21 +321,22 @@ class SolanaWalletClient {
         destinationAddress: destinationAddress,
         ownerKeypair: ownerKeypair,
         commitment: commitment,
+        solBalance: solBalance,
       );
       return pendingSPLTokenTransaction;
     }
   }
 
-  Future<RecentBlockhash> _getRecentBlockhash(Commitment commitment) async {
-    final latestBlockhash =
+  Future<LatestBlockhash> _getLatestBlockhash(Commitment commitment) async {
+    final latestBlockHashResult =
         await _client!.rpcClient.getLatestBlockhash(commitment: commitment).value;
 
-    final recentBlockhash = RecentBlockhash(
-      blockhash: latestBlockhash.blockhash,
-      feeCalculator: const FeeCalculator(lamportsPerSignature: 500),
+    final latestBlockhash = LatestBlockhash(
+      blockhash: latestBlockHashResult.blockhash,
+      lastValidBlockHeight: latestBlockHashResult.lastValidBlockHeight,
     );
 
-    return recentBlockhash;
+    return latestBlockhash;
   }
 
   Message _getMessageForNativeTransaction(
@@ -337,11 +359,11 @@ class SolanaWalletClient {
   Future<double> _getFeeFromCompiledMessage(
     Message message,
     Ed25519HDPublicKey feePayer,
-    RecentBlockhash recentBlockhash,
+    LatestBlockhash latestBlockhash,
     Commitment commitment,
   ) async {
     final compile = message.compile(
-      recentBlockhash: recentBlockhash.blockhash,
+      recentBlockhash: latestBlockhash.blockhash,
       feePayer: feePayer,
     );
 
@@ -352,6 +374,25 @@ class SolanaWalletClient {
     return fee;
   }
 
+  Future<bool> hasSufficientFundsLeftForRent({
+    required double inputAmount,
+    required double solBalance,
+    required double fee,
+  }) async {
+    return true;
+    // TODO: this is not doing what the name inclines
+    // final rent =
+    //     await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
+    //
+    // final rentInSol = (rent / lamportsPerSol).toDouble();
+    //
+    // final remnant = solBalance - (inputAmount + fee);
+    //
+    // if (remnant > rentInSol) return true;
+    //
+    // return false;
+  }
+
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
     required String tokenTitle,
     required int tokenDecimals,
@@ -360,6 +401,7 @@ class SolanaWalletClient {
     required Ed25519HDKeyPair ownerKeypair,
     required Commitment commitment,
     required bool isSendAll,
+    required double solBalance,
   }) async {
     // Convert SOL to lamport
     int lamports = (inputAmount * lamportsPerSol).toInt();
@@ -368,14 +410,24 @@ class SolanaWalletClient {
 
     final signers = [ownerKeypair];
 
-    RecentBlockhash recentBlockhash = await _getRecentBlockhash(commitment);
+    LatestBlockhash latestBlockhash = await _getLatestBlockhash(commitment);
 
     final fee = await _getFeeFromCompiledMessage(
       message,
       signers.first.publicKey,
-      recentBlockhash,
+      latestBlockhash,
       commitment,
     );
+
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: inputAmount,
+      fee: fee,
+      solBalance: solBalance,
+    );
+
+    if (!hasSufficientFundsLeft) {
+      throw SolanaSignNativeTokenTransactionRentException();
+    }
 
     SignedTx signedTx;
     if (isSendAll) {
@@ -389,14 +441,14 @@ class SolanaWalletClient {
         message: updatedMessage,
         signers: signers,
         commitment: commitment,
-        recentBlockhash: recentBlockhash,
+        latestBlockhash: latestBlockhash,
       );
     } else {
       signedTx = await _signTransactionInternal(
         message: message,
         signers: signers,
         commitment: commitment,
-        recentBlockhash: recentBlockhash,
+        latestBlockhash: latestBlockhash,
       );
     }
 
@@ -424,9 +476,13 @@ class SolanaWalletClient {
     required String destinationAddress,
     required Ed25519HDKeyPair ownerKeypair,
     required Commitment commitment,
+    required double solBalance,
   }) async {
     final destinationOwner = Ed25519HDPublicKey.fromBase58(destinationAddress);
     final mint = Ed25519HDPublicKey.fromBase58(tokenMint);
+
+    // Input by the user
+    final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
 
     ProgramAccount? associatedRecipientAccount;
     ProgramAccount? associatedSenderAccount;
@@ -446,21 +502,51 @@ class SolanaWalletClient {
     // Throw an appropriate exception if the sender has no associated
     // token account
     if (associatedSenderAccount == null) {
-      throw NoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
+      throw SolanaNoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
     }
 
     try {
-      associatedRecipientAccount ??= await _client!.createAssociatedTokenAccount(
-        mint: mint,
-        owner: destinationOwner,
-        funder: ownerKeypair,
-      );
-    } catch (e) {
-      throw Exception('Insufficient SOL balance to complete this transaction: ${e.toString()}');
-    }
+      if (associatedRecipientAccount == null) {
+        final derivedAddress = await findAssociatedTokenAddress(
+          owner: destinationOwner,
+          mint: mint,
+        );
 
-    // Input by the user
-    final amount = (inputAmount * pow(10, tokenDecimals)).toInt();
+        final instruction = AssociatedTokenAccountInstruction.createAccount(
+          mint: mint,
+          address: derivedAddress,
+          owner: destinationOwner,
+          funder: ownerKeypair.publicKey,
+        );
+
+        final _signedTx = await _signTransactionInternal(
+          message: Message.only(instruction),
+          signers: [ownerKeypair],
+          commitment: commitment,
+          latestBlockhash: await _getLatestBlockhash(commitment),
+        );
+
+        await sendTransaction(
+          signedTransaction: _signedTx,
+          commitment: commitment,
+        );
+
+        associatedRecipientAccount = ProgramAccount(
+          pubkey: derivedAddress.toBase58(),
+          account: Account(
+            owner: destinationOwner.toBase58(),
+            lamports: 0,
+            executable: false,
+            rentEpoch: BigInt.zero,
+            data: null,
+          ),
+        );
+
+        await Future.delayed(Duration(seconds: 5));
+      }
+    } catch (e) {
+      throw SolanaCreateAssociatedTokenAccountException(e.toString());
+    }
 
     final instruction = TokenInstruction.transfer(
       source: Ed25519HDPublicKey.fromBase58(associatedSenderAccount.pubkey),
@@ -473,26 +559,40 @@ class SolanaWalletClient {
 
     final signers = [ownerKeypair];
 
-    RecentBlockhash recentBlockhash = await _getRecentBlockhash(commitment);
+    LatestBlockhash latestBlockhash = await _getLatestBlockhash(commitment);
 
     final fee = await _getFeeFromCompiledMessage(
       message,
       signers.first.publicKey,
-      recentBlockhash,
+      latestBlockhash,
       commitment,
     );
+
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: inputAmount,
+      fee: fee,
+      solBalance: solBalance,
+    );
+
+    if (!hasSufficientFundsLeft) {
+      throw SolanaSignSPLTokenTransactionRentException();
+    }
 
     final signedTx = await _signTransactionInternal(
       message: message,
       signers: signers,
       commitment: commitment,
-      recentBlockhash: recentBlockhash,
+      latestBlockhash: latestBlockhash,
     );
 
-    sendTx() async => await sendTransaction(
+    sendTx() async {
+      await Future.delayed(Duration(seconds: 3));
+
+      return await sendTransaction(
           signedTransaction: signedTx,
           commitment: commitment,
         );
+    }
 
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,
@@ -508,9 +608,9 @@ class SolanaWalletClient {
     required Message message,
     required List<Ed25519HDKeyPair> signers,
     required Commitment commitment,
-    required RecentBlockhash recentBlockhash,
+    required LatestBlockhash latestBlockhash,
   }) async {
-    final signedTx = await signTransaction(recentBlockhash, message, signers);
+    final signedTx = await signTransaction(latestBlockhash, message, signers);
 
     return signedTx;
   }
@@ -529,7 +629,7 @@ class SolanaWalletClient {
 
       return signature;
     } catch (e) {
-      print('Error while sending transaction: ${e.toString()}');
+      printV('Error while sending transaction: ${e.toString()}');
       throw Exception(e);
     }
   }
@@ -546,7 +646,7 @@ class SolanaWalletClient {
         return null;
       }
     } catch (e) {
-      print('Error occurred while fetching token image: \n${e.toString()}');
+      printV('Error occurred while fetching token image: \n${e.toString()}');
       return null;
     }
   }

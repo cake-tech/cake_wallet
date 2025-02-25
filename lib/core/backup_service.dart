@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -105,7 +107,15 @@ class BackupService {
       if (entity.path == archivePath || entity.path == tmpDir.path) {
         return;
       }
-
+      final filename = entity.absolute;
+      for (var ignore in ignoreFiles) {
+        final filename = entity.absolute.path;
+        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+          printV("ignoring backup file: $filename");
+          return;
+        }
+      }
+      printV("restoring: $filename");
       if (entity.statSync().type == FileSystemEntityType.directory) {
         zipEncoder.addDirectory(Directory(entity.path));
       } else {
@@ -148,14 +158,29 @@ class BackupService {
     await _importPreferencesDump();
   }
 
+  // checked with .endsWith - so this should be the last part of the filename
+  static const ignoreFiles = [
+    "flutter_assets/kernel_blob.bin",
+    "flutter_assets/vm_snapshot_data",
+    "flutter_assets/isolate_snapshot_data",
+    ".lock",
+  ];
+
   Future<void> _importBackupV2(Uint8List data, String password) async {
     final appDir = await getAppDir();
     final decryptedData = await _decryptV2(data, password);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
+    outer:
     for (var file in zip.files) {
       final filename = file.name;
-
+      for (var ignore in ignoreFiles) { 
+        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+          printV("ignoring backup file: $filename");
+          continue outer;
+        }
+      }
+      printV("restoring: $filename");
       if (file.isFile) {
         final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
@@ -169,7 +194,7 @@ class BackupService {
     await _verifyWallets();
     await _importKeychainDumpV2(password);
     await _importPreferencesDump();
-    await _importTransactionDescriptionDump();
+    await _importTransactionDescriptionDump(); // HiveError: Box has already been closed
   }
 
   Future<void> _verifyWallets() async {
@@ -206,7 +231,15 @@ class BackupService {
         json.decode(transactionDescriptionFile.readAsStringSync()) as Map<String, dynamic>;
     final descriptionsMap = jsonData.map((key, value) =>
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
-    await _transactionDescriptionBox.putAll(descriptionsMap);
+    var box = _transactionDescriptionBox;
+    if (!box.isOpen) {
+      final transactionDescriptionsBoxKey = 
+        await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
+      box = await CakeHive.openBox<TransactionDescription>(
+        TransactionDescription.boxName,
+        encryptionKey: transactionDescriptionsBoxKey);
+      }
+    await box.putAll(descriptionsMap);
   }
 
   Future<void> _importPreferencesDump() async {
@@ -234,9 +267,7 @@ class BackupService {
     final currentFiatCurrency = data[PreferencesKey.currentFiatCurrencyKey] as String?;
     final shouldSaveRecipientAddress = data[PreferencesKey.shouldSaveRecipientAddressKey] as bool?;
     final isAppSecure = data[PreferencesKey.isAppSecureKey] as bool?;
-    final disableBuy = data[PreferencesKey.disableBuyKey] as bool?;
-    final disableSell = data[PreferencesKey.disableSellKey] as bool?;
-    final defaultBuyProvider = data[PreferencesKey.defaultBuyProvider] as int?;
+    final disableTradeOption = data[PreferencesKey.disableTradeOption] as bool?;
     final currentTransactionPriorityKeyLegacy =
         data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
     final currentBitcoinElectrumSererId =
@@ -262,6 +293,7 @@ class BackupService {
     final lookupsUnstoppableDomains = data[PreferencesKey.lookupsUnstoppableDomains] as bool?;
     final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
     final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
+    final lookupsWellKnown = data[PreferencesKey.lookupsWellKnown] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus =
@@ -289,14 +321,8 @@ class BackupService {
     if (isAppSecure != null)
       await _sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
 
-    if (disableBuy != null)
-      await _sharedPreferences.setBool(PreferencesKey.disableBuyKey, disableBuy);
-
-    if (disableSell != null)
-      await _sharedPreferences.setBool(PreferencesKey.disableSellKey, disableSell);
-
-    if (defaultBuyProvider != null)
-      await _sharedPreferences.setInt(PreferencesKey.defaultBuyProvider, defaultBuyProvider);
+    if (disableTradeOption != null)
+      await _sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption);
 
     if (currentTransactionPriorityKeyLegacy != null)
       await _sharedPreferences.setInt(
@@ -377,6 +403,9 @@ class BackupService {
       await _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, lookupsOpenAlias);
 
     if (lookupsENS != null) await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
+
+    if (lookupsWellKnown != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, lookupsWellKnown);
 
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
@@ -482,10 +511,7 @@ class BackupService {
           _sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
       PreferencesKey.shouldSaveRecipientAddressKey:
           _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
-      PreferencesKey.disableBuyKey: _sharedPreferences.getBool(PreferencesKey.disableBuyKey),
-      PreferencesKey.disableSellKey: _sharedPreferences.getBool(PreferencesKey.disableSellKey),
-      PreferencesKey.defaultBuyProvider:
-          _sharedPreferences.getInt(PreferencesKey.defaultBuyProvider),
+      PreferencesKey.disableTradeOption: _sharedPreferences.getBool(PreferencesKey.disableTradeOption),
       PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
@@ -520,6 +546,8 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
       PreferencesKey.lookupsOpenAlias: _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
       PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
+      PreferencesKey.lookupsWellKnown:
+          _sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
       PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:

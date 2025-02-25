@@ -191,21 +191,21 @@ class CWEthereum extends Ethereum {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  void setLedger(WalletBase wallet, Ledger ledger, LedgerDevice device) {
-    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedger(
-        ledger,
-        device.connectionType == ConnectionType.usb ? device : null,
-        wallet.walletInfo.derivationInfo?.derivationPath);
+  void setLedgerConnection(
+      WalletBase wallet, ledger.LedgerConnection connection) {
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials)
+        .setLedgerConnection(
+            connection, wallet.walletInfo.derivationInfo?.derivationPath);
   }
 
   @override
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.ledger, ledgerVM.device);
+    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.connection);
     try {
       return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } on LedgerException catch (err) {
-      print(err.message);
+    } catch (err) {
+      printV(err);
       throw err;
     }
   }

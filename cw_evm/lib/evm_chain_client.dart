@@ -36,7 +36,18 @@ abstract class EVMChainClient {
 
   bool connect(Node node) {
     try {
-      _client = Web3Client(node.uri.toString(), httpClient);
+      Uri? rpcUri;
+      bool isModifiedNodeUri = false;
+
+      if (node.uriRaw == 'eth.nownodes.io' || node.uriRaw == 'matic.nownodes.io') {
+        isModifiedNodeUri = true;
+        String nowNodeApiKey = secrets.nowNodesApiKey;
+
+        rpcUri = Uri.https(node.uriRaw, '/$nowNodeApiKey');
+      }
+
+      _client =
+          Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), httpClient);
 
       return true;
     } catch (e) {
@@ -83,23 +94,20 @@ abstract class EVMChainClient {
     }
   }
 
-  Future<int> getEstimatedGas({
-    String? contractAddress,
+  Future<int> getEstimatedGasUnitsForTransaction({
     required EthereumAddress toAddress,
     required EthereumAddress senderAddress,
     required EtherAmount value,
+    String? contractAddress,
     EtherAmount? gasPrice,
-    // EtherAmount? maxFeePerGas,
-    // EtherAmount? maxPriorityFeePerGas,
+    EtherAmount? maxFeePerGas,
   }) async {
     try {
       if (contractAddress == null) {
         final estimatedGas = await _client!.estimateGas(
           sender: senderAddress,
-          gasPrice: gasPrice,
           to: toAddress,
           value: value,
-          // maxPriorityFeePerGas: maxPriorityFeePerGas,
           // maxFeePerGas: maxFeePerGas,
         );
 
@@ -133,7 +141,9 @@ abstract class EVMChainClient {
     required Credentials privateKey,
     required String toAddress,
     required BigInt amount,
-    required BigInt gas,
+    required BigInt gasFee,
+    required int estimatedGasUnits,
+    required int maxFeePerGas,
     required EVMChainTransactionPriority priority,
     required CryptoCurrency currency,
     required int exponent,
@@ -152,6 +162,8 @@ abstract class EVMChainClient {
       maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
       amount: isNativeToken ? EtherAmount.inWei(amount) : EtherAmount.zero(),
       data: data != null ? hexToBytes(data) : null,
+      maxGas: estimatedGasUnits,
+      maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
     );
 
     Uint8List signedTransaction;
@@ -180,7 +192,7 @@ abstract class EVMChainClient {
     return PendingEVMChainTransaction(
       signedTransaction: signedTransaction,
       amount: amount.toString(),
-      fee: gas,
+      fee: gasFee,
       sendTransaction: _sendTransaction,
       exponent: exponent,
     );
@@ -191,7 +203,10 @@ abstract class EVMChainClient {
     required EthereumAddress to,
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
+    EtherAmount? gasPrice,
+    EtherAmount? maxFeePerGas,
     Uint8List? data,
+    int? maxGas,
   }) {
     return Transaction(
       from: from,
@@ -199,6 +214,9 @@ abstract class EVMChainClient {
       maxPriorityFeePerGas: maxPriorityFeePerGas,
       value: amount,
       data: data,
+      maxGas: maxGas,
+      gasPrice: gasPrice,
+      maxFeePerGas: maxFeePerGas,
     );
   }
 
@@ -250,12 +268,18 @@ abstract class EVMChainClient {
 
   Future<EVMChainERC20Balance> fetchERC20Balances(
       EthereumAddress userAddress, String contractAddress) async {
-    final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
-    final balance = await erc20.balanceOf(userAddress);
+    try {
+      final erc20 = ERC20(address: EthereumAddress.fromHex(contractAddress), client: _client!);
+      final balance = await erc20.balanceOf(userAddress);
 
     int exponent = (await erc20.decimals()).toInt();
 
-    return EVMChainERC20Balance(balance, exponent: exponent);
+      return EVMChainERC20Balance(balance, exponent: exponent);
+    } on RangeError catch (_) {
+      throw Exception('Invalid token contract for this network.');
+    } catch (e) {
+      throw Exception('Could not fetch balances: ${e.toString()}');
+    }
   }
 
   Future<Erc20Token?> getErc20Token(String contractAddress, String chainName) async {

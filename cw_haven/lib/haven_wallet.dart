@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_haven/haven_transaction_creation_credentials.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_haven/haven_transaction_creation_exception.dart';
@@ -73,10 +74,12 @@ abstract class HavenWalletBase
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
+      primaryAddress: haven_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: haven_wallet.getSecretSpendKey(),
       privateViewKey: haven_wallet.getSecretViewKey(),
       publicSpendKey: haven_wallet.getPublicSpendKey(),
-      publicViewKey: haven_wallet.getPublicViewKey());
+      publicViewKey: haven_wallet.getPublicViewKey(),
+      passphrase: "");
 
   haven_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -106,7 +109,7 @@ abstract class HavenWalletBase
   Future<void>? updateBalance() => null;
 
   @override
-  Future<void> close({required bool shouldCleanup}) async {
+  Future<void> close({bool shouldCleanup = false}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
@@ -129,7 +132,7 @@ abstract class HavenWalletBase
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
     }
   }
 
@@ -146,7 +149,7 @@ abstract class HavenWalletBase
       _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
       rethrow;
     }
   }
@@ -323,7 +326,7 @@ abstract class HavenWalletBase
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
-      print(e);
+      printV(e);
       _isTransactionUpdating = false;
     }
   }
@@ -402,7 +405,7 @@ abstract class HavenWalletBase
         syncStatus = SyncingSyncStatus(blocksLeft, ptc);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -412,7 +415,7 @@ abstract class HavenWalletBase
       _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

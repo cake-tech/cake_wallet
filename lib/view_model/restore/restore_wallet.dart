@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -32,6 +34,16 @@ class RestoredWallet {
   final String? privateKey;
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
+    try {
+    final codeParsed = jsonDecode(json['raw_qr'].toString());
+      if (codeParsed["version"] == 0) {
+        json['address'] = codeParsed["primaryAddress"];
+        json['view_key'] = codeParsed["privateViewKey"];
+        json['height'] = codeParsed["restoreHeight"].toString();
+      }
+    } catch (e) {
+      // fine, we don't care, it is only for monero anyway
+    }
     final height = json['height'] as String?;
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
@@ -39,7 +51,7 @@ class RestoredWallet {
       address: json['address'] as String?,
       spendKey: json['spend_key'] as String?,
       viewKey: json['view_key'] as String?,
-      height: height != null ? int.parse(height) : 0,
+      height: height != null ? int.tryParse(height)??0 : 0,
       privateKey: json['private_key'] as String?,
     );
   }

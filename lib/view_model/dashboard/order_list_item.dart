@@ -6,7 +6,9 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 class OrderListItem extends ActionListItem {
   OrderListItem({
     required this.order,
-    required this.settingsStore});
+    required this.settingsStore,
+    required super.key,
+  });
 
   final Order order;
   final SettingsStore settingsStore;

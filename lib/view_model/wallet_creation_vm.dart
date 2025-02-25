@@ -8,10 +8,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -113,10 +114,16 @@ abstract class WalletCreationVMBase with Store {
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);
       getIt.get<BackgroundTasks>().registerSyncTask();
-      _appStore.authenticationStore.allowed();
+      _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
-    } catch (e, _) {
-      state = FailureState(e.toString());
+    } catch (e, s) {
+      printV("error: $e");
+      printV("stack: $s");
+      String message = e.toString();
+      if (e is RestoreFromSeedException) {
+        message = e.message;
+      }
+      state = FailureState(message);
     }
   }
 
@@ -198,11 +205,16 @@ abstract class WalletCreationVMBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.getDerivationsFromMnemonic(
+        final derivationList = await bitcoin!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,
           passphrase: restoreWallet.passphrase,
         );
+
+        if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
+          return [];
+        return derivationList;
+
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,

@@ -7,7 +7,9 @@ enum DeviceConnectionType {
   static List<DeviceConnectionType> supportedConnectionTypes(WalletType walletType,
       [bool isIOS = false]) {
     switch (walletType) {
+      case WalletType.monero:
       case WalletType.bitcoin:
+      case WalletType.litecoin:
       case WalletType.ethereum:
       case WalletType.polygon:
         if (isIOS) return [DeviceConnectionType.ble];

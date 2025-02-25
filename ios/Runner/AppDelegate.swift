@@ -2,7 +2,7 @@ import UIKit
 import Flutter
 import workmanager
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate {    
     override func application(
         _ application: UIApplication,
@@ -110,12 +110,12 @@ import workmanager
     
     private func makeSecure() {
         if (!self.window.subviews.contains(textField)) {
+            let view = UIView(frame: CGRect(x: 0, y: 0, width: textField.frame.self.width, height: textField.frame.self.height))
             self.window.addSubview(textField)
-            textField.centerYAnchor.constraint(equalTo: self.window.centerYAnchor).isActive = true
-            textField.centerXAnchor.constraint(equalTo: self.window.centerXAnchor).isActive = true
             self.window.layer.superlayer?.addSublayer(textField.layer)
-            textField.layer.sublayers?.first?.addSublayer(self.window.layer)
+            textField.layer.sublayers?.last!.addSublayer(self.window.layer)
+            textField.leftView = view
+            textField.leftViewMode = .always
         }
     }
-
 }

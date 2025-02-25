@@ -226,32 +226,49 @@ class CWMonero extends Monero {
           height: height);
 
   @override
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({
+    required String name,
+    required String password,
+    required int height,
+    required ledger.LedgerConnection ledgerConnection,
+  }) =>
+      MoneroRestoreWalletFromHardwareCredentials(
+          name: name,
+          password: password,
+          height: height,
+          ledgerConnection: ledgerConnection);
+
+  @override
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,
+          required String passphrase,
           required int height,
           required String mnemonic}) =>
       MoneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, height: height, mnemonic: mnemonic);
+          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({
     required String name,
     required String language,
     required bool isPolyseed,
+    required String? passphrase,
     String? password}) =>
       MoneroNewWalletCredentials(
-        name: name, password: password, language: language, isPolyseed: isPolyseed);
+        name: name, password: password, language: language, isPolyseed: isPolyseed, passphrase: passphrase);
 
   @override
   Map<String, String> getKeys(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     final keys = moneroWallet.keys;
     return <String, String>{
+      'primaryAddress': keys.primaryAddress,
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,
-      'publicViewKey': keys.publicViewKey
+      'publicViewKey': keys.publicViewKey,
+      'passphrase': keys.passphrase
     };
   }
 
@@ -357,9 +374,54 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
+  
+  @override
+  bool importKeyImagesUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.importKeyImagesUR(ur);
+  }
+
+
+  @override
+  Future<bool> commitTransactionUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.submitTransactionUR(ur);
+  }
+
+  @override
+  String exportOutputsUR(Object wallet, bool all) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.exportOutputsUR(all);
+  }
+
+  @override
+  bool needExportOutputs(Object wallet, int amount) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.needExportOutputs(amount);
+  }
 
   @override
   void monerocCheck() {
     checkIfMoneroCIsFine();
+  }
+
+  @override
+  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection) {
+    final moneroWallet = wallet as MoneroWallet;
+    moneroWallet.setLedgerConnection(connection);
+  }
+
+  void resetLedgerConnection() {
+    disableLedgerExchange();
+  }
+
+  @override
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
+    gLedger = connection;
+    keepAlive(connection);
+  }
+
+  bool isViewOnly() {
+    return isViewOnlyBySpendKey();
   }
 }

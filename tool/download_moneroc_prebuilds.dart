@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:dio/dio.dart';
 import 'package:archive/archive_io.dart';
 
@@ -22,14 +23,15 @@ final List<String> triplets = [
   // "host-apple-darwin", // not available on CI (yet)
   // "x86_64-host-apple-darwin", // not available on CI (yet)
   "aarch64-host-apple-darwin", // apple silicon macbooks (local builds)
-  "host-apple-ios",
+  "aarch64-apple-ios",
+  "aarch64-apple-iossimulator",
 ];
 
 Future<void> main() async {
   final resp = await _dio.get("https://api.github.com/repos/mrcyjanek/monero_c/releases");
   final data = resp.data[0];
   final tagName = data['tag_name'];
-  print("Downloading artifacts for: ${tagName}");
+  printV("Downloading artifacts for: ${tagName}");
   final assets = data['assets'] as List<dynamic>;
   for (var i = 0; i < assets.length; i++) {
     for (var triplet in triplets) {
@@ -40,21 +42,23 @@ Future<void> main() async {
       String localFilename = filename.replaceAll("${coin}_${triplet}_", "");
       localFilename = "scripts/monero_c/release/${coin}/${triplet}_${localFilename}";
       final url = asset["browser_download_url"] as String;
-      print("- downloading $localFilename");
+      printV("- downloading $localFilename");
       await _dio.download(url, localFilename);
-      print("  extracting $localFilename");
-      final inputStream = InputFileStream(localFilename);
-      final archive = XZDecoder().decodeBuffer(inputStream);
-      final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
-      outputStream.writeBytes(archive);
+      if (localFilename.endsWith(".xz")) {
+        printV("  extracting $localFilename");
+        final inputStream = InputFileStream(localFilename);
+        final archive = XZDecoder().decodeBuffer(inputStream);
+        final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
+        outputStream.writeBytes(archive);
+      }
     }
   }
   if (Platform.isMacOS) {
-    print("Generating ios framework");
+    printV("Generating ios framework");
     final result = Process.runSync("bash", [
       "-c",
       "cd scripts/ios && ./gen_framework.sh && cd ../.."
     ]);
-    print((result.stdout+result.stderr).toString().trim());
+    printV((result.stdout+result.stderr).toString().trim());
   }
 }

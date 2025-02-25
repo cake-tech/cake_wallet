@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
@@ -15,6 +16,9 @@ abstract class SolanaWalletAddressesBase extends WalletAddresses with Store {
   String address;
 
   @override
+  String get primaryAddress => address;
+
+  @override
   Future<void> init() async {
     address = walletInfo.address;
     await updateAddressesInBox();
@@ -27,7 +31,7 @@ abstract class SolanaWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = '';
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 }

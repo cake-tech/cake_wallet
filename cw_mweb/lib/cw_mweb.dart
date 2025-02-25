@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'cw_mweb_platform_interface.dart';
@@ -13,8 +14,18 @@ class CwMweb {
   static RpcClient? _rpcClient;
   static ClientChannel? _clientChannel;
   static int? _port;
-  static const TIMEOUT_DURATION = Duration(seconds: 5);
+  static const TIMEOUT_DURATION = Duration(seconds: 15);
   static Timer? logTimer;
+  static String? nodeUriOverride;
+
+
+  static Future<void> setNodeUriOverride(String uri) async {
+    nodeUriOverride = uri;
+    if (_rpcClient != null) {
+      await stop();
+      // will be re-started automatically when the next rpc call is made
+    }
+  }
 
   static void readFileWithTimer(String filePath) {
     final file = File(filePath);
@@ -29,36 +40,36 @@ class CwMweb {
           final fileStream = file.openRead(lastLength, currentLength);
           final newLines = await fileStream.transform(utf8.decoder).join();
           lastLength = currentLength;
-          log(newLines);
+          printV(newLines);
         }
       } on GrpcError catch (e) {
-        log('Caught grpc error: ${e.message}');
+        printV('Caught grpc error: ${e.message}');
       } catch (e) {
-        log('The mwebd debug log probably is not initialized yet.');
+        printV('The mwebd debug log probably is not initialized yet.');
       }
     });
   }
 
   static Future<void> _initializeClient() async {
-    print("initialize client called!");
+    printV("_initializeClient() called!");
     final appDir = await getApplicationSupportDirectory();
     const ltcNodeUri = "ltc-electrum.cakewallet.com:9333";
 
     String debugLogPath = "${appDir.path}/logs/debug.log";
     readFileWithTimer(debugLogPath);
 
-    _port = await CwMwebPlatform.instance.start(appDir.path, ltcNodeUri);
+    _port = await CwMwebPlatform.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
-    log("Attempting to connect to server on port: $_port");
+    printV("Attempting to connect to server on port: $_port");
 
     // wait for the server to finish starting up before we try to connect to it:
-    await Future.delayed(const Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 8));
 
     _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
       _rpcClient = null;
-      log("Channel is shutting down!");
+      printV("Channel is shutting down!");
     },
         options: const ChannelOptions(
           credentials: ChannelCredentials.insecure(),
@@ -80,13 +91,16 @@ class CwMweb {
         }
         return _rpcClient!;
       } on GrpcError catch (e) {
-        log("Attempt $i failed: $e");
-        log('Caught grpc error: ${e.message}');
+        printV("Attempt $i failed: $e");
+        printV('Caught grpc error: ${e.message}');
         _rpcClient = null;
+        // necessary if the database isn't open:
+        await stop();
         await Future.delayed(const Duration(seconds: 3));
       } catch (e) {
-        log("Attempt $i failed: $e");
+        printV("Attempt $i failed: $e");
         _rpcClient = null;
+        await stop();
         await Future.delayed(const Duration(seconds: 3));
       }
     }
@@ -98,9 +112,9 @@ class CwMweb {
       await CwMwebPlatform.instance.stop();
       await cleanup();
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error stopping server: $e");
+      printV("Error stopping server: $e");
     }
   }
 
@@ -110,9 +124,9 @@ class CwMweb {
           ?.split(',')
           .first;
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error getting address: $e");
+      printV("Error getting address: $e");
     }
     return null;
   }
@@ -146,9 +160,9 @@ class CwMweb {
       _rpcClient = await stub();
       return await _rpcClient!.spent(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error getting spent: $e");
+      printV("Error getting spent: $e");
     }
     return SpentResponse();
   }
@@ -159,9 +173,9 @@ class CwMweb {
       _rpcClient = await stub();
       return await _rpcClient!.status(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error getting status: $e");
+      printV("Error getting status: $e");
     }
     return StatusResponse();
   }
@@ -172,9 +186,9 @@ class CwMweb {
       _rpcClient = await stub();
       return await _rpcClient!.create(request, options: CallOptions(timeout: TIMEOUT_DURATION));
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error getting create: $e");
+      printV("Error getting create: $e");
     }
     return CreateResponse();
   }
@@ -188,10 +202,24 @@ class CwMweb {
       log("got utxo stream");
       return resp;
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error getting utxos: $e");
+      printV("Error getting utxos: $e");
     }
     return null;
+  }
+
+  static Future<BroadcastResponse> broadcast(BroadcastRequest request) async {
+    log("mweb.broadcast() called");
+    try {
+      _rpcClient = await stub();
+      return await _rpcClient!.broadcast(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      log('Caught grpc error: ${e.message}');
+      throw "error from broadcast mweb: $e";
+    } catch (e) {
+      printV("Error getting utxos: $e");
+      rethrow;
+    }
   }
 }
