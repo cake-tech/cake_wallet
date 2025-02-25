@@ -1,4 +1,5 @@
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
@@ -123,6 +124,10 @@ int numSubaddresses(int subaccountIndex) {
 }
 
 void addSubaddressSync({required int accountIndex, required String label}) {
+  if (monero.Wallet_numSubaddressAccounts(wptr!) <= accountIndex) {
+    printV("accountIndex is out of bounds");
+    return;
+  }
   monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex, label: label);
   refreshSubaddresses(accountIndex: accountIndex);
 }
