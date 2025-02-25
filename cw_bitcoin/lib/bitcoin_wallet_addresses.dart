@@ -101,19 +101,19 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           );
         }
       }
-
-      if (silentPaymentAddresses.isEmpty) {
-        generateInitialSPAddresses();
-      }
-
-      super.init();
     }
+
+    generateInitialSPAddresses();
+
+    super.init();
   }
 
   @action
   Future<void> generateInitialSPAddresses() async {
+    final addAddresses = silentPaymentAddresses.isEmpty;
+
     // Only initiate these old addresses if restoring a wallet and possibly wants the older cake derivation path
-    if (walletInfo.isRecovery) {
+    if (walletInfo.isRecovery || silentPaymentAddresses.length > 2) {
       final oldScanPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "1"));
       final oldSpendPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "0"));
 
@@ -123,48 +123,51 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       );
 
       silentPaymentWallets.add(oldSilentPaymentWallet);
-      silentPaymentAddresses.addAll(
-        [
-          BitcoinSilentPaymentAddressRecord(
-            oldSilentPaymentWallet.toString(),
-            labelIndex: 0,
-            name: "",
-            type: SilentPaymentsAddresType.p2sp,
-            derivationPath: oldSpendPath.toString(),
-            isHidden: true,
-            isChange: false,
-          ),
-          BitcoinSilentPaymentAddressRecord(
-            oldSilentPaymentWallet.toLabeledSilentPaymentAddress(0).toString(),
-            name: "",
-            labelIndex: 0,
-            labelHex: BytesUtils.toHexString(oldSilentPaymentWallet.generateLabel(0)),
-            type: SilentPaymentsAddresType.p2sp,
-            derivationPath: oldSpendPath.toString(),
-            isHidden: true,
-            isChange: true,
-          ),
-        ],
-      );
+
+      if (addAddresses)
+        silentPaymentAddresses.addAll(
+          [
+            BitcoinSilentPaymentAddressRecord(
+              oldSilentPaymentWallet.toString(),
+              labelIndex: 0,
+              name: "",
+              type: SilentPaymentsAddresType.p2sp,
+              derivationPath: oldSpendPath.toString(),
+              isHidden: true,
+              isChange: false,
+            ),
+            BitcoinSilentPaymentAddressRecord(
+              oldSilentPaymentWallet.toLabeledSilentPaymentAddress(0).toString(),
+              name: "",
+              labelIndex: 0,
+              labelHex: BytesUtils.toHexString(oldSilentPaymentWallet.generateLabel(0)),
+              type: SilentPaymentsAddresType.p2sp,
+              derivationPath: oldSpendPath.toString(),
+              isHidden: true,
+              isChange: true,
+            ),
+          ],
+        );
     }
 
-    silentPaymentAddresses.addAll([
-      BitcoinSilentPaymentAddressRecord(
-        silentPaymentWallet!.toString(),
-        labelIndex: 0,
-        name: "",
-        type: SilentPaymentsAddresType.p2sp,
-        isChange: false,
-      ),
-      BitcoinSilentPaymentAddressRecord(
-        silentPaymentWallet!.toLabeledSilentPaymentAddress(0).toString(),
-        name: "",
-        labelIndex: 0,
-        labelHex: BytesUtils.toHexString(silentPaymentWallet!.generateLabel(0)),
-        type: SilentPaymentsAddresType.p2sp,
-        isChange: true,
-      ),
-    ]);
+    if (addAddresses)
+      silentPaymentAddresses.addAll([
+        BitcoinSilentPaymentAddressRecord(
+          silentPaymentWallet!.toString(),
+          labelIndex: 0,
+          name: "",
+          type: SilentPaymentsAddresType.p2sp,
+          isChange: false,
+        ),
+        BitcoinSilentPaymentAddressRecord(
+          silentPaymentWallet!.toLabeledSilentPaymentAddress(0).toString(),
+          name: "",
+          labelIndex: 0,
+          labelHex: BytesUtils.toHexString(silentPaymentWallet!.generateLabel(0)),
+          type: SilentPaymentsAddresType.p2sp,
+          isChange: true,
+        ),
+      ]);
   }
 
   @override
@@ -434,12 +437,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     updateHiddenAddresses();
   }
 
-  Map<String, int> getLabels(String address) {
+  Map<String, int> getLabels(List<String> addresses) {
     final labels = <String, int>{};
 
     for (int i = 0; i < silentPaymentAddresses.length; i++) {
       final silentAddressRecord = silentPaymentAddresses[i];
-      if (!silentAddressRecord.address.startsWith(address.substring(0, 9))) {
+      if (!addresses.contains(silentAddressRecord.address)) {
         continue;
       }
 

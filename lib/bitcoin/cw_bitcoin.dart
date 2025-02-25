@@ -592,11 +592,11 @@ class CWBitcoin extends Bitcoin {
   Future<void> setScanningActive(
     Object wallet,
     bool active, [
-    String? address,
+    List<String>? addresses,
     bool? forceStop,
   ]) async {
     final bitcoinWallet = wallet as BitcoinWallet;
-    bitcoinWallet.setSilentPaymentsScanning(active, address, null, null, forceStop);
+    bitcoinWallet.setSilentPaymentsScanning(active, addresses, null, null, forceStop);
   }
 
   @override
@@ -639,7 +639,7 @@ class CWBitcoin extends Bitcoin {
   Future<void> rescan(
     Object wallet, {
     required int height,
-    String? address,
+    List<String>? addresses,
     bool? doSingleScan,
     bool? forceStop,
   }) async {
@@ -648,6 +648,7 @@ class CWBitcoin extends Bitcoin {
       height: height,
       doSingleScan: doSingleScan,
       forceStop: forceStop,
+      addresses: addresses,
     );
   }
 

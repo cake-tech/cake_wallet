@@ -248,7 +248,7 @@ abstract class Bitcoin {
   Future<void> setScanningActive(
     Object wallet,
     bool active, [
-    String? address,
+    List<String>? addresses,
     bool? forceStop,
   ]);
   bool isTestnet(Object wallet);
@@ -293,7 +293,7 @@ abstract class Bitcoin {
   Future<void> rescan(
     Object wallet, {
     required int height,
-    String? address,
+    List<String>? addresses,
     bool? doSingleScan,
     bool? forceStop,
   });

@@ -69,18 +69,18 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
   }
 
   @action
-  void setSilentPaymentsScanning(bool active, [String? address]) {
+  void setSilentPaymentsScanning(bool active, [List<String>? addresses]) {
     if (wallet.type != WalletType.bitcoin) {
       return;
     }
 
     silentPaymentsScanningActive = active;
 
-    bitcoin!.setScanningActive(wallet, active, address, true);
+    bitcoin!.setScanningActive(wallet, active, addresses, true);
   }
 
   @action
-  void rescan({required int rescanHeight, String? address}) {
+  void rescan({required int rescanHeight, List<String>? addresses}) {
     if (wallet.type != WalletType.bitcoin) {
       return;
     }
@@ -89,18 +89,18 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
 
     bitcoin!.rescan(
       wallet,
-      address: address,
+      addresses: addresses,
       height: rescanHeight,
       doSingleScan: doSingleScan,
     );
   }
 
   @action
-  Future<void> doScan(String walletChoice, [int? height]) async {
+  Future<void> doScan(List<String> walletChoices, [int? height]) async {
     if (height == null) {
-      setSilentPaymentsScanning(true, walletChoice);
+      setSilentPaymentsScanning(true, walletChoices);
     } else {
-      rescan(rescanHeight: height, address: walletChoice);
+      rescan(rescanHeight: height, addresses: walletChoices);
     }
   }
 
@@ -115,7 +115,7 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
     }
 
     final wallets = await bitcoin!.getSilentPaymentWallets(wallet);
-    String walletChoice = wallets.first;
+    List<String> walletChoices = [wallets.first];
 
     if (wallets.length > 1) {
       bool cancelled = false;
@@ -134,10 +134,25 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
             cancelled = true;
             Navigator.of(context).pop();
           },
-          actionRightButton: (choice) {
-            walletChoice = wallets.firstWhere(
-              (wallet) => wallet.startsWith(choice.substring(0, 9 + 5)),
-            );
+          actionRightButton: (checkbox1, checkbox2) {
+            var newChoices = <String>[];
+            if (checkbox1) {
+              newChoices.add(
+                wallets.firstWhere(
+                  (wallet) => wallet.startsWith(wallets[0].substring(0, 9 + 5)),
+                ),
+              );
+            }
+            if (checkbox2) {
+              newChoices.add(
+                wallets.firstWhere(
+                  (wallet) => wallet.startsWith(wallets[1].substring(0, 9 + 5)),
+                ),
+              );
+            }
+
+            walletChoices = newChoices;
+
             Navigator.of(context).pop();
           },
         ),
@@ -170,14 +185,14 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
 
             allowSilentPaymentsScanning(true);
 
-            doScan(walletChoice, height);
+            doScan(walletChoices, height);
           },
           actionLeftButton: () => Navigator.of(_dialogContext).pop(),
         ),
       );
     }
 
-    doScan(walletChoice, height);
+    doScan(walletChoices, height);
   }
 }
 
@@ -198,7 +213,7 @@ class DoubleCheckboxAlert extends BaseAlertDialog {
   final String leftButtonText;
   final String rightButtonText;
   final VoidCallback actionLeftButton;
-  final Function(String) actionRightButton;
+  final Function(bool, bool) actionRightButton;
   final bool alertBarrierDismissible;
 
   bool checkbox1 = false;
@@ -223,15 +238,9 @@ class DoubleCheckboxAlert extends BaseAlertDialog {
   @override
   VoidCallback get actionLeft => actionLeftButton;
 
-  String choice = '';
-
-  void setChoice(String value) {
-    choice = value;
-  }
-
   @override
   VoidCallback get actionRight => () {
-        actionRightButton(choice);
+        actionRightButton(checkbox1, checkbox2);
       };
 
   @override
@@ -249,7 +258,6 @@ class DoubleCheckboxAlert extends BaseAlertDialog {
       checkbox2: checkbox2,
       value2: value2,
       toggleCheckbox2: toggleCheckbox2,
-      setChoice: setChoice,
     );
   }
 }
@@ -262,7 +270,6 @@ class CheckboxAlertContent extends StatefulWidget {
     required this.checkbox2,
     required this.value2,
     required this.toggleCheckbox2,
-    required this.setChoice,
     Key? key,
   }) : super(key: key);
 
@@ -273,8 +280,6 @@ class CheckboxAlertContent extends StatefulWidget {
   String value2;
   void Function() toggleCheckbox2;
 
-  void Function(String) setChoice;
-
   @override
   _CheckboxAlertContentState createState() => _CheckboxAlertContentState(
         checkbox1: checkbox1,
@@ -283,7 +288,6 @@ class CheckboxAlertContent extends StatefulWidget {
         checkbox2: checkbox2,
         value2: value2,
         toggleCheckbox2: toggleCheckbox2,
-        setChoice: setChoice,
       );
 
   static _CheckboxAlertContentState? of(BuildContext context) {
@@ -299,7 +303,6 @@ class _CheckboxAlertContentState extends State<CheckboxAlertContent> {
     required this.checkbox2,
     required this.value2,
     required this.toggleCheckbox2,
-    required this.setChoice,
   });
 
   bool checkbox1;
@@ -308,8 +311,6 @@ class _CheckboxAlertContentState extends State<CheckboxAlertContent> {
   bool checkbox2;
   String value2;
   void Function() toggleCheckbox2;
-
-  void Function(String) setChoice;
 
   bool showValidationMessage = true;
 
@@ -326,13 +327,9 @@ class _CheckboxAlertContentState extends State<CheckboxAlertContent> {
             caption: value1,
             onChanged: (bool? value) {
               setState(() {
-                if (value == true) {
-                  setChoice(value1);
-                  checkbox1 = value!;
-                  checkbox2 = !checkbox1;
-                  toggleCheckbox1();
-                  showValidationMessage = !areAllCheckboxesChecked;
-                }
+                checkbox1 = value!;
+                toggleCheckbox1();
+                showValidationMessage = !areAllCheckboxesChecked;
               });
             },
           ),
@@ -341,13 +338,9 @@ class _CheckboxAlertContentState extends State<CheckboxAlertContent> {
             caption: value2,
             onChanged: (bool? value) {
               setState(() {
-                if (value == true) {
-                  setChoice(value2);
-                  checkbox2 = value!;
-                  checkbox1 = !checkbox2;
-                  toggleCheckbox2();
-                  showValidationMessage = !areAllCheckboxesChecked;
-                }
+                checkbox2 = value!;
+                toggleCheckbox2();
+                showValidationMessage = !areAllCheckboxesChecked;
               });
             },
           ),

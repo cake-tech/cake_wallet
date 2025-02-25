@@ -382,7 +382,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   Future<void> setSilentPaymentsScanning(
     bool active, [
-    String? address,
+    List<String>? addresses,
     int? height,
     bool? doSingleScan,
     bool? forceStop,
@@ -408,7 +408,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
 
       if (tip > beginHeight) {
-        _requestTweakScanning(beginHeight, address, doSingleScan);
+        _requestTweakScanning(beginHeight, addresses, doSingleScan);
       }
     } else if (syncStatus is! SyncedSyncStatus) {
       await startSync(forceStop: forceStop);
@@ -530,11 +530,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> rescan({
     required int height,
-    String? address,
+    List<String>? addresses,
     bool? doSingleScan,
     bool? forceStop,
   }) async {
-    setSilentPaymentsScanning(true, address, height, doSingleScan, forceStop);
+    setSilentPaymentsScanning(true, addresses, height, doSingleScan, forceStop);
   }
 
   @action
@@ -673,13 +673,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   Future<void> _requestTweakScanning(
     int height, [
-    String? address,
+    List<String>? addresses,
     bool? doSingleScan,
   ]) async {
     _silentPaymentsScanningActive = true;
 
     final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
-    address ??= walletAddresses.silentPaymentWallet?.toString();
+    addresses ??= [walletAddresses.silentPaymentWallet!.toString()];
 
     if (currentChainTip == null) {
       throw Exception("currentChainTip is null");
@@ -698,13 +698,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ElectrumWorkerTweaksSubscribeRequest(
         scanData: ScanData(
           silentPaymentsWallets: walletAddresses.silentPaymentWallets
-              .where((wallet) => wallet.toString() == address)
+              .where((wallet) => addresses!.contains(wallet.toString()))
               .toList(),
           network: network,
           height: height,
           chainTip: chainTip,
           transactionHistoryIds: transactionHistory.transactions.keys.toList(),
-          labels: walletAddresses.getLabels(address!),
+          labels: walletAddresses.getLabels(addresses),
           labelIndexes: walletAddresses.silentPaymentAddresses
               .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.labelIndex >= 1)
               .map((addr) => addr.labelIndex)
