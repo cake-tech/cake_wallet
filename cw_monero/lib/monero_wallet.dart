@@ -179,6 +179,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
+    if (isHardwareWallet) {
+      disableLedgerExchange();
+      final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+      if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
+        printV("closing wallet");
+        final wmaddr = wmPtr.address;
+        final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
+        await Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+        });
+        openedWalletsByPath.remove("$currentWalletDirPath/$name");
+        wptr = null;
+        printV("wallet closed");
+      }
+    }
+
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();
