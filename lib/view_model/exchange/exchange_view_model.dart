@@ -828,7 +828,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       var providerNames = providers.map((e) => e.name).toList();
       await _settingsStore.updateAllTrocadorProviderStates(providerNames);
     } catch (e) {
-      print('Error updating trocador provider states: $e');
+      printV('Error updating trocador provider states: $e');
     }
   }
 
