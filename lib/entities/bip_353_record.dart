@@ -123,9 +123,9 @@ class Bip353Record {
         context: context,
         builder: (dialogContext) {
           return AlertWithPickerOption(
-            alertTitle: 'Multiple addresses detected \n$bip353Name',
+            alertTitle:  S.of(context).multiple_addresses_detected + '\n$bip353Name',
             alertTitleTextSize: 14,
-            alertSubtitle: 'Please choose one:',
+            alertSubtitle: S.of(context).please_choose_one + ':',
             options: displayItems,
             onOptionSelected: (Map<String, String> chosenItem) {
               selectedOriginalValue = chosenItem['originalValue'];
