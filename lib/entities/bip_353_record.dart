@@ -1,5 +1,6 @@
 import 'package:basic_utils/basic_utils.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/alert_with_picker_option.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -100,44 +101,41 @@ class Bip353Record {
     Map<String, String> addressMap,
   ) async {
     final entriesList = addressMap.entries.toList();
-    final displayItems = entriesList.map((e) {
-      final extendedKeyName = keyDisplayMap[e.key] ?? e.key;
-      final truncatedValue = _truncate(e.value, front: 6, back: 6);
-      return '$extendedKeyName :  $truncatedValue';
+    final List<Map<String, String>> displayItems = entriesList.map((entry) {
+      final originalKey = entry.key;
+      final originalValue = entry.value;
+
+      final extendedKeyName = keyDisplayMap[originalKey] ?? originalKey;
+      final truncatedValue = _truncate(originalValue, front: 6, back: 6);
+
+      return {
+        'displayKey': extendedKeyName,
+        'displayValue': truncatedValue,
+        'originalKey': originalKey,
+        'originalValue': originalValue,
+      };
     }).toList();
 
-    String? selectedDisplayItem;
+    String? selectedOriginalValue;
 
     if (context.mounted) {
       await showPopUp<void>(
         context: context,
         builder: (dialogContext) {
-          return Picker<String>(
-            selectedAtIndex: 0,
-            title:
-                '$bip353Name \n was successfully resolved to the following addresses, please choose one:',
-            items: displayItems,
-            onItemSelected: (String displayItem) {
-              selectedDisplayItem = displayItem;
+          return AlertWithPickerOption(
+            alertTitle:  S.of(context).multiple_addresses_detected + '\n$bip353Name',
+            alertTitleTextSize: 14,
+            alertSubtitle: S.of(context).please_choose_one + ':',
+            options: displayItems,
+            onOptionSelected: (Map<String, String> chosenItem) {
+              selectedOriginalValue = chosenItem['originalValue'];
             },
+            alertBarrierDismissible: true,
           );
         },
       );
     }
-
-    if (selectedDisplayItem == null) {
-      if (displayItems.isEmpty) {
-        return null;
-      }
-      selectedDisplayItem = displayItems[0];
-    }
-
-    final index = displayItems.indexOf(selectedDisplayItem!);
-    if (index < 0) {
-      return null;
-    }
-
-    return entriesList[index].value;
+    return selectedOriginalValue;
   }
 
   static String _truncate(String value, {int front = 6, int back = 6}) {

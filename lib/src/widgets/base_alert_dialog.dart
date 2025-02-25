@@ -9,6 +9,8 @@ class BaseAlertDialog extends StatelessWidget {
 
   String? get titleText => '';
 
+  double? get titleTextSize => 20;
+
   String get contentText => '';
 
   String get leftActionButtonText => '';
@@ -46,7 +48,7 @@ class BaseAlertDialog extends StatelessWidget {
       titleText!,
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontSize: 20,
+        fontSize: titleTextSize,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
         color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
