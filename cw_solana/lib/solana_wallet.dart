@@ -130,6 +130,7 @@ abstract class SolanaWalletBase
     _solanaPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,
+      passphrase: passphrase,
     );
 
     // Extract the public key and wallet address
@@ -142,11 +143,15 @@ abstract class SolanaWalletBase
     await save();
   }
 
-  Future<SolanaPrivateKey> getPrivateKey({String? mnemonic, String? privateKey}) async {
+  Future<SolanaPrivateKey> getPrivateKey({
+    String? mnemonic,
+    String? privateKey,
+    String? passphrase,
+  }) async {
     assert(mnemonic != null || privateKey != null);
 
     if (mnemonic != null) {
-      final seed = bip39.mnemonicToSeed(mnemonic);
+      final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
 
       // Derive a Solana private key from the seed
       final bip44 = Bip44.fromSeed(seed, Bip44Coins.solana);
@@ -379,6 +384,7 @@ abstract class SolanaWalletBase
         'mnemonic': _mnemonic,
         'private_key': _hexPrivateKey,
         'balance': balance[currency]!.toJSON(),
+        'passphrase': passphrase,
       });
 
   static Future<SolanaWallet> open({
@@ -406,8 +412,9 @@ abstract class SolanaWalletBase
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -420,6 +427,7 @@ abstract class SolanaWalletBase
     return SolanaWallet(
       walletInfo: walletInfo,
       password: password,
+      passphrase: keysData.passphrase,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
       initialBalance: balance,
