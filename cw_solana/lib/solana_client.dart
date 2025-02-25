@@ -10,6 +10,7 @@ import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_rpc_service.dart';
+import 'package:cw_solana/spl_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:on_chain/solana/solana.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';
@@ -139,11 +140,11 @@ class SolanaWalletClient {
     return estimatedFee;
   }
 
-  SolanaTransactionModel? parseTransaction({
+  Future<SolanaTransactionModel?> parseTransaction({
     VersionedTransactionResponse? txResponse,
     required String address,
-    String? tokenSymbol,
-  }) {
+    String? splTokenSymbol,
+  }) async {
     if (txResponse == null) return null;
 
     try {
@@ -182,10 +183,13 @@ class SolanaWalletClient {
           final preBalances = meta.preBalances;
           final postBalances = meta.postBalances;
 
-          double amount =
+          final amountInString =
               (((preBalances[senderIndex] - postBalances[senderIndex]) / BigInt.from(1e9))
-                      .toDouble() -
-                  feeForTx);
+                          .toDouble() -
+                      feeForTx)
+                  .toStringAsFixed(6);
+
+          final amount = double.parse(amountInString);
 
           return SolanaTransactionModel(
             isOutgoingTx: sender == address,
@@ -210,15 +214,26 @@ class SolanaWalletClient {
               preBalances.isNotEmpty &&
               postBalances != null &&
               postBalances.isNotEmpty) {
-            amount = ((preBalances.first.uiTokenAmount.uiAmount ?? 0) -
+            final amountInString = ((preBalances.first.uiTokenAmount.uiAmount ?? 0) -
                     (postBalances.first.uiTokenAmount.uiAmount ?? 0))
-                .toDouble();
+                .toStringAsFixed(6);
+
+            amount = double.parse(amountInString);
           }
 
           sender = message.accountKeys[instruction.accounts[0]].address;
           receiver = message.accountKeys[instruction.accounts[1]].address;
+          final mintAddress = message.accountKeys[4].address;
 
-          return SolanaTransactionModel(
+          String? tokenSymbol = splTokenSymbol;
+
+          if (tokenSymbol == null) {
+            final token = await fetchSPLTokenInfo(mintAddress);
+
+            tokenSymbol = token?.symbol;
+          }
+
+          final model = SolanaTransactionModel(
             isOutgoingTx: sender == address,
             from: sender,
             to: receiver,
@@ -229,6 +244,7 @@ class SolanaWalletClient {
             tokenSymbol: tokenSymbol ?? '',
             fee: fee / SolanaUtils.lamportsPerSol,
           );
+          return model;
         } else {
           return null;
         }
@@ -286,9 +302,9 @@ class SolanaWalletClient {
       }
 
       for (final tx in transactionDetails) {
-        final parsedTx = parseTransaction(
+        final parsedTx = await parseTransaction(
           txResponse: tx,
-          tokenSymbol: splTokenSymbol,
+          splTokenSymbol: splTokenSymbol,
           address: address.address,
         );
         if (parsedTx != null) {
@@ -333,6 +349,41 @@ class SolanaWalletClient {
     );
 
     return tokenTransactions;
+  }
+
+  Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
+    final programAddress =
+        MetaplexTokenMetaDataProgramUtils.findMetadataPda(mint: SolAddress(mintAddress));
+
+    final token = await _provider!.request(
+      SolanaRPCGetMetadataAccount(
+        account: programAddress.address,
+        commitment: Commitment.confirmed,
+      ),
+    );
+
+    if (token == null) {
+      return null;
+    }
+
+    final metadata = token.data;
+
+    String? iconPath;
+    //TODO(Further explore fetching images)
+    // try {
+    //   iconPath = await _client.getIconImageFromTokenUri(metadata.uri);
+    // } catch (_) {}
+
+    String filteredTokenSymbol =
+        metadata.symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
+
+    return SPLToken.fromMetadata(
+      name: metadata.name,
+      mint: metadata.symbol,
+      symbol: filteredTokenSymbol,
+      mintAddress: token.mint.address,
+      iconPath: iconPath,
+    );
   }
 
   void stop() {}

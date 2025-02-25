@@ -506,37 +506,7 @@ abstract class SolanaWalletBase
 
   Future<SPLToken?> getSPLToken(String mintAddress) async {
     try {
-      final programAddress =
-          MetaplexTokenMetaDataProgramUtils.findMetadataPda(mint: SolAddress(mintAddress));
-
-      final token = await _client.getSolanaProvider!.request(
-        SolanaRPCGetMetadataAccount(
-          account: programAddress.address,
-          commitment: Commitment.confirmed,
-        ),
-      );
-
-      if (token == null) {
-        return null;
-      }
-
-      final metadata = token.data;
-
-      String? iconPath;
-      //TODO(Further explore fetching images)
-      // try {
-      //   iconPath = await _client.getIconImageFromTokenUri(metadata.uri);
-      // } catch (_) {}
-
-      String filteredTokenSymbol = metadata.symbol.replaceFirst(RegExp('^\\\$'), '');
-
-      return SPLToken.fromMetadata(
-        name: metadata.name,
-        mint: metadata.symbol,
-        symbol: filteredTokenSymbol,
-        mintAddress: token.mint.address,
-        iconPath: iconPath,
-      );
+      return await _client.fetchSPLTokenInfo(mintAddress);
     } catch (e, s) {
       printV('Error fetching token: ${e.toString()}, ${s.toString()}');
       return null;
