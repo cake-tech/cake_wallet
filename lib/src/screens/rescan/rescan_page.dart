@@ -44,16 +44,18 @@ class RescanPage extends BasePage {
                     text: S.of(context).rescan,
                     onPressed: () async {
                       if (_rescanViewModel.isSilentPaymentsScan) {
-                        return _rescanViewModel.toggleSilentPaymentsScanning(
+                        final isScanning = await _rescanViewModel.toggleSilentPaymentsScanning(
                           context,
                           _blockchainHeightWidgetKey.currentState!.height,
                         );
+
+                        if (isScanning) Navigator.of(context).pop();
+                      } else {
+                        _rescanViewModel.rescanCurrentWallet(
+                            restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
+
+                        Navigator.of(context).pop();
                       }
-
-                      _rescanViewModel.rescanCurrentWallet(
-                          restoreHeight: _blockchainHeightWidgetKey.currentState!.height);
-
-                      Navigator.of(context).pop();
                     },
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,

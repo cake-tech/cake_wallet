@@ -96,7 +96,16 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
   }
 
   @action
-  Future<void> doScan(List<String> walletChoices, [int? height]) async {
+  Future<void> doScan(
+    BuildContext context,
+    List<String> walletChoices, [
+    int? height,
+    bool? pop,
+  ]) async {
+    if (pop == true) {
+      Navigator.of(context).pop();
+    }
+
     if (height == null) {
       setSilentPaymentsScanning(true, walletChoices);
     } else {
@@ -104,14 +113,15 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
     }
   }
 
-  Future<void> toggleSilentPaymentsScanning(BuildContext context, [int? height]) async {
+  Future<bool> toggleSilentPaymentsScanning(BuildContext context, [int? height, bool? pop]) async {
     if (wallet.type != WalletType.bitcoin) {
-      return;
+      return false;
     }
 
     // Already scanning and toggled, set to false now
     if (silentPaymentsScanningActive) {
-      return setSilentPaymentsScanning(false);
+      setSilentPaymentsScanning(false);
+      return false;
     }
 
     final wallets = await bitcoin!.getSilentPaymentWallets(wallet);
@@ -159,7 +169,7 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
       );
 
       if (cancelled) {
-        return;
+        return false;
       }
     }
 
@@ -173,7 +183,7 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
 
     final needsToSwitch = isElectrsSPEnabled == false;
     if (needsToSwitch) {
-      return showPopUp<void>(
+      await showPopUp<void>(
         context: context,
         builder: (BuildContext _dialogContext) => AlertWithTwoActions(
           alertTitle: S.of(_dialogContext).change_current_node_title,
@@ -185,14 +195,17 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
 
             allowSilentPaymentsScanning(true);
 
-            doScan(walletChoices, height);
+            doScan(context, walletChoices, height, pop);
           },
           actionLeftButton: () => Navigator.of(_dialogContext).pop(),
         ),
       );
+
+      return true;
     }
 
-    doScan(walletChoices, height);
+    doScan(context, walletChoices, height, pop);
+    return true;
   }
 }
 

@@ -467,7 +467,7 @@ abstract class DashboardViewModelBase with Store {
       return;
     }
 
-    return _silentPaymentsScanningViewModel.toggleSilentPaymentsScanning(context);
+    await _silentPaymentsScanningViewModel.toggleSilentPaymentsScanning(context);
   }
 
   @computed

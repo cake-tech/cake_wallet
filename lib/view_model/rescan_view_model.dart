@@ -40,8 +40,8 @@ abstract class RescanViewModelBase with Store {
       wallet.type == WalletType.bitcoin && await bitcoin!.checkIfMempoolAPIIsEnabled(wallet);
 
   @action
-  Future<void> toggleSilentPaymentsScanning(BuildContext context, int height) async {
-    return _silentPaymentsScanningViewModel.toggleSilentPaymentsScanning(context, height);
+  Future<bool> toggleSilentPaymentsScanning(BuildContext context, int height) async {
+    return _silentPaymentsScanningViewModel.toggleSilentPaymentsScanning(context, height, true);
   }
 
   @action
