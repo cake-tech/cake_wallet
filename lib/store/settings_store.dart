@@ -225,11 +225,10 @@ abstract class SettingsStoreBase with Store {
     if (initialZanoTransactionPriority != null) {
       priority[WalletType.zano] = initialZanoTransactionPriority;
     }
+
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
     }
-
-    initializeTrocadorProviderStates();
 
     reaction(
         (_) => fiatCurrency,
