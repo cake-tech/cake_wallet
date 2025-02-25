@@ -33,6 +33,10 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   Future<void> setSilentPaymentsAlwaysScan(bool value, BuildContext context) async {
     await _scanningViewModel.setSilentPaymentsAlwaysScan(value);
 
-    if (value) _scanningViewModel.toggleSilentPaymentsScanning(context);
+    final alreadyScanning = _scanningViewModel.getSilentPaymentsScanningActive();
+
+    if (value && !alreadyScanning) {
+      _scanningViewModel.toggleSilentPaymentsScanning(context);
+    }
   }
 }

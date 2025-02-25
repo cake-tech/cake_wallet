@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/sync_status.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
@@ -23,8 +22,10 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       _silentPaymentsAlwaysScan = bitcoin!.getAlwaysScanning(wallet);
 
-      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
+      reaction((_) => (wallet as dynamic).silentPaymentsScanningActive, (_) {
         silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+      });
+      reaction((_) => (wallet as dynamic).alwaysScan, (_) {
         _silentPaymentsAlwaysScan = bitcoin!.getAlwaysScanning(wallet);
       });
     }
@@ -50,14 +51,22 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
   @observable
   bool silentPaymentsScanningActive = false;
 
+  bool getSilentPaymentsScanningActive() {
+    return bitcoin!.getScanningActive(wallet);
+  }
+
   @observable
   bool _silentPaymentsAlwaysScan = false;
 
   bool get silentPaymentsAlwaysScan => _silentPaymentsAlwaysScan;
 
+  @action
   Future<void> setSilentPaymentsAlwaysScan(bool value) async {
     if (wallet.type == WalletType.bitcoin) {
-      return bitcoin!.setAlwaysScanning(wallet, value);
+      await bitcoin!.setAlwaysScanning(wallet, value);
+
+      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+      _silentPaymentsAlwaysScan = bitcoin!.getAlwaysScanning(wallet);
     }
   }
 

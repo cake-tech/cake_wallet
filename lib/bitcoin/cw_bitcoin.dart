@@ -596,7 +596,11 @@ class CWBitcoin extends Bitcoin {
     bool? forceStop,
   ]) async {
     final bitcoinWallet = wallet as BitcoinWallet;
-    bitcoinWallet.setSilentPaymentsScanning(active, addresses, null, null, forceStop);
+    bitcoinWallet.setSilentPaymentsScanning(
+      active,
+      addresses: addresses,
+      forceStop: forceStop,
+    );
   }
 
   @override

@@ -53,6 +53,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @computed
   bool get alwaysScan => _alwaysScan;
 
+  @observable
+  bool _forceStopScanning = false;
+
   BitcoinWalletBase({
     required super.password,
     required super.walletInfo,
@@ -381,12 +384,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @action
   Future<void> setSilentPaymentsScanning(
-    bool active, [
+    bool active, {
     List<String>? addresses,
     int? height,
     bool? doSingleScan,
     bool? forceStop,
-  ]) async {
+  }) async {
     _silentPaymentsScanningActive = active;
 
     bool isAllowedToScan = allowedToSwitchNodesForScanning;
@@ -411,15 +414,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         _requestTweakScanning(beginHeight, addresses, doSingleScan);
       }
     } else if (syncStatus is! SyncedSyncStatus) {
-      await startSync(forceStop: forceStop);
+      if (forceStop == true) {
+        _forceStopScanning = true;
+        await connectToNode(node: this.node!);
+      } else {
+        await startSync();
+      }
     }
   }
 
   @action
   Future<void> setAlwaysScanning(bool active) async {
     _alwaysScan = active;
-    if (!active) {
-      _silentPaymentsScanningActive = false;
+
+    if (!active && !_silentPaymentsScanningActive) {
+      await setSilentPaymentsScanning(false);
     }
 
     await save();
@@ -534,7 +543,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? doSingleScan,
     bool? forceStop,
   }) async {
-    setSilentPaymentsScanning(true, addresses, height, doSingleScan, forceStop);
+    setSilentPaymentsScanning(
+      true,
+      addresses: addresses,
+      height: height,
+      doSingleScan: doSingleScan,
+      forceStop: forceStop,
+    );
   }
 
   @action
@@ -719,12 +734,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   @action
-  Future<void> startSync({bool? forceStop}) async {
+  Future<void> startSync() async {
     await super.startSync();
 
-    if (forceStop != true && _alwaysScan == true && syncStatus is SyncedSyncStatus) {
-      _requestTweakScanning(walletInfo.restoreHeight);
+    if (_forceStopScanning != true && _alwaysScan == true && syncStatus is SyncedSyncStatus) {
+      await setSilentPaymentsScanning(true);
     }
+
+    _forceStopScanning = false;
   }
 
   @override
