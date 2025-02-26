@@ -16,7 +16,7 @@ extension RecommendationTitle on ProviderRecommendation {
       case ProviderRecommendation.lowKyc:
         return 'LOW KYC';
       case ProviderRecommendation.successRate:
-        return 'SUCCESS RATE';
+        return 'HIGHEST SUCCESS RATE';
     }
   }
 }
