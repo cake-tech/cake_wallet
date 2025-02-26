@@ -226,6 +226,7 @@
   "disable_buy": "Onemogući kupnju",
   "disable_cake_2fa": "Onemogući Cake 2FA",
   "disable_exchange": "Onemogući exchange",
+  "disable_exchange_option": "Onemogući opciju razmjene",
   "disable_fee_api_warning": "Isključivanjem ovoga, stope naknade u nekim bi slučajevima mogle biti netočne, tako da biste mogli preplatiti ili predati naknadu za vaše transakcije",
   "disable_fiat": "Isključi, fiat",
   "disable_sell": "Onemogući akciju prodaje",

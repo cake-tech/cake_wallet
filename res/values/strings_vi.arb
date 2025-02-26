@@ -225,6 +225,7 @@
   "disable_buy": "Vô hiệu hóa chức năng mua",
   "disable_cake_2fa": "Vô hiệu hóa 2FA Cake",
   "disable_exchange": "Vô hiệu hóa chức năng trao đổi",
+  "disable_exchange_option": "Tắt tùy chọn trao đổi",
   "disable_fee_api_warning": "Khi tắt chức năng này, tỉ lệ phí có thể không chính xác trong một số trường hợp, dẫn đến bạn trả quá hoặc không đủ phí cho giao dịch của mình.",
   "disable_fiat": "Vô hiệu hóa tiền tệ fiat",
   "disable_sell": "Vô hiệu hóa chức năng bán",
