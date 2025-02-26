@@ -459,6 +459,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       }
     });
 
+    reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) {
+      if (output.sendAll) {
+        output.setSendAll(sendViewModel.balance);
+      }
+
+      output.setCryptoAmount(cryptoAmountController.text);
+    });
+
     reaction((_) => output.fiatAmount, (String amount) {
       if (amount != fiatAmountController.text) {
         fiatAmountController.text = amount;
