@@ -1,6 +1,8 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -58,6 +60,8 @@ void startCurrentWalletChangeReaction(
       if (wallet == null) {
         return;
       }
+
+      await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
 
       final node = settingsStore.getCurrentNode(wallet.type);
 

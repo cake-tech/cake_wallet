@@ -227,7 +227,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                     editingWallet: wallet,
                                     isWalletGroup: true,
                                     groupName: groupName,
-                                    parentAddress: group.parentAddress,
+                                    walletGroupKey: group.groupKey,
                                   ),
                                 );
                               },

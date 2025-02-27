@@ -14,16 +14,15 @@ class CWTron extends Tron {
     WalletInfo? walletInfo,
     String? password,
     String? mnemonic,
-    String? parentAddress,
     String? passphrase,
   }) =>
       TronNewWalletCredentials(
-          name: name,
-          walletInfo: walletInfo,
-          password: password,
-          mnemonic: mnemonic,
-          passphrase: passphrase,
-          parentAddress: parentAddress);
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createTronRestoreWalletFromSeedCredentials({
