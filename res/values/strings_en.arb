@@ -175,7 +175,7 @@
   "contact_name_exists": "A contact with that name already exists. Please choose a different name.",
   "contact_support": "Contact Support",
   "continue_text": "Continue",
-  "contract_warning": "This contract address has been flagged as potentially fraudulent. Please process with caution.",
+  "contract_warning": "This contract address has been flagged as potentially fraudulent. Please proceed with caution.",
   "contractName": "Contract Name",
   "contractSymbol": "Contract Symbol",
   "copied_key_to_clipboard": "Copied ${key} to Clipboard",
