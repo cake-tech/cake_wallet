@@ -91,6 +91,8 @@ abstract class WalletCreationVMBase with Store {
           ? await getWalletCredentialsFromQRCredentials(restoreWallet)
           : getCredentials(options);
 
+      final isNonSeedWallet = isRecovery ? credentials.seedPhraseLength == null: false;
+
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
         name: name,
@@ -104,6 +106,7 @@ abstract class WalletCreationVMBase with Store {
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
+        isNonSeedWallet: isNonSeedWallet,
       );
 
       credentials.walletInfo = walletInfo;
