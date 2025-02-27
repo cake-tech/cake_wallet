@@ -71,6 +71,28 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
+  bool get isLowFee {
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.haven:
+      case WalletType.zano:
+        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
+      case WalletType.bitcoin:
+        return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
+      case WalletType.litecoin:
+        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
+      case WalletType.ethereum:
+        return transactionPriority == ethereum!.getEthereumTransactionPrioritySlow();
+      case WalletType.bitcoinCash:
+        return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
+      case WalletType.polygon:
+        return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
+      default:
+        return false;
+    }
+  }
+
   @computed
   int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
 

@@ -377,7 +377,7 @@ class ExchangePage extends BasePage {
       return;
     }
 
-    if (exchangeViewModel.isLowFee) {
+    if (exchangeViewModel.feesViewModel.isLowFee) {
       _showFeeAlert(context);
     }
 

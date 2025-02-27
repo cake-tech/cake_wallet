@@ -22,12 +22,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
@@ -44,8 +42,6 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -307,27 +303,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
-  bool get isLowFee {
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.wownero:
-      case WalletType.haven:
-      case WalletType.zano:
-        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
-      case WalletType.bitcoin:
-        return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
-      case WalletType.litecoin:
-        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
-      case WalletType.ethereum:
-        return transactionPriority == ethereum!.getEthereumTransactionPrioritySlow();
-      case WalletType.bitcoinCash:
-        return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
-      case WalletType.polygon:
-        return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
-      default:
-        return false;
-    }
-  }
+
 
   List<CryptoCurrency> receiveCurrencies;
 

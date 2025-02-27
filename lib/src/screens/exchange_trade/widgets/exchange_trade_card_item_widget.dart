@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -105,6 +106,10 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               onItemSelected: (TransactionPriority priority) {
                 feesViewModel.setTransactionPriority(priority);
                 setState(() => selectedIdx = items.indexOf(priority));
+
+                if (feesViewModel.isLowFee) {
+                  _showFeeAlert(context);
+                }
               },
             );
           },
@@ -112,6 +117,25 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
       },
     );
     if (isBitcoinWallet) feesViewModel.customBitcoinFeeRate = customFeeRate!.round();
+  }
+
+  void _showFeeAlert(BuildContext context) async {
+    await Future<void>.delayed(Duration(seconds: 1));
+    final confirmed = await showPopUp<bool>(
+            context: context,
+            builder: (dialogContext) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).low_fee,
+                  alertContent: S.of(context).low_fee_alert,
+                  leftButtonText: S.of(context).ignor,
+                  rightButtonText: S.of(context).use_suggested,
+                  actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+                  actionRightButton: () => Navigator.of(dialogContext).pop(true));
+            }) ??
+        false;
+    if (confirmed) {
+      feesViewModel.setDefaultTransactionPriority();
+    }
   }
 }
 
