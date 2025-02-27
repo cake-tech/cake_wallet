@@ -131,55 +131,57 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
   Widget build(BuildContext context) {
     _setEffects();
 
-    return Container(
-      child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(top: 10, bottom: 16),
-          content: Observer(builder: (_) {
-            final trade = widget.exchangeTradeViewModel.trade;
+    return Scaffold(
+      body: Container(
+        child: ScrollableWithBottomSection(
+            contentPadding: EdgeInsets.only(top: 10, bottom: 16),
+            content: Observer(builder: (_) {
+              final trade = widget.exchangeTradeViewModel.trade;
 
-            return Column(
-              children: <Widget>[
-                trade.expiredAt != null
-                    ? Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                            Text(
-                              S.of(context).offer_expires_in,
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
-                            ),
-                            if (trade.expiredAt != null)
-                              TimerWidget(trade.expiredAt!,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
-                          ])
-                    : Offstage(),
-                _ExchangeTradeItemsCardSection(viewModel: widget.exchangeTradeViewModel),
-              ],
-            );
-          }),
-          bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-          bottomSection: Observer(builder: (_) {
-            final trade = widget.exchangeTradeViewModel.trade;
-            final sendingState =
-                widget.exchangeTradeViewModel.sendViewModel.state;
+              return Column(
+                children: <Widget>[
+                  trade.expiredAt != null
+                      ? Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                              Text(
+                                S.of(context).offer_expires_in,
+                                style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                              ),
+                              if (trade.expiredAt != null)
+                                TimerWidget(trade.expiredAt!,
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
+                            ])
+                      : Offstage(),
+                  _ExchangeTradeItemsCardSection(viewModel: widget.exchangeTradeViewModel),
+                ],
+              );
+            }),
+            bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+            bottomSection: Observer(builder: (_) {
+              final trade = widget.exchangeTradeViewModel.trade;
+              final sendingState =
+                  widget.exchangeTradeViewModel.sendViewModel.state;
 
-            return widget.exchangeTradeViewModel.isSendable &&
-                    !(sendingState is TransactionCommitted)
-                ? LoadingPrimaryButton(
-                    key: ValueKey('exchange_trade_page_confirm_sending_button_key'),
-                    isDisabled: trade.inputAddress == null ||
-                        trade.inputAddress!.isEmpty,
-                    isLoading: sendingState is IsExecutingState,
-                    onPressed: () =>
-                        widget.exchangeTradeViewModel.confirmSending(),
-                    text: S.of(context).confirm,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white)
-                : Offstage();
-          })),
+              return widget.exchangeTradeViewModel.isSendable &&
+                      !(sendingState is TransactionCommitted)
+                  ? LoadingPrimaryButton(
+                      key: ValueKey('exchange_trade_page_confirm_sending_button_key'),
+                      isDisabled: trade.inputAddress == null ||
+                          trade.inputAddress!.isEmpty,
+                      isLoading: sendingState is IsExecutingState,
+                      onPressed: () =>
+                          widget.exchangeTradeViewModel.confirmSending(),
+                      text: S.of(context).confirm,
+                      color: Theme.of(context).primaryColor,
+                      textColor: Colors.white)
+                  : Offstage();
+            })),
+      ),
     );
   }
 

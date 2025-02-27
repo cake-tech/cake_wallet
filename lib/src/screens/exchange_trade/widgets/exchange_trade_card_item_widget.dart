@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
@@ -15,6 +16,12 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+
+import '../../../../di.dart';
+import '../../../../store/settings_store.dart';
+import '../../../../themes/extensions/cake_text_theme.dart';
+import '../../../../themes/extensions/transaction_trade_theme.dart';
+import '../../../../themes/theme_base.dart';
 
 class ExchangeTradeCardItemWidget extends StatelessWidget {
   ExchangeTradeCardItemWidget({
@@ -152,8 +159,20 @@ class TradeItemRowWidget extends StatelessWidget {
     required this.copyImage,
   });
 
+  // Please change this
+  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
+
   @override
   Widget build(BuildContext context) {
+
+    final hintTextColor = currentTheme == ThemeType.bright
+        ? Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor
+        : Colors.white.withAlpha(175);
+
+    final mainTextColor = currentTheme == ThemeType.bright
+        ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
+        : Colors.white;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: GestureDetector(
@@ -168,6 +187,8 @@ class TradeItemRowWidget extends StatelessWidget {
           value: value,
           image: isCopied ? copyImage : null,
           color: Colors.transparent,
+          hintTextColor: hintTextColor,
+          mainTextColor: mainTextColor,
         ),
       ),
     );
