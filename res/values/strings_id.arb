@@ -175,7 +175,7 @@
   "contact_name_exists": "Kontak dengan nama tersebut sudah ada. Silakan pilih nama lain.",
   "contact_support": "Hubungi Dukungan",
   "continue_text": "Lanjutkan",
-  "contract_warning": "Alamat kontrak ini telah ditandai sebagai berpotensi curang. Silakan memproses dengan hati -hati.",
+  "contract_warning": "Alamat kontrak ini telah ditandai sebagai berpotensi curang. Silakan lanjutkan dengan hati -hati.",
   "contractName": "Nama Kontrak",
   "contractSymbol": "Simbol Kontrak",
   "copied_key_to_clipboard": "Kunci ${key} disalin ke Clipboard",
