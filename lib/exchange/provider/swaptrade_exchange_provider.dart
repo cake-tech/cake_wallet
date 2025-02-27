@@ -39,6 +39,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   static const getRate = '/api/swap/get-rate';
   static const getCoins = '/api/swap/get-coins';
   static const createOrder = '/api/swap/create-order';
+  static const order = '/api/swap/order';
 
   @override
   String get title => 'SwapTrade';
@@ -108,6 +109,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final body = <String, String>{
         'coin_send': _normalizeCurrency(from),
         'coin_receive': _normalizeCurrency(to),
+        'amount': amount.toString(),
         'ref': 'cake',
       };
 
@@ -193,7 +195,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'order_id': id,
       };
 
-      final uri = Uri.https(apiAuthority, createOrder, params);
+      final uri = Uri.https(apiAuthority, order, params);
       final response = await post(uri, body: body, headers: headers);
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
