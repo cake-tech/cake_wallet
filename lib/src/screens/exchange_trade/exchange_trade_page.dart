@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'dart:ui';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -88,14 +89,17 @@ class ExchangeTradePage extends BasePage {
   }
 
   @override
-  Widget body(BuildContext context) =>
-      ExchangeTradeForm(exchangeTradeViewModel);
+  Widget body(BuildContext context) => ExchangeTradeForm(exchangeTradeViewModel, currentTheme);
 }
 
 class ExchangeTradeForm extends StatefulWidget {
-  ExchangeTradeForm(this.exchangeTradeViewModel);
+  ExchangeTradeForm(
+    this.exchangeTradeViewModel,
+    this.currentTheme,
+  );
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
+  final ThemeBase currentTheme;
 
   @override
   ExchangeTradeState createState() => ExchangeTradeState();
@@ -157,7 +161,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                     color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
                             ])
                       : Offstage(),
-                  _ExchangeTradeItemsCardSection(viewModel: widget.exchangeTradeViewModel),
+                  _ExchangeTradeItemsCardSection(
+                    viewModel: widget.exchangeTradeViewModel,
+                    currentTheme: widget.currentTheme,
+                  ),
                 ],
               );
             }),
@@ -368,18 +375,24 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 }
 
 class _ExchangeTradeItemsCardSection extends StatelessWidget {
-  const _ExchangeTradeItemsCardSection({required this.viewModel});
+  const _ExchangeTradeItemsCardSection({
+    required this.viewModel,
+    required this.currentTheme,
+  });
 
   final ExchangeTradeViewModel viewModel;
+  final ThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
     final firstExchangeCard = ExchangeTradeCardItemWidget(
+      currentTheme: currentTheme,
       isReceiveDetailsCard: true,
       exchangeTradeViewModel: viewModel,
     );
 
     final secondExchangeCard = ExchangeTradeCardItemWidget(
+      currentTheme: currentTheme,
       isReceiveDetailsCard: false,
       exchangeTradeViewModel: viewModel,
     );

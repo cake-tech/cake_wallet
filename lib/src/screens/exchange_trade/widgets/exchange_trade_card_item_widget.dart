@@ -1,6 +1,5 @@
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
@@ -16,9 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
-import '../../../../di.dart';
-import '../../../../store/settings_store.dart';
 import '../../../../themes/extensions/cake_text_theme.dart';
 import '../../../../themes/extensions/transaction_trade_theme.dart';
 import '../../../../themes/theme_base.dart';
@@ -27,6 +23,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   ExchangeTradeCardItemWidget({
     required this.isReceiveDetailsCard,
     required this.exchangeTradeViewModel,
+    required this.currentTheme,
     Key? key,
   })  : feesViewModel = exchangeTradeViewModel.feesViewModel,
         output = exchangeTradeViewModel.output;
@@ -35,6 +32,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   final bool isReceiveDetailsCard;
   final FeesViewModel feesViewModel;
   final ExchangeTradeViewModel exchangeTradeViewModel;
+  final ThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +54,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
               .where((item) => item.isReceiveDetail == isReceiveDetailsCard)
               .map(
                 (item) => TradeItemRowWidget(
+                  currentTheme: currentTheme,
                   title: item.title,
                   value: item.data,
                   isCopied: item.isCopied,
@@ -127,7 +126,6 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   }
 
   void _showFeeAlert(BuildContext context) async {
-    await Future<void>.delayed(Duration(seconds: 1));
     final confirmed = await showPopUp<bool>(
             context: context,
             builder: (dialogContext) {
@@ -151,16 +149,15 @@ class TradeItemRowWidget extends StatelessWidget {
   final String value;
   final bool isCopied;
   final Image copyImage;
+  final ThemeBase currentTheme;
 
   const TradeItemRowWidget({
     required this.title,
     required this.value,
     required this.isCopied,
     required this.copyImage,
+    required this.currentTheme,
   });
-
-  // Please change this
-  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
   @override
   Widget build(BuildContext context) {

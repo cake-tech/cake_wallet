@@ -196,20 +196,24 @@ abstract class ExchangeTradeViewModelBase with Store {
     ]);
 
     if (trade.extraId != null) {
-      final title = trade.from == CryptoCurrency.xrp
-          ? S.current.destination_tag
-          : trade.from == CryptoCurrency.xlm
-          ? S.current.memo
-          : S.current.extra_id;
+      final shouldAddExtraId = trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm;
 
-      items.add(
-        ExchangeTradeItem(
-          title: title,
-          data: '${trade.extraId}',
-          isCopied: true,
-          isReceiveDetail: true,
-        ),
-      );
+      if (shouldAddExtraId) {
+        final title = trade.from == CryptoCurrency.xrp
+            ? S.current.destination_tag
+            : trade.from == CryptoCurrency.xlm
+                ? S.current.memo
+                : S.current.extra_id;
+
+        items.add(
+          ExchangeTradeItem(
+            title: title,
+            data: '${trade.extraId}',
+            isCopied: true,
+            isReceiveDetail: true,
+          ),
+        );
+      }
     }
 
     items.add(
