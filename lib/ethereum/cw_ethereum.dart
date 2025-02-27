@@ -207,4 +207,9 @@ class CWEthereum extends Ethereum {
       throw err;
     }
   }
+
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
+  }
 }

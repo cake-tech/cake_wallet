@@ -152,4 +152,9 @@ class CWSolana extends Solana {
   double? getEstimateFees(WalletBase wallet) {
     return (wallet as SolanaWallet).estimatedFee;
   }
+
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultSPLTokens().initialSPLTokens.map((e) => e.mintAddress).toList();
+  }
 }

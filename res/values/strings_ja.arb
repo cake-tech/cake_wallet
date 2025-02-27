@@ -175,7 +175,7 @@
   "contact_name_exists": "その名前の連絡先はすでに存在します。別の名前を選択してください。",
   "contact_support": "サポートに連絡する",
   "continue_text": "持続する",
-  "contract_warning": "この契約住所は、潜在的に不正としてフラグが立てられています。注意して処理してください。",
+  "contract_warning": "この契約住所は、潜在的に不正としてフラグが立てられています。注意して進めてください。",
   "contractName": "契約名",
   "contractSymbol": "契約記号",
   "copied_key_to_clipboard": "コピー済み ${key} クリップボードへ",

@@ -175,7 +175,7 @@
   "contact_name_exists": "Ein Kontakt mit diesem Namen besteht bereits. Bitte wählen Sie einen anderen Namen.",
   "contact_support": "Support kontaktieren",
   "continue_text": "Weiter",
-  "contract_warning": "Diese Contract Adresse wurde als potenziell betrügerisch gekennzeichnet. Bitte fahren Sie mit Vorsicht fort.",
+  "contract_warning": "Diese Vertragsadresse wurde als potenziell betrügerisch gekennzeichnet. Bitte gehen Sie mit Vorsicht vor.",
   "contractName": "Contract-Name",
   "contractSymbol": "Contract-Symbol",
   "copied_key_to_clipboard": "${key} in Zwischenablage kopiert",

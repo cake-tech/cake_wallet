@@ -211,6 +211,21 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
                               _contractAddressController.text,
                             );
+
+                            final isWhitelisted = await widget.homeSettingsViewModel
+                                .checkIfTokenIsWhitelisted(_contractAddressController.text);
+
+                            bool isPotentialScam = hasPotentialError;
+                            final tokenSymbol = _tokenSymbolController.text.toUpperCase();
+                            
+                            // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
+                            // if it is, then it's probably a scam unless it's in the whitelist
+                            final baseCurrencySymbols =
+                                CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
+                            if (baseCurrencySymbols.contains(tokenSymbol) && !isWhitelisted) {
+                              isPotentialScam = true;
+                            }
+
                             final actionCall = () async {
                               try {
                                 await widget.homeSettingsViewModel.addToken(
@@ -219,6 +234,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                     title: _tokenSymbolController.text.toUpperCase(),
                                     decimals: int.parse(_tokenDecimalController.text),
                                     iconPath: _tokenIconPathController.text,
+                                    isPotentialScam: isPotentialScam,
                                   ),
                                   contractAddress: _contractAddressController.text,
                                 );
@@ -226,7 +242,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 if (mounted) {
                                   Navigator.pop(context);
                                 }
-
                               } catch (e) {
                                 showPopUp<void>(
                                   context: context,
@@ -303,7 +318,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       if (token != null) {
         final isZano = widget.homeSettingsViewModel.walletType == WalletType.zano;
         if (_tokenNameController.text.isEmpty || isZano) _tokenNameController.text = token.name;
-        if (_tokenSymbolController.text.isEmpty || isZano) _tokenSymbolController.text = token.title;
+        if (_tokenSymbolController.text.isEmpty || isZano)
+          _tokenSymbolController.text = token.title;
         if (_tokenIconPathController.text.isEmpty)
           _tokenIconPathController.text = token.iconPath ?? '';
         if (_tokenDecimalController.text.isEmpty || isZano)
@@ -338,7 +354,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
             buttonColor: Theme.of(context).hintColor,
-            validator: widget.homeSettingsViewModel.walletType == WalletType.zano ? null : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,
+            validator: widget.homeSettingsViewModel.walletType == WalletType.zano
+                ? null
+                : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,
             onPushPasteButton: (_) {
               _pasteText();
             },

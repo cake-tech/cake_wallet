@@ -11,7 +11,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     this.iconPath,
     this.tag,
     this.enabled = false,
-    })
+    this.isPotentialScam = false,
+  })
       : super(title: title, raw: raw);
 
   final String name;
@@ -20,6 +21,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   final String? iconPath;
   final int decimals;
   final bool enabled;
+  final bool isPotentialScam;
 
   set enabled(bool value) => this.enabled = value;
 

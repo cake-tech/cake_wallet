@@ -60,9 +60,12 @@ Future<void> startFiatRateUpdate(
             tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
       }
 
-
       if (currencies != null) {
         for (final currency in currencies) {
+          // skip potential scams:
+          if (currency.isPotentialScam) {
+            continue;
+          }
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
                 crypto: currency,
