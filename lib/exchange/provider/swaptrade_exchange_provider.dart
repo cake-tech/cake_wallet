@@ -212,10 +212,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final toCurrency = responseData['coin_receive'] as String;
       final to = CryptoCurrency.fromString(toCurrency);
       final inputAddress = responseData['server_address'] as String;
+      final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
       final state = TradeState.deserialize(raw: status);
       final response_id = responseData['order_id'] as String;
       final expectedSendAmount = responseData['amount_send'] as String;
+      final expectedReceiveAmount = responseData['amount_receive'] as String;
+      final memo = responseData['memo'] as String?;
+      final createdAt = responseData['created_at'] as String?;
 
       return Trade(
         id: response_id,
@@ -224,7 +228,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         provider: description,
         inputAddress: inputAddress,
         amount: expectedSendAmount,
+        payoutAddress: payoutAddress,
         state: state,
+        receiveAmount: expectedReceiveAmount,
+        memo: memo,
+        createdAt: DateTime.tryParse(createdAt ?? ''),
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");
@@ -248,7 +256,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       CryptoCurrency.eth => 'ETH',
       CryptoCurrency.bnb => 'BNB_BSC',
       CryptoCurrency.usdterc20 => 'USDT_ERC20',
-      CryptoCurrency.usdttrc20 => 'TRX_USDT',
+      CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
       _ => '',
     };
     return network;
