@@ -12,6 +12,7 @@ import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart'
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
@@ -72,6 +73,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.chainflip:
         _provider = ChainflipExchangeProvider(tradesStore: trades);
         break;
+      case ExchangeProviderDescription.xoSwap:
+        _provider = XOSwapExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -104,6 +108,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://stealthex.io/exchange/?id=${trade.id}';
       case ExchangeProviderDescription.chainflip:
         return 'https://scan.chainflip.io/channels/${trade.id}';
+      case ExchangeProviderDescription.xoSwap:
+        return 'https://xoswap.com/orders/${trade.id}'; // TODO: add track url
     }
     return null;
   }
