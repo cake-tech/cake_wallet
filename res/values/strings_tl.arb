@@ -178,7 +178,7 @@
   "contact_name_exists": "Ang isang pakikipag -ugnay sa pangalang iyon ay mayroon na. Mangyaring pumili ng ibang pangalan.",
   "contact_support": "Makipag-ugnay sa Suporta",
   "continue_text": "Magpatuloy",
-  "contract_warning": "Ang address ng kontrata na ito ay na -flag bilang potensyal na mapanlinlang. Mangyaring iproseso nang may pag -iingat.",
+  "contract_warning": "Ang address ng kontrata na ito ay na -flag bilang potensyal na mapanlinlang. Mangyaring magpatuloy sa pag -iingat.",
   "contractName": "Pangalan ng Kontrata",
   "contractSymbol": "Simbolo ng Kontrata",
   "copied_key_to_clipboard": "Kinopya ang ${key} sa Clipboard",

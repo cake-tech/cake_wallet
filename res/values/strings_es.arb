@@ -178,7 +178,7 @@
   "contact_name_exists": "Ya existe un contacto con ese nombre. Elija un nombre diferente.",
   "contact_support": "Contactar con Soporte",
   "continue_text": "Continuar",
-  "contract_warning": "Esta dirección de contrato ha sido marcada como potencialmente fraudulenta. Por favor, procese con precaución.",
+  "contract_warning": "Esta dirección de contrato ha sido marcada como potencialmente fraudulenta. Proceda con precaución.",
   "contractName": "Nombre del contrato",
   "contractSymbol": "Símbolo de contrato",
   "copied_key_to_clipboard": "Copiado ${key} al portapapeles",

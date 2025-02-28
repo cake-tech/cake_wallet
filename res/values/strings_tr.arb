@@ -178,7 +178,7 @@
   "contact_name_exists": "Bu isimde bir kişi zaten mevcut. Lütfen farklı bir ad seçin.",
   "contact_support": "Destek ile İletişime Geç",
   "continue_text": "Devam et",
-  "contract_warning": "Bu sözleşme adresi potansiyel olarak hileli olarak işaretlenmiştir. Lütfen dikkatle işleyin.",
+  "contract_warning": "Bu sözleşme adresi potansiyel olarak hileli olarak işaretlenmiştir. Lütfen dikkatle devam edin.",
   "contractName": "Sözleşme Adı",
   "contractSymbol": "Sözleşme Sembolü",
   "copied_key_to_clipboard": "${key} panoya kopyalandı",
