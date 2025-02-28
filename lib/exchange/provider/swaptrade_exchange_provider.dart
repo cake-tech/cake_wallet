@@ -26,9 +26,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
               CryptoCurrency.ltc,
               CryptoCurrency.ada,
               CryptoCurrency.bch,
-              CryptoCurrency.usdt,
+              CryptoCurrency.usdterc20,
+              CryptoCurrency.usdttrc20,
               CryptoCurrency.bnb,
               CryptoCurrency.xmr,
+              CryptoCurrency.zec,
             ].contains(element))
         .toList())
   ];
@@ -140,17 +142,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final params = <String, dynamic>{};
       var body = <String, dynamic>{
         'coin_send': _normalizeCurrency(request.fromCurrency),
+        'coin_send_network': _networkFor(request.fromCurrency),
         'coin_receive': _normalizeCurrency(request.toCurrency),
+        'coin_receive_network': _networkFor(request.toCurrency),
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
         'markup': markup,
       };
-
-      String? fromNetwork = _networkFor(request.fromCurrency);
-      String? toNetwork = _networkFor(request.toCurrency);
-      if (fromNetwork != null) body['coin_send_network'] = fromNetwork;
-      if (toNetwork != null) body['coin_receive_network'] = toNetwork;
 
       final uri = Uri.https(apiAuthority, createOrder, params);
       final response = await post(uri, body: body, headers: headers);
@@ -244,14 +243,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String? _networkFor(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.usdt:
-        return "USDT_ERC20";
-      case CryptoCurrency.bnb:
-        return "BNB_BSC";
-      default:
-        return null;
-    }
+  String _networkFor(CryptoCurrency currency) {
+    final network = switch (currency) {
+      CryptoCurrency.eth => 'ETH',
+      CryptoCurrency.bnb => 'BNB_BSC',
+      CryptoCurrency.usdterc20 => 'USDT_ERC20',
+      CryptoCurrency.usdttrc20 => 'TRX_USDT',
+      _ => '',
+    };
+    return network;
   }
 }
