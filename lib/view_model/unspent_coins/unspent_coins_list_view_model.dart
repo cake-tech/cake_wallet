@@ -167,14 +167,12 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @action
   void resetUnspentCoinsInfoSelections() {
-    // reset all unspent coins selections to true
+    // reset all unspent coins selections to true except frozen ones
     for (final item in items) {
-      // if (!item.isSending) {
-      //   item.isSending = true;
-      //   saveUnspentCoinInfo(item);
-      // }
-      item.isSending = true;
-      saveUnspentCoinInfo(item);
+      if (!item.isFrozen) {
+        item.isSending = true;
+        saveUnspentCoinInfo(item);
+      }
     }
   }
 
