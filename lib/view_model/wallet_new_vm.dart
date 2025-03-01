@@ -178,6 +178,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return zano!.createZanoNewWalletCredentials(
           name: name,
           password: walletPassword,
+          passphrase: passphrase,
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);

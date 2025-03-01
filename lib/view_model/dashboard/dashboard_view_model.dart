@@ -52,6 +52,8 @@ import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../themes/theme_base.dart';
+
 part 'dashboard_view_model.g.dart';
 
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
@@ -70,7 +72,7 @@ abstract class DashboardViewModelBase with Store {
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = false,
-        hasExchangeAction = false,
+        hasSwapAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
@@ -485,6 +487,34 @@ abstract class DashboardViewModelBase with Store {
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
+  double getShadowSpread() {
+    double spread = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      spread = 0;
+    return spread;
+  }
+
+  @action
+  double getShadowBlur() {
+    double blur = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      blur = 0;
+    return blur;
+  }
+
+  @action
   void setMwebEnabled() {
     if (!hasMweb) {
       return;
@@ -540,10 +570,10 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
-  bool hasExchangeAction;
+  bool hasSwapAction;
 
   @computed
   bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
@@ -753,7 +783,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    hasExchangeAction = !isHaven;
+    hasSwapAction = !isHaven;
     hasTradeAction = !isHaven;
   }
 

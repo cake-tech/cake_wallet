@@ -1,5 +1,5 @@
-Added Zano wallet support
-Added Monero/Wownero passphrase support
-Added decentralized cross-chain exchange, Chainflip
+Zano enhancements
+Ethereum enhancements
+Ledger fixes
 UI enhancements
 Bug fixes

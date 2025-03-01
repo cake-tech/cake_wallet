@@ -1,16 +1,19 @@
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'support_view_model.g.dart';
 
 class SupportViewModel = SupportViewModelBase with _$SupportViewModel;
 
 abstract class SupportViewModelBase with Store {
-  SupportViewModelBase()
+  final SettingsStore settingsStore;
+
+  SupportViewModelBase(this.settingsStore)
       : items = [
           LinkListItem(
               title: 'Email',
@@ -70,7 +73,7 @@ abstract class SupportViewModelBase with Store {
               link: 'mailto:support@exolix.com'),
           LinkListItem(
               title: 'SwapTrade',
-              icon: 'assets/images/swapTrade.png',
+              icon: 'assets/images/swap_trade.png',
               linkTitle: 'help.swaptrade.io',
               link: 'mailto:support@exolix.com'),
           LinkListItem(
@@ -115,6 +118,9 @@ abstract class SupportViewModelBase with Store {
 
     return supportUrl;
   }
+
+  String get appVersion =>
+      "${isMoneroOnly ? "Monero.com" : "Cake Wallet"} - ${settingsStore.appVersion}";
 
   List<SettingsListItem> items;
 }

@@ -216,7 +216,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       bool isCameraPermissionGranted =
           await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
-      String code = await presentQRScanner(context);
+      String? code = await presentQRScanner(context);
+      if (code == null) throw Exception("Unexpected QR code value: aborted");
+
       if (code.isEmpty) {
         throw Exception('Unexpected scan QR code value: value is empty');
       }

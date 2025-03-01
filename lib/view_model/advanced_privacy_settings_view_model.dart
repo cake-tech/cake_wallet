@@ -72,7 +72,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
 
-  bool hasPassphraseOption(bool isRestore) => [
+  bool get hasPassphraseOption => [
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
@@ -81,7 +81,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.tron,
         WalletType.monero,
         WalletType.wownero,
-        if (isRestore) WalletType.zano,
+        WalletType.zano,
       ].contains(type);
 
   @computed

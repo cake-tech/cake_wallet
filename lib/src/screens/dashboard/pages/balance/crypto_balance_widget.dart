@@ -40,7 +40,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                   child: DashBoardRoundedCardWidget(
                     title: "Invalid monero bindings",
                     subTitle: dashboardViewModel.getMoneroError.toString(),
-                    onTap: () {},
                   ),
                 );
               }
@@ -55,7 +54,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: DashBoardRoundedCardWidget(
                       title: "Invalid wownero bindings",
                       subTitle: dashboardViewModel.getWowneroError.toString(),
-                      onTap: () {},
                     ));
               }
               return Container();
@@ -154,7 +152,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               return ListView.separated(
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 8)),
+                separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 16)),
                 itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length,
                 itemBuilder: (__, index) {
                   final balance =
@@ -207,14 +205,17 @@ class CryptoBalanceWidget extends StatelessWidget {
                         subTitle: "Here are the things that you should note:\n - " +
                             dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ") +
                             "\n\nPlease restart your wallet and if it doesn't help contact our support.",
-                        onTap: () {},
                       ))
                 ],
                 if (dashboardViewModel.showSilentPaymentsCard) ...[
-                  SizedBox(height: 10),
+                  SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: DashBoardRoundedCardWidget(
+                      shadowBlur: dashboardViewModel.getShadowBlur(),
+                      shadowSpread: dashboardViewModel.getShadowSpread(),
+                      marginV: 0,
+                      marginH: 0,
                       customBorder: 30,
                       title: S.of(context).silent_payments,
                       subTitle: S.of(context).enable_silent_payments_scanning,
@@ -277,7 +278,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   ),
                 ],
                 if (dashboardViewModel.showMwebCard) ...[
-                  SizedBox(height: 10),
+                  SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
@@ -325,6 +326,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               ],
             );
           }),
+          SizedBox(height: 130),
         ],
       ),
     );

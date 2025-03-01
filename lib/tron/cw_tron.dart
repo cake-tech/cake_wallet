@@ -133,4 +133,9 @@ class CWTron extends Tron {
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled) {
     (wallet as TronWallet).updateScanProviderUsageState(isEnabled);
   }
+
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultTronTokens().initialTronTokens.map((e) => e.contractAddress).toList();
+  }
 }

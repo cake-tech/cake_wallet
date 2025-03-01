@@ -142,7 +142,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               24,
-              responsiveLayoutUtil.shouldRenderMobileUI ? 100 : 55,
+              responsiveLayoutUtil.shouldRenderMobileUI ? 110 : 55,
               24,
               responsiveLayoutUtil.shouldRenderMobileUI ? 32 : 0,
             ),
@@ -457,6 +457,14 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         cryptoAmountController.text = S.current.all;
         fiatAmountController.text = '';
       }
+    });
+
+    reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) {
+      if (output.sendAll) {
+        output.setSendAll(sendViewModel.balance);
+      }
+
+      output.setCryptoAmount(cryptoAmountController.text);
     });
 
     reaction((_) => output.fiatAmount, (String amount) {
