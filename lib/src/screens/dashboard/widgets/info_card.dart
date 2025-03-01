@@ -1,8 +1,5 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class InfoCard extends StatelessWidget {
   final String leftButtonTitle;
@@ -29,6 +26,8 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DashBoardRoundedCardWidget(
+      marginH: 0,
+      marginV: 0,
       customBorder: 30,
       title: title,
       subTitle: description,
