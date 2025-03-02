@@ -64,8 +64,7 @@ class OtherSettingsPage extends BasePage {
                 handler: (BuildContext context) =>
                     Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
-              // DNM: enable this on kDebugMode only before merge
-              if (_otherSettingsViewModel.walletType == WalletType.monero) 
+              if (kDebugMode && _otherSettingsViewModel.walletType == WalletType.monero) 
                 SettingsCellWithArrow(
                   title: '[dev] monero background sync',
                   handler: (BuildContext context) =>
