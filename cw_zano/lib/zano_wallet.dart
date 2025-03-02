@@ -321,12 +321,7 @@ abstract class ZanoWalletBase
   }
 
   Future<void> init() async {
-    await walletAddresses.init();
-    await walletAddresses.updateAddress(walletAddresses.address);
-    await updateTransactions();
-    _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveIntervalSeconds), (_) async {
-      await save();
-    });
+    await initZano(walletAddresses.address);
   }
 
   Future<void> initZano(String address) async {
