@@ -312,10 +312,6 @@ Future<void> setup({
     getIt.registerFactory(() => BackgroundTasks());
   }
 
-  // getIt.registerSingleton<BackgroundTasks>(BackgroundTasks(
-  //   settingsStore: getIt.get<SettingsStore>(),
-  // ));
-
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
       (secrets.wyreApiKey.isNotEmpty) &&
       (secrets.wyreAccountId.isNotEmpty);
