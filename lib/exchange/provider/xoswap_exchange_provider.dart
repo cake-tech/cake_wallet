@@ -100,13 +100,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
           if (amount >= minVal && amount <= maxVal) {
             final double rateMultiplier = double.parse(rate['amount']['value'].toString());
             final double minerFee = double.parse(rate['minerFee']['value'].toString());
-            final double outputAmount = amount * rateMultiplier - minerFee;
+            final double outputAmount = (amount * rateMultiplier) - minerFee;
             if (outputAmount > bestOutput) {
               bestOutput = outputAmount;
             }
           }
         }
-        return bestOutput > 0 ? bestOutput : 0;
+        return bestOutput > 0 ? (bestOutput / amount) : 0;
       } else {
         double bestInput = double.infinity;
         for (var rate in rates) {
