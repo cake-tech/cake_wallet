@@ -48,7 +48,9 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
   }) async {
     try {
-      final pairId = '${from.title}_${to.title}';
+      final curFrom = '${from.title}${_networkId(from)}';
+      final curTo = '${to.title}${_networkId(to)}';
+      final pairId = curFrom + '_' + curTo;
       final uri = Uri.https(_apiAuthority, '$_apiPath$_pairsPath/$pairId$_ratePath');
       final response = await http.get(uri, headers: _headers);
       if (response.statusCode != 200) return [];
@@ -155,7 +157,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
-      final orderId = responseJSON['providerOrderId'] as String;
+      final orderId = responseJSON['id'] as String;
       final from = request.fromCurrency;
       final to = request.toCurrency;
       final payoutAddress = responseJSON['toAddress'] as String;
@@ -165,7 +167,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final receiveAmount = toAmount['value'] as String;
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['createdAt'] as String;
-      final extraId = responseJSON['deposit_extra_id'] as String?;
+      final extraId = responseJSON['payInAddressTag'] as String?;
 
       final createdAt = DateTime.parse(createdAtString).toLocal();
 
@@ -214,7 +216,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
-      final orderId = responseJSON['providerOrderId'] as String;
+      final orderId = responseJSON['id'] as String;
       final depositAmount = amount['value'] as String;
       final receiveAmount = toAmount['value'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
@@ -223,7 +225,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['createdAt'] as String;
       final createdAt = DateTime.parse(createdAtString).toLocal();
-      final extraId = responseJSON['deposit_extra_id'] as String?;
+      final extraId = responseJSON['payInAddressTag'] as String?;
 
       return Trade(
         id: orderId,
@@ -243,5 +245,19 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       printV(e.toString());
       throw TradeNotCreatedException(description);
     }
+  }
+
+  String _networkId(CryptoCurrency currency) {
+    if (currency.tag == 'POL') {
+      if (currency.title.toUpperCase() == 'USDT') return 'matic86E249C1';
+
+      if (currency.title.toUpperCase() == 'USDC') return 'matic0A883D9B';
+
+      return '';
+    }
+
+    if (currency.tag == 'ETH') return '';
+
+    return currency.tag ?? '';
   }
 }
