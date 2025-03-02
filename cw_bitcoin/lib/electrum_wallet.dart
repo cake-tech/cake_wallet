@@ -603,15 +603,6 @@ abstract class ElectrumWalletBase
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
       await electrumClient.connectToUri(node.uri, useSSL: node.useSSL);
-      
-      int secondsWaited = 0;
-      while (!electrumClient.isConnected) {
-        await Future.delayed(const Duration(seconds: 1));
-        secondsWaited++;
-        if (secondsWaited > 5) {
-          break;
-        }
-      }
     } catch (e, stacktrace) {
       printV(stacktrace);
       printV("connectToNode $e");
