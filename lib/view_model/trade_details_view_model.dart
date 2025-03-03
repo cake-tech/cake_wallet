@@ -109,7 +109,7 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.chainflip:
         return 'https://scan.chainflip.io/channels/${trade.id}';
       case ExchangeProviderDescription.xoSwap:
-        return  ''; //'https://xoswap.com/${trade.id}'; // TODO: add track url
+        return  'https://orders.xoswap.com/${trade.id}';
     }
     return null;
   }
