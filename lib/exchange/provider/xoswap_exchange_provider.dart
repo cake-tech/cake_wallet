@@ -163,7 +163,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final payoutAddress = responseJSON['toAddress'] as String;
       final depositAddress = responseJSON['payInAddress'] as String;
       final refundAddress = responseJSON['fromAddress'] as String;
-      final depositAmount = amount['value'] as double;
+      final depositAmount = _toDouble(amount['value']);
       final receiveAmount = toAmount['value'] as String;
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['createdAt'] as String;
@@ -259,5 +259,15 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     if (currency.tag == 'ETH') return '';
 
     return currency.tag ?? '';
+  }
+
+  double _toDouble(dynamic value) {
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is double) {
+      return value;
+    } else {
+      return 0.0;
+    }
   }
 }
