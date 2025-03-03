@@ -299,4 +299,7 @@ class Quote extends SelectableOption {
     }
     return null;
   }
+
+  @override
+  String toString() => 'Quote(rate: $rate, feeAmount: $feeAmount, networkFee: $networkFee, transactionFee: $transactionFee, payout: $payout, paymentType: $paymentType, provider: $provider, quoteId: $quoteId, recommendations: $recommendations, isBuyAction: $isBuyAction, rampId: $rampId, rampName: $rampName, rampIconPath: $rampIconPath, limits: $limits)';
 }

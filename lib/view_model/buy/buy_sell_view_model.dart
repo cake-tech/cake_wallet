@@ -415,6 +415,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return true;
     }).toList();
 
+    final List<Quote> successRateQuotes = validQuotes.where((element) =>
+    element.provider is OnRamperBuyProvider &&
+        element.recommendations.contains(ProviderRecommendation.successRate)
+    ).toList();
+
+    for (final quote in successRateQuotes) {
+      if (!uniqueProviderQuotes.contains(quote)) {
+        uniqueProviderQuotes.add(quote);
+      }
+    }
+
     sortedRecommendedQuotes.addAll(uniqueProviderQuotes);
 
     sortedQuotes = ObservableList.of(
