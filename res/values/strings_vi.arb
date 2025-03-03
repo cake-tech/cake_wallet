@@ -174,7 +174,7 @@
   "contact_name_exists": "Một liên hệ với cái tên đó đã tồn tại. Vui lòng chọn một tên khác.",
   "contact_support": "Liên hệ Hỗ trợ",
   "continue_text": "Tiếp tục",
-  "contract_warning": "Địa chỉ hợp đồng này đã được gắn cờ là có khả năng lừa đảo. Vui lòng xử lý một cách thận trọng.",
+  "contract_warning": "Địa chỉ hợp đồng này đã được gắn cờ là có khả năng lừa đảo. Hãy tiến hành thận trọng.",
   "contractName": "Tên Hợp đồng",
   "contractSymbol": "Ký hiệu Hợp đồng",
   "copied_key_to_clipboard": "Đã sao chép ${key} vào khay nhớ tạm",
