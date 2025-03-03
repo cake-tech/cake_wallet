@@ -175,7 +175,7 @@
   "contact_name_exists": "Um contato com esse nome já existe. Escolha um nome diferente.",
   "contact_support": "Contatar Suporte",
   "continue_text": "Continuar",
-  "contract_warning": "Este endereço do contrato foi sinalizado como potencialmente fraudulento. Por favor, processe com cautela.",
+  "contract_warning": "Este endereço do contrato foi sinalizado como potencialmente fraudulento. Por favor, continue com cautela.",
   "contractName": "Nome do contrato",
   "contractSymbol": "Símbolo do Contrato",
   "copied_key_to_clipboard": "${key} copiada para a área de transferência",

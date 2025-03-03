@@ -175,7 +175,7 @@
   "contact_name_exists": "해당 이름을 가진 연락처가 이미 존재합니다. 다른 이름을 선택하세요.",
   "contact_support": "지원팀에 문의",
   "continue_text": "잇다",
-  "contract_warning": "이 계약 주소는 잠재적으로 사기성으로 표시되었습니다. 주의해서 처리하십시오.",
+  "contract_warning": "이 계약 주소는 잠재적으로 사기성으로 표시되었습니다. 주의해서 계속 진행하십시오.",
   "contractName": "계약명",
   "contractSymbol": "계약 기호",
   "copied_key_to_clipboard": "복사 ${key} 클립 보드로",

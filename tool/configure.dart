@@ -872,6 +872,7 @@ import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
+import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
 
 import 'package:eth_sig_util/util/utils.dart';
 
@@ -922,6 +923,7 @@ abstract class Ethereum {
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  List<String> getDefaultTokenContractAddresses();
 }
   """;
 
@@ -977,6 +979,7 @@ import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
 import 'package:cw_polygon/polygon_wallet_service.dart';
+import 'package:cw_polygon/default_polygon_erc20_tokens.dart';
 
 import 'package:eth_sig_util/util/utils.dart';
 
@@ -1027,6 +1030,7 @@ abstract class Polygon {
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  List<String> getDefaultTokenContractAddresses();
 }
   """;
 
@@ -1268,6 +1272,7 @@ import 'package:cw_solana/solana_wallet_service.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
+import 'package:cw_solana/default_spl_tokens.dart';
 """;
   const solanaCwPart = "part 'cw_solana.dart';";
   const solanaContent = """
@@ -1308,6 +1313,7 @@ abstract class Solana {
   String getTokenAddress(CryptoCurrency asset);
   List<int>? getValidationLength(CryptoCurrency type);
   double? getEstimateFees(WalletBase wallet);
+  List<String> getDefaultTokenContractAddresses();
 }
 
   """;
@@ -1353,6 +1359,7 @@ import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_service.dart';
+import 'package:cw_tron/default_tron_tokens.dart';
 
 """;
   const tronCwPart = "part 'cw_tron.dart';";
@@ -1384,6 +1391,7 @@ abstract class Tron {
   String? getTronTRC20EstimatedFee(WalletBase wallet);
   
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
+  List<String> getDefaultTokenContractAddresses();
 }
   """;
 
