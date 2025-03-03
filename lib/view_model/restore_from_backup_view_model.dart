@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
   : state = InitialExecutionState(),
     filePath = '';
 
-  final BackupService backupService;
+  final BackupServiceV3 backupService;
 
   @observable
   String filePath;
@@ -43,9 +44,8 @@ abstract class RestoreFromBackupViewModelBase with Store {
       }
 
       final file = File(filePath);
-      final data = await file.readAsBytes();
 
-      await backupService.importBackup(data, password);
+      await backupService.importBackupFile(file, password);
       await initializeAppAtRoot(reInitializing: true);
 
       final store = getIt.get<AppStore>();

@@ -22,7 +22,7 @@ dependencies:
   cw_core:
     path: ../cw_core
   json_bigint: ^3.0.0
-  fluttertoast: ^8.2.8
+  fluttertoast: ^8.2.12
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
