@@ -175,7 +175,7 @@
   "contact_name_exists": "Er bestaat al een contact met die naam. Kies een andere naam.",
   "contact_support": "Contact opnemen met ondersteuning",
   "continue_text": "Doorgaan met",
-  "contract_warning": "Dit contractadres is gemarkeerd als mogelijk frauduleus. Verwerk met voorzichtigheid.",
+  "contract_warning": "Dit contractadres is gemarkeerd als mogelijk frauduleus. Ga voorzichtig te werk.",
   "contractName": "Contractnaam",
   "contractSymbol": "Contractsymbool",
   "copied_key_to_clipboard": "Gekopieerd ${key} naar het klembord",
