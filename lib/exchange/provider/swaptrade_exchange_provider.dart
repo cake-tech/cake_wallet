@@ -124,7 +124,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final data = responseBody['data'] as Map<String, dynamic>;
       double rate = double.parse(data['price'].toString());
-      return rate;
+      return rate > 0 ? isFixedRateMode ? amount / rate : rate / amount : 0.0;
     } catch (e) {
       printV("error fetching rate: ${e.toString()}");
       return 0.0;
