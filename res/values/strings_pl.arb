@@ -686,7 +686,7 @@
   "send_fee": "Opłata:",
   "send_name": "Imię",
   "send_new": "Nowy",
-  "send_payjoin": "Wysłać Payjoin",
+  "send_payjoin": "Wyślij Payjoin",
   "send_payment_id": "Identyfikator płatności (opcjonalny)",
   "send_priority": "Obecnie opłata ustalona jest na ${transactionPriority} priorytet.\nPriorytet transakcji można zmienić w ustawieniach",
   "send_sending": "Wysyłanie...",
