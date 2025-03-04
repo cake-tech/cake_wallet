@@ -24,13 +24,13 @@ import 'package:mobx/mobx.dart';
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel, this.seedSettingsViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
-        walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
+        walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFormState>(),
         _blockHeightFocusNode = FocusNode();
 
   final WalletRestoreViewModel walletRestoreViewModel;
   final SeedSettingsViewModel seedSettingsViewModel;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
-  final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
+  final GlobalKey<WalletRestoreFromKeysFormState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
 
   bool _formProcessing = false;
@@ -51,6 +51,10 @@ class WalletRestorePage extends BasePage {
   // DerivationType derivationType = DerivationType.unknown;
   // String? derivationPath = null;
   DerivationInfo? derivationInfo;
+
+
+  @override
+  Function(BuildContext)? get popWidget => (context) => seedSettingsViewModel.setPassphrase(null);
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
@@ -283,7 +287,7 @@ class _WalletRestorePageBody extends StatefulWidget {
   final WalletRestoreViewModel walletRestoreViewModel;
   final SeedSettingsViewModel seedSettingsViewModel;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
-  final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
+  final GlobalKey<WalletRestoreFromKeysFormState> walletRestoreFromKeysFormKey;
   final FocusNode blockHeightFocusNode;
   final DerivationInfo? derivationInfo;
   final void Function(DerivationInfo?) onDerivationInfoChanged;
@@ -311,7 +315,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
   final WalletRestoreViewModel walletRestoreViewModel;
   final SeedSettingsViewModel seedSettingsViewModel;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
-  final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
+  final GlobalKey<WalletRestoreFromKeysFormState> walletRestoreFromKeysFormKey;
   final FocusNode blockHeightFocusNode;
   DerivationInfo? derivationInfo;
 
@@ -325,7 +329,14 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
 
     _hasKeysTab = widget.walletRestoreViewModel.availableModes.contains(WalletRestoreMode.keys);
     final tabCount = _hasKeysTab ? 2 : 1;
-    _tabController = TabController(length: tabCount, vsync: this);
+
+    final initialIndex = walletRestoreViewModel.mode == WalletRestoreMode.seed
+        ? 0
+        : _hasKeysTab
+        ? 1
+        : 0;
+
+    _tabController = TabController(length: tabCount, vsync: this, initialIndex: initialIndex);
 
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
@@ -442,9 +453,10 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
     );
   }
 
-  WalletRestoreFromKeysFrom _buildWalletRestoreFromKeysTab() {
-    return WalletRestoreFromKeysFrom(
+  WalletRestoreFromKeysForm _buildWalletRestoreFromKeysTab() {
+    return WalletRestoreFromKeysForm(
       key: widget.walletRestoreFromKeysFormKey,
+      restoredWallet: walletRestoreViewModel.restoredWallet,
       walletRestoreViewModel: widget.walletRestoreViewModel,
       displayPrivateKeyField: widget.walletRestoreViewModel.hasRestoreFromPrivateKey,
       displayWalletPassword: widget.walletRestoreViewModel.hasWalletPassword,
@@ -466,6 +478,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
   WalletRestoreFromSeedForm _buildWalletRestoreFromSeedTab() {
     return WalletRestoreFromSeedForm(
       key: widget.walletRestoreFromSeedFormKey,
+      restoredWallet: walletRestoreViewModel.restoredWallet,
       seedSettingsViewModel: widget.seedSettingsViewModel,
       displayBlockHeightSelector: widget.walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
       displayLanguageSelector: widget.walletRestoreViewModel.hasSeedLanguageSelector,
