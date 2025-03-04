@@ -185,7 +185,7 @@ class PayjoinManager {
     receivePort.listen((message) async {
       if (message is Map<String, dynamic>) {
         try {
-          switch (message['type']) {
+          switch (message['type'] as PayjoinReceiverRequestTypes) {
             case PayjoinReceiverRequestTypes.checkIsOwned:
               (_wallet.walletAddresses as BitcoinWalletAddresses).newPayjoinReceiver();
               _payjoinStorage.markReceiverSessionInProgress(receiver.id());
