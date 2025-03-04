@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart'
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
@@ -64,6 +65,8 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.chainflip:
         _provider = ChainflipExchangeProvider(tradesStore: trades);
         break;
+        case ExchangeProviderDescription.xoSwap:
+        _provider = XOSwapExchangeProvider();
     }
 
     _updateItems();
