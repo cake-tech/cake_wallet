@@ -72,7 +72,7 @@ class $BackupService {
     "flutter_assets/kernel_blob.bin",
     "flutter_assets/vm_snapshot_data",
     "flutter_assets/isolate_snapshot_data",
-    "cache/",
+    "README.txt",
     ".lock",
   ];
 
@@ -97,7 +97,10 @@ class $BackupService {
           ..createSync(recursive: true)
           ..writeAsBytesSync(content, flush: true);
       } else {
-        Directory('${appDir.path}/' + filename)..create(recursive: true);
+        final dir = Directory('${appDir.path}/' + filename);
+        if (!dir.existsSync()) {
+          dir.createSync(recursive: true);
+        }
       }
     };
 

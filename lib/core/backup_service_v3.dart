@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/foundation.dart';
 
 enum BackupVersion {
   unknown, // index 0
@@ -289,12 +290,14 @@ class BackupServiceV3 extends $BackupService {
       }
       printV("restoring: $filename");
       if (file.isFile) {
-        final content = file.content as List<int>;
         File('${appDir.path}/' + filename)
           ..createSync(recursive: true)
-          ..writeAsBytesSync(content, flush: true);
+          ..writeAsBytesSync(file.content, flush: true);
       } else {
-        Directory('${appDir.path}/' + filename)..create(recursive: true);
+        final dir = Directory('${appDir.path}/' + filename);
+        if (!dir.existsSync()) {
+          dir.createSync(recursive: true);
+        }
       }
     };
 
@@ -340,24 +343,25 @@ class BackupServiceV3 extends $BackupService {
 
     tmpDir.createSync();
     zipEncoder.create(archivePath);
-
-    fileEntities.forEach((entity) {
+    outer:
+    for (var entity in fileEntities) {
       if (entity.path == archivePath || entity.path == tmpDir.path) {
-        return;
+        continue;
       }
       for (var ignore in $BackupService.ignoreFiles) {
         final filename = entity.absolute.path;
         if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
           printV("ignoring backup file: $filename");
-          return;
+          continue outer;
         }
       }
+
       if (entity.statSync().type == FileSystemEntityType.directory) {
-        zipEncoder.addDirectory(Directory(entity.path));
+        await zipEncoder.addDirectory(Directory(entity.path));
       } else {
-        zipEncoder.addFile(File(entity.path));
+        await zipEncoder.addFile(File(entity.path));
       }
-    });
+    }
     await keychainDumpFile.writeAsBytes(keychainDump.toList());
     await preferencesDumpFile.writeAsString(preferencesDump);
     await transactionDescriptionDumpFile.writeAsString(transactionDescriptionDump);
@@ -428,9 +432,11 @@ class BackupServiceV3 extends $BackupService {
     // Give the file to the user
 
     final metadataFile = File('${tmpDir.path}/metadata.json');
+    final packageInfo = await PackageInfo.fromPlatform();
+    metadata.cakeVersion = packageInfo.version;
+
     metadataFile.writeAsStringSync(JsonEncoder.withIndent('    ').convert(metadata.toJson()));
     final readmeFile = File('${tmpDir.path}/README.txt');
-    final packageInfo = await PackageInfo.fromPlatform();
     readmeFile.writeAsStringSync('''This is a ${packageInfo.appName} backup. Do not modify this archive.
 
 App version: ${packageInfo.version}
@@ -438,7 +444,6 @@ App version: ${packageInfo.version}
 If you have any issues with this backup, please contact our in-app support.
 This backup was created on ${DateTime.now().toIso8601String()}
 ''');
-    metadata.cakeVersion = packageInfo.version;
     final zip = ZipFileEncoder();
     zip.create(archivePathExport, level: 9);
     await zip.addFile(dataBin, 'data.bin');
