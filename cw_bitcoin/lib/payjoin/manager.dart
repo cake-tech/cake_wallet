@@ -95,7 +95,7 @@ class PayjoinManager {
     receivePort.listen((message) async {
       if (message is Map<String, dynamic>) {
         try {
-          switch (message['type']) {
+          switch (message['type'] as PayjoinSenderRequestTypes) {
             case PayjoinSenderRequestTypes.requestPosted:
               return;
             case PayjoinSenderRequestTypes.psbtToSign:
