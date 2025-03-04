@@ -22,8 +22,28 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   static const _pairsPath = '/pairs';
   static const _ratePath = '/rates';
   static const _orders = '/orders';
+  static const _assets = '/assets';
 
   static const _headers = {'Content-Type': 'application/json', 'App-Name': 'cake-labs'};
+
+  final _networks = <String, String>{
+    'POL': 'matic',
+    'ETH': 'ethereum',
+    'BTC': 'bitcoin',
+    'BSC': 'bsc',
+    'SOL': 'solana',
+    'TRX': 'tronmainnet',
+    'ZEC': 'zcash',
+    'ADA': 'cardano',
+    'DOGE': 'dogecoin',
+    'XMR': 'monero',
+    'BCH': 'bcash',
+    'BSV': 'bitcoinsv',
+    'XRP': 'ripple',
+    'LTC': 'litecoin',
+    'EOS': 'eosio',
+    'XLM': 'stellar',
+  };
 
   @override
   String get title => 'XOSwap';
@@ -43,13 +63,43 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async => true;
 
+  Future<String?> _getAssets(CryptoCurrency currency) async {
+    if (currency.tag == null) return currency.title;
+    try {
+      final normalizedNetwork = _networks[currency.tag];
+      if (normalizedNetwork == null) return null;
+
+      final uri = Uri.https(_apiAuthority, _apiPath + _assets,
+          {'networks': normalizedNetwork, 'query': currency.title});
+
+      final response = await http.get(uri, headers: _headers);
+      if (response.statusCode != 200) {
+        throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
+      }
+      final assets = json.decode(response.body) as List<dynamic>;
+
+      final asset = assets.firstWhere(
+        (asset) {
+          final assetSymbol = (asset['symbol'] as String).toUpperCase();
+          return assetSymbol == currency.title.toUpperCase();
+        },
+        orElse: () => null,
+      );
+      return asset != null ? asset['id'] as String : null;
+    } catch (e) {
+      printV(e.toString());
+      return null;
+    }
+  }
+
   Future<List<dynamic>> getRatesForPair({
     required CryptoCurrency from,
     required CryptoCurrency to,
   }) async {
     try {
-      final curFrom = '${from.title}${_networkId(from)}';
-      final curTo = '${to.title}${_networkId(to)}';
+      final curFrom = await _getAssets(from);
+      final curTo = await _getAssets(to);
+      if (curFrom == null || curTo == null) return [];
       final pairId = curFrom + '_' + curTo;
       final uri = Uri.https(_apiAuthority, '$_apiPath$_pairsPath/$pairId$_ratePath');
       final response = await http.get(uri, headers: _headers);
@@ -245,20 +295,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       printV(e.toString());
       throw TradeNotCreatedException(description);
     }
-  }
-
-  String _networkId(CryptoCurrency currency) {
-    if (currency.tag == 'POL') {
-      if (currency.title.toUpperCase() == 'USDT') return 'matic86E249C1';
-
-      if (currency.title.toUpperCase() == 'USDC') return 'matic0A883D9B';
-
-      return '';
-    }
-
-    if (currency.tag == 'ETH') return '';
-
-    return currency.tag ?? '';
   }
 
   double _toDouble(dynamic value) {
