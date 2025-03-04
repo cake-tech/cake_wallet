@@ -142,7 +142,7 @@ class SolanaWalletClient {
 
   Future<SolanaTransactionModel?> parseTransaction({
     VersionedTransactionResponse? txResponse,
-    required String address,
+    required String walletAddress,
     String? splTokenSymbol,
   }) async {
     if (txResponse == null) return null;
@@ -192,7 +192,7 @@ class SolanaWalletClient {
           final amount = double.parse(amountInString);
 
           return SolanaTransactionModel(
-            isOutgoingTx: sender == address,
+            isOutgoingTx: sender == walletAddress,
             from: sender,
             to: receiver,
             id: signature,
@@ -210,31 +210,57 @@ class SolanaWalletClient {
           final postBalances = meta.postTokenBalances;
 
           double amount = 0.0;
-          if (preBalances != null &&
-              preBalances.isNotEmpty &&
-              postBalances != null &&
-              postBalances.isNotEmpty) {
-            final amountInString = ((preBalances.first.uiTokenAmount.uiAmount ?? 0) -
-                    (postBalances.first.uiTokenAmount.uiAmount ?? 0))
-                .toStringAsFixed(6);
+          bool isOutgoing = false;
+          String? mintAddress;
 
-            amount = double.parse(amountInString);
+          double userPreAmount = 0.0;
+          if (preBalances != null && preBalances.isNotEmpty) {
+            for (final preBal in preBalances) {
+              if (preBal.owner?.address == walletAddress) {
+                userPreAmount = preBal.uiTokenAmount.uiAmount ?? 0.0;
+
+                mintAddress = preBal.mint.address;
+                break;
+              }
+            }
           }
 
-          sender = message.accountKeys[instruction.accounts[0]].address;
-          receiver = message.accountKeys[instruction.accounts[1]].address;
-          final mintAddress = message.accountKeys[4].address;
+          double userPostAmount = 0.0;
+          if (postBalances != null && postBalances.isNotEmpty) {
+            for (final postBal in postBalances) {
+              if (postBal.owner?.address == walletAddress) {
+                userPostAmount = postBal.uiTokenAmount.uiAmount ?? 0.0;
+
+                mintAddress ??= postBal.mint.address;
+                break;
+              }
+            }
+          }
+
+          final diff = userPreAmount - userPostAmount;
+          final rawAmount = diff.abs();
+
+          final amountInString = rawAmount.toStringAsFixed(6);
+          amount = double.parse(amountInString);
+
+          isOutgoing = diff > 0;
+
+          if (mintAddress == null && instruction.accounts.length >= 4) {
+            final mintIndex = instruction.accounts[3];
+            mintAddress = message.accountKeys[mintIndex].address;
+          }
+
+          final sender = message.accountKeys[instruction.accounts[0]].address;
+          final receiver = message.accountKeys[instruction.accounts[1]].address;
 
           String? tokenSymbol = splTokenSymbol;
-
-          if (tokenSymbol == null) {
+          if (tokenSymbol == null && mintAddress != null) {
             final token = await fetchSPLTokenInfo(mintAddress);
-
             tokenSymbol = token?.symbol;
           }
 
-          final model = SolanaTransactionModel(
-            isOutgoingTx: sender == address,
+          return SolanaTransactionModel(
+            isOutgoingTx: isOutgoing,
             from: sender,
             to: receiver,
             id: signature,
@@ -244,7 +270,6 @@ class SolanaWalletClient {
             tokenSymbol: tokenSymbol ?? '',
             fee: fee / SolanaUtils.lamportsPerSol,
           );
-          return model;
         } else {
           return null;
         }
@@ -262,6 +287,7 @@ class SolanaWalletClient {
     String? splTokenSymbol,
     int? splTokenDecimal,
     Commitment? commitment,
+    SolAddress? walletAddress,
   }) async {
     List<SolanaTransactionModel> transactions = [];
 
@@ -305,7 +331,7 @@ class SolanaWalletClient {
         final parsedTx = await parseTransaction(
           txResponse: tx,
           splTokenSymbol: splTokenSymbol,
-          address: address.address,
+          walletAddress: walletAddress?.address ?? address.address,
         );
         if (parsedTx != null) {
           transactions.add(parsedTx);
@@ -326,12 +352,12 @@ class SolanaWalletClient {
     required SolanaPrivateKey privateKey,
   }) async {
     ProgramDerivedAddress? associatedTokenAccount;
-
+    final ownerWalletAddress = privateKey.publicKey().toAddress();
     try {
       associatedTokenAccount = await _getOrCreateAssociatedTokenAccount(
         payerPrivateKey: privateKey,
         mintAddress: SolAddress(address),
-        ownerAddress: privateKey.publicKey().toAddress(),
+        ownerAddress: ownerWalletAddress,
         shouldCreateATA: false,
       );
     } catch (e, s) {
@@ -346,6 +372,7 @@ class SolanaWalletClient {
       accountPublicKey,
       splTokenSymbol: splTokenSymbol,
       splTokenDecimal: splTokenDecimal,
+      walletAddress: ownerWalletAddress,
     );
 
     return tokenTransactions;
