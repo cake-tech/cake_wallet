@@ -546,6 +546,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          payjoinUri: payjoinUri,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
@@ -810,4 +811,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return false;
   }
+
+  @observable
+  String? payjoinUri;
 }
