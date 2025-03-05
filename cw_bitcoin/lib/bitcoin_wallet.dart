@@ -826,7 +826,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
-      if (!spendsUnconfirmedTX) spendsUnconfirmedTX = utx.confirmations == 0;
+      if (!spendsUnconfirmedTX)
+        spendsUnconfirmedTX = utx.confirmations == null || utx.confirmations! <= 0;
 
       if (paysToSilentPayment) {
         // Check inputs for shared secret derivation
