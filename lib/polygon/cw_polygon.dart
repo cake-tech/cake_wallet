@@ -208,4 +208,9 @@ class CWPolygon extends Polygon {
       throw err;
     }
   }
+  
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultPolygonErc20Tokens().initialPolygonErc20Tokens.map((e) => e.contractAddress).toList();
+  }
 }

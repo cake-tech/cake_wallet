@@ -201,6 +201,7 @@ class ExceptionHandler {
     "Connection closed before full header was received",
     "Connection terminated during handshake",
     "PERMISSION_NOT_GRANTED",
+    "OS Error: Permission denied",
     "Failed host lookup:",
     "CERTIFICATE_VERIFY_FAILED",
     "Handshake error in client",
