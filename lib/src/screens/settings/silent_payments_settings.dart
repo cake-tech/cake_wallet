@@ -34,7 +34,7 @@ class SilentPaymentsSettingsPage extends BasePage {
                 title: S.current.silent_payments_always_scan,
                 value: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,
                 onValueChange: (_, bool value) {
-                  _silentPaymentsSettingsViewModel.setSilentPaymentsAlwaysScan(value);
+                  _silentPaymentsSettingsViewModel.setSilentPaymentsAlwaysScan(value, context);
                 },
               ),
               SettingsCellWithArrow(
