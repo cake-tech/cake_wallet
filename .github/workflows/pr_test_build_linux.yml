@@ -168,6 +168,7 @@ jobs:
           # end of test secrets
           echo "const chainflipApiKey = '${{ secrets.CHAINFLIP_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
+          echo "const kryptonimApiKey = '${{ secrets.KRYPTONIM_API_KEY }}';" >> lib/.secrets.g.dart
 
       - name: prepare monero_c and cache
         run: |

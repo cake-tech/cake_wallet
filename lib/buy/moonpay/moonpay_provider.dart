@@ -126,11 +126,11 @@ class MoonPayProvider extends BuyProvider {
   }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
     if (isBuyAction) {
-      final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency, null);
+      final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency.title, null);
       if (fiatBuyCredentials.isNotEmpty) {
         final paymentMethod = fiatBuyCredentials['paymentMethod'] as String?;
         paymentMethods.add(PaymentMethod.fromMoonPayJson(
