@@ -149,6 +149,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'recipient': request.toAddress,
         'ref': 'cake',
         'markup': markup,
+        'refund_address': request.refundAddress,
       };
 
       final uri = Uri.https(apiAuthority, createOrder, params);
