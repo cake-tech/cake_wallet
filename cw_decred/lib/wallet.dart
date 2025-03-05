@@ -26,6 +26,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cake_wallet/src/screens/root/root.dart';
 
 part 'wallet.g.dart';
 
@@ -70,7 +71,6 @@ abstract class DecredWalletBase
   // synced is used to set the syncTimer interval.
   bool synced = false;
   bool watchingOnly;
-  bool connecting = false;
   String persistantPeer = "default-spv-nodes";
   FeeCache feeRateFast = FeeCache(defaultFeeRate);
   FeeCache feeRateMedium = FeeCache(defaultFeeRate);
@@ -98,6 +98,8 @@ abstract class DecredWalletBase
     if (watchingOnly) {
       return null;
     }
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     return libdcrwallet.walletSeed(walletInfo.name, _password);
   }
 
@@ -108,13 +110,68 @@ abstract class DecredWalletBase
   bool isTestnet;
 
   String get pubkey {
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     return libdcrwallet.defaultPubkey(walletInfo.name);
   }
 
+  // TODO: When the panic when coming back from sleep bug is fixed, most uses
+  // of this can be removed. If we failed to catch an unpause event, the wallet
+  // will not be loaded. Loading an already loaded wallet is not an error.
+  void loadWallet() {
+    final network = isTestnet ? "testnet" : "mainnet";
+    final config = {
+      "name": walletInfo.name,
+      "datadir": walletInfo.dirPath,
+      "net": network,
+      "unsyncedaddrs": true,
+    };
+    libdcrwallet.loadWalletSync(jsonEncode(config));
+  }
+
+  // TODO: Remove when sleep panic bug is fixed.
+  Future<void> onPause() async {
+    // If paused turn off sync checking and shut down the wallet. Start a
+    // different time to check if we are back. The timer checks a local isPaused
+    // variable and cancels itself if necessary.
+    if (RootState.paused.value) {
+      // Local isPaused value is changed after we notice a change with the root
+      // state.
+      syncTimer?.cancel();
+      syncTimer = null;
+      syncStatus = NotConnectedSyncStatus();
+      // Will not be open yet if opened and closed in quick succession. This
+      // will error if not loaded.
+      try {
+        libdcrwallet.closeWallet(walletInfo.name);
+      } catch (_) {}
+    } else {
+      final network = isTestnet ? "testnet" : "mainnet";
+      final config = {
+        "name": walletInfo.name,
+        "datadir": walletInfo.dirPath,
+        "net": network,
+        "unsyncedaddrs": true,
+      };
+      libdcrwallet.loadWalletAsync(jsonEncode(config)).then((_) => this._startSync());
+    }
+  }
+
   Future<void> init() async {
-    await updateBalance();
-    await updateTransactionHistory();
-    await walletAddresses.init();
+    updateBalance();
+    updateTransactionHistory();
+    walletAddresses.init();
+    // TODO: When testing on android, after allowing the app to sleep in the
+    // background for some amount of time, something happens and you get a
+    // panic when the app is starting back up with the libwallet throwing
+    // `Fatal signal 6 (SIGABRT), code -6 (SI_TKILL)`. As a workaround, shut
+    // down libwallet when we detect the app being put into the background and
+    // bring it back up when we are in the foreground. It would be preferable
+    // if we could at least continue initial sync in the background, if not
+    // more. Also, it seems we sometimes miss the unpause, or it isn't called.
+    // The user will have to navigate to reconnect in that case, or put the app
+    // in the background and pull it back up.
+    RootState.paused.addListener(onPause);
 
     fetchTransactions();
   }
@@ -123,9 +180,7 @@ abstract class DecredWalletBase
     if (!checkSync()) {
       if (synced == true) {
         synced = false;
-        if (syncTimer != null) {
-          syncTimer!.cancel();
-        }
+        syncTimer?.cancel();
         syncTimer = Timer.periodic(
             Duration(seconds: syncIntervalSyncing), (Timer t) => performBackgroundTasks());
       }
@@ -136,9 +191,7 @@ abstract class DecredWalletBase
     // Set sync check interval lower since we are synced.
     if (synced == false) {
       synced = true;
-      if (syncTimer != null) {
-        syncTimer!.cancel();
-      }
+      syncTimer?.cancel();
       syncTimer = Timer.periodic(
           Duration(seconds: syncIntervalSynced), (Timer t) => performBackgroundTasks());
     }
@@ -231,10 +284,8 @@ abstract class DecredWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
-    if (connecting) {
-      return;
-    }
-    connecting = true;
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     String addr = "default-spv-nodes";
     if (node.uri.host != addr) {
       addr = node.uri.host;
@@ -243,34 +294,19 @@ abstract class DecredWalletBase
       }
     }
     if (addr != persistantPeer) {
-      if (syncTimer != null) {
-        syncTimer!.cancel();
-        syncTimer = null;
-      }
+      syncTimer?.cancel();
+      syncTimer = null;
       persistantPeer = addr;
       libdcrwallet.closeWallet(walletInfo.name);
-      final network = isTestnet ? "testnet" : "mainnet";
-      final config = {
-        "name": walletInfo.name,
-        "datadir": walletInfo.dirPath,
-        "net": network,
-        "unsyncedaddrs": true,
-      };
-      libdcrwallet.loadWalletSync(jsonEncode(config));
+      loadWallet();
     }
-    await this._startSync();
-    connecting = false;
+    this._startSync();
   }
 
   @action
   @override
   Future<void> startSync() async {
-    if (connecting) {
-      return;
-    }
-    connecting = true;
-    await this._startSync();
-    connecting = false;
+    this._startSync();
   }
 
   Future<void> _startSync() async {
@@ -347,6 +383,8 @@ abstract class DecredWalletBase
       "password": _password,
       "sendall": sendAll,
     };
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     final res = libdcrwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
     final signedHex = decoded["signedhex"];
@@ -428,6 +466,8 @@ abstract class DecredWalletBase
 
   @override
   Future<Map<String, DecredTransactionInfo>> fetchTransactions() async {
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     return this.fetchFiveTransactions(0);
   }
 
@@ -477,6 +517,8 @@ abstract class DecredWalletBase
 
   @override
   Future<void> rescan({required int height}) async {
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     // The required height is not used. A birthday time is recorded in the
     // mnemonic. As long as not private data is imported into the wallet, we
     // can always rescan from there.
@@ -493,12 +535,15 @@ abstract class DecredWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
-    if (syncTimer != null) {
-      syncTimer!.cancel();
-      syncTimer = null;
-    }
+    syncTimer?.cancel();
+    syncTimer = null;
+    RootState.paused.removeListener(onPause);
     return () async {
-      libdcrwallet.closeWallet(walletInfo.name);
+      // TODO: Remove try catch when sleep panic bug is fixed. Wallet may not be
+      // loaded if paused.
+      try {
+        libdcrwallet.closeWallet(walletInfo.name);
+      } catch (_) {}
     }();
   }
 
@@ -507,6 +552,8 @@ abstract class DecredWalletBase
     if (watchingOnly) {
       return;
     }
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     return () async {
       libdcrwallet.changeWalletPassword(walletInfo.name, _password, password);
     }();
@@ -542,6 +589,8 @@ abstract class DecredWalletBase
     if (watchingOnly) {
       throw "a watching only wallet cannot sign";
     }
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     var addr = address;
     if (addr == null) {
       addr = walletAddresses.address;
@@ -553,6 +602,8 @@ abstract class DecredWalletBase
   }
 
   List<Unspent> unspents() {
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     final res = libdcrwallet.listUnspents(walletInfo.name);
     final decoded = json.decode(res);
     var unspents = <Unspent>[];
@@ -634,6 +685,8 @@ abstract class DecredWalletBase
   // walletBirthdayBlockHeight checks if the wallet birthday is set and returns
   // it. Returns -1 if not.
   int walletBirthdayBlockHeight() {
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     final res = libdcrwallet.birthState(walletInfo.name);
     final decoded = json.decode(res);
     // Having these values set indicates that sync has not reached the birthday
@@ -649,6 +702,8 @@ abstract class DecredWalletBase
     if (addr == null) {
       throw "an address is required to verify message";
     }
+    // TODO: Remove when sleep panic bug is fixed.
+    loadWallet();
     return () async {
       final verified = libdcrwallet.verifyMessage(walletInfo.name, message, addr, signature);
       if (verified == "true") {
