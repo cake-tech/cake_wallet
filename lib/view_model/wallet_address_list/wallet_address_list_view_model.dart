@@ -343,8 +343,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     ..addAll(_baseItems)
     ..addAll(addressList);
 
-  @computed
-  ObservableList<ListItem> get addressList {
+  ObservableList<ListItem> _computeAddressList() {
     final addressList = ObservableList<ListItem>();
 
     if (wallet.type == WalletType.monero) {
@@ -528,12 +527,27 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     return addressList;
   }
 
+  @computed
+  ObservableList<ListItem> get addressList {
+    return _computeAddressList();
+  }
+
+  List<ListItem> get forceRecomputeItems {
+    // necessary because the addressList contains non-observable items
+    List<ListItem> recomputed = [];
+    recomputed.addAll(_baseItems);
+    recomputed.addAll(_computeAddressList());
+    return recomputed;
+  }
+
   Future<void> toggleHideAddress(WalletAddressListItem item) async {
     if (item.isHidden) {
       wallet.walletAddresses.hiddenAddresses.removeWhere((element) => element == item.address);
     } else {
+      item.isHidden = true;
       wallet.walletAddresses.hiddenAddresses.add(item.address);
     }
+    // update the address list:
     await wallet.walletAddresses.saveAddressesInBox();
     if (wallet.type == WalletType.monero) {
       monero!

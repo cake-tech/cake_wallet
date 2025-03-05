@@ -18,6 +18,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class AddressList extends StatefulWidget {
   const AddressList({
@@ -58,7 +59,7 @@ class _AddressListState extends State<AddressList> {
 
   void updateItems() {
     setState(() {
-      items = getItems(widget.addressListViewModel.items, showHiddenAddresses);
+      items = getItems(widget.addressListViewModel.forceRecomputeItems, showHiddenAddresses);
     });
   }
 

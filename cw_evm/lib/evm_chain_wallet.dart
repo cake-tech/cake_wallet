@@ -417,7 +417,7 @@ abstract class EVMChainWalletBase
 
       // check the fees on the base currency (Eth/Polygon)
       if (estimatedFeesForTransaction > balance[currency]!.balance) {
-        throw EVMChainTransactionFeesException();
+        throw EVMChainTransactionFeesException(currency.title);
       }
 
       if (currencyBalance.balance < totalAmount) {

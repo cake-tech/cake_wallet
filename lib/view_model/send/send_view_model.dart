@@ -103,7 +103,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
-    unspentCoinsListViewModel.initialSetup();
+    unspentCoinsListViewModel.initialSetup().then((_) {
+      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
+    });
   }
 
   @observable
