@@ -46,9 +46,10 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(customBorder ?? 20),
-            border: Border.all(
-              color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-            ),
+            // border: Border.all(
+            //   color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+            //     width: 1
+            // ),
             // boxShadow: [
             //   BoxShadow(
             //       color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
@@ -58,9 +59,10 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             //   )
             // ],
           ),
-          child: TextButton(
+          child: OutlinedButton(
             onPressed: onTap,
-            style: TextButton.styleFrom(
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(width: 1, color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor),
                 backgroundColor:
                     Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                 shape: RoundedRectangleBorder(

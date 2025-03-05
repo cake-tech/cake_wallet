@@ -171,8 +171,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final expiredAtTimestamp = responseJSON['expired_at'] as int;
       final extraId = responseJSON['deposit_extra_id'] as String?;
 
-      final createdAt = DateTime.parse(createdAtString);
-      final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000);
+      final createdAt = DateTime.parse(createdAtString).toLocal();
+      final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
 
       CryptoCurrency fromCurrency;
       if (request.fromCurrency.tag != null && request.fromCurrency.title == from) {
@@ -236,8 +236,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final expiredAtTimestamp = responseJSON['expired_at'] as int;
     final extraId = responseJSON['deposit_extra_id'] as String?;
 
-    final createdAt = DateTime.parse(createdAtString);
-    final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000);
+    final createdAt = DateTime.parse(createdAtString).toLocal();
+    final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
 
     return Trade(
       id: id,

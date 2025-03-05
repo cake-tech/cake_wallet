@@ -310,7 +310,7 @@ class DFXBuyProvider extends BuyProvider {
 
       final accessToken = await auth(cryptoCurrencyAddress);
 
-      final uri = Uri.https('services.dfx.swiss', actionType, {
+      final uri = Uri.https('app.dfx.swiss', actionType, {
         'session': accessToken,
         'lang': 'en',
         'asset-out': isBuyAction ? quote.cryptoCurrency.toString() : quote.fiatCurrency.toString(),

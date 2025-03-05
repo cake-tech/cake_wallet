@@ -272,14 +272,12 @@ jobs:
           mkdir test-apk
           cp app-arm64-v8a-release.apk test-apk/${BRANCH_NAME}.apk
           cp app-x86_64-release.apk test-apk/${BRANCH_NAME}_x86.apk
-          cd test-apk
-          cp ${BRANCH_NAME}.apk ${BRANCH_NAME}_slack.apk
 
       - name: Find APK file
         id: find_apk
         run: |
           set -x
-          apk_file=$(ls build/app/outputs/flutter-apk/test-apk/*_slack.apk || exit 1)
+          apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${BRANCH_NAME}.apk || exit 1)
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
         
       - name: Upload artifact to slack
