@@ -19,9 +19,6 @@ import workmanager
             GeneratedPluginRegistrant.register(with: registry)
         }
 
-        WorkmanagerPlugin.registerTask(withIdentifier: "com.fotolockr.cakewallet.monero_sync_task")
-        WorkmanagerPlugin.registerTask(withIdentifier: "com.fotolockr.cakewallet.mweb_sync_task")
-
         makeSecure()
         
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController

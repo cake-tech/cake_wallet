@@ -247,14 +247,6 @@ void setPasswordSync(String password) {
   }
 }
 
-void closeCurrentWallet() {
-  monero.Wallet_stop(wptr!);
-}
-
-void stopWallet() {
-  monero.Wallet_stop(wptr!);
-}
-
 String getSecretViewKey() => monero.Wallet_secretViewKey(wptr!);
 
 String getPublicViewKey() => monero.Wallet_publicViewKey(wptr!);

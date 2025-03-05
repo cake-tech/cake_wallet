@@ -199,7 +199,15 @@ abstract class MoneroWalletBase
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
-    monero_wallet.stopWallet();
+    // We do not need to close the wallet if we are on non-Windows platforms
+    // because the wallet will be closed by OS.
+    // Monero doesn't like being closed so it causes some issues when called excessively,
+    // such as freezing the app.
+    if (Platform.isWindows) {
+      await Isolate.run(() {
+        monero.WalletManager_closeWallet(wmPtr, wptr!, true);
+      });
+    }
   }
 
   @override
@@ -247,8 +255,16 @@ abstract class MoneroWalletBase
           walletPassword: password,
           backgroundCachePassword: "production-cache-password",
         );
+        var status = monero.Wallet_status(wptr!);
+        if (status != 0) {
+          final err = monero.Wallet_errorString(wptr!);
+          printV("unable to stop background sync: $err");
+        } else {
+          isBackgroundSyncing = false;
+        }
+
         monero.Wallet_stopBackgroundSync(wptr!, password);
-        final status = monero.Wallet_status(wptr!);
+        status = monero.Wallet_status(wptr!);
         if (status != 0) {
           final err = monero.Wallet_errorString(wptr!);
           printV("unable to stop background sync: $err");
@@ -338,7 +354,20 @@ abstract class MoneroWalletBase
       monero.WalletManager_closeWallet(
           Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
     });
+    var status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      printV("unable to close wallet: $err");
+      throw Exception("unable to close wallet: $err");
+    }
     wptr = monero.WalletManager_openWallet(wmPtr, path: currentWalletDirPath, password: password);
+    status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      wptr = null;
+      final err = monero.Wallet_errorString(wptr!);
+      printV("unable to reopen wallet: $err");
+      throw Exception("unable to reopen wallet: $err");
+    }
     openedWalletsByPath["$currentWalletDirPath/$name"] = wptr!;
     transaction_history.txhistory = null;
   }
@@ -407,7 +436,7 @@ abstract class MoneroWalletBase
       //       'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       // }
 
-      if (inputs.isEmpty) MoneroTransactionCreationException('No inputs selected');
+      if (inputs.isEmpty) throw MoneroTransactionCreationException('No inputs selected');
       pendingTransactionDescription = await transaction_history.createTransaction(
           address: address!,
           amount: amount,
