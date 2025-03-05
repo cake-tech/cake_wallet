@@ -192,7 +192,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     if (isOldRestoration) {
       for (final derivationInfo in [
         BitcoinDerivationInfos.ELECTRUM,
-        BitcoinDerivationInfos.BIP84
+        BitcoinDerivationInfos.BIP84,
+        bitcoinDerivationInfo,
       ]) {
         if (derivationInfo.derivationPath.toString() ==
             bitcoinDerivationInfo.derivationPath.toString()) {

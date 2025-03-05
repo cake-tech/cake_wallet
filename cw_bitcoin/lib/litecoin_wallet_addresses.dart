@@ -402,7 +402,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   @override
-  bool getShouldHideAddress(Bip32Path path) {
+  bool getShouldHideAddress(Bip32Path path, BitcoinAddressType addressType) {
     if (seedTypeIsElectrum) {
       return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
     }

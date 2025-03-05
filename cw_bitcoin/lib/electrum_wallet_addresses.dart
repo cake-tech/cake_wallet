@@ -391,7 +391,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         ),
         index: i,
         isChange: isChange,
-        isHidden: getShouldHideAddress(derivationInfo.derivationPath) || isChange,
+        isHidden: getShouldHideAddress(derivationInfo.derivationPath, addressType) || isChange,
         type: addressType,
         network: network,
         derivationInfo: derivationInfo,
@@ -653,11 +653,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return newAddresses;
   }
 
-  bool getShouldHideAddress(Bip32Path path) {
+  bool getShouldHideAddress(Bip32Path path, BitcoinAddressType addressType) {
     if (seedTypeIsElectrum) {
       return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
     }
 
-    return path.toString() != BitcoinDerivationInfos.BIP84.derivationPath.toString();
+    return path.toString() !=
+        BitcoinAddressUtils.getDerivationFromType(
+          addressType,
+        ).derivationPath.toString();
   }
 }

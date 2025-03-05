@@ -46,7 +46,7 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
   }
 
   @override
-  bool getShouldHideAddress(Bip32Path path) {
+  bool getShouldHideAddress(Bip32Path path, BitcoinAddressType addressType) {
     if (seedTypeIsElectrum) {
       return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
     }
