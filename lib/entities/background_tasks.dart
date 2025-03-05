@@ -8,7 +8,6 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -30,22 +29,29 @@ const readyMessage = "Ready to sync - waiting until the app has been in the back
 const startMessage = "Starting sync - app is in the background";
 const allWalletsSyncedMessage = "All wallets synced - waiting for next queue refresh";
 const notificationId = 888;
-const notificationChannelId = "cake_service";
-const notificationChannelName = "CAKE BACKGROUND SERVICE";
+const notificationChannelId = "cakewallet_background_sync";
+const notificationChannelName = "Cake Wallet Background Sync";
 const notificationChannelDescription = "Cake Wallet Background Service";
 const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
 const SYNC_THRESHOLD = 0.98;
-Duration REFRESH_QUEUE_DURATION = Duration(hours: 1);
-bool syncOnBattery = false;
-bool syncOnData = false;
+
+Future<bool> canShowNotification() async {
+  if (!Platform.isAndroid) return false;
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final androidImplementation = flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+  return await androidImplementation?.areNotificationsEnabled() ?? false;
+}
 
 void setMainNotification(
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin, {
   required String title,
   required String content,
 }) async {
+  if (!await canShowNotification()) return;
   flutterLocalNotificationsPlugin.show(
     notificationId,
     title,
@@ -55,7 +61,7 @@ void setMainNotification(
         notificationChannelId,
         notificationChannelName,
         icon: "ic_bg_service_small",
-        ongoing: true,
+        ongoing: false,
         silent: true,
       ),
     ),
@@ -102,6 +108,7 @@ void setNotificationWalletsSynced(
 
 void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
     {required String title, required String content, required int walletNum}) async {
+  if (!await canShowNotification()) return;
   flutterLocalNotificationsPlugin.show(
     notificationId + walletNum,
     title,
@@ -109,7 +116,7 @@ void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificat
     NotificationDetails(
       android: AndroidNotificationDetails(
         "${notificationChannelId}_$walletNum",
-        "${notificationChannelName}_$walletNum",
+        "${notificationChannelName} ($walletNum)",
         icon: "ic_bg_service_small",
         ongoing: true,
         silent: true,
@@ -243,7 +250,9 @@ Future<void> onStart(ServiceInstance service) async {
     final walletListViewModel = getIt.get<WalletListViewModel>();
 
     // get all Monero / Wownero wallets and add them
+
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
+        .where((element) => !element.isHardware)
         .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
         .toList();
 
@@ -265,16 +274,17 @@ Future<void> onStart(ServiceInstance service) async {
 
     // we only need to sync the first litecoin wallet since they share the same collection of blocks
     if (litecoinWallets.isNotEmpty) {
-      try {
-        final firstWallet = litecoinWallets.first;
-        final wallet = await walletLoadingService.load(firstWallet.type, firstWallet.name);
-        await wallet.stopSync();
-        if (bitcoin!.getMwebEnabled(wallet)) {
-          syncingWallets.add(wallet);
+      for (int i = 0; i < litecoinWallets.length; i++) {
+        try {
+          final wallet = await walletLoadingService.load(litecoinWallets[i].type, litecoinWallets[i].name);
+          await wallet.stopSync();
+          if (bitcoin!.getMwebEnabled(wallet)) {
+            syncingWallets.add(wallet);
+          }
+        } catch (e) {
+          // couldn't connect to mwebd (most likely)
+          printV("error syncing litecoin wallet_$i: $e");
         }
-      } catch (e) {
-        // couldn't connect to mwebd (most likely)
-        printV("error syncing litecoin wallet: $e");
       }
     }
 
@@ -426,7 +436,7 @@ Future<void> onStart(ServiceInstance service) async {
 
     _queueTimer?.cancel();
     // add a timer that checks all wallets and adds them to the queue if they are less than SYNC_THRESHOLD synced:
-    _queueTimer = Timer.periodic(REFRESH_QUEUE_DURATION, (timer) async {
+    _queueTimer = Timer.periodic(settingsStore.currentSyncMode.frequency, (timer) async {
       final batteryState = await Battery().batteryState;
       bool onBattery = batteryState == BatteryState.connectedNotCharging ||
           batteryState == BatteryState.discharging;
@@ -434,11 +444,11 @@ Future<void> onStart(ServiceInstance service) async {
       ConnectivityResult connectivityResult = await Connectivity().checkConnectivity();
       bool onData = connectivityResult == ConnectivityResult.mobile;
 
-      if (onBattery && !syncOnBattery) {
+      if (onBattery && !settingsStore.backgroundSyncOnBattery) {
         return;
       }
 
-      if (onData && !syncOnData) {
+      if (onData && !settingsStore.backgroundSyncOnData) {
         return;
       }
 
@@ -677,11 +687,8 @@ class BackgroundTasks {
         return;
       }
 
-      final SyncMode syncMode = settingsStore.currentSyncMode;
       final bool useNotifications = settingsStore.showSyncNotification;
       final bool syncEnabled = settingsStore.backgroundSyncEnabled;
-      syncOnBattery = settingsStore.backgroundSyncOnBattery;
-      syncOnData = settingsStore.backgroundSyncOnData;
 
       if (useNotifications) {
         flutterLocalNotificationsPlugin
@@ -695,7 +702,7 @@ class BackgroundTasks {
         return;
       }
 
-      REFRESH_QUEUE_DURATION = syncMode.frequency;
+;
 
       _pingTimer?.cancel();
       _pingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {

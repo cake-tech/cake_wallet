@@ -632,7 +632,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  dynamic getStatusRequest(Object wallet) {
+  Future<dynamic> getStatusRequest(Object wallet) {
     final litecoinWallet = wallet as LitecoinWallet;
     return litecoinWallet.getStatusRequest();
   }

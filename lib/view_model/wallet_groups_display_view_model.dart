@@ -160,6 +160,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
+      isHardware: info.isHardwareWallet
     );
   }
 }
