@@ -929,6 +929,10 @@ abstract class ElectrumWalletBase
         }
       }
 
+      // if the amount left for change is less than dust, but not less than 0
+      // then add it to the fees
+      fee += amountLeftForChange;
+
       return EstimatedTxResult(
         utxos: utxoDetails.utxos,
         inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
@@ -1380,7 +1384,7 @@ abstract class ElectrumWalletBase
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
-    utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
+        utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
         utxo.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord));
 
     if (hasSilentPaymentsScanning) {
@@ -1438,7 +1442,6 @@ abstract class ElectrumWalletBase
     required List<BitcoinUnspent> updatedUnspentCoins,
     required List<List<BitcoinUnspent>?> results,
   }) {
-
     if (failedCount == results.length) {
       printV("All UTXOs failed to fetch, falling back to previous UTXOs");
       return previousUnspentCoins;
