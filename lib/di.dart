@@ -394,11 +394,10 @@ Future<void> setup({
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
   getIt.registerFactory<WalletManager>(
-    () {
-      final instance = WalletManager(_walletInfoSource, getIt.get<SharedPreferences>());
-      instance.updateWalletGroups();
-      return instance;
-    },
+    () => WalletManager(
+      _walletInfoSource,
+      getIt.get<SharedPreferences>(),
+    ),
   );
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
@@ -815,7 +814,7 @@ Future<void> setup({
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
         groupName: arguments.groupName,
-        parentAddress: arguments.parentAddress,
+        walletGroupKey: arguments.walletGroupKey,
       ),
     );
   });
