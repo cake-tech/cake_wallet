@@ -1452,7 +1452,7 @@ abstract class SettingsStoreBase with Store {
     lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     silentPaymentsCardDisplay =
-        sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
+        sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? false;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
