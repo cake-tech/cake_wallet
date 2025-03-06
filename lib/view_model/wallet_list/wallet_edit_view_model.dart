@@ -40,7 +40,7 @@ abstract class WalletEditViewModelBase with Store {
   Future<void> changeName(
     WalletListItem walletItem, {
     String? password,
-    String? groupParentAddress,
+    String? walletGroupKey,
     bool isWalletGroup = false,
   }) async {
     state = WalletEditRenamePending();
@@ -48,7 +48,7 @@ abstract class WalletEditViewModelBase with Store {
     if (isWalletGroup) {
       _walletManager.updateWalletGroups();
 
-      _walletManager.setGroupName(groupParentAddress!, newName);
+      _walletManager.setGroupName(walletGroupKey!, newName);
     } else {
       await _walletLoadingService.renameWallet(
         walletItem.type,

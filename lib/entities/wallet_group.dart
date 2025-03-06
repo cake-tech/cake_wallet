@@ -1,13 +1,14 @@
 import 'package:cw_core/wallet_info.dart';
 
 class WalletGroup {
-  WalletGroup(this.parentAddress) : wallets = [];
+  WalletGroup(this.groupKey) : wallets = [];
 
-  /// Main identifier for each group, compulsory.
-  final String parentAddress;
+  /// Primary identifier for the group. Previously was `parentAddress`.
+  /// Now we store either the wallet's hash OR fallback to parentAddress/address.
+  final String groupKey;
 
-  /// Child wallets that share the same parent address within this group
-  List<WalletInfo> wallets;
+  /// Child wallets that share the same group key
+  final List<WalletInfo> wallets;
 
   /// Custom name for the group, editable for multi-child wallet groups
   String? groupName;
