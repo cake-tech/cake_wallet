@@ -629,6 +629,12 @@ class CWBitcoin extends Bitcoin {
     return litecoinWallet.mwebEnabled;
   }
 
+  @override
+  Future<dynamic> getStatusRequest(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.getStatusRequest();
+  }
+  
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
     final pendingTx = pendingTransaction as PendingBitcoinTransaction;
 
@@ -706,4 +712,12 @@ class CWBitcoin extends Bitcoin {
       return null;
     }
   }
+
+  @override
+  Future<bool> isSilentPaymentNodeEnabled(Object wallet) {
+    final electrumWallet = wallet as ElectrumWallet;
+    return electrumWallet.getNodeSupportsSilentPayments();
+  }
+  
+  
 }

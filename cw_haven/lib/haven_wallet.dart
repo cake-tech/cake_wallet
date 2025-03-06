@@ -137,7 +137,7 @@ abstract class HavenWalletBase
   }
 
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
     try {
       _setInitialHeight();
     } catch (_) {}

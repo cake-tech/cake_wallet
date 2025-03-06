@@ -238,8 +238,10 @@ abstract class Bitcoin {
   bool txIsMweb(TransactionInfo txInfo);
   Future<void> setMwebEnabled(Object wallet, bool enabled);
   bool getMwebEnabled(Object wallet);
+  dynamic getStatusRequest(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  Future<bool> isSilentPaymentNodeEnabled(Object wallet);
 }
   """;
 

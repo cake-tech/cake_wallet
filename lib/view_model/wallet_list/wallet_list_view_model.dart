@@ -265,6 +265,7 @@ abstract class WalletListViewModelBase with Store {
           info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
+      isHardware: info.isHardwareWallet
     );
   }
 }
