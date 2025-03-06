@@ -168,8 +168,7 @@ class MoonPayProvider extends BuyProvider {
 
     final params = {
       'baseCurrencyCode': baseCurrencyCode,
-      'baseCurrencyAmount': amount.toString(),
-      'amount': amount.toString(),
+      'baseCurrencyAmount': amount.toStringAsFixed(2),
       'paymentMethod': paymentMethod,
       'areFeesIncluded': 'false',
       'apiKey': _apiKey
@@ -232,7 +231,7 @@ class MoonPayProvider extends BuyProvider {
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
       'baseCurrencyCode': isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
-      'baseCurrencyAmount': amount.toString(),
+      'baseCurrencyAmount': amount.toStringAsFixed(2),
       'walletAddress': cryptoCurrencyAddress,
       'lockAmount': 'false',
       'showAllCurrencies': 'false',
