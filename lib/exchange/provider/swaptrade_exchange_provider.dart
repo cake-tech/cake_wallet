@@ -26,9 +26,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
               CryptoCurrency.ltc,
               CryptoCurrency.ada,
               CryptoCurrency.bch,
-              CryptoCurrency.usdt,
+              CryptoCurrency.usdterc20,
+              CryptoCurrency.usdttrc20,
               CryptoCurrency.bnb,
               CryptoCurrency.xmr,
+              CryptoCurrency.zec,
             ].contains(element))
         .toList())
   ];
@@ -39,6 +41,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   static const getRate = '/api/swap/get-rate';
   static const getCoins = '/api/swap/get-coins';
   static const createOrder = '/api/swap/create-order';
+  static const order = '/api/swap/order';
 
   @override
   String get title => 'SwapTrade';
@@ -108,6 +111,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final body = <String, String>{
         'coin_send': _normalizeCurrency(from),
         'coin_receive': _normalizeCurrency(to),
+        'amount': amount.toString(),
         'ref': 'cake',
       };
 
@@ -120,7 +124,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final data = responseBody['data'] as Map<String, dynamic>;
       double rate = double.parse(data['price'].toString());
-      return rate;
+      return rate > 0 ? isFixedRateMode ? amount / rate : rate / amount : 0.0;
     } catch (e) {
       printV("error fetching rate: ${e.toString()}");
       return 0.0;
@@ -138,17 +142,15 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final params = <String, dynamic>{};
       var body = <String, dynamic>{
         'coin_send': _normalizeCurrency(request.fromCurrency),
+        'coin_send_network': _networkFor(request.fromCurrency),
         'coin_receive': _normalizeCurrency(request.toCurrency),
+        'coin_receive_network': _networkFor(request.toCurrency),
         'amount_send': request.fromAmount,
         'recipient': request.toAddress,
         'ref': 'cake',
         'markup': markup,
+        'refund_address': request.refundAddress,
       };
-
-      String? fromNetwork = _networkFor(request.fromCurrency);
-      String? toNetwork = _networkFor(request.toCurrency);
-      if (fromNetwork != null) body['coin_send_network'] = fromNetwork;
-      if (toNetwork != null) body['coin_receive_network'] = toNetwork;
 
       final uri = Uri.https(apiAuthority, createOrder, params);
       final response = await post(uri, body: body, headers: headers);
@@ -193,7 +195,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         'order_id': id,
       };
 
-      final uri = Uri.https(apiAuthority, createOrder, params);
+      final uri = Uri.https(apiAuthority, order, params);
       final response = await post(uri, body: body, headers: headers);
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
@@ -211,10 +213,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final toCurrency = responseData['coin_receive'] as String;
       final to = CryptoCurrency.fromString(toCurrency);
       final inputAddress = responseData['server_address'] as String;
+      final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
       final state = TradeState.deserialize(raw: status);
       final response_id = responseData['order_id'] as String;
       final expectedSendAmount = responseData['amount_send'] as String;
+      final expectedReceiveAmount = responseData['amount_receive'] as String;
+      final memo = responseData['memo'] as String?;
+      final createdAt = responseData['created_at'] as String?;
 
       return Trade(
         id: response_id,
@@ -223,7 +229,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         provider: description,
         inputAddress: inputAddress,
         amount: expectedSendAmount,
+        payoutAddress: payoutAddress,
         state: state,
+        receiveAmount: expectedReceiveAmount,
+        memo: memo,
+        createdAt: DateTime.tryParse(createdAt ?? ''),
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");
@@ -242,14 +252,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
   }
 
-  String? _networkFor(CryptoCurrency currency) {
-    switch (currency) {
-      case CryptoCurrency.usdt:
-        return "USDT_ERC20";
-      case CryptoCurrency.bnb:
-        return "BNB_BSC";
-      default:
-        return null;
-    }
+  String _networkFor(CryptoCurrency currency) {
+    final network = switch (currency) {
+      CryptoCurrency.eth => 'ETH',
+      CryptoCurrency.bnb => 'BNB_BSC',
+      CryptoCurrency.usdterc20 => 'USDT_ERC20',
+      CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
+      _ => '',
+    };
+    return network;
   }
 }

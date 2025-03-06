@@ -11,7 +11,6 @@ class CWSolana extends Solana {
   WalletCredentials createSolanaNewWalletCredentials({
     required String name,
     String? mnemonic,
-    String? parentAddress,
     WalletInfo? walletInfo,
     String? password,
     String? passphrase,
@@ -21,7 +20,6 @@ class CWSolana extends Solana {
         walletInfo: walletInfo,
         password: password,
         mnemonic: mnemonic,
-        parentAddress: parentAddress,
         passphrase: passphrase,
       );
 
@@ -153,5 +151,10 @@ class CWSolana extends Solana {
   @override
   double? getEstimateFees(WalletBase wallet) {
     return (wallet as SolanaWallet).estimatedFee;
+  }
+
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultSPLTokens().initialSPLTokens.map((e) => e.mintAddress).toList();
   }
 }
