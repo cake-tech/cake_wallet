@@ -714,4 +714,12 @@ class CWBitcoin extends Bitcoin {
       return null;
     }
   }
+
+  @override
+  Future<bool> isSilentPaymentNodeEnabled(Object wallet) {
+    final electrumWallet = wallet as ElectrumWallet;
+    return electrumWallet.getNodeSupportsSilentPayments();
+  }
+  
+  
 }

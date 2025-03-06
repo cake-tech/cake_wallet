@@ -241,6 +241,7 @@ abstract class Bitcoin {
   dynamic getStatusRequest(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  Future<bool> isSilentPaymentNodeEnabled(Object wallet);
 }
   """;
 

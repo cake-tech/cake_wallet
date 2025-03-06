@@ -11,7 +11,6 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -298,7 +297,9 @@ Future<void> onStart(ServiceInstance service) async {
         var node = settingsStore.getCurrentNode(WalletType.bitcoin);
         await wallet.connectToNode(node: node);
 
-        bool nodeSupportsSP = await (wallet as ElectrumWallet).getNodeSupportsSilentPayments();
+        bool isScanningActive = await bitcoin!.getScanningActive(wallet);
+        if (!isScanningActive) continue;
+        bool nodeSupportsSP = await bitcoin!.isSilentPaymentNodeEnabled(wallet);
         if (!nodeSupportsSP) {
           // printV("Configured node does not support silent payments, skipping wallet");
           // setWalletNotification(
@@ -552,6 +553,12 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 }
 
 Future<void> initializeService(FlutterBackgroundService bgService, bool useNotifications) async {
+  final canUseNotifications = await canShowNotification();
+
+  if (!canUseNotifications) {
+    useNotifications = false;
+  }
+
   if (useNotifications) {
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
