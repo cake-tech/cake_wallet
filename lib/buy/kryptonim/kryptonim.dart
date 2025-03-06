@@ -18,7 +18,7 @@ class KryptonimBuyProvider extends BuyProvider {
   KryptonimBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
 
-  static const _isProduction = false;
+  static const _isProduction = true;
 
   static const _baseUrl = _isProduction ? 'app.kryptonim.com' : 'intg-api.kryptonim.com';
   static const _baseWidgetUrl = _isProduction ? 'buy.kryptonim.com' : 'intg.kryptonim.com';
