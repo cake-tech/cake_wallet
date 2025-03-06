@@ -112,7 +112,7 @@ class WalletEditPage extends BasePage {
                                                 pageArguments.editingWallet,
                                                 password: password,
                                                 isWalletGroup: pageArguments.isWalletGroup,
-                                                groupParentAddress: pageArguments.parentAddress,
+                                                walletGroupKey: pageArguments.walletGroupKey,
                                               );
                                             },
                                             callback: (bool isAuthenticatedSuccessfully,
@@ -128,7 +128,7 @@ class WalletEditPage extends BasePage {
                                     await walletEditViewModel.changeName(
                                       pageArguments.editingWallet,
                                       isWalletGroup: pageArguments.isWalletGroup,
-                                      groupParentAddress: pageArguments.parentAddress,
+                                      walletGroupKey: pageArguments.walletGroupKey,
                                     );
                                     confirmed = true;
                                   }
