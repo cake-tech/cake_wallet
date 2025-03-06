@@ -351,7 +351,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     paymentMethodState = PaymentMethodLoading();
     selectedPaymentMethod = null;
     final result = await Future.wait(providerList.map((element) => element
-        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency.title, isBuyAction)
+        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction)
         .timeout(
           Duration(seconds: 10),
           onTimeout: () => [],

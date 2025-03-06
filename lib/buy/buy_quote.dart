@@ -289,6 +289,29 @@ class Quote extends SelectableOption {
     );
   }
 
+  factory Quote.fromKryptonimJson(
+      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
+    final fees = json['fees'] as Map<String, dynamic>;
+    final rate = _toDouble(json['rate']) ?? 0.0;
+    final limits = json['limits'] as Map<String, dynamic>;
+    final minLimit = _toDouble(limits['min_amount']) ?? 0.0;
+    final maxLimit = _toDouble(limits['max_amount']) ?? double.infinity;
+    final convertedAmount = _toDouble(json['converted_amount']) ?? 0.0;
+    final amount = _toDouble(json['amount']) ?? 0.0;
+    final calculatedRate = amount / convertedAmount;
+    return Quote(
+        rate:  calculatedRate,
+        feeAmount: _toDouble(fees['totalFee']) ?? 0.0,
+        networkFee: _toDouble(fees['network_fee']) ?? 0.0,
+        transactionFee: _toDouble(fees['operation_fee']) ?? 0.0,
+        payout: _toDouble(json['amount']) ?? 0.0,
+        paymentType: paymentType,
+        recommendations: [],
+        provider: ProvidersHelper.getProviderByType(ProviderType.kriptonim)!,
+        isBuyAction: isBuyAction,
+        limits: Limits(min: minLimit, max: maxLimit));
+  }
+
   static double? _toDouble(dynamic value) {
     if (value is int) {
       return value.toDouble();
@@ -299,4 +322,7 @@ class Quote extends SelectableOption {
     }
     return null;
   }
+
+  @override
+  String toString() => 'Quote: rate: $rate, feeAmount: $feeAmount, networkFee: $networkFee, transactionFee: $transactionFee, payout: $payout, paymentType: $paymentType, provider: $provider, quoteId: $quoteId, recommendations: $recommendations, isBuyAction: $isBuyAction, rampId: $rampId, rampName: $rampName, rampIconPath: $rampIconPath, [limits: min: ${limits?.min}, max: ${limits?.max}]';
 }
