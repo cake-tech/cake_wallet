@@ -683,6 +683,8 @@
   "send_error_minimum_value": "Քանակի նվազագույն արժեքը 0.01 է",
   "send_estimated_fee": "Գնահատված վարձը՝",
   "send_fee": "Վարձը՝",
+  "send_from_cake": "Ուղարկել տորթից",
+  "send_from_external": "Ուղարկել արտաքինից",
   "send_name": "Անվանում",
   "send_new": "Նոր",
   "send_payment_id": "Վճարման ID (կամավոր)",

@@ -171,6 +171,7 @@ abstract class ExchangeTradeViewModelBase with Store {
           data: '${trade.id}',
           isCopied: true,
           isReceiveDetail: true,
+          isExternalSendDetail: false,
         ),
       );
 
@@ -180,18 +181,21 @@ abstract class ExchangeTradeViewModelBase with Store {
         data: '${trade.amount} ${trade.from}',
         isCopied: false,
         isReceiveDetail: false,
+        isExternalSendDetail: true,
       ),
       ExchangeTradeItem(
         title: S.current.you_will_receive_estimated_amount + ':',
         data: '${tradesStore.trade?.receiveAmount} ${trade.to}',
         isCopied: true,
         isReceiveDetail: true,
+        isExternalSendDetail: false,
       ),
       ExchangeTradeItem(
         title: S.current.send_to_this_address('${tradesStore.trade!.from}', tagFrom) + ':',
         data: trade.inputAddress ?? '',
         isCopied: false,
         isReceiveDetail: false,
+        isExternalSendDetail: true,
       ),
     ]);
 
@@ -211,6 +215,7 @@ abstract class ExchangeTradeViewModelBase with Store {
             data: '${trade.extraId}',
             isCopied: true,
             isReceiveDetail: true,
+            isExternalSendDetail: false,
           ),
         );
       }
@@ -222,6 +227,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         data: trade.payoutAddress ?? '',
         isCopied: true,
         isReceiveDetail: true,
+        isExternalSendDetail: false,
       ),
     );
   }

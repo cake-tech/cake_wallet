@@ -684,6 +684,8 @@
   "send_error_minimum_value": "金額の最小値は0.01です",
   "send_estimated_fee": "見積手数料:",
   "send_fee": "費用：",
+  "send_from_cake": "ケーキから送ってください",
+  "send_from_external": "外部から送信します",
   "send_name": "名前",
   "send_new": "新着",
   "send_payment_id": "支払いID (オプショナル)",

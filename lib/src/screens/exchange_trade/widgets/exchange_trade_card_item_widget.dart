@@ -122,7 +122,12 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
         );
       },
     );
-    if (isBitcoinWallet) feesViewModel.customBitcoinFeeRate = customFeeRate!.round();
+    if (isBitcoinWallet) {
+      feesViewModel.customBitcoinFeeRate = customFeeRate!.round();
+      if (feesViewModel.showAlertForCustomFeeRate()) {
+        _showFeeAlert(context);
+      }
+    }
   }
 
   void _showFeeAlert(BuildContext context) async {

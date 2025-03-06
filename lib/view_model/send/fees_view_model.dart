@@ -125,6 +125,15 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[wallet.type] = priority;
 
+  bool showAlertForCustomFeeRate() {
+    if (wallet.type != WalletType.bitcoin) {
+      return false;
+    }
+
+    final mediumRate = bitcoin!.getFeeRate(wallet, bitcoinTransactionPriorityMedium);
+    return customBitcoinFeeRate < mediumRate;
+  }
+
   String displayFeeRate(dynamic priority, int? customValue) {
     final _priority = priority as TransactionPriority;
 

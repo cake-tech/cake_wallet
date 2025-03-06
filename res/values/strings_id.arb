@@ -686,6 +686,8 @@
   "send_error_minimum_value": "Nilai minimum jumlah adalah 0.01",
   "send_estimated_fee": "Biaya yang diperkirakan:",
   "send_fee": "Biaya:",
+  "send_from_cake": "Kirim dari kue",
+  "send_from_external": "Kirim dari eksternal",
   "send_name": "Nama",
   "send_new": "Baru",
   "send_payment_id": "ID Pembayaran (opsional)",

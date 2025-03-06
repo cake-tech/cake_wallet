@@ -684,6 +684,8 @@
   "send_error_minimum_value": "Мінімальна сума 0.01",
   "send_estimated_fee": "Ймовірна комісія:",
   "send_fee": "Комісія:",
+  "send_from_cake": "Надіслати від торта",
+  "send_from_external": "Надіслати із зовнішнього",
   "send_name": "Ім'я",
   "send_new": "Новий",
   "send_payment_id": "ID платежу (опційно)",

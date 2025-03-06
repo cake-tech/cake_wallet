@@ -683,6 +683,8 @@
   "send_error_minimum_value": "Minimum tutar değeri 0.01'dir",
   "send_estimated_fee": "Tahmini komisyon:",
   "send_fee": "Komisyon:",
+  "send_from_cake": "Kekten Gönder",
+  "send_from_external": "Hariciden gönder",
   "send_name": "İsim",
   "send_new": "Yeni",
   "send_payment_id": "Ödeme ID'si (isteğe bağlı)",

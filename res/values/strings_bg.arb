@@ -683,6 +683,8 @@
   "send_error_minimum_value": "Минималната сума е 0.01",
   "send_estimated_fee": "Изчислена такса:",
   "send_fee": "Такса:",
+  "send_from_cake": "Изпратете от тортата",
+  "send_from_external": "Изпратете от външни",
   "send_name": "Име",
   "send_new": "Ново",
   "send_payment_id": "Payment ID (не е задължително)",

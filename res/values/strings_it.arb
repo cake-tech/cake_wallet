@@ -684,6 +684,8 @@
   "send_error_minimum_value": "L'importo minimo è 0.01",
   "send_estimated_fee": "Commissione stimata:",
   "send_fee": "Commissione:",
+  "send_from_cake": "Invia dalla torta",
+  "send_from_external": "Invia da esterno",
   "send_name": "Nome",
   "send_new": "Nuovo",
   "send_payment_id": "ID Pagamento (opzionale)",

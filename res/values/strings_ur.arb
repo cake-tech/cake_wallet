@@ -685,6 +685,8 @@
   "send_error_minimum_value": "رقم کی کم از کم قیمت 0.01 ہے۔",
   "send_estimated_fee": "تخمینی فیس:",
   "send_fee": "فیس:",
+  "send_from_cake": "کیک سے بھیجیں",
+  "send_from_external": "بیرونی سے بھیجیں",
   "send_name": "نام",
   "send_new": "نئی",
   "send_payment_id": "ادائیگی کی شناخت (اختیاری)",

@@ -684,6 +684,8 @@
   "send_error_minimum_value": "El valor mínimo de la cantidad es 0.01",
   "send_estimated_fee": "Tarifa estimada:",
   "send_fee": "Cuota:",
+  "send_from_cake": "Enviar desde el pastel",
+  "send_from_external": "Enviar desde externas",
   "send_name": "Nombre",
   "send_new": "Nuevo",
   "send_payment_id": "ID de pago (opcional)",
