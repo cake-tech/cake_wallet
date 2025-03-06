@@ -226,6 +226,7 @@
   "disable_buy": "Disabilita l'azione di acquisto",
   "disable_cake_2fa": "Disabilita Cake 2FA",
   "disable_exchange": "Disabilita scambio",
+  "disable_exchange_option": "Disabilita l'opzione di scambio",
   "disable_fee_api_warning": "Disattivando quest'opzione, i tassi delle commissioni potrebbero essere inaccurati in alcuni casi, quindi potresti finire per pagare troppo o troppo poco le commissioni per le tue transazioni",
   "disable_fiat": "Disabilita fiat",
   "disable_sell": "Disabilita l'azione di vendita",

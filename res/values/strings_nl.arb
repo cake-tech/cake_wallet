@@ -226,6 +226,7 @@
   "disable_buy": "Koopactie uitschakelen",
   "disable_cake_2fa": "Taart 2FA uitschakelen",
   "disable_exchange": "Uitwisseling uitschakelen",
+  "disable_exchange_option": "Schakel Exchange -optie uit",
   "disable_fee_api_warning": "Door dit uit te schakelen, kunnen de tarieven in sommige gevallen onnauwkeurig zijn, dus u kunt de vergoedingen voor uw transacties te veel betalen of te weinig betalen",
   "disable_fiat": "Schakel Fiat uit",
   "disable_sell": "Verkoopactie uitschakelen",
