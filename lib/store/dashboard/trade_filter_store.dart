@@ -19,7 +19,8 @@ abstract class TradeFilterStoreBase with Store {
         displayChainflip = true,
         displayThorChain = true,
         displayLetsExchange = true,
-        displayStealthEx = true;
+        displayStealthEx = true,
+        displaySwapTrade = true;
 
   @observable
   bool displayXMRTO;
@@ -54,6 +55,9 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displayStealthEx;
 
+  @observable
+  bool displaySwapTrade;
+
   @computed
   bool get displayAllTrades =>
       displayChangeNow &&
@@ -64,7 +68,8 @@ abstract class TradeFilterStoreBase with Store {
       displayChainflip &&
       displayThorChain &&
       displayLetsExchange &&
-      displayStealthEx;
+      displayStealthEx &&
+      displaySwapTrade;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -102,6 +107,8 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.stealthEx:
         displayStealthEx = !displayStealthEx;
         break;
+        case ExchangeProviderDescription.swapTrade:
+        displaySwapTrade = !displaySwapTrade;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -115,6 +122,7 @@ abstract class TradeFilterStoreBase with Store {
           displayThorChain = false;
           displayLetsExchange = false;
           displayStealthEx = false;
+          displaySwapTrade = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -127,6 +135,7 @@ abstract class TradeFilterStoreBase with Store {
           displayThorChain = true;
           displayLetsExchange = true;
           displayStealthEx = true;
+          displaySwapTrade = true;
         }
         break;
     }
@@ -158,7 +167,8 @@ abstract class TradeFilterStoreBase with Store {
                     item.trade.provider == ExchangeProviderDescription.thorChain) ||
                 (displayLetsExchange &&
                     item.trade.provider == ExchangeProviderDescription.letsExchange) ||
-                (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx))
+                (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx) ||
+                (displaySwapTrade && item.trade.provider == ExchangeProviderDescription.swapTrade))
             .toList()
         : _trades;
   }

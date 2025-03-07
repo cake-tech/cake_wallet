@@ -351,7 +351,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     paymentMethodState = PaymentMethodLoading();
     selectedPaymentMethod = null;
     final result = await Future.wait(providerList.map((element) => element
-        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency.title, isBuyAction)
+        .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction)
         .timeout(
           Duration(seconds: 10),
           onTimeout: () => [],
@@ -414,6 +414,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       addedProviders.add(element.provider.title);
       return true;
     }).toList();
+
+    final List<Quote> successRateQuotes = validQuotes.where((element) =>
+    element.provider is OnRamperBuyProvider &&
+        element.recommendations.contains(ProviderRecommendation.successRate)
+    ).toList();
+
+    for (final quote in successRateQuotes) {
+      if (!uniqueProviderQuotes.contains(quote)) {
+        uniqueProviderQuotes.add(quote);
+      }
+    }
 
     sortedRecommendedQuotes.addAll(uniqueProviderQuotes);
 

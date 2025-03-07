@@ -402,13 +402,20 @@ Future<void> defaultSettingsMigration(
           );
 			    break;
         case 48:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SwapTrade",
+            enabled: true,
+          );
+			    break;
+        case 49:
           await _updateNode(
             nodes: nodes,
             currentUri: "zano.cakewallet.com:11211",
             newUri: zanoDefaultNodeUri,
             useSSL: true,
           );
-			    break;
+          break;
         default:
           break;
       }

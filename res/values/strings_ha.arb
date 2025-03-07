@@ -226,6 +226,7 @@
   "disable_buy": "Kashe alama",
   "disable_cake_2fa": "Musaki Cake 2FA",
   "disable_exchange": "Kashe musanya",
+  "disable_exchange_option": "Musaki zaɓi Canji",
   "disable_fee_api_warning": "Ta hanyar juya wannan kashe, kudaden da zai iya zama ba daidai ba a wasu halaye, saboda haka zaku iya ƙare da overpaying ko a ƙarƙashin kudaden don ma'amaloli",
   "disable_fiat": "Dakatar da fiat",
   "disable_sell": "Kashe karbuwa",
