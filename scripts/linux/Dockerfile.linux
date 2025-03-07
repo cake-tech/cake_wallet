@@ -6,7 +6,7 @@ FROM --platform=linux/amd64 docker.io/debian:12
 
 LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 
-ENV GOLANG_VERSION=1.23.4
+ENV GOLANG_VERSION=1.24.1
 # comes from https://developer.android.com/studio/#command-tools
 ENV ANDROID_SDK_TOOLS_VERSION=11076708
 # https://developer.android.com/studio/releases/build-tools
