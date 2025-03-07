@@ -686,6 +686,8 @@
   "send_error_minimum_value": "最小金额为0.01",
   "send_estimated_fee": "预估费用:",
   "send_fee": "手续费:",
+  "send_from_cake": "从蛋糕发送",
+  "send_from_external": "从外部发送",
   "send_name": "名称",
   "send_new": "新建",
   "send_payment_id": "付款编号 (可选的)",
@@ -1000,6 +1002,7 @@
   "you_now_have_debit_card": "你现在有一张借记卡",
   "you_pay": "你付钱",
   "you_will_get": "转换到",
+  "you_will_receive_estimated_amount": "您将收到(估计的)",
   "you_will_send": "转换自",
   "yy": "YY"
 }

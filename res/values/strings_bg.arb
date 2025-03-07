@@ -686,6 +686,8 @@
   "send_error_minimum_value": "Минималната сума е 0.01",
   "send_estimated_fee": "Изчислена такса:",
   "send_fee": "Такса:",
+  "send_from_cake": "Изпратете от тортата",
+  "send_from_external": "Изпратете от външни",
   "send_name": "Име",
   "send_new": "Ново",
   "send_payment_id": "Payment ID (не е задължително)",
@@ -1000,6 +1002,7 @@
   "you_now_have_debit_card": "Вече имате дебитна карта",
   "you_pay": "Вие плащате",
   "you_will_get": "Обръщане в",
+  "you_will_receive_estimated_amount": "Ще получите(прогнозно )",
   "you_will_send": "Обръщане от",
   "yy": "гг"
 }

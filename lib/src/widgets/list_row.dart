@@ -1,30 +1,37 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class ListRow extends StatelessWidget {
-  ListRow(
-      {required this.title,
-      required this.value,
-      this.titleFontSize = 14,
-      this.valueFontSize = 16,
-      this.image});
+  ListRow({
+    required this.title,
+    required this.value,
+    this.titleFontSize = 14,
+    this.valueFontSize = 16,
+    this.image,
+    this.padding,
+    this.color,
+    this.hintTextColor,
+    this.mainTextColor
+  });
 
   final String title;
   final String value;
   final double titleFontSize;
   final double valueFontSize;
   final Image? image;
+  final EdgeInsetsGeometry? padding;
+  final Color? color;
+  final Color? hintTextColor;
+  final Color? mainTextColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Theme.of(context).colorScheme.background,
+      color: color ?? Theme.of(context).colorScheme.background,
       child: Padding(
-        padding:
-        const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
+        padding: padding ?? const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -32,7 +39,7 @@ class ListRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                      color: hintTextColor ?? Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),
@@ -46,7 +53,7 @@ class ListRow extends StatelessWidget {
                           style: TextStyle(
                               fontSize: valueFontSize,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                              color: mainTextColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
                     ),
                     image != null
                     ? Padding(

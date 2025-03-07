@@ -686,6 +686,8 @@
   "send_error_minimum_value": "Minimální částka je 0,01",
   "send_estimated_fee": "Odhadovaný poplatek:",
   "send_fee": "Poplatek:",
+  "send_from_cake": "Odeslat z dortu",
+  "send_from_external": "Odeslat z externího",
   "send_name": "Název",
   "send_new": "Nová",
   "send_payment_id": "ID platby (nepovinné)",
@@ -1000,6 +1002,7 @@
   "you_now_have_debit_card": "Nyní máte debetní kartu",
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
+  "you_will_receive_estimated_amount": "Obdržíte(odhadovaný )",
   "you_will_send": "Směnit z",
   "yy": "YY"
 }

@@ -687,6 +687,8 @@
   "send_error_minimum_value": "Der Mindestbetrag ist 0,01",
   "send_estimated_fee": "Geschätzte Gebühr:",
   "send_fee": "Gebühr:",
+  "send_from_cake": "Vom Kuchen senden",
+  "send_from_external": "Senden von extern",
   "send_name": "Name",
   "send_new": "Neu",
   "send_payment_id": "Zahlungs-ID (optional)",
@@ -1003,6 +1005,7 @@
   "you_now_have_debit_card": "Sie haben jetzt eine Debitkarte",
   "you_pay": "Sie bezahlen",
   "you_will_get": "Konvertieren zu",
+  "you_will_receive_estimated_amount": "Sie erhalten(geschätzt )",
   "you_will_send": "Konvertieren von",
   "yy": "YY"
 }

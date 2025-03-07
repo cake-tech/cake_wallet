@@ -687,6 +687,8 @@
   "send_error_minimum_value": "Minimum value of amount is 0.01",
   "send_estimated_fee": "Estimated fee:",
   "send_fee": "Fee:",
+  "send_from_cake": "Send from Cake",
+  "send_from_external": "Send from External",
   "send_name": "Name",
   "send_new": "New",
   "send_payment_id": "Payment ID (optional)",
@@ -1001,6 +1003,7 @@
   "you_now_have_debit_card": "You now have a debit card",
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
+  "you_will_receive_estimated_amount": "You will receive (estimated)",
   "you_will_send": "Convert from",
   "yy": "YY"
 }

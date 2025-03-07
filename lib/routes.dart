@@ -118,4 +118,5 @@ class Routes {
   static const walletGroupDescription = '/wallet_group_description';
   static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
+  static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 }
