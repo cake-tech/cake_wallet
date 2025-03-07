@@ -110,6 +110,7 @@ class Transfer {
           final decimalPoint = asset == null ? 0 : asset.decimalPoint;
           return ZanoTransactionInfo.fromTransfer(
             transfer,
+            currentDaemonHeight: currentDaemonHeight,
             confirmations: currentDaemonHeight - transfer.height,
             isIncome: single.isIncome,
             assetId: single.assetId,
@@ -121,6 +122,7 @@ class Transfer {
         final amount = single.isIncome ? single.amount : single.amount - BigInt.from(transfer.fee);
         return ZanoTransactionInfo.fromTransfer(
           transfer,
+          currentDaemonHeight: currentDaemonHeight,
           confirmations: currentDaemonHeight - transfer.height,
           isIncome: single.isIncome,
           assetId: single.assetId,

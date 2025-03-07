@@ -24,7 +24,8 @@ class ZanoTransactionInfo extends TransactionInfo {
   }
 
   ZanoTransactionInfo.fromTransfer(Transfer transfer,
-      {required int confirmations,
+      { required int currentDaemonHeight,
+        required int confirmations,
         required bool isIncome,
         required String assetId,
         required BigInt amount,
@@ -38,7 +39,7 @@ class ZanoTransactionInfo extends TransactionInfo {
         amount = amount.isValidInt ? amount.toInt() : 0,
         fee = transfer.fee,
         confirmations = max(confirmations, 0),
-        isPending = confirmations < 10 || transfer.height == 0,
+        isPending = (confirmations < 10 || transfer.height == 0) && currentDaemonHeight != 0,
         recipientAddress = transfer.remoteAddresses.isNotEmpty
             ? transfer.remoteAddresses.first
             : '' {
