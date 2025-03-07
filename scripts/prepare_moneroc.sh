@@ -8,7 +8,7 @@ if [[ ! -d "monero_c/.git" ]];
 then
     git clone https://github.com/mrcyjanek/monero_c --branch master monero_c
     cd monero_c
-    git checkout fdb16635cbfe1d45a3d5869c0a55ec871d912ea0
+    git checkout 3e63391d908e65e9df9d1130d760bafd1525ca76
     git reset --hard
     git submodule update --init --force --recursive
     ./apply_patches.sh monero
