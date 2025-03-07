@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -35,8 +37,8 @@ class ZanoTransactionInfo extends TransactionInfo {
         zanoAmount = amount,
         amount = amount.isValidInt ? amount.toInt() : 0,
         fee = transfer.fee,
-        confirmations = confirmations,
-        isPending = confirmations < 10,
+        confirmations = max(confirmations, 0),
+        isPending = confirmations < 10 || transfer.height == 0,
         recipientAddress = transfer.remoteAddresses.isNotEmpty
             ? transfer.remoteAddresses.first
             : '' {

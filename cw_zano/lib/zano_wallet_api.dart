@@ -33,7 +33,7 @@ mixin ZanoWalletApi {
   static const _logInfo = false;
   static const int _zanoMixinValue = 10;
 
-  int _hWallet = 0;
+  static int _hWallet = 0;
 
   int get hWallet => _hWallet;
 
@@ -45,7 +45,8 @@ mixin ZanoWalletApi {
 
   void setPassword(String password) => zano.PlainWallet_resetWalletPassword(hWallet, password);
 
-  void closeWallet(int? walletToClose, {bool force = false}) async {
+  Future<void> closeWallet(int? walletToClose, {bool force = false}) async {
+    
     printV('close_wallet ${walletToClose ?? hWallet}: $force');
     if (Platform.isWindows || force) {
       final result = await _closeWallet(walletToClose ?? hWallet);

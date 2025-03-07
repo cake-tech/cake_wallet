@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_zano/api/model/destination.dart';
 import 'package:cw_zano/api/model/transfer_result.dart';
@@ -42,7 +44,7 @@ class PendingZanoTransaction with PendingTransaction {
   @override
   Future<void> commit() async {
     await zanoWallet.transfer(destinations, fee, comment);
-    zanoWallet.fetchTransactions();
+    unawaited(zanoWallet.fetchTransactions());
   }
   
   @override

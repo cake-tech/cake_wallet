@@ -65,7 +65,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.monero:
       case WalletType.haven:
       case WalletType.zano:
-        if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
+        if (transaction.isPending) {
           return ' (${transaction.confirmations}/10)';
         }
         break;

@@ -168,23 +168,23 @@ abstract class ZanoWalletBase
     final path = await pathForWallet(name: name, type: walletInfo.type);
     if (ZanoWalletApi.openWalletCache[path] != null) {
       final wallet = ZanoWallet(walletInfo, password);
-      await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!).then((_) {
-        unawaited(wallet.init(ZanoWalletApi.openWalletCache[path]!.wi.address));
-      });
+      await wallet.parseCreateWalletResult(ZanoWalletApi.openWalletCache[path]!);
+      await wallet.init(ZanoWalletApi.openWalletCache[path]!.wi.address);
       return wallet;
     } else {
       final wallet = ZanoWallet(walletInfo, password);
       await wallet.initWallet();
       final createWalletResult = await wallet.loadWallet(path, password);
-      await wallet.parseCreateWalletResult(createWalletResult).then((_) {
-        unawaited(wallet.init(createWalletResult.wi.address));
-      });
+      await wallet.parseCreateWalletResult(createWalletResult);
+      await wallet.init(createWalletResult.wi.address);
       return wallet;
     }
   }
 
   Future<void> parseCreateWalletResult(CreateWalletResult result) async {
+    printV('setting hWallet = ${result.walletId}');
     hWallet = result.walletId;
+
     seed = await result.seed(this);
     keys = ZanoWalletKeys(
       privateSpendKey: result.privateSpendKey,
@@ -193,8 +193,6 @@ abstract class ZanoWalletBase
       publicViewKey: result.publicViewKey,
     );
     passphrase = await getPassphrase();
-
-    printV('setting hWallet = ${result.walletId}');
     walletAddresses.address = result.wi.address;
     await loadAssets(result.wi.balances, maxRetries: _maxLoadAssetsRetries);
     for (final item in result.wi.balances) {
@@ -205,9 +203,11 @@ abstract class ZanoWalletBase
         );
       }
     }
+    transactionHistory.clear();
     if (result.recentHistory.history != null) {
       final transfers = result.recentHistory.history!;
       final transactions = Transfer.makeMap(transfers, zanoAssets, currentDaemonHeight);
+      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
     }
@@ -215,9 +215,9 @@ abstract class ZanoWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = true}) async {
-    closeWallet(null);
     _updateSyncInfoTimer?.cancel();
     _autoSaveTimer?.cancel();
+    await closeWallet(null);
   }
 
   @override
@@ -418,6 +418,8 @@ abstract class ZanoWalletBase
       }
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
+      printV('h: $hWallet: transactions.length: ${transactions.length}');
+      printV('h: $hWallet: transactionHistory.length: ${transactionHistory.transactions.length}');
       transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
@@ -539,7 +541,7 @@ abstract class ZanoWalletBase
         publicSpendKey: walletInfo.wiExtended.spendPublicKey,
         publicViewKey: walletInfo.wiExtended.viewPublicKey,
       );
-      loadAssets(walletInfo.wi.balances);
+      await loadAssets(walletInfo.wi.balances);
       // matching balances and whitelists
       // 1. show only balances available in whitelists
       // 2. set whitelists available in balances as 'enabled' ('disabled' by default)
