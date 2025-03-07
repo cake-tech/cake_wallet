@@ -200,10 +200,12 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
   CryptoSwift: 967f37cea5a3294d9cce358f78861652155be483
-  cw_mweb: 3aea2fb35b2bd04d8b2d21b83216f3b8fb768d85
-  device_display_brightness: 04374ebd653619292c1d996f00f42877ea19f17f
-  device_info_plus: 335f3ce08d2e174b9fdc3db3db0f4e3b1f66bd89
-  devicelocale: bd64aa714485a8afdaded0892c1e7d5b7f680cf8
+  cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
+  cw_mweb: 22cd01dfb8ad2d39b15332006f22046aaa8352a3
+  cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
+  device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
+  device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
+  devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   fast_scanner: 2cb1ad3e69e645e9980fb4961396ce5804caa3e3
