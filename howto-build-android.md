@@ -8,7 +8,7 @@ The following are the system requirements to build Cake Wallet for your Android 
 Ubuntu >= 20.04 
 Android SDK 29 or higher (better to have the latest one 33)
 Android NDK 17c
-Flutter 3.24.4
+Flutter 3.27.4
 ```
 
 ### 1. Installing Package Dependencies
@@ -51,7 +51,7 @@ You may download and install the latest version of Android Studio [here](https:/
 
 ### 3. Installing Flutter
 
-Install Flutter with version `3.24.4`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
+Install Flutter with version `3.27.4`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
 
 ### 4. Installing rustup
 
@@ -66,7 +66,7 @@ Verify that the Android toolchain, Flutter, and Android Studio have been correct
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.24.4, on Linux, locale en_US.UTF-8)
+[✓] Flutter (Channel stable, 3.27.4, on Linux, locale en_US.UTF-8)
 [✓] Android toolchain - develop for Android devices (Android SDK version 29 or higher)
 [✓] Android Studio (version 4.0 or higher)
 ```

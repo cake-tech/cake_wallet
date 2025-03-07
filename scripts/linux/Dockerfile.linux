@@ -1,6 +1,6 @@
 # Usage:
-# docker build . -f Dockerfile.linux -t ghcr.io/cake-tech/cake_wallet:main-linux
-# docker push ghcr.io/cake-tech/cake_wallet:main-linux
+# docker build . -f Dockerfile.linux -t ghcr.io/cake-tech/cake_wallet:main-linux-3.27.4
+# docker push ghcr.io/cake-tech/cake_wallet:main-linux-3.27.4
 
 FROM --platform=linux/amd64 docker.io/debian:12
 
@@ -13,7 +13,7 @@ ENV ANDROID_SDK_TOOLS_VERSION=11076708
 ENV ANDROID_PLATFORM_VERSION=34
 ENV ANDROID_BUILD_TOOLS_VERSION=34.0.0
 
-ENV FLUTTER_VERSION=3.24.0
+ENV FLUTTER_VERSION=3.27.4
 
 # If we ever need to migrate the home directory...
 RUN sed -i 's|^root:[^:]*:[^:]*:[^:]*:[^:]*:/root:|root:x:0:0:root:/root:|' /etc/passwd
@@ -141,7 +141,7 @@ ENV FLUTTER_ROOT=$FLUTTER_HOME
 
 ENV PATH=${PATH}:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
 
-RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME}
+RUN git clone --recursive --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME}
 
 RUN yes | flutter doctor --android-licenses \
     && flutter doctor \

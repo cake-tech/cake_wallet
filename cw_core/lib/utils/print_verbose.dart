@@ -1,3 +1,5 @@
+import 'dart:math';
+
 void printV(dynamic content) {
   CustomTrace programInfo = CustomTrace(StackTrace.current);
   print("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content");
@@ -29,7 +31,7 @@ class CustomTrace {
     var indexOfWhiteSpace = currentTrace.indexOf(' ');
 
     /* Create a substring from the first whitespace index till the end of the string */
-    var subStr = currentTrace.substring(indexOfWhiteSpace);
+    var subStr = currentTrace.substring(max(0, indexOfWhiteSpace));
 
     /* Grab the function name using reg expr */
     var indexOfFunction = subStr.indexOf(RegExp(r'[A-Za-z0-9_]'));
@@ -40,7 +42,7 @@ class CustomTrace {
     indexOfWhiteSpace = subStr.indexOf(RegExp(r'[ .]'));
 
     /* Create a new substring from start to the first index of a whitespace. This substring gives us the function name */
-    subStr = subStr.substring(0, indexOfWhiteSpace);
+    subStr = subStr.substring(0, max(0, indexOfWhiteSpace));
 
     return subStr;
   }
@@ -61,7 +63,7 @@ class CustomTrace {
     /* Search through the string and find the index of the file name by looking for the '.dart' regex */
     var indexOfFileName = traceString.indexOf(RegExp(r'[/A-Za-z_]+.dart'), 1); // 1 to offest and not print the printV function name
 
-    var fileInfo = traceString.substring(indexOfFileName);
+    var fileInfo = traceString.substring(max(0, indexOfFileName));
 
     var listOfInfos = fileInfo.split(":");
 
@@ -78,7 +80,7 @@ class CustomTrace {
       columnStr = columnStr.replaceFirst(")", "");
       this.columnNumber = int.tryParse(columnStr);
     } catch (e) {
-
+      print("Unable to parse trace (printV): $e");
     }
   }
 }

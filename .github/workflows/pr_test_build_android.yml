@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:main-linux
+      image: ghcr.io/cake-tech/cake_wallet:main-linux-3.27.4
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
