@@ -130,7 +130,8 @@ class MoonPayProvider extends BuyProvider {
     final List<PaymentMethod> paymentMethods = [];
 
     if (isBuyAction) {
-      final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency.title, null);
+      final fiatBuyCredentials =
+          await fetchFiatCredentials(fiatCurrency, cryptoCurrency.title, null);
       if (fiatBuyCredentials.isNotEmpty) {
         final paymentMethod = fiatBuyCredentials['paymentMethod'] as String?;
         paymentMethods.add(PaymentMethod.fromMoonPayJson(
@@ -223,7 +224,6 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-
     final Map<String, String> params = {
       'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
       'language': _settingsStore.languageCode,
@@ -246,19 +246,17 @@ class MoonPayProvider extends BuyProvider {
     if (!isBuyAction) params['quoteCurrencyCode'] = quote.cryptoCurrency.name;
 
     try {
-      {
-        final uri = await requestMoonPayUrl(
-            walletAddress: cryptoCurrencyAddress,
-            settingsStore: _settingsStore,
-            isBuyAction: isBuyAction,
-            amount: amount.toString(),
-            params: params);
+      final uri = await requestMoonPayUrl(
+          walletAddress: cryptoCurrencyAddress,
+          settingsStore: _settingsStore,
+          isBuyAction: isBuyAction,
+          amount: amount.toString(),
+          params: params);
 
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          throw Exception('Could not launch URL');
-        }
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Could not launch URL');
       }
     } catch (e) {
       if (context.mounted) {
