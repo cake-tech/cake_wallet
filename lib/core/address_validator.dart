@@ -281,6 +281,9 @@ class AddressValidator extends TextValidator {
     }
   }
 
+  static String get silentPaymentAddressPattern => SilentPaymentAddress.regex.pattern;
+  static String get mWebAddressPattern => MwebAddress.regex.pattern;
+
   static String? getAddressFromStringPattern(CryptoCurrency type) {
     String? pattern = null;
 

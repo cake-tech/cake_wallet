@@ -505,6 +505,13 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentDecredNodeIdKey,
           );
           break;
+        case 49:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SwapTrade",
+            enabled: true,
+          );
+			    break;
         default:
           break;
       }

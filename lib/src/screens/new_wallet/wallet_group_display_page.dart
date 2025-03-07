@@ -150,7 +150,6 @@ class WalletGroupsDisplayBody extends StatelessWidget {
       arguments: NewWalletArguments(
         type: walletGroupsDisplayViewModel.type,
         mnemonic: mnemonic,
-        parentAddress: walletGroupsDisplayViewModel.parentAddress,
         isChildWallet: true,
       ),
     );

@@ -69,7 +69,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         availableModes = [WalletRestoreMode.seed];
         break;
     }
-    isButtonEnabled = !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     walletCreationService.changeWalletType(type: type);
   }
 
