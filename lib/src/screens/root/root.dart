@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -39,12 +40,30 @@ class Root extends StatefulWidget {
   RootState createState() => RootState();
 }
 
+// TODO: This is being done because of a bug in decred where the app will crash
+// when coming back from a sleep on android if the cgo wallet library is left
+// running. Whenever that bug is fixed remove this.
+class BoolNotifier extends ChangeNotifier {
+  bool _value = false;
+
+  bool get value => _value;
+
+  set value(bool value) {
+    if (value != _value) {
+      _value = value;
+      notifyListeners();
+    }
+  }
+}
+
 class RootState extends State<Root> with WidgetsBindingObserver {
   RootState()
       : _isInactiveController = StreamController<bool>.broadcast(),
         _isInactive = false,
         _requestAuth = true,
         _postFrameCallback = false;
+
+  static final paused = BoolNotifier();
 
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
@@ -128,6 +147,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused:
+        paused.value = true;
         if (isQrScannerShown) {
           return;
         }
@@ -138,6 +158,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         break;
       case AppLifecycleState.resumed:
+        paused.value = false;
         widget.authService.requireAuth().then((value) {
           if (mounted) {
             setState(() {
