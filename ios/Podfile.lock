@@ -240,7 +240,7 @@ SPEC CHECKSUMS:
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   CryptoSwift: 967f37cea5a3294d9cce358f78861652155be483
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
-  cw_mweb: 87af74f9659fed0c1a2cbfb44413f1070e79e3ae
+  cw_mweb: 22cd01dfb8ad2d39b15332006f22046aaa8352a3
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
