@@ -177,7 +177,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           children: [
             PrimaryButton(
               key: ValueKey('exchange_trade_page_send_from_external_button_key'),
-              text: S.current.send_from_external,
+              text: S.current.send_from_external_wallet,
               onPressed: () async {
                 Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
               },
@@ -197,7 +197,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty,
                         isLoading: sendingState is IsExecutingState,
                         onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
-                        text:S.current.send_from_cake,
+                        text:S.current.send_from_cake_wallet,
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                       )
