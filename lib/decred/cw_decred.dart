@@ -1,10 +1,7 @@
 part of 'decred.dart';
 
 class CWDecred extends Decred {
-  CWDecred() {
-    // initialize the service for creating and loading dcr wallets.
-    DecredWalletService.init();
-  }
+  CWDecred() {}
 
   @override
   WalletCredentials createDecredNewWalletCredentials(
@@ -91,7 +88,7 @@ class CWDecred extends Decred {
   }
 
   @override
-  void updateUnspents(Object wallet) async {
+  void updateUnspents(Object wallet) {
     final decredWallet = wallet as DecredWallet;
     decredWallet.unspents();
   }
