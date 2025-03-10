@@ -687,6 +687,8 @@
   "send_error_minimum_value": "Mинимальная сумма 0.01",
   "send_estimated_fee": "Предполагаемая комиссия:",
   "send_fee": "Комиссия:",
+  "send_from_cake_wallet": "Отправить с кошелька для торта",
+  "send_from_external_wallet": "Отправить с внешнего кошелька",
   "send_name": "Имя",
   "send_new": "Новый",
   "send_payment_id": "ID платежа (опционально)",
@@ -1001,6 +1003,7 @@
   "you_now_have_debit_card": "Теперь у вас есть дебетовая карта",
   "you_pay": "Вы платите",
   "you_will_get": "Конвертировать в",
+  "you_will_receive_estimated_amount": "Вы получите(Оценку )",
   "you_will_send": "Конвертировать из",
   "yy": "ГГ"
 }

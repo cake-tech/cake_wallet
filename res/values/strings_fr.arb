@@ -686,6 +686,8 @@
   "send_error_minimum_value": "La valeur minimale du montant est 0.01",
   "send_estimated_fee": "Estimation des frais :",
   "send_fee": "Frais:",
+  "send_from_cake_wallet": "Envoyer du portefeuille à gâteau",
+  "send_from_external_wallet": "Envoyer du portefeuille externe",
   "send_name": "Nom",
   "send_new": "Nouveau",
   "send_payment_id": "ID de paiement (optionnel)",
@@ -1000,6 +1002,7 @@
   "you_now_have_debit_card": "Vous avez maintenant une carte de débit",
   "you_pay": "Vous payez",
   "you_will_get": "Convertir vers",
+  "you_will_receive_estimated_amount": "Vous recevrez ( estimé )",
   "you_will_send": "Convertir depuis",
   "yy": "AA"
 }

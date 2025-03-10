@@ -686,6 +686,8 @@
   "send_error_minimum_value": "금액의 최소값은 0.01입니다",
   "send_estimated_fee": "예상 수수료:",
   "send_fee": "회비:",
+  "send_from_cake_wallet": "케이크 지갑에서 보내십시오",
+  "send_from_external_wallet": "외부 지갑에서 보내십시오",
   "send_name": "이름",
   "send_new": "새로운",
   "send_payment_id": "지불 ID (optional)",
@@ -1000,6 +1002,7 @@
   "you_now_have_debit_card": "이제 직불카드가 있습니다.",
   "you_pay": "당신이 지불합니다",
   "you_will_get": "로 변환하다",
+  "you_will_receive_estimated_amount": "(추정 )을 받게됩니다.",
   "you_will_send": "다음에서 변환",
   "YY": "YY",
   "yy": "YY"

@@ -686,6 +686,8 @@
   "send_error_minimum_value": "Minimale waarde van bedrag is 0,01",
   "send_estimated_fee": "Geschatte vergoeding:",
   "send_fee": "Vergoeding:",
+  "send_from_cake_wallet": "Stuur vanaf cake -portemonnee",
+  "send_from_external_wallet": "Stuur vanuit een externe portemonnee",
   "send_name": "Naam",
   "send_new": "Nieuw",
   "send_payment_id": "Betaling ID (facultatief)",
@@ -1001,6 +1003,7 @@
   "you_now_have_debit_card": "Je hebt nu een debetkaart",
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
+  "you_will_receive_estimated_amount": "U ontvangt(geschat )",
   "you_will_send": "Converteren van",
   "yy": "JJ"
 }

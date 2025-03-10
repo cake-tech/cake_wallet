@@ -687,6 +687,8 @@
   "send_error_minimum_value": "Ránṣẹ́ owó kò kéré dé 0.01",
   "send_estimated_fee": "Iye àfikún l'a fojú díwọ̀n:",
   "send_fee": "Owó àfikún:",
+  "send_from_cake_wallet": "Firanṣẹ lati apamọwọ akara oyinbo",
+  "send_from_external_wallet": "Firanṣẹ lati apamọwọ ita",
   "send_name": "Orúkọ",
   "send_new": "Títun",
   "send_payment_id": "Àmì ìdánimọ̀ àránṣẹ́ (ìyàn nìyí)",
@@ -1001,6 +1003,7 @@
   "you_now_have_debit_card": "Ẹ ni káàdì ìrajà lọ́wọ́lọ́wọ́",
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
+  "you_will_receive_estimated_amount": "Iwọ yoo gba ( excimated )",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
   "yy": "Ọd"
 }
