@@ -68,7 +68,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
 
-
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
       final existingInfo = _unspentCoinsInfo.values
@@ -78,7 +77,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
       existingInfo.isFrozen = item.isFrozen;
       existingInfo.isSending = item.isSending;
       existingInfo.note = item.note;
-
 
       await existingInfo.save();
       _updateUnspentCoinsInfo();
@@ -165,6 +163,17 @@ abstract class UnspentCoinsListViewModelBase with Store {
     unspents.sort((a, b) => b.value.compareTo(a.value));
 
     items.addAll(unspents);
+  }
+
+  @action
+  void resetUnspentCoinsInfoSelections() {
+    // reset all unspent coins selections to true except frozen ones
+    for (final item in items) {
+      if (!item.isFrozen) {
+        item.isSending = true;
+        saveUnspentCoinInfo(item);
+      }
+    }
   }
 
   @action

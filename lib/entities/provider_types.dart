@@ -1,5 +1,6 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
+import 'package:cake_wallet/buy/kryptonim/kryptonim.dart';
 import 'package:cake_wallet/buy/meld/meld_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
@@ -8,7 +9,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/http.dart';
 
-enum ProviderType { robinhood, dfx, onramper, moonpay, meld }
+enum ProviderType { robinhood, dfx, onramper, moonpay, meld, kriptonim }
 
 extension ProviderTypeName on ProviderType {
   String get title {
@@ -23,6 +24,8 @@ extension ProviderTypeName on ProviderType {
         return 'MoonPay';
       case ProviderType.meld:
         return 'Meld';
+      case ProviderType.kriptonim:
+        return 'Kriptonim';
     }
   }
 
@@ -38,6 +41,8 @@ extension ProviderTypeName on ProviderType {
         return 'moonpay_provider';
       case ProviderType.meld:
         return 'meld_provider';
+      case ProviderType.kriptonim:
+        return 'kriptonim_provider';
     }
   }
 }
@@ -59,6 +64,7 @@ class ProvidersHelper {
           ProviderType.dfx,
           ProviderType.robinhood,
           ProviderType.moonpay,
+          ProviderType.kriptonim
         ];
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -66,13 +72,15 @@ class ProvidersHelper {
         return [
           ProviderType.onramper,
           ProviderType.robinhood,
-          ProviderType.moonpay
+          ProviderType.moonpay,
+          ProviderType.kriptonim
         ];
       case WalletType.tron:
         return [
           ProviderType.onramper,
           ProviderType.robinhood,
           ProviderType.moonpay,
+          ProviderType.kriptonim
         ];
       case WalletType.none:
       case WalletType.haven:
@@ -127,6 +135,8 @@ class ProvidersHelper {
         return getIt.get<MoonPayProvider>();
       case ProviderType.meld:
         return getIt.get<MeldBuyProvider>();
+      case ProviderType.kriptonim:
+        return getIt.get<KryptonimBuyProvider>();
       default:
         return null;
     }
