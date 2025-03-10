@@ -226,6 +226,7 @@
   "disable_buy": "Kaufaktion deaktivieren",
   "disable_cake_2fa": "Cake 2FA deaktivieren",
   "disable_exchange": "Exchange deaktivieren",
+  "disable_exchange_option": "Deaktivieren Sie die Exchange -Option",
   "disable_fee_api_warning": "Wenn dies ausgeschaltet wird, sind die Gebührenquoten in einigen Fällen möglicherweise ungenau, sodass Sie die Gebühren für Ihre Transaktionen möglicherweise überbezahlt oder unterzahlt",
   "disable_fiat": "Fiat deaktivieren",
   "disable_sell": "Verkaufsaktion deaktivieren",

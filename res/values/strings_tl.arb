@@ -226,6 +226,7 @@
   "disable_buy": "Huwag paganahin ang pagkilos ng pagbili",
   "disable_cake_2fa": "Huwag paganahin ang Cake 2FA",
   "disable_exchange": "Huwag paganahin ang palitan",
+  "disable_exchange_option": "Huwag paganahin ang pagpipilian sa palitan",
   "disable_fee_api_warning": "Sa pamamagitan ng pag -off nito, ang mga rate ng bayad ay maaaring hindi tumpak sa ilang mga kaso, kaya maaari mong tapusin ang labis na bayad o pagsuporta sa mga bayarin para sa iyong mga transaksyon",
   "disable_fiat": "Huwag paganahin ang fiat",
   "disable_sell": "Huwag paganahin ang pagkilos ng pagbebenta",

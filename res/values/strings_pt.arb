@@ -226,6 +226,7 @@
   "disable_buy": "Desativar ação de compra",
   "disable_cake_2fa": "Desabilitar o Cake 2FA",
   "disable_exchange": "Desativar troca",
+  "disable_exchange_option": "Desativar opção de troca",
   "disable_fee_api_warning": "Ao desativar isso, as taxas de taxas podem ser imprecisas em alguns casos, para que você possa acabar pagando demais ou pagando as taxas por suas transações",
   "disable_fiat": "Desativar fiat",
   "disable_sell": "Desativar ação de venda",

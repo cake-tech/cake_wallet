@@ -77,6 +77,7 @@ class SecretKey {
     SecretKey('moneroTestWalletBlockHeight', () => ''),
     SecretKey('chainflipApiKey', () => ''),
     SecretKey('chainflipAffiliateFee', () => ''),
+    SecretKey('kryptonimApiKey', () => ''),
     SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
   ];
 

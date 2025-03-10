@@ -226,6 +226,7 @@
   "disable_buy": "Satın alma işlemini devre dışı bırak",
   "disable_cake_2fa": "Cake 2FA'yı Devre Dışı Bırak",
   "disable_exchange": "Borsayı devre dışı bırak",
+  "disable_exchange_option": "Değişim seçeneğini devre dışı bırak",
   "disable_fee_api_warning": "Bunu kapatarak, ücret oranları bazı durumlarda yanlış olabilir, bu nedenle işlemleriniz için ücretleri fazla ödeyebilir veya az ödeyebilirsiniz.",
   "disable_fiat": "İtibari paraları devre dışı bırak",
   "disable_sell": "Satış işlemini devre dışı bırak",

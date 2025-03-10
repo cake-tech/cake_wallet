@@ -226,6 +226,7 @@
   "disable_buy": "Nonaktifkan tindakan beli",
   "disable_cake_2fa": "Nonaktifkan Kue 2FA",
   "disable_exchange": "Nonaktifkan pertukaran",
+  "disable_exchange_option": "Nonaktifkan opsi pertukaran",
   "disable_fee_api_warning": "Dengan mematikan ini, tarif biaya mungkin tidak akurat dalam beberapa kasus, jadi Anda mungkin akan membayar lebih atau membayar biaya untuk transaksi Anda",
   "disable_fiat": "Nonaktifkan fiat",
   "disable_sell": "Nonaktifkan aksi jual",
