@@ -160,7 +160,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   void _updateItems() {
     final tagFrom =
-    tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
+        tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
     final tagTo = tradesStore.trade!.to.tag != null ? '${tradesStore.trade!.to.tag}' + ' ' : '';
     items.clear();
 
@@ -214,8 +214,8 @@ abstract class ExchangeTradeViewModelBase with Store {
             title: title,
             data: '${trade.extraId}',
             isCopied: true,
-            isReceiveDetail: true,
-            isExternalSendDetail: false,
+            isReceiveDetail: trade.from == CryptoCurrency.xrp ? false : true,
+            isExternalSendDetail: trade.from == CryptoCurrency.xrp ? true : false,
           ),
         );
       }

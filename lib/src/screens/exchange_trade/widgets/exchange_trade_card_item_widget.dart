@@ -62,7 +62,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
                 ),
               )
               .toList(),
-          if (!isReceiveDetailsCard) ...[
+          if (!isReceiveDetailsCard && exchangeTradeViewModel.isSendable) ...[
             if (feesViewModel.hasFees)
               FeeSelectionWidget(
                 feesViewModel: feesViewModel,
