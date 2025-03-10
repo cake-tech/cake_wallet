@@ -58,7 +58,7 @@ class FeeCache {
     return this.stamp.add(const Duration(minutes: 30)).isBefore(DateTime.now());
   }
 
-  void update(int feeRate) {
+  void update(int feeRate) async {
     this._feeRate = feeRate;
     this.stamp = DateTime.now();
   }

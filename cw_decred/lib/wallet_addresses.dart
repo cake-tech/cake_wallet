@@ -4,14 +4,17 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
+import 'package:cw_decred/api/libdcrwallet.dart';
 
 part 'wallet_addresses.g.dart';
 
 class DecredWalletAddresses = DecredWalletAddressesBase with _$DecredWalletAddresses;
 
 abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
-  DecredWalletAddressesBase(WalletInfo walletInfo) : super(walletInfo);
+  DecredWalletAddressesBase(WalletInfo walletInfo, Libwallet libwallet)
+      : _libwallet = libwallet,
+        super(walletInfo);
+  final Libwallet _libwallet;
   String currentAddr = '';
 
   @observable
@@ -47,7 +50,7 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> updateAddressesInBox() async {
-    final addrs = libAddresses();
+    final addrs = await libAddresses();
     final allAddrs = new List.from(addrs.usedAddrs)..addAll(addrs.unusedAddrs);
 
     // Add all addresses.
@@ -94,13 +97,13 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     await saveAddressesInBox();
   }
 
-  LibAddresses libAddresses() {
+  Future<LibAddresses> libAddresses() async {
     final nUsed = "10";
     var nUnused = "1";
     if (this.isEnabledAutoGenerateSubaddress) {
       nUnused = "3";
     }
-    final res = libdcrwallet.addresses(walletInfo.name, nUsed, nUnused);
+    final res = await _libwallet.addresses(walletInfo.name, nUsed, nUnused);
     final decoded = json.decode(res);
     final usedAddrs = List<String>.from(decoded["used"] ?? []);
     final unusedAddrs = List<String>.from(decoded["unused"] ?? []);
@@ -112,7 +115,7 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
   Future<void> generateNewAddress(String label) async {
     // NOTE: This will ignore the gap limit and may cause problems when restoring from seed if too
     // many addresses are taken and not used.
-    final addr = libdcrwallet.newExternalAddress(walletInfo.name) ?? '';
+    final addr = await _libwallet.newExternalAddress(walletInfo.name) ?? '';
     if (addr == "") {
       return;
     }
