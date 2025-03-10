@@ -116,7 +116,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .toList());
 
     _setAvailableProviders();
-    calculateBestRate();
 
     bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => calculateBestRate());
 
@@ -144,9 +143,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _defineIsReceiveAmountEditable();
     loadLimits();
     reaction((_) => isFixedRateMode, (Object _) {
+      bestRate = 0.0;
       loadLimits();
-      bestRate = 0;
-      calculateBestRate();
     });
 
     if (isElectrumWallet) {
@@ -539,6 +537,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     } else {
       limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
     }
+
+    calculateBestRate();
   }
 
   @action
@@ -726,10 +726,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void _onPairChange() {
     depositAmount = '';
     receiveAmount = '';
+    bestRate = 0.0;
     loadLimits();
     _setAvailableProviders();
-    bestRate = 0;
-    calculateBestRate();
   }
 
   void _initialPairBasedOnWallet() {
@@ -823,9 +822,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveAmount = '';
     isFixedRateMode = false;
     _defineIsReceiveAmountEditable();
+    bestRate = 0.0;
     loadLimits();
-    bestRate = 0;
-    calculateBestRate();
 
     final Map<String, dynamic> exchangeProvidersSelection =
         json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
