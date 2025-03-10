@@ -226,6 +226,7 @@
   "disable_buy": "Wyłącz akcję kupna",
   "disable_cake_2fa": "Wyłącz Cake 2FA",
   "disable_exchange": "Wyłącz wymianę",
+  "disable_exchange_option": "Wyłącz opcję wymiany",
   "disable_fee_api_warning": "Wyłączając to, stawki opłaty mogą być w niektórych przypadkach niedokładne, więc możesz skończyć się przepłaceniem lub wynagrodzeniem opłat za transakcje",
   "disable_fiat": "Wyłącz waluty FIAT",
   "disable_sell": "Wyłącz akcję sprzedaży",

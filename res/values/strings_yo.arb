@@ -226,6 +226,7 @@
   "disable_buy": "Ko iṣọrọ ọja",
   "disable_cake_2fa": "Ko 2FA Cake sii",
   "disable_exchange": "Pa ilé pàṣípààrọ̀",
+  "disable_exchange_option": "Mu aṣayan paṣipaarọ",
   "disable_fee_api_warning": "Nipa yiyi eyi kuro, awọn oṣuwọn owo naa le jẹ aiṣe deede ni awọn ọrọ kan, nitorinaa o le pari apọju tabi awọn idiyele ti o ni agbara fun awọn iṣowo rẹ",
   "disable_fiat": "Pa owó tí ìjọba pàṣẹ wa lò",
   "disable_sell": "Ko iṣọrọ iṣọrọ",

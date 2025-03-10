@@ -226,6 +226,7 @@
   "disable_buy": "Disable buy action",
   "disable_cake_2fa": "Disable Cake 2FA",
   "disable_exchange": "Disable exchange",
+  "disable_exchange_option": "Disable Exchange option",
   "disable_fee_api_warning": "By turning this off, the fee rates might be inaccurate in some cases, so you might end up overpaying or underpaying the fees for your transactions",
   "disable_fiat": "Disable fiat",
   "disable_sell": "Disable sell action",

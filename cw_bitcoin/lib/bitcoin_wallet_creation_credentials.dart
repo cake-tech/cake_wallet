@@ -9,7 +9,6 @@ class BitcoinNewWalletCredentials extends WalletCredentials {
     super.password,
     super.passphrase,
     this.mnemonic,
-    super.parentAddress,
   });
 
   final String? mnemonic;

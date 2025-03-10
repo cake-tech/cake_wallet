@@ -226,6 +226,7 @@
   "disable_buy": "구매 행동 비활성화",
   "disable_cake_2fa": "케이크 2FA 비활성화",
   "disable_exchange": "교환 비활성화",
+  "disable_exchange_option": "교환 옵션을 비활성화합니다",
   "disable_fee_api_warning": "이것을 끄면 경우에 따라 수수료가 부정확 할 수 있으므로 거래 수수료를 초과 지불하거나 지불 할 수 있습니다.",
   "disable_fiat": "법정화폐 비활성화",
   "disable_sell": "판매 조치 비활성화",

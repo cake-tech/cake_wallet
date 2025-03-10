@@ -401,6 +401,13 @@ Future<void> defaultSettingsMigration(
             enabled: false,
           );
 			    break;
+        case 48:
+          _changeExchangeProviderAvailability(
+            sharedPreferences,
+            providerName: "SwapTrade",
+            enabled: true,
+          );
+			    break;
         default:
           break;
       }

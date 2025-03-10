@@ -226,6 +226,7 @@
   "disable_buy": "購入アクションを無効にする",
   "disable_cake_2fa": "Cake 2FA を無効にする",
   "disable_exchange": "交換を無効にする",
+  "disable_exchange_option": "交換オプションを無効にします",
   "disable_fee_api_warning": "これをオフにすることで、料金金利は場合によっては不正確になる可能性があるため、取引の費用が過払いまたは不足している可能性があります",
   "disable_fiat": "フィアットを無効にする",
   "disable_sell": "販売アクションを無効にする",
