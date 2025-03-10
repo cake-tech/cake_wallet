@@ -214,8 +214,13 @@ abstract class ExchangeTradeViewModelBase with Store {
             title: title,
             data: '${trade.extraId}',
             isCopied: true,
-            isReceiveDetail: trade.from == CryptoCurrency.xrp ? false : true,
-            isExternalSendDetail: trade.from == CryptoCurrency.xrp ? true : false,
+            isReceiveDetail: (trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm)
+                ? false
+                : true,
+            isExternalSendDetail:
+                (trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm)
+                    ? true
+                    : false,
           ),
         );
       }
