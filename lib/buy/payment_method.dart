@@ -218,6 +218,15 @@ class PaymentMethod extends SelectableOption {
         customDescription: json['description'] as String?);
   }
 
+  factory PaymentMethod.fromKryptonimJson(Map<String, dynamic> json) {
+    final type = PaymentMethod.getPaymentTypeId(json['payment_method'] as String?);
+    return PaymentMethod(
+      paymentMethodType: type,
+      customTitle: json['payment_method'] as String? ?? 'Unknown',
+      customIconPath: 'assets/images/card.png',
+    );
+  }
+
   static PaymentType getPaymentTypeId(String? type) {
     switch (type?.toLowerCase()) {
       case 'banktransfer':

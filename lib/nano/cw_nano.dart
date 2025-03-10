@@ -94,14 +94,12 @@ class CWNano extends Nano {
     WalletInfo? walletInfo,
     String? password,
     String? mnemonic,
-    String? parentAddress,
     String? passphrase,
   }) =>
       NanoNewWalletCredentials(
         name: name,
         password: password,
         mnemonic: mnemonic,
-        parentAddress: parentAddress,
         walletInfo: walletInfo,
         passphrase: passphrase,
       );

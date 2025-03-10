@@ -109,7 +109,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           passphrase: passphrase,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
         );
       case WalletType.haven:
         return haven!.createHavenNewWalletCredentials(
@@ -119,7 +118,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.bitcoinCash:
@@ -128,7 +126,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           passphrase: passphrase,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
         );
       case WalletType.nano:
       case WalletType.banano:
@@ -136,7 +133,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.polygon:
@@ -144,7 +140,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.solana:
@@ -152,7 +147,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.tron:
@@ -160,7 +154,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.wownero:
