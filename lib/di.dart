@@ -255,6 +255,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
@@ -392,11 +393,10 @@ Future<void> setup({
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
   getIt.registerFactory<WalletManager>(
-    () {
-      final instance = WalletManager(_walletInfoSource, getIt.get<SharedPreferences>());
-      instance.updateWalletGroups();
-      return instance;
-    },
+    () => WalletManager(
+      _walletInfoSource,
+      getIt.get<SharedPreferences>(),
+    ),
   );
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
@@ -812,7 +812,7 @@ Future<void> setup({
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
         groupName: arguments.groupName,
-        parentAddress: arguments.parentAddress,
+        walletGroupKey: arguments.walletGroupKey,
       ),
     );
   });
@@ -1017,6 +1017,10 @@ Future<void> setup({
       ));
 
   getIt.registerFactory<MeldBuyProvider>(() => MeldBuyProvider(
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
+
+  getIt.registerFactory<KryptonimBuyProvider>(() => KryptonimBuyProvider(
     wallet: getIt.get<AppStore>().wallet!,
   ));
 
@@ -1256,7 +1260,7 @@ Future<void> setup({
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
       (Order order, _) => OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
-  getIt.registerFactory(() => SupportViewModel());
+  getIt.registerFactory(() => SupportViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 

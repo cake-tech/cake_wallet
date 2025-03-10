@@ -49,7 +49,7 @@ abstract class BuyProvider {
       throw UnimplementedError();
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-          String fiatCurrency, String cryptoCurrency, bool isBuyAction) async =>
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async =>
       [];
 
   Future<List<Quote>?> fetchQuote(

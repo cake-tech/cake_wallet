@@ -114,9 +114,11 @@ abstract class HomeSettingsViewModelBase with Store {
       if (_balanceViewModel.wallet.type == WalletType.zano) {
         await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
       }
-      
+
       _updateTokensList();
       _updateFiatPrices(token);
+    } catch (e) {
+      throw e;
     } finally {
       isAddingToken = false;
     }
@@ -184,6 +186,40 @@ abstract class HomeSettingsViewModelBase with Store {
     } finally {
       isValidatingContractAddress = false;
     }
+  }
+
+  bool checkIfTokenIsWhitelisted(String contractAddress) {
+    // get the default tokens for each currency type:
+    List<String> defaultTokenAddresses = [];
+    switch (_balanceViewModel.wallet.type) {
+      case WalletType.ethereum:
+        defaultTokenAddresses = ethereum!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.polygon:
+        defaultTokenAddresses = polygon!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.solana:
+        defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.tron:
+        defaultTokenAddresses = tron!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.zano:
+      case WalletType.banano:
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.wownero:
+      case WalletType.bitcoinCash:
+        return false;
+    }
+
+    // check if the contractAddress is in the defaultTokenAddresses
+    bool isInWhitelist = defaultTokenAddresses.any((element) => element == contractAddress);
+    return isInWhitelist;
   }
 
   Future<bool> _isPotentialScamTokenViaMoralis(
@@ -360,6 +396,7 @@ abstract class HomeSettingsViewModelBase with Store {
   CryptoCurrency get nativeToken => _balanceViewModel.wallet.currency;
 
   void _updateFiatPrices(CryptoCurrency token) async {
+    if (token.isPotentialScam) return; // don't fetch price data for potential scam tokens
     try {
       _balanceViewModel.fiatConvertationStore.prices[token] =
           await FiatConversionService.fetchPrice(
@@ -452,9 +489,10 @@ abstract class HomeSettingsViewModelBase with Store {
     }
 
     if (_balanceViewModel.wallet.type == WalletType.zano) {
-      tokens.addAll(zano!.getZanoAssets(_balanceViewModel.wallet)
-        .where((element) => _matchesSearchText(element))
-        .toList()
+      tokens.addAll(zano!
+          .getZanoAssets(_balanceViewModel.wallet)
+          .where((element) => _matchesSearchText(element))
+          .toList()
         ..sort(_sortFunc));
     }
   }

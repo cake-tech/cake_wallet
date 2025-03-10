@@ -18,168 +18,38 @@ class NavigationDock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright
-        ? Positioned(
-            child: Observer(
-              builder: (_) {
-                return Container(
-                  alignment: Alignment.bottomCenter,
-                  height: 130,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                            .withAlpha(10),
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                            .withAlpha(75),
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                            .withAlpha(150),
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor,
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                      ],
-                    ),
-                  ),
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                        child: Container(
-                          height: 75,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50.0),
-                            border: Border.all(
-                              color:
-                                  Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                              width: 1,
-                            ),
-                            color: Theme.of(context)
-                                .extension<SyncIndicatorTheme>()!
-                                .syncedBackgroundColor,
-                          ),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: MainActions.all
-                                  .where((element) =>
-                                      element.canShow?.call(dashboardViewModel) ?? true)
-                                  .map(
-                                    (action) => Expanded(
-                                      child: Semantics(
-                                        button: true,
-                                        enabled:
-                                            (action.isEnabled?.call(dashboardViewModel) ?? true),
-                                        child: ActionButton(
-                                          key: ValueKey(
-                                              'dashboard_page_${action.name(context)}_action_button_key'),
-                                          image: Image.asset(
-                                            action.image,
-                                            height: 24,
-                                            width: 24,
-                                            color:
-                                                action.isEnabled?.call(dashboardViewModel) ?? true
-                                                    ? Theme.of(context)
-                                                        .extension<DashboardPageTheme>()!
-                                                        .mainActionsIconColor
-                                                    : Theme.of(context)
-                                                        .extension<BalancePageTheme>()!
-                                                        .labelTextColor,
-                                          ),
-                                          title: action.name(context),
-                                          onClick: () async =>
-                                              await action.onTap(context, dashboardViewModel),
-                                          textColor:
-                                              action.isEnabled?.call(dashboardViewModel) ?? true
-                                                  ? null
-                                                  : Theme.of(context)
-                                                      .extension<BalancePageTheme>()!
-                                                      .labelTextColor,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+    return Positioned(
+      child: Observer(
+        builder: (_) {
+          return Container(
+            height: 150,
+            alignment: Alignment.bottomCenter,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: _getColors(context),
+              ),
             ),
-          )
-        : Positioned(
-            child: Observer(
-              builder: (_) {
-                return Container(
-                  alignment: Alignment.bottomCenter,
-                  height: 130,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                            .withAlpha(10),
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                            .withAlpha(75),
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                            .withAlpha(150),
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor,
-                        Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .thirdGradientBackgroundColor
-                      ],
-                    ),
-                  ),
+            child: Container(
+              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
                   child: Container(
-                    margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                    child: Container(
-                      height: 75,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50.0),
-                        border: Border.all(
-                          color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                          width: 1,
-                        ),
-                        color: Theme.of(context)
-                            .extension<SyncIndicatorTheme>()!
-                            .syncedBackgroundColor,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Theme.of(context)
-                                  .extension<BalancePageTheme>()!
-                                  .cardBorderColor
-                                  .withAlpha(50),
-                              spreadRadius: dashboardViewModel.getShadowSpread(),
-                              blurRadius: dashboardViewModel.getShadowBlur())
-                        ],
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50.0),
+                      border: Border.all(
+                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                        width: 1,
                       ),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                      color:
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: IntrinsicHeight(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: MainActions.all
@@ -221,9 +91,57 @@ class NavigationDock extends StatelessWidget {
                       ),
                     ),
                   ),
-                );
-              },
+                ),
+              ),
             ),
           );
+        },
+      ),
+    );
+  }
+
+  List<Color> _getColors(BuildContext context) {
+    final isBright = dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright;
+    return isBright
+        ? <Color>[
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(10),
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(75),
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(150),
+            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor,
+            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor
+          ]
+        : <Color>[
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(5),
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(50),
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(125),
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(150),
+            Theme.of(context)
+                .extension<DashboardPageTheme>()!
+                .thirdGradientBackgroundColor
+                .withAlpha(200),
+            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor,
+            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor
+          ];
   }
 }

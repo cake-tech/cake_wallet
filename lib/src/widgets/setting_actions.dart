@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
@@ -17,21 +19,11 @@ class SettingActions {
 
   static List<SettingActions> all = [
     connectionSettingAction,
+    walletSettingAction,
     addressBookSettingAction,
     silentPaymentsSettingAction,
-    litecoinMwebSettingAction,
-    exportOutputsAction,
-    securityBackupSettingAction,
-    privacySettingAction,
-    displaySettingAction,
-    otherSettingAction,
-    supportSettingAction,
-  ];
-
-  static List<SettingActions> desktopSettings = [
-    connectionSettingAction,
-    addressBookSettingAction,
-    silentPaymentsSettingAction,
+    if (Platform.isIOS || Platform.isAndroid) litecoinMwebSettingAction,
+    if (Platform.isIOS || Platform.isAndroid) exportOutputsAction,
     securityBackupSettingAction,
     privacySettingAction,
     displaySettingAction,
@@ -72,6 +64,16 @@ class SettingActions {
     image: 'assets/images/nodes_menu.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.connectionSync);
+    },
+  );
+
+  static SettingActions walletSettingAction = SettingActions._(
+    key: ValueKey('dashboard_page_menu_widget_wallet_menu_button_key'),
+    name: (context) => S.of(context).wallets,
+    image: 'assets/images/wallet_menu.png',
+    onTap: (BuildContext context) {
+      Navigator.pop(context);
+      Navigator.of(context).pushNamed(Routes.walletList);
     },
   );
 
