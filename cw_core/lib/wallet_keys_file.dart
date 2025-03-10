@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
 
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -11,8 +12,8 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
 mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
-        TransactionType extends TransactionInfo>
-    on WalletBase<BalanceType, HistoryType, TransactionType> {
+        TransactionType extends TransactionInfo, AddressType extends WalletAddresses>
+    on WalletBase<BalanceType, HistoryType, TransactionType, AddressType> {
   Future<String> makePath() => pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   // this needs to be overridden

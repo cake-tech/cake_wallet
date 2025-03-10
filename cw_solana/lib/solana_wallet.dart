@@ -38,9 +38,8 @@ part 'solana_wallet.g.dart';
 
 class SolanaWallet = SolanaWalletBase with _$SolanaWallet;
 
-abstract class SolanaWalletBase
-    extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo>
-    with Store, WalletKeysFile {
+abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransactionHistory,
+    SolanaTransactionInfo, SolanaWalletAddresses> with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
     String? mnemonic,
@@ -95,7 +94,7 @@ abstract class SolanaWalletBase
   late final Box<SPLToken> splTokensBox;
 
   @override
-  WalletAddresses walletAddresses;
+  SolanaWalletAddresses walletAddresses;
 
   @override
   @observable

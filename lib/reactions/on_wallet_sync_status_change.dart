@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -13,7 +14,8 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 ReactionDisposer? _onWalletSyncStatusChangeReaction;
 
 void startWalletSyncStatusChangeReaction(
-    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+        wallet,
     FiatConversionStore fiatConversionStore) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {

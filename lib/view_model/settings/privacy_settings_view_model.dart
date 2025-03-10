@@ -4,6 +4,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -20,7 +21,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   PrivacySettingsViewModelBase(this._settingsStore, this._wallet);
 
   final SettingsStore _settingsStore;
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+      WalletAddresses> _wallet;
 
   @computed
   ExchangeApiMode get exchangeStatus => _settingsStore.exchangeStatus;
@@ -140,7 +142,7 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
-  
+
   @action
   void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
 

@@ -34,9 +34,8 @@ part 'nano_wallet.g.dart';
 
 class NanoWallet = NanoWalletBase with _$NanoWallet;
 
-abstract class NanoWalletBase
-    extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo>
-    with Store, WalletKeysFile {
+abstract class NanoWalletBase extends WalletBase<NanoBalance, NanoTransactionHistory,
+    NanoTransactionInfo, NanoWalletAddresses> with Store, WalletKeysFile {
   NanoWalletBase({
     required WalletInfo walletInfo,
     required String mnemonic,

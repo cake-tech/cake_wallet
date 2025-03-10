@@ -40,9 +40,8 @@ part 'zano_wallet.g.dart';
 
 class ZanoWallet = ZanoWalletBase with _$ZanoWallet;
 
-abstract class ZanoWalletBase
-    extends WalletBase<ZanoBalance, ZanoTransactionHistory, ZanoTransactionInfo>
-    with Store, ZanoWalletApi {
+abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHistory,
+    ZanoTransactionInfo, ZanoWalletAddresses> with Store, ZanoWalletApi {
   static const int _autoSaveIntervalSeconds = 30;
   static const int _pollIntervalMilliseconds = 5000;
   static const int _maxLoadAssetsRetries = 5;

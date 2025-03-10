@@ -35,8 +35,8 @@ const moneroBlockSize = 1000;
 
 class HavenWallet = HavenWalletBase with _$HavenWallet;
 
-abstract class HavenWalletBase
-    extends WalletBase<MoneroBalance, HavenTransactionHistory, HavenTransactionInfo> with Store {
+abstract class HavenWalletBase extends WalletBase<MoneroBalance, HavenTransactionHistory,
+    HavenTransactionInfo, HavenWalletAddresses> with Store {
   HavenWalletBase({required WalletInfo walletInfo, String? password})
       : balance = ObservableMap.of(getHavenBalance(accountIndex: 0)),
         _isTransactionUpdating = false,

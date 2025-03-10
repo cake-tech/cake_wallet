@@ -35,6 +35,7 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -384,7 +385,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+      wallet;
 
   @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
@@ -629,7 +631,9 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+              WalletAddresses>?
+          wallet) {
     if (wallet == null) {
       return;
     }

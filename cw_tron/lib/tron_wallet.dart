@@ -37,9 +37,8 @@ part 'tron_wallet.g.dart';
 
 class TronWallet = TronWalletBase with _$TronWallet;
 
-abstract class TronWalletBase
-    extends WalletBase<TronBalance, TronTransactionHistory, TronTransactionInfo>
-    with Store, WalletKeysFile {
+abstract class TronWalletBase extends WalletBase<TronBalance, TronTransactionHistory,
+    TronTransactionInfo, TronWalletAddresses> with Store, WalletKeysFile {
   TronWalletBase({
     required WalletInfo walletInfo,
     String? mnemonic,
@@ -89,7 +88,7 @@ abstract class TronWalletBase
   Timer? _transactionsUpdateTimer;
 
   @override
-  WalletAddresses walletAddresses;
+  TronWalletAddresses walletAddresses;
 
   @observable
   String? nativeTxEstimatedFee;

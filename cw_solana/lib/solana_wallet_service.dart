@@ -13,11 +13,15 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/solana_mnemonics.dart';
 import 'package:cw_solana/solana_wallet.dart';
+import 'package:cw_solana/solana_wallet_addresses.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 
-class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
-    SolanaRestoreWalletFromSeedCredentials, SolanaRestoreWalletFromPrivateKey, SolanaNewWalletCredentials> {
+class SolanaWalletService extends WalletService<
+    SolanaNewWalletCredentials,
+    SolanaRestoreWalletFromSeedCredentials,
+    SolanaRestoreWalletFromPrivateKey,
+    SolanaNewWalletCredentials> {
   SolanaWalletService(this.walletInfoSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
@@ -150,7 +154,10 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
+  Future<
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+          SolanaWalletAddresses>> restoreFromHardwareWallet(
+      SolanaNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

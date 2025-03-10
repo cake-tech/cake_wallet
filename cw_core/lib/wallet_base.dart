@@ -14,7 +14,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
-    TransactionType extends TransactionInfo> {
+    TransactionType extends TransactionInfo, AddressesType extends WalletAddresses> {
   WalletBase(this.walletInfo);
 
   static String idFor(String name, WalletType type) =>
@@ -53,7 +53,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Object get keys;
 
-  WalletAddresses get walletAddresses;
+  AddressesType get walletAddresses;
 
   late HistoryType transactionHistory;
 

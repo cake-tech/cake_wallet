@@ -48,11 +48,12 @@ const MIN_RESTORE_HEIGHT = 1000;
 
 class WowneroWallet = WowneroWalletBase with _$WowneroWallet;
 
-abstract class WowneroWalletBase
-    extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
-    with Store {
+abstract class WowneroWalletBase extends WalletBase<WowneroBalance, WowneroTransactionHistory,
+    WowneroTransactionInfo, WowneroWalletAddresses> with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
+      {required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -133,8 +134,8 @@ abstract class WowneroWalletBase
       passphrase: wownero_wallet.getPassphrase());
 
   int? get restoreHeight =>
-      transactionHistory.transactions.values.firstOrNull?.height ?? wownero.Wallet_getRefreshFromBlockHeight(wptr!);
-
+      transactionHistory.transactions.values.firstOrNull?.height ??
+      wownero.Wallet_getRefreshFromBlockHeight(wptr!);
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -596,8 +597,7 @@ abstract class WowneroWalletBase
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
   Future<List<WowneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async =>
-      (await transaction_history
-          .getAllTransactions())
+      (await transaction_history.getAllTransactions())
           .map(
             (row) => WowneroTransactionInfo(
               row.hash,

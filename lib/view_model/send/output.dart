@@ -134,6 +134,12 @@ abstract class OutputBase with Store {
   @computed
   Future<double> get estimatedFee async {
     try {
+      final address = extractedAddress.isEmpty ? this.address : extractedAddress;
+
+      if (address.isEmpty) {
+        return 0;
+      }
+
       if (_wallet.type == WalletType.tron) {
         if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
           final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;

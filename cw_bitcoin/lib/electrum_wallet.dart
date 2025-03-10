@@ -42,10 +42,11 @@ import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet.g.dart';
 
-class ElectrumWallet = ElectrumWalletBase with _$ElectrumWallet;
+class ElectrumWallet<T extends ElectrumWalletAddresses> = ElectrumWalletBase<T>
+    with _$ElectrumWallet<T>;
 
-abstract class ElectrumWalletBase
-    extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo>
+abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
+    extends WalletBase<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo, T>
     with Store, WalletKeysFile {
   ReceivePort? receivePort;
   SendPort? workerSendPort;
@@ -237,7 +238,7 @@ abstract class ElectrumWalletBase
   Box<UnspentCoinsInfo> unspentCoinsInfo;
 
   @override
-  late ElectrumWalletAddresses walletAddresses;
+  late T walletAddresses;
 
   @override
   @observable
@@ -457,7 +458,7 @@ abstract class ElectrumWalletBase
       ECPrivate? privkey;
 
       if (!isHardwareWallet) {
-        final addressRecord = (utx.bitcoinAddressRecord as BitcoinAddressRecord);
+        final addressRecord = utx.bitcoinAddressRecord;
 
         privkey = ECPrivate.fromBip32(
           bip32: hdWallets[addressRecord.seedBytesType]!.derive(
@@ -481,10 +482,7 @@ abstract class ElectrumWalletBase
       }
 
       if (utx.bitcoinAddressRecord is BitcoinAddressRecord) {
-        final derivationPath = (utx.bitcoinAddressRecord as BitcoinAddressRecord)
-            .derivationInfo
-            .derivationPath
-            .toString();
+        final derivationPath = utx.bitcoinAddressRecord.derivationPath;
         publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
       }
 
@@ -626,8 +624,7 @@ abstract class ElectrumWalletBase
       isChange: true,
     ));
 
-    final changeDerivationPath =
-        (changeAddress as BitcoinAddressRecord).derivationInfo.derivationPath.toString();
+    final changeDerivationPath = changeAddress.derivationPath.toString();
     utxoDetails.publicKeys[address.pubKeyHash()] =
         PublicKeyWithDerivationPath('', changeDerivationPath);
 
@@ -1015,6 +1012,9 @@ abstract class ElectrumWalletBase
           break;
         case SegwitAddressType.p2tr:
           address = fakePublicKey.toTaprootAddress();
+          break;
+        case SegwitAddressType.mweb:
+          address = fakePublicKey.toMwebAddress();
           break;
         default:
           throw const FormatException('Invalid output type');

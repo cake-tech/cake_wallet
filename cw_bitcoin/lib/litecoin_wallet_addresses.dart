@@ -438,7 +438,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     };
   }
 
-  static LitecoinWalletAddressesBase fromJson(
+  static LitecoinWalletAddresses fromJson(
     Map<String, dynamic> snp,
     WalletInfo walletInfo, {
     required Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets,

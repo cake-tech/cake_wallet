@@ -4,6 +4,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -32,7 +33,8 @@ abstract class OtherSettingsViewModelBase with Store {
   }
 
   final WalletType walletType;
-  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+  final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+      WalletAddresses> _wallet;
 
   @observable
   String currentVersion;

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/balance.dart';
@@ -213,8 +214,8 @@ abstract class YatStoreBase with Store {
   Stream<String> get emojiIncommingStream => emojiIncommingSC.stream;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-    _wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>?
+      _wallet;
 
   Future<void> init() async {
     if (_wallet == null) {
@@ -228,9 +229,8 @@ abstract class YatStoreBase with Store {
  
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-          TransactionInfo>
-      wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+          wallet) {
     this._wallet = wallet;
     emoji = wallet?.walletInfo?.yatEmojiId ?? '';
     init();
