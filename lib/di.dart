@@ -1260,7 +1260,8 @@ Future<void> setup({
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
       (Order order, _) => OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
-  getIt.registerFactory(() => SupportViewModel(getIt.get<SettingsStore>()));
+  getIt.registerFactory(() =>
+      SupportViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>()));
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
