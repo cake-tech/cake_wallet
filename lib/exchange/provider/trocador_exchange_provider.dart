@@ -126,8 +126,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       var quotes = responseJSON['quotes']['quotes'] as List;
       _provider = quotes
           .where((quote) =>
-              providerStates.containsKey(quote['provider']) &&
-              providerStates[quote['provider']] == true)
+              !providerStates[quote['provider']] == false)
           .map((quote) => quote['provider'])
           .toList();
 
