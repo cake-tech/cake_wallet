@@ -187,7 +187,6 @@ class _DashboardPageView extends BasePage {
   int get initialPage => dashboardViewModel.shouldShowMarketPlaceInDashboard ? 1 : 0;
   ObservableList<Widget> pages = ObservableList<Widget>();
   bool _isEffectsInstalled = false;
-  StreamSubscription<bool>? _onInactiveSub;
 
   @override
   Widget body(BuildContext context) {
@@ -275,7 +274,7 @@ class _DashboardPageView extends BasePage {
   }
 
   void _setEffects(BuildContext context) async {
-    if (_isEffectsInstalled) {
+    if (_isEffectsInstalled || !context.mounted) {
       return;
     }
     if (dashboardViewModel.shouldShowMarketPlaceInDashboard) {
@@ -305,11 +304,9 @@ class _DashboardPageView extends BasePage {
     _showHavenPopup(context);
 
     var needToPresentYat = false;
-    var isInactive = false;
 
-    _onInactiveSub = rootKey.currentState?.isInactive.listen(
+    rootKey.currentState?.isInactive.listen(
       (inactive) {
-        isInactive = inactive;
 
         if (needToPresentYat) {
           Future<void>.delayed(Duration(milliseconds: 500)).then(

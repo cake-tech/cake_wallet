@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -103,13 +104,16 @@ abstract class WalletCreationVMBase with Store {
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
-        parentAddress: credentials.parentAddress,
       );
 
       credentials.walletInfo = walletInfo;
       final wallet = restoreWallet != null
           ? await processFromRestoredWallet(credentials, restoreWallet)
           : await process(credentials);
+
+      final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
+      walletInfo.isNonSeedWallet = isNonSeedWallet;
+      walletInfo.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);

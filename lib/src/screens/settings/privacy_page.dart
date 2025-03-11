@@ -73,7 +73,7 @@ class PrivacyPage extends BasePage {
                       _privacySettingsViewModel.setIsAppSecure(value);
                     }),
               SettingsSwitcherCell(
-                  title: S.current.disable_trade_option,
+                  title: S.current.disable_exchange_option,
                   value: _privacySettingsViewModel.disableTradeOption,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setDisableTradeOption(value);
