@@ -21,6 +21,31 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   bool useTorOnly;
   Map<String, bool> providerStates;
 
+  static const List<String> availableProviders = [
+    'Swapter',
+    'StealthEx',
+    'Simpleswap',
+    'Swapuz',
+    'ChangeNow',
+    'Changehero',
+    'FixedFloat',
+    'LetsExchange',
+    'Exolix',
+    'Godex',
+    'Exch',
+    'CoinCraddle',
+    'Alfacash',
+    'LocalMonero',
+    'XChange',
+    'NeroSwap',
+    'Changee',
+    'BitcoinVN',
+    'EasyBit',
+    'WizardSwap',
+    'Quantex',
+    'SwapSpace',
+  ];
+
   static const List<CryptoCurrency> _notSupported = [
     CryptoCurrency.stx,
     CryptoCurrency.zaddr,

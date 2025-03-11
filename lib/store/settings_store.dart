@@ -1710,27 +1710,34 @@ abstract class SettingsStoreBase with Store {
 
   @action
   Future<void> updateAllTrocadorProviderStates(List<String> availableProviders) async {
-    String? serializedData = await _sharedPreferences.getString(PreferencesKey.trocadorProviderStatesKey);
-    Map<String, bool> regularMap = {};
+    final jsonKey = PreferencesKey.trocadorProviderStatesKey;
+    String? serializedData = await _sharedPreferences.getString(jsonKey);
 
-    if (serializedData != null) {
-      Map<String, dynamic> decodedMap = json.decode(serializedData) as Map<String, dynamic>;
+    if (serializedData == null) {
+      final Map<String, bool> migratedStates = {};
+      for (final provider in TrocadorExchangeProvider.availableProviders) {
+        final oldState = _sharedPreferences.getBool(provider) ?? true;
+        migratedStates[provider] = oldState;
+      }
 
-      regularMap = decodedMap.map((key, value) {
-        return MapEntry(key, value == true);
-      });
+      trocadorProviderStates
+        ..clear()
+        ..addAll(migratedStates);
+
+      await saveMapToString(jsonKey, trocadorProviderStates);
+    } else {
+      final decodedMap = json.decode(serializedData) as Map<String, dynamic>;
+      final oldMap = decodedMap.map((k, v) => MapEntry(k, v == true));
+
+      final Map<String, bool> newStates = {
+        for (final provider in availableProviders) provider: oldMap[provider] ?? true
+      };
+
+      trocadorProviderStates
+        ..clear()
+        ..addAll(newStates);
+      await saveMapToString(jsonKey, trocadorProviderStates);
     }
-
-    trocadorProviderStates.clear();
-
-    Map<String, bool> newStates = {
-      for (var provider in availableProviders)
-        provider: regularMap[provider] ?? true
-    };
-
-    trocadorProviderStates.addAll(newStates);
-
-    await saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
   }
 
   @action
