@@ -47,17 +47,16 @@ class SendCard extends StatefulWidget {
   final FocusNode? fiatAmountFocus;
   final ThemeBase currentTheme;
 
-
   @override
   SendCardState createState() => SendCardState(
-        output: output,
-        sendViewModel: sendViewModel,
-        initialPaymentRequest: initialPaymentRequest,
-        currentTheme: currentTheme
-        // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
-        // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
-        // cryptoAmountFocus: FocusNode(),
-        // fiatAmountFocus: FocusNode(),
+      output: output,
+      sendViewModel: sendViewModel,
+      initialPaymentRequest: initialPaymentRequest,
+      currentTheme: currentTheme
+      // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
+      // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
+      // cryptoAmountFocus: FocusNode(),
+      // fiatAmountFocus: FocusNode(),
       );
 }
 
@@ -330,79 +329,44 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                Text(
-                                  S.of(context).send_estimated_fee,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
-                                ),
-                                Container(
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          FutureBuilder<double>(
-                                            future: output.estimatedFee,
-                                            builder: (context, snapshot) {
-                                              if (snapshot.hasData) {
-                                                return Text(
-                                                  '${snapshot.data} ${sendViewModel.currency.toString()}',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white,
-                                                  ),
-                                                );
-                                              }
-                                              return CircularProgressIndicator();
-                                            },
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(top: 5),
-                                            child: sendViewModel.isFiatDisabled
-                                                ? const SizedBox(height: 14)
-                                                : FutureBuilder<String>(
-                                                    future: output.estimatedFeeFiatAmount,
-                                                    builder: (context, snapshot) {
-                                                      if (snapshot.hasData) {
-                                                        return Text(
-                                                          '${snapshot.data} ${sendViewModel.fiat.title}',
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            fontWeight: FontWeight.w600,
-                                                            color: Theme.of(context)
-                                                                .extension<SendPageTheme>()!
-                                                                .textFieldHintColor,
-                                                          ),
-                                                        );
-                                                      }
-                                                      return CircularProgressIndicator();
-                                                    },
-                                                  ),
-                                          ),
-                                        ],
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      output.estimatedFee.toString() +
+                                          ' ' +
+                                          sendViewModel.currency.toString(),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(top: 5),
                                       child: sendViewModel.isFiatDisabled
                                           ? const SizedBox(height: 14)
-                                          : Text(
-                                              output.estimatedFeeFiatAmount +
-                                                  ' ' +
-                                                  sendViewModel.fiat.title,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                color: Theme.of(context)
-                                                    .extension<SendPageTheme>()!
-                                                    .textFieldHintColor,
-                                              ),
-                                            ),
+                                          : FutureBuilder<double>(
+                                              future: output.estimatedFee,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return Text(
+                                                    snapshot.data.toString() +
+                                                        ' ' +
+                                                        sendViewModel.fiat.title,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Theme.of(context)
+                                                          .extension<SendPageTheme>()!
+                                                          .textFieldHintColor,
+                                                    ),
+                                                  );
+                                                }
+
+                                                return CircularProgressIndicator();
+                                              }),
                                     ),
                                   ],
                                 ),
@@ -472,7 +436,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               captionColor: Colors.white,
                               borderColor: currentTheme.type == ThemeType.bright
                                   ? Colors.white
-                                  : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                                  : Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
                               iconColor: currentTheme.type == ThemeType.bright
                                   ? Colors.white
                                   : Theme.of(context).primaryColor,
