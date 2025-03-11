@@ -118,6 +118,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _setAvailableProviders();
     calculateBestRate();
 
+    autorun((_) {
+      if (selectedProviders.any((provider) => provider is TrocadorExchangeProvider)) {
+        final trocadorProvider =
+        selectedProviders.firstWhere((provider) => provider is TrocadorExchangeProvider)
+        as TrocadorExchangeProvider;
+
+        updateAllTrocadorProviderStates(trocadorProvider);
+      }
+    });
+
     bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => calculateBestRate());
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
@@ -182,6 +192,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];
+
 
   @observable
   ExchangeProvider? provider;
@@ -808,6 +819,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       PreferencesKey.exchangeProvidersSelection,
       json.encode(exchangeProvidersSelection),
     );
+  }
+
+  @action
+  Future<void> updateAllTrocadorProviderStates(TrocadorExchangeProvider trocadorProvider) async {
+    try {
+      var providers = await trocadorProvider.fetchProviders();
+      var providerNames = providers.map((e) => e.name).toList();
+      await _settingsStore.updateAllTrocadorProviderStates(providerNames);
+    } catch (e) {
+      printV('Error updating trocador provider states: $e');
+    }
   }
 
   bool get isAvailableInSelected {
