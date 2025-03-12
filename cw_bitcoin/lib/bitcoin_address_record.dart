@@ -257,7 +257,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
   int get labelIndex => index;
   final String? labelHex;
 
-  static bool isPrimaryAddress(int labelIndex) => labelIndex == 0;
+  bool get isPrimaryAddress => labelIndex == 0;
 
   BitcoinSilentPaymentAddressRecord(
     super.address, {

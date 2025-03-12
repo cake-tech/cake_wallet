@@ -590,13 +590,11 @@ class CWBitcoin extends Bitcoin {
   Future<void> setScanningActive(
     Object wallet,
     bool active, [
-    List<String>? addresses,
     bool? forceStop,
   ]) async {
     final bitcoinWallet = wallet as BitcoinWallet;
     bitcoinWallet.setSilentPaymentsScanning(
       active,
-      addresses: addresses,
       forceStop: forceStop,
     );
   }
@@ -625,7 +623,7 @@ class CWBitcoin extends Bitcoin {
       try {
         final mempoolApi = ApiProvider.fromMempool(
           BitcoinNetwork.mainnet,
-          baseUrl: "http://mempool.cakewallet.com:8999/api/v1",
+          baseUrl: "http://mempool.space/api/v1",
         );
 
         return (await mempoolApi.getBlockTimestamp(date))["height"] as int;
@@ -641,17 +639,11 @@ class CWBitcoin extends Bitcoin {
   Future<void> rescan(
     Object wallet, {
     required int height,
-    List<String>? addresses,
     bool? doSingleScan,
     bool? forceStop,
   }) async {
     final bitcoinWallet = wallet as BitcoinWallet;
-    bitcoinWallet.rescan(
-      height: height,
-      doSingleScan: doSingleScan,
-      forceStop: forceStop,
-      addresses: addresses,
-    );
+    bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan, forceStop: forceStop);
   }
 
   @override

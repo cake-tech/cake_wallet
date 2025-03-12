@@ -1527,6 +1527,12 @@ class ElectrumWorker {
             }
 
             // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
+            final txDate = await getTxDate(
+              txid,
+              scanData.network,
+              scanData.chainTip,
+            );
+
             final txInfo = ElectrumTransactionInfo(
               WalletType.bitcoin,
               id: txid,
@@ -1537,13 +1543,7 @@ class ElectrumWorker {
               isPending: false,
               isReplaced: false,
               date: DateTime.fromMillisecondsSinceEpoch(
-                (await getTxDate(
-                      txid,
-                      scanData.network,
-                      scanData.chainTip,
-                    ))
-                        .time! *
-                    1000,
+                (txDate.time == null ? DateTime.now().millisecondsSinceEpoch : txDate.time!) * 1000,
               ),
               confirmations: scanData.chainTip - tweakHeight + 1,
               isReceivedSilentPayment: true,
@@ -1573,6 +1573,7 @@ class ElectrumWorker {
                   final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
                     receivingOutputAddress,
                     labelIndex: labelIndex ?? 0,
+                    labelHex: label.toString(),
                     isChange: labelIndex == 0,
                     isUsed: true,
                     tweak: t_k,
@@ -1678,7 +1679,7 @@ Future<DateResult> getTxDate(
 
   final mempoolApi = ApiProvider.fromMempool(
     network,
-    baseUrl: "http://mempool.cakewallet.com:8999/api/v1",
+    baseUrl: "http://mempool.space/api/v1",
   );
 
   try {

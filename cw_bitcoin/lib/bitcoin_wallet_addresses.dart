@@ -443,7 +443,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
     for (int i = 0; i < silentPaymentAddresses.length; i++) {
       final silentAddressRecord = silentPaymentAddresses[i];
-      if (!addresses.contains(silentAddressRecord.address)) {
+      if (!addresses.any((addr) => addr.startsWith(silentAddressRecord.address.substring(0, 9)))) {
         continue;
       }
 
@@ -540,7 +540,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     };
   }
 
-  static BitcoinWalletAddressesBase fromJson(
+  static BitcoinWalletAddresses fromJson(
     Map<String, dynamic> snp,
     WalletInfo walletInfo, {
     required Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets,

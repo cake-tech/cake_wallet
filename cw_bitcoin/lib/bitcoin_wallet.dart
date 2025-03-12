@@ -34,7 +34,7 @@ part 'bitcoin_wallet.g.dart';
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
-abstract class BitcoinWalletBase extends ElectrumWallet with Store {
+abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> with Store {
   @observable
   bool nodeSupportsSilentPayments = true;
 
@@ -385,7 +385,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   Future<void> setSilentPaymentsScanning(
     bool active, {
-    List<String>? addresses,
     int? height,
     bool? doSingleScan,
     bool? forceStop,
@@ -411,7 +410,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
 
       if (tip > beginHeight) {
-        _requestTweakScanning(beginHeight, addresses, doSingleScan);
+        _requestTweakScanning(beginHeight, doSingleScan);
       }
     } else if (syncStatus is! SyncedSyncStatus) {
       if (forceStop == true) {
@@ -439,8 +438,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<void> updateAllUnspents([Set<String>? scripthashes, bool? wait]) async {
     scripthashes ??= this.walletAddresses.allScriptHashes;
     await super.updateAllUnspents(scripthashes, wait);
-
-    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
 
     walletAddresses.silentPaymentAddresses.forEach((addressRecord) {
       addressRecord.txCount = 0;
@@ -539,13 +536,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<void> rescan({
     required int height,
-    List<String>? addresses,
     bool? doSingleScan,
     bool? forceStop,
   }) async {
     setSilentPaymentsScanning(
       true,
-      addresses: addresses,
       height: height,
       doSingleScan: doSingleScan,
       forceStop: forceStop,
@@ -554,7 +549,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @action
   void _updateSilentAddressRecord(BitcoinUnspent unspent) {
-    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
     walletAddresses.addReceivedSPAddresses(
       [unspent.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord],
     );
@@ -591,11 +585,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   @action
   Future<void> onTweaksSyncResponse(TweaksSyncResponse result) async {
     if (result.transactions?.isNotEmpty == true) {
-      (walletAddresses as BitcoinWalletAddresses).silentPaymentAddresses.forEach((addressRecord) {
+      walletAddresses.silentPaymentAddresses.forEach((addressRecord) {
         addressRecord.txCount = 0;
         addressRecord.balance = 0;
       });
-      (walletAddresses as BitcoinWalletAddresses).receivedSPAddresses.forEach((addressRecord) {
+      walletAddresses.receivedSPAddresses.forEach((addressRecord) {
         addressRecord.txCount = 0;
         addressRecord.balance = 0;
       });
@@ -686,15 +680,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @action
-  Future<void> _requestTweakScanning(
-    int height, [
-    List<String>? addresses,
-    bool? doSingleScan,
-  ]) async {
+  Future<void> _requestTweakScanning(int height, [bool? doSingleScan]) async {
     _silentPaymentsScanningActive = true;
 
-    final walletAddresses = this.walletAddresses as BitcoinWalletAddresses;
-    addresses ??= [walletAddresses.silentPaymentWallet!.toString()];
+    final wallets = walletAddresses.silentPaymentWallets;
+    final addresses =
+        walletAddresses.silentPaymentWallets.map((wallet) => wallet.toAddress(network)).toList();
 
     if (currentChainTip == null) {
       throw Exception("currentChainTip is null");
@@ -712,9 +703,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     workerSendPort!.send(
       ElectrumWorkerTweaksSubscribeRequest(
         scanData: ScanData(
-          silentPaymentsWallets: walletAddresses.silentPaymentWallets
-              .where((wallet) => addresses!.contains(wallet.toString()))
-              .toList(),
+          silentPaymentsWallets: wallets,
           network: network,
           height: height,
           chainTip: chainTip,
@@ -845,7 +834,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
       if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
         privkey = (utx.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord).getSpendKey(
-          (walletAddresses as BitcoinWalletAddresses).silentPaymentWallets,
+          walletAddresses.silentPaymentWallets,
           network,
         );
         spendsSilentPayment = true;

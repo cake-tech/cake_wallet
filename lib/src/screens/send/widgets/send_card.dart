@@ -333,16 +333,24 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text(
-                                      output.estimatedFee.toString() +
-                                          ' ' +
-                                          sendViewModel.currency.toString(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                    FutureBuilder<double>(
+                                        future: output.estimatedFee,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            return Text(
+                                              snapshot.data.toString() +
+                                                  ' ' +
+                                                  sendViewModel.currency.toString(),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                            );
+                                          }
+
+                                          return CircularProgressIndicator();
+                                        }),
                                     Padding(
                                       padding: EdgeInsets.only(top: 5),
                                       child: sendViewModel.isFiatDisabled
