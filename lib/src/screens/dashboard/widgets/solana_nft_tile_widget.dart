@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/entities/solana_wallet_nft_response_data.dart';
+import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
