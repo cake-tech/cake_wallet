@@ -121,7 +121,7 @@ class EVMChainNFTDetailsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (nftAsset == null) {
-      return const Center(child: Text('No extra details available'));
+      return Center(child: Text(S.current.no_extra_detail));
     }
 
     final metadata = nftAsset!.normalizedMetadata;
@@ -165,7 +165,7 @@ class SolanaNFTDetailsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (solanaNftAsset == null) {
-      return const Center(child: Text('No extra details available'));
+      return Center(child: Text(S.current.no_extra_detail));
     }
 
     return Column(
@@ -186,7 +186,7 @@ class SolanaNFTDetailsWidget extends StatelessWidget {
         ],
         const SizedBox(height: 16),
         _NFTSingleInfoTile(
-          infoType: 'Mint Address',
+          infoType: S.current.mint_address,
           infoValue: solanaNftAsset?.mint ?? '---',
         ),
         const SizedBox(height: 16),
@@ -201,17 +201,17 @@ class SolanaNFTDetailsWidget extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _NFTSingleInfoTile(
-          infoType: "Collection Name",
+          infoType: S.current.collection_name,
           infoValue: solanaNftAsset?.collection?.name ?? '---',
         ),
         const SizedBox(height: 16),
         _NFTSingleInfoTile(
-          infoType: "Collection Description",
+          infoType: S.current.collection_description,
           infoValue: solanaNftAsset?.collection?.description ?? '---',
         ),
         const SizedBox(height: 16),
         _NFTSingleInfoTile(
-          infoType: "Collection Address",
+          infoType: S.current.collection_address,
           infoValue: solanaNftAsset?.collection?.collectionAddress ?? '---',
         ),
         const SizedBox(height: 16),
