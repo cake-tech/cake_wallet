@@ -86,6 +86,7 @@ class PreferencesKey {
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';
 
   static const exchangeProvidersSelection = 'exchange-providers-selection';
+  static const trocadorProviderStatesKey = 'trocador_provider_states';
   static const autoGenerateSubaddressStatusKey = 'auto_generate_subaddress_status';
   static const moneroSeedType = 'monero_seed_type';
   static const bitcoinSeedType = 'bitcoin_seed_type';
