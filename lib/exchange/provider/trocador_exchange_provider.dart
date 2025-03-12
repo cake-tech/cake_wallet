@@ -19,7 +19,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         super(pairList: supportedPairs(_notSupported));
 
   bool useTorOnly;
-  final Map<String, bool> providerStates;
+  Map<String, bool> providerStates;
 
   static const List<String> availableProviders = [
     'Swapter',
@@ -53,12 +53,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   static const apiKey = secrets.trocadorApiKey;
   static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
-  static const clearNetAuthority = 'trocador.app';
+  static const clearNetAuthority = 'api.trocador.app';
   static const markup = secrets.trocadorExchangeMarkup;
-  static const newRatePath = '/api/new_rate';
-  static const createTradePath = 'api/new_trade';
-  static const tradePath = 'api/trade';
-  static const coinPath = 'api/coin';
+  static const newRatePath = '/new_rate';
+  static const createTradePath = '/new_trade';
+  static const tradePath = '/trade';
+  static const coinPath = '/coin';
+  static const providersListPath = '/exchanges';
+
 
   String _lastUsedRateId;
   List<dynamic> _provider;
@@ -147,7 +149,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final rateId = responseJSON['trade_id'] as String? ?? '';
 
       var quotes = responseJSON['quotes']['quotes'] as List;
-      _provider = quotes.map((quote) => quote['provider']).toList();
+      _provider = quotes
+          .where((quote) => providerStates[quote['provider']] != false)
+          .map((quote) => quote['provider'])
+          .toList();
+
+      if (_provider.isEmpty) {
+        throw Exception('No enabled providers found for the selected trade.');
+      }
 
       if (rateId.isNotEmpty) _lastUsedRateId = rateId;
 
@@ -190,20 +199,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-    String firstAvailableProvider = '';
-
-    for (var provider in _provider) {
-      if (providerStates.containsKey(provider) && providerStates[provider] == true) {
-        firstAvailableProvider = provider as String;
-        break;
-      }
-    }
-
-    if (firstAvailableProvider.isEmpty) {
+    if (_provider.isEmpty) {
       throw Exception('No available provider is enabled');
     }
 
-    params['provider'] = firstAvailableProvider;
+    params['provider'] = _provider.first as String;
 
     final uri = await _getUri(createTradePath, params);
     final response = await get(uri, headers: {'API-Key': apiKey});
@@ -288,6 +288,24 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     });
   }
 
+  Future<List<TrocadorPartners>> fetchProviders() async {
+    final uri = await _getUri(providersListPath, {'api_key': apiKey});
+    final response = await get(uri);
+
+    if (response.statusCode != 200)
+      throw Exception('Unexpected http status: ${response.statusCode}');
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    final providersJsonList = responseJSON['list'] as List<dynamic>;
+    final filteredProvidersList = providersJsonList
+        .map((providerJson) => TrocadorPartners.fromJson(providerJson as Map<String, dynamic>))
+        .where((provider) => provider.rating != 'D')
+        .toList();
+    filteredProvidersList.sort((a, b) => a.rating.compareTo(b.rating));
+    return filteredProvidersList;
+  }
+
   String _networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.eth:
@@ -341,5 +359,31 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     } catch (e) {
       return Uri.https(clearNetAuthority, path, queryParams);
     }
+  }
+}
+
+class TrocadorPartners {
+  final String name;
+  final String rating;
+  final double? insurance;
+  final bool? enabledMarkup;
+  final double? eta;
+
+  TrocadorPartners({
+    required this.name,
+    required this.rating,
+    required this.insurance,
+    required this.enabledMarkup,
+    required this.eta,
+  });
+
+  factory TrocadorPartners.fromJson(Map<String, dynamic> json) {
+    return TrocadorPartners(
+      name: json['name'] as String? ?? '',
+      rating: json['rating'] as String? ?? 'N/A',
+      insurance: json['insurance'] as double?,
+      enabledMarkup: json['enabledmarkup'] as bool?,
+      eta: json['eta'] as double?,
+    );
   }
 }

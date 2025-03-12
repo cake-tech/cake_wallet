@@ -286,9 +286,3 @@ jobs:
             script: |
                 chmod a+rx integration_test_runner.sh
                 ./integration_test_runner.sh
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: integration-test-results
-          path: test_outputs/

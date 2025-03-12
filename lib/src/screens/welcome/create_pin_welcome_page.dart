@@ -2,6 +2,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -68,7 +69,7 @@ class CreatePinWelcomePage extends BasePage {
           alignment: Alignment.center,
           child: ConstrainedBox(
             constraints:
-            BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -122,19 +123,44 @@ class CreatePinWelcomePage extends BasePage {
             ),
           ),
         ),
-        bottomSection: Padding(
-          padding: EdgeInsets.only(top: 24),
-          child: PrimaryImageButton(
-            key: ValueKey('create_pin_welcome_page_create_a_pin_button_key'),
-            onPressed: () => Navigator.pushNamed(context, Routes.welcomeWallet),
-            image: newWalletImage,
-            text: isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
-            color: Theme.of(context)
-                .extension<WalletListTheme>()!
-                .createNewWalletButtonBackgroundColor,
-            textColor:
-            Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
-          ),
+        bottomSection: Column(
+          children: [
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                ),
+                children: [
+                  TextSpan(text: 'By continuing, you agree to our '),
+                  TextSpan(
+                    text: 'Terms of Service',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      decoration: TextDecoration.underline,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => Navigator.pushNamed(context, Routes.readDisclaimer),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 24),
+              child: PrimaryImageButton(
+                key: ValueKey('create_pin_welcome_page_create_a_pin_button_key'),
+                onPressed: () => Navigator.pushNamed(context, Routes.welcomeWallet),
+                image: newWalletImage,
+                text: isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
+                color: Theme.of(context)
+                    .extension<WalletListTheme>()!
+                    .createNewWalletButtonBackgroundColor,
+                textColor:
+                    Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+              ),
+            ),
+          ],
         ),
       ),
     );

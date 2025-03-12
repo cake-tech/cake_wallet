@@ -156,9 +156,9 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final createdAtString = responseJSON['created_at'] as String;
       final extraId = deposit['extra_id'] as String?;
 
-      final createdAt = DateTime.parse(createdAtString);
+      final createdAt = DateTime.parse(createdAtString).toLocal();
       final expiredAt = validUntil != null
-          ? DateTime.parse(validUntil)
+          ? DateTime.parse(validUntil).toLocal()
           : DateTime.now().add(Duration(minutes: 5));
 
 
@@ -221,7 +221,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final receiveAmount = toDouble(withdrawal['amount']);
     final status = responseJSON['status'] as String;
     final createdAtString = responseJSON['created_at'] as String;
-    final createdAt = DateTime.parse(createdAtString);
+    final createdAt = DateTime.parse(createdAtString).toLocal();
     final extraId = deposit['extra_id'] as String?;
 
     return Trade(

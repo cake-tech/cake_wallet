@@ -77,7 +77,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.transactionDescriptionBox,
     this.ledgerViewModel,
     this.unspentCoinsListViewModel, {
-    this.coinTypeToSpendFrom = UnspentCoinType.any,
+    this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
@@ -102,7 +102,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
-    unspentCoinsListViewModel.initialSetup();
+    unspentCoinsListViewModel.initialSetup().then((_) {
+      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
+    });
   }
 
   @observable
@@ -110,7 +112,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   ObservableList<Output> outputs;
 
-  final UnspentCoinType coinTypeToSpendFrom;
+  @observable
+  UnspentCoinType coinTypeToSpendFrom;
 
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
@@ -131,6 +134,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void clearOutputs() {
     outputs.clear();
     addOutput();
+  }
+
+  @action
+  void setAllowMwebCoins(bool allow) {
+    if (wallet.type == WalletType.litecoin) {
+      coinTypeToSpendFrom = allow ? UnspentCoinType.any : UnspentCoinType.nonMweb;
+    }
   }
 
   @computed
@@ -728,11 +738,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           return S.current.insufficient_funds_for_tx;
         }
 
-        return 
-        '''${S.current.insufficient_funds_for_tx} \n\n'''
-        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
-        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
-        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
+        return '''${S.current.insufficient_funds_for_tx} \n\n'''
+            '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
+            '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
+            '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
       return errorMessage;

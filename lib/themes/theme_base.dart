@@ -27,7 +27,7 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:flutter/material.dart';
 
-enum ThemeType { light, bright, dark }
+enum ThemeType { light, bright, dark, oled}
 
 abstract class ThemeBase {
   ThemeBase({required this.raw}) {

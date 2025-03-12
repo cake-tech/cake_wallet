@@ -19,6 +19,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:flutter/cupertino.dart';
 
+import 'bip_353_record.dart';
+
 class AddressResolver {
   AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})
       : walletType = wallet.type;
@@ -30,33 +32,56 @@ class AddressResolver {
 
   static const unstoppableDomains = [
     "888",
+    "academy",
+    "agency",
     "altimist",
     "anime",
     "austin",
     "bald",
+    "bay",
     "benji",
     "bet",
     "binanceus",
     "bitcoin",
     "bitget",
+    "bitscrunch",
     "blockchain",
+    "boomer",
+    "boston",
     "ca",
+    "caw",
+    "cc",
+    "chat",
     "chomp",
     "clay",
+    "club",
     "co",
     "com",
+    "company",
     "crypto",
     "dao",
+    "design",
     "dfz",
     "digital",
+    "doga",
+    "donut",
     "dream",
+    "email",
+    "emir",
     "eth",
     "ethermail",
+    "family",
     "farms",
+    "finance",
     "fun",
+    "fyi",
+    "games",
+    "global",
     "go",
     "group",
+    "guru",
     "hi",
+    "hockey",
     "host",
     "info",
     "io",
@@ -66,43 +91,78 @@ class AddressResolver {
     "lfg",
     "life",
     "live",
+    "llc",
+    "ltc",
     "ltd",
     "manga",
+    "me",
+    "media",
     "metropolis",
+    "miami",
+    "miku",
+    "money",
     "moon",
     "mumu",
     "net",
+    "network",
+    "news",
     "nft",
+    "npc",
+    "onchain",
     "online",
     "org",
+    "podcast",
     "pog",
     "polygon",
     "press",
+    "privacy",
     "pro",
     "propykeys",
     "pudgy",
     "pw",
+    "quantum",
+    "rad",
     "raiin",
+    "retardio",
+    "rip",
+    "rocks",
     "secret",
+    "services",
     "site",
     "smobler",
+    "social",
+    "solutions",
     "space",
     "stepn",
     "store",
+    "studio",
+    "systems",
     "tball",
+    "tea",
+    "team",
     "tech",
+    "technology",
+    "today",
+    "tribe",
+    "u",
     "ubu",
     "uno",
     "unstoppable",
+    "vip",
     "wallet",
     "website",
+    "wif",
     "wifi",
     "witg",
+    "work",
+    "world",
     "wrkx",
+    "wtf",
     "x",
     "xmr",
     "xyz",
     "zil",
+    "zone"
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
@@ -270,6 +330,15 @@ class AddressResolver {
           if (address.isNotEmpty) {
             return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
           }
+        }
+      }
+
+      final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, ticker);
+
+      if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
+        final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
+        if (chosenAddress != null) {
+          return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
         }
       }
 

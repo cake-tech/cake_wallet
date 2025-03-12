@@ -52,6 +52,8 @@ import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../themes/theme_base.dart';
+
 part 'dashboard_view_model.g.dart';
 
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
@@ -70,7 +72,7 @@ abstract class DashboardViewModelBase with Store {
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = false,
-        hasExchangeAction = false,
+        hasSwapAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
@@ -150,6 +152,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.stealthEx.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
+            FilterItem(
+                value: () => tradeFilterStore.displaySwapTrade,
+                caption: ExchangeProviderDescription.swapTrade.title,
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
           ]
         },
         subname = '',
@@ -251,33 +258,34 @@ abstract class DashboardViewModelBase with Store {
       _checkMweb();
     });
 
-    connectMapToListWithTransform(
-        appStore.wallet!.transactionHistory.transactions,
-        transactions,
-        (TransactionInfo? transaction) => TransactionListItem(
-              transaction: transaction!,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore,
-              key: ValueKey(
-                '${_wallet.type.name}_transaction_history_item_${transaction.id}_key',
+    _transactionDisposer?.reaction.dispose();
+
+    _transactionDisposer = reaction(
+            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
+            (List<TransactionInfo> txs) {
+
+          transactions.clear();
+
+          transactions.addAll(
+            txs.where((tx) {
+              if (wallet.type == WalletType.monero) {
+                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
+              }
+              if (wallet.type == WalletType.wownero) {
+                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+              }
+              return true;
+            }).map(
+                  (tx) => TransactionListItem(
+                transaction: tx,
+                balanceViewModel: balanceViewModel,
+                settingsStore: appStore.settingsStore,
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
               ),
-            ), filter: (TransactionInfo? transaction) {
-      if (transaction == null) {
-        return false;
-      }
-
-      final wallet = _wallet;
-      if (wallet.type == WalletType.monero) {
-        return monero!.getTransactionInfoAccountId(transaction) ==
-            monero!.getCurrentAccount(wallet).id;
-      }
-      if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(transaction) ==
-            wow.wownero!.getCurrentAccount(wallet).id;
-      }
-
-      return true;
-    });
+            ),
+          );
+        }
+    );
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -481,6 +489,34 @@ abstract class DashboardViewModelBase with Store {
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
   @action
+  double getShadowSpread() {
+    double spread = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      spread = 0;
+    return spread;
+  }
+
+  @action
+  double getShadowBlur() {
+    double blur = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      blur = 0;
+    return blur;
+  }
+
+  @action
   void setMwebEnabled() {
     if (!hasMweb) {
       return;
@@ -530,10 +566,10 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
   @observable
-  bool hasExchangeAction;
+  bool hasSwapAction;
 
   @computed
   bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
@@ -547,6 +583,8 @@ abstract class DashboardViewModelBase with Store {
   ReactionDisposer? _onMoneroAccountChangeReaction;
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
+
+  ReactionDisposer? _transactionDisposer;
 
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
@@ -652,32 +690,34 @@ abstract class DashboardViewModelBase with Store {
       );
     }
 
-    connectMapToListWithTransform(
-        appStore.wallet!.transactionHistory.transactions,
-        transactions,
-        (TransactionInfo? transaction) => TransactionListItem(
-              transaction: transaction!,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore,
-              key: ValueKey(
-                '${wallet.type.name}_transaction_history_item_${transaction.id}_key',
+    _transactionDisposer?.reaction.dispose();
+
+    _transactionDisposer = reaction(
+            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
+            (List<TransactionInfo> txs) {
+
+          transactions.clear();
+          
+          transactions.addAll(
+            txs.where((tx) {
+              if (wallet.type == WalletType.monero) {
+                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
+              }
+              if (wallet.type == WalletType.wownero) {
+                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+              }
+              return true;
+            }).map(
+                  (tx) => TransactionListItem(
+                transaction: tx,
+                balanceViewModel: balanceViewModel,
+                settingsStore: appStore.settingsStore,
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
               ),
-            ), filter: (TransactionInfo? tx) {
-      if (tx == null) {
-        return false;
-      }
-
-      if (wallet.type == WalletType.monero) {
-        return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
-      }
-
-      if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) ==
-            wow.wownero!.getCurrentAccount(wallet).id;
-      }
-
-      return true;
-    });
+            ),
+          );
+        }
+    );
   }
 
   @action
@@ -736,7 +776,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    hasExchangeAction = !isHaven;
+    hasSwapAction = !isHaven;
     hasTradeAction = !isHaven;
   }
 
