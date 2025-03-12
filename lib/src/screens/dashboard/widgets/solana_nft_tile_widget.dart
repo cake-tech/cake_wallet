@@ -1,52 +1,61 @@
-import 'package:cake_wallet/entities/wallet_nft_response.dart';
+import 'package:flutter/material.dart';
+import 'package:cake_wallet/entities/solana_wallet_nft_response_data.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:flutter/material.dart';
 
-class NFTTileWidget extends StatelessWidget {
-  const NFTTileWidget({super.key, required this.nftAsset});
+class SolanaNFTTileWidget extends StatelessWidget {
+  const SolanaNFTTileWidget({super.key, required this.nftAsset});
 
-  final NFTAssetModel nftAsset;
+  final SolanaNFTAssetModel nftAsset;
+
   @override
   Widget build(BuildContext context) {
+    final balanceTheme = Theme.of(context).extension<BalancePageTheme>()!;
+    final syncTheme = Theme.of(context).extension<SyncIndicatorTheme>()!;
+
     return InkWell(
-      onTap: () => Navigator.pushNamed(
-        context,
-        Routes.nftDetailsPage,
-        arguments: NFTDetailsPageArguments(
-          isSolanaNFT: false,
-          nftAsset: nftAsset,
-        ),
-      ),
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          Routes.nftDetailsPage,
+          arguments: NFTDetailsPageArguments(
+            isSolanaNFT: true,
+            solanaNFTAssetModel: nftAsset,
+          ),
+        );
+      },
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.only(left: 16, right: 16),
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30.0),
+          borderRadius: BorderRadius.circular(16.0),
           border: Border.all(
-              color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor, width: 1),
-          color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            color: balanceTheme.cardBorderColor,
+            width: 1,
+          ),
+          color: syncTheme.syncedBackgroundColor,
         ),
         child: Row(
           children: [
             Container(
               height: 100,
               width: 100,
-              clipBehavior: Clip.hardEdge,
               margin: const EdgeInsets.all(8),
+              clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16.0),
                 border: Border.all(
-                  color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                  color: balanceTheme.cardBorderColor,
                   width: 1,
                 ),
-                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                color: syncTheme.syncedBackgroundColor,
               ),
               child: CakeImageWidget(
-                imageUrl: nftAsset.normalizedMetadata?.imageUrl,
+                imageUrl: nftAsset.imageOriginalUrl,
               ),
             ),
             Expanded(
@@ -55,23 +64,25 @@ class NFTTileWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${nftAsset.name ?? '---'} - ${nftAsset.symbol ?? '---'}',
+                    'Symbol: ${nftAsset.symbol ?? '---'}',
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w400,
-                      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      color: balanceTheme.labelTextColor,
                       height: 1,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
-                    nftAsset.normalizedMetadata?.name ?? nftAsset.name ?? "---",
+                    (nftAsset.name?.isNotEmpty ?? false)
+                        ? nftAsset.name!
+                        : (nftAsset.symbol ?? '---'),
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w900,
-                      color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                      color: balanceTheme.assetTitleColor,
                       height: 1,
                     ),
                   ),
