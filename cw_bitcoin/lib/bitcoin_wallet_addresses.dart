@@ -13,8 +13,6 @@ part 'bitcoin_wallet_addresses.g.dart';
 
 class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAddresses;
 
-const OLD_DERIVATION_TYPES = [SeedBytesType.old_electrum, SeedBytesType.old_bip39];
-
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
@@ -38,7 +36,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   final bool loadedFromNewSnapshot;
 
-  static const OLD_SP_PATH = "m/352'/1'/0'/#'/0";
+  static const _OLD_SP_PATH = "m/352'/1'/0'/#'/0";
+  static const _OLD_DERIVATION_TYPES = [SeedBytesType.old_electrum, SeedBytesType.old_bip39];
 
   @override
   final walletAddressTypes = BITCOIN_ADDRESS_TYPES;
@@ -103,7 +102,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       }
     }
 
-    generateInitialSPAddresses();
+    if (silentPaymentAddresses.isEmpty) generateInitialSPAddresses();
 
     super.init();
   }
@@ -114,8 +113,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
     // Only initiate these old addresses if restoring a wallet and possibly wants the older cake derivation path
     if (walletInfo.isRecovery || silentPaymentAddresses.length > 2) {
-      final oldScanPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "1"));
-      final oldSpendPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "0"));
+      final oldScanPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "1"));
+      final oldSpendPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "0"));
 
       final oldSilentPaymentWallet = SilentPaymentOwner.fromPrivateKeys(
         b_scan: ECPrivate(hdWallet.derive(oldScanPath).privateKey),
@@ -177,7 +176,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required SeedBytesType seedBytesType,
     BitcoinDerivationInfo? bitcoinDerivationInfo,
   }) async {
-    final isOldRestoration = OLD_DERIVATION_TYPES.contains(seedBytesType);
+    final isOldRestoration = _OLD_DERIVATION_TYPES.contains(seedBytesType);
 
     // p2wpkh has always had the right derivations, skip if creating old derivations
     if (isOldRestoration && addressType == SegwitAddressType.p2wpkh) {
@@ -291,8 +290,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
     late BitcoinSilentPaymentAddressRecord address;
     if (isHidden == true) {
-      final oldScanPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "1"));
-      final oldSpendPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "0"));
+      final oldScanPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "1"));
+      final oldSpendPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "0"));
 
       final oldSilentPaymentWallet = SilentPaymentOwner.fromPrivateKeys(
         b_scan: ECPrivate(hdWallet.derive(oldScanPath).privateKey),
@@ -467,7 +466,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   List<String> getUsableSilentPaymentAddresses() {
-    final oldSpendPath = Bip32PathParser.parse(OLD_SP_PATH.replaceFirst("#", "0"));
+    final oldSpendPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "0"));
     final primaryAddress = silentPaymentAddresses.firstWhere(
       (addressRecord) =>
           !addressRecord.isChange &&

@@ -5,7 +5,6 @@ class CWBitcoin extends Bitcoin {
     required String name,
     required String mnemonic,
     required String password,
-    required List<DerivationInfo>? derivations,
     String? passphrase,
   }) =>
       BitcoinRestoreWalletFromSeedCredentials(
@@ -13,7 +12,6 @@ class CWBitcoin extends Bitcoin {
         mnemonic: mnemonic,
         password: password,
         passphrase: passphrase,
-        derivations: derivations,
       );
 
   @override
@@ -623,7 +621,7 @@ class CWBitcoin extends Bitcoin {
       try {
         final mempoolApi = ApiProvider.fromMempool(
           BitcoinNetwork.mainnet,
-          baseUrl: "http://mempool.space/api/v1",
+          baseUrl: "https://mempool.cakewallet.com/api/v1",
         );
 
         return (await mempoolApi.getBlockTimestamp(date))["height"] as int;

@@ -56,7 +56,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   final Map<int, dynamic> _errorCompleters = {};
   int _messageId = 0;
 
-  static const String SIGN_MESSAGE_PREFIX = '\x18Bitcoin Signed Message:\n';
+  final String signMessagePrefix = '\x18Bitcoin Signed Message:\n';
 
   ElectrumWalletBase({
     required String password,
@@ -150,7 +150,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
   @action
   Future<void> handleWorkerResponse(dynamic message) async {
-    // printV('Main: received message: $message');
+    printV('Main: received message: $message');
 
     Map<String, dynamic> messageJson;
     if (message is String) {
@@ -1715,7 +1715,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     final priv = ECPrivate.fromHex(hdWallet.derive(path).privateKey.toHex());
 
     final hexEncoded =
-        priv.signMessage(StringUtils.encode(message), messagePrefix: SIGN_MESSAGE_PREFIX);
+        priv.signMessage(StringUtils.encode(message), messagePrefix: signMessagePrefix);
     final decodedSig = hex.decode(hexEncoded);
     return base64Encode(decodedSig);
   }
@@ -1740,7 +1740,8 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     }
 
     final messageHash = QuickCrypto.sha256Hash(
-        BitcoinSignerUtils.magicMessage(StringUtils.encode(message), SIGN_MESSAGE_PREFIX));
+      BitcoinSignerUtils.magicMessage(StringUtils.encode(message), signMessagePrefix),
+    );
 
     List<int> correctSignature =
         sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);

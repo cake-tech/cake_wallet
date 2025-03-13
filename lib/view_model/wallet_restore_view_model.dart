@@ -109,7 +109,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
-            derivations: options["derivations"] as List<DerivationInfo>?,
           );
         case WalletType.haven:
           return haven!.createHavenRestoreWalletFromSeedCredentials(

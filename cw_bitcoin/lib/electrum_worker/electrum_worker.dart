@@ -51,7 +51,7 @@ class ElectrumWorker {
   }
 
   void handleMessage(dynamic message) async {
-    // printV("Worker: received message: $message");
+    printV("Worker: received message: $message");
 
     try {
       Map<String, dynamic> messageJson;
@@ -631,7 +631,9 @@ class ElectrumWorker {
         // date is validated when the API responds with the same date at least twice
         // since sometimes the mempool api returns the wrong date at first
         final canValidateDate = request.mempoolAPIEnabled || _serverCapability!.supportsTxVerbose;
+
         if (tx == null ||
+            tx.ins?.isEmpty == true ||
             tx.original == null ||
             (tx.isDateValidated != true && canValidateDate) ||
             tx.time == null) {
@@ -816,7 +818,9 @@ class ElectrumWorker {
         // date is validated when the API responds with the same date at least twice
         // since sometimes the mempool api returns the wrong date at first
         final canValidateDate = request.mempoolAPIEnabled || _serverCapability!.supportsTxVerbose;
+
         if (tx == null ||
+            tx.ins?.isEmpty != false ||
             tx.original == null ||
             (tx.isDateValidated != true && canValidateDate) ||
             tx.time == null) {
@@ -1329,7 +1333,7 @@ class ElectrumWorker {
       try {
         final recommendedFees = await ApiProvider.fromMempool(
           _network!,
-          baseUrl: "http://mempool.cakewallet.com:8999/api/v1",
+          baseUrl: "https://mempool.cakewallet.com/api/v1",
         ).getRecommendedFeeRate();
 
         final minimum = recommendedFees.minimumFee!.satoshis;
@@ -1679,7 +1683,7 @@ Future<DateResult> getTxDate(
 
   final mempoolApi = ApiProvider.fromMempool(
     network,
-    baseUrl: "http://mempool.space/api/v1",
+    baseUrl: "https://mempool.cakewallet.com/api/v1",
   );
 
   try {

@@ -79,7 +79,6 @@ class WalletInfo extends HiveObject {
     this.yatLastUsedAddressRaw,
     this.showIntroCakePayCard,
     this.derivationInfo,
-    this.derivations,
     this.hardwareWalletType,
     this.parentAddress,
     this.hashedWalletIdentifier,
@@ -100,7 +99,6 @@ class WalletInfo extends HiveObject {
     String yatEid = '',
     String yatLastUsedAddressRaw = '',
     DerivationInfo? derivationInfo,
-    List<DerivationInfo>? derivations,
     HardwareWalletType? hardwareWalletType,
     String? parentAddress,
     String? hashedWalletIdentifier,
@@ -120,7 +118,6 @@ class WalletInfo extends HiveObject {
       yatLastUsedAddressRaw,
       showIntroCakePayCard,
       derivationInfo,
-      derivations,
       hardwareWalletType,
       parentAddress,
       hashedWalletIdentifier,
@@ -210,9 +207,6 @@ class WalletInfo extends HiveObject {
 
   @HiveField(26, defaultValue: false)
   bool isNonSeedWallet;
-
-  @HiveField(27)
-  List<DerivationInfo>? derivations;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 

@@ -103,7 +103,6 @@ abstract class WalletCreationVMBase with Store {
         address: '',
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
-        derivations: credentials.derivations,
         hardwareWalletType: credentials.hardwareWalletType,
       );
 

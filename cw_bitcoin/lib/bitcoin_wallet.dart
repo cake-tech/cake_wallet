@@ -21,7 +21,6 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:hive/hive.dart';
@@ -36,7 +35,7 @@ class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> with Store {
   @observable
-  bool nodeSupportsSilentPayments = true;
+  bool nodeSupportsSilentPayments = false;
 
   @observable
   bool allowedToSwitchNodesForScanning = false;
@@ -566,16 +565,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
       messageJson = message as Map<String, dynamic>;
     }
     final workerMethod = messageJson['method'] as String;
-    final workerError = messageJson['error'] as String?;
 
     switch (workerMethod) {
       case ElectrumRequestMethods.tweaksSubscribeMethod:
-        if (workerError != null) {
-          printV(messageJson);
-          // _onConnectionStatusChange(ConnectionStatus.failed);
-          break;
-        }
-
         final response = ElectrumWorkerTweaksSubscribeResponse.fromJson(messageJson);
         onTweaksSyncResponse(response.result);
         break;

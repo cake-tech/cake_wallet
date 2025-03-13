@@ -5,7 +5,6 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 
-// TODO: pass a list instead of checking every wallet open
 class WalletSeedData {
   final Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets;
 

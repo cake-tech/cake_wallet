@@ -97,36 +97,75 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final date = time != null ? DateTime.fromMillisecondsSinceEpoch(time * 1000) : DateTime.now();
     final confirmations = obj['confirmations'] as int? ?? 0;
     var direction = TransactionDirection.incoming;
-    var inputsAmount = 0;
+    var totalInputsAmount = 0;
     var amount = 0;
-    var totalOutAmount = 0;
+    var totalOutsAmount = 0;
 
+    final ourSentAmounts = <int>[];
     for (dynamic vin in vins) {
       final vout = vin['vout'] as int;
       final out = vin['tx']['vout'][vout] as Map;
       final outAddresses = (out['scriptPubKey']['addresses'] as List<Object>?)?.toSet();
-      inputsAmount +=
+      totalInputsAmount +=
           BitcoinAmountUtils.stringDoubleToBitcoinAmount((out['value'] as double? ?? 0).toString());
 
       if (outAddresses?.intersection(addressesSet).isNotEmpty ?? false) {
-        direction = TransactionDirection.outgoing;
+        ourSentAmounts.add(out['value'] as int);
       }
     }
 
+    final ourReceivedAmounts = <int>[];
     for (dynamic out in vout) {
       final outAddresses = out['scriptPubKey']['addresses'] as List<Object>? ?? [];
       final ntrs = outAddresses.toSet().intersection(addressesSet);
       final value = BitcoinAmountUtils.stringDoubleToBitcoinAmount(
           (out['value'] as double? ?? 0.0).toString());
-      totalOutAmount += value;
+      totalOutsAmount += value;
+
+      final address = out['scriptPubKey'] as String;
+      final addressExists = addresses.contains(address);
 
       if ((direction == TransactionDirection.incoming && ntrs.isNotEmpty) ||
           (direction == TransactionDirection.outgoing && ntrs.isEmpty)) {
         amount += value;
       }
+
+      if (addressExists) {
+        ourReceivedAmounts.add(value);
+      }
     }
 
-    final fee = inputsAmount - totalOutAmount;
+    final ourTotalReceivedAmount =
+        ourReceivedAmounts.length > 0 ? ourReceivedAmounts.reduce((a, b) => a + b) : 0;
+    final ourTotalSentAmount =
+        ourSentAmounts.length > 0 ? ourSentAmounts.reduce((a, b) => a + b) : 0;
+
+    final weSent = ourSentAmounts.length > 0;
+    final weReceived = ourReceivedAmounts.length > 0;
+
+    if (ourReceivedAmounts.length == vout.length) {
+      // All outputs in this tx were received
+      direction = TransactionDirection.incoming;
+      amount = ourTotalReceivedAmount;
+    } else if (weSent && weReceived && ourTotalSentAmount > ourTotalReceivedAmount) {
+      // We sent and received in the same transaction
+      // The amount sent is greater than the amount received (change)
+      direction = TransactionDirection.outgoing;
+      amount = ourTotalSentAmount - ourTotalReceivedAmount;
+    } else {
+      direction = TransactionDirection.outgoing;
+
+      if (ourTotalReceivedAmount > 0) {
+        // In case we sent and received in the same transaction
+        // but the amount received is greater than the amount sent
+        amount = ourTotalReceivedAmount - ourTotalSentAmount;
+      } else {
+        amount = ourTotalSentAmount;
+      }
+    }
+
+    final fee = totalInputsAmount - totalOutsAmount;
+    amount = amount - fee;
 
     return ElectrumTransactionInfo(
       type,
@@ -155,36 +194,36 @@ class ElectrumTransactionInfo extends TransactionInfo {
         : DateTime.now();
     var direction = TransactionDirection.incoming;
     var amount = 0;
-    var inputAmount = 0;
-    var totalOutAmount = 0;
+    var totalInputsAmount = 0;
+    var totalOutsAmount = 0;
     List<String> inputAddresses = [];
     List<String> outputAddresses = [];
 
-    final sentAmounts = <int>[];
+    final ourSentAmounts = <int>[];
     if (bundle.ins.length > 0) {
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
         final outTransaction = inputTransaction.outputs[input.txIndex];
-        inputAmount += outTransaction.amount.toInt();
-        if (addresses.contains(
-          BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network),
-        )) {
-          direction = TransactionDirection.outgoing;
-          inputAddresses.add(
-            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network),
-          );
-          sentAmounts.add(outTransaction.amount.toInt());
+        totalInputsAmount += outTransaction.amount.toInt();
+
+        final address =
+            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network);
+        final ourAddressExists = addresses.contains(address);
+
+        if (ourAddressExists) {
+          inputAddresses.add(address);
+          ourSentAmounts.add(outTransaction.amount.toInt());
         }
       }
     }
 
-    final receivedAmounts = <int>[];
+    final ourReceivedAmounts = <int>[];
     for (final out in bundle.originalTransaction.outputs) {
-      totalOutAmount += out.amount.toInt();
-      final addressExists = addresses
-          .contains(BitcoinAddressUtils.addressFromOutputScript(out.scriptPubKey, network));
+      totalOutsAmount += out.amount.toInt();
+
       final address = BitcoinAddressUtils.addressFromOutputScript(out.scriptPubKey, network);
+      final addressExists = addresses.contains(address);
 
       if (address.isNotEmpty) outputAddresses.add(address);
 
@@ -204,24 +243,42 @@ class ElectrumTransactionInfo extends TransactionInfo {
       }
 
       if (addressExists) {
-        receivedAmounts.add(out.amount.toInt());
-      }
-
-      if ((direction == TransactionDirection.incoming && addressExists) ||
-          (direction == TransactionDirection.outgoing && !addressExists)) {
-        amount += out.amount.toInt();
+        ourReceivedAmounts.add(out.amount.toInt());
       }
     }
 
-    if (receivedAmounts.length == bundle.originalTransaction.outputs.length) {
-      // Self-send
+    final ourTotalReceivedAmount =
+        ourReceivedAmounts.length > 0 ? ourReceivedAmounts.reduce((a, b) => a + b) : 0;
+    final ourTotalSentAmount =
+        ourSentAmounts.length > 0 ? ourSentAmounts.reduce((a, b) => a + b) : 0;
+
+    final weSent = ourSentAmounts.length > 0;
+    final weReceived = ourReceivedAmounts.length > 0;
+
+    if (ourReceivedAmounts.length == bundle.originalTransaction.outputs.length) {
+      // All outputs in this tx were received
       direction = TransactionDirection.incoming;
-      amount = receivedAmounts.reduce((a, b) => a + b);
-    } else if (sentAmounts.length > 0) {
-      amount = sentAmounts.reduce((a, b) => a + b);
+      amount = ourTotalReceivedAmount;
+    } else if (weSent && weReceived && ourTotalSentAmount > ourTotalReceivedAmount) {
+      // We sent and received in the same transaction
+      // The amount sent is greater than the amount received (change)
+      direction = TransactionDirection.outgoing;
+      amount = ourTotalSentAmount - ourTotalReceivedAmount;
+    } else {
+      direction = TransactionDirection.outgoing;
+
+      if (ourTotalReceivedAmount > 0) {
+        // In case we sent and received in the same transaction
+        // but the amount received is greater than the amount sent
+        amount = ourTotalReceivedAmount - ourTotalSentAmount;
+      } else {
+        amount = ourTotalSentAmount;
+      }
     }
 
-    final fee = inputAmount - totalOutAmount;
+    final fee = totalInputsAmount - totalOutsAmount;
+    amount = amount - fee;
+
     return ElectrumTransactionInfo(
       type,
       id: bundle.originalTransaction.txId(),

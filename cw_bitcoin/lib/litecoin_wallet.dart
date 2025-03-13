@@ -823,15 +823,23 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
     int unconfirmedMweb = 0;
     try {
       mwebUtxosBox.values.forEach((utxo) {
-        if (utxo.height > 0) {
+        bool isConfirmed = utxo.height > 0;
+
+        printV(
+            "utxo: ${isConfirmed ? "confirmed" : "unconfirmed"} ${utxo.spent ? "spent" : "unspent"} ${utxo.outputId} ${utxo.height} ${utxo.value}");
+
+        if (isConfirmed) {
           confirmedMweb += utxo.value.toInt();
-        } else {
+        }
+
+        if (isConfirmed && utxo.spent) {
+          unconfirmedMweb -= utxo.value.toInt();
+        }
+
+        if (!isConfirmed && !utxo.spent) {
           unconfirmedMweb += utxo.value.toInt();
         }
       });
-      if (unconfirmedMweb > 0) {
-        unconfirmedMweb = -1 * (confirmedMweb - unconfirmedMweb);
-      }
     } catch (_) {}
 
     for (var addressRecord in walletAddresses.mwebAddresses) {
