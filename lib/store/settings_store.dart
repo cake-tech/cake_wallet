@@ -34,11 +34,8 @@ import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -1011,7 +1008,7 @@ abstract class SettingsStoreBase with Store {
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
-    final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? true;
+    final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
