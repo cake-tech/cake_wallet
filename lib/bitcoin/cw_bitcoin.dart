@@ -734,8 +734,20 @@ class CWBitcoin extends Bitcoin {
     if (value) {
       (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
     } else {
-      (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
-      (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
+      stopPayjoinSessions(wallet);
     }
+  }
+
+  @override
+  void resumePayjoinSessions(Object wallet) {
+    final _wallet = wallet as ElectrumWallet;
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.resumeSessions();
+  }
+
+  @override
+  void stopPayjoinSessions(Object wallet) {
+    final _wallet = wallet as ElectrumWallet;
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
+    (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
   }
 }

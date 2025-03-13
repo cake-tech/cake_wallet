@@ -247,6 +247,8 @@ abstract class Bitcoin {
 
   void updatePayjoinState(Object wallet, bool state);
   String getPayjoinEndpoint(Object wallet);
+  void resumePayjoinSessions(Object wallet);
+  void stopPayjoinSessions(Object wallet);
 }
   """;
 
