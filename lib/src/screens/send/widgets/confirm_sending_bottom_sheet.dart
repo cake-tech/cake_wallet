@@ -1,6 +1,9 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -9,6 +12,7 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
   ConfirmSendingBottomSheet(
       {required this.titleText,
       this.titleIconPath,
+      required this.currency,
       // this.paymentId,
       // this.paymentIdValue,
       // this.expirationTime,
@@ -18,7 +22,7 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
       required this.fee,
       required this.feeValue,
       required this.feeFiatAmount,
-      // required this.outputs,
+      required this.outputs,
       // this.change,
       // required this.leftButtonText,
       // required this.rightButtonText,
@@ -36,6 +40,7 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
 
   final String titleText;
   final String? titleIconPath;
+  final CryptoCurrency currency;
 
   // final String? paymentId;
   // final String? paymentIdValue;
@@ -46,8 +51,8 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
   final String fee;
   final String feeValue;
   final String feeFiatAmount;
+  final List<Output> outputs;
 
-  // final List<Output> outputs;
   // final PendingChange? change;
   // final String leftButtonText;
   // final String rightButtonText;
@@ -76,42 +81,6 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
   Widget get titleIcon =>
       titleIconPath != null ? Image.asset(titleIconPath!, height: 24, width: 24) : Container();
 
-  Widget expansionTile(
-      {required BuildContext context,
-      required TextStyle itemTitleTextStyle,
-      required TextStyle itemSubTitleTextStyle}) {
-    return Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            color: Theme.of(context).extension<FilterTheme>()!.buttonColor),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          title: Text('ExpansionTile 1'),
-          children: <Widget>[
-            Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(fee, style: itemTitleTextStyle),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(feeValue, style: itemTitleTextStyle),
-                          Text(feeFiatAmount, style: itemSubTitleTextStyle),
-                        ],
-                      ),
-                    ],
-                  ),
-                ))
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final itemTitleTextStyle = TextStyle(
@@ -122,7 +91,7 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
         decoration: TextDecoration.none);
 
     final itemSubTitleTextStyle = TextStyle(
-        fontSize: 10,
+        fontSize: 12,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
         color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
@@ -143,11 +112,15 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
                 children: [
                   const Spacer(flex: 4),
                   Expanded(
-                      flex: 2,
-                      child: Container(
-                          height: 6,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4), color: Colors.red))),
+                    flex: 2,
+                    child: Container(
+                      height: 6,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
                   const Spacer(flex: 4),
                 ],
               ),
@@ -160,14 +133,19 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
                 title(context),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
+            // Wrap the scrollable content with Expanded:
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -175,20 +153,20 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(amountValue, style: itemTitleTextStyle),
+                                Text('$amountValue ${currency.title}', style: itemTitleTextStyle),
                                 Text(fiatAmountValue, style: itemSubTitleTextStyle),
                               ],
                             ),
                           ],
                         ),
                       ),
-                      decoration: BoxDecoration(
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).extension<FilterTheme>()!.buttonColor)),
-                  const SizedBox(height: 8),
-                  Container(
-                      child: Padding(
-                        padding: const EdgeInsets.all(14),
+                          color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                        ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -196,31 +174,286 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(feeValue, style: itemTitleTextStyle),
+                                Text('$feeValue ${currency.title}', style: itemTitleTextStyle),
                                 Text(feeFiatAmount, style: itemSubTitleTextStyle),
                               ],
                             ),
                           ],
                         ),
                       ),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).extension<FilterTheme>()!.buttonColor)),
-                  const SizedBox(height: 8),
-                  expansionTile(
-                      context: context,
-                      itemTitleTextStyle: itemTitleTextStyle,
-                      itemSubTitleTextStyle: itemSubTitleTextStyle),
-                ],
+                      const SizedBox(height: 8),
+                      Column(
+                        children: [
+                          ListView.separated(
+                            padding: EdgeInsets.only(top: 0),
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: outputs.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 8),
+                            itemBuilder: (context, index) {
+                              final isBatchSending = outputs.length > 1;
+                              final item = outputs[index];
+                              final contactName = item.parsedAddress.name;
+                              final contactTitle =
+                                  '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
+                              final itemTitle = isBatchSending ? contactTitle : 'Address';
+                              final _address =
+                                  item.isParsedAddress ? item.extractedAddress : item.address;
+                              final _amount = item.cryptoAmount.replaceAll(',', '.');
+
+                              return isBatchSending || contactName.isNotEmpty
+                                  ? AddressExpansionTile(
+                                      contactType: 'Contact',
+                                      name: contactName,
+                                      address: _address,
+                                      amount: _amount,
+                                      isBatchSending: isBatchSending,
+                                      itemTitleTextStyle: itemTitleTextStyle,
+                                      itemSubTitleTextStyle: itemSubTitleTextStyle)
+                                  : AddressTile(
+                                      itemTitle: itemTitle,
+                                      itemTitleTextStyle: itemTitleTextStyle,
+                                      isBatchSending: isBatchSending,
+                                      amount: _amount,
+                                      currency: currency,
+                                      address: _address,
+                                      itemSubTitleTextStyle: itemSubTitleTextStyle);
+                            },
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // You can add more widgets here...
+                    ],
+                  ),
+                ),
               ),
             ),
-            ElevatedButton(
-              child: const Text('Close BottomSheet'),
-              onPressed: () => Navigator.pop(context),
+            Container(
+              padding: const EdgeInsets.fromLTRB(40, 16, 40, 34),
+              child: StandardSlideButton(
+                onSlideComplete: () => Navigator.pop(context),
+                buttonText: 'Swipe to send',
+              ),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+                color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class AddressTile extends StatelessWidget {
+  const AddressTile({
+    super.key,
+    required this.itemTitle,
+    required this.itemTitleTextStyle,
+    required this.isBatchSending,
+    required this.amount,
+    required this.currency,
+    required this.address,
+    required this.itemSubTitleTextStyle,
+  });
+
+  final String itemTitle;
+  final TextStyle itemTitleTextStyle;
+  final bool isBatchSending;
+  final String amount;
+  final CryptoCurrency currency;
+  final String address;
+  final TextStyle itemSubTitleTextStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(itemTitle, style: itemTitleTextStyle),
+              if (isBatchSending) Text('$amount ${currency.title}', style: itemTitleTextStyle),
+            ],
+          ),
+          Text(address, style: itemSubTitleTextStyle),
+        ],
+      ),
+    );
+  }
+}
+
+class AddressExpansionTile extends StatelessWidget {
+  const AddressExpansionTile({
+    super.key,
+    required this.contactType,
+    required this.name,
+    required this.address,
+    required this.amount,
+    required this.isBatchSending,
+    required this.itemTitleTextStyle,
+    required this.itemSubTitleTextStyle,
+  });
+
+  final String contactType;
+  final String name;
+  final String address;
+  final String amount;
+  final bool isBatchSending;
+  final TextStyle itemTitleTextStyle;
+  final TextStyle itemSubTitleTextStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: ExpansionTile(
+            childrenPadding: EdgeInsets.zero,
+            tilePadding: EdgeInsets.zero,
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(contactType, style: itemTitleTextStyle),
+                Text(isBatchSending ? amount : name, style: itemTitleTextStyle),
+              ],
+            ),
+            children: [
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!isBatchSending) Text('Address', style: itemTitleTextStyle),
+                      Text(address, style: itemSubTitleTextStyle),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class StandardSlideButton extends StatefulWidget {
+  final VoidCallback onSlideComplete;
+  final String buttonText;
+  final double height;
+
+  const StandardSlideButton({
+    Key? key,
+    required this.onSlideComplete,
+    this.buttonText = '',
+    this.height = 48.0,
+  }) : super(key: key);
+
+  @override
+  _StandardSlideButtonState createState() => _StandardSlideButtonState();
+}
+
+class _StandardSlideButtonState extends State<StandardSlideButton> {
+  // _dragPosition is now the relative position from the left margin.
+  double _dragPosition = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final double maxWidth = constraints.maxWidth;
+      // Define a margin for the left and right edges.
+      const double sideMargin = 4.0;
+      // Calculate effective width available for the slider by subtracting the margins.
+      final double effectiveMaxWidth = maxWidth - 2 * sideMargin;
+      const double sliderWidth = 42.0;
+
+      return Container(
+        height: widget.height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
+        ),
+        child: Stack(
+          alignment: Alignment.centerLeft,
+          children: [
+            // Centered text on the track.
+            Center(
+              child: Text(
+                widget.buttonText,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+              ),
+            ),
+            // Draggable slider button.
+            Positioned(
+              // Offset slider's starting point by sideMargin.
+              left: sideMargin + _dragPosition,
+              child: GestureDetector(
+                onHorizontalDragUpdate: (details) {
+                  setState(() {
+                    _dragPosition += details.delta.dx;
+                    // Clamp _dragPosition to the effective sliding area.
+                    if (_dragPosition < 0) _dragPosition = 0;
+                    if (_dragPosition > effectiveMaxWidth - sliderWidth) {
+                      _dragPosition = effectiveMaxWidth - sliderWidth;
+                    }
+                  });
+                },
+                onHorizontalDragEnd: (details) {
+                  if (_dragPosition >= effectiveMaxWidth - sliderWidth - 10) {
+                    widget.onSlideComplete();
+                  } else {
+                    // Reset to initial position if not dragged enough.
+                    setState(() {
+                      _dragPosition = 0;
+                    });
+                  }
+                },
+                child: Container(
+                  width: sliderWidth,
+                  height: widget.height - 8,
+                  // Optional: adjust for vertical padding.
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(Icons.arrow_forward,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                ),
+              ),
+            )
+          ],
+        ),
+      );
+    });
   }
 }

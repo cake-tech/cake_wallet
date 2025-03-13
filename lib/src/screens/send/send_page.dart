@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_bottom_sheet.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -490,34 +491,42 @@ class SendPage extends BasePage {
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
-            showPopUp<void>(
+            showModalBottomSheet<void>(
                 context: context,
                 builder: (BuildContext _dialogContext) {
-                  return ConfirmSendingAlert(
+                  return ConfirmSendingBottomSheet(
                       key: ValueKey('send_page_confirm_sending_dialog_key'),
-                      alertTitle: S.of(_dialogContext).confirm_sending,
-                      amount: S.of(_dialogContext).send_amount,
-                      amountValue: sendViewModel.pendingTransaction!.amountFormatted,
-                      fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                      fee: isEVMCompatibleChain(sendViewModel.walletType)
-                          ? S.of(_dialogContext).send_estimated_fee
-                          : S.of(_dialogContext).send_fee,
-                      feeRate: sendViewModel.pendingTransaction!.feeRate,
-                      feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                      feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                      outputs: sendViewModel.outputs,
-                      change: sendViewModel.pendingTransaction!.change,
-                      rightButtonText: S.of(_dialogContext).send,
-                      leftButtonText: S.of(_dialogContext).cancel,
-                      alertRightActionButtonKey:
-                          ValueKey('send_page_confirm_sending_dialog_send_button_key'),
-                      alertLeftActionButtonKey:
-                          ValueKey('send_page_confirm_sending_dialog_cancel_button_key'),
-                      actionRightButton: () async {
-                        Navigator.of(_dialogContext).pop();
-                        sendViewModel.commitTransaction(context);
-                      },
-                      actionLeftButton: () => Navigator.of(_dialogContext).pop());
+                    titleText: 'Confirm Transaction',//S.of(_dialogContext).confirm_sending,
+                    titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
+                    currency: sendViewModel.selectedCryptoCurrency,
+                    amount: S.of(_dialogContext).send_amount,
+                    amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                    fee: isEVMCompatibleChain(sendViewModel.walletType)
+                        ? S.of(_dialogContext).send_estimated_fee
+                        : S.of(_dialogContext).send_fee,
+                    feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+                    feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                    outputs: sendViewModel.outputs,
+                  );
+
+
+
+
+                    //   feeRate: sendViewModel.pendingTransaction!.feeRate,
+                    //   outputs: sendViewModel.outputs,
+                    //   change: sendViewModel.pendingTransaction!.change,
+                    //   rightButtonText: S.of(_dialogContext).send,
+                    //   leftButtonText: S.of(_dialogContext).cancel,
+                    //   alertRightActionButtonKey:
+                    //       ValueKey('send_page_confirm_sending_dialog_send_button_key'),
+                    //   alertLeftActionButtonKey:
+                    //       ValueKey('send_page_confirm_sending_dialog_cancel_button_key'),
+                    //   actionRightButton: () async {
+                    //     Navigator.of(_dialogContext).pop();
+                    //     sendViewModel.commitTransaction(context);
+                    //   },
+                    //   actionLeftButton: () => Navigator.of(_dialogContext).pop());
                 });
           }
         });
