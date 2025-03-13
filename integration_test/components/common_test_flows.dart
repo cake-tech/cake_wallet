@@ -70,12 +70,12 @@ class CommonTestFlows {
 
     await _tester.pumpAndSettle();
 
-    // --------- Disclaimer Page ------------
-    // Tap checkbox to accept disclaimer
-    await _disclaimerPageRobot.tapDisclaimerCheckbox();
+    // // --------- Disclaimer Page ------------
+    // // Tap checkbox to accept disclaimer
+    // await _disclaimerPageRobot.tapDisclaimerCheckbox();
 
-    // Tap accept button
-    await _disclaimerPageRobot.tapAcceptButton();
+    // // Tap accept button
+    // await _disclaimerPageRobot.tapAcceptButton();
   }
 
   //* ========== Handles flow from welcome to creating a new wallet ===============
@@ -211,7 +211,7 @@ class CommonTestFlows {
 
     await _selectWalletTypeForWallet(walletTypeToCreate);
 
-    await _welcomePageRobot.tapNewSingleSeed();
+    // await _welcomePageRobot.tapNewSingleSeed();
   }
 
   Future<void> _welcomeToRestoreFromSeedsOrKeysPath(
