@@ -162,7 +162,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         controller: addressController,
                         onURIScanned: (uri) {
                           final paymentRequest = PaymentRequest.fromUri(uri);
-                          sendViewModel.payjoinUri = paymentRequest.pjUri;
+                          if (sendViewModel.usePayjoin) {
+                            sendViewModel.payjoinUri = paymentRequest.pjUri;
+                          }
                           addressController.text = paymentRequest.address;
                           cryptoAmountController.text = paymentRequest.amount;
                           noteController.text = paymentRequest.note;

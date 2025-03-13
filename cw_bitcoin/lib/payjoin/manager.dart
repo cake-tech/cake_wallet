@@ -121,6 +121,8 @@ class PayjoinManager {
           printV(message.message);
           await _payjoinStorage.markSenderSessionUnrecoverable(pjUri);
           completer.complete();
+        } else if (message is RecoverableError) {
+          completer.complete();
         } else {
           completer.completeError(message);
         }
@@ -243,6 +245,8 @@ class PayjoinManager {
         if (message is UnrecoverableError) {
           printV(message.message);
           await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id());
+          completer.complete();
+        } else if (message is RecoverableError) {
           completer.complete();
         } else {
           completer.completeError(message);

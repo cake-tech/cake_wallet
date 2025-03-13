@@ -561,10 +561,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  bool isPayjoinAvailable(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return wallet.unspentCoins.isNotEmpty;
-  }
+  bool isPayjoinAvailable(Object wallet) =>
+      (wallet is BitcoinWallet) && (wallet as BitcoinWallet).isPayjoinAvailable;
 
   @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
@@ -726,6 +724,7 @@ class CWBitcoin extends Bitcoin {
   @override
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
+    if (!isPayjoinAvailable(wallet)) return '';
     return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
   }
 

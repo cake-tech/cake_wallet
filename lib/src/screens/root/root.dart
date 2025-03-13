@@ -145,6 +145,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
+        // ToDo: Resume Payjoin
         break;
       default:
         break;

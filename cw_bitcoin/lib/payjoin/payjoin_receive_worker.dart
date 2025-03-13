@@ -53,7 +53,9 @@ class PayjoinReceiverWorker {
         'psbt': psbt,
       });
     } catch (e) {
-      if (e is HttpException) {
+      if (e is HttpException ||
+          (e is http.ClientException &&
+              e.message.contains("Software caused connection abort"))) {
         sendPort.send(PayjoinSessionError.recoverable(e.toString()));
       } else {
         sendPort.send(PayjoinSessionError.unrecoverable(e.toString()));

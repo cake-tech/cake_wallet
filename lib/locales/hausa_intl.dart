@@ -847,6 +847,7 @@ class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
         singleDigitHourFormat: intl.DateFormat('j', localeName),
         singleDigitMinuteFormat: intl.DateFormat.m(localeName),
         singleDigitSecondFormat: intl.DateFormat.s(localeName),
+        weekdayFormat: intl.DateFormat.E(locale),
       ),
     );
   }
@@ -871,6 +872,7 @@ class HaCupertinoLocalizations extends GlobalCupertinoLocalizations {
     required super.singleDigitMinuteFormat,
     required super.doubleDigitMinuteFormat,
     required super.singleDigitSecondFormat,
+    required super.weekdayFormat,
   });
 
   @override
