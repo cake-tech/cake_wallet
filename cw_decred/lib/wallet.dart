@@ -9,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
 
-import 'package:cw_decred/api/libdcrwallet.dart' as libdcrwallet;
+import 'package:cw_decred/api/libdcrwallet.dart';
 import 'package:cw_decred/transaction_history.dart';
 import 'package:cw_decred/wallet_addresses.dart';
 import 'package:cw_decred/transaction_priority.dart';
@@ -33,8 +33,11 @@ class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase
     extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo> with Store {
-  DecredWalletBase(WalletInfo walletInfo, String password, Box<UnspentCoinsInfo> unspentCoinsInfo)
+  DecredWalletBase(WalletInfo walletInfo, String password, Box<UnspentCoinsInfo> unspentCoinsInfo,
+      Libwallet libwallet, Function() closeLibwallet)
       : _password = password,
+        _libwallet = libwallet,
+        _closeLibwallet = closeLibwallet,
         this.syncStatus = NotConnectedSyncStatus(),
         this.unspentCoinsInfo = unspentCoinsInfo,
         this.watchingOnly =
@@ -47,7 +50,7 @@ abstract class DecredWalletBase
             walletInfo.derivationInfo?.derivationPath ==
                 DecredWalletService.pubkeyRestorePathTestnet,
         super(walletInfo) {
-    walletAddresses = DecredWalletAddresses(walletInfo);
+    walletAddresses = DecredWalletAddresses(walletInfo, libwallet);
     transactionHistory = DecredTransactionHistory();
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
@@ -65,7 +68,13 @@ abstract class DecredWalletBase
   final syncIntervalSynced = 30; // seconds
   static final defaultFeeRate = 10000;
   final String _password;
+  final Libwallet _libwallet;
+  final Function() _closeLibwallet;
   final idPrefix = "decred_";
+  // TODO: Encrypt this.
+  var _seed = "";
+  var _pubkey = "";
+  var _unspents = <Unspent>[];
 
   // synced is used to set the syncTimer interval.
   bool synced = false;
@@ -98,7 +107,7 @@ abstract class DecredWalletBase
     if (watchingOnly) {
       return null;
     }
-    return libdcrwallet.walletSeed(walletInfo.name, _password);
+    return _seed;
   }
 
   @override
@@ -108,19 +117,29 @@ abstract class DecredWalletBase
   bool isTestnet;
 
   String get pubkey {
-    return libdcrwallet.defaultPubkey(walletInfo.name);
+    return _pubkey;
   }
 
   Future<void> init() async {
-    await updateBalance();
-    await updateTransactionHistory();
-    await walletAddresses.init();
-
-    fetchTransactions();
+    final getSeed = () async {
+      if (!watchingOnly) {
+        _seed = await _libwallet.walletSeed(walletInfo.name, _password) ?? "";
+      }
+      _pubkey = await _libwallet.defaultPubkey(walletInfo.name);
+    };
+    await Future.wait([
+      updateBalance(),
+      updateTransactionHistory(),
+      walletAddresses.init(),
+      fetchTransactions(),
+      updateFees(),
+      fetchUnspents(),
+      getSeed(),
+    ]);
   }
 
-  void performBackgroundTasks() async {
-    if (!checkSync()) {
+  Future<void> performBackgroundTasks() async {
+    if (!await checkSync()) {
       if (synced == true) {
         synced = false;
         if (syncTimer != null) {
@@ -131,8 +150,6 @@ abstract class DecredWalletBase
       }
       return;
     }
-    await updateBalance();
-    await walletAddresses.updateAddressesInBox();
     // Set sync check interval lower since we are synced.
     if (synced == false) {
       synced = true;
@@ -142,7 +159,40 @@ abstract class DecredWalletBase
       syncTimer = Timer.periodic(
           Duration(seconds: syncIntervalSynced), (Timer t) => performBackgroundTasks());
     }
-    await updateTransactionHistory();
+    await Future.wait([
+      updateTransactionHistory(),
+      updateFees(),
+      fetchUnspents(),
+      updateBalance(),
+      walletAddresses.updateAddressesInBox(),
+    ]);
+  }
+
+  Future<void> updateFees() async {
+    final feeForNb = (int nb) async {
+      try {
+        final feeStr = await _libwallet.estimateFee(walletInfo.name, nb);
+        var fee = int.parse(feeStr);
+        if (fee > maxFeeRate) {
+          throw "dcr fee returned from estimate fee was over max";
+        } else if (fee <= 0) {
+          throw "dcr fee returned from estimate fee was zero";
+        }
+        return fee;
+      } catch (e) {
+        printV(e);
+        return defaultFeeRate;
+      }
+    };
+    if (feeRateSlow.isOld()) {
+      feeRateSlow.update(await feeForNb(4));
+    }
+    if (feeRateMedium.isOld()) {
+      feeRateMedium.update(await feeForNb(2));
+    }
+    if (feeRateFast.isOld()) {
+      feeRateFast.update(await feeForNb(1));
+    }
   }
 
   Future<void> updateTransactionHistory() async {
@@ -164,8 +214,8 @@ abstract class DecredWalletBase
     }
   }
 
-  bool checkSync() {
-    final syncStatusJSON = libdcrwallet.syncStatus(walletInfo.name);
+  Future<bool> checkSync() async {
+    final syncStatusJSON = await _libwallet.syncStatus(walletInfo.name);
     final decoded = json.decode(syncStatusJSON);
 
     final syncStatusCode = decoded["syncstatuscode"] ?? 0;
@@ -248,7 +298,7 @@ abstract class DecredWalletBase
         syncTimer = null;
       }
       persistantPeer = addr;
-      libdcrwallet.closeWallet(walletInfo.name);
+      await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
       final config = {
         "name": walletInfo.name,
@@ -256,7 +306,7 @@ abstract class DecredWalletBase
         "net": network,
         "unsyncedaddrs": true,
       };
-      libdcrwallet.loadWalletSync(jsonEncode(config));
+      await _libwallet.loadWallet(jsonEncode(config));
     }
     await this._startSync();
     connecting = false;
@@ -279,7 +329,7 @@ abstract class DecredWalletBase
     }
     try {
       syncStatus = ConnectingSyncStatus();
-      libdcrwallet.startSyncAsync(
+      await _libwallet.startSync(
         name: walletInfo.name,
         peers: persistantPeer == "default-spv-nodes" ? "" : persistantPeer,
       );
@@ -347,11 +397,11 @@ abstract class DecredWalletBase
       "password": _password,
       "sendall": sendAll,
     };
-    final res = libdcrwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
+    final res = await _libwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
     final signedHex = decoded["signedhex"];
     final send = () async {
-      libdcrwallet.sendRawTransaction(walletInfo.name, signedHex);
+      await _libwallet.sendRawTransaction(walletInfo.name, signedHex);
       await updateBalance();
     };
     final fee = decoded["fee"] ?? 0;
@@ -366,37 +416,13 @@ abstract class DecredWalletBase
     if (!(priority is DecredTransactionPriority)) {
       return defaultFeeRate;
     }
-    int Function(int nb) feeForNb = (int nb) {
-      try {
-        final feeStr = libdcrwallet.estimateFee(walletInfo.name, nb);
-        var fee = int.parse(feeStr);
-        if (fee > maxFeeRate) {
-          throw "dcr fee returned from estimate fee was over max";
-        } else if (fee <= 0) {
-          throw "dcr fee returned from estimate fee was zero";
-        }
-        return fee;
-      } catch (e) {
-        printV(e);
-        return defaultFeeRate;
-      }
-    };
     final p = priority;
     switch (p) {
       case DecredTransactionPriority.slow:
-        if (feeRateSlow.isOld()) {
-          feeRateSlow.update(feeForNb(4));
-        }
         return feeRateSlow.feeRate();
       case DecredTransactionPriority.medium:
-        if (feeRateMedium.isOld()) {
-          feeRateMedium.update(feeForNb(2));
-        }
         return feeRateMedium.feeRate();
       case DecredTransactionPriority.fast:
-        if (feeRateFast.isOld()) {
-          feeRateFast.update(feeForNb(1));
-        }
         return feeRateFast.feeRate();
     }
     return defaultFeeRate;
@@ -432,7 +458,7 @@ abstract class DecredWalletBase
   }
 
   Future<Map<String, DecredTransactionInfo>> fetchFiveTransactions(int from) async {
-    final res = libdcrwallet.listTransactions(walletInfo.name, from.toString(), "5");
+    final res = await _libwallet.listTransactions(walletInfo.name, from.toString(), "5");
     final decoded = json.decode(res);
     var txs = <String, DecredTransactionInfo>{};
     for (final d in decoded) {
@@ -482,13 +508,13 @@ abstract class DecredWalletBase
     // can always rescan from there.
     var rescanHeight = 0;
     if (!watchingOnly) {
-      rescanHeight = walletBirthdayBlockHeight();
+      rescanHeight = await walletBirthdayBlockHeight();
       // Sync has not yet reached the birthday block.
       if (rescanHeight == -1) {
         return;
       }
     }
-    libdcrwallet.rescanFromHeight(walletInfo.name, rescanHeight.toString());
+    await _libwallet.rescanFromHeight(walletInfo.name, rescanHeight.toString());
   }
 
   @override
@@ -497,9 +523,11 @@ abstract class DecredWalletBase
       syncTimer!.cancel();
       syncTimer = null;
     }
-    return () async {
-      libdcrwallet.closeWallet(walletInfo.name);
-    }();
+    await _libwallet.closeWallet(walletInfo.name);
+    if (shouldCleanup) {
+      await _libwallet.shutdown();
+      _closeLibwallet();
+    }
   }
 
   @override
@@ -508,13 +536,13 @@ abstract class DecredWalletBase
       return;
     }
     return () async {
-      libdcrwallet.changeWalletPassword(walletInfo.name, _password, password);
+      await _libwallet.changeWalletPassword(walletInfo.name, _password, password);
     }();
   }
 
   @override
-  Future<void>? updateBalance() async {
-    final balanceMap = libdcrwallet.balance(walletInfo.name);
+  Future<void> updateBalance() async {
+    final balanceMap = await _libwallet.balance(walletInfo.name);
     balance[CryptoCurrency.dcr] = DecredBalance(
       confirmed: balanceMap["confirmed"] ?? 0,
       unconfirmed: balanceMap["unconfirmed"] ?? 0,
@@ -538,7 +566,7 @@ abstract class DecredWalletBase
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) {
+  Future<String> signMessage(String message, {String? address = null}) async {
     if (watchingOnly) {
       throw "a watching only wallet cannot sign";
     }
@@ -549,11 +577,11 @@ abstract class DecredWalletBase
     if (addr == "") {
       throw "unable to get an address from unsynced wallet";
     }
-    return libdcrwallet.signMessageAsync(walletInfo.name, message, addr, _password);
+    return await _libwallet.signMessage(walletInfo.name, message, addr, _password);
   }
 
-  List<Unspent> unspents() {
-    final res = libdcrwallet.listUnspents(walletInfo.name);
+  Future<void> fetchUnspents() async {
+    final res = await _libwallet.listUnspents(walletInfo.name);
     final decoded = json.decode(res);
     var unspents = <Unspent>[];
     for (final d in decoded) {
@@ -567,8 +595,12 @@ abstract class DecredWalletBase
       utxo.isChange = d["ischange"] ?? false;
       unspents.add(utxo);
     }
-    this.updateUnspents(unspents);
-    return unspents;
+    _unspents = unspents;
+  }
+
+  List<Unspent> unspents() {
+    this.updateUnspents(_unspents);
+    return _unspents;
   }
 
   void updateUnspents(List<Unspent> unspentCoins) {
@@ -633,8 +665,8 @@ abstract class DecredWalletBase
 
   // walletBirthdayBlockHeight checks if the wallet birthday is set and returns
   // it. Returns -1 if not.
-  int walletBirthdayBlockHeight() {
-    final res = libdcrwallet.birthState(walletInfo.name);
+  Future<int> walletBirthdayBlockHeight() async {
+    final res = await _libwallet.birthState(walletInfo.name);
     final decoded = json.decode(res);
     // Having these values set indicates that sync has not reached the birthday
     // yet, so no birthday is set.
@@ -644,13 +676,13 @@ abstract class DecredWalletBase
     return decoded["height"] ?? 0;
   }
 
-  Future<bool> verifyMessage(String message, String signature, {String? address = null}) {
+  Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {
     var addr = address;
     if (addr == null) {
       throw "an address is required to verify message";
     }
     return () async {
-      final verified = libdcrwallet.verifyMessage(walletInfo.name, message, addr, signature);
+      final verified = await _libwallet.verifyMessage(walletInfo.name, message, addr, signature);
       if (verified == "true") {
         return true;
       }
