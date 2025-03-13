@@ -79,7 +79,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.ledgerViewModel,
     this.unspentCoinsListViewModel,
     this.feesViewModel, {
-    this.coinTypeToSpendFrom = UnspentCoinType.any,
+    this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
         selectedCryptoCurrency = appStore.wallet!.currency,
@@ -104,7 +104,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   ObservableList<Output> outputs;
 
-  final UnspentCoinType coinTypeToSpendFrom;
+  @observable
+  UnspentCoinType coinTypeToSpendFrom;
 
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
@@ -125,6 +126,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void clearOutputs() {
     outputs.clear();
     addOutput();
+  }
+
+  @action
+  void setAllowMwebCoins(bool allow) {
+    if (wallet.type == WalletType.litecoin) {
+      coinTypeToSpendFrom = allow ? UnspentCoinType.any : UnspentCoinType.nonMweb;
+    }
   }
 
   @computed
