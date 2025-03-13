@@ -304,6 +304,7 @@
   "exchange_result_write_down_ID": "*Vui lòng sao chép hoặc ghi lại ID hiển thị ở trên.",
   "exchange_result_write_down_trade_id": "Vui lòng sao chép hoặc ghi lại ID giao dịch để tiếp tục.",
   "exchange_sync_alert_content": "Vui lòng chờ cho đến khi ví của bạn được đồng bộ hóa",
+  "exchange_trade_result_confirm": "Bằng cách nhấn gửi từ ví bánh, bạn sẽ gửi ${fetchingLabel} ${from} từ ví của bạn có tên là ${walletName} đến địa chỉ được hiển thị bên dưới. Hoặc bạn có thể gửi từ ví bên ngoài của mình đến địa chỉ / Mã QR trên trang gửi từ chi tiết ví bên ngoài. \n\n Vui lòng nhấn một trong hai nút để tiếp tục hoặc quay lại để thay đổi số tiền.",
   "expired": "Đã hết hạn",
   "expires": "Hết hạn",
   "expiresOn": "Hết hạn vào",

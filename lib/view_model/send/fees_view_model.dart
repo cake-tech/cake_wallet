@@ -126,7 +126,11 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       _settingsStore.priority[wallet.type] = priority;
 
   bool showAlertForCustomFeeRate() {
-    if (wallet.type != WalletType.bitcoin) {
+    if (wallet.type != WalletType.bitcoin || isLowFee) {
+      return false;
+    }
+
+    if (transactionPriority != bitcoinTransactionPriorityCustom) {
       return false;
     }
 

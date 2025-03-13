@@ -308,11 +308,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                 ),
               ),
-              if (sendViewModel.hasFees)
+              if (sendViewModel.feesViewModel.hasFees)
                 Observer(
                   builder: (_) => GestureDetector(
                     key: ValueKey('send_page_select_fee_priority_button_key'),
-                    onTap: sendViewModel.hasFeesPriority
+                    onTap: sendViewModel.feesViewModel.hasFeesPriority
                         ? () => pickTransactionPriority(context)
                         : () {},
                     child: Container(

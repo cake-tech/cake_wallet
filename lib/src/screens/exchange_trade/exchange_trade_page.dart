@@ -30,8 +30,7 @@ void showInformation(
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
-      ? S.current.exchange_result_confirm(
-          trade.amount, trade.from.toString(), walletName) +
+      ? S.current.exchange_trade_result_confirm(trade.amount, trade.from.toString(), walletName) +
         exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
           trade.amount, trade.from.toString()) +
