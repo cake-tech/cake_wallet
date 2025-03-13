@@ -26,6 +26,8 @@ class SupportChatPage extends BasePage {
               secureStorage,
               supportUrl: supportViewModel.fetchUrl(authToken: snapshot.data!),
               appVersion: supportViewModel.appVersion,
+              fiatApiMode: supportViewModel.fiatApiMode,
+              walletType: supportViewModel.walletType,
             );
           return Container();
         },
