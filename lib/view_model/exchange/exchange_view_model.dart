@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -184,6 +185,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         SwapTradeExchangeProvider(),
         LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
+        XOSwapExchangeProvider(),
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];

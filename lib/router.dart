@@ -772,7 +772,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.nftDetailsPage:
       return MaterialPageRoute<void>(
         builder: (_) => NFTDetailsPage(
-          nftAsset: settings.arguments as NFTAssetModel,
+          arguments: settings.arguments as NFTDetailsPageArguments,
           dashboardViewModel: getIt.get<DashboardViewModel>(),
         ),
       );
