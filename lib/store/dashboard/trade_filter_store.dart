@@ -20,7 +20,7 @@ abstract class TradeFilterStoreBase with Store {
         displayThorChain = true,
         displayLetsExchange = true,
         displayStealthEx = true,
-        displayXOSwap = true;
+        displayXOSwap = true,
         displaySwapTrade = true;
 
   @observable
@@ -179,7 +179,7 @@ abstract class TradeFilterStoreBase with Store {
                 (displayLetsExchange &&
                     item.trade.provider == ExchangeProviderDescription.letsExchange) ||
                 (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx) ||
-                (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap)) ||
+                (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap) ||
                 (displaySwapTrade && item.trade.provider == ExchangeProviderDescription.swapTrade))
             .toList()
         : _trades;
