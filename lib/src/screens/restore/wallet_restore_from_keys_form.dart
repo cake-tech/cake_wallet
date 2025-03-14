@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,8 @@ import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/services.dart';
 
-class WalletRestoreFromKeysFrom extends StatefulWidget {
-  WalletRestoreFromKeysFrom({
+class WalletRestoreFromKeysForm extends StatefulWidget {
+  WalletRestoreFromKeysForm({
     required this.walletRestoreViewModel,
     required this.onPrivateKeyChange,
     required this.onViewKeyEntered,
@@ -19,6 +20,7 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
     required this.onHeightOrDateEntered,
     required this.displayWalletPassword,
     required this.onRepeatedPasswordChange,
+    this.restoredWallet,
     this.onPasswordChange,
     Key? key,
   }) : super(key: key);
@@ -29,23 +31,32 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
   final void Function(bool)? onViewKeyEntered;
   final bool displayPrivateKeyField;
   final bool displayWalletPassword;
+  final RestoredWallet? restoredWallet;
   final void Function(String)? onPasswordChange;
   final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromKeysFromState createState() =>
-      WalletRestoreFromKeysFromState(displayWalletPassword: displayWalletPassword);
+  WalletRestoreFromKeysFormState createState() =>
+      WalletRestoreFromKeysFormState(displayWalletPassword: displayWalletPassword, restoredWallet: restoredWallet);
 }
 
-class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
-  WalletRestoreFromKeysFromState({required bool displayWalletPassword})
+class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
+  WalletRestoreFromKeysFormState({required bool displayWalletPassword, RestoredWallet? restoredWallet})
       : formKey = GlobalKey<FormState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
         nameController = TextEditingController(),
-        addressController = TextEditingController(),
-        viewKeyController = TextEditingController(),
-        spendKeyController = TextEditingController(),
-        privateKeyController = TextEditingController(),
+        addressController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.address)
+            : TextEditingController(),
+        viewKeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.viewKey)
+            : TextEditingController(),
+        spendKeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.spendKey)
+            : TextEditingController(),
+        privateKeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.privateKey)
+            : TextEditingController(),
         nameTextEditingController = TextEditingController(),
         passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
         repeatedPasswordTextEditingController = displayWalletPassword ? TextEditingController() : null;
@@ -81,6 +92,12 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
         widget.onHeightOrDateEntered(true);
       }
       widget.onPrivateKeyChange?.call(privateKeyController.text);
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.restoredWallet?.height != null) {
+        blockchainHeightKey.currentState?.restoreHeightController.text = widget.restoredWallet!.height.toString();
+      }
     });
 
     viewKeyController.addListener(() {
