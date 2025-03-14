@@ -53,7 +53,7 @@ class MeldBuyProvider extends BuyProvider {
 
   @override
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final params = {'fiatCurrencies': fiatCurrency, 'statuses': 'LIVE,RECENTLY_ADDED,BUILDING'};
 
     final path = '$_providersProperties$_paymentMethodsPath';
