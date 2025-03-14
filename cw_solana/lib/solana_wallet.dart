@@ -305,7 +305,7 @@ abstract class SolanaWalletBase
     for (var token in tokenKeys) {
       if (token is SPLToken) {
         final tokenTxs = await _client.getSPLTokenTransfers(
-          address: token.mintAddress,
+          mintAddress: token.mintAddress,
           splTokenSymbol: token.symbol,
           splTokenDecimal: token.decimal,
           privateKey: _solanaPrivateKey,

@@ -4,12 +4,12 @@ import 'dart:math' as math;
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/solana_rpc_http_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
-import 'package:cw_solana/solana_rpc_service.dart';
 import 'package:cw_solana/spl_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:on_chain/solana/solana.dart';
@@ -346,7 +346,7 @@ class SolanaWalletClient {
   }
 
   Future<List<SolanaTransactionModel>> getSPLTokenTransfers({
-    required String address,
+    required String mintAddress,
     required String splTokenSymbol,
     required int splTokenDecimal,
     required SolanaPrivateKey privateKey,
@@ -356,7 +356,7 @@ class SolanaWalletClient {
     try {
       associatedTokenAccount = await _getOrCreateAssociatedTokenAccount(
         payerPrivateKey: privateKey,
-        mintAddress: SolAddress(address),
+        mintAddress: SolAddress(mintAddress),
         ownerAddress: ownerWalletAddress,
         shouldCreateATA: false,
       );
@@ -498,7 +498,7 @@ class SolanaWalletClient {
     final instructions = [
       SPLTokenProgram.transferChecked(
         layout: SPLTokenTransferCheckedLayout(
-          amount: BigInt.from(123456455345234234),
+          amount: BigInt.from(amount),
           decimals: tokenDecimals,
         ),
         mint: mintAddress,

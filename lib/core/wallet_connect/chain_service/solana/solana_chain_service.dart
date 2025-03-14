@@ -10,8 +10,8 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_w
 import 'package:cake_wallet/core/wallet_connect/models/connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
+import 'package:cw_core/solana_rpc_http_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_solana/solana_rpc_service.dart';
 import 'package:on_chain/solana/solana.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import '../chain_service.dart';
@@ -111,16 +111,14 @@ class SolanaChainServiceImpl implements ChainService {
 
       final message = SolanaTransactionUtils.deserializeMessageLegacy(transactionBytes);
 
-      ownerPrivateKey!.sign(message.serialize());
+      final sign = ownerPrivateKey!.sign(message.serialize());
 
       final signature = solanaProvider.request(
         SolanaRPCSendTransaction(
-          encodedTransaction: message.serializeHex(),
+          encodedTransaction: Base58Encoder.encode(sign),
           commitment: Commitment.confirmed,
         ),
       );
-
-      printV(signature);
 
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
