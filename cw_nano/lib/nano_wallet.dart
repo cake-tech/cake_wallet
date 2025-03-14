@@ -34,9 +34,8 @@ part 'nano_wallet.g.dart';
 
 class NanoWallet = NanoWalletBase with _$NanoWallet;
 
-abstract class NanoWalletBase
-    extends WalletBase<NanoBalance, NanoTransactionHistory, NanoTransactionInfo>
-    with Store, WalletKeysFile {
+abstract class NanoWalletBase extends WalletBase<NanoBalance, NanoTransactionHistory,
+    NanoTransactionInfo, NanoWalletAddresses> with Store, WalletKeysFile {
   NanoWalletBase({
     required WalletInfo walletInfo,
     required String mnemonic,
@@ -144,7 +143,7 @@ abstract class NanoWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0; // always 0 :)
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async => 0; // always 0 :)
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
