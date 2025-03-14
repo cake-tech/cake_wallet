@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Skopiuj lub zanotuj identyfikator transakcji pokazany powyżej.",
   "exchange_result_write_down_trade_id": "Skopiuj lub zanotuj identyfikator transakcji (ID), aby kontynuować.",
   "exchange_sync_alert_content": "Poczekaj, aż portfel zostanie zsynchronizowany",
+  "exchange_trade_result_confirm": "Naciskając wyślij z portfela ciasta, wyślesz ${fetchingLabel} ${from} z portfela o nazwie ${walletName} na adres pokazany poniżej. Lub możesz wysłać z portfela zewnętrznego na adres / qr kod na stronie Wyślij ze strony szczegółów portfela zewnętrznego. \n\n naciśnij którykolwiek z przycisków, aby kontynuować lub wróć, aby zmienić kwoty.",
   "expired": "Przedawniony",
   "expires": "Wygasa",
   "expiresOn": "Upływa w dniu",
@@ -694,6 +695,8 @@
   "send_error_minimum_value": "Minimalna wartość to 0,01",
   "send_estimated_fee": "Szacowana opłata:",
   "send_fee": "Opłata:",
+  "send_from_cake_wallet": "Wyślij z portfela ciasta",
+  "send_from_external_wallet": "Wyślij z portfela zewnętrznego",
   "send_name": "Imię",
   "send_new": "Nowy",
   "send_payment_id": "Identyfikator płatności (opcjonalny)",
@@ -1008,6 +1011,7 @@
   "you_now_have_debit_card": "Masz teraz kartę debetową",
   "you_pay": "Płacisz",
   "you_will_get": "Konwertuj na",
+  "you_will_receive_estimated_amount": "Otrzymasz(oszacowane )",
   "you_will_send": "Konwertuj z",
   "yy": "RR"
 }

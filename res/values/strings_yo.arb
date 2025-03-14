@@ -309,6 +309,7 @@
   "exchange_result_write_down_ID": "*Ẹ jọ̀wọ́, ṣẹ̀dà àmì ìdánimọ̀ yín tó ṣàfihàn òun lókè.",
   "exchange_result_write_down_trade_id": "Ẹ jọ̀wọ́, kọ àmì ìdánimọ̀ pàṣípààrọ̀ sílẹ̀ kí tẹ̀síwájú.",
   "exchange_sync_alert_content": "Ẹ jọ̀wọ́ dúró kí a ti múdọ́gba àpamọ́wọ́ yín",
+  "exchange_trade_result_confirm": "Nipa titẹ-titẹ lati apamọwọ akara oyinbo, iwọ yoo firanṣẹ ${fetchingLabel} ${from} lati apamọwọ rẹ ti a pe ni ${walletName} si adirẹsi ti o han ni isalẹ. Tabi o le firanṣẹ lati apamọwọ ti ita rẹ si adirẹsi / Kọlẹ oju-iwe lori Firanṣẹ lati oju opo wẹẹbu ita. \n\n Jọwọ tẹ awọn bọtini lati tẹsiwaju lati yi awọn oye silẹ.",
   "expired": "Kíkú",
   "expires": "Ó parí",
   "expiresOn": "Ipari lori",
@@ -695,6 +696,8 @@
   "send_error_minimum_value": "Ránṣẹ́ owó kò kéré dé 0.01",
   "send_estimated_fee": "Iye àfikún l'a fojú díwọ̀n:",
   "send_fee": "Owó àfikún:",
+  "send_from_cake_wallet": "Firanṣẹ lati apamọwọ akara oyinbo",
+  "send_from_external_wallet": "Firanṣẹ lati apamọwọ ita",
   "send_name": "Orúkọ",
   "send_new": "Títun",
   "send_payment_id": "Àmì ìdánimọ̀ àránṣẹ́ (ìyàn nìyí)",
@@ -1009,6 +1012,7 @@
   "you_now_have_debit_card": "Ẹ ni káàdì ìrajà lọ́wọ́lọ́wọ́",
   "you_pay": "Ẹ sàn",
   "you_will_get": "Ṣe pàṣípààrọ̀ sí",
+  "you_will_receive_estimated_amount": "Iwọ yoo gba ( excimated )",
   "you_will_send": "Ṣe pàṣípààrọ̀ láti",
   "yy": "Ọd"
 }

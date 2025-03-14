@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "* يرجى نسخ أو كتابة معرف هويتك الأعلى لحفظة.",
   "exchange_result_write_down_trade_id": "يرجى نسخ أو كتابة معرّف العملية للمتابعة.",
   "exchange_sync_alert_content": "يرجى الانتظار حتى تتم مزامنة محفظتك",
+  "exchange_trade_result_confirm": "بالضغط على إرسال من Cake Wallet ، ستقوم بإرسال ${fetchingLabel} ${from} من محفظتك التي تسمى ${walletName} إلى العنوان الموضح أدناه. أو يمكنك إرسالها من محفظتك الخارجية إلى العنوان / QR رمز الإرسال من صفحة تفاصيل المحفظة الخارجية. \n\n يرجى الضغط على أي من الأزرار للمتابعة أو العودة لتغيير المبالغ.",
   "expired": "منتهي الصلاحية",
   "expires": "تنتهي",
   "expiresOn": "ﻲﻓ ﻪﺘﻴﺣﻼ﻿ﺻ ﻲﻬﺘﻨﺗ",
@@ -694,6 +695,8 @@
   "send_error_minimum_value": "الحد الأدنى لقيمة المبلغ هو 0.01",
   "send_estimated_fee": "الرسوم المقدرة:",
   "send_fee": "الرسوم:",
+  "send_from_cake_wallet": "أرسل من محفظة الكيك",
+  "send_from_external_wallet": "أرسل من محفظة خارجية",
   "send_name": "الأسم",
   "send_new": "جديد",
   "send_payment_id": "معرف عملية الدفع (اختياري)",
@@ -1008,6 +1011,7 @@
   "you_now_have_debit_card": "لديك الآن بطاقة ائتمان",
   "you_pay": "انت تدفع",
   "you_will_get": "حول الى",
+  "you_will_receive_estimated_amount": "سوف تتلقى(ooded )",
   "you_will_send": "تحويل من",
   "yy": "YY"
 }

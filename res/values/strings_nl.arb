@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Kopieer of noteer uw hierboven getoonde ID.",
   "exchange_result_write_down_trade_id": "Kopieer of noteer de handels-ID om door te gaan.",
   "exchange_sync_alert_content": "Wacht tot uw portemonnee is gesynchroniseerd",
+  "exchange_trade_result_confirm": "Door te drukken op verzenden vanaf cake -portemonnee, verzendt u ${fetchingLabel} ${from} vanuit uw portemonnee genaamd ${walletName} naar het hieronder getoonde adres. Of u kunt van uw externe portemonnee verzenden naar het adres / QR -code op de pagina Verzenden van externe portemonnee -details. \n\n Druk op een van de knoppen om door te gaan of terug te gaan om de bedragen te wijzigen.",
   "expired": "Verlopen",
   "expires": "Verloopt",
   "expiresOn": "Verloopt op",
@@ -694,6 +695,8 @@
   "send_error_minimum_value": "Minimale waarde van bedrag is 0,01",
   "send_estimated_fee": "Geschatte vergoeding:",
   "send_fee": "Vergoeding:",
+  "send_from_cake_wallet": "Stuur vanaf cake -portemonnee",
+  "send_from_external_wallet": "Stuur vanuit een externe portemonnee",
   "send_name": "Naam",
   "send_new": "Nieuw",
   "send_payment_id": "Betaling ID (facultatief)",
@@ -1009,6 +1012,7 @@
   "you_now_have_debit_card": "Je hebt nu een debetkaart",
   "you_pay": "U betaalt",
   "you_will_get": "Converteren naar",
+  "you_will_receive_estimated_amount": "U ontvangt(geschat )",
   "you_will_send": "Converteren van",
   "yy": "JJ"
 }

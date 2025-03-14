@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*कृपया ऊपर दिखाए गए अपने ID को कॉपी या लिख लें.",
   "exchange_result_write_down_trade_id": "जारी रखने के लिए कृपया ट्रेड ID की प्रतिलिपि बनाएँ या लिखें.",
   "exchange_sync_alert_content": "कृपया प्रतीक्षा करें जब तक आपका बटुआ सिंक्रनाइज़ नहीं किया जाता है",
+  "exchange_trade_result_confirm": "केक वॉलेट से भेजने से, आप नीचे दिखाए गए पते पर ${walletName} नामक अपने वॉलेट से ${fetchingLabel} ${from} भेजेंगे। या आप अपने बाहरी वॉलेट से एक्सटर्नल वॉलेट विवरण पृष्ठ से भेजने पर पते / QR कोड पर भेज सकते हैं। \n\n कृपया जारी रखने के लिए या वापस जाने के लिए वापस बटन में से किसी एक को दबाएं।",
   "expired": "समय सीमा समाप्त",
   "expires": "समाप्त हो जाता है",
   "expiresOn": "पर समय सीमा समाप्त",
@@ -696,6 +697,8 @@
   "send_error_minimum_value": "राशि का न्यूनतम मूल्य 0.01 है",
   "send_estimated_fee": "अनुमानित शुल्क:",
   "send_fee": "शुल्क:",
+  "send_from_cake_wallet": "केक वॉलेट से भेजें",
+  "send_from_external_wallet": "बाहरी बटुए से भेजें",
   "send_name": "नाम",
   "send_new": "नया",
   "send_payment_id": "भुगतान ID (ऐच्छिक)",
@@ -1010,6 +1013,7 @@
   "you_now_have_debit_card": "अब आपके पास डेबिट कार्ड है",
   "you_pay": "आप भुगतान करते हैं",
   "you_will_get": "में बदलें",
+  "you_will_receive_estimated_amount": "आपको#अनुमानित ( प्राप्त होगा)",
   "you_will_send": "से रूपांतरित करें",
   "yy": "वाईवाई"
 }

@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Mangyaring kopyahin o isulat ang inyong ID na ipinapakita sa itaas.",
   "exchange_result_write_down_trade_id": "Mangyaring kopyahin o isulat ang trade ID upang magpatuloy.",
   "exchange_sync_alert_content": "Mangyaring maghintay hanggang ang iyong wallet ay naka-synchronize",
+  "exchange_trade_result_confirm": "Sa pamamagitan ng pagpindot sa pagpapadala mula sa cake wallet, magpapadala ka ng ${fetchingLabel} ${from} mula sa iyong pitaka na tinatawag na ${walletName} sa address na ipinakita sa ibaba. O maaari kang magpadala mula sa iyong panlabas na pitaka sa address / qr code sa pagpapadala mula sa pahina ng Mga Detalye ng Panlabas na Wallet. \n\n Mangyaring pindutin ang alinman sa mga pindutan upang magpatuloy o bumalik upang baguhin ang mga halaga.",
   "expired": "Nag-expire na",
   "expires": "Mag-e-expire",
   "expiresOn": "Mag-e-expire sa",
@@ -694,6 +695,8 @@
   "send_error_minimum_value": "Ang minimum na halaga ay 0.01",
   "send_estimated_fee": "Tinatayang fee:",
   "send_fee": "Fee:",
+  "send_from_cake_wallet": "Magpadala mula sa cake wallet",
+  "send_from_external_wallet": "Magpadala mula sa panlabas na pitaka",
   "send_name": "Pangalan",
   "send_new": "Bago",
   "send_payment_id": "Payment ID (opsyonal)",
@@ -1008,6 +1011,7 @@
   "you_now_have_debit_card": "Mayroon ka na ngayong debit card",
   "you_pay": "Magbayad ka",
   "you_will_get": "I-convert sa",
+  "you_will_receive_estimated_amount": "Makakatanggap ka ng(tinantyang)",
   "you_will_send": "I-convert mula sa",
   "yy": "YY"
 }

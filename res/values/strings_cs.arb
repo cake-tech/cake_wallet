@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Prosím zkopírujte si, nebo zapište si výše uvedené ID.",
   "exchange_result_write_down_trade_id": "Prosím zkopírujte si, nebo zapište si ID transakce (trade ID) pro pokračování.",
   "exchange_sync_alert_content": "Prosím počkejte, dokud nebude vaše peněženka synchronizována",
+  "exchange_trade_result_confirm": "Stisknutím odeslání z peněženky Cake Wallet posíláte ${fetchingLabel} ${from} z peněženky nazvané ${walletName} na níže uvedenou adresu. Nebo můžete odeslat z externí peněženky na adresu / qr kód na stránce Odeslat ze stránky externích detailů peněženky. \n\n Stisknutím některého z tlačítek pokračujte nebo se vrátíte a změňte částky.",
   "expired": "Vypršelo",
   "expires": "Vyprší",
   "expiresOn": "Vyprší dne",
@@ -694,6 +695,8 @@
   "send_error_minimum_value": "Minimální částka je 0,01",
   "send_estimated_fee": "Odhadovaný poplatek:",
   "send_fee": "Poplatek:",
+  "send_from_cake_wallet": "Odeslat z peněženky",
+  "send_from_external_wallet": "Odeslat z externí peněženky",
   "send_name": "Název",
   "send_new": "Nová",
   "send_payment_id": "ID platby (nepovinné)",
@@ -1008,6 +1011,7 @@
   "you_now_have_debit_card": "Nyní máte debetní kartu",
   "you_pay": "Zaplatíte",
   "you_will_get": "Směnit na",
+  "you_will_receive_estimated_amount": "Obdržíte(odhadovaný )",
   "you_will_send": "Směnit z",
   "yy": "YY"
 }

@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*براہ کرم اوپر دکھائی گئی اپنی ID کاپی کریں یا لکھیں۔",
   "exchange_result_write_down_trade_id": "جاری رکھنے کے لیے براہ کرم تجارتی ID کاپی کریں یا لکھیں۔",
   "exchange_sync_alert_content": "براہ کرم اس وقت تک انتظار کریں جب تک آپ کا بٹوہ مطابقت پذیر نہ ہو جائے۔",
+  "exchange_trade_result_confirm": "کیک پرس سے بھیجیں دبانے سے ، آپ اپنے بٹوے سے ${fetchingLabel} ${from} کہتے ہیں ${walletName} نیچے دیئے گئے پتے پر بھیج رہے ہوں گے۔ یا آپ اپنے بیرونی پرس سے بیرونی والیٹ کی تفصیلات کے صفحے پر بھیجنے والے ایڈریس \n\n QR کوڈ پر بھیج سکتے ہیں۔",
   "expired": "میعاد ختم",
   "expires": "میعاد ختم",
   "expiresOn": "ﺩﺎﻌﯿﻣ ﯽﻣﺎﺘﺘﺧﺍ",
@@ -696,6 +697,8 @@
   "send_error_minimum_value": "رقم کی کم از کم قیمت 0.01 ہے۔",
   "send_estimated_fee": "تخمینی فیس:",
   "send_fee": "فیس:",
+  "send_from_cake_wallet": "کیک پرس سے بھیجیں",
+  "send_from_external_wallet": "بیرونی پرس سے بھیجیں",
   "send_name": "نام",
   "send_new": "نئی",
   "send_payment_id": "ادائیگی کی شناخت (اختیاری)",
@@ -1010,6 +1013,7 @@
   "you_now_have_debit_card": "اب آپ کے پاس ڈیبٹ کارڈ ہے۔",
   "you_pay": "تم ادا کرو",
   "you_will_get": "میں تبدیل کریں۔",
+  "you_will_receive_estimated_amount": "آپ(تخمینہ ) وصول کریں گے",
   "you_will_send": "سے تبدیل کریں۔",
   "yy": "YY"
 }

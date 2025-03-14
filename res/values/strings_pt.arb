@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Copie ou anote seu ID mostrado acima.",
   "exchange_result_write_down_trade_id": "Copie ou anote o ID da troca para continuar.",
   "exchange_sync_alert_content": "Por favor, espere até que sua carteira seja sincronizada",
+  "exchange_trade_result_confirm": "Ao pressionar o envio da carteira de bolo, você estará enviando ${fetchingLabel} ${from} da sua carteira chamada ${walletName} para o endereço mostrado abaixo. Ou você pode enviar da sua carteira externa para o endereço / QR Código na página Enviar da carteira externa. \n\n Pressione qualquer um dos botões para continuar ou voltar para alterar os valores.",
   "expired": "Expirada",
   "expires": "Expira",
   "expiresOn": "Expira em",
@@ -696,6 +697,8 @@
   "send_error_minimum_value": "O valor mínimo da quantia é 0,01",
   "send_estimated_fee": "Taxa estimada:",
   "send_fee": "Taxa:",
+  "send_from_cake_wallet": "Enviar da carteira de bolo",
+  "send_from_external_wallet": "Enviar da carteira externa",
   "send_name": "Nome",
   "send_new": "Novo",
   "send_payment_id": "ID de pagamento (opcional)",
@@ -1011,6 +1014,7 @@
   "you_now_have_debit_card": "Agora você tem um cartão de débito",
   "you_pay": "Você paga",
   "you_will_get": "Converter para",
+  "you_will_receive_estimated_amount": "Você receberá(estimado )",
   "you_will_send": "Converter de",
   "yy": "aa"
 }

@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*โปรดคัดลอกหรือเขียนรหัสของคุณด้านบน",
   "exchange_result_write_down_trade_id": "โปรดคัดลอกหรือบันทึก ID ของการซื้อขายเพื่อดำเนินการต่อไป",
   "exchange_sync_alert_content": "โปรดรอจนกว่ากระเป๋าของคุณจะถูกซิงค์",
+  "exchange_trade_result_confirm": "โดยการกดส่งจาก Cake Wallet คุณจะส่ง ${fetchingLabel} ${from} จากกระเป๋าเงินของคุณที่เรียกว่า ${walletName} ไปยังที่อยู่ที่แสดงด้านล่าง หรือคุณสามารถส่งจากกระเป๋าเงินภายนอกของคุณไปยังที่อยู่ / รหัส QR ในหน้าส่งจากรายละเอียดกระเป๋าเงินภายนอก \n\n โปรดกดปุ่มใดปุ่มหนึ่งเพื่อดำเนินการต่อหรือกลับไปเปลี่ยนจำนวนเงิน",
   "expired": "หมดอายุ",
   "expires": "หมดอายุ",
   "expiresOn": "หมดอายุวันที่",
@@ -694,6 +695,8 @@
   "send_error_minimum_value": "จำนวนขั้นต่ำของจำนวนเงินคือ 0.01",
   "send_estimated_fee": "ค่าธรรมเนียมที่คาดการณ์:",
   "send_fee": "ค่าธรรมเนียม:",
+  "send_from_cake_wallet": "ส่งจากกระเป๋าเงินเค้ก",
+  "send_from_external_wallet": "ส่งจากกระเป๋าเงินภายนอก",
   "send_name": "ชื่อ",
   "send_new": "ใหม่",
   "send_payment_id": "ID การชำระเงิน (ไม่จำเป็น)",
@@ -1008,6 +1011,7 @@
   "you_now_have_debit_card": "ขณะนี้คุณมีบัตรเดบิต",
   "you_pay": "คุณจ่าย",
   "you_will_get": "แปลงเป็น",
+  "you_will_receive_estimated_amount": "คุณจะได้รับ(โดยประมาณ )",
   "you_will_send": "แปลงจาก",
   "yy": "ปี"
 }

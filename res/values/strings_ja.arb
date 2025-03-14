@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*上記のIDをコピーまたは書き留めてください.",
   "exchange_result_write_down_trade_id": "続行するには、取引IDをコピーまたは書き留めてください.",
   "exchange_sync_alert_content": "ウォレットが同期されるまでお待ちください",
+  "exchange_trade_result_confirm": "Cake Walletから送信を押すことにより、${walletName}というウォレットから ${fetchingLabel} ${from}を以下に示すアドレスに送信します。または、外部ウォレットから外部ウォレットの詳細ページから送信のアドレス/ QRコードに送信することもできます。",
   "expired": "期限切れ",
   "expires": "Expires",
   "expiresOn": "有効期限は次のとおりです",
@@ -695,6 +696,8 @@
   "send_error_minimum_value": "金額の最小値は0.01です",
   "send_estimated_fee": "見積手数料:",
   "send_fee": "費用：",
+  "send_from_cake_wallet": "ケーキウォレットから送信します",
+  "send_from_external_wallet": "外部ウォレットから送信します",
   "send_name": "名前",
   "send_new": "新着",
   "send_payment_id": "支払いID (オプショナル)",
@@ -1009,6 +1012,7 @@
   "you_now_have_debit_card": "デビットカードができました",
   "you_pay": "あなたが支払う",
   "you_will_get": "に変換",
+  "you_will_receive_estimated_amount": "あなたは(推定)を受け取ります",
   "you_will_send": "から変換",
   "yy": "YY"
 }

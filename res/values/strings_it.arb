@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Copia o trascrivi il tuo ID mostrato in alto.",
   "exchange_result_write_down_trade_id": "Copia o trascrivi l'ID dello scambio per continuare.",
   "exchange_sync_alert_content": "Gentilmente aspetta che il tuo portafoglio venga sincronizzato",
+  "exchange_trade_result_confirm": "Premendo Invia dal portafoglio Cake, invierai ${fetchingLabel} ${from} dal tuo portafoglio chiamato ${walletName} all'indirizzo mostrato di seguito. Oppure puoi inviare dal tuo portafoglio esterno all'indirizzo / QR Codice sulla pagina Invio da Dettagli del portafoglio esterno. \n\n Premere uno dei pulsanti per continuare o tornare a modificare gli importi.",
   "expired": "Scaduto",
   "expires": "Scade",
   "expiresOn": "Scade il",
@@ -695,6 +696,8 @@
   "send_error_minimum_value": "L'importo minimo è 0.01",
   "send_estimated_fee": "Commissione stimata:",
   "send_fee": "Commissione:",
+  "send_from_cake_wallet": "Invia dal portafoglio Cake",
+  "send_from_external_wallet": "Invia dal portafoglio esterno",
   "send_name": "Nome",
   "send_new": "Nuovo",
   "send_payment_id": "ID Pagamento (opzionale)",
@@ -1010,6 +1013,7 @@
   "you_now_have_debit_card": "Ora hai una carta di debito",
   "you_pay": "Tu paghi",
   "you_will_get": "Converti a",
+  "you_will_receive_estimated_amount": "Riceverai(stimato )",
   "you_will_send": "Conveti da",
   "yy": "YY"
 }

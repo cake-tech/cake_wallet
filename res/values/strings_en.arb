@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Please copy or write down your ID shown above.",
   "exchange_result_write_down_trade_id": "Please copy or write down the trade ID to continue.",
   "exchange_sync_alert_content": "Please wait until your wallet is synchronized",
+  "exchange_trade_result_confirm": "By pressing send from cake wallet, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown below. Or you can send from your external wallet to the address/QR code on the send from external wallet details page.\n\nPlease press either of the buttons to continue or go back to change the amounts.",
   "expired": "Expired",
   "expires": "Expires",
   "expiresOn": "Expires on",
@@ -695,6 +696,8 @@
   "send_error_minimum_value": "Minimum value of amount is 0.01",
   "send_estimated_fee": "Estimated fee:",
   "send_fee": "Fee:",
+  "send_from_cake_wallet": "Send from Cake Wallet",
+  "send_from_external_wallet": "Send from External Wallet",
   "send_name": "Name",
   "send_new": "New",
   "send_payment_id": "Payment ID (optional)",
@@ -1009,6 +1012,7 @@
   "you_now_have_debit_card": "You now have a debit card",
   "you_pay": "You Pay",
   "you_will_get": "Convert to",
+  "you_will_receive_estimated_amount": "You will receive (estimated)",
   "you_will_send": "Convert from",
   "yy": "YY"
 }

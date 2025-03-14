@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Don Allah kwafi ko rubuta ID dake nuna sama.",
   "exchange_result_write_down_trade_id": "Da fatan za a kwafa ko rubuta ID ɗin ciniki don ci gaba.",
   "exchange_sync_alert_content": "Da fatan za a jira har sai an daidaita walat ɗin ku",
+  "exchange_trade_result_confirm": "Ta latsa Aika daga Wallet Caza, zaku aika ${fetchingLabel} ${from} daga walat ɗinku da ake kira ${walletName} zuwa adireshin da aka nuna a ƙasa. Ko zaka iya aika daga walat na waje zuwa adireshin / QR Code a kan Shafin Wallake Daga Shafin Tallar waje. \n\n Latsa don Allah a danna Duk da haka.",
   "expired": "Karewa",
   "expires": "Ya ƙare",
   "expiresOn": "Yana ƙarewa",
@@ -696,6 +697,8 @@
   "send_error_minimum_value": "Mafi ƙarancin ƙimar adadin shine 0.01",
   "send_estimated_fee": "Ƙimar kuɗi:",
   "send_fee": "Kudin:",
+  "send_from_cake_wallet": "Aika daga Wallet Caza",
+  "send_from_external_wallet": "Aika daga walat na waje",
   "send_name": "Sunan",
   "send_new": "Sabon",
   "send_payment_id": "ID na biyan kuɗi (optional)",
@@ -1010,6 +1013,7 @@
   "you_now_have_debit_card": "Yanzu kana da katin zare kudi",
   "you_pay": "Ka Bayar",
   "you_will_get": "Maida zuwa",
+  "you_will_receive_estimated_amount": "Za ku (karɓi )",
   "you_will_send": "Maida daga",
   "yy": "YY"
 }

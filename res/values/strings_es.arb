@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Copie o escriba su identificación que se muestra arriba.",
   "exchange_result_write_down_trade_id": "Por favor, copia o escribe el ID.",
   "exchange_sync_alert_content": "Espere hasta que su billetera esté sincronizada",
+  "exchange_trade_result_confirm": "Al presionar el envío de la billetera de la torta, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra a continuación. O puede enviar desde su billetera externa a la dirección / Código QR en la página Enviar desde la página Detalles de la billetera externa. \n\n Por favor presione cualquiera de los botones para continuar o regrese para cambiar las cantidades.",
   "expired": "Muerto",
   "expires": "Caduca",
   "expiresOn": "Expira el",
@@ -695,6 +696,8 @@
   "send_error_minimum_value": "El valor mínimo de la cantidad es 0.01",
   "send_estimated_fee": "Tarifa estimada:",
   "send_fee": "Cuota:",
+  "send_from_cake_wallet": "Enviar desde la billetera de pastel",
+  "send_from_external_wallet": "Enviar desde la billetera externa",
   "send_name": "Nombre",
   "send_new": "Nuevo",
   "send_payment_id": "ID de pago (opcional)",
@@ -1009,6 +1012,7 @@
   "you_now_have_debit_card": "Ahora tienes una tarjeta de débito",
   "you_pay": "Tú pagas",
   "you_will_get": "Convertir a",
+  "you_will_receive_estimated_amount": "Recibirá(estimado )",
   "you_will_send": "Convertir de",
   "yy": "YY"
 }

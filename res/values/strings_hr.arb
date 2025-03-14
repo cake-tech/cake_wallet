@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Molimo kopirajte ili zapišite svoj ID prikazan ispod.",
   "exchange_result_write_down_trade_id": "Molimo kopirajte ili zapišite transakcijski ID za nastavak.",
   "exchange_sync_alert_content": "Molimo pričekajte dok se Vaš novčanik ne sinkronizira.",
+  "exchange_trade_result_confirm": "Pritiskom na WALLET WALLET, šaljet ćete ${fetchingLabel} ${from} iz vašeg novčanika nazvanu ${walletName} na adresu prikazanu u nastavku. Ili možete poslati iz svog vanjskog novčanika na adresu / QR kôd na stranici Slanje s Detalji vanjskih novčanika. \n\n Pritisnite bilo koji od gumba da biste nastavili ili se vratili da biste promijenili količine.",
   "expired": "Isteklo",
   "expires": "Ističe",
   "expiresOn": "Istječe",
@@ -694,6 +695,8 @@
   "send_error_minimum_value": "Minimalna vrijednost iznosa je 0.01",
   "send_estimated_fee": "Procijenjena naknada:",
   "send_fee": "Naknada:",
+  "send_from_cake_wallet": "Pošaljite iz novčanika",
+  "send_from_external_wallet": "Pošaljite iz vanjskog novčanika",
   "send_name": "Ime",
   "send_new": "Novi",
   "send_payment_id": "ID plaćanja (nije obvezno)",
@@ -1008,6 +1011,7 @@
   "you_now_have_debit_card": "Sada imate debitnu karticu",
   "you_pay": "Vi plaćate",
   "you_will_get": "Razmijeni u",
+  "you_will_receive_estimated_amount": "Primit ćete(procijenjeno )",
   "you_will_send": "Razmijeni iz",
   "yy": "GG"
 }

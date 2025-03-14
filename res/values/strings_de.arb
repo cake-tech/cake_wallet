@@ -308,6 +308,7 @@
   "exchange_result_write_down_ID": "*Bitte kopieren oder notieren Sie sich die oben gezeigte ID.",
   "exchange_result_write_down_trade_id": "Bitte kopieren oder notieren Sie die Handels-ID, um fortzufahren.",
   "exchange_sync_alert_content": "Bitte warten Sie, bis Ihre Wallet synchronisiert ist",
+  "exchange_trade_result_confirm": "Durch Drücken von Send von Cake Wallet senden Sie ${fetchingLabel} ${from} von Ihrer Brieftasche mit dem Namen ${walletName} an die unten gezeigte Adresse. Oder Sie können von Ihrem externen Brieftaschen an den Adresse \n\nqR auf der Seite \"Senden von externen Brieftaschen\" senden.",
   "expired": "Abgelaufen",
   "expires": "Läuft ab",
   "expiresOn": "Läuft aus am",
@@ -695,6 +696,8 @@
   "send_error_minimum_value": "Der Mindestbetrag ist 0,01",
   "send_estimated_fee": "Geschätzte Gebühr:",
   "send_fee": "Gebühr:",
+  "send_from_cake_wallet": "Senden Sie aus Kuchenbrieftasche",
+  "send_from_external_wallet": "Senden Sie aus der Außenschreibe",
   "send_name": "Name",
   "send_new": "Neu",
   "send_payment_id": "Zahlungs-ID (optional)",
@@ -1011,6 +1014,7 @@
   "you_now_have_debit_card": "Sie haben jetzt eine Debitkarte",
   "you_pay": "Sie bezahlen",
   "you_will_get": "Konvertieren zu",
+  "you_will_receive_estimated_amount": "Sie erhalten(geschätzt )",
   "you_will_send": "Konvertieren von",
   "yy": "YY"
 }
