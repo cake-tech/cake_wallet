@@ -192,6 +192,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.zano) {
         return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
+
+      if (_wallet.type == WalletType.decred) {
+        return decred!.formatterDecredAmountToDouble(amount: fee);
+      }
     } catch (e) {
       printV(e.toString());
     }

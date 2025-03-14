@@ -379,14 +379,14 @@ class Libwallet {
     await completer.future;
   }
 
-  Future<void> startSync({required String name, required String peers}) async {
+  Future<void> startSync(String walletName, String peers) async {
     if (_closed) throw StateError('Closed');
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
     _activeRequests[id] = completer;
     final req = {
       "method": "startsync",
-      "name": name,
+      "name": walletName,
       "peers": peers,
     };
     _commands.send((id, req));

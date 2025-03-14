@@ -595,6 +595,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return zano!.createZanoTransactionCredentials(
             outputs: outputs, priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.decred:
+        this.coinTypeToSpendFrom = UnspentCoinType.any;
         return decred!.createDecredTransactionCredentials(outputs, priority!);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
