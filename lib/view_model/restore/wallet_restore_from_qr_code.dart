@@ -44,6 +44,9 @@ class WalletRestoreFromQRCode {
     'zano': WalletType.zano,
     'zano-wallet': WalletType.zano,
     'zano_wallet': WalletType.zano,
+    'decred': WalletType.decred,
+    'decred-wallet': WalletType.decred,
+    'decred_wallet': WalletType.decred,
   };
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;

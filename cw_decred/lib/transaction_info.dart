@@ -35,7 +35,7 @@ class DecredTransactionInfo extends TransactionInfo {
 
   @override
   String? feeFormatted() =>
-      '${formatAmount(decredAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(WalletType.decred).title}';
+      '${formatAmount(decredAmountToString(amount: fee ?? 0))} ${walletTypeToCryptoCurrency(WalletType.decred).title}';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';

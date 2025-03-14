@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_decred/pending_transaction.dart';
@@ -71,6 +72,7 @@ abstract class DecredWalletBase
   final Libwallet _libwallet;
   final Function() _closeLibwallet;
   final idPrefix = "decred_";
+
   // TODO: Encrypt this.
   var _seed = "";
   var _pubkey = "";
@@ -363,6 +365,9 @@ abstract class DecredWalletBase
       }
       totalIn += unspent.value;
     });
+    if (ignoreInputs.length == unspentCoinsInfo.values.length) {
+      throw TransactionNoInputsException();
+    }
     final creds = credentials as DecredTransactionCredentials;
     var totalAmt = 0;
     var sendAll = false;
@@ -430,6 +435,8 @@ abstract class DecredWalletBase
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+    print("@@@@@@@");
+    print(amount);
     if (priority is DecredTransactionPriority) {
       final P2PKHOutputSize =
           36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
@@ -445,10 +452,18 @@ abstract class DecredWalletBase
       final P2PKHInputSize =
           TxInOverhead + 109; // TxInOverhead (57) + var int (1) + P2PKHSigScriptSize (108)
 
+      int inputsCount = 1;
+      if (amount != null) {
+        inputsCount += _unspents.where((e) {
+          amount = (amount!) - e.value;
+          return (amount!) > 0;
+        }).length;
+      }
+
       // Estimate using a transaction consuming three inputs and paying to one
       // address with change.
       return (this.feeRate(priority) / 1000).round() *
-          (MsgTxOverhead + P2PKHInputSize * 3 + P2PKHOutputSize * 2);
+          (MsgTxOverhead + P2PKHInputSize * inputsCount + P2PKHOutputSize * 2);
     }
     return 0;
   }
@@ -544,9 +559,24 @@ abstract class DecredWalletBase
   @override
   Future<void> updateBalance() async {
     final balanceMap = await _libwallet.balance(walletInfo.name);
+
+    var totalFrozen = 0;
+
+    unspentCoinsInfo.values.forEach((info) {
+      _unspents.forEach((element) {
+        if (element.hash == info.hash &&
+            element.vout == info.vout &&
+            info.isFrozen &&
+            element.value == info.value) {
+          totalFrozen += element.value;
+        }
+      });
+    });
+
     balance[CryptoCurrency.dcr] = DecredBalance(
       confirmed: balanceMap["confirmed"] ?? 0,
       unconfirmed: balanceMap["unconfirmed"] ?? 0,
+      frozen: totalFrozen,
     );
   }
 
@@ -561,7 +591,6 @@ abstract class DecredWalletBase
     if (File(newDirPath).existsSync()) {
       throw "wallet already exists at $newDirPath";
     }
-    ;
 
     await Directory(currentDirPath).rename(newDirPath);
   }

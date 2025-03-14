@@ -46,6 +46,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  blockchain_utils:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake-update-v2
+      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      url: "https://github.com/cake-tech/blockchain_utils"
+    source: git
+    version: "3.3.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -465,6 +474,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  on_chain:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: cake-update-v2
+      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
+      url: "https://github.com/cake-tech/on_chain.git"
+    source: git
+    version: "3.7.0"
   package_config:
     dependency: transitive
     description:
