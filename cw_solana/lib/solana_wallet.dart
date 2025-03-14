@@ -600,7 +600,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     );
   }
 
-  SolanaRPC? get solanaProvider => _client.getSolanaProvider;
+  SolanaProvider? get solanaProvider => _client.getSolanaProvider;
 
   @override
   String get password => _password;

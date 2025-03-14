@@ -83,7 +83,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   }
 
   Future<void> pickTransactionPriority(BuildContext context) async {
-    final items = priorityForWalletType(feesViewModel.walletType);
+    final items = priorityForWallet(feesViewModel.wallet);
     final selectedItem = items.indexOf(feesViewModel.transactionPriority);
     final customItemIndex = feesViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = feesViewModel.walletType == WalletType.bitcoin;
@@ -166,7 +166,6 @@ class TradeItemRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final hintTextColor = currentTheme == ThemeType.bright
         ? Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor
         : Colors.white.withAlpha(175);

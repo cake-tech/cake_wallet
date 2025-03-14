@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
@@ -15,7 +14,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:collection/collection.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:path_provider/path_provider.dart';
 
 class LitecoinWalletService extends WalletService<
@@ -38,17 +36,19 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
-    final String mnemonic;
-    switch (credentials.walletInfo?.derivationInfo?.derivationType) {
-      case DerivationType.bip39:
-        final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+    String? mnemonic = credentials.mnemonic;
+    if (mnemonic == null) {
+      switch (credentials.walletInfo?.derivationInfo?.derivationType) {
+        case DerivationType.bip39:
+          final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
-        mnemonic = credentials.mnemonic ?? await MnemonicBip39.generate(strength: strength);
-        break;
-      case DerivationType.electrum:
-      default:
-        mnemonic = await generateElectrumMnemonic();
-        break;
+          mnemonic = await MnemonicBip39.generate(strength: strength);
+          break;
+        case DerivationType.electrum:
+        default:
+          mnemonic = await generateElectrumMnemonic();
+          break;
+      }
     }
 
     final wallet = await LitecoinWalletBase.create(
@@ -181,7 +181,6 @@ class LitecoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       hdWallets: hdWallets,
     );
-    await wallet.save();
     await wallet.init();
     return wallet;
   }
@@ -194,10 +193,6 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
-      throw LitecoinMnemonicIsIncorrectException();
-    }
-
     final wallet = await LitecoinWalletBase.create(
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -206,7 +201,6 @@ class LitecoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    await wallet.save();
     await wallet.init();
     return wallet;
   }

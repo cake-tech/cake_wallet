@@ -36,7 +36,7 @@ class TronHTTPProvider implements TronServiceProvider {
             if (url.contains("trongrid")) 'TRON-PRO-API-KEY': secrets.tronGridApiKey,
             if (url.contains("nownodes")) 'api-key': secrets.tronNowNodesApiKey,
           },
-          body: params.body,
+          body: params.body(),
         )
         .timeout(timeout ?? defaultRequestTimeout);
     return params.toResponse(response.bodyBytes, response.statusCode);
