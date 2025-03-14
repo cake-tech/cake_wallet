@@ -330,8 +330,8 @@ abstract class DecredWalletBase
     try {
       syncStatus = ConnectingSyncStatus();
       await _libwallet.startSync(
-        name: walletInfo.name,
-        peers: persistantPeer == "default-spv-nodes" ? "" : persistantPeer,
+        walletInfo.name,
+        persistantPeer == "default-spv-nodes" ? "" : persistantPeer,
       );
       syncTimer = Timer.periodic(
           Duration(seconds: syncIntervalSyncing), (Timer t) => performBackgroundTasks());
@@ -447,7 +447,8 @@ abstract class DecredWalletBase
 
       // Estimate using a transaction consuming three inputs and paying to one
       // address with change.
-      return this.feeRate(priority) * (MsgTxOverhead + P2PKHInputSize * 3 + P2PKHOutputSize * 2);
+      return (this.feeRate(priority) / 1000).round() *
+          (MsgTxOverhead + P2PKHInputSize * 3 + P2PKHOutputSize * 2);
     }
     return 0;
   }
@@ -480,7 +481,7 @@ abstract class DecredWalletBase
         fee: fee,
         direction: direction,
         isPending: confs == 0,
-        date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: true),
+        date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: false),
         height: height,
         confirmations: confs,
         to: d["address"] ?? "",
