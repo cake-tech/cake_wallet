@@ -23,7 +23,6 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -577,6 +576,9 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+
+  @computed
+  bool get canSend => wallet.canSend();
 
   @observable
   bool hasSwapAction;

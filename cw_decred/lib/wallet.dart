@@ -693,4 +693,7 @@ abstract class DecredWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  bool canSend() => seed != null;
 }
