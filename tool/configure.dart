@@ -1330,7 +1330,6 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
-import 'package:solana/solana.dart';
 
 """;
   const solanaCWHeaders = """
@@ -1358,7 +1357,6 @@ abstract class Solana {
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
-  Ed25519HDKeyPair? getWalletKeyPair(WalletBase wallet);
 
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {

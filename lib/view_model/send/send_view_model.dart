@@ -1,7 +1,5 @@
-import 'package:cake_wallet/core/transaction_priority_label.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
-import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -19,6 +17,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -77,7 +76,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.contactListViewModel,
     this.transactionDescriptionBox,
     this.ledgerViewModel,
-    this.unspentCoinsListViewModel, {
+    this.unspentCoinsListViewModel,
+    this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -90,16 +90,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
         super(appStore: appStore) {
-    if (wallet.type == WalletType.bitcoin &&
-        _settingsStore.priority[wallet.type]!.title == bitcoinTransactionPriorityCustom.title) {
-      setTransactionPriority(bitcoinTransactionPriorityMedium);
-    }
-    final priority = _settingsStore.priority[wallet.type];
-    final priorities = priorityForWallet(wallet);
-    if (priorities.isNotEmpty && !priorities.contains(priority)) {
-      _settingsStore.priority[wallet.type] = priorities.first;
-    }
-
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
 
@@ -206,39 +196,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
-  TransactionPriority get transactionPriority {
-    final priority = _settingsStore.priority[wallet.type];
-
-    if (priority == null) {
-      throw Exception('Unexpected type ${wallet.type}');
-    }
-
-    return priority;
-  }
-
-  int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
-    if (wallet.type == WalletType.bitcoin) {
-      final customItem = priorities.firstWhereOrNull(
-        (element) => element.title == bitcoin!.getBitcoinTransactionPriorityCustom().title,
-      );
-
-      return customItem != null ? priorities.indexOf(customItem) : null;
-    }
-    return null;
-  }
-
-  int? get maxCustomFeeRate {
-    if (wallet.type == WalletType.bitcoin) {
-      return bitcoin!.getMaxCustomFeeRate(wallet);
-    }
-    return null;
-  }
-
-  @computed
-  int get customBitcoinFeeRate => _settingsStore.customBitcoinFeeRate;
-
-  void set customBitcoinFeeRate(int value) => _settingsStore.customBitcoinFeeRate = value;
-
   CryptoCurrency get currency => wallet.currency;
 
   Validator<String> get amountValidator =>
@@ -301,16 +258,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.bitcoinCash;
 
-  @computed
-  bool get hasFees => wallet.type != WalletType.nano && wallet.type != WalletType.banano;
-
-  @computed
-  bool get hasFeesPriority =>
-      wallet.type != WalletType.nano &&
-      wallet.type != WalletType.banano &&
-      wallet.type != WalletType.solana &&
-      wallet.type != WalletType.tron;
-
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
@@ -333,6 +280,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   final BalanceViewModel balanceViewModel;
   final ContactListViewModel contactListViewModel;
   final LedgerViewModel? ledgerViewModel;
+  final FeesViewModel feesViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 
@@ -542,10 +490,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  @action
-  void setTransactionPriority(TransactionPriority priority) =>
-      _settingsStore.priority[wallet.type] = priority;
-
   Object _credentials([ExchangeProvider? provider]) {
     final priority = _settingsStore.priority[wallet.type];
 
@@ -563,14 +507,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate: customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate: customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           // if it's an exchange flow then disable sending from mweb coins
           coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
         );
@@ -608,36 +552,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  String displayFeeRate(dynamic priority, int? customValue) {
-    final _priority = priority as TransactionPriority;
-
-    if (walletType == WalletType.bitcoin) {
-      final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return TransactionPriorityLabelLocalized(
-        bitcoin!.getTransactionPriorityWithLabel(_priority, rate, customRate: customValue),
-      ).toString();
-    }
-
-    if (isElectrumWallet) {
-      final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return TransactionPriorityLabelLocalized(
-        bitcoin!.getTransactionPriorityWithLabel(_priority, rate),
-      ).toString();
-    }
-
-    return priority.toString();
-  }
-
   bool _isEqualCurrency(String currency) =>
       wallet.balance.keys.any((e) => currency.toLowerCase() == e.title.toLowerCase());
 
-  TransactionPriority get bitcoinTransactionPriorityCustom =>
-      bitcoin!.getBitcoinTransactionPriorityCustom();
-
-  TransactionPriority get bitcoinTransactionPriorityMedium =>
-      bitcoin!.getBitcoinTransactionPriorityMedium();
-
-  @action
   void onClose() => _settingsStore.fiatCurrency = fiatFromSettings;
 
   @action

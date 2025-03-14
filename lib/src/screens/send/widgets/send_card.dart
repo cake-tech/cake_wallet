@@ -307,11 +307,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
                 ),
               ),
-              if (sendViewModel.hasFees)
+              if (sendViewModel.feesViewModel.hasFees)
                 Observer(
                   builder: (_) => GestureDetector(
                     key: ValueKey('send_page_select_fee_priority_button_key'),
-                    onTap: sendViewModel.hasFeesPriority
+                    onTap: sendViewModel.feesViewModel.hasFeesPriority
                         ? () => pickTransactionPriority(context)
                         : () {},
                     child: Container(
@@ -587,11 +587,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
   Future<void> pickTransactionPriority(BuildContext context) async {
     final items = priorityForWallet(sendViewModel.wallet);
-    final selectedItem = items.indexOf(sendViewModel.transactionPriority);
-    final customItemIndex = sendViewModel.getCustomPriorityIndex(items);
+    final selectedItem = items.indexOf(sendViewModel.feesViewModel.transactionPriority);
+    final customItemIndex = sendViewModel.feesViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
-    final maxCustomFeeRate = sendViewModel.maxCustomFeeRate?.toDouble();
-    double? customFeeRate = isBitcoinWallet ? sendViewModel.customBitcoinFeeRate.toDouble() : null;
+    final maxCustomFeeRate = sendViewModel.feesViewModel.maxCustomFeeRate?.toDouble();
+    double? customFeeRate =
+        isBitcoinWallet ? sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
 
     await showPopUp<void>(
       context: context,
@@ -602,7 +603,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             return Picker(
               items: items,
               displayItem: (TransactionPriority priority) =>
-                  sendViewModel.displayFeeRate(priority, customFeeRate?.round()),
+                  sendViewModel.feesViewModel.displayFeeRate(priority, customFeeRate?.round()),
               selectedAtIndex: selectedIdx,
               customItemIndex: customItemIndex,
               maxValue: maxCustomFeeRate,
@@ -613,7 +614,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
               sliderValue: customFeeRate,
               onSliderChanged: (double newValue) => setState(() => customFeeRate = newValue),
               onItemSelected: (TransactionPriority priority) {
-                sendViewModel.setTransactionPriority(priority);
+                sendViewModel.feesViewModel.setTransactionPriority(priority);
                 setState(() => selectedIdx = items.indexOf(priority));
               },
             );
@@ -621,7 +622,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         );
       },
     );
-    if (isBitcoinWallet) sendViewModel.customBitcoinFeeRate = customFeeRate!.round();
+    if (isBitcoinWallet) sendViewModel.feesViewModel.customBitcoinFeeRate = customFeeRate!.round();
   }
 
   void _presentPicker(BuildContext context) {

@@ -30,9 +30,9 @@ import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:solana/base58.dart';
-import 'package:solana/metaplex.dart' as metaplex;
-import 'package:solana/solana.dart';
+import 'package:on_chain/solana/solana.dart' hide Store;
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:blockchain_utils/blockchain_utils.dart';
 
 part 'solana_wallet.g.dart';
 
@@ -76,14 +76,6 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
   final String? _hexPrivateKey;
   final EncryptionFileUtils encryptionFileUtils;
 
-  // The Solana WalletPair
-  Ed25519HDKeyPair? _walletKeyPair;
-
-  Ed25519HDKeyPair? get walletKeyPair => _walletKeyPair;
-
-  // To access the privateKey bytes.
-  Ed25519HDKeyPairData? _keyPairData;
-
   late final SolanaWalletClient _client;
 
   @observable
@@ -107,29 +99,23 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
   final Completer<SharedPreferences> _sharedPrefs = Completer();
 
   @override
-  Ed25519HDKeyPairData get keys {
-    if (_keyPairData == null) {
-      return Ed25519HDKeyPairData([], publicKey: const Ed25519HDPublicKey([]));
-    }
+  Object get keys => throw UnimplementedError("keys");
 
-    return _keyPairData!;
-  }
+  late final SolanaPrivateKey _solanaPrivateKey;
+
+  late final SolanaPublicKey _solanaPublicKey;
+
+  SolanaPublicKey get solanaPublicKey => _solanaPublicKey;
+
+  SolanaPrivateKey get solanaPrivateKey => _solanaPrivateKey;
+
+  String get solanaAddress => _solanaPublicKey.toAddress().address;
 
   @override
   String? get seed => _mnemonic;
 
   @override
-  String get privateKey {
-    final privateKeyBytes = _keyPairData!.bytes;
-
-    final publicKeyBytes = _keyPairData!.publicKey.bytes;
-
-    final encodedBytes = privateKeyBytes + publicKeyBytes;
-
-    final privateKey = base58encode(encodedBytes);
-
-    return privateKey;
-  }
+  String get privateKey => _solanaPrivateKey.seedHex();
 
   @override
   WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
@@ -139,35 +125,47 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
 
     splTokensBox = await CakeHive.openBox<SPLToken>(boxName);
 
-    // Create WalletPair using either the mnemonic or the privateKey
-    _walletKeyPair = await getWalletPair(
+    // Create the privatekey using either the mnemonic or the privateKey
+    _solanaPrivateKey = await getPrivateKey(
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,
+      passphrase: passphrase,
     );
 
-    // Extract the keyPairData containing both the privateKey bytes and the publicKey hex.
-    _keyPairData = await _walletKeyPair!.extract();
+    // Extract the public key and wallet address
+    _solanaPublicKey = _solanaPrivateKey.publicKey();
 
-    walletInfo.address = _walletKeyPair!.address;
+    walletInfo.address = _solanaPublicKey.toAddress().address;
 
     await walletAddresses.init();
     await transactionHistory.init();
     await save();
   }
 
-  Future<Wallet> getWalletPair({String? mnemonic, String? privateKey}) async {
+  Future<SolanaPrivateKey> getPrivateKey({
+    String? mnemonic,
+    String? privateKey,
+    String? passphrase,
+  }) async {
     assert(mnemonic != null || privateKey != null);
 
     if (mnemonic != null) {
-      return Wallet.fromMnemonic(mnemonic, account: 0, change: 0);
+      final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+
+      // Derive a Solana private key from the seed
+      final bip44 = Bip44.fromSeed(seed, Bip44Coins.solana);
+
+      final childKey = bip44.deriveDefaultPath.change(Bip44Changes.chainExt);
+
+      return SolanaPrivateKey.fromSeed(childKey.privateKey.raw);
     }
 
     try {
-      final privateKeyBytes = base58decode(privateKey!);
-      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes.take(32).toList());
+      final keypairBytes = Base58Decoder.decode(privateKey!);
+      return SolanaPrivateKey.fromSeed(keypairBytes);
     } catch (_) {
       final privateKeyBytes = HEX.decode(privateKey!);
-      return await Wallet.fromPrivateKeyBytes(privateKey: privateKeyBytes);
+      return SolanaPrivateKey.fromBytes(privateKeyBytes);
     }
   }
 
@@ -205,7 +203,8 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
 
   Future<void> _getEstimatedFees() async {
     try {
-      estimatedFee = await _client.getEstimatedFee(_walletKeyPair!);
+      estimatedFee = await _client.getEstimatedFee(_solanaPublicKey, Commitment.confirmed);
+      printV(estimatedFee.toString());
     } catch (e) {
       estimatedFee = 0.0;
     }
@@ -273,7 +272,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
       tokenMint: tokenMint,
       tokenTitle: transactionCurrency.title,
       inputAmount: totalAmount,
-      ownerKeypair: _walletKeyPair!,
+      ownerPrivateKey: _solanaPrivateKey,
       tokenDecimals: transactionCurrency.decimals,
       destinationAddress: solCredentials.outputs.first.isParsedAddress
           ? solCredentials.outputs.first.extractedAddress!
@@ -290,9 +289,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
 
   /// Fetches the native SOL transactions linked to the wallet Public Key
   Future<void> _updateNativeSOLTransactions() async {
-    final address = Ed25519HDPublicKey.fromBase58(_walletKeyPair!.address);
-
-    final transactions = await _client.fetchTransactions(address);
+    final transactions = await _client.fetchTransactions(_solanaPublicKey.toAddress());
 
     await _addTransactionsToTransactionHistory(transactions);
   }
@@ -307,10 +304,10 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     for (var token in tokenKeys) {
       if (token is SPLToken) {
         final tokenTxs = await _client.getSPLTokenTransfers(
-          token.mintAddress,
-          token.symbol,
-          token.decimal,
-          _walletKeyPair!,
+          mintAddress: token.mintAddress,
+          splTokenSymbol: token.symbol,
+          splTokenDecimal: token.decimal,
+          privateKey: _solanaPrivateKey,
         );
 
         // splTokenTransactions.addAll(tokenTxs);
@@ -386,6 +383,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
         'mnemonic': _mnemonic,
         'private_key': _hexPrivateKey,
         'balance': balance[currency]!.toJSON(),
+        'passphrase': passphrase,
       });
 
   static Future<SolanaWallet> open({
@@ -413,8 +411,9 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -427,6 +426,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     return SolanaWallet(
       walletInfo: walletInfo,
       password: password,
+      passphrase: keysData.passphrase,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
       initialBalance: balance,
@@ -441,7 +441,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
   }
 
   Future<SolanaBalance> _fetchSOLBalance() async {
-    final balance = await _client.getBalance(_walletKeyPair!.address);
+    final balance = await _client.getBalance(solanaAddress);
 
     return SolanaBalance(balance);
   }
@@ -450,10 +450,9 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     for (var token in splTokensBox.values) {
       if (token.enabled) {
         try {
-          final tokenBalance =
-              await _client.getSplTokenBalance(token.mintAddress, _walletKeyPair!.address) ??
-                  balance[token] ??
-                  SolanaBalance(0.0);
+          final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
+              balance[token] ??
+              SolanaBalance(0.0);
           balance[token] = tokenBalance;
         } catch (e) {
           printV('Error fetching spl token (${token.symbol}) balance ${e.toString()}');
@@ -481,10 +480,9 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     await splTokensBox.put(token.mintAddress, token);
 
     if (token.enabled) {
-      final tokenBalance =
-          await _client.getSplTokenBalance(token.mintAddress, _walletKeyPair!.address) ??
-              balance[token] ??
-              SolanaBalance(0.0);
+      final tokenBalance = await _client.getSplTokenBalance(token.mintAddress, solanaAddress) ??
+          balance[token] ??
+          SolanaBalance(0.0);
 
       balance[token] = tokenBalance;
     } else {
@@ -506,37 +504,10 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
   }
 
   Future<SPLToken?> getSPLToken(String mintAddress) async {
-    // Convert SPL token mint address to public key
-    final Ed25519HDPublicKey mintPublicKey;
     try {
-      mintPublicKey = Ed25519HDPublicKey.fromBase58(mintAddress);
-    } catch (_) {
-      return null;
-    }
-
-    // Fetch token's metadata account
-    try {
-      final token = await solanaClient!.rpcClient.getMetadata(mint: mintPublicKey);
-
-      if (token == null) {
-        return null;
-      }
-
-      String? iconPath;
-      try {
-        iconPath = await _client.getIconImageFromTokenUri(token.uri);
-      } catch (_) {}
-
-      String filteredTokenSymbol = token.symbol.replaceFirst(RegExp('^\\\$'), '');
-
-      return SPLToken.fromMetadata(
-        name: token.name,
-        mint: token.mint,
-        symbol: filteredTokenSymbol,
-        mintAddress: mintAddress,
-        iconPath: iconPath,
-      );
-    } catch (e) {
+      return await _client.fetchSPLTokenInfo(mintAddress);
+    } catch (e, s) {
+      printV('Error fetching token: ${e.toString()}, ${s.toString()}');
       return null;
     }
   }
@@ -581,7 +552,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     final messageBytes = utf8.encode(message);
 
     // Sign the message bytes with the wallet's private key
-    final signature = (await _walletKeyPair!.sign(messageBytes)).toString();
+    final signature = (_solanaPrivateKey.sign(messageBytes)).toString();
 
     return HEX.encode(utf8.encode(signature)).toUpperCase();
   }
@@ -595,7 +566,7 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
       final base58EncodedPublicKeyString = match.group(2)!;
       final sigBytes = bytesString.split(', ').map(int.parse).toList();
 
-      List<int> pubKeyBytes = base58decode(base58EncodedPublicKeyString);
+      List<int> pubKeyBytes = SolAddrDecoder().decodeAddr(base58EncodedPublicKeyString);
 
       return [sigBytes, pubKeyBytes];
     } else {
@@ -618,19 +589,18 @@ abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransact
     }
 
     // make sure the address derived from the public key provided matches the one we expect
-    final pub = Ed25519HDPublicKey(pubKeyBytes);
-    if (address != pub.toBase58()) {
+    final pub = SolanaPublicKey.fromBytes(pubKeyBytes);
+    if (address != pub.toAddress().address) {
       return false;
     }
 
-    return await verifySignature(
+    return pub.verify(
       message: messageBytes,
       signature: sigBytes,
-      publicKey: Ed25519HDPublicKey(pubKeyBytes),
     );
   }
 
-  SolanaClient? get solanaClient => _client.getSolanaClient;
+  SolanaRPC? get solanaProvider => _client.getSolanaProvider;
 
   @override
   String get password => _password;

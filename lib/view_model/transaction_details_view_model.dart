@@ -574,11 +574,11 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
 
     final priorities = priorityForWallet(wallet);
-    final selectedItem = priorities.indexOf(sendViewModel.transactionPriority);
+    final selectedItem = priorities.indexOf(sendViewModel.feesViewModel.transactionPriority);
     final customItem = priorities.firstWhereOrNull(
-        (element) => element.title == sendViewModel.bitcoinTransactionPriorityCustom.title);
+        (element) => element == sendViewModel.feesViewModel.bitcoinTransactionPriorityCustom);
     final customItemIndex = customItem != null ? priorities.indexOf(customItem) : null;
-    final maxCustomFeeRate = sendViewModel.maxCustomFeeRate?.toDouble();
+    final maxCustomFeeRate = sendViewModel.feesViewModel.maxCustomFeeRate?.toDouble();
 
     RBFListItems.add(
       StandardPickerListItem(
@@ -592,7 +592,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         selectedIdx: selectedItem,
         customItemIndex: customItemIndex ?? 0,
         displayItem: (dynamic priority, double sliderValue) =>
-            sendViewModel.displayFeeRate(priority, sliderValue.round()),
+            sendViewModel.feesViewModel.displayFeeRate(priority, sliderValue.round()),
         onSliderChanged: (double newValue) =>
             setNewFee(value: newValue, priority: transactionPriority!),
         onItemSelected: (dynamic item, double sliderValue) {
@@ -790,7 +790,8 @@ abstract class TransactionDetailsViewModelBase with Store {
     final comment = tx.additionalInfo['comment'] as String?;
     items.addAll([
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
-      StandartListItem(title: 'Asset ID', value: tx.additionalInfo['assetId'] as String? ?? "Unknown asset id"),
+      StandartListItem(
+          title: 'Asset ID', value: tx.additionalInfo['assetId'] as String? ?? "Unknown asset id"),
       StandartListItem(
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
@@ -800,5 +801,5 @@ abstract class TransactionDetailsViewModelBase with Store {
       if (comment != null && comment.isNotEmpty)
         StandartListItem(title: S.current.transaction_details_title, value: comment),
     ]);
-    }
+  }
 }
