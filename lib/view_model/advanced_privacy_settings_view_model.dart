@@ -79,6 +79,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.tron,
+        WalletType.solana,
         WalletType.monero,
         WalletType.wownero,
         WalletType.zano,

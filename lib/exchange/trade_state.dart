@@ -100,6 +100,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'waiting':
         return waiting;
       case 'processing':
+      case 'inProgress':
         return processing;
       case 'waitingPayment':
         return waitingPayment;
