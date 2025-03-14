@@ -136,7 +136,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
-
         if (widget.appStore.wallet?.type == WalletType.bitcoin) {
           bitcoin!.stopPayjoinSessions(widget.appStore.wallet!);
         }
