@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,13 @@ class SettingsSwitcherCell extends StandardListRow {
       height: 56,
       padding: EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
-        onPressed: () => onValueChange?.call(context, !value),
+        onPressed: () {
+          if (onTap != null) {
+            onTap!.call(context);
+          } else {
+            onValueChange?.call(context, !value);
+          }
+        },
         style: ButtonStyle(
           //backgroundColor: MaterialStateProperty.all(Theme.of(context).cardColor),
           shape: MaterialStateProperty.all(
@@ -45,7 +50,7 @@ class SettingsSwitcherCell extends StandardListRow {
           children: <Widget>[
             if (leading != null) leading,
             buildCenter(context, hasLeftOffset: leading != null),
-            if (trailing != null) trailing,
+            trailing,
           ],
         ),
       ),
