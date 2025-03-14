@@ -17,6 +17,7 @@ import '../robots/new_wallet_type_page_robot.dart';
 import '../robots/pre_seed_page_robot.dart';
 import '../robots/restore_from_seed_or_key_robot.dart';
 import '../robots/restore_options_page_robot.dart';
+import '../robots/seed_verification_page_robot.dart';
 import '../robots/setup_pin_code_robot.dart';
 import '../robots/wallet_group_description_page_robot.dart';
 import '../robots/wallet_list_page_robot.dart';
@@ -40,6 +41,7 @@ class CommonTestFlows {
         _walletListPageRobot = WalletListPageRobot(_tester),
         _newWalletTypePageRobot = NewWalletTypePageRobot(_tester),
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(_tester),
+        _seedVerificationPageRobot = SeedVerificationPageRobot(_tester),
         _createPinWelcomePageRobot = CreatePinWelcomePageRobot(_tester),
         _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(_tester),
         _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(_tester);
@@ -58,6 +60,7 @@ class CommonTestFlows {
   final NewWalletTypePageRobot _newWalletTypePageRobot;
   final RestoreOptionsPageRobot _restoreOptionsPageRobot;
   final CreatePinWelcomePageRobot _createPinWelcomePageRobot;
+  final SeedVerificationPageRobot _seedVerificationPageRobot;
   final RestoreFromSeedOrKeysPageRobot _restoreFromSeedOrKeysPageRobot;
   final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
 
@@ -87,7 +90,8 @@ class CommonTestFlows {
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
-    await _commonTestCases.defaultSleepTime();
+
+    await _verifyWalletSeed();
   }
 
   //* ========== Handles flow from welcome to restoring wallet from seeds ===============
@@ -112,7 +116,6 @@ class CommonTestFlows {
   //* ========== Handles switching to wallet list or menu from dashboard ===============
   Future<void> switchToWalletMenuFromDashboardPage() async {
     _tester.printToConsole('Switching to Wallet Menu');
-    await _dashboardPageRobot.openDrawerMenu();
 
     await _dashboardPageRobot.dashboardMenuWidgetRobot.navigateToWalletMenu();
   }
@@ -150,6 +153,9 @@ class CommonTestFlows {
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
+
+    await _verifyWalletSeed();
+
     await _commonTestCases.defaultSleepTime();
   }
 
@@ -204,6 +210,8 @@ class CommonTestFlows {
     await _welcomePageRobot.navigateToCreateNewWalletPage();
 
     await _selectWalletTypeForWallet(walletTypeToCreate);
+
+    await _welcomePageRobot.tapNewSingleSeed();
   }
 
   Future<void> _welcomeToRestoreFromSeedsOrKeysPath(
@@ -240,8 +248,10 @@ class CommonTestFlows {
 
     if (Platform.isLinux) {
       // manual pin input
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
     }
 
     await _newWalletPageRobot.onNextButtonPressed();
@@ -264,13 +274,17 @@ class CommonTestFlows {
 
     // await _walletSeedPageRobot.onCopySeedsButtonPressed();
 
-    await _walletSeedPageRobot.onSeedPageVerifyButtonPressed();
-    // Turns out the popup about "Copied to clipboard" prevents
-    //the button from being pressed on the first try, by just
-    //tapping it again we fix it.
-    // await _walletSeedPageRobot.onSeedPageVerifyButtonPressed();
-    
-    await _walletSeedPageRobot.onOpenWalletButtonPressed();
+    await _walletSeedPageRobot.onVerifySeedButtonPressed();
+  }
+
+  //* ============ Handles Wallet Seed Verification Page ==================
+
+  Future<void> _verifyWalletSeed() async {
+    await _seedVerificationPageRobot.isSeedVerificationPage();
+
+    _seedVerificationPageRobot.hasTitle();
+
+    await _seedVerificationPageRobot.verifyWalletSeeds();
   }
 
   //* Main Restore Actions - On the RestoreFromSeed/Keys Page - Restore from Seeds Action
@@ -293,8 +307,10 @@ class CommonTestFlows {
 
     if (Platform.isLinux) {
       // manual pin input
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
     }
 
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
@@ -336,8 +352,12 @@ class CommonTestFlows {
         return secrets.nanoTestWalletSeeds;
       case WalletType.wownero:
         return secrets.wowneroTestWalletSeeds;
-      default:
-        return '';
+      case WalletType.zano:
+        return secrets.zanoTestWalletSeeds;
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.banano:
+        throw Exception("Unable to get seeds for ${walletType}");
     }
   }
 

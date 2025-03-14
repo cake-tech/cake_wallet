@@ -1,7 +1,5 @@
-import 'dart:io';
 
 import 'package:cake_wallet/wallet_types.g.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,12 +42,20 @@ void main() {
         if (walletType == WalletType.solana) {
           continue;
         }
+        final seed = commonTestFlows.getWalletSeedsByWalletType(walletType);
+        if (seed.isEmpty) {
+          printV("----------------------------");
+          printV("- Skipped wallet: ${walletType}");
+          printV("- Make sure to add seed to secrets");
+          printV("----------------------------");
+          continue;
+        }
 
         await commonTestFlows.switchToWalletMenuFromDashboardPage();
 
         await commonTestFlows.restoreWalletFromWalletMenu(
           walletType,
-          commonTestFlows.getWalletSeedsByWalletType(walletType),
+          seed,
         );
 
         await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(walletType);

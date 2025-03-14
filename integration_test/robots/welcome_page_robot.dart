@@ -12,6 +12,7 @@ class WelcomePageRobot {
 
   Future<void> isWelcomePage() async {
     await commonTestCases.isSpecificPage<WelcomePage>();
+    await commonTestCases.takeScreenshots('welcome_page');
   }
 
   void confirmActionButtonsDisplay() {
@@ -25,6 +26,11 @@ class WelcomePageRobot {
 
   Future<void> navigateToCreateNewWalletPage() async {
     await commonTestCases.tapItemByKey('welcome_page_create_new_wallet_button_key');
+    await commonTestCases.defaultSleepTime();
+  }
+
+  Future<void> tapNewSingleSeed() async {
+    await commonTestCases.tapItemByKey('wallet_group_description_page_create_new_seed_button_key');
     await commonTestCases.defaultSleepTime();
   }
 
