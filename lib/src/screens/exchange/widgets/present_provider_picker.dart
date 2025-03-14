@@ -35,10 +35,11 @@ class PresentProviderPicker extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text(S.of(context).exchange,
+                Text(S.of(context).swap,
                     style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.w600,
+                      
                         color: Colors.white)),
                 Observer(
                     builder: (_) => Text(

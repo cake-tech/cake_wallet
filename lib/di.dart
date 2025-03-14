@@ -33,10 +33,16 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
@@ -48,6 +54,7 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -748,8 +755,9 @@ Future<void> setup({
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
       getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
-      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
+      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
+      getIt.get<FeesViewModel>(),
     ),
   );
 
@@ -897,7 +905,10 @@ Future<void> setup({
     return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
-  getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
+  getIt.registerFactory(() => TrocadorExchangeProvider());
+
+  getIt.registerFactory(() => TrocadorProvidersViewModel(
+      getIt.get<SettingsStore>(), getIt.get<TrocadorExchangeProvider>()));
 
   getIt.registerFactory(() {
     return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
@@ -1026,20 +1037,35 @@ Future<void> setup({
 
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
 
-  getIt.registerFactory(() => ExchangeViewModel(
+  getIt.registerFactory(
+    () => ExchangeViewModel(
       getIt.get<AppStore>(),
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
       getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>()));
+      getIt.get<ContactListViewModel>(),
+      getIt.get<FeesViewModel>(),
+    ),
+  );
 
-  getIt.registerFactory(() => ExchangeTradeViewModel(
+  getIt.registerFactory<FeesViewModel>(
+    () => FeesViewModel(
+      getIt.get<AppStore>(),
+      getIt.get<BalanceViewModel>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet!,
       trades: _tradesSource,
       tradesStore: getIt.get<TradesStore>(),
-      sendViewModel: getIt.get<SendViewModel>()));
+      sendViewModel: getIt.get<SendViewModel>(),
+      feesViewModel: getIt.get<FeesViewModel>(),
+    ),
+  );
 
   getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
       (PaymentRequest? paymentRequest, __) {
@@ -1050,6 +1076,9 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => ExchangeTradePage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
+
+  getIt.registerFactory(
+      () => ExchangeTradeExternalSendPage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
 
   getIt.registerFactory(() => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
 
@@ -1260,7 +1289,8 @@ Future<void> setup({
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
       (Order order, _) => OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
-  getIt.registerFactory(() => SupportViewModel(getIt.get<SettingsStore>()));
+  getIt.registerFactory(() =>
+      SupportViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>()));
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
