@@ -435,8 +435,6 @@ abstract class DecredWalletBase
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    print("@@@@@@@");
-    print(amount);
     if (priority is DecredTransactionPriority) {
       final P2PKHOutputSize =
           36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
