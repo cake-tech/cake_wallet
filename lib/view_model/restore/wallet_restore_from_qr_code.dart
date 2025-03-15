@@ -44,6 +44,9 @@ class WalletRestoreFromQRCode {
     'zano': WalletType.zano,
     'zano-wallet': WalletType.zano,
     'zano_wallet': WalletType.zano,
+    'decred': WalletType.decred,
+    'decred-wallet': WalletType.decred,
+    'decred_wallet': WalletType.decred,
   };
 
   static WalletType? _extractWalletType(String code) {
@@ -69,8 +72,12 @@ class WalletRestoreFromQRCode {
   }
 
   static String? _extractAddressFromUrl(String rawString, WalletType type) {
-    return AddressResolver.extractAddressByType(
-        raw: rawString, type: walletTypeToCryptoCurrency(type));
+    try {
+      return AddressResolver.extractAddressByType(
+          raw: rawString, type: walletTypeToCryptoCurrency(type));
+    } catch (_) {
+      return null;
+    }
   }
 
   static String? _extractSeedPhraseFromUrl(String rawString, WalletType walletType) {
@@ -122,7 +129,6 @@ class WalletRestoreFromQRCode {
     }
     if (queryParameters['address'] == null) {
       queryParameters['address'] = _extractAddressFromUrl(code, walletType);
-
     }
 
     Map<String, dynamic> credentials = {'type': walletType, ...queryParameters, 'raw_qr': code};

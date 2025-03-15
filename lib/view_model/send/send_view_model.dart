@@ -6,6 +6,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -251,6 +252,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.wownero ||
+      wallet.type == WalletType.decred ||
       wallet.type == WalletType.bitcoinCash;
 
   @computed
@@ -539,6 +541,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.zano:
         return zano!.createZanoTransactionCredentials(
             outputs: outputs, priority: priority!, currency: selectedCryptoCurrency);
+      case WalletType.decred:
+        this.coinTypeToSpendFrom = UnspentCoinType.any;
+        return decred!.createDecredTransactionCredentials(outputs, priority!);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
@@ -681,55 +686,51 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
     }
 
-    if (walletType == WalletType.bitcoin ||
-        walletType == WalletType.litecoin ||
-        walletType == WalletType.bitcoinCash) {
-      if (error is TransactionWrongBalanceException) {
-        if (error.amount != null)
-          return S.current
-              .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
+    if (error is TransactionWrongBalanceException) {
+      if (error.amount != null)
+        return S.current
+            .tx_wrong_balance_with_amount_exception(currency.toString(), error.amount.toString());
 
-        return S.current.tx_wrong_balance_exception(currency.toString());
+      return S.current.tx_wrong_balance_exception(currency.toString());
+    }
+    if (error is TransactionNoInputsException) {
+      return S.current.tx_not_enough_inputs_exception;
+    }
+    if (error is TransactionNoFeeException) {
+      return S.current.tx_zero_fee_exception;
+    }
+    if (error is TransactionNoDustException) {
+      return S.current.tx_no_dust_exception;
+    }
+    if (error is TransactionCommitFailed) {
+      if (error.errorMessage != null && error.errorMessage!.contains("no peers replied")) {
+        return S.current.tx_commit_failed_no_peers;
       }
-      if (error is TransactionNoInputsException) {
-        return S.current.tx_not_enough_inputs_exception;
-      }
-      if (error is TransactionNoFeeException) {
-        return S.current.tx_zero_fee_exception;
-      }
-      if (error is TransactionNoDustException) {
-        return S.current.tx_no_dust_exception;
-      }
-      if (error is TransactionCommitFailed) {
-        if (error.errorMessage != null && error.errorMessage!.contains("no peers replied")) {
-          return S.current.tx_commit_failed_no_peers;
-        }
-        return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
-      }
-      if (error is TransactionCommitFailedDustChange) {
-        return S.current.tx_rejected_dust_change;
-      }
-      if (error is TransactionCommitFailedDustOutput) {
-        return S.current.tx_rejected_dust_output;
-      }
-      if (error is TransactionCommitFailedDustOutputSendAll) {
-        return S.current.tx_rejected_dust_output_send_all;
-      }
-      if (error is TransactionCommitFailedVoutNegative) {
-        return S.current.tx_rejected_vout_negative;
-      }
-      if (error is TransactionCommitFailedBIP68Final) {
-        return S.current.tx_rejected_bip68_final;
-      }
-      if (error is TransactionCommitFailedLessThanMin) {
-        return S.current.fee_less_than_min;
-      }
-      if (error is TransactionNoDustOnChangeException) {
-        return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
-      }
-      if (error is TransactionInputNotSupported) {
-        return S.current.tx_invalid_input;
-      }
+      return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
+    }
+    if (error is TransactionCommitFailedDustChange) {
+      return S.current.tx_rejected_dust_change;
+    }
+    if (error is TransactionCommitFailedDustOutput) {
+      return S.current.tx_rejected_dust_output;
+    }
+    if (error is TransactionCommitFailedDustOutputSendAll) {
+      return S.current.tx_rejected_dust_output_send_all;
+    }
+    if (error is TransactionCommitFailedVoutNegative) {
+      return S.current.tx_rejected_vout_negative;
+    }
+    if (error is TransactionCommitFailedBIP68Final) {
+      return S.current.tx_rejected_bip68_final;
+    }
+    if (error is TransactionCommitFailedLessThanMin) {
+      return S.current.fee_less_than_min;
+    }
+    if (error is TransactionNoDustOnChangeException) {
+      return S.current.tx_commit_exception_no_dust_on_change(error.min, error.max);
+    }
+    if (error is TransactionInputNotSupported) {
+      return S.current.tx_invalid_input;
     }
 
     return errorMessage;

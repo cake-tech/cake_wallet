@@ -82,6 +82,7 @@ class ProvidersHelper {
           ProviderType.moonpay,
           ProviderType.kriptonim
         ];
+      case WalletType.decred:
       case WalletType.none:
       case WalletType.haven:
       case WalletType.zano:
@@ -113,6 +114,7 @@ class ProvidersHelper {
         ];
       case WalletType.monero:
         return [ProviderType.dfx];
+      case WalletType.decred:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.none:
