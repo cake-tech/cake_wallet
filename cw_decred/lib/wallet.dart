@@ -458,8 +458,7 @@ abstract class DecredWalletBase
         }).length;
       }
 
-      // Estimate using a transaction consuming three inputs and paying to one
-      // address with change.
+      // Estimate using a transaction consuming inoutsCount and paying to one address with change.
       return (this.feeRate(priority) / 1000).round() *
           (MsgTxOverhead + P2PKHInputSize * inputsCount + P2PKHOutputSize * 2);
     }
