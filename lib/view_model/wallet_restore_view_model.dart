@@ -4,7 +4,6 @@ import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -117,9 +116,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             derivationType: derivationInfo!.derivationType!,
             derivationPath: derivationInfo.derivationPath!,
           );
-        case WalletType.haven:
-          return haven!.createHavenRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
             name: name,
@@ -187,6 +183,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               password: password,
           );
         case WalletType.none:
+        case WalletType.haven:
           break;
       }
     }
@@ -199,17 +196,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromKeysCredentials(
-            name: name,
-            height: height,
-            spendKey: spendKey!,
-            viewKey: viewKey!,
-            address: address!,
-            password: password,
-            language: 'English',
-          );
-
-        case WalletType.haven:
-          return haven!.createHavenRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey!,

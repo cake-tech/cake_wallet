@@ -1,6 +1,5 @@
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
-import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -25,7 +24,6 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -49,9 +47,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:collection/collection.dart';
 
 part 'send_view_model.g.dart';
 
@@ -520,10 +516,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.wownero:
         return wownero!
             .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
-
-      case WalletType.haven:
-        return haven!.createHavenTransactionCreationCredentials(
-            outputs: outputs, priority: priority!, assetType: selectedCryptoCurrency.title);
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,

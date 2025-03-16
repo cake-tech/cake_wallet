@@ -5,7 +5,6 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/root_dir.dart';
@@ -423,7 +422,7 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 45:
-          await _backupHavenSeeds(havenSeedStore);
+          // await _backupHavenSeeds(havenSeedStore);
 
           addWalletNodeList(nodes: nodes, type: WalletType.polygon);
           addWalletNodeList(nodes: nodes, type: WalletType.ethereum);
@@ -544,14 +543,6 @@ Future<void> _updateNode({
       await node.save();
     }
   }
-}
-
-Future<void> _backupHavenSeeds(Box<HavenSeedStore> havenSeedStore) async {
-  final future = haven?.backupHavenSeeds(havenSeedStore);
-  if (future != null) {
-    await future;
-  }
-  return;
 }
 
 /// generic function for changing any wallet default node

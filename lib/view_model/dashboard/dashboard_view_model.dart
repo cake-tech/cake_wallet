@@ -32,7 +32,6 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -70,8 +69,8 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
-      : hasTradeAction = false,
-        hasSwapAction = false,
+      : hasTradeAction = true,
+        hasSwapAction = true,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
@@ -176,7 +175,6 @@ abstract class DashboardViewModelBase with Store {
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
-    updateActions();
 
     final _wallet = wallet;
 
@@ -663,7 +661,6 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    updateActions();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
@@ -797,11 +794,6 @@ abstract class DashboardViewModelBase with Store {
         ),
       );
     }
-  }
-
-  void updateActions() {
-    hasSwapAction = !isHaven;
-    hasTradeAction = !isHaven;
   }
 
   @computed
