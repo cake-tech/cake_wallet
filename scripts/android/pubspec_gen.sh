@@ -11,12 +11,6 @@ case $APP_ANDROID_TYPE in
                 ;;
         $CAKEWALLET)
                 CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred"
-                if [ "$CW_WITH_HAVEN" = true ];then
-                    CONFIG_ARGS="$CONFIG_ARGS --haven"
-                fi
-                ;;
-        $HAVEN)
-                CONFIG_ARGS="--haven"
                 ;;
 esac
 
