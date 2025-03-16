@@ -119,7 +119,11 @@ abstract class SolanaWalletBase
   String get privateKey => _solanaPrivateKey.seedHex();
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: _mnemonic,
+        privateKey: privateKey,
+        passphrase: passphrase,
+      );
 
   Future<void> init() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${SPLToken.boxName}";
