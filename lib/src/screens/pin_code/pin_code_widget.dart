@@ -123,7 +123,6 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       focusNode: FocusNode(),
       autofocus: true,
       onKeyEvent: (keyEvent) {
-        print('keyEvent: $keyEvent');
         if (keyEvent is KeyDownEvent) {
           if (keyEvent.logicalKey.keyLabel == "Backspace") {
             _pop();
