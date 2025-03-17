@@ -462,7 +462,11 @@ abstract class TronWalletBase extends WalletBase<TronBalance, TronTransactionHis
   String get privateKey => _tronPrivateKey.toHex();
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: _mnemonic,
+        privateKey: privateKey,
+        passphrase: passphrase,
+      );
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
