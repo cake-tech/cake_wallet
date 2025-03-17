@@ -26,7 +26,7 @@ abstract class RescanViewModelBase with Store {
   @observable
   bool isButtonEnabled;
 
-  @observable
+  @computed
   bool get doSingleScan => _silentPaymentsScanningViewModel.doSingleScan;
 
   set doSingleScan(bool value) => _silentPaymentsScanningViewModel.doSingleScan = value;
