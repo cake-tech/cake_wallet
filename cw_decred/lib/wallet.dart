@@ -365,9 +365,7 @@ abstract class DecredWalletBase
       }
       totalIn += unspent.value;
     });
-    if (ignoreInputs.length == unspentCoinsInfo.values.length) {
-      throw TransactionNoInputsException();
-    }
+
     final creds = credentials as DecredTransactionCredentials;
     var totalAmt = 0;
     var sendAll = false;
@@ -390,6 +388,12 @@ abstract class DecredWalletBase
         "amount": amt
       };
       outputs.add(o);
+    }
+
+    // throw exception if no selected coins under coin control
+    // or if the total coins selected, is less than the amount the user wants to spend
+    if (ignoreInputs.length == unspentCoinsInfo.values.length || totalIn < totalAmt) {
+      throw TransactionNoInputsException();
     }
 
     // The inputs are always used. Currently we don't have use for this
