@@ -111,7 +111,6 @@ class Transfer {
           return ZanoTransactionInfo.fromTransfer(
             transfer,
             currentDaemonHeight: currentDaemonHeight,
-            confirmations: currentDaemonHeight - transfer.height,
             isIncome: single.isIncome,
             assetId: single.assetId,
             amount: single.amount,
@@ -123,7 +122,6 @@ class Transfer {
         return ZanoTransactionInfo.fromTransfer(
           transfer,
           currentDaemonHeight: currentDaemonHeight,
-          confirmations: currentDaemonHeight - transfer.height,
           isIncome: single.isIncome,
           assetId: single.assetId,
           amount: amount,
