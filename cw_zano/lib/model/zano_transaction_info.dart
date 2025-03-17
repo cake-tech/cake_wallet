@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -22,7 +24,7 @@ class ZanoTransactionInfo extends TransactionInfo {
   }
 
   ZanoTransactionInfo.fromTransfer(Transfer transfer,
-      {required int confirmations,
+      { required int currentDaemonHeight,
         required bool isIncome,
         required String assetId,
         required BigInt amount,
@@ -35,8 +37,9 @@ class ZanoTransactionInfo extends TransactionInfo {
         zanoAmount = amount,
         amount = amount.isValidInt ? amount.toInt() : 0,
         fee = transfer.fee,
-        confirmations = confirmations,
-        isPending = confirmations < 10,
+        confirmations = max(currentDaemonHeight - transfer.height, 0),
+        isPending = (((currentDaemonHeight - transfer.height) < 10 || transfer.height == 0) && currentDaemonHeight != 0) &&
+        !(currentDaemonHeight - transfer.height >= 10),
         recipientAddress = transfer.remoteAddresses.isNotEmpty
             ? transfer.remoteAddresses.first
             : '' {

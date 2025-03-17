@@ -503,7 +503,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
 
   Widget? _getItemIcon(Item item) {
     if (item is Currency) {
-      if (item.iconPath != null) {
+      if (item.iconPath != null && item.iconPath != "") {
         return Image.asset(
           item.iconPath!,
           height: 20.0,
