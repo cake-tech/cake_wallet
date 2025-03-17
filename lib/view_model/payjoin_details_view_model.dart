@@ -42,10 +42,17 @@ abstract class PayjoinDetailsViewModelBase with Store {
 
   late final StreamSubscription<BoxEvent> listener;
 
+  Timer? timer;
+
   @action
   Future<void> _updateSessionDetail() async {
     try {
       payjoinSession = payjoinSessionSource.get(payjoinSessionId)!;
+
+      if (payjoinSession.status == 'success') {
+        // bitcoin!.tx
+      }
+
       _updateItems();
     } catch (e) {
       printV(e.toString());

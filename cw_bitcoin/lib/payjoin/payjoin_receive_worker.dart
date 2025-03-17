@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -13,6 +14,7 @@ import 'package:payjoin_flutter/receive.dart';
 import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
 
 enum PayjoinReceiverRequestTypes {
+  processOriginalTx,
   proposalSent,
   getCandidateInputs,
   checkIsOwned,
@@ -44,6 +46,13 @@ class PayjoinReceiverWorker {
 
       final uncheckedProposal =
           await worker.receiveUncheckedProposal(httpClient, receiver);
+
+      final originalTx = await uncheckedProposal.extractTxToScheduleBroadcast();
+      sendPort.send({
+        'type': PayjoinReceiverRequestTypes.processOriginalTx,
+        'tx': BytesUtils.toHexString(originalTx),
+      });
+
       final payjoinProposal = await worker.processPayjoinProposal(
         uncheckedProposal,
       );

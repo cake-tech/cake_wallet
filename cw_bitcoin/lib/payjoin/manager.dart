@@ -183,11 +183,16 @@ class PayjoinManager {
 
     SendPort? mainToIsolateSendPort;
     List<UtxoWithPrivateKey> utxos = [];
+    String rawAmount = '0';
 
     receivePort.listen((message) async {
       if (message is Map<String, dynamic>) {
         try {
           switch (message['type'] as PayjoinReceiverRequestTypes) {
+            case PayjoinReceiverRequestTypes.processOriginalTx:
+              final tx = message['tx'] as String;
+              rawAmount = getOutputAmountFromTx(tx, _wallet);
+              break;
             case PayjoinReceiverRequestTypes.checkIsOwned:
               (_wallet.walletAddresses as BitcoinWalletAddresses).newPayjoinReceiver();
               _payjoinStorage.markReceiverSessionInProgress(receiver.id());
@@ -232,10 +237,11 @@ class PayjoinManager {
               _cleanupSession(receiver.id());
               final psbt = message['psbt'] as String;
               await _payjoinStorage.markReceiverSessionComplete(
-                  receiver.id(), getTxIdFromPsbtV0(psbt), getOutputAmountFromPsbt(psbt, _wallet));
+                  receiver.id(), getTxIdFromPsbtV0(psbt), rawAmount);
               completer.complete();
           }
         } catch (e) {
+          printV(e);
           _cleanupSession(receiver.id());
           await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id());
           completer.completeError(e);
