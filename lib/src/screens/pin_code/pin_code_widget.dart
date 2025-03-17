@@ -119,11 +119,12 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
     );
 
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: FocusNode(),
       autofocus: true,
-      onKey: (keyEvent) {
-        if (keyEvent is RawKeyDownEvent) {
+      onKeyEvent: (keyEvent) {
+        print('keyEvent: $keyEvent');
+        if (keyEvent is KeyDownEvent) {
           if (keyEvent.logicalKey.keyLabel == "Backspace") {
             _pop();
             return;
