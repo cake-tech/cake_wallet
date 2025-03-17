@@ -239,6 +239,10 @@ mixin ZanoWalletApi {
       printV('get_asset_info empty result');
       return null;
     }
+    if (result.responseCode != 200) {
+      printV('get_asset_info $assetId error ${result.responseCode} ${result.body}');
+      return null;
+    }
     final map = jsonDecode(result.body) as Map<String, dynamic>?;
     if (map!['error'] != null) {
       printV('get_asset_info $assetId error ${map['error']!['code']} ${map['error']!['message']}');
