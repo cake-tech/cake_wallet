@@ -264,9 +264,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) =>
-                final arg = {'walletType': type};
-                Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);},
+            onTypeSelected: (BuildContext context, WalletType type) {
+              final arg = {'walletType': type};
+              Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);
+            },
             isCreate: false,
             isHardwareWallet: false,
           ),

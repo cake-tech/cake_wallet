@@ -1557,6 +1557,7 @@ class ElectrumWorker {
 
             addToWallet.forEach((BSpend, scanResultPerLabel) {
               scanResultPerLabel.forEach((label, scanOutput) {
+                final labelValue = label == "None" ? null : label.toString();
                 (scanOutput as Map<String, dynamic>).forEach((outputPubkey, tweak) {
                   final t_k = tweak as String;
 
@@ -1572,12 +1573,12 @@ class ElectrumWorker {
                     (receiver) => receiver.B_spend.toHex() == BSpend.toString(),
                   );
 
-                  final labelIndex = scanData.labels[label];
+                  final labelIndex = labelValue != null ? scanData.labels[label] : 0;
 
                   final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
                     receivingOutputAddress,
                     labelIndex: labelIndex ?? 0,
-                    labelHex: label.toString(),
+                    labelHex: labelValue,
                     isChange: labelIndex == 0,
                     isUsed: true,
                     tweak: t_k,

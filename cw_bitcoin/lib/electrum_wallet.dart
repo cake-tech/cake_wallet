@@ -439,10 +439,18 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
     int leftAmount = credentialsAmount;
     var availableInputs = unspentCoins.where((utx) {
+      final unspentCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
+        (element) => element.walletId == id && element == utx,
+      );
+
       if (!utx.isSending || utx.isFrozen) {
         return false;
       }
-
+      if (unspentCoinInfo != null) {
+        if (!unspentCoinInfo.isSending || unspentCoinInfo.isFrozen) {
+          return false;
+        }
+      }
       return true;
     }).toList();
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();

@@ -909,8 +909,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
 
     int leftAmount = credentialsAmount;
     var availableInputs = unspentCoins.where((utx) {
+      final unspentCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
+        (element) => element.walletId == id && element == utx,
+      );
+
       if (!utx.isSending || utx.isFrozen) {
         return false;
+      }
+      if (unspentCoinInfo != null) {
+        if (!unspentCoinInfo.isSending || unspentCoinInfo.isFrozen) {
+          return false;
+        }
       }
 
       switch (coinTypeToSpendFrom) {

@@ -797,9 +797,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
     int leftAmount = credentialsAmount;
     var availableInputs = unspentCoins.where((utx) {
-      // TODO: unspent coin isSending not toggled
+      final unspentCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
+        (element) => element.walletId == id && element == utx,
+      );
+
       if (!utx.isSending || utx.isFrozen) {
         return false;
+      }
+      if (unspentCoinInfo != null) {
+        if (!unspentCoinInfo.isSending || unspentCoinInfo.isFrozen) {
+          return false;
+        }
       }
       return true;
     }).toList();

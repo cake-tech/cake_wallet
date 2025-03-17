@@ -14,8 +14,7 @@ enum RescanWalletState { rescaning, none }
 abstract class RescanViewModelBase with Store {
   RescanViewModelBase(this.wallet, this._silentPaymentsScanningViewModel)
       : state = RescanWalletState.none,
-        isButtonEnabled = false,
-        doSingleScan = false;
+        isButtonEnabled = false;
 
   final WalletBase wallet;
 
@@ -28,7 +27,9 @@ abstract class RescanViewModelBase with Store {
   bool isButtonEnabled;
 
   @observable
-  bool doSingleScan;
+  bool get doSingleScan => _silentPaymentsScanningViewModel.doSingleScan;
+
+  set doSingleScan(bool value) => _silentPaymentsScanningViewModel.doSingleScan = value;
 
   @computed
   bool get isSilentPaymentsScan => wallet.type == WalletType.bitcoin;
