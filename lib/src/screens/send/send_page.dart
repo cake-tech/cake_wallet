@@ -171,6 +171,8 @@ class SendPage extends BasePage {
                 });
       });
 
+  bool _bottomSheetOpened = false;
+
   @override
   Widget body(BuildContext context) {
     _setEffects(context);
@@ -488,103 +490,109 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            showModalBottomSheet<void>(
+      reaction((_) => sendViewModel.state, (ExecutionState state) {
+        if (!_bottomSheetOpened &&
+            (state is IsExecutingState ||
+                state is TransactionCommitting ||
+                state is IsAwaitingDeviceResponseState)) {
+          _bottomSheetOpened = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              showModalBottomSheet<void>(
                 context: context,
-                builder: (BuildContext _dialogContext) {
-                  return ConfirmSendingBottomSheet(
-                      key: ValueKey('send_page_confirm_sending_dialog_key'),
-                    titleText: 'Confirm Transaction',//S.of(_dialogContext).confirm_sending,
-                    titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
-                    currency: sendViewModel.selectedCryptoCurrency,
-                    amount: S.of(_dialogContext).send_amount,
-                    amountValue: sendViewModel.pendingTransaction!.amountFormatted,
-                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                    fee: isEVMCompatibleChain(sendViewModel.walletType)
-                        ? S.of(_dialogContext).send_estimated_fee
-                        : S.of(_dialogContext).send_fee,
-                    feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                    feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                    outputs: sendViewModel.outputs,
+                isDismissible: false,
+                isScrollControlled: true,
+                builder: (BuildContext bottomSheetContext) {
+                  return Observer(
+                    builder: (_) {
+                      if (sendViewModel.state is ExecutedSuccessfullyState) {
+                        return ConfirmSendingBottomSheet(
+                          key: ValueKey('send_page_confirm_sending_dialog_key'),
+                          titleText: 'Confirm Transaction',
+                          titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
+                          currency: sendViewModel.selectedCryptoCurrency,
+                          amount: S.of(bottomSheetContext).send_amount,
+                          amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+                          fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                          fee: isEVMCompatibleChain(sendViewModel.walletType)
+                              ? S.of(bottomSheetContext).send_estimated_fee
+                              : S.of(bottomSheetContext).send_fee,
+                          feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+                          feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                          outputs: sendViewModel.outputs,
+                          onSlideComplete: () async {
+                            Navigator.of(bottomSheetContext).pop();
+                            //sendViewModel.commitTransaction(context);
+
+                            sendViewModel.state = TransactionCommitted();
+                          },
+                          change: sendViewModel.pendingTransaction!.change,
+                        );
+                      } else {
+                        return ConfirmSendingBottomSheetPlaceholder();
+                      }
+                    },
                   );
-
-
-
-
-                    //   feeRate: sendViewModel.pendingTransaction!.feeRate,
-                    //   outputs: sendViewModel.outputs,
-                    //   change: sendViewModel.pendingTransaction!.change,
-                    //   rightButtonText: S.of(_dialogContext).send,
-                    //   leftButtonText: S.of(_dialogContext).cancel,
-                    //   alertRightActionButtonKey:
-                    //       ValueKey('send_page_confirm_sending_dialog_send_button_key'),
-                    //   alertLeftActionButtonKey:
-                    //       ValueKey('send_page_confirm_sending_dialog_cancel_button_key'),
-                    //   actionRightButton: () async {
-                    //     Navigator.of(_dialogContext).pop();
-                    //     sendViewModel.commitTransaction(context);
-                    //   },
-                    //   actionLeftButton: () => Navigator.of(_dialogContext).pop());
-                });
-          }
-        });
-      }
+                },
+              ).whenComplete(() {
+                _bottomSheetOpened = false;
+              });
+            }
+          });
+        }
+      });
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-
-          if (!context.mounted) {
-            return;
-          }
-
-          final successMessage = S.of(context).send_success(
-              sendViewModel.selectedCryptoCurrency.toString());
-
-          final waitMessage = sendViewModel.walletType == WalletType.solana
-              ? '. ${S.of(context).waitFewSecondForTxUpdate}'
-              : '';
-
-          String alertContent = "$successMessage$waitMessage";
-
-          await Navigator.of(context).pushNamed(
-              Routes.transactionSuccessPage,
-              arguments: alertContent
-          );
+          if (!context.mounted) return;
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
-          if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
+          if (newContactAddress?.address != null &&
+              isRegularElectrumAddress(newContactAddress!.address)) {
             newContactAddress = null;
           }
 
           if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) newContactAddress = null;
 
-          if (newContactAddress != null && sendViewModel.showAddressBookPopup) {
-            await showPopUp<void>(
-                context: context,
-                builder: (BuildContext _dialogContext) => AlertWithTwoActions(
-                    alertDialogKey: ValueKey('send_page_sent_dialog_key'),
-                    alertTitle: '',
-                    alertContent: S.of(_dialogContext).add_contact_to_address_book,
-                    rightButtonText: S.of(_dialogContext).add_contact,
-                    leftButtonText: S.of(_dialogContext).ignor,
-                    alertLeftActionButtonKey: ValueKey('send_page_sent_dialog_ignore_button_key'),
-                    alertRightActionButtonKey:
-                    ValueKey('send_page_sent_dialog_add_contact_button_key'),
-                    actionRightButton: () {
-                      Navigator.of(_dialogContext).pop();
-                      RequestReviewHandler.requestReview();
-                      Navigator.of(context)
-                          .pushNamed(Routes.addressBookAddContact, arguments: newContactAddress);
-                      newContactAddress = null;
-                    },
-                    actionLeftButton: () {
-                      Navigator.of(_dialogContext).pop();
-                      RequestReviewHandler.requestReview();
-                      newContactAddress = null;
-                    }));
-          }
+          await showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (BuildContext bottomSheetContext) {
+              return newContactAddress != null && sendViewModel.showAddressBookPopup
+                  ? TransactionSuccessBottomSheet(
+                      context: bottomSheetContext,
+                      currentTheme: currentTheme,
+                      showDontAskMeCheckbox: true,
+                      onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
+                      titleText: 'Transaction Sent',
+                      contentImage: 'assets/images/contact_icon.svg',
+                      content: S.of(bottomSheetContext).add_contact_to_address_book,
+                      isTwoAction: true,
+                      leftButtonText: 'No',
+                      rightButtonText: 'Yes',
+                      actionLeftButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      },
+                      actionRightButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        Navigator.of(context)
+                            .pushNamed(Routes.addressBookAddContact, arguments: newContactAddress);
+                        newContactAddress = null;
+                      },
+                    )
+                  : TransactionSuccessBottomSheet(
+                      context: bottomSheetContext,
+                      currentTheme: currentTheme,
+                      titleText: 'Transaction Sent',
+                      contentImage: 'assets/images/birthday_cake.svg',
+                      actionButtonText: S.of(bottomSheetContext).close,
+                      actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                      actionButton: () => Navigator.of(bottomSheetContext).pop());
+            },
+          );
 
           if (initialPaymentRequest?.callbackUrl?.isNotEmpty ?? false) {
             // wait a second so it's not as jarring:
