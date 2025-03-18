@@ -33,10 +33,16 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/view_model/link_view_model.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
 import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
@@ -52,6 +58,8 @@ import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dar
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:cw_core/payjoin_session.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -170,7 +178,6 @@ import 'package:cake_wallet/view_model/node_list/pow_node_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
-import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/mweb_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
@@ -259,6 +266,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
@@ -401,11 +409,10 @@ Future<void> setup({
   getIt.registerFactory<NewWalletTypeViewModel>(() => NewWalletTypeViewModel(_walletInfoSource));
 
   getIt.registerFactory<WalletManager>(
-    () {
-      final instance = WalletManager(_walletInfoSource, getIt.get<SharedPreferences>());
-      instance.updateWalletGroups();
-      return instance;
-    },
+    () => WalletManager(
+      _walletInfoSource,
+      getIt.get<SharedPreferences>(),
+    ),
   );
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
@@ -476,14 +483,6 @@ Future<void> setup({
       walletName: args.walletName ?? currentWalletName,
       walletType: args.walletType ?? currentWalletType);
   });
-
-  getIt.registerFactoryParam<WalletRestorationFromQRVM, WalletType, void>((WalletType type, _) =>
-      WalletRestorationFromQRVM(
-          getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type),
-          _walletInfoSource,
-          type,
-          getIt.get<SeedSettingsViewModel>()));
 
   getIt.registerFactoryParam<WalletHardwareRestoreViewModel, WalletType, void>((type, _) =>
       WalletHardwareRestoreViewModel(
@@ -758,8 +757,9 @@ Future<void> setup({
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
       getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
-      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
+      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
+      getIt.get<FeesViewModel>(),
     ),
   );
 
@@ -822,7 +822,7 @@ Future<void> setup({
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
         groupName: arguments.groupName,
-        parentAddress: arguments.parentAddress,
+        walletGroupKey: arguments.walletGroupKey,
       ),
     );
   });
@@ -907,7 +907,10 @@ Future<void> setup({
     return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
   });
 
-  getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
+  getIt.registerFactory(() => TrocadorExchangeProvider());
+
+  getIt.registerFactory(() => TrocadorProvidersViewModel(
+      getIt.get<SettingsStore>(), getIt.get<TrocadorExchangeProvider>()));
 
   getIt.registerFactory(() {
     return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
@@ -1030,22 +1033,41 @@ Future<void> setup({
     wallet: getIt.get<AppStore>().wallet!,
   ));
 
+  getIt.registerFactory<KryptonimBuyProvider>(() => KryptonimBuyProvider(
+    wallet: getIt.get<AppStore>().wallet!,
+  ));
+
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
 
-  getIt.registerFactory(() => ExchangeViewModel(
+  getIt.registerFactory(
+    () => ExchangeViewModel(
       getIt.get<AppStore>(),
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
       getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>()));
+      getIt.get<ContactListViewModel>(),
+      getIt.get<FeesViewModel>(),
+    ),
+  );
 
-  getIt.registerFactory(() => ExchangeTradeViewModel(
+  getIt.registerFactory<FeesViewModel>(
+    () => FeesViewModel(
+      getIt.get<AppStore>(),
+      getIt.get<BalanceViewModel>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet!,
       trades: _tradesSource,
       tradesStore: getIt.get<TradesStore>(),
-      sendViewModel: getIt.get<SendViewModel>()));
+      sendViewModel: getIt.get<SendViewModel>(),
+      feesViewModel: getIt.get<FeesViewModel>(),
+    ),
+  );
 
   getIt.registerFactoryParam<ExchangePage, PaymentRequest?, void>(
       (PaymentRequest? paymentRequest, __) {
@@ -1056,6 +1078,9 @@ Future<void> setup({
 
   getIt.registerFactory(
       () => ExchangeTradePage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
+
+  getIt.registerFactory(
+      () => ExchangeTradeExternalSendPage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
 
   getIt.registerFactory(() => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
 
@@ -1122,13 +1147,18 @@ Future<void> setup({
 
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>((type, _) =>
+  getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, RestoredWallet?>((WalletType type,
+      restoredWallet) =>
       WalletRestoreViewModel(getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type),
           _walletInfoSource, getIt.get<SeedSettingsViewModel>(),
-          type: type));
+          type: type, restoredWallet: restoredWallet));
 
-  getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) => WalletRestorePage(
-      getIt.get<WalletRestoreViewModel>(param1: type), getIt.get<SeedSettingsViewModel>()));
+  getIt.registerFactoryParam<WalletRestorePage, WalletType, RestoredWallet?>((WalletType type,
+      restoredWallet) {
+    return WalletRestorePage(
+        getIt.get<WalletRestoreViewModel>(param1: type, param2: restoredWallet),
+        getIt.get<SeedSettingsViewModel>());
+  });
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
@@ -1267,7 +1297,8 @@ Future<void> setup({
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
       (Order order, _) => OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
-  getIt.registerFactory(() => SupportViewModel(getIt.get<SettingsStore>()));
+  getIt.registerFactory(() =>
+      SupportViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>()));
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 

@@ -1,22 +1,22 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'dart:ui';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/src/widgets/list_row.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -30,8 +30,7 @@ void showInformation(
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
-      ? S.current.exchange_result_confirm(
-          trade.amount, trade.from.toString(), walletName) +
+      ? S.current.exchange_trade_result_confirm(trade.amount, trade.from.toString(), walletName) +
         exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
           trade.amount, trade.from.toString()) +
@@ -50,7 +49,22 @@ class ExchangeTradePage extends BasePage {
   final ExchangeTradeViewModel exchangeTradeViewModel;
 
   @override
-  String get title => S.current.exchange;
+  String get title => S.current.swap;
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  bool get gradientAll => true;
+
+  @override
+  bool get resizeToAvoidBottomInset => false;
+
+  @override
+  bool get extendBodyBehindAppBar => true;
+
+  @override
+  AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
   Widget trailing(BuildContext context) {
@@ -74,14 +88,20 @@ class ExchangeTradePage extends BasePage {
   }
 
   @override
-  Widget body(BuildContext context) =>
-      ExchangeTradeForm(exchangeTradeViewModel);
+  Widget body(BuildContext context) => ExchangeTradeForm(
+        exchangeTradeViewModel,
+        currentTheme,
+      );
 }
 
 class ExchangeTradeForm extends StatefulWidget {
-  ExchangeTradeForm(this.exchangeTradeViewModel);
+  ExchangeTradeForm(
+    this.exchangeTradeViewModel,
+    this.currentTheme,
+  );
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
+  final ThemeBase currentTheme;
 
   @override
   ExchangeTradeState createState() => ExchangeTradeState();
@@ -115,119 +135,77 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   @override
   Widget build(BuildContext context) {
-    final copyImage = Image.asset('assets/images/copy_content.png',
-        height: 16,
-        width: 16,
-        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor);
-
     _setEffects();
 
     return Container(
       child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(top: 10, bottom: 16),
-          content: Observer(builder: (_) {
-            final trade = widget.exchangeTradeViewModel.trade;
+        contentPadding: EdgeInsets.only(top: 10, bottom: 16),
+        content: Observer(builder: (_) {
+          final trade = widget.exchangeTradeViewModel.trade;
 
-            return Column(
-              children: <Widget>[
-                trade.expiredAt != null
-                    ? Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                            Text(
-                              S.of(context).offer_expires_in,
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
-                            ),
-                            if (trade.expiredAt != null)
-                              TimerWidget(trade.expiredAt!,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
-                          ])
-                    : Offstage(),
-                Padding(
-                  padding: EdgeInsets.only(top: 32),
-                  child: Row(children: <Widget>[
-                    Spacer(flex: 3),
-                    Flexible(
-                        flex: 4,
-                        child: Center(
-                            child: AspectRatio(
-                                aspectRatio: 1.0,
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 3,
-                                          color: Theme.of(context).extension<ExchangePageTheme>()!.qrCodeColor
-                                      )
-                                  ),
-                                  child: QrImage(data: trade.inputAddress ?? fetchingLabel),
-                                )))),
-                    Spacer(flex: 3)
-                  ]),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: widget.exchangeTradeViewModel.items.length,
-                    separatorBuilder: (context, index) => Container(
-                      height: 1,
-                      color: Theme.of(context).extension<ExchangePageTheme>()!.dividerCodeColor,
-                    ),
-                    itemBuilder: (context, index) {
-                      final item = widget.exchangeTradeViewModel.items[index];
-                      final value = item.data;
+          return Column(
+            children: <Widget>[
+              trade.expiredAt != null
+                  ? Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                          Text(
+                            S.of(context).offer_expires_in,
+                            style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context)
+                                    .extension<TransactionTradeTheme>()!
+                                    .detailsTitlesColor),
+                          ),
+                          if (trade.expiredAt != null)
+                            TimerWidget(trade.expiredAt!,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
+                        ])
+                  : Offstage(),
+              _ExchangeTradeItemsCardSection(
+                viewModel: widget.exchangeTradeViewModel,
+                currentTheme: widget.currentTheme,
+              ),
+            ],
+          );
+        }),
+        bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+        bottomSection: Column(
+          children: [
+            PrimaryButton(
+              key: ValueKey('exchange_trade_page_send_from_external_button_key'),
+              text: S.current.send_from_external_wallet,
+              onPressed: () async {
+                Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
+              },
+              color: Theme.of(context).cardColor,
+              textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+            ),
+            SizedBox(height: 16),
+            Observer(
+              builder: (_) {
+                final trade = widget.exchangeTradeViewModel.trade;
+                final sendingState = widget.exchangeTradeViewModel.sendViewModel.state;
 
-                      final content = ListRow(
-                        title: item.title,
-                        value: value,
-                        valueFontSize: 14,
-                        image: item.isCopied ? copyImage : null,
-                      );
-
-                      return item.isCopied
-                          ? Builder(
-                              builder: (context) => GestureDetector(
-                                    onTap: () {
-                                      Clipboard.setData(
-                                          ClipboardData(text: value));
-                                      showBar<void>(context,
-                                          S.of(context).copied_to_clipboard);
-                                    },
-                                    child: content,
-                                  ))
-                          : content;
-                    },
-                  ),
-                ),
-              ],
-            );
-          }),
-          bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-          bottomSection: Observer(builder: (_) {
-            final trade = widget.exchangeTradeViewModel.trade;
-            final sendingState =
-                widget.exchangeTradeViewModel.sendViewModel.state;
-
-            return widget.exchangeTradeViewModel.isSendable &&
-                    !(sendingState is TransactionCommitted)
-                ? LoadingPrimaryButton(
-                    key: ValueKey('exchange_trade_page_confirm_sending_button_key'),
-                    isDisabled: trade.inputAddress == null ||
-                        trade.inputAddress!.isEmpty,
-                    isLoading: sendingState is IsExecutingState,
-                    onPressed: () =>
-                        widget.exchangeTradeViewModel.confirmSending(),
-                    text: S.of(context).confirm,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white)
-                : Offstage();
-          })),
+                return widget.exchangeTradeViewModel.isSendable &&
+                        !(sendingState is TransactionCommitted)
+                    ? LoadingPrimaryButton(
+                        key: ValueKey('exchange_trade_page_send_from_cake_button_key'),
+                        isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty,
+                        isLoading: sendingState is IsExecutingState,
+                        onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
+                        text:S.current.send_from_cake_wallet,
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                      )
+                    : Offstage();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -410,5 +388,42 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           });
         });
     }
+  }
+}
+
+class _ExchangeTradeItemsCardSection extends StatelessWidget {
+  const _ExchangeTradeItemsCardSection({
+    required this.viewModel,
+    required this.currentTheme,
+  });
+
+  final ExchangeTradeViewModel viewModel;
+  final ThemeBase currentTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final firstExchangeCard = ExchangeTradeCardItemWidget(
+      currentTheme: currentTheme,
+      isReceiveDetailsCard: true,
+      exchangeTradeViewModel: viewModel,
+    );
+
+    final secondExchangeCard = ExchangeTradeCardItemWidget(
+      currentTheme: currentTheme,
+      isReceiveDetailsCard: false,
+      exchangeTradeViewModel: viewModel,
+    );
+
+    if (responsiveLayoutUtil.shouldRenderMobileUI) {
+      return MobileExchangeCardsSection(
+        firstExchangeCard: firstExchangeCard,
+        secondExchangeCard: secondExchangeCard,
+      );
+    }
+
+    return DesktopExchangeCardsSection(
+      firstExchangeCard: firstExchangeCard,
+      secondExchangeCard: secondExchangeCard,
+    );
   }
 }

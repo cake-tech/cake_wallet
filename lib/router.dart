@@ -40,6 +40,7 @@ import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
@@ -120,6 +121,7 @@ import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
@@ -234,8 +236,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
-            onTypeSelected: (BuildContext context, WalletType type) =>
-                Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: type),
+            onTypeSelected: (BuildContext context, WalletType type) {
+              final arg = {'walletType': type};
+                Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);},
             isCreate: false,
             isHardwareWallet: false,
           ),
@@ -260,8 +263,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
         return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
             param1: NewWalletTypeArguments(
-              onTypeSelected: (BuildContext context, WalletType type) =>
-                  Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: type),
+              onTypeSelected: (BuildContext context, WalletType type) {
+                final arg = {'walletType': type};
+                Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);},
               isCreate: false,
               isHardwareWallet: false,
             ),
@@ -317,8 +321,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<WalletSeedPage>(param1: settings.arguments as bool));
 
     case Routes.restoreWallet:
+      final args = settings.arguments as Map<String, dynamic>?;
+      final walletType = args?['walletType'] as WalletType;
+      final restoredWallet = args?['restoredWallet'] as RestoredWallet?;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletRestorePage>(param1: settings.arguments as WalletType));
+          builder: (_) => getIt.get<WalletRestorePage>(param1: walletType, param2: restoredWallet));
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
@@ -676,6 +683,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final isChildWallet = args['isChildWallet'] as bool? ?? false;
       final useTestnet = args['useTestnet'] as bool;
       final toggleTestnet = args['toggleTestnet'] as Function(bool? val);
+      final restoredWallet = args['restoredWallet'] as RestoredWallet?;
 
       return CupertinoPageRoute<void>(
           builder: (_) => AdvancedPrivacySettingsPage(
@@ -779,7 +787,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.nftDetailsPage:
       return MaterialPageRoute<void>(
         builder: (_) => NFTDetailsPage(
-          nftAsset: settings.arguments as NFTAssetModel,
+          arguments: settings.arguments as NFTDetailsPageArguments,
           dashboardViewModel: getIt.get<DashboardViewModel>(),
         ),
       );
@@ -820,6 +828,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
         fullscreenDialog: true,
         builder: (_) => getIt.get<SeedVerificationPage>(),
       );
+
+    case Routes.exchangeTradeExternalSendPage:
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeTradeExternalSendPage>(),);
 
     default:
       return MaterialPageRoute<void>(

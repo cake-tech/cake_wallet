@@ -48,7 +48,7 @@ class OnRamperBuyProvider extends BuyProvider {
   bool get isAggregator => true;
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final params = {
       'fiatCurrency': fiatCurrency,
       'type': isBuyAction ? 'buy' : 'sell',

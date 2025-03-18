@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -221,11 +222,10 @@ abstract class SettingsStoreBase with Store {
     if (initialZanoTransactionPriority != null) {
       priority[WalletType.zano] = initialZanoTransactionPriority;
     }
+
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
     }
-
-    initializeTrocadorProviderStates();
 
     reaction(
         (_) => fiatCurrency,
@@ -1716,16 +1716,47 @@ abstract class SettingsStoreBase with Store {
     powNodes[walletType] = node;
   }
 
-  void initializeTrocadorProviderStates() {
-    for (var provider in TrocadorExchangeProvider.availableProviders) {
-      final savedState = _sharedPreferences.getBool(provider) ?? true;
-      trocadorProviderStates[provider] = savedState;
+  @action
+  Future<void> updateAllTrocadorProviderStates(List<String> availableProviders) async {
+    final jsonKey = PreferencesKey.trocadorProviderStatesKey;
+    String? serializedData = await _sharedPreferences.getString(jsonKey);
+
+    if (serializedData == null) {
+      final Map<String, bool> migratedStates = {};
+      for (final provider in TrocadorExchangeProvider.availableProviders) {
+        final oldState = _sharedPreferences.getBool(provider) ?? true;
+        migratedStates[provider] = oldState;
+      }
+
+      trocadorProviderStates
+        ..clear()
+        ..addAll(migratedStates);
+
+      await saveMapToString(jsonKey, trocadorProviderStates);
+    } else {
+      final decodedMap = json.decode(serializedData) as Map<String, dynamic>;
+      final oldMap = decodedMap.map((k, v) => MapEntry(k, v == true));
+
+      final Map<String, bool> newStates = {
+        for (final provider in availableProviders) provider: oldMap[provider] ?? true
+      };
+
+      trocadorProviderStates
+        ..clear()
+        ..addAll(newStates);
+      await saveMapToString(jsonKey, trocadorProviderStates);
     }
   }
 
-  void saveTrocadorProviderState(String providerName, bool state) {
-    _sharedPreferences.setBool(providerName, state);
+  @action
+  Future<void> setTrocadorProviderState(String providerName, bool state) async {
     trocadorProviderStates[providerName] = state;
+    await saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
+  }
+
+  Future<void> saveMapToString(String key, Map<String, bool> map) async {
+    String serializedData = json.encode(map);
+    await _sharedPreferences.setString(key, serializedData);
   }
 
   static Future<String?> _getDeviceName() async {

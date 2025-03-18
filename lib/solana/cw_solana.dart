@@ -11,7 +11,6 @@ class CWSolana extends Solana {
   WalletCredentials createSolanaNewWalletCredentials({
     required String name,
     String? mnemonic,
-    String? parentAddress,
     WalletInfo? walletInfo,
     String? password,
     String? passphrase,
@@ -21,7 +20,6 @@ class CWSolana extends Solana {
         walletInfo: walletInfo,
         password: password,
         mnemonic: mnemonic,
-        parentAddress: parentAddress,
         passphrase: passphrase,
       );
 
@@ -54,11 +52,8 @@ class CWSolana extends Solana {
   String getPrivateKey(WalletBase wallet) => (wallet as SolanaWallet).privateKey;
 
   @override
-  String getPublicKey(WalletBase wallet) => (wallet as SolanaWallet).keys.publicKey.toBase58();
-
-  @override
-  Ed25519HDKeyPair? getWalletKeyPair(WalletBase wallet) => (wallet as SolanaWallet).walletKeyPair;
-
+  String getPublicKey(WalletBase wallet) =>
+      (wallet as SolanaWallet).solanaPublicKey.toAddress().address;
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,

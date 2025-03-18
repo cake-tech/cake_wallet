@@ -168,7 +168,7 @@ class DFXBuyProvider extends BuyProvider {
   }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
     if (isBuyAction) {
@@ -190,7 +190,7 @@ class DFXBuyProvider extends BuyProvider {
         });
       }
     } else {
-      final assetCredentials = await fetchAssetCredential(cryptoCurrency);
+      final assetCredentials = await fetchAssetCredential(cryptoCurrency.title);
       if (assetCredentials.isNotEmpty) {
         if (assetCredentials['sellable'] == true) {
           final availablePaymentTypes = [

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
@@ -11,9 +12,10 @@ part 'support_view_model.g.dart';
 class SupportViewModel = SupportViewModelBase with _$SupportViewModel;
 
 abstract class SupportViewModelBase with Store {
-  final SettingsStore settingsStore;
+  final SettingsStore _settingsStore;
+  final AppStore _appStore;
 
-  SupportViewModelBase(this.settingsStore)
+  SupportViewModelBase(this._settingsStore, this._appStore)
       : items = [
           LinkListItem(
               title: 'Email',
@@ -120,7 +122,11 @@ abstract class SupportViewModelBase with Store {
   }
 
   String get appVersion =>
-      "${isMoneroOnly ? "Monero.com" : "Cake Wallet"} - ${settingsStore.appVersion}";
+      "${isMoneroOnly ? "Monero.com" : "Cake Wallet"} - ${_settingsStore.appVersion}";
+
+  String get fiatApiMode => _settingsStore.fiatApiMode.title;
+
+  String get walletType => _appStore.wallet?.type.name ?? 'Unknown';
 
   List<SettingsListItem> items;
 }

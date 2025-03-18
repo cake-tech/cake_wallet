@@ -1,5 +1,1 @@
-Zano enhancements
-Ethereum enhancements
-Ledger fixes
-UI enhancements
-Bug fixes
+Update for Zano's Hard fork

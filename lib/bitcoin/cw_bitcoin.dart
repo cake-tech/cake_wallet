@@ -34,7 +34,6 @@ class CWBitcoin extends Bitcoin {
     String? password,
     String? passphrase,
     String? mnemonic,
-    String? parentAddress,
   }) =>
       BitcoinNewWalletCredentials(
         name: name,
@@ -42,7 +41,6 @@ class CWBitcoin extends Bitcoin {
         password: password,
         passphrase: passphrase,
         mnemonic: mnemonic,
-        parentAddress: parentAddress,
       );
 
   @override

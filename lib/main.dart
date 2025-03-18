@@ -222,7 +222,7 @@ Future<void> initializeAppConfigs() async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 47,
+    initialMigrationVersion: 48,
   );
 }
 

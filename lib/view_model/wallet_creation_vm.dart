@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -66,8 +67,8 @@ abstract class WalletCreationVMBase with Store {
 
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
-  Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
-    final type = restoreWallet?.type ?? this.type;
+  Future<void> create({dynamic options}) async {
+    final type = this.type;
     try {
       state = IsExecutingState();
       if (name.isEmpty) {
@@ -86,9 +87,7 @@ abstract class WalletCreationVMBase with Store {
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
 
-      final credentials = restoreWallet != null
-          ? await getWalletCredentialsFromQRCredentials(restoreWallet)
-          : getCredentials(options);
+      final credentials = getCredentials(options);
 
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
@@ -103,13 +102,14 @@ abstract class WalletCreationVMBase with Store {
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
-        parentAddress: credentials.parentAddress,
       );
 
       credentials.walletInfo = walletInfo;
-      final wallet = restoreWallet != null
-          ? await processFromRestoredWallet(credentials, restoreWallet)
-          : await process(credentials);
+      final wallet = await process(credentials);
+
+      final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
+      walletInfo.isNonSeedWallet = isNonSeedWallet;
+      walletInfo.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);
@@ -229,14 +229,6 @@ abstract class WalletCreationVMBase with Store {
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
-
-  Future<WalletCredentials> getWalletCredentialsFromQRCredentials(
-          RestoredWallet restoreWallet) async =>
-      throw UnimplementedError();
-
-  Future<WalletBase> processFromRestoredWallet(
-          WalletCredentials credentials, RestoredWallet restoreWallet) =>
-      throw UnimplementedError();
 
   @action
   void toggleUseTestnet(bool? value) {
