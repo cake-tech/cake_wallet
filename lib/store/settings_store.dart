@@ -7,7 +7,6 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/country.dart';
@@ -45,6 +44,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -56,7 +56,6 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {required SecureStorage secureStorage,
-      required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
@@ -144,7 +143,6 @@ abstract class SettingsStoreBase with Store {
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _secureStorage = secureStorage,
         _sharedPreferences = sharedPreferences,
-        _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
         balanceDisplayMode = initialBalanceDisplayMode,
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
@@ -394,14 +392,11 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
-
-      _backgroundTasks.registerSyncTask(changeExisting: true);
+      FlutterDaemon().startBackgroundSync(syncMode.frequency.inMinutes);
     });
 
     reaction((_) => currentSyncAll, (bool syncAll) {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
-
-      _backgroundTasks.registerSyncTask(changeExisting: true);
     });
 
     reaction(
@@ -835,7 +830,6 @@ abstract class SettingsStoreBase with Store {
 
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
-  final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
   ObservableMap<WalletType, Node> powNodes;
@@ -877,7 +871,6 @@ abstract class SettingsStoreBase with Store {
       ThemeBase? initialTheme}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final secureStorage = await getIt.get<SecureStorage>();
-    final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
     final savedCakePayCountryRaw = sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
@@ -1319,7 +1312,6 @@ abstract class SettingsStoreBase with Store {
           shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       initialEthereumTransactionPriority: ethereumTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
-      backgroundTasks: backgroundTasks,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,

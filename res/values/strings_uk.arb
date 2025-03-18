@@ -69,6 +69,7 @@
   "avg_savings": "Середня економія",
   "awaitDAppProcessing": "Зачекайте, доки dApp завершить обробку.",
   "awaiting_payment_confirmation": "Очікується підтвердження платежу",
+  "background_sync": "Фонове синхронізація",
   "background_sync_mode": "Фоновий режим синхронізації",
   "backup": "Резервна копія",
   "backup_file": "Файл резервної копії",

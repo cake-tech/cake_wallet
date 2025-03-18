@@ -69,6 +69,7 @@
   "avg_savings": "ประหยัดเฉลี่ย",
   "awaitDAppProcessing": "โปรดรอให้ dApp ประมวลผลเสร็จสิ้น",
   "awaiting_payment_confirmation": "รอการยืนยันการชำระเงิน",
+  "background_sync": "การซิงค์พื้นหลัง",
   "background_sync_mode": "โหมดซิงค์พื้นหลัง",
   "backup": "สำรองข้อมูล",
   "backup_file": "ไฟล์สำรองข้อมูล",

@@ -69,6 +69,7 @@
   "avg_savings": "Avg. Savings",
   "awaitDAppProcessing": "Kindly wait for the dApp to finish processing.",
   "awaiting_payment_confirmation": "Awaiting Payment Confirmation",
+  "background_sync": "Background sync",
   "background_sync_mode": "Background sync mode",
   "backup": "Backup",
   "backup_file": "Backup file",

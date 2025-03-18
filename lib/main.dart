@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -34,11 +36,13 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
@@ -389,4 +393,23 @@ class TopLevelErrorWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+@pragma('vm:entry-point')
+Future<void> backgroundSync() async {
+  printV("Background sync triggered");
+  printV("- WidgetsFlutterBinding.ensureInitialized()");
+  WidgetsFlutterBinding.ensureInitialized();
+  printV("- DartPluginRegistrant.ensureInitialized()");
+  DartPluginRegistrant.ensureInitialized();
+  printV("- FlutterDaemon.markBackgroundSync()");
+  final val = await FlutterDaemon().markBackgroundSync();
+  if (val) {
+    printV("Background sync already in progress");
+    return;
+  }
+  printV("Starting background sync");
+  final backgroundSync = BackgroundSync();
+  await backgroundSync.sync();
+  printV("Background sync completed");
 }

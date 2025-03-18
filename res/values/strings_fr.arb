@@ -69,6 +69,7 @@
   "avg_savings": "Économies moy.",
   "awaitDAppProcessing": "Veuillez attendre que l'application décentralisée (dApp) termine le traitement.",
   "awaiting_payment_confirmation": "En attente de confirmation de paiement",
+  "background_sync": "Synchronisation de fond",
   "background_sync_mode": "Mode de synchronisation en arrière-plan",
   "backup": "Sauvegarde",
   "backup_file": "Fichier de sauvegarde",

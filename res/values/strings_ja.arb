@@ -69,6 +69,7 @@
   "avg_savings": "平均節約額",
   "awaitDAppProcessing": "dAppの処理が完了するまでお待ちください。",
   "awaiting_payment_confirmation": "支払い確認を待っています",
+  "background_sync": "背景同期",
   "background_sync_mode": "バックグラウンド同期モード",
   "backup": "バックアップ",
   "backup_file": "バックアップファイル",

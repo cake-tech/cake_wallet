@@ -69,6 +69,7 @@
   "avg_savings": "平均储蓄",
   "awaitDAppProcessing": "请等待 dApp 处理完成。",
   "awaiting_payment_confirmation": "等待付款确认",
+  "background_sync": "背景同步",
   "background_sync_mode": "后台同步模式",
   "backup": "备份",
   "backup_file": "备份文件",

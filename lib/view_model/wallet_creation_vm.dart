@@ -2,7 +2,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -113,7 +112,6 @@ abstract class WalletCreationVMBase with Store {
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);
-      getIt.get<BackgroundTasks>().registerSyncTask();
       _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {

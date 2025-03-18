@@ -424,4 +424,9 @@ class CWMonero extends Monero {
   bool isViewOnly() {
     return isViewOnlyBySpendKey();
   }
+
+  @override
+  Future<void> backgroundSyncTasks() async {
+    monero_wallet_api.backgroundSyncTasks();
+  }
 }

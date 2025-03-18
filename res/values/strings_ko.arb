@@ -69,6 +69,7 @@
   "avg_savings": "평균 절감액",
   "awaitDAppProcessing": "dApp이 처리를 마칠 때까지 기다려주세요.",
   "awaiting_payment_confirmation": "결제 확인 대기 중",
+  "background_sync": "배경 동기화",
   "background_sync_mode": "백그라운드 동기화 모드",
   "backup": "지원",
   "backup_file": "백업 파일",

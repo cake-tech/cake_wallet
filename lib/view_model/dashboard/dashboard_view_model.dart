@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -42,12 +43,14 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -174,6 +177,7 @@ abstract class DashboardViewModelBase with Store {
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
+    unawaited(isBackgroundSyncEnabled());
     updateActions();
 
     final _wallet = wallet;
@@ -490,6 +494,28 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool mwebEnabled = false;
 
+  @observable
+  bool backgroundSyncEnabled = false;
+
+  Future<bool> isBackgroundSyncEnabled() async {
+    final resp = await FlutterDaemon().getBackgroundSyncStatus();
+    printV("Background sync status: $resp");
+    backgroundSyncEnabled = resp;
+    return resp;
+  }
+
+  Future<void> enableBackgroundSync() async {
+    final resp = await FlutterDaemon().startBackgroundSync(15);
+    printV("Background sync enabled: $resp");
+    backgroundSyncEnabled = true;
+  }
+
+  Future<void> disableBackgroundSync() async {
+    final resp = await FlutterDaemon().stopBackgroundSync();
+    printV("Background sync disabled: $resp");
+    backgroundSyncEnabled = false;
+  }
+
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
@@ -789,8 +815,11 @@ abstract class DashboardViewModelBase with Store {
   SyncMode get syncMode => settingsStore.currentSyncMode;
 
   @action
-  void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
-
+  void setSyncMode(SyncMode syncMode)  {
+    backgroundSyncEnabled = true;
+    settingsStore.currentSyncMode = syncMode;
+  }
+  
   @computed
   bool get syncAll => settingsStore.currentSyncAll;
 

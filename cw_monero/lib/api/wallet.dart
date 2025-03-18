@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
@@ -364,4 +365,7 @@ String signMessage(String message, {String address = ""}) {
 
 bool verifyMessage(String message, String address, String signature) {
   return monero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
+}
+
+Future<void> backgroundSyncTasks() async {
 }

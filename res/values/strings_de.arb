@@ -69,6 +69,7 @@
   "avg_savings": "Durchschn. Einsparungen",
   "awaitDAppProcessing": "Bitte warten Sie, bis die dApp die Verarbeitung abgeschlossen hat.",
   "awaiting_payment_confirmation": "Warten auf Zahlungsbestätigung",
+  "background_sync": "Hintergrundsynchronisation",
   "background_sync_mode": "Hintergrundsynchronisierungsmodus",
   "backup": "Sicherung",
   "backup_file": "Sicherungsdatei",

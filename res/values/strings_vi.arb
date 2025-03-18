@@ -69,6 +69,7 @@
   "avg_savings": "Tiết kiệm trung bình",
   "awaitDAppProcessing": "Vui lòng đợi ứng dụng phi tập trung hoàn thành xử lý.",
   "awaiting_payment_confirmation": "Đang chờ xác nhận thanh toán",
+  "background_sync": "Đồng bộ nền",
   "background_sync_mode": "Chế độ đồng bộ nền",
   "backup": "Sao lưu",
   "backup_file": "Tập tin sao lưu",

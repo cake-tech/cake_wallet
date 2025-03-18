@@ -69,6 +69,7 @@
   "avg_savings": "ပျမ်းမျှ စုဆောင်းငွေ",
   "awaitDAppProcessing": "ကျေးဇူးပြု၍ dApp ကို စီမံလုပ်ဆောင်ခြင်း အပြီးသတ်ရန် စောင့်ပါ။",
   "awaiting_payment_confirmation": "ငွေပေးချေမှု အတည်ပြုချက်ကို စောင့်မျှော်နေပါသည်။",
+  "background_sync": "နောက်ခံထပ်တူပြုခြင်း",
   "background_sync_mode": "နောက်ခံထပ်တူပြုခြင်း mode ကို",
   "backup": "မိတ္တူ",
   "backup_file": "အရန်ဖိုင်",

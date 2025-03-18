@@ -69,6 +69,7 @@
   "avg_savings": "Avg. Matitipid",
   "awaitDAppProcessing": "Pakihintay na matapos ang pagproseso ng dApp.",
   "awaiting_payment_confirmation": "Nanghihintay ng Kumpirmasyon sa Pagbabayad",
+  "background_sync": "Pag -sync ng background",
   "background_sync_mode": "Background sync mode",
   "backup": "Backup",
   "backup_file": "Backup na file",
