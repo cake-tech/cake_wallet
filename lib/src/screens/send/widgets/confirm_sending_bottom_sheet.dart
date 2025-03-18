@@ -1,4 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -217,7 +219,7 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
         fontSize: 12,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+        color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
         decoration: TextDecoration.none);
 
     final double maxHeight = MediaQuery.of(context).size.height * 0.7;
@@ -503,6 +505,7 @@ class TransactionSuccessBottomSheet extends StatelessWidget {
       {required this.titleText,
       required this.currentTheme,
       this.contentImage,
+      this.contentImageColor,
       this.content,
       required this.context,
       this.isTwoAction = false,
@@ -522,6 +525,7 @@ class TransactionSuccessBottomSheet extends StatelessWidget {
   final String titleText;
   final ThemeBase currentTheme;
   final String? contentImage;
+  final Color? contentImageColor;
   final String? content;
   final BuildContext context;
   final bool isTwoAction;
@@ -593,7 +597,9 @@ class TransactionSuccessBottomSheet extends StatelessWidget {
                           key: leftActionButtonKey,
                           onPressed: actionLeftButton,
                           text: leftButtonText ?? '',
-                          color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
+                          color: currentTheme.type == ThemeType.dark
+                              ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
+                              : Theme.of(context).cardColor,
                           textColor: currentTheme.type == ThemeType.dark
                               ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
                               : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor),
@@ -632,7 +638,11 @@ class TransactionSuccessBottomSheet extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildHeader(context),
-            Expanded(flex: 4, child: contentImage != null ? getImage(contentImage!) : Container()),
+            Expanded(
+                flex: 4,
+                child: contentImage != null
+                    ? getImage(contentImage!, imageColor: contentImageColor)
+                    : Container()),
             if (content != null)
               Expanded(
                 flex: 2,
@@ -659,26 +669,26 @@ class TransactionSuccessBottomSheet extends StatelessWidget {
                 ),
               ),
             if (showDontAskMeCheckbox)
-            Padding(
-              padding: const EdgeInsets.only(left: 34.0),
-              child: Row(
-                children: [
-                  SimpleCheckbox(currentTheme: currentTheme, onChanged: onCheckboxChanged),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Don’t ask me next time',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      decoration: TextDecoration.none,
+              Padding(
+                padding: const EdgeInsets.only(left: 34.0),
+                child: Row(
+                  children: [
+                    SimpleCheckbox(onChanged: onCheckboxChanged),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Don’t ask me next time',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        decoration: TextDecoration.none,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
             isTwoAction
                 ? _buildBottomTwoActionPanel()
                 : Padding(
@@ -713,9 +723,8 @@ class TransactionSuccessBottomSheet extends StatelessWidget {
 }
 
 class SimpleCheckbox extends StatefulWidget {
-  SimpleCheckbox({required this.currentTheme, this.onChanged});
+  SimpleCheckbox({this.onChanged});
 
-  final ThemeBase currentTheme;
   final Function(bool)? onChanged;
 
   @override
@@ -736,11 +745,11 @@ class _SimpleCheckboxState extends State<SimpleCheckbox> {
           initialValue = value!;
           widget.onChanged?.call(value);
         }),
-        checkColor: Colors.white,
+        checkColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
         activeColor: Colors.transparent,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: WidgetStateBorderSide.resolveWith(
-            (states) => BorderSide(color: Colors.white, width: 1.0)),
+        side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
+            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor, width: 1.0)),
       ),
     );
   }

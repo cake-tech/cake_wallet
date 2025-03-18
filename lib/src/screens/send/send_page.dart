@@ -23,6 +23,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -566,6 +567,7 @@ class SendPage extends BasePage {
                       onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
                       titleText: 'Transaction Sent',
                       contentImage: 'assets/images/contact_icon.svg',
+                      contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
                       isTwoAction: true,
                       leftButtonText: 'No',
