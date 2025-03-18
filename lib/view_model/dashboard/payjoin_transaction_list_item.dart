@@ -1,5 +1,7 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cw_core/payjoin_session.dart';
+import 'package:cw_core/transaction_info.dart';
 
 class PayjoinTransactionListItem extends ActionListItem {
   PayjoinTransactionListItem({
@@ -10,7 +12,23 @@ class PayjoinTransactionListItem extends ActionListItem {
 
   final String sessionId;
   final PayjoinSession session;
+  TransactionInfo? transaction;
 
   @override
   DateTime get date => session.inProgressSince!;
+
+  String get status {
+    switch (session.status) {
+      case 'success':
+        if (transaction?.isPending == true)
+          return S.current.payjoin_request_awaiting_tx;
+        return S.current.successful;
+      case 'inProgress':
+        return S.current.payjoin_request_in_progress;
+      case 'unrecoverable':
+        return S.current.error;
+      default:
+        return session.status;
+    }
+  }
 }

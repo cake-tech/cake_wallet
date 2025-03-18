@@ -48,7 +48,11 @@ class _PayjoinDetailsPageBodyState extends State<PayjoinDetailsPageBody> {
           final item = widget.payjoinDetailsViewModel.items[index];
 
           if (item is DetailsListStatusItem) {
-            return StandardListStatusRow(title: item.title, value: item.value);
+            return StandardListStatusRow(
+              title: item.title,
+              value: item.value,
+              status: item.status,
+            );
           }
 
           if (item is TradeDetailsListCardItem) {

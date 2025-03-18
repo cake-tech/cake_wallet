@@ -155,10 +155,11 @@ class TransactionsPage extends StatelessWidget {
                               return PayjoinTransactionRow(
                                 key: item.key,
                                 onTap: () => Navigator.of(context).pushNamed(
-                                    Routes.payjoinDetails,
-                                    arguments: item.sessionId),
+                                  Routes.payjoinDetails,
+                                  arguments: [item.sessionId, item.transaction],
+                                ),
                                 currency: "BTC",
-                                state: session.status,
+                                state: item.status,
                                 amount: bitcoin!.formatterBitcoinAmountToString(
                                     amount: session.amount.toInt()),
                                 createdAt: DateFormat('HH:mm')

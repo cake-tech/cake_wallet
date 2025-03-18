@@ -506,6 +506,8 @@
   "paste": "Plakken",
   "pause_wallet_creation": "De mogelijkheid om Haven Wallet te maken is momenteel onderbroken.",
   "payjoin_details": "Payjoin details",
+  "payjoin_request_awaiting_tx": "In afwachting van transactie",
+  "payjoin_request_in_progress": "In uitvoering",
   "payment_id": "Betaling ID: ",
   "payment_was_received": "Uw betaling is ontvangen.",
   "pending": " (in afwachting)",

@@ -506,6 +506,8 @@
   "paste": "วาง",
   "pause_wallet_creation": "ขณะนี้ความสามารถในการสร้าง Haven Wallet ถูกหยุดชั่วคราว",
   "payjoin_details": "Payjoin รายละเอียด",
+  "payjoin_request_awaiting_tx": "รอธุรกรรม",
+  "payjoin_request_in_progress": "การดำเนินการ",
   "payment_id": "ID การชำระเงิน: ",
   "payment_was_received": "การชำระเงินของคุณได้รับการรับทราบแล้ว",
   "pending": " (อยู่ระหว่างดำเนินการ)",

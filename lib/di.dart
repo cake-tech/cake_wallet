@@ -1389,9 +1389,11 @@ Future<void> setup({
             settingsStore: getIt.get<SettingsStore>(),
           ));
 
-  getIt.registerFactoryParam<PayjoinDetailsViewModel, String, void>(
-      (String sessionId, _) => PayjoinDetailsViewModel(
+  getIt.registerFactoryParam<PayjoinDetailsViewModel, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) =>
+          PayjoinDetailsViewModel(
             sessionId,
+            transactionInfo,
             payjoinSessionSource: _payjoinSessionSource,
             settingsStore: getIt.get<SettingsStore>(),
           ));
@@ -1404,9 +1406,10 @@ Future<void> setup({
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(
           anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
 
-  getIt.registerFactoryParam<PayjoinDetailsPage, String, void>(
-      (String sessionId, _) => PayjoinDetailsPage(
-          payjoinDetailsViewModel: getIt.get<PayjoinDetailsViewModel>(param1: sessionId)));
+  getIt.registerFactoryParam<PayjoinDetailsPage, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsPage(
+          payjoinDetailsViewModel: getIt.get<PayjoinDetailsViewModel>(
+              param1: sessionId, param2: transactionInfo)));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));

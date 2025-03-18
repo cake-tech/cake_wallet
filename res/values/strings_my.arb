@@ -506,6 +506,8 @@
   "paste": "ငါးပိ",
   "pause_wallet_creation": "Haven Wallet ဖန်တီးနိုင်မှုကို လောလောဆယ် ခေတ္တရပ်ထားသည်။",
   "payjoin_details": "Payjoin အသေးစိတ်အချက်အလက်များ %% အသေးစိတ်အချက်အလက်များ",
+  "payjoin_request_awaiting_tx": "ငွေပေးငွေယူစောင့်ဆိုင်း",
+  "payjoin_request_in_progress": "ဆောင်ရွက်ဆဲဖြစ်သည်",
   "payment_id": "ငွေပေးချေမှု ID:",
   "payment_was_received": "သင့်ငွေပေးချေမှုကို လက်ခံရရှိခဲ့သည်။",
   "pending": " (ဆိုင်းငံ့)",

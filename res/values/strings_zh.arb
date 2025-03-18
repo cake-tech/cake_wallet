@@ -506,6 +506,8 @@
   "paste": "粘贴",
   "pause_wallet_creation": "创建 Haven 钱包的功能当前已暂停。",
   "payjoin_details": "Payjoin 细节",
+  "payjoin_request_awaiting_tx": "等待交易",
+  "payjoin_request_in_progress": "进行中",
   "payment_id": "付款 ID: ",
   "payment_was_received": "您的付款已收到。",
   "pending": " (待定)",

@@ -507,6 +507,8 @@
   "paste": "Вставить",
   "pause_wallet_creation": "Возможность создания Haven Wallet в настоящее время приостановлена.",
   "payjoin_details": "Payjoin подробности",
+  "payjoin_request_awaiting_tx": "В ожидании транзакции",
+  "payjoin_request_in_progress": "В ходе выполнения",
   "payment_id": "ID платежа: ",
   "payment_was_received": "Ваш платеж получен.",
   "pending": " (в ожидании)",

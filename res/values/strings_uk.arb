@@ -506,6 +506,8 @@
   "paste": "Вставити",
   "pause_wallet_creation": "Можливість створення гаманця Haven зараз призупинено.",
   "payjoin_details": "Payjoin деталей",
+  "payjoin_request_awaiting_tx": "Чекає транзакції",
+  "payjoin_request_in_progress": "Триває",
   "payment_id": "ID платежу: ",
   "payment_was_received": "Ваш платіж отримано.",
   "pending": " (в очікуванні)",

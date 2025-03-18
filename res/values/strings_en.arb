@@ -507,6 +507,8 @@
   "paste": "Paste",
   "pause_wallet_creation": "Ability to create Haven Wallet is currently paused.",
   "payjoin_details": "Payjoin details",
+  "payjoin_request_awaiting_tx": "Awaiting Transaction",
+  "payjoin_request_in_progress": "In Progress",
   "payment_id": "Payment ID: ",
   "payment_was_received": "Your payment was received.",
   "pending": " (pending)",

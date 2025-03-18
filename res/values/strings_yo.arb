@@ -507,6 +507,8 @@
   "paste": "Fikún ẹ̀dà yín",
   "pause_wallet_creation": "Agbara lati ṣẹda Haven Wallet ti wa ni idaduro lọwọlọwọ.",
   "payjoin_details": "Payjoin awọn alaye",
+  "payjoin_request_awaiting_tx": "O duro de idunadura",
+  "payjoin_request_in_progress": "Ni ilọsiwaju",
   "payment_id": "Àmì ìdánimọ̀ àránṣẹ́: ",
   "payment_was_received": "Àránṣẹ́ yín ti dé.",
   "pending": " pípẹ́",

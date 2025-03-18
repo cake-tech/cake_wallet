@@ -506,6 +506,8 @@
   "paste": "Vložit",
   "pause_wallet_creation": "Možnost vytvářet Haven Wallet je momentálně pozastavena.",
   "payjoin_details": "%%TE podrobnosti",
+  "payjoin_request_awaiting_tx": "Čeká na transakci",
+  "payjoin_request_in_progress": "Probíhá",
   "payment_id": "ID platby: ",
   "payment_was_received": "Vaše platba byla přijata.",
   "pending": " (čeká)",

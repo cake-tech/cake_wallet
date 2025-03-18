@@ -136,7 +136,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
@@ -705,9 +704,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<AnonpayDetailsPage>(param1: anonInvoiceViewData));
 
     case Routes.payjoinDetails:
-      final sessionId = settings.arguments as String;
+      final arguments = settings.arguments as List;
+      final sessionId = arguments.first as String;
+      final transactionInfo = arguments[1] as TransactionInfo?;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<PayjoinDetailsPage>(param1: sessionId));
+          builder: (_) => getIt.get<PayjoinDetailsPage>(
+              param1: sessionId, param2: transactionInfo));
 
     case Routes.desktop_actions:
       return PageRouteBuilder(
