@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
@@ -12,7 +13,14 @@ class NFTTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, Routes.nftDetailsPage, arguments: nftAsset),
+      onTap: () => Navigator.pushNamed(
+        context,
+        Routes.nftDetailsPage,
+        arguments: NFTDetailsPageArguments(
+          isSolanaNFT: false,
+          nftAsset: nftAsset,
+        ),
+      ),
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.only(left: 16, right: 16),
