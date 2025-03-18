@@ -241,16 +241,16 @@ class PayjoinManager {
               completer.complete();
           }
         } catch (e) {
-          printV(e);
           _cleanupSession(receiver.id());
-          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id());
+          await _payjoinStorage.markReceiverSessionUnrecoverable(
+              receiver.id(), e.toString());
           completer.completeError(e);
         }
       } else if (message is PayjoinSessionError) {
         _cleanupSession(receiver.id());
         if (message is UnrecoverableError) {
-          printV(message.message);
-          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id());
+          await _payjoinStorage.markReceiverSessionUnrecoverable(
+              receiver.id(), message.message);
           completer.complete();
         } else if (message is RecoverableError) {
           completer.complete();

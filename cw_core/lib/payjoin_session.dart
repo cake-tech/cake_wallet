@@ -45,9 +45,12 @@ class PayjoinSession extends HiveObject {
 
   @HiveField(6)
   String? txId;
-  
+
   @HiveField(7)
   String? rawAmount;
+
+  @HiveField(8)
+  String? error;
 
   bool get isSenderSession => sender != null;
 

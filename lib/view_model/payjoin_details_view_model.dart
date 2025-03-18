@@ -80,6 +80,11 @@ abstract class PayjoinDetailsViewModelBase with Store {
             '${bitcoin!.formatterBitcoinAmountToString(amount: payjoinSession.amount.toInt())} BTC',
         onTap: (_) {},
       ),
+      if (payjoinSession.error?.isNotEmpty == true)
+        StandartListItem(
+          title: S.current.error,
+          value: payjoinSession.error!,
+        ),
       if (payjoinSession.txId?.isNotEmpty == true)
         StandartListItem(
           title: S.current.transaction_details_transaction_id,

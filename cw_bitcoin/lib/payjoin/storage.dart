@@ -23,7 +23,8 @@ class PayjoinStorage {
         ),
       );
 
-  Future<void> markReceiverSessionComplete(String sessionId, String txId, String amount) async {
+  Future<void> markReceiverSessionComplete(
+      String sessionId, String txId, String amount) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
 
     session.status = PayjoinSessionStatus.success.name;
@@ -32,10 +33,12 @@ class PayjoinStorage {
     await session.save();
   }
 
-  Future<void> markReceiverSessionUnrecoverable(String sessionId) async {
+  Future<void> markReceiverSessionUnrecoverable(
+      String sessionId, String reason) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
 
     session.status = PayjoinSessionStatus.unrecoverable.name;
+    session.error = reason;
     await session.save();
   }
 
@@ -56,12 +59,12 @@ class PayjoinStorage {
       _payjoinSessionSources.put(
         "$_senderPrefix$pjUrl",
         PayjoinSession(
-            walletId: walletId,
-            pjUri: pjUrl,
-            sender: sender.toJson(),
-            status: PayjoinSessionStatus.inProgress.name,
-            inProgressSince: DateTime.now(),
-            rawAmount: amount.toString(),
+          walletId: walletId,
+          pjUri: pjUrl,
+          sender: sender.toJson(),
+          status: PayjoinSessionStatus.inProgress.name,
+          inProgressSince: DateTime.now(),
+          rawAmount: amount.toString(),
         ),
       );
 
