@@ -806,6 +806,14 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionNoDustException();
     }
 
+    // if mweb isn't enabled, don't consider spending mweb coins:
+    if (this is LitecoinWallet) {
+      var mwebEnabled = (this as LitecoinWallet).mwebEnabled;
+      if (!mwebEnabled) {
+        coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+      }
+    }
+
     final utxoDetails = _createUTXOS(
       sendAll: false,
       credentialsAmount: credentialsAmount,

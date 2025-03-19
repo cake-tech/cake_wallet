@@ -23,7 +23,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     required this.hasChange,
     this.isSendAll = false,
     this.hasTaprootInputs = false,
-    this.isMweb = false,
+    this.useMwebToSubmit = false,
     this.utxos = const [],
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
@@ -38,7 +38,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool hasChange;
   final bool hasTaprootInputs;
   List<UtxoWithAddress> utxos;
-  bool isMweb;
+  bool useMwebToSubmit;
   String? changeAddressOverride;
   String? idOverride;
   String? hexOverride;
@@ -129,7 +129,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    if (isMweb) {
+    if (useMwebToSubmit) {
       await _ltcCommit();
     } else {
       await _commit();
