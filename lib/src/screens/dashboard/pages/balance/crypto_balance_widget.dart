@@ -286,6 +286,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       description: S.of(context).litecoin_mweb_description,
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).enable,
+                      image: 'assets/images/mweb_logo.png',
                       leftButtonAction: () => _dismissMweb(context),
                       rightButtonAction: () => _enableMweb(context),
                       hintWidget: GestureDetector(
@@ -316,6 +317,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: InfoCard(
                       title: S.of(context).decred_info_title,
                       description: S.of(context).decred_info_card_details,
+                      image: 'assets/images/dcr_icon.png',
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),

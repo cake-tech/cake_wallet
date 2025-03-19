@@ -263,6 +263,7 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      showDecredInfoCard = wallet?.type == WalletType.decred;
     });
 
     _transactionDisposer?.reaction.dispose();

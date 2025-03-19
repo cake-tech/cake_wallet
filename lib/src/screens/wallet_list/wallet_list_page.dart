@@ -137,6 +137,8 @@ class WalletListBodyState extends State<WalletListBody> {
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
 
+  bool _loadingWallet = false;
+
   @override
   Widget build(BuildContext context) {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
@@ -481,6 +483,10 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
+    if (_loadingWallet) return;
+
+    _loadingWallet = true;
+
     if (SettingsStoreBase.walletPasswordDirectInput) {
       Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
           arguments: WalletUnlockArguments(
@@ -493,13 +499,17 @@ class WalletListBodyState extends State<WalletListBody> {
               },
               walletName: wallet.name,
               walletType: wallet.type));
+      _loadingWallet = false;
       return;
     }
 
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
-        if (!isAuthenticatedSuccessfully) return;
+        if (!isAuthenticatedSuccessfully) {
+          _loadingWallet = false;
+          return;
+        }
 
         try {
           final requireHardwareWalletConnection = widget.walletListViewModel
@@ -556,6 +566,8 @@ class WalletListBodyState extends State<WalletListBody> {
                 .of(context)
                 .wallet_list_failed_to_load(wallet.name, e.toString()));
           }
+        } finally {
+          _loadingWallet = false;
         }
       },
       conditionToDetermineIfToUse2FA:
