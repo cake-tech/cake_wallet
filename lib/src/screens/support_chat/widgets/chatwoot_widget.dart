@@ -11,11 +11,15 @@ class ChatwootWidget extends StatefulWidget {
     this.secureStorage, {
     required this.supportUrl,
     required this.appVersion,
+    required this.fiatApiMode,
+    required this.walletType,
   });
 
   final SecureStorage secureStorage;
   final String supportUrl;
   final String appVersion;
+  final String fiatApiMode;
+  final String walletType;
 
   @override
   ChatwootWidgetState createState() => ChatwootWidgetState();
@@ -43,8 +47,11 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
                   if (eventType == 'loaded') {
                     final authToken = parsedMessage["config"]["authToken"];
                     _storeCookie(authToken as String);
-                    _setCustomAttributes(
-                        controller, {"app_version": widget.appVersion});
+                    _setCustomAttributes(controller, {
+                      "app_version": widget.appVersion,
+                      "fiat_api_mode": widget.fiatApiMode,
+                      "wallet_type": widget.walletType,
+                    });
                   }
                 }
               },

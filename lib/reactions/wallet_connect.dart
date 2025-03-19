@@ -12,6 +12,17 @@ bool isEVMCompatibleChain(WalletType walletType) {
   }
 }
 
+bool isNFTACtivatedChain(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.polygon:
+    case WalletType.ethereum:
+    case WalletType.solana:
+      return true;
+    default:
+      return false;
+  }
+}
+
 bool isWalletConnectCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
@@ -55,7 +66,7 @@ String getChainNameBasedOnWalletType(WalletType walletType) {
     case WalletType.polygon:
       return 'polygon';
     case WalletType.solana:
-      return 'solana';
+      return 'mainnet';
     default:
       return '';
   }
