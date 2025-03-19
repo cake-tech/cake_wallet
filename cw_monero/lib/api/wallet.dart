@@ -158,7 +158,7 @@ Future<bool> setupNodeSync(
     }
   }
 
-  if (kDebugMode && debugMonero) {
+  if (true) {
     monero.Wallet_init3(
       wptr!, argv0: '',
       defaultLogBaseName: 'moneroc',
