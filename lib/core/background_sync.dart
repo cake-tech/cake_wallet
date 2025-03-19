@@ -29,12 +29,13 @@ class BackgroundSync {
       await wallet.connectToNode(node: settingsStore.getCurrentNode(wallet.type));
       await wallet.startBackgroundSync();
       printV("Background sync started for ${wallet.name}");
+      inner:
       while (true) {
         final progress = wallet.syncStatus.progress();
         printV("Background sync status: $progress");
         await Future.delayed(const Duration(seconds: 1));
         if (progress == 1) {
-          break;
+          break inner;
         }
       }
       await wallet.close(shouldCleanup: true);

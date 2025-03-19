@@ -230,7 +230,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       return;
     }
     _isBackgroundSyncRunning = true;
-    monero.Wallet_setupBackgroundSync(wptr!, backgroundSyncType: 0, walletPassword: '', backgroundCachePassword: '');
     int status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);

@@ -76,10 +76,17 @@ void createWalletSync(
   final newWptr = monero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
 
-  final status = monero.Wallet_status(newWptr);
+  int status = monero.Wallet_status(newWptr);
   if (status != 0) {
     throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
   }
+
+  monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  status = monero.Wallet_status(newWptr);
+  if (status != 0) {
+    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
+  }
+
   wptr = newWptr;
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
   monero.Wallet_store(wptr!, path: path);
@@ -165,10 +172,17 @@ void restoreWalletFromKeysSync(
           nettype: 0,
         );
 
-  final status = monero.Wallet_status(newWptr);
+  int status = monero.Wallet_status(newWptr);
   if (status != 0) {
     throw WalletRestoreFromKeysException(
         message: monero.Wallet_errorString(newWptr));
+  }
+
+  
+  monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  status = monero.Wallet_status(newWptr);
+  if (status != 0) {
+    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
   }
 
   // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
@@ -189,10 +203,16 @@ void restoreWalletFromKeysSync(
         spendKeyString: spendKey,
         nettype: 0,
       );
-      final status = monero.Wallet_status(newWptr);
+      int status = monero.Wallet_status(newWptr);
       if (status != 0) {
         throw WalletRestoreFromKeysException(
             message: monero.Wallet_errorString(newWptr));
+      }
+        
+      monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+      status = monero.Wallet_status(newWptr);
+      if (status != 0) {
+        throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
       }
     }
   }
@@ -226,7 +246,7 @@ void restoreWalletFromPolyseedWithOffset(
     kdfRounds: 1,
   );
 
-  final status = monero.Wallet_status(newWptr);
+  int status = monero.Wallet_status(newWptr);
 
   if (status != 0) {
     final err = monero.Wallet_errorString(newWptr);
@@ -239,6 +259,12 @@ void restoreWalletFromPolyseedWithOffset(
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: seedOffset);
   monero.Wallet_store(wptr!);
+    
+  monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  status = monero.Wallet_status(newWptr);
+  if (status != 0) {
+    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
+  }
   storeSync();
 
   openedWalletsByPath[path] = wptr!;
@@ -276,7 +302,7 @@ void restoreWalletFromSpendKeySync(
     restoreHeight: restoreHeight,
   );
 
-  final status = monero.Wallet_status(newWptr);
+  int status = monero.Wallet_status(newWptr);
 
   if (status != 0) {
     final err = monero.Wallet_errorString(newWptr);
@@ -289,6 +315,12 @@ void restoreWalletFromSpendKeySync(
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
 
   storeSync();
+  
+  monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  status = monero.Wallet_status(newWptr);
+  if (status != 0) {
+    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
+  }
 
   openedWalletsByPath[path] = wptr!;
   _lastOpenedWallet = path;
@@ -320,6 +352,14 @@ Future<void> restoreWalletFromHardwareWallet(
     final error = monero.Wallet_errorString(newWptr);
     throw WalletRestoreFromSeedException(message: error);
   }
+
+  // TODO: Check with upstream if we can use background sync here
+  // monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  // status = monero.Wallet_status(newWptr);
+  // if (status != 0) {
+  //   throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
+  // }
+
   wptr = newWptr;
   _lastOpenedWallet = path;
   openedWalletsByPath[path] = wptr!;
@@ -380,7 +420,14 @@ Future<void> loadWallet(
 
     final newWptr = Pointer<Void>.fromAddress(newWptrAddr);
 
-    final status = monero.Wallet_status(newWptr);
+    int status = monero.Wallet_status(newWptr);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(newWptr);
+      printV("loadWallet:"+err);
+      throw WalletOpeningException(message: err);
+    }
+    monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+    status = monero.Wallet_status(newWptr);
     if (status != 0) {
       final err = monero.Wallet_errorString(newWptr);
       printV("loadWallet:"+err);

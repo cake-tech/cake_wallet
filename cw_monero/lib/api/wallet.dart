@@ -94,9 +94,13 @@ Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
-  while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
-    printV("adding subaddress");
-    monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+  // this could be a while loop, but I'm in favor of making it if to not cause freezes
+  if (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+    if (monero.Wallet_numSubaddressAccounts(wptr!) < accountIndex) {
+      monero.Wallet_addSubaddressAccount(wptr!);
+    } else {
+      monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+    }
   }
   addressCache[wptr!.address] ??= {};
   addressCache[wptr!.address]![accountIndex] ??= {};

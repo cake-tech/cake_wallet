@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -293,11 +294,11 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
 
     if (DeviceInfo.instance.isMobile) {
-      setIsAppSecureNative(isAppSecure);
+      unawaited(setIsAppSecureNative(isAppSecure));
 
       reaction((_) => isAppSecure, (bool isAppSecure) {
         sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
-        setIsAppSecureNative(isAppSecure);
+        unawaited(setIsAppSecureNative(isAppSecure));
       });
     }
 
