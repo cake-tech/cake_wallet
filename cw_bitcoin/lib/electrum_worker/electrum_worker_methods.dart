@@ -8,6 +8,7 @@ class ElectrumWorkerMethods {
   static const String txHexMethod = "txHex";
   static const String checkTweaksMethod = "checkTweaks";
   static const String stopScanningMethod = "stopScanning";
+  static const String discoverAddressesMethod = "discoverAddresses";
 
   static const ElectrumWorkerMethods connect = ElectrumWorkerMethods._(connectionMethod);
   static const ElectrumWorkerMethods unknown = ElectrumWorkerMethods._(unknownMethod);
@@ -15,6 +16,8 @@ class ElectrumWorkerMethods {
   static const ElectrumWorkerMethods txHex = ElectrumWorkerMethods._(txHexMethod);
   static const ElectrumWorkerMethods checkTweaks = ElectrumWorkerMethods._(checkTweaksMethod);
   static const ElectrumWorkerMethods stopScanning = ElectrumWorkerMethods._(stopScanningMethod);
+  static const ElectrumWorkerMethods discoverAddresses =
+      ElectrumWorkerMethods._(discoverAddressesMethod);
 
   @override
   String toString() {
