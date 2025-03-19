@@ -72,6 +72,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
       return true;
     };
+    await FlutterDaemon().unmarkBackgroundSync();
     await initializeAppAtRoot();
 
     if (kDebugMode) {
