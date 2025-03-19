@@ -112,10 +112,12 @@ class ConfirmSendingBottomSheet extends StatelessWidget {
             if (paymentId != null)
               Padding(
                   padding: const EdgeInsets.only(bottom: 8),
-                  child: StandardTile(
+                  child: AddressTile(
                       itemTitle: 'Payment ID',
-                      itemValue: paymentIdValue!,
                       itemTitleTextStyle: itemTitleTextStyle,
+                      isBatchSending: false,
+                      amount: paymentIdValue!,
+                      address: paymentIdValue!,
                       itemSubTitleTextStyle: itemSubTitleTextStyle)),
             StandardTile(
                 itemTitle: amount,
