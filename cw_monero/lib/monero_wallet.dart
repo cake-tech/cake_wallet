@@ -225,11 +225,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> startBackgroundSync() async {
-    if (_isBackgroundSyncRunning) {
+    if (isBackgroundSyncRunning) {
       printV("Background sync already running");
       return;
     }
-    _isBackgroundSyncRunning = true;
+    isBackgroundSyncRunning = true;
     int status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);
@@ -244,19 +244,33 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       throw Exception("unable to start background sync: $err");
     }
     await save();
-    startSync();
+    unawaited(init());
+    unawaited(startSync());
   }
 
-  bool _isBackgroundSyncRunning = false;
+  bool isBackgroundSyncRunning = false;
 
+  @action
   @override
-  Future<void> stopSync() async {
-    if (_isBackgroundSyncRunning) {
+  Future<void> stopBackgroundSync() async {
+    if (isBackgroundSyncRunning) {
       printV("Stopping background sync");
       await save();
       monero.Wallet_stopBackgroundSync(wptr!, '');
       await save();
-      _isBackgroundSyncRunning = false;
+      isBackgroundSyncRunning = false;
+    }
+  }
+
+  @action
+  @override
+  Future<void> stopSync() async {
+    if (isBackgroundSyncRunning) {
+      printV("Stopping background sync");
+      await save();
+      monero.Wallet_stopBackgroundSync(wptr!, '');
+      await save();
+      isBackgroundSyncRunning = false;
     }
   }
 
