@@ -3,7 +3,8 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'dart:ui';
@@ -15,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -278,8 +278,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             context: context,
             isScrollControlled: true,
             builder: (BuildContext bottomSheetContext) {
-              return TransactionSuccessBottomSheet(
-                  context: bottomSheetContext,
+              return InfoBottomSheet(
                   currentTheme: widget.currentTheme,
                   titleText: 'Transaction Sent',
                   contentImage: 'assets/images/birthday_cake.svg',

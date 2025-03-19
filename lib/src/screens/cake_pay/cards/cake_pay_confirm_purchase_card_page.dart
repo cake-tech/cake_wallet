@@ -7,11 +7,10 @@ import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.da
 import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';

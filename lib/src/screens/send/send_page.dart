@@ -12,12 +12,13 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_bottom_sheet.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/adaptable_page_view.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -537,9 +538,7 @@ class SendPage extends BasePage {
                   outputs: sendViewModel.outputs,
                   onSlideComplete: () async {
                     Navigator.of(bottomSheetContext).pop();
-                    //sendViewModel.commitTransaction(context);
-
-                    sendViewModel.state = TransactionCommitted();
+                    sendViewModel.commitTransaction(context);
                   },
                   change: sendViewModel.pendingTransaction!.change,
                 );
@@ -558,21 +557,17 @@ class SendPage extends BasePage {
           }
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
-          if (newContactAddress?.address != null &&
-              isRegularElectrumAddress(newContactAddress!.address)) {
+
+          if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
             newContactAddress = null;
           }
 
-          if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) newContactAddress = null;
-
-
           await showModalBottomSheet<void>(
             context: context,
-            isScrollControlled: true,
+            isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
               return newContactAddress != null && sendViewModel.showAddressBookPopup
-                  ? TransactionSuccessBottomSheet(
-                      context: bottomSheetContext,
+                  ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,
                       onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
@@ -596,8 +591,7 @@ class SendPage extends BasePage {
                         newContactAddress = null;
                       },
                     )
-                  : TransactionSuccessBottomSheet(
-                      context: bottomSheetContext,
+                  : InfoBottomSheet(
                       currentTheme: currentTheme,
                       titleText: 'Transaction Sent',
                       contentImage: 'assets/images/birthday_cake.svg',
