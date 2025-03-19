@@ -244,8 +244,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       throw Exception("unable to start background sync: $err");
     }
     await save();
-    unawaited(init());
-    unawaited(startSync());
+    await init();
+    await startSync();
   }
 
   bool isBackgroundSyncRunning = false;
@@ -257,6 +257,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       printV("Stopping background sync");
       await save();
       monero.Wallet_stopBackgroundSync(wptr!, '');
+      await save();
+      isBackgroundSyncRunning = false;
+    }
+  }
+
+  @action
+  @override
+  Future<void> stopBackgroundSync(String password) async {
+    if (isBackgroundSyncRunning) {
+      printV("Stopping background sync");
+      await save();
+      monero.Wallet_stopBackgroundSync(wptr!, password);
       await save();
       isBackgroundSyncRunning = false;
     }
@@ -286,7 +298,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       syncStatus = AttemptingSyncStatus();
       monero_wallet.startRefresh();
       _setListeners();
-      _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
       printV(e);

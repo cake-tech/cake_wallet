@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:mobx/mobx.dart';
@@ -96,8 +98,9 @@ abstract class DevMoneroBackgroundSyncBase with Store {
   }
 
   @action
-  void stopBackgroundSync() {
+  Future<void> stopBackgroundSync() async {
     final w = (wallet as MoneroWallet);
-    w.stopBackgroundSync();
+    final keyService = getIt.get<KeyService>();
+    await w.stopBackgroundSync(await keyService.getWalletPassword(walletName: wallet.name));
   }
 }

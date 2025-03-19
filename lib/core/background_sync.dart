@@ -1,10 +1,9 @@
+import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
-import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -33,17 +32,14 @@ class BackgroundSync {
       inner:
       while (true) {
         final progress = wallet.syncStatus.progress();
-        if (wallet.syncStatus is ConnectedSyncStatus) {
-          printV("Wallet is connected.");
-        } else {
-          printV("Background sync status: $progress (${wallet.syncStatus.toString()})");
-        }
+        printV("Background sync status: $progress (${wallet.syncStatus.toString()})");
         await Future.delayed(const Duration(seconds: 1));
         if (progress == 1) {
           break inner;
         }
       }
-      await wallet.stopBackgroundSync();
+      final keyService = getIt.get<KeyService>();
+      await wallet.stopBackgroundSync(await keyService.getWalletPassword(walletName: wallet.name));
       await wallet.close(shouldCleanup: true);
     }
   }

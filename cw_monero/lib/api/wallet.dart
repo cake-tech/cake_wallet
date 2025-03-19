@@ -233,7 +233,9 @@ class SyncListener {
   SyncListener(this.onNewBlock, this.onNewTransaction)
       : _cachedBlockchainHeight = 0,
         _lastKnownBlockHeight = 0,
-        _initialSyncHeight = 0;
+        _initialSyncHeight = 0 {
+          _start();
+        }
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
@@ -251,7 +253,7 @@ class SyncListener {
     return _cachedBlockchainHeight;
   }
 
-  void start() {
+  void _start() {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
