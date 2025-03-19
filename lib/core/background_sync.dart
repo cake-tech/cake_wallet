@@ -9,9 +9,9 @@ import 'package:cw_core/wallet_type.dart';
 
 class BackgroundSync {
   Future<void> sync() async {
-    print("Background sync started");
-    if (monero != null) await monero!.backgroundSyncTasks();
-    print("Background sync completed");
+    printV("Background sync started");
+    await _syncMonero();
+    printV("Background sync completed");
   }
 
   Future<void> _syncMonero() async {

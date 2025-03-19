@@ -104,7 +104,7 @@ Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
   await initializeAppConfigs();
 }
 
-Future<void> initializeAppConfigs() async {
+Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
   CakeHive.init(appDir.path);
@@ -204,6 +204,7 @@ Future<void> initializeAppConfigs() async {
       encryptionKey: havenSeedStoreBoxKey);
 
   await initialSetup(
+    loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
     nodes: nodes,
     powNodes: powNodes,
@@ -224,7 +225,8 @@ Future<void> initializeAppConfigs() async {
 }
 
 Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences,
+    {required bool loadWallet,
+    required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
@@ -266,7 +268,7 @@ Future<void> initialSetup(
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey);
+  await bootstrap(navigatorKey, loadWallet: loadWallet);
 }
 
 class App extends StatefulWidget {
@@ -410,6 +412,7 @@ Future<void> backgroundSync() async {
   }
   printV("Starting background sync");
   final backgroundSync = BackgroundSync();
+  await initializeAppConfigs(loadWallet: false);
   await backgroundSync.sync();
   printV("Background sync completed");
 }
