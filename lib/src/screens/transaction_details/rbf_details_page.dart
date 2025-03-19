@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_bottom_sheet.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_list_fee_picker_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
@@ -153,33 +154,36 @@ class RBFDetailsPage extends BasePage {
 
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
+          if (context.mounted) {
+            showModalBottomSheet<void>(
               context: context,
-              builder: (BuildContext popupContext) {
-                return ConfirmSendingAlert(
-                    alertTitle: S.of(popupContext).confirm_sending,
-                    amount: S.of(popupContext).send_amount,
-                    amountValue: transactionDetailsViewModel
-                        .sendViewModel.pendingTransaction!.amountFormatted,
-                    fee: S.of(popupContext).send_fee,
-                    feeValue:
-                        transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                    rightButtonText: S.of(popupContext).send,
-                    leftButtonText: S.of(popupContext).cancel,
-                    actionRightButton: () async {
-                      Navigator.of(popupContext).pop();
-                      await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
-                      try {
-                        Navigator.of(popupContext).pop();
-                      } catch (_) {}
-                    },
-                    actionLeftButton: () => Navigator.of(popupContext).pop(),
-                    feeFiatAmount:
-                        transactionDetailsViewModel.pendingTransactionFeeFiatAmountFormatted,
-                    fiatAmountValue:
-                        transactionDetailsViewModel.pendingTransactionFiatAmountValueFormatted,
-                    outputs: transactionDetailsViewModel.sendViewModel.outputs);
-              });
+              isDismissible: false,
+              isScrollControlled: true,
+              builder: (BuildContext bottomSheetContext) {
+                return ConfirmSendingBottomSheet(
+                  key: ValueKey('rbf_confirm_sending_bottom_sheet'),
+                  titleText: 'Confirm Transaction',
+                  titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
+                  amount: S.of(bottomSheetContext).send_amount,
+                  amountValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  fee: S.of(bottomSheetContext).send_fee,
+                  feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  outputs: transactionDetailsViewModel.sendViewModel.outputs,
+                  onSlideComplete: () async {
+                    Navigator.of(bottomSheetContext).pop();
+                    await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
+                    try {
+                      Navigator.of(bottomSheetContext).pop();
+                    } catch (_) {}
+                  },
+                  change: transactionDetailsViewModel.sendViewModel.pendingTransaction!.change,
+                );
+              },
+            );
+          }
         });
       }
 
