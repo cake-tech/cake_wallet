@@ -366,6 +366,9 @@ Future<void> loadWallet(
     }
 
     if (deviceType == 1) {
+      if (gLedger == null) {
+       throw Exception("Tried to open a ledger wallet with no ledger connected");
+      }
       final dummyWPtr = wptr ??
           monero.WalletManager_openWallet(wmPtr, path: '', password: '');
       enableLedgerExchange(dummyWPtr, gLedger!);
