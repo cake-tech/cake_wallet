@@ -412,6 +412,11 @@ abstract class DashboardViewModelBase with Store {
       ].contains(wallet.type);
 
   @computed
+  bool get hasBackgroundSync => [
+        WalletType.monero,
+      ].contains(wallet.type);
+
+  @computed
   bool get isMoneroViewOnly {
     if (wallet.type != WalletType.monero) return false;
     return monero!.isViewOnly();
@@ -505,7 +510,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> enableBackgroundSync() async {
-    final resp = await FlutterDaemon().startBackgroundSync(15);
+    final resp = await FlutterDaemon().startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
     printV("Background sync enabled: $resp");
     backgroundSyncEnabled = true;
   }

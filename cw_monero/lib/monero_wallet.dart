@@ -252,18 +252,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @action
   @override
-  Future<void> stopBackgroundSync() async {
-    if (isBackgroundSyncRunning) {
-      printV("Stopping background sync");
-      await save();
-      monero.Wallet_stopBackgroundSync(wptr!, '');
-      await save();
-      isBackgroundSyncRunning = false;
-    }
-  }
-
-  @action
-  @override
   Future<void> stopSync() async {
     if (isBackgroundSyncRunning) {
       printV("Stopping background sync");

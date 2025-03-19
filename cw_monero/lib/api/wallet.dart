@@ -370,6 +370,3 @@ String signMessage(String message, {String address = ""}) {
 bool verifyMessage(String message, String address, String signature) {
   return monero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
 }
-
-Future<void> backgroundSyncTasks() async {
-}
