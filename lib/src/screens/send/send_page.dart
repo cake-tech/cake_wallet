@@ -513,57 +513,43 @@ class SendPage extends BasePage {
         });
       }
 
-      reaction((_) => sendViewModel.state, (ExecutionState state) {
-        if (!_bottomSheetOpened &&
-            (state is IsExecutingState ||
-                state is TransactionCommitting ||
-                state is IsAwaitingDeviceResponseState)) {
-          _bottomSheetOpened = true;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              showModalBottomSheet<void>(
-                context: context,
-                isDismissible: false,
-                isScrollControlled: true,
-                builder: (BuildContext bottomSheetContext) {
-                  return Observer(
-                    builder: (_) {
-                      if (sendViewModel.state is ExecutedSuccessfullyState) {
-                        return ConfirmSendingBottomSheet(
-                          key: ValueKey('send_page_confirm_sending_dialog_key'),
-                          titleText: 'Confirm Transaction',
-                          titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
-                          currency: sendViewModel.selectedCryptoCurrency,
-                          amount: S.of(bottomSheetContext).send_amount,
-                          amountValue: sendViewModel.pendingTransaction!.amountFormatted,
-                          fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                          fee: isEVMCompatibleChain(sendViewModel.walletType)
-                              ? S.of(bottomSheetContext).send_estimated_fee
-                              : S.of(bottomSheetContext).send_fee,
-                          feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                          feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                          outputs: sendViewModel.outputs,
-                          onSlideComplete: () async {
-                            Navigator.of(bottomSheetContext).pop();
-                            //sendViewModel.commitTransaction(context);
+      if (state is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              isScrollControlled: true,
+              builder: (BuildContext bottomSheetContext) {
+                return ConfirmSendingBottomSheet(
+                  key: ValueKey('send_page_confirm_sending_dialog_key'),
+                  titleText: 'Confirm Transaction',
+                  titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
+                  currency: sendViewModel.selectedCryptoCurrency,
+                  amount: S.of(bottomSheetContext).send_amount,
+                  amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                  fee: isEVMCompatibleChain(sendViewModel.walletType)
+                      ? S.of(bottomSheetContext).send_estimated_fee
+                      : S.of(bottomSheetContext).send_fee,
+                  feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  outputs: sendViewModel.outputs,
+                  onSlideComplete: () async {
+                    Navigator.of(bottomSheetContext).pop();
+                    //sendViewModel.commitTransaction(context);
 
-                            sendViewModel.state = TransactionCommitted();
-                          },
-                          change: sendViewModel.pendingTransaction!.change,
-                        );
-                      } else {
-                        return ConfirmSendingBottomSheetPlaceholder();
-                      }
-                    },
-                  );
-                },
-              ).whenComplete(() {
-                _bottomSheetOpened = false;
-              });
-            }
-          });
-        }
-      });
+                    sendViewModel.state = TransactionCommitted();
+                  },
+                  change: sendViewModel.pendingTransaction!.change,
+                );
+              },
+            );
+          }
+        });
+      }
+
+
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
