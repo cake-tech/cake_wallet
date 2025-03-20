@@ -29,11 +29,11 @@ class ExchangeTradePageRobot {
     await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> onConfirmSendingButtonPressed() async {
-    tester.printToConsole('Now confirming sending');
+  Future<void> onSendFromCakeButtonPressed() async {
+    tester.printToConsole('Now sending from cake');
 
     await commonTestCases.tapItemByKey(
-      'exchange_trade_page_confirm_sending_button_key',
+      'exchange_trade_page_send_from_cake_button_key',
       shouldPumpAndSettle: false,
     );
 
@@ -136,7 +136,7 @@ class ExchangeTradePageRobot {
 
       await commonTestCases.defaultSleepTime();
 
-      await onConfirmSendingButtonPressed();
+      await onSendFromCakeButtonPressed();
       tester.printToConsole('Confirm sending button tapped');
 
       hasError = await hasErrorWhileSending();

@@ -326,7 +326,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
       ),
     );
   }
-
+  
   Widget _buildBottomActionPanel({
     required String titleForClipboard,
     required String dataToCopy,

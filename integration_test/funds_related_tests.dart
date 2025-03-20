@@ -86,7 +86,7 @@ void main() {
       exchangeTradePageRobot.hasInformationDialog();
       await exchangeTradePageRobot.onGotItButtonPressed();
 
-      await exchangeTradePageRobot.onConfirmSendingButtonPressed();
+      await exchangeTradePageRobot.onSendFromCakeButtonPressed();
 
       await exchangeTradePageRobot.handleConfirmSendResult();
 

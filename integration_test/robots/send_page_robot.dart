@@ -52,7 +52,7 @@ class SendPageRobot {
       commonTestCases.hasValueKey('send_page_fiat_amount_textfield_key');
     }
 
-    if (sendViewModel.hasFees) {
+    if (sendViewModel.feesViewModel.hasFees) {
       commonTestCases.hasValueKey('send_page_select_fee_priority_button_key');
     }
 
@@ -105,12 +105,12 @@ class SendPageRobot {
     SendPage sendPage = tester.widget(find.byType(SendPage));
     final sendViewModel = sendPage.sendViewModel;
 
-    if (!sendViewModel.hasFees || priority == null) return;
+    if (!sendViewModel.feesViewModel.hasFees || priority == null) return;
 
     final transactionPriorityPickerKey = 'send_page_select_fee_priority_button_key';
     await commonTestCases.tapItemByKey(transactionPriorityPickerKey);
 
-    if (priority == sendViewModel.transactionPriority) {
+    if (priority == sendViewModel.feesViewModel.transactionPriority) {
       await commonTestCases
           .tapItemByKey('picker_items_index_${priority.title}_selected_item_button_key');
       return;
