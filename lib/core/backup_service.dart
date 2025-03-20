@@ -274,7 +274,6 @@ class BackupService {
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
-    final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
     final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
     final currentDefaultSettingsMigrationVersion =
@@ -343,9 +342,6 @@ class BackupService {
     if (autoGenerateSubaddressStatus != null)
       await _sharedPreferences.setInt(
           PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
-
-    if (currentPinLength != null)
-      await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
     if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
@@ -448,8 +444,6 @@ class BackupService {
     final keychainJSON =
         json.decode(utf8.decode(decryptedKeychainDumpFileData)) as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
-    final decodedPin = keychainJSON['pin'] as String;
-    final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
@@ -459,8 +453,6 @@ class BackupService {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
-
-    await _secureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }
@@ -480,8 +472,6 @@ class BackupService {
   Future<Uint8List> _exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await _secureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin!);
     final wallets = await Future.wait(_walletInfoSource.values.map((walletInfo) async {
       return {
         'name': walletInfo.name,
@@ -491,8 +481,7 @@ class BackupService {
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _secureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(
-        json.encode({'pin': decodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
+    final data = utf8.encode(json.encode({'wallets': wallets, backupPasswordKey: backupPassword}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
@@ -512,7 +501,6 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
       PreferencesKey.disableTradeOption:
           _sharedPreferences.getBool(PreferencesKey.disableTradeOption),
-      PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
       PreferencesKey.currentBitcoinElectrumSererIdKey:
