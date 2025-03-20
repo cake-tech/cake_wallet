@@ -139,6 +139,7 @@ Future<bool> setupNodeSync(
 }
 ''');
   final addr = wptr!.address;
+  printV("init: start");
   await Isolate.run(() {
     monero.Wallet_init(Pointer.fromAddress(addr),
         daemonAddress: address,
@@ -147,6 +148,7 @@ Future<bool> setupNodeSync(
         daemonUsername: login ?? '',
         daemonPassword: password ?? '');
   });
+  printV("init: end");
 
   final status = monero.Wallet_status(wptr!);
 
@@ -274,7 +276,7 @@ class SyncListener {
       }
 
       final bchHeight = await getNodeHeightOrUpdate(syncHeight);
-
+      printV("syncHeight: $syncHeight, _lastKnownBlockHeight: $_lastKnownBlockHeight, bchHeight: $bchHeight");
       if (_lastKnownBlockHeight == syncHeight) {
         return;
       }

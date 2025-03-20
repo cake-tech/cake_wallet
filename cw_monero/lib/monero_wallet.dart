@@ -215,7 +215,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           // FIXME: hardcoded value
           socksProxyAddress: node.socksProxyAddress);
 
-      monero_wallet.setTrustedDaemon(node.trusted);
+      await monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
@@ -829,6 +829,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
+    printV("onNewBlock: $height, $blocksLeft, $ptc");
     try {
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();
