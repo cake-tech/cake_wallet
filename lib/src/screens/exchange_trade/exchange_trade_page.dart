@@ -211,6 +211,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     );
   }
 
+  BuildContext? loadingBottomSheetContext;
+
   void _setEffects() {
     if (_effectsInstalled) {
       return;
@@ -218,6 +220,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
     _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) {
+
+          if (state is! IsExecutingState &&
+              loadingBottomSheetContext != null &&
+              loadingBottomSheetContext!.mounted) {
+            Navigator.of(loadingBottomSheetContext!).pop();
+          }
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -231,6 +240,23 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     buttonText: S.of(popupContext).ok,
                     buttonAction: () => Navigator.of(popupContext).pop());
               });
+        });
+      }
+
+      if (state is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: 'Generating transaction',
+                );
+              },
+            );
+          }
         });
       }
 

@@ -294,7 +294,7 @@ class SendPage extends BasePage {
                                               ? template.cryptoCurrency
                                               : template.fiatCurrency,
                                           onTap: () async {
-                                            sendViewModel.state = IsExecutingState();
+                                            sendViewModel.state = LoadingTemplateExecutingState();
                                             if (template.additionalRecipients?.isNotEmpty ??
                                                 false) {
                                               sendViewModel.clearOutputs();
@@ -468,7 +468,8 @@ class SendPage extends BasePage {
                             textColor: Colors.white,
                             isLoading: sendViewModel.state is IsExecutingState ||
                                 sendViewModel.state is TransactionCommitting ||
-                                sendViewModel.state is IsAwaitingDeviceResponseState,
+                                sendViewModel.state is IsAwaitingDeviceResponseState ||
+                                sendViewModel.state is LoadingTemplateExecutingState,
                             isDisabled: !sendViewModel.isReadyForSend,
                           );
                         },
@@ -483,6 +484,7 @@ class SendPage extends BasePage {
   }
 
   BuildContext? dialogContext;
+  BuildContext? loadingBottomSheetContext;
 
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
@@ -498,6 +500,13 @@ class SendPage extends BasePage {
         Navigator.of(dialogContext!).pop();
       }
 
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -511,6 +520,23 @@ class SendPage extends BasePage {
                     buttonText: S.of(context).ok,
                     buttonAction: () => Navigator.of(context).pop());
               });
+        });
+      }
+
+      if (state is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: 'Generating transaction',
+                );
+              },
+            );
+          }
         });
       }
 

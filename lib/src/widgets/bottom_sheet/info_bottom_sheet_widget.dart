@@ -9,18 +9,19 @@ import 'package:flutter_svg/svg.dart';
 import 'base_bottom_sheet_widget.dart';
 
 class LoadingBottomSheet extends BaseBottomSheet {
-  LoadingBottomSheet() : super(titleText: '', titleIconPath: null);
+  LoadingBottomSheet({required String titleText, String? titleIconPath})
+      : super(titleText: titleText, titleIconPath: titleIconPath);
 
   @override
   Widget contentWidget(BuildContext context) {
     return SizedBox(
-      height: 400,
+      height: 200,
       child: Center(child: CircularProgressIndicator()),
     );
   }
 
   @override
-  Widget footerWidget(BuildContext context) => const SizedBox.shrink();
+  Widget footerWidget(BuildContext context) => const SizedBox(height: 94);
 }
 
 class InfoBottomSheet extends BaseBottomSheet {

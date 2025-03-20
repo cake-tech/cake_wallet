@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -401,6 +402,8 @@ class CakePayBuyCardDetailPage extends BasePage {
     );
   }
 
+  BuildContext? loadingBottomSheetContext;
+
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
@@ -410,6 +413,29 @@ class CakePayBuyCardDetailPage extends BasePage {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) showStateAlert(context, S.of(context).error, state.error);
+        });
+      }
+
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+
+      if (state is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: 'Generating transaction',
+                );
+              },
+            );
+          }
         });
       }
 
