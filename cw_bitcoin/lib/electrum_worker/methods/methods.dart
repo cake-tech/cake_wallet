@@ -10,8 +10,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 
-import 'package:cw_bitcoin/seedbyte_types.dart';
-
 part 'connection.dart';
 part 'headers_subscribe.dart';
 part 'scripthashes_subscribe.dart';
@@ -26,4 +24,3 @@ part 'get_fees.dart';
 part 'version.dart';
 part 'check_tweaks_method.dart';
 part 'stop_scanning.dart';
-part 'discover_addresses.dart';

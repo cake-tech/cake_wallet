@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 
-import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_worker/server_capability.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -31,7 +30,8 @@ class ElectrumWorker {
   BasedUtxoNetwork? _network;
   WalletType? _walletType;
 
-  ElectrumWorker._(this.sendPort);
+  ElectrumWorker._(this.sendPort, {ElectrumProvider? electrumClient})
+      : _electrumClient = electrumClient;
 
   static void run(SendPort sendPort) {
     final worker = ElectrumWorker._(sendPort);
@@ -134,10 +134,6 @@ class ElectrumWorker {
             ElectrumWorkerGetVersionRequest.fromJson(messageJson),
           );
           break;
-        case ElectrumWorkerMethods.discoverAddressesMethod:
-          await _handleDiscoverAddresses(
-            ElectrumWorkerDiscoverAddressesRequest.fromJson(messageJson),
-          );
       }
     } catch (e) {
       _sendError(ElectrumWorkerErrorResponse(error: e.toString()));
@@ -1414,7 +1410,6 @@ class ElectrumWorker {
     if (scanData.shouldSwitchNodes) {
       scanningClient = await ElectrumProvider.connect(
         ElectrumTCPService.connect(
-// <-
           // TODO: ssl
           Uri.parse("tcp://electrs.cakewallet.com:50001"),
         ),
@@ -1652,46 +1647,6 @@ class ElectrumWorker {
     _sendResponse(
       ElectrumWorkerGetVersionResponse(result: version!, id: request.id),
     );
-  }
-
-  Future<void> _handleDiscoverAddresses(ElectrumWorkerDiscoverAddressesRequest request) async {
-    try {
-      final newAddresses = <BitcoinAddressRecord>[];
-
-      for (var i = request.startIndex; i < request.count + request.startIndex; i++) {
-        final address = BitcoinAddressRecord(
-          ElectrumWalletAddressesBase.generateAddress(
-            seedBytesType: request.seedBytesType,
-            isChange: request.isChange,
-            index: i,
-            addressType: request.addressType,
-            derivationInfo: request.derivationInfo,
-            xpriv: request.xpriv,
-            network: request.network,
-          ).toAddress(request.network),
-          index: i,
-          isChange: request.isChange,
-          isHidden: request.shouldHideAddress || request.isChange,
-          type: request.addressType,
-          network: request.network,
-          derivationInfo: request.derivationInfo,
-          seedBytesType: request.seedBytesType,
-        );
-
-        newAddresses.add(address);
-      }
-
-      _sendResponse(
-        ElectrumWorkerDiscoverAddressesResponse(
-          id: request.id,
-          addresses: newAddresses,
-        ),
-      );
-    } catch (e) {
-      _sendError(ElectrumWorkerDiscoverAddressesErrorResponse(
-        error: e.toString(),
-      ));
-    }
   }
 }
 
