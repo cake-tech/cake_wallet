@@ -275,7 +275,6 @@ class BackupService {
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
-    final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
     final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
     final currentDefaultSettingsMigrationVersion =
@@ -344,9 +343,6 @@ class BackupService {
     if (autoGenerateSubaddressStatus != null)
       await _sharedPreferences.setInt(
           PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
-
-    if (currentPinLength != null)
-      await _sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
     if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await _sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
@@ -506,7 +502,6 @@ class BackupService {
       PreferencesKey.shouldSaveRecipientAddressKey:
           _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
       PreferencesKey.disableTradeOption: _sharedPreferences.getBool(PreferencesKey.disableTradeOption),
-      PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
       PreferencesKey.currentBitcoinElectrumSererIdKey:
