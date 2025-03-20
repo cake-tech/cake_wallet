@@ -7,14 +7,33 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
-
+import 'package:http/http.dart' as http;
 class BackgroundSync {
   Future<void> sync() async {
     printV("Background sync started");
+    await _checkNetwork();
     await _syncMonero();
     printV("Background sync completed");
   }
 
+  Future<void> _checkNetwork() async {
+    final urls = [
+      "https://connectivitycheck.gstatic.com",
+      "https://static.mrcyjanek.net",
+      "https://getmonero.org",
+      "https://github.com",
+      "https://1.1.1.1/",
+    ];
+    for (final url in urls) {
+      try {
+        final response = await http.get(Uri.parse(url));
+        printV("Network connection successful (${response.statusCode}) to $url");
+      } catch (e) {
+        printV("Error checking network: $url: $e");
+      }
+    }
+  }
+  
   Future<void> _syncMonero() async {
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final walletListViewModel = getIt.get<WalletListViewModel>();

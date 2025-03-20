@@ -503,6 +503,9 @@ abstract class DashboardViewModelBase with Store {
   bool backgroundSyncEnabled = false;
 
   Future<bool> isBackgroundSyncEnabled() async {
+    if (Platform.isAndroid) {
+      return true;
+    }
     final resp = await FlutterDaemon().getBackgroundSyncStatus();
     printV("Background sync status: $resp");
     backgroundSyncEnabled = resp;
