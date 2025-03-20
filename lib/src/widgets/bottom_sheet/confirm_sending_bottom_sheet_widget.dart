@@ -42,7 +42,10 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.onSlideComplete,
     this.change,
     Key? key,
-  }) : super(titleText: titleText, titleIconPath: titleIconPath);
+  }) : showScrollbar = outputs.length > 3 , super(titleText: titleText, titleIconPath: titleIconPath);
+
+  final bool showScrollbar;
+  final ScrollController scrollController = ScrollController();
 
   @override
   Widget contentWidget(BuildContext context) {
@@ -61,8 +64,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
       decoration: TextDecoration.none,
     );
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+    Widget content = Padding(
+      padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),
       child: Column(
         children: [
           if (paymentId != null && paymentIdValue != null)
@@ -102,7 +105,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                 itemCount: outputs.length,
                 separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
-                  final isBatchSending = outputs.length > 1;
+                  final bool isBatchSending = outputs.length > 1;
                   final item = outputs[index];
                   final contactName = item.parsedAddress.name;
                   final batchContactTitle =
@@ -111,22 +114,22 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   final _amount = item.cryptoAmount.replaceAll(',', '.') + ' ${currency.title}';
                   return isBatchSending || contactName.isNotEmpty
                       ? AddressExpansionTile(
-                          contactType: 'Contact',
-                          name: isBatchSending ? batchContactTitle : contactName,
-                          address: _address,
-                          amount: _amount,
-                          isBatchSending: isBatchSending,
-                          itemTitleTextStyle: itemTitleTextStyle,
-                          itemSubTitleTextStyle: itemSubTitleTextStyle,
-                        )
+                    contactType: 'Contact',
+                    name: isBatchSending ? batchContactTitle : contactName,
+                    address: _address,
+                    amount: _amount,
+                    isBatchSending: isBatchSending,
+                    itemTitleTextStyle: itemTitleTextStyle,
+                    itemSubTitleTextStyle: itemSubTitleTextStyle,
+                  )
                       : AddressTile(
-                          itemTitle: 'Address',
-                          itemTitleTextStyle: itemTitleTextStyle,
-                          isBatchSending: isBatchSending,
-                          amount: _amount,
-                          address: _address,
-                          itemSubTitleTextStyle: itemSubTitleTextStyle,
-                        );
+                    itemTitle: 'Address',
+                    itemTitleTextStyle: itemTitleTextStyle,
+                    isBatchSending: isBatchSending,
+                    amount: _amount,
+                    address: _address,
+                    itemSubTitleTextStyle: itemSubTitleTextStyle,
+                  );
                 },
               ),
               if (change != null)
@@ -148,6 +151,23 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
         ],
       ),
     );
+
+    if (showScrollbar) {
+      return SizedBox(
+        height: 380,
+        child: Scrollbar(
+          controller: scrollController,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            controller: scrollController,
+            physics: const BouncingScrollPhysics(),
+            child: content,
+          ),
+        ),
+      );
+    } else {
+      return content;
+    }
   }
 
   @override
@@ -156,6 +176,16 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
       padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
       decoration: BoxDecoration(
         color: Theme.of(context).dialogBackgroundColor,
+        boxShadow: [
+          if (showScrollbar)
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              spreadRadius: 2,
+              blurRadius: 10,
+              offset: const Offset(0, 0),
+            ),
+        ],
+
       ),
       child: StandardSlideButton(
         onSlideComplete: onSlideComplete,
@@ -290,7 +320,13 @@ class AddressExpansionTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(isBatchSending ? name : contactType, style: itemTitleTextStyle),
-                Text(isBatchSending ? amount : name, style: itemTitleTextStyle),
+                Text(isBatchSending ? amount : name, style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  decoration: TextDecoration.none,
+                )),
               ],
             ),
             children: [

@@ -61,9 +61,8 @@ abstract class BaseBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double maxHeight = MediaQuery.of(context).size.height * 0.7;
     return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
+      constraints: BoxConstraints(maxHeight: 600),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
