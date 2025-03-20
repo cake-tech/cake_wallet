@@ -3,15 +3,18 @@ import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
 import 'base_bottom_sheet_widget.dart';
 
 class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final CryptoCurrency currency;
+  final ThemeBase currentTheme;
   final String? paymentId;
   final String? paymentIdValue;
   final String? expirationTime;
@@ -29,6 +32,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required String titleText,
     String? titleIconPath,
     required this.currency,
+    required this.currentTheme,
     this.paymentId,
     this.paymentIdValue,
     this.expirationTime,
@@ -42,7 +46,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.onSlideComplete,
     this.change,
     Key? key,
-  }) : showScrollbar = outputs.length > 3 , super(titleText: titleText, titleIconPath: titleIconPath);
+  })  : showScrollbar = outputs.length > 3,
+        super(titleText: titleText, titleIconPath: titleIconPath);
 
   final bool showScrollbar;
   final ScrollController scrollController = ScrollController();
@@ -60,7 +65,9 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
       fontSize: 12,
       fontFamily: 'Lato',
       fontWeight: FontWeight.w600,
-      color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+      color: currentTheme.type == ThemeType.bright
+          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
+          : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
       decoration: TextDecoration.none,
     );
 
@@ -73,6 +80,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
               padding: const EdgeInsets.only(bottom: 8),
               child: AddressTile(
                 itemTitle: paymentId!,
+                currentTheme: currentTheme,
                 itemTitleTextStyle: itemTitleTextStyle,
                 isBatchSending: false,
                 amount: '',
@@ -114,22 +122,24 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   final _amount = item.cryptoAmount.replaceAll(',', '.') + ' ${currency.title}';
                   return isBatchSending || contactName.isNotEmpty
                       ? AddressExpansionTile(
-                    contactType: 'Contact',
-                    name: isBatchSending ? batchContactTitle : contactName,
-                    address: _address,
-                    amount: _amount,
-                    isBatchSending: isBatchSending,
-                    itemTitleTextStyle: itemTitleTextStyle,
-                    itemSubTitleTextStyle: itemSubTitleTextStyle,
-                  )
+                          contactType: 'Contact',
+                          currentTheme: currentTheme,
+                          name: isBatchSending ? batchContactTitle : contactName,
+                          address: _address,
+                          amount: _amount,
+                          isBatchSending: isBatchSending,
+                          itemTitleTextStyle: itemTitleTextStyle,
+                          itemSubTitleTextStyle: itemSubTitleTextStyle,
+                        )
                       : AddressTile(
-                    itemTitle: 'Address',
-                    itemTitleTextStyle: itemTitleTextStyle,
-                    isBatchSending: isBatchSending,
-                    amount: _amount,
-                    address: _address,
-                    itemSubTitleTextStyle: itemSubTitleTextStyle,
-                  );
+                          itemTitle: 'Address',
+                          currentTheme: currentTheme,
+                          itemTitleTextStyle: itemTitleTextStyle,
+                          isBatchSending: isBatchSending,
+                          amount: _amount,
+                          address: _address,
+                          itemSubTitleTextStyle: itemSubTitleTextStyle,
+                        );
                 },
               ),
               if (change != null)
@@ -137,6 +147,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   padding: const EdgeInsets.only(top: 8),
                   child: AddressExpansionTile(
                     contactType: 'Change',
+                    currentTheme: currentTheme,
                     name: S.of(context).send_change_to_you,
                     address: change!.address,
                     amount: change!.amount + ' ${currency.title}',
@@ -185,11 +196,11 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
               offset: const Offset(0, 0),
             ),
         ],
-
       ),
       child: StandardSlideButton(
         onSlideComplete: onSlideComplete,
         buttonText: 'Swipe to send',
+        currentTheme: currentTheme,
       ),
     );
   }
@@ -241,6 +252,7 @@ class AddressTile extends StatelessWidget {
   const AddressTile({
     super.key,
     required this.itemTitle,
+    required this.currentTheme,
     required this.itemTitleTextStyle,
     required this.isBatchSending,
     required this.amount,
@@ -249,6 +261,7 @@ class AddressTile extends StatelessWidget {
   });
 
   final String itemTitle;
+  final ThemeBase currentTheme;
   final TextStyle itemTitleTextStyle;
   final bool isBatchSending;
   final String amount;
@@ -257,6 +270,15 @@ class AddressTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final addressTextStyle = TextStyle(
+      fontSize: 12,
+      fontFamily: 'Lato',
+      fontWeight: FontWeight.w600,
+      color: currentTheme.type == ThemeType.bright
+          ? Theme.of(context).extension<BalancePageTheme>()!.labelTextColor
+          : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+      decoration: TextDecoration.none,
+    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
@@ -273,9 +295,41 @@ class AddressTile extends StatelessWidget {
               if (isBatchSending) Text(amount, style: itemTitleTextStyle),
             ],
           ),
-          Text(address, style: itemSubTitleTextStyle),
+          buildSegmentedAddress(
+            address: address,
+            evenTextStyle: currentTheme.type == ThemeType.bright
+                ? itemSubTitleTextStyle
+                : addressTextStyle,
+            oddTextStyle: itemSubTitleTextStyle,
+          ),
         ],
       ),
+    );
+  }
+
+  Widget buildSegmentedAddress({
+    required String address,
+    int chunkSize = 6,
+    required TextStyle evenTextStyle,
+    required TextStyle oddTextStyle,
+  }) {
+    final spans = <TextSpan>[];
+
+    int index = 0;
+    for (int i = 0; i < address.length; i += chunkSize) {
+      final chunk = address.substring(i, math.min(i + chunkSize, address.length));
+      final style = (index % 2 == 0) ? evenTextStyle : oddTextStyle;
+
+      spans.add(
+        TextSpan(text: '$chunk ', style: style),
+      );
+
+      index++;
+    }
+
+    return RichText(
+      text: TextSpan(children: spans, style: evenTextStyle),
+      overflow: TextOverflow.visible,
     );
   }
 }
@@ -284,6 +338,7 @@ class AddressExpansionTile extends StatelessWidget {
   const AddressExpansionTile({
     super.key,
     required this.contactType,
+    required this.currentTheme,
     required this.name,
     required this.address,
     required this.amount,
@@ -293,6 +348,7 @@ class AddressExpansionTile extends StatelessWidget {
   });
 
   final String contactType;
+  final ThemeBase currentTheme;
   final String name;
   final String address;
   final String amount;
@@ -302,6 +358,16 @@ class AddressExpansionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final addressTextStyle = TextStyle(
+      fontSize: 12,
+      fontFamily: 'Lato',
+      fontWeight: FontWeight.w600,
+      color: currentTheme.type == ThemeType.bright
+          ? Theme.of(context).extension<BalancePageTheme>()!.labelTextColor
+          : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+      decoration: TextDecoration.none,
+    );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -320,13 +386,14 @@ class AddressExpansionTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(isBatchSending ? name : contactType, style: itemTitleTextStyle),
-                Text(isBatchSending ? amount : name, style: TextStyle(
-                  fontSize: 14,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  decoration: TextDecoration.none,
-                )),
+                Text(isBatchSending ? amount : name,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      decoration: TextDecoration.none,
+                    )),
               ],
             ),
             children: [
@@ -336,7 +403,13 @@ class AddressExpansionTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(address, style: itemSubTitleTextStyle, softWrap: true),
+                        buildSegmentedAddress(
+                          address: address,
+                          evenTextStyle: currentTheme.type == ThemeType.bright
+                              ? itemSubTitleTextStyle
+                              : addressTextStyle,
+                          oddTextStyle: itemSubTitleTextStyle,
+                        ),
                       ],
                     ),
                   ),
@@ -346,6 +419,32 @@ class AddressExpansionTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildSegmentedAddress({
+    required String address,
+    int chunkSize = 6,
+    required TextStyle evenTextStyle,
+    required TextStyle oddTextStyle,
+  }) {
+    final spans = <TextSpan>[];
+
+    int index = 0;
+    for (int i = 0; i < address.length; i += chunkSize) {
+      final chunk = address.substring(i, math.min(i + chunkSize, address.length));
+      final style = (index % 2 == 0) ? evenTextStyle : oddTextStyle;
+
+      spans.add(
+        TextSpan(text: '$chunk ', style: style),
+      );
+
+      index++;
+    }
+
+    return RichText(
+      text: TextSpan(children: spans, style: evenTextStyle),
+      overflow: TextOverflow.visible,
     );
   }
 }

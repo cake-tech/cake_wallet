@@ -1,19 +1,22 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 
 class StandardSlideButton extends StatefulWidget {
-  final VoidCallback onSlideComplete;
-  final String buttonText;
-  final double height;
-
   const StandardSlideButton({
     Key? key,
     required this.onSlideComplete,
     this.buttonText = '',
     this.height = 48.0,
+    required this.currentTheme,
   }) : super(key: key);
+
+  final VoidCallback onSlideComplete;
+  final String buttonText;
+  final double height;
+  final ThemeBase currentTheme;
 
   @override
   _StandardSlideButtonState createState() => _StandardSlideButtonState();
@@ -34,7 +37,9 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
         height: widget.height,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor),
+            color: widget.currentTheme.type == ThemeType.light || widget.currentTheme.type == ThemeType.bright
+                ?  Theme.of(context).disabledColor
+                : widget.currentTheme.type == ThemeType.oled ? Colors.black : Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor),
         child: Stack(
           alignment: Alignment.centerLeft,
           children: [
@@ -69,7 +74,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                   height: widget.height - 8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                    color: widget.currentTheme.type == ThemeType.bright ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor : Theme.of(context).extension<FilterTheme>()!.buttonColor,
                   ),
                   alignment: Alignment.center,
                   child: Icon(Icons.arrow_forward,

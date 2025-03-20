@@ -380,6 +380,7 @@ class CakePayBuyCardDetailPage extends BasePage {
       builder: (BuildContext popupContext) {
         return ConfirmSendingBottomSheet(
           key: ValueKey('send_page_confirm_sending_dialog_key'),
+          currentTheme: currentTheme,
           paymentId: S.of(popupContext).payment_id,
           paymentIdValue: order?.orderId,
           expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,

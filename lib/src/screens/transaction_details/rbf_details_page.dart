@@ -189,6 +189,7 @@ class RBFDetailsPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('rbf_confirm_sending_bottom_sheet'),
                   titleText: 'Confirm Transaction',
+                  currentTheme: currentTheme,
                   titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,

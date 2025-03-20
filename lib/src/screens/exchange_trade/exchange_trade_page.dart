@@ -270,6 +270,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
+                  currentTheme: widget.currentTheme,
                   titleText: 'Confirm Transaction',
                   titleIconPath: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,

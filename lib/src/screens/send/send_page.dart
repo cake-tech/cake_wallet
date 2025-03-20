@@ -551,6 +551,7 @@ class SendPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('send_page_confirm_sending_dialog_key'),
                   titleText: 'Confirm Transaction',
+                  currentTheme: currentTheme,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
