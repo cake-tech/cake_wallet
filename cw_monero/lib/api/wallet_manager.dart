@@ -73,6 +73,7 @@ void createWalletSync(
     required String passphrase,
     int nettype = 0}) {
   txhistory = null;
+  language = getSeedLanguage(language)!;
   final newWptr = monero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
 
