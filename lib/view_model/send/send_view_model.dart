@@ -1,6 +1,5 @@
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
-import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -144,8 +143,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
     // return false;
 
-    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
-    // return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
+    //   return false;
 
     return true;
   }
@@ -470,10 +469,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction!.id.isNotEmpty) {
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
-            ? await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey, recipientAddress: address, transactionNote: note))
-            : await transactionDescriptionBox
-                .add(TransactionDescription(id: descriptionKey, transactionNote: note));
+            ? await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  recipientAddress: address,
+                  transactionNote: note,
+                ),
+              )
+            : await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  transactionNote: note,
+                ),
+              );
       }
 
       state = TransactionCommitted();
@@ -499,14 +507,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate:feesViewModel. customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate:feesViewModel. customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           // if it's an exchange flow then disable sending from mweb coins
           coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
         );

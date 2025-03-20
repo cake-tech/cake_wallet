@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/transaction_priority_label.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -26,12 +27,12 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   )   : _settingsStore = appStore.settingsStore,
         super(appStore: appStore) {
     if (wallet.type == WalletType.bitcoin &&
-        _settingsStore.priority[wallet.type] == bitcoinTransactionPriorityCustom) {
+        _settingsStore.priority[wallet.type]!.title == bitcoinTransactionPriorityCustom.title) {
       setTransactionPriority(bitcoinTransactionPriorityMedium);
     }
     final priority = _settingsStore.priority[wallet.type];
-    final priorities = priorityForWalletType(wallet.type);
-    if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
+    final priorities = priorityForWallet(wallet);
+    if (priorities.isNotEmpty && !priorities.contains(priority)) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
   }
@@ -56,8 +57,9 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
 
   int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
     if (wallet.type == WalletType.bitcoin) {
-      final customItem = priorities
-          .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+      final customItem = priorities.firstWhereOrNull(
+        (element) => element.title == bitcoin!.getBitcoinTransactionPriorityCustom().title,
+      );
 
       return customItem != null ? priorities.indexOf(customItem) : null;
     }
@@ -141,14 +143,18 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   String displayFeeRate(dynamic priority, int? customValue) {
     final _priority = priority as TransactionPriority;
 
-    if (wallet.type == WalletType.bitcoin) {
+    if (walletType == WalletType.bitcoin) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+      return TransactionPriorityLabelLocalized(
+        bitcoin!.getTransactionPriorityWithLabel(_priority, rate, customRate: customValue),
+      ).toString();
     }
 
     if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+      return TransactionPriorityLabelLocalized(
+        bitcoin!.getTransactionPriorityWithLabel(_priority, rate),
+      ).toString();
     }
 
     return priority.toString();

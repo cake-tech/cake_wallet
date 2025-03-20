@@ -35,8 +35,8 @@ const moneroBlockSize = 1000;
 
 class HavenWallet = HavenWalletBase with _$HavenWallet;
 
-abstract class HavenWalletBase
-    extends WalletBase<MoneroBalance, HavenTransactionHistory, HavenTransactionInfo> with Store {
+abstract class HavenWalletBase extends WalletBase<MoneroBalance, HavenTransactionHistory,
+    HavenTransactionInfo, HavenWalletAddresses> with Store {
   HavenWalletBase({required WalletInfo walletInfo, String? password})
       : balance = ObservableMap.of(getHavenBalance(accountIndex: 0)),
         _isTransactionUpdating = false,
@@ -223,7 +223,7 @@ abstract class HavenWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {

@@ -35,6 +35,7 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -46,11 +47,12 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/view_model/silent_payments_scanning_view_model.dart';
 
 import '../../themes/theme_base.dart';
 
@@ -59,23 +61,25 @@ part 'dashboard_view_model.g.dart';
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
-  DashboardViewModelBase(
-      {required this.balanceViewModel,
-      required this.appStore,
-      required this.tradesStore,
-      required this.tradeFilterStore,
-      required this.transactionFilterStore,
-      required this.settingsStore,
-      required this.yatStore,
-      required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      required this.sharedPreferences,
-      required this.keyService})
-      : hasTradeAction = false,
+  DashboardViewModelBase({
+    required this.balanceViewModel,
+    required this.appStore,
+    required this.tradesStore,
+    required this.tradeFilterStore,
+    required this.transactionFilterStore,
+    required this.settingsStore,
+    required this.yatStore,
+    required this.ordersStore,
+    required this.anonpayTransactionsStore,
+    required this.sharedPreferences,
+    required this.keyService,
+    required SilentPaymentsScanningViewModel silentPaymentsScanningViewModel,
+  })  : hasTradeAction = false,
         hasSwapAction = false,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
+        _silentPaymentsScanningViewModel = silentPaymentsScanningViewModel,
         filterItems = {
           S.current.transactions: [
             FilterItem(
@@ -292,17 +296,11 @@ abstract class DashboardViewModelBase with Store {
         }
     );
 
-    if (hasSilentPayments) {
-      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-
-      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
-        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-      });
-    }
-
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }
+
+  final SilentPaymentsScanningViewModel _silentPaymentsScanningViewModel;
 
   void _checkMweb() {
     if (hasMweb) {
@@ -393,7 +391,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+      wallet;
 
   @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
@@ -443,7 +442,8 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") && !wallet.isHardwareWallet)
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") &&
+          !wallet.isHardwareWallet)
         "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
       if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
@@ -466,16 +466,21 @@ abstract class DashboardViewModelBase with Store {
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
 
-  @observable
-  bool silentPaymentsScanningActive = false;
+  @computed
+  bool get silentPaymentsAlwaysScanning =>
+      _silentPaymentsScanningViewModel.silentPaymentsAlwaysScan;
+
+  @computed
+  bool get silentPaymentsScanningActive =>
+      _silentPaymentsScanningViewModel.silentPaymentsScanningActive;
 
   @action
-  void setSilentPaymentsScanning(bool active) {
-    silentPaymentsScanningActive = active;
-
-    if (hasSilentPayments) {
-      bitcoin!.setScanningActive(wallet, active);
+  Future<void> toggleSilentPaymentsScanning(BuildContext context) async {
+    if (silentPaymentsAlwaysScanning && wallet.syncStatus is SyncedSyncStatus) {
+      return;
     }
+
+    await _silentPaymentsScanningViewModel.toggleSilentPaymentsScanning(context);
   }
 
   @computed
@@ -502,8 +507,7 @@ abstract class DashboardViewModelBase with Store {
       spread = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) spread = 0;
     return spread;
   }
 
@@ -516,8 +520,7 @@ abstract class DashboardViewModelBase with Store {
       blur = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) blur = 0;
     return blur;
   }
 
@@ -636,7 +639,9 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+              WalletAddresses>?
+          wallet) {
     if (wallet == null) {
       return;
     }
