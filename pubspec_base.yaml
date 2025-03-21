@@ -104,7 +104,7 @@ dependencies:
 #      ref: main
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
-  polyseed: ^0.0.6
+  polyseed: ^0.0.7
   nostr_tools: ^1.0.9
   ledger_flutter_plus:
     git:

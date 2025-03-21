@@ -73,6 +73,7 @@ void createWalletSync(
     required String passphrase,
     int nettype = 0}) {
   txhistory = null;
+  language = getSeedLanguage(language)!;
   final newWptr = monero.WalletManager_createWallet(wmPtr,
       path: path, password: password, language: language, networkType: 0);
 
@@ -366,6 +367,9 @@ Future<void> loadWallet(
     }
 
     if (deviceType == 1) {
+      if (gLedger == null) {
+       throw Exception("Tried to open a ledger wallet with no ledger connected");
+      }
       final dummyWPtr = wptr ??
           monero.WalletManager_openWallet(wmPtr, path: '', password: '');
       enableLedgerExchange(dummyWPtr, gLedger!);
