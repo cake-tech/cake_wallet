@@ -275,7 +275,7 @@ class AddressTile extends StatelessWidget {
       fontFamily: 'Lato',
       fontWeight: FontWeight.w600,
       color: currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<BalancePageTheme>()!.labelTextColor
+          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.5)
           : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       decoration: TextDecoration.none,
     );
@@ -297,9 +297,7 @@ class AddressTile extends StatelessWidget {
           ),
           buildSegmentedAddress(
             address: address,
-            evenTextStyle: currentTheme.type == ThemeType.bright
-                ? itemSubTitleTextStyle
-                : addressTextStyle,
+            evenTextStyle: addressTextStyle,
             oddTextStyle: itemSubTitleTextStyle,
           ),
         ],
@@ -363,7 +361,7 @@ class AddressExpansionTile extends StatelessWidget {
       fontFamily: 'Lato',
       fontWeight: FontWeight.w600,
       color: currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<BalancePageTheme>()!.labelTextColor
+          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.5)
           : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       decoration: TextDecoration.none,
     );
@@ -402,9 +400,7 @@ class AddressExpansionTile extends StatelessWidget {
                   Expanded(
                     child: buildSegmentedAddress(
                       address: address,
-                      evenTextStyle: currentTheme.type == ThemeType.bright
-                          ? itemSubTitleTextStyle
-                          : addressTextStyle,
+                      evenTextStyle: addressTextStyle,
                       oddTextStyle: itemSubTitleTextStyle,
                     ),
                   ),
