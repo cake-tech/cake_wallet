@@ -1,1 +1,6 @@
-Update for Zano's Hard fork
+Add Decred Wallet
+Remove Haven Wallet
+Fix and Improve Solana Wallet
+Improve app usability and user experience
+User interface enhancements
+Bug fixes
