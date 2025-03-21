@@ -42,7 +42,7 @@ class BackgroundSyncPage extends BasePage {
             return SettingsSwitcherCell(
               title: S.current.background_sync,
               value: dashboardViewModel.backgroundSyncEnabled,
-              onValueChange: dashboardViewModel.batteryOptimizationEnabled ? (_, bool value) {
+              onValueChange: (dashboardViewModel.batteryOptimizationEnabled && dashboardViewModel.hasBatteryOptimization) ? (_, bool value) {
                 unawaited(showPopUp(context: context, builder: (context) => AlertWithOneAction(
                   alertTitle: S.current.background_sync,
                   alertContent: S.current.unrestricted_background_service_notice,
@@ -63,8 +63,8 @@ class BackgroundSyncPage extends BasePage {
                 title: S.current.background_sync_mode,
                 items: SyncMode.all,
                 displayItem: (SyncMode syncMode) => syncMode.name,
-                selectedItem: dashboardViewModel.syncMode,
-                onItemSelected: dashboardViewModel.backgroundSyncEnabled ? null : (syncMode) async {
+                selectedItem: dashboardViewModel.settingsStore.currentSyncMode,
+                onItemSelected: (dashboardViewModel.batteryOptimizationEnabled && dashboardViewModel.hasBatteryOptimization) ? null : (syncMode) async {
                   dashboardViewModel.setSyncMode(syncMode);
                 });
           }),

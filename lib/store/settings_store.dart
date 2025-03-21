@@ -803,6 +803,7 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool lookupsWellKnown;
+
   @observable
   SyncMode currentSyncMode;
 
