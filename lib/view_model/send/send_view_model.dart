@@ -107,6 +107,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
   @action
+  void setShowAddressBookPopup(bool value) {
+    _settingsStore.showAddressBookPopupEnabled = value;
+  }
+
+  @action
   void addOutput() {
     outputs
         .add(Output(wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
