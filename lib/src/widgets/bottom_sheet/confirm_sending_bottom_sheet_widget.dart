@@ -378,14 +378,14 @@ class AddressExpansionTile extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: isBatchSending ? 0 : 8),
           child: ExpansionTile(
-            childrenPadding: EdgeInsets.zero,
+            childrenPadding: isBatchSending ? const EdgeInsets.only(bottom: 8) : EdgeInsets.zero,
             tilePadding: EdgeInsets.zero,
             dense: true,
             visualDensity: VisualDensity.compact,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(isBatchSending ? name : contactType, style: itemTitleTextStyle),
+                Expanded(child: Text(isBatchSending ? name : contactType, style: itemTitleTextStyle, softWrap: true)),
                 Text(isBatchSending ? amount : name,
                     style: TextStyle(
                       fontSize: 14,
@@ -400,17 +400,12 @@ class AddressExpansionTile extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildSegmentedAddress(
-                          address: address,
-                          evenTextStyle: currentTheme.type == ThemeType.bright
-                              ? itemSubTitleTextStyle
-                              : addressTextStyle,
-                          oddTextStyle: itemSubTitleTextStyle,
-                        ),
-                      ],
+                    child: buildSegmentedAddress(
+                      address: address,
+                      evenTextStyle: currentTheme.type == ThemeType.bright
+                          ? itemSubTitleTextStyle
+                          : addressTextStyle,
+                      oddTextStyle: itemSubTitleTextStyle,
                     ),
                   ),
                 ],

@@ -607,6 +607,8 @@ class SendPage extends BasePage {
                       rightButtonText: 'Yes',
                       actionLeftButton: () {
                         Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
                         RequestReviewHandler.requestReview();
                         newContactAddress = null;
                       },
@@ -624,7 +626,13 @@ class SendPage extends BasePage {
                       contentImage: 'assets/images/birthday_cake.svg',
                       actionButtonText: S.of(bottomSheetContext).close,
                       actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                      actionButton: () => Navigator.of(bottomSheetContext).pop());
+                      actionButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      });
             },
           );
 
