@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/di.dart';
@@ -8,13 +11,26 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/http.dart' as http;
+
 class BackgroundSync {
   Future<void> sync() async {
     printV("Background sync started");
-    await _checkNetwork();
+    unawaited(_checkNetworkLoop());
     await _syncMonero();
     printV("Background sync completed");
   }
+
+  Future<void> _checkNetworkLoop() async {
+    while (true) {
+      try {
+        await _checkNetwork();
+      } catch (e) {
+        printV("Error checking network: $e");
+      }
+      await Future.delayed(const Duration(seconds: 1));
+    }
+  }
+
 
   Future<void> _checkNetwork() async {
     final urls = [
@@ -24,13 +40,12 @@ class BackgroundSync {
       "https://github.com",
       "https://1.1.1.1/",
     ];
-    for (final url in urls) {
-      try {
-        final response = await http.get(Uri.parse(url));
-        printV("Network connection successful (${response.statusCode}) to $url");
-      } catch (e) {
-        printV("Error checking network: $url: $e");
-      }
+    final url = urls[Random().nextInt(urls.length)];
+    try {
+      final response = await http.get(Uri.parse(url));
+      printV("Network connection successful (${response.statusCode}) to $url");
+    } catch (e) {
+      printV("Error checking network: $url: $e");
     }
   }
   
