@@ -4,7 +4,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -105,9 +104,6 @@ abstract class OutputBase with Store {
           case WalletType.decred:
             _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
             break;
-          case WalletType.haven:
-            _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
-            break;
           case WalletType.ethereum:
             _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
             break;
@@ -120,7 +116,12 @@ abstract class OutputBase with Store {
           case WalletType.zano:
             _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
-          default:
+          case WalletType.none:
+          case WalletType.haven:
+          case WalletType.nano:
+          case WalletType.banano:
+          case WalletType.solana:
+          case WalletType.tron:
             break;
         }
 
@@ -175,10 +176,6 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.wownero) {
         return wownero!.formatterWowneroAmountToDouble(amount: fee);
-      }
-
-      if (_wallet.type == WalletType.haven) {
-        return haven!.formatterMoneroAmountToDouble(amount: fee);
       }
 
       if (_wallet.type == WalletType.ethereum) {

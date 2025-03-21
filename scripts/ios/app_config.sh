@@ -3,7 +3,6 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 set -x -e
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
-HAVEN="haven"
 DIR=`pwd`
 
 if [ -z "$APP_IOS_TYPE" ]; then
@@ -33,13 +32,6 @@ case $APP_IOS_TYPE in
 
         $CAKEWALLET)
 		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred"
-		if [ "$CW_WITH_HAVEN" = true ];then
-		    CONFIG_ARGS="$CONFIG_ARGS --haven"
-		fi
-		;;
-
-	$HAVEN)
-		CONFIG_ARGS="--haven"
 		;;
 esac
 

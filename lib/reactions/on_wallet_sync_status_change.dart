@@ -1,7 +1,5 @@
-import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -20,10 +18,6 @@ void startWalletSyncStatusChangeReaction(
     try {
       if (status is ConnectedSyncStatus) {
         await wallet.startSync();
-
-        if (wallet.type == WalletType.haven) {
-          await updateHavenRate(fiatConversionStore);
-        }
       }
       if (status is SyncingSyncStatus || status is ProcessingSyncStatus) {
         await WakelockPlus.enable();
