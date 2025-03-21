@@ -71,7 +71,7 @@ abstract class WalletSeedViewModelBase with Store {
     bool isDebug = kDebugMode;
 
     if (isDebug && !isCI) {
-      printV("Skipping verification in debug mode (and when it's not in CI).");
+      printV("Skipping verification in debug mode - $isDebug (and when it's not in CI - $isCI).");
       return false;
     }
 

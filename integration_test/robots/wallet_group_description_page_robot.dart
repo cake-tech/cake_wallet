@@ -20,8 +20,12 @@ class WalletGroupDescriptionPageRobot {
     commonTestCases.hasText(S.current.wallet_group);
   }
 
+  bool hasNewSingleSeedButton() {
+    return commonTestCases.isKeyPresent('wallet_group_description_page_create_new_seed_button_key');
+  }
+
   Future<void> navigateToCreateNewSeedPage() async {
-    if (await(find.byKey(ValueKey('wallet_group_description_page_create_new_seed_button_key'))).hasFound) {
+    if (hasNewSingleSeedButton()) {
       await commonTestCases.tapItemByKey(
         'wallet_group_description_page_create_new_seed_button_key',
       );

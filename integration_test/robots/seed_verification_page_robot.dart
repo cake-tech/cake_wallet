@@ -25,7 +25,8 @@ class SeedVerificationPageRobot {
 
     final walletSeedViewModel = seedVerificationPage.walletSeedViewModel;
 
-    while (!walletSeedViewModel.isVerificationComplete) {
+    while (!walletSeedViewModel.isVerificationComplete &&
+        walletSeedViewModel.verificationWordCount != 0) {
       final currentCorrectWord = walletSeedViewModel.currentCorrectWord;
 
       commonTestCases.hasTextAtLestOnce(currentCorrectWord);

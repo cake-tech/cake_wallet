@@ -211,7 +211,9 @@ class CommonTestFlows {
 
     await _selectWalletTypeForWallet(walletTypeToCreate);
 
-    // await _welcomePageRobot.tapNewSingleSeed();
+    if (_welcomePageRobot.hasNewSingleSeedButton()) {
+      await _welcomePageRobot.tapNewSingleSeed();
+    }
   }
 
   Future<void> _welcomeToRestoreFromSeedsOrKeysPath(
