@@ -41,6 +41,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  blockchain_utils:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake-update-v2
+      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      url: "https://github.com/cake-tech/blockchain_utils"
+    source: git
+    version: "3.3.0"
   bluez:
     dependency: transitive
     description:
@@ -511,8 +520,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: "65608c09e9093f1cd42c6afd8e9131016c82574b"
-      resolved-ref: "65608c09e9093f1cd42c6afd8e9131016c82574b"
+      ref: "84e52393e395d75f449bcd81e23028889538118f"
+      resolved-ref: "84e52393e395d75f449bcd81e23028889538118f"
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
@@ -532,6 +541,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  on_chain:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake-update-v2
+      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
+      url: "https://github.com/cake-tech/on_chain.git"
+    source: git
+    version: "3.7.0"
   package_config:
     dependency: transitive
     description:
@@ -632,10 +650,10 @@ packages:
     dependency: "direct main"
     description:
       name: polyseed
-      sha256: "11d4dbee409db053c5e9cd77382b2f5115f43fc2529158a826a96f3ba505d770"
+      sha256: ccc6ba0ed3976837e770a324a6295fbf3d7c0d05fc0fa1906e36479b07c2675b
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.6"
+    version: "0.0.7"
   pool:
     dependency: transitive
     description:

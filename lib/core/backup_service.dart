@@ -78,7 +78,7 @@ class $BackupService {
 
   Future<void> importBackupV2(Uint8List data, String password) async {
     final appDir = await getAppDir();
-    final decryptedData = await _decryptV2(data, password);
+    final decryptedData = await decryptV2(data, password);
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
     outer:
@@ -188,7 +188,6 @@ class $BackupService {
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
-    final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
     final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
     final currentDefaultSettingsMigrationVersion =
@@ -257,9 +256,6 @@ class $BackupService {
     if (autoGenerateSubaddressStatus != null)
       await sharedPreferences.setInt(
           PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
-
-    if (currentPinLength != null)
-      await sharedPreferences.setInt(PreferencesKey.currentPinLength, currentPinLength);
 
     if (currentTheme != null && DeviceInfo.instance.isMobile) {
       await sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
@@ -358,12 +354,10 @@ class $BackupService {
     final appDir = await getAppDir();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
     final decryptedKeychainDumpFileData =
-        await _decryptV2(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
+        await decryptV2(keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
     final keychainJSON =
         json.decode(utf8.decode(decryptedKeychainDumpFileData)) as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
-    final decodedPin = keychainJSON['pin'] as String;
-    final pinCodeKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = keychainJSON[backupPasswordKey] as String;
 
@@ -373,8 +367,6 @@ class $BackupService {
       final info = rawInfo as Map<String, dynamic>;
       await importWalletKeychainInfo(info);
     });
-
-    await _secureStorage.write(key: pinCodeKey, value: encodedPinCode(pin: decodedPin));
 
     keychainDumpFile.deleteSync();
   }
@@ -406,7 +398,7 @@ class $BackupService {
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _secureStorage.read(key: backupPasswordKey);
     final data = utf8.encode(
-        json.encode({'pin': decodedPin, 'wallets': wallets, backupPasswordKey: backupPassword}));
+        json.encode({'wallets': wallets, backupPasswordKey: backupPassword}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
@@ -495,6 +487,6 @@ class $BackupService {
   Future<Uint8List> _encryptV2(Uint8List data, String passphrase) async =>
       cake_backup.encrypt(passphrase, data, version: _v2);
 
-  Future<Uint8List> _decryptV2(Uint8List data, String passphrase) async =>
+  Future<Uint8List> decryptV2(Uint8List data, String passphrase) async =>
       cake_backup.decrypt(passphrase, data);
 }

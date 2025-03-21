@@ -9,9 +9,8 @@ APP_ANDROID_SCHEME=""
 
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
-HAVEN="haven"
 
-TYPES=($MONERO_COM $CAKEWALLET $HAVEN)
+TYPES=($MONERO_COM $CAKEWALLET)
 APP_ANDROID_TYPE=$1
 
 MONERO_COM_NAME="Monero.com"
@@ -22,17 +21,12 @@ MONERO_COM_PACKAGE="com.monero.app"
 MONERO_COM_SCHEME="monero.com"
 
 CAKEWALLET_NAME="Cake Wallet"
-CAKEWALLET_VERSION="4.23.3"
-CAKEWALLET_BUILD_NUMBER=248
+CAKEWALLET_VERSION="4.23.4"
+CAKEWALLET_BUILD_NUMBER=249
 CAKEWALLET_BUNDLE_ID="com.cakewallet.cake_wallet"
 CAKEWALLET_PACKAGE="com.cakewallet.cake_wallet"
 CAKEWALLET_SCHEME="cakewallet"
 
-HAVEN_NAME="Haven"
-HAVEN_VERSION="1.0.0"
-HAVEN_BUILD_NUMBER=1
-HAVEN_BUNDLE_ID="com.cakewallet.haven"
-HAVEN_PACKAGE="com.cakewallet.haven"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_ANDROID_TYPE} " ]]; then
     echo "Wrong app type."

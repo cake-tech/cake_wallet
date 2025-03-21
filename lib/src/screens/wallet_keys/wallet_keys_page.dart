@@ -72,6 +72,10 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   late bool showLegacySeedTab;
   late bool isLegacySeedOnly;
 
+  bool get _hasSeeds =>
+      widget.walletKeysViewModel.legacySeedSplit.length > 10 ||
+      widget.walletKeysViewModel.seedSplit.length > 10;
+
   @override
   void initState() {
     super.initState();
@@ -160,11 +164,10 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   Widget _buildSeedTab(BuildContext context, bool isLegacySeed) {
     return Column(
       children: [
-        if (isLegacySeedOnly || isLegacySeed) 
-          ...[
-            _buildHeightBox(),
-            const SizedBox(height: 20),
-          ],
+        if (isLegacySeedOnly || isLegacySeed) ...[
+          _buildHeightBox(),
+          const SizedBox(height: 20),
+        ],
         (_buildPassphraseBox() ?? Container()),
         if (widget.walletKeysViewModel.passphrase.isNotEmpty) const SizedBox(height: 20),
         Expanded(
@@ -175,13 +178,14 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           ),
         ),
         const SizedBox(height: 10),
-        _buildBottomActionPanel(
-          titleForClipboard: S.of(context).wallet_seed.toLowerCase(),
-          dataToCopy: isLegacySeed
-              ? widget.walletKeysViewModel.legacySeed
-              : widget.walletKeysViewModel.seed,
-          onShowQR: () async => _showQR(context),
-        ),
+        if (_hasSeeds)
+          _buildBottomActionPanel(
+            titleForClipboard: S.of(context).wallet_seed.toLowerCase(),
+            dataToCopy: isLegacySeed
+                ? widget.walletKeysViewModel.legacySeed
+                : widget.walletKeysViewModel.seed,
+            onShowQR: () async => _showQR(context),
+          ),
       ],
     );
   }
