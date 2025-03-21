@@ -921,6 +921,8 @@
   "understand": "Разбирам",
   "unlock": "Отключване",
   "unmatched_currencies": "Валутата на този портфейл не съвпада с тази от сканирания QR код",
+  "unrestricted_background_service": "Неограничена фонова услуга",
+  "unrestricted_background_service_notice": "За да активирате синхронизирането на фона, трябва да активирате неограничена фонова услуга",
   "unspent_change": "Промяна",
   "unspent_coins_details_title": "Подробности за неизползваните монети",
   "unspent_coins_title": "Неизползвани монети",

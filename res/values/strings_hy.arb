@@ -919,6 +919,8 @@
   "understand": "Ես հասկանում եմ",
   "unlock": "Բացել",
   "unmatched_currencies": "Ձեր ընթացիկ դրամապանակի արժույթը չի համապատասխանում սկանավորված QR կոդի արժույթին",
+  "unrestricted_background_service": "Անսահմանափակ ֆոնային ծառայություն",
+  "unrestricted_background_service_notice": "Ֆոնային համաժամացման համար անհրաժեշտ է միացնել անսահմանափակ ֆոնային ծառայություն",
   "unspent_change": "Մնացորդ",
   "unspent_coins_details_title": "Չծախսված արժույթների մանրամասները",
   "unspent_coins_title": "Չծախսված արժույթներ",

@@ -923,6 +923,8 @@
   "understand": "Ich verstehe",
   "unlock": "Freischalten",
   "unmatched_currencies": "Die Währung Ihres aktuellen Wallets stimmt nicht mit der des gescannten QR überein",
+  "unrestricted_background_service": "Uneingeschränkter Hintergrunddienst",
+  "unrestricted_background_service_notice": "Um die Hintergrundsynchronisierung zu ermöglichen, müssen Sie einen uneingeschränkten Hintergrundservice aktivieren",
   "unspent_change": "Wechselgeld",
   "unspent_coins_details_title": "Details zu nicht ausgegebenen Coins",
   "unspent_coins_title": "Nicht ausgegebene Coins",

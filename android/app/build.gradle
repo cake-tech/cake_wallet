@@ -81,6 +81,9 @@ android {
 
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
        }
+       debug {
+            signingConfig signingConfigs.release
+       }
    }
 
     ndkVersion "27.0.12077973"

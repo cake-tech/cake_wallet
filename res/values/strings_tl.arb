@@ -921,6 +921,8 @@
   "understand": "Naiitindihan ko",
   "unlock": "I-unlock",
   "unmatched_currencies": "Hindi tumutugma ang pera ng iyong kasalukuyang wallet sa na-scan na QR",
+  "unrestricted_background_service": "Hindi pinigilan na serbisyo sa background",
+  "unrestricted_background_service_notice": "Upang paganahin ang pag -sync ng background kailangan mong paganahin ang hindi pinigilan na serbisyo sa background",
   "unspent_change": "Sukli",
   "unspent_coins_details_title": "Mga detalye ng mga hindi nagastos na barya",
   "unspent_coins_title": "Mga hindi nagamit na barya",

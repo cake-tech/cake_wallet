@@ -122,7 +122,7 @@ dependencies:
   flutter_daemon:
     git:
       url: https://github.com/MrCyjaneK/flutter_daemon
-      ref: 46e6b9f1ef627bb0195d81b78634096cddc72690
+      ref: 5c369e0e69e6f459357b9802bc694a221397298a
 
 dev_dependencies:
   flutter_test:

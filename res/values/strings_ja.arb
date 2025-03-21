@@ -922,6 +922,8 @@
   "understand": "わかります",
   "unlock": "ロックを解除します",
   "unmatched_currencies": "現在のウォレットの通貨がスキャンされたQRの通貨と一致しません",
+  "unrestricted_background_service": "無制限のバックグラウンドサービス",
+  "unrestricted_background_service_notice": "バックグラウンドの同期を有​​効にするには、無制限のバックグラウンドサービスを有効にする必要があります",
   "unspent_change": "変化",
   "unspent_coins_details_title": "未使用のコインの詳細",
   "unspent_coins_title": "未使用のコイン",

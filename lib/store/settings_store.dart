@@ -1151,7 +1151,7 @@ abstract class SettingsStoreBase with Store {
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
-      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 0);
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 2); // default to 2 - daily sync
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 

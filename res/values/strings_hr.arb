@@ -921,6 +921,8 @@
   "understand": "Razumijem",
   "unlock": "Otključati",
   "unmatched_currencies": "Valuta vašeg trenutnog novčanika ne odgovara onoj na skeniranom QR-u",
+  "unrestricted_background_service": "Neograničena pozadinska usluga",
+  "unrestricted_background_service_notice": "Da biste omogućili sinkronizaciju pozadine, morate omogućiti neograničenu pozadinsku uslugu",
   "unspent_change": "Promijeniti",
   "unspent_coins_details_title": "Nepotrošeni detalji o novčićima",
   "unspent_coins_title": "Nepotrošeni novčići",

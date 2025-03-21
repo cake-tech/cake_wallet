@@ -922,6 +922,8 @@
   "understand": "Зрозуміло",
   "unlock": "Розблокувати",
   "unmatched_currencies": "Валюта вашого гаманця не збігається з валютою сканованого QR-коду",
+  "unrestricted_background_service": "Необмежена фонова послуга",
+  "unrestricted_background_service_notice": "Для того, щоб увімкнути фонову синхронізацію, вам потрібно ввімкнути необмежену фонову послугу",
   "unspent_change": "Зміна",
   "unspent_coins_details_title": "Відомості про невитрачені монети",
   "unspent_coins_title": "Невитрачені монети",

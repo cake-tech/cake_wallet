@@ -921,6 +921,8 @@
   "understand": "ฉันเข้าใจ",
   "unlock": "ปลดล็อค",
   "unmatched_currencies": "สกุลเงินของกระเป๋าปัจจุบันของคุณไม่ตรงกับของ QR ที่สแกน",
+  "unrestricted_background_service": "บริการพื้นหลังที่ไม่ จำกัด",
+  "unrestricted_background_service_notice": "ในการเปิดใช้งานการซิงค์พื้นหลังคุณต้องเปิดใช้งานบริการพื้นหลังที่ไม่ จำกัด",
   "unspent_change": "เปลี่ยน",
   "unspent_coins_details_title": "รายละเอียดเหรียญที่ไม่ได้ใช้",
   "unspent_coins_title": "เหรียญที่ไม่ได้ใช้",

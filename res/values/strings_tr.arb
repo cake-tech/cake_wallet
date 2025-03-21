@@ -921,6 +921,8 @@
   "understand": "Anladım",
   "unlock": "Kilidini aç",
   "unmatched_currencies": "Mevcut cüzdanınızın para birimi taranan QR ile eşleşmiyor",
+  "unrestricted_background_service": "Sınırsız arka plan hizmeti",
+  "unrestricted_background_service_notice": "Arka plan senkronizasyonunu etkinleştirmek için sınırsız arka plan hizmetini etkinleştirmeniz gerekir",
   "unspent_change": "Değiştirmek",
   "unspent_coins_details_title": "Harcanmamış koin detayları",
   "unspent_coins_title": "Harcanmamış koinler",

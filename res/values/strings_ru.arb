@@ -922,6 +922,8 @@
   "understand": "Понятно",
   "unlock": "Разблокировать",
   "unmatched_currencies": "Валюта вашего текущего кошелька не соответствует валюте отсканированного QR-кода.",
+  "unrestricted_background_service": "Неограниченная фоновая служба",
+  "unrestricted_background_service_notice": "Чтобы включить фона синхронизации, необходимо включить неограниченную фоновую службу",
   "unspent_change": "Изменять",
   "unspent_coins_details_title": "Сведения о неизрасходованных монетах",
   "unspent_coins_title": "Неизрасходованные монеты",

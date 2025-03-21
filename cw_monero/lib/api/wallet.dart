@@ -276,7 +276,7 @@ class SyncListener {
       }
 
       final bchHeight = await getNodeHeightOrUpdate(syncHeight);
-      printV("syncHeight: $syncHeight, _lastKnownBlockHeight: $_lastKnownBlockHeight, bchHeight: $bchHeight");
+      // printV("syncHeight: $syncHeight, _lastKnownBlockHeight: $_lastKnownBlockHeight, bchHeight: $bchHeight");
       if (_lastKnownBlockHeight == syncHeight) {
         return;
       }

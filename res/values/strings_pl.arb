@@ -921,6 +921,8 @@
   "understand": "Rozumiem",
   "unlock": "Odblokować",
   "unmatched_currencies": "Waluta Twojego obecnego portfela nie zgadza się z waluctą zeskanowanego kodu QR",
+  "unrestricted_background_service": "Nieograniczona usługa w tle",
+  "unrestricted_background_service_notice": "Aby włączyć synchronizację tła, musisz włączyć nieograniczoną usługę w tle",
   "unspent_change": "Zmiana",
   "unspent_coins_details_title": "Szczegóły niewydanych monet",
   "unspent_coins_title": "Niewydane monety",

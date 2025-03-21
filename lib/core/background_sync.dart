@@ -10,45 +10,16 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class BackgroundSync {
   Future<void> sync() async {
     printV("Background sync started");
-    unawaited(_checkNetworkLoop());
     await _syncMonero();
     printV("Background sync completed");
   }
 
-  Future<void> _checkNetworkLoop() async {
-    while (true) {
-      try {
-        await _checkNetwork();
-      } catch (e) {
-        printV("Error checking network: $e");
-      }
-      await Future.delayed(const Duration(seconds: 1));
-    }
-  }
-
-
-  Future<void> _checkNetwork() async {
-    final urls = [
-      "https://connectivitycheck.gstatic.com",
-      "https://static.mrcyjanek.net",
-      "https://getmonero.org",
-      "https://github.com",
-      "https://1.1.1.1/",
-    ];
-    final url = urls[Random().nextInt(urls.length)];
-    try {
-      final response = await http.get(Uri.parse(url));
-      printV("Network connection successful (${response.statusCode}) to $url");
-    } catch (e) {
-      printV("Error checking network: $url: $e");
-    }
-  }
-  
   Future<void> _syncMonero() async {
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
@@ -64,11 +35,22 @@ class BackgroundSync {
       int syncedTicks = 0;
       final keyService = getIt.get<KeyService>();
       
+      int stuckTicks = 0;
+
       inner:
       while (true) {
         await Future.delayed(const Duration(seconds: 1));
         final syncStatus = wallet.syncStatus;
         final progress = syncStatus.progress();
+        if (syncStatus is ConnectedSyncStatus || syncStatus is AttemptingSyncStatus || syncStatus is NotConnectedSyncStatus) {
+          stuckTicks++;
+          if (stuckTicks > 30) {
+            printV("${wallet.name} STUCK SYNCING");
+            break inner;
+          }
+        } else {
+          stuckTicks = 0;
+        }
         if (syncStatus is NotConnectedSyncStatus) {
           printV("${wallet.name} NOT CONNECTED");
           final node = settingsStore.getCurrentNode(wallet.type);
@@ -93,28 +75,29 @@ class BackgroundSync {
         } else {
           syncedTicks = 0;
         }
-
-        if (syncStatus is SyncingSyncStatus) {
-          final blocksLeft = syncStatus.blocksLeft;
-          printV("$blocksLeft Blocks Left");
-        } else if (syncStatus is SyncedSyncStatus) {
-          printV("Synced");
-        } else if (syncStatus is SyncedTipSyncStatus) {
-          printV("Scanned Tip: ${syncStatus.tip}");
-        } else if (syncStatus is NotConnectedSyncStatus) {
-          printV("Still Not Connected");
-        } else if (syncStatus is AttemptingSyncStatus) {
-          printV("Attempting Sync");
-        } else if (syncStatus is StartingScanSyncStatus) {
-          printV("Starting Scan");
-        } else if (syncStatus is SyncronizingSyncStatus) {
-          printV("Syncronizing");
-        } else if (syncStatus is FailedSyncStatus) {
-          printV("Failed Sync");
-        } else if (syncStatus is ConnectingSyncStatus) {
-          printV("Connecting");
-        } else {
-          printV("Unknown Sync Status ${syncStatus.runtimeType}");
+        if (kDebugMode) {
+          if (syncStatus is SyncingSyncStatus) {
+            final blocksLeft = syncStatus.blocksLeft;
+            printV("$blocksLeft Blocks Left");
+          } else if (syncStatus is SyncedSyncStatus) {
+            printV("Synced");
+          } else if (syncStatus is SyncedTipSyncStatus) {
+            printV("Scanned Tip: ${syncStatus.tip}");
+          } else if (syncStatus is NotConnectedSyncStatus) {
+            printV("Still Not Connected");
+          } else if (syncStatus is AttemptingSyncStatus) {
+            printV("Attempting Sync");
+          } else if (syncStatus is StartingScanSyncStatus) {
+            printV("Starting Scan");
+          } else if (syncStatus is SyncronizingSyncStatus) {
+            printV("Syncronizing");
+          } else if (syncStatus is FailedSyncStatus) {
+            printV("Failed Sync");
+          } else if (syncStatus is ConnectingSyncStatus) {
+            printV("Connecting");
+          } else {
+            printV("Unknown Sync Status ${syncStatus.runtimeType}");
+          }
         }
       }
       await wallet.stopBackgroundSync(await keyService.getWalletPassword(walletName: wallet.name));

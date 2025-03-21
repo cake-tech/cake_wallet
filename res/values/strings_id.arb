@@ -924,6 +924,8 @@
   "understand": "Saya mengerti",
   "unlock": "Membuka kunci",
   "unmatched_currencies": "Mata uang dompet Anda saat ini tidak cocok dengan yang ditandai QR",
+  "unrestricted_background_service": "Layanan latar belakang tidak terbatas",
+  "unrestricted_background_service_notice": "Untuk mengaktifkan sinkronisasi latar belakang, Anda perlu mengaktifkan layanan latar belakang yang tidak dibatasi",
   "unspent_change": "Mengubah",
   "unspent_coins_details_title": "Rincian koin yang tidak terpakai",
   "unspent_coins_title": "Koin yang tidak terpakai",

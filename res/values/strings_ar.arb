@@ -921,6 +921,8 @@
   "understand": "لقد فهمت",
   "unlock": "الغاء القفل",
   "unmatched_currencies": "عملة محفظتك الحالية لا تتطابق مع عملة QR الممسوحة ضوئيًا",
+  "unrestricted_background_service": "خدمة خلفية غير مقيدة",
+  "unrestricted_background_service_notice": "من أجل تمكين مزامنة الخلفية ، تحتاج إلى تمكين خدمة الخلفية غير المقيدة",
   "unspent_change": "يتغير",
   "unspent_coins_details_title": "تفاصيل العملات الغير المنفقة",
   "unspent_coins_title": "العملات الغير المنفقة",

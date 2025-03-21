@@ -922,6 +922,8 @@
   "understand": "I understand",
   "unlock": "Unlock",
   "unmatched_currencies": "Your current wallet's currency does not match that of the scanned QR",
+  "unrestricted_background_service": "Unrestricted background service",
+  "unrestricted_background_service_notice": "In order to enable background sync you need to enable unrestricted background service",
   "unspent_change": "Change",
   "unspent_coins_details_title": "Unspent coins details",
   "unspent_coins_title": "Unspent coins",

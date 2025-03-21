@@ -921,6 +921,8 @@
   "understand": "我已知晓",
   "unlock": "开锁",
   "unmatched_currencies": "您当前钱包的货币与扫描的 QR 的货币不匹配",
+  "unrestricted_background_service": "不受限制的背景服务",
+  "unrestricted_background_service_notice": "为了启用背景同步，您需要启用无限制的背景服务",
   "unspent_change": "改变",
   "unspent_coins_details_title": "未使用代幣詳情",
   "unspent_coins_title": "未使用的硬幣",

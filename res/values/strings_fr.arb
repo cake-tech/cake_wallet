@@ -921,6 +921,8 @@
   "understand": "J'ai compris",
   "unlock": "Ouvrir",
   "unmatched_currencies": "La devise de votre portefeuille (wallet) actuel ne correspond pas à celle du QR code scanné",
+  "unrestricted_background_service": "Service de fond sans restriction",
+  "unrestricted_background_service_notice": "Afin d'activer la synchronisation des antécédents, vous devez activer le service de fond sans restriction",
   "unspent_change": "Monnaie",
   "unspent_coins_details_title": "Détails des pièces (coins) non dépensées",
   "unspent_coins_title": "Pièces (coins) non dépensées",

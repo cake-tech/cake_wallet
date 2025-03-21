@@ -923,6 +923,8 @@
   "understand": "Entendo",
   "unlock": "Desbloquear",
   "unmatched_currencies": "A moeda da sua carteira atual não corresponde à do QR digitalizado",
+  "unrestricted_background_service": "Serviço de fundo irrestrito",
+  "unrestricted_background_service_notice": "Para ativar a sincronização de fundo, você precisa ativar o serviço de fundo irrestrito",
   "unspent_change": "Troco",
   "unspent_coins_details_title": "Detalhes de moedas não gastas",
   "unspent_coins_title": "Moedas não gastas",

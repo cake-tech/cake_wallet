@@ -922,6 +922,8 @@
   "understand": "Entiendo",
   "unlock": "desbloquear",
   "unmatched_currencies": "La moneda de tu billetera actual no coincide con la del QR escaneado",
+  "unrestricted_background_service": "Servicio de antecedentes sin restricciones",
+  "unrestricted_background_service_notice": "Para habilitar la sincronización de antecedentes, debe habilitar el servicio de fondo sin restricciones",
   "unspent_change": "Cambiar",
   "unspent_coins_details_title": "Detalles de monedas no gastadas",
   "unspent_coins_title": "Monedas no gastadas",

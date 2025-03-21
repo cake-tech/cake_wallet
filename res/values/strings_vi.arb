@@ -918,6 +918,8 @@
   "understand": "Tôi hiểu",
   "unlock": "Mở khóa",
   "unmatched_currencies": "Tiền tệ của ví hiện tại của bạn không khớp với QR đã quét",
+  "unrestricted_background_service": "Dịch vụ nền không giới hạn",
+  "unrestricted_background_service_notice": "Để cho phép đồng bộ hóa nền, bạn cần bật dịch vụ nền không giới hạn",
   "unspent_change": "Tiền thối",
   "unspent_coins_details_title": "Chi tiết các đồng tiền chưa chi tiêu",
   "unspent_coins_title": "Các đồng tiền chưa chi tiêu",

@@ -922,6 +922,8 @@
   "understand": "Capisco",
   "unlock": "Sblocca",
   "unmatched_currencies": "La valuta del tuo portafoglio attuale non corrisponde a quella del QR scansionato",
+  "unrestricted_background_service": "Servizio di background senza restrizioni",
+  "unrestricted_background_service_notice": "Per abilitare la sincronizzazione in background è necessario abilitare il servizio di background senza restrizioni",
   "unspent_change": "Resto",
   "unspent_coins_details_title": "Dettagli sulle monete non spese",
   "unspent_coins_title": "Monete non spese",

@@ -921,6 +921,8 @@
   "understand": "ကျွန်တော်နားလည်ပါတယ်",
   "unlock": "သော့ဖွင့်",
   "unmatched_currencies": "သင့်လက်ရှိပိုက်ဆံအိတ်၏ငွေကြေးသည် စကင်ဖတ်ထားသော QR နှင့် မကိုက်ညီပါ။",
+  "unrestricted_background_service": "အကန့်အသတ်မရှိနောက်ခံဝန်ဆောင်မှု",
+  "unrestricted_background_service_notice": "နောက်ခံထပ်တူပြုခြင်းကို Enable လုပ်ရန်သင်ကန့်သတ်ထားသောနောက်ခံဝန်ဆောင်မှုကိုဖွင့်ရန်လိုအပ်သည်",
   "unspent_change": "ပေြာင်းလဲခြင်း",
   "unspent_coins_details_title": "အသုံးမဝင်သော အကြွေစေ့အသေးစိတ်များ",
   "unspent_coins_title": "အသုံးမဝင်သော အကြွေစေ့များ",

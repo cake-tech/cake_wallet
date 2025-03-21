@@ -921,6 +921,8 @@
   "understand": "Rozumím",
   "unlock": "Odemknout",
   "unmatched_currencies": "Měna vaší současné peněženky neodpovídá té v naskenovaném QR kódu",
+  "unrestricted_background_service": "Neomezená služba na pozadí",
+  "unrestricted_background_service_notice": "Chcete -li povolit synchronizaci pozadí, musíte povolit neomezenou službu na pozadí",
   "unspent_change": "Změna",
   "unspent_coins_details_title": "Podrobnosti o neutracených mincích",
   "unspent_coins_title": "Neutracené mince",

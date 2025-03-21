@@ -179,6 +179,7 @@ abstract class DashboardViewModelBase with Store {
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
     unawaited(isBackgroundSyncEnabled());
+    unawaited(isBatteryOptimizationEnabled());
 
     final _wallet = wallet;
 
@@ -510,10 +511,42 @@ abstract class DashboardViewModelBase with Store {
       return false;
     }
     final resp = await FlutterDaemon().getBackgroundSyncStatus();
-    printV("Background sync status: $resp");
     backgroundSyncEnabled = resp;
     return resp;
   }
+
+  bool get hasBatteryOptimization => Platform.isAndroid;
+
+  @observable
+  bool batteryOptimizationEnabled = false;
+
+  @action
+  Future<bool> isBatteryOptimizationEnabled() async {
+    if (!hasBatteryOptimization) {
+      return false;
+    }
+    final resp = await FlutterDaemon().isBatteryOptimizationDisabled();
+    batteryOptimizationEnabled = !resp;
+    if (batteryOptimizationEnabled && await isBackgroundSyncEnabled()) {
+      // If the battery optimization is enabled, we need to disable the background sync
+      await disableBackgroundSync();
+    }
+    return resp;
+  }
+
+  @action
+  Future<void> disableBatteryOptimization() async {
+    final resp = await FlutterDaemon().requestDisableBatteryOptimization();
+    unawaited((() async {
+      // android doesn't return if the permission was granted, so we need to poll it,
+      // minute should be enough for the fallback method (opening settings and changing the permission)
+      for (var i = 0; i < 4 * 60; i++) {
+        await Future.delayed(Duration(milliseconds: 250));
+        await isBatteryOptimizationEnabled();
+      }
+    })());
+  }
+
 
   Future<void> enableBackgroundSync() async {
     final resp = await FlutterDaemon().startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
