@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -12,6 +11,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -115,9 +115,6 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.monero:
         keys = monero!.getKeys(_wallet);
         break;
-      case WalletType.haven:
-        keys = haven!.getKeys(_wallet);
-        break;
       case WalletType.wownero:
         keys = wownero!.getKeys(_wallet);
         break;
@@ -155,10 +152,17 @@ abstract class WalletKeysViewModelBase with Store {
             ),
         ]);
         break;
+      case WalletType.decred:
+        final pubkey = decred!.pubkey(_appStore.wallet!);
+        items.addAll([
+          StandartListItem(title: S.current.view_key_public, value: pubkey),
+        ]);
+        break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.none:
+      case WalletType.haven:
         //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
         //
         //   items.addAll([
@@ -208,9 +212,6 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   Future<int?> _currentHeight() async {
-    if (_wallet.type == WalletType.haven) {
-      return await haven!.getCurrentHeight();
-    }
     if (_wallet.type == WalletType.monero) {
       return await monero!.getCurrentHeight();
     }
@@ -248,6 +249,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'wownero-wallet';
       case WalletType.zano:
         return 'zano-wallet';
+      case WalletType.decred:
+        return 'decred-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }
@@ -298,8 +301,6 @@ abstract class WalletKeysViewModelBase with Store {
   List<TransactionInfo> _getWalletTransactions(WalletBase wallet) {
     if (wallet.type == WalletType.monero) {
       return monero!.getTransactionHistory(wallet).transactions.values.toList();
-    } else if (wallet.type == WalletType.haven) {
-      return haven!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.wownero) {
       return wownero!.getTransactionHistory(wallet).transactions.values.toList();
     }
@@ -309,8 +310,6 @@ abstract class WalletKeysViewModelBase with Store {
   int _getRestoreHeightByTransactions(WalletType type, DateTime date) {
     if (type == WalletType.monero) {
       return monero!.getHeightByDate(date: date);
-    } else if (type == WalletType.haven) {
-      return haven!.getHeightByDate(date: date);
     } else if (type == WalletType.wownero) {
       return wownero!.getHeightByDate(date: date);
     }

@@ -14,8 +14,8 @@ if [ -n "$1" ]; then
 fi
 
 CAKEWALLET_NAME="Cake Wallet"
-CAKEWALLET_VERSION="1.13.3"
-CAKEWALLET_BUILD_NUMBER=48
+CAKEWALLET_VERSION="1.13.4"
+CAKEWALLET_BUILD_NUMBER=49
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_LINUX_TYPE} " ]]; then
     echo "Wrong app type."

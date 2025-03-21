@@ -23,6 +23,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -167,7 +169,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       wallet.type == WalletType.bitcoinCash;
 
   bool get hideAddressAfterExchange =>
-      wallet.type == WalletType.monero || wallet.type == WalletType.wownero;
+      wallet.type == WalletType.monero ||
+      wallet.type == WalletType.wownero;
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -315,8 +318,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
-
-
 
   List<CryptoCurrency> receiveCurrencies;
 
@@ -776,6 +777,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.zano:
         depositCurrency = CryptoCurrency.zano;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.decred:
+        depositCurrency = CryptoCurrency.dcr;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.none:
