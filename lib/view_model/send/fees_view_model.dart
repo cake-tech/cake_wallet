@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/transaction_priority_label.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -90,7 +91,13 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       case WalletType.polygon:
         return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
-      default:
+      case WalletType.decred:
+        return transactionPriority == decred!.getDecredTransactionPrioritySlow();
+      case WalletType.none:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.solana:
+      case WalletType.tron:
         return false;
     }
   }

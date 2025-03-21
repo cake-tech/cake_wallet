@@ -8,10 +8,10 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -220,6 +220,22 @@ class ZanoURI extends PaymentURI {
   }
 }
 
+class DecredURI extends PaymentURI {
+  DecredURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'decred:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
 
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
@@ -333,6 +349,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return WowneroURI(amount: amount, address: address.address);
       case WalletType.zano:
         return ZanoURI(amount: amount, address: address.address);
+      case WalletType.decred:
+        return DecredURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -366,20 +384,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.wownero) {
       final primaryAddress = wownero!.getSubaddressList(wallet).subaddresses.first;
       final addressItems = wownero!.getSubaddressList(wallet).subaddresses.map((subaddress) {
-        final isPrimary = subaddress == primaryAddress;
-
-        return WalletAddressListItem(
-            id: subaddress.id,
-            isPrimary: isPrimary,
-            name: subaddress.label,
-            address: subaddress.address);
-      });
-      addressList.addAll(addressItems);
-    }
-
-    if (wallet.type == WalletType.haven) {
-      final primaryAddress = haven!.getSubaddressList(wallet).subaddresses.first;
-      final addressItems = haven!.getSubaddressList(wallet).subaddresses.map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -497,6 +501,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (wallet.type == WalletType.decred) {
+      final addrInfos = decred!.getAddressInfos(wallet);
+      addrInfos.forEach((info) {
+        addressList.add(
+            new WalletAddressListItem(isPrimary: false, address: info.address, name: info.label));
+      });
+    }
+
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
       (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses
@@ -557,10 +569,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       wownero!
           .getSubaddressList(wallet)
           .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
-    } else if (wallet.type == WalletType.haven) {
-      haven!
-          .getSubaddressList(wallet)
-          .update(wallet, accountIndex: haven!.getCurrentAccount(wallet).id);
     }
   }
 
@@ -574,8 +582,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return monero!.getCurrentAccount(wallet).label;
       case WalletType.wownero:
         wownero!.getCurrentAccount(wallet).label;
-      case WalletType.haven:
-        return haven!.getCurrentAccount(wallet).label;
       default:
         return '';
     }
@@ -589,7 +595,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.haven,
         WalletType.bitcoinCash,
         WalletType.bitcoin,
-        WalletType.litecoin
+        WalletType.litecoin,
+        WalletType.decred
       ].contains(wallet.type);
 
   @computed

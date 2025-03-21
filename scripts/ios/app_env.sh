@@ -7,9 +7,8 @@ APP_IOS_BUNDLE_ID=""
 
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
-HAVEN="haven"
 
-TYPES=($MONERO_COM $CAKEWALLET $HAVEN)
+TYPES=($MONERO_COM $CAKEWALLET)
 APP_IOS_TYPE=$1
 
 MONERO_COM_NAME="Monero.com"
@@ -22,10 +21,6 @@ CAKEWALLET_VERSION="4.23.4"
 CAKEWALLET_BUILD_NUMBER=302
 CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
 
-HAVEN_NAME="Haven"
-HAVEN_VERSION="1.0.0"
-HAVEN_BUILD_NUMBER=3
-HAVEN_BUNDLE_ID="com.cakewallet.haven"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_IOS_TYPE} " ]]; then
     echo "Wrong app type."

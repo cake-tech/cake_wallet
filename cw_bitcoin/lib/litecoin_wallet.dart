@@ -139,6 +139,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
   @observable
   SyncStatus mwebSyncStatus = NotConnectedSyncStatus();
 
+  @override
+  bool get hasRescan => true;
+
   List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
 

@@ -63,6 +63,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  bool get hasRescan => false;
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
@@ -103,4 +105,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<bool> verifyMessage(String message, String signature, {String? address = null});
 
   bool isTestnet = false;
+
+  bool canSend() => true;
 }

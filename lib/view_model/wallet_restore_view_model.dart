@@ -4,13 +4,13 @@ import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -58,6 +58,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.decred:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoin:
@@ -70,13 +71,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
     walletCreationService.changeWalletType(type: type);
     if (restoredWallet != null) {
-      if(restoredWallet!.restoreMode == WalletRestoreMode.seed) {
+      if (restoredWallet!.restoreMode == WalletRestoreMode.seed) {
         seedSettingsViewModel.setPassphrase(restoredWallet!.passphrase);
       }
     }
   }
 
   static const moneroSeedMnemonicLength = 25;
+  static const decredSeedMnemonicLength = 15;
 
   late List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
@@ -117,9 +119,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             passphrase: passphrase,
           );
-        case WalletType.haven:
-          return haven!.createHavenRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
             name: name,
@@ -174,12 +173,20 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.zano:
           return zano!.createZanoRestoreWalletFromSeedCredentials(
-              name: name,
-              password: password,
-              height: height,
-              passphrase: passphrase ?? '',
-              mnemonic: seed);
+            name: name,
+            password: password,
+            height: height,
+            passphrase: passphrase ?? '',
+            mnemonic: seed,
+          );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+          );
         case WalletType.none:
+        case WalletType.haven:
           break;
       }
     }
@@ -192,17 +199,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromKeysCredentials(
-            name: name,
-            height: height,
-            spendKey: spendKey!,
-            viewKey: viewKey!,
-            address: address!,
-            password: password,
-            language: 'English',
-          );
-
-        case WalletType.haven:
-          return haven!.createHavenRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey!,
@@ -253,6 +249,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             address: address!,
             password: password,
             language: 'English',
+          );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromPubkeyCredentials(
+            name: name,
+            password: password,
+            pubkey: viewKey!,
           );
         default:
           break;

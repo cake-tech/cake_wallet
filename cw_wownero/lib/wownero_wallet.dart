@@ -125,6 +125,9 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance, WowneroTrans
   String _password;
 
   @override
+  bool get hasRescan => true;
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       primaryAddress: wownero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: wownero_wallet.getSecretSpendKey(),

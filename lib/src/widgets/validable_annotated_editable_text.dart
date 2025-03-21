@@ -92,7 +92,8 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
 
   List<Annotation> getRanges() {
     final result = <Annotation>[];
-    final text = textEditingValue.text;
+    // Replace Ideographic Space (U+3000) with a normal space
+    final text = textEditingValue.text.replaceAll("\u3000", " ");
     final source = text
         .split(' ')
         .map((word) {

@@ -15,6 +15,7 @@ class WalletRestoreFromKeysForm extends StatefulWidget {
   WalletRestoreFromKeysForm({
     required this.walletRestoreViewModel,
     required this.onPrivateKeyChange,
+    required this.onViewKeyEntered,
     required this.displayPrivateKeyField,
     required this.onHeightOrDateEntered,
     required this.displayWalletPassword,
@@ -27,6 +28,7 @@ class WalletRestoreFromKeysForm extends StatefulWidget {
   final Function(bool) onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
   final void Function(String)? onPrivateKeyChange;
+  final void Function(bool)? onViewKeyEntered;
   final bool displayPrivateKeyField;
   final bool displayWalletPassword;
   final RestoredWallet? restoredWallet;
@@ -96,6 +98,10 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
       if (widget.restoredWallet?.height != null) {
         blockchainHeightKey.currentState?.restoreHeightController.text = widget.restoredWallet!.height.toString();
       }
+    });
+
+    viewKeyController.addListener(() {
+      widget.onViewKeyEntered?.call(viewKeyController.text.isNotEmpty);
     });
   }
 
@@ -187,6 +193,19 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   }
 
   Widget _restoreFromKeysFormFields() {
+    // Decred can only restore a view only wallet with an account pubkey. Other
+    // fields are not used.
+    if (widget.walletRestoreViewModel.type == WalletType.decred) {
+      return Column(
+        children: [
+          BaseTextFormField(
+            controller: viewKeyController,
+            hintText: S.of(context).view_key_public,
+            maxLines: null,
+        )],
+      );
+    }
+
     if (widget.displayPrivateKeyField) {
       // the term "private key" isn't actually what we're accepting here, and it's confusing to
       // users of the nano community, what this form actually accepts (when importing for nano) is a nano seed in it's hex form, referred to in code as a "seed key"

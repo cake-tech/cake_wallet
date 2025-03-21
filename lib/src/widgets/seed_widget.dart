@@ -65,6 +65,9 @@ class SeedWidgetState extends State<SeedWidget> {
       });
       widget.onSeedChange?.call(text);
     });
+    Future.delayed(Duration.zero, () {
+      widget.onSeedChange?.call(text);
+    });
   }
 
   void changeSeedLanguage(String language) {

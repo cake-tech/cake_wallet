@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cw_core/wallet_type.dart';
 
 class RescanPage extends BasePage {
   RescanPage(this._rescanViewModel)
@@ -18,10 +19,9 @@ class RescanPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Padding(
+    Widget child;
+    if (_rescanViewModel.wallet.type != WalletType.decred) {
+      child = Padding(
         padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Observer(
@@ -56,13 +56,39 @@ class RescanPage extends BasePage {
 
                         Navigator.of(context).pop();
                       }
+
+                      Navigator.of(context).pop();
                     },
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     isDisabled: !_rescanViewModel.isButtonEnabled,
                   ))
         ]),
-      ),
+      );
+    } else {
+      child = Center(
+          child: Padding(
+        padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Spacer(),
+          Observer(
+              builder: (_) => LoadingPrimaryButton(
+                    isLoading: _rescanViewModel.state == RescanWalletState.rescaning,
+                    text: S.of(context).rescan,
+                    onPressed: () async {
+                      await _rescanViewModel.rescanCurrentWallet(restoreHeight: 0);
+                      Navigator.of(context).pop();
+                    },
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                  ))
+        ]),
+      ));
+    }
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: child,
     );
   }
 }

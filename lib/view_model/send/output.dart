@@ -1,9 +1,9 @@
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -101,8 +101,8 @@ abstract class OutputBase with Store {
           case WalletType.bitcoinCash:
             _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
-          case WalletType.haven:
-            _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);
+          case WalletType.decred:
+            _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
             break;
           case WalletType.ethereum:
             _amount = ethereum!.formatterEthereumParseAmount(_cryptoAmount);
@@ -116,7 +116,12 @@ abstract class OutputBase with Store {
           case WalletType.zano:
             _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
-          default:
+          case WalletType.none:
+          case WalletType.haven:
+          case WalletType.nano:
+          case WalletType.banano:
+          case WalletType.solana:
+          case WalletType.tron:
             break;
         }
 
@@ -186,10 +191,6 @@ abstract class OutputBase with Store {
         return wownero!.formatterWowneroAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.haven) {
-        return haven!.formatterMoneroAmountToDouble(amount: fee);
-      }
-
       if (_wallet.type == WalletType.ethereum) {
         return ethereum!.formatterEthereumAmountToDouble(amount: BigInt.from(fee));
       }
@@ -200,6 +201,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.zano) {
         return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
+      }
+
+      if (_wallet.type == WalletType.decred) {
+        return decred!.formatterDecredAmountToDouble(amount: fee);
       }
     } catch (e) {
       printV(e.toString());

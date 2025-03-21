@@ -103,6 +103,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
   }
 
   @override
+  bool get hasRescan => true;
+
+  @override
   int get dustAmount => network == BitcoinNetwork.testnet ? 0 : 546;
 
   Future<bool> get mempoolAPIEnabled async {

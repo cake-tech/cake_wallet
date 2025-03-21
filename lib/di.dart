@@ -50,14 +50,10 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
-import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/silent_payments_scanning_view_model.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
-import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -66,10 +62,10 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -882,7 +878,6 @@ Future<void> setup({
       (AccountListItem? account, _) => MoneroAccountEditOrCreateViewModel(
           monero!.getAccountList(getIt.get<AppStore>().wallet!),
           wownero?.getAccountList(getIt.get<AppStore>().wallet!),
-          haven?.getAccountList(getIt.get<AppStore>().wallet!),
           wallet: getIt.get<AppStore>().wallet!,
           accountListItem: account));
 
@@ -1016,7 +1011,8 @@ Future<void> setup({
       (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: false),
           editingNode: editingNode,
-          isSelected: isSelected));
+          isSelected: isSelected,
+          type: getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
@@ -1102,8 +1098,6 @@ Future<void> setup({
 
   getIt.registerFactoryParam<WalletService, WalletType, void>((WalletType param1, __) {
     switch (param1) {
-      case WalletType.haven:
-        return haven!.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
         return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.bitcoin:
@@ -1144,7 +1138,10 @@ Future<void> setup({
         return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.zano:
         return zano!.createZanoWalletService(_walletInfoSource);
+      case WalletType.decred:
+        return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.none:
+      case WalletType.haven:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
   });

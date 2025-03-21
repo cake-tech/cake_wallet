@@ -78,7 +78,6 @@ class TestHelpers {
   static MockHiveInterface getAndRegisterHiveInterface() {
     _removeRegistrationIfExists<HiveInterface>();
     final service = MockHiveInterface();
-    final box = MockHiveBox();
     getIt.registerSingleton<HiveInterface>(service);
     return service;
   }
