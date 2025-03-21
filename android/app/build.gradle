@@ -37,7 +37,7 @@ if (appPropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdkVersion 35
     buildToolsVersion "34.0.0"
 
     lintOptions {
@@ -80,6 +80,9 @@ android {
             minifyEnabled false
 
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+       }
+       debug {
+            signingConfig signingConfigs.release
        }
    }
 
