@@ -425,7 +425,6 @@ abstract class Monero {
   void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
   void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
-  Future<void> backgroundSyncTasks();
 }
 
 abstract class MoneroSubaddressList {

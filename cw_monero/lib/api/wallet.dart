@@ -94,9 +94,13 @@ Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
-  while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
-    printV("adding subaddress");
-    monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+  // this could be a while loop, but I'm in favor of making it if to not cause freezes
+  if (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+    if (monero.Wallet_numSubaddressAccounts(wptr!) < accountIndex) {
+      monero.Wallet_addSubaddressAccount(wptr!);
+    } else {
+      monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+    }
   }
   addressCache[wptr!.address] ??= {};
   addressCache[wptr!.address]![accountIndex] ??= {};
@@ -135,6 +139,7 @@ Future<bool> setupNodeSync(
 }
 ''');
   final addr = wptr!.address;
+  printV("init: start");
   await Isolate.run(() {
     monero.Wallet_init(Pointer.fromAddress(addr),
         daemonAddress: address,
@@ -143,6 +148,7 @@ Future<bool> setupNodeSync(
         daemonUsername: login ?? '',
         daemonPassword: password ?? '');
   });
+  printV("init: end");
 
   final status = monero.Wallet_status(wptr!);
 
@@ -154,7 +160,7 @@ Future<bool> setupNodeSync(
     }
   }
 
-  if (kDebugMode && debugMonero) {
+  if (true) {
     monero.Wallet_init3(
       wptr!, argv0: '',
       defaultLogBaseName: 'moneroc',
@@ -229,7 +235,9 @@ class SyncListener {
   SyncListener(this.onNewBlock, this.onNewTransaction)
       : _cachedBlockchainHeight = 0,
         _lastKnownBlockHeight = 0,
-        _initialSyncHeight = 0;
+        _initialSyncHeight = 0 {
+          _start();
+        }
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
@@ -247,7 +255,7 @@ class SyncListener {
     return _cachedBlockchainHeight;
   }
 
-  void start() {
+  void _start() {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
@@ -268,7 +276,7 @@ class SyncListener {
       }
 
       final bchHeight = await getNodeHeightOrUpdate(syncHeight);
-
+      printV("syncHeight: $syncHeight, _lastKnownBlockHeight: $_lastKnownBlockHeight, bchHeight: $bchHeight");
       if (_lastKnownBlockHeight == syncHeight) {
         return;
       }
@@ -365,7 +373,4 @@ String signMessage(String message, {String address = ""}) {
 
 bool verifyMessage(String message, String address, String signature) {
   return monero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
-}
-
-Future<void> backgroundSyncTasks() async {
 }

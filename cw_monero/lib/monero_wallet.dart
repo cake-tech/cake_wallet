@@ -218,7 +218,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           // FIXME: hardcoded value
           socksProxyAddress: node.socksProxyAddress);
 
-      monero_wallet.setTrustedDaemon(node.trusted);
+      await monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
@@ -228,12 +228,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> startBackgroundSync() async {
-    if (_isBackgroundSyncRunning) {
+    if (isBackgroundSyncRunning) {
       printV("Background sync already running");
       return;
     }
-    _isBackgroundSyncRunning = true;
-    monero.Wallet_setupBackgroundSync(wptr!, backgroundSyncType: 0, walletPassword: '', backgroundCachePassword: '');
+    isBackgroundSyncRunning = true;
     int status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);
@@ -248,19 +247,33 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       throw Exception("unable to start background sync: $err");
     }
     await save();
-    startSync();
+    await init();
+    await startSync();
   }
 
-  bool _isBackgroundSyncRunning = false;
+  bool isBackgroundSyncRunning = false;
 
+  @action
   @override
   Future<void> stopSync() async {
-    if (_isBackgroundSyncRunning) {
+    if (isBackgroundSyncRunning) {
       printV("Stopping background sync");
       await save();
       monero.Wallet_stopBackgroundSync(wptr!, '');
       await save();
-      _isBackgroundSyncRunning = false;
+      isBackgroundSyncRunning = false;
+    }
+  }
+
+  @action
+  @override
+  Future<void> stopBackgroundSync(String password) async {
+    if (isBackgroundSyncRunning) {
+      printV("Stopping background sync");
+      await save();
+      monero.Wallet_stopBackgroundSync(wptr!, password);
+      await save();
+      isBackgroundSyncRunning = false;
     }
   }
 
@@ -288,7 +301,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       syncStatus = AttemptingSyncStatus();
       monero_wallet.startRefresh();
       _setListeners();
-      _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
       printV(e);
@@ -820,6 +832,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
+    printV("onNewBlock: $height, $blocksLeft, $ptc");
     try {
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();

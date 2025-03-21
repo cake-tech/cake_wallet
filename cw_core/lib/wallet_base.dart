@@ -71,6 +71,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   // extra things in the background.
   // startSync is used as a fallback.
   Future<void> startBackgroundSync() => startSync();
+  Future<void> stopBackgroundSync(String password) => stopSync();
 
   Future<void> startSync();
 

@@ -49,7 +49,7 @@ class ConnectionSyncPage extends BasePage {
             title: S.current.manage_nodes,
             handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
           ),
-          if (dashboardViewModel.hasRescan && Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled) ...[
+          if (dashboardViewModel.hasBackgroundSync && Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled) ...[
             SettingsCellWithArrow(
               title: S.current.background_sync,
               handler: (context) => Navigator.of(context).pushNamed(Routes.backgroundSync),

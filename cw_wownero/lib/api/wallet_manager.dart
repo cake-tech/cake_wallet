@@ -349,6 +349,7 @@ void loadWallet(
     txhistory = null;
     final newWptr = wownero.WalletManager_openWallet(wmPtr,
         path: path, password: password);
+
     _lastOpenedWallet = path;
     final status = wownero.Wallet_status(newWptr);
     if (status != 0) {
