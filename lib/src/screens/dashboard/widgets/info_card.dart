@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -6,6 +7,7 @@ class InfoCard extends StatelessWidget {
   final String rightButtonTitle;
   final String title;
   final String description;
+  final String image;
 
   final Function() leftButtonAction;
   final Function() rightButtonAction;
@@ -20,6 +22,7 @@ class InfoCard extends StatelessWidget {
     required this.rightButtonTitle,
     required this.leftButtonAction,
     required this.rightButtonAction,
+    required this.image,
     this.hintWidget,
   }) : super(key: key);
 
@@ -74,10 +77,10 @@ class InfoCard extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
         ),
-        child: ImageIcon(
-          AssetImage('assets/images/mweb_logo.png'),
-          color: Color.fromARGB(255, 11, 70, 129),
-          size: 40,
+        child: CakeImageWidget(
+          imageUrl: image,
+          height: 40,
+          width: 40,
         ),
       ),
     );
