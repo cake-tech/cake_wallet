@@ -242,6 +242,46 @@
                 <string>wownero-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>zano</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>zano</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>zano-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>zano-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>decred</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>decred</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>decred-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>decred-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

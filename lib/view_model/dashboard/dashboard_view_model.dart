@@ -23,7 +23,6 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -169,6 +168,9 @@ abstract class DashboardViewModelBase with Store {
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         wallet = appStore.wallet! {
+    showDecredInfoCard = wallet.type == WalletType.decred &&
+        (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+
     name = wallet.name;
     type = wallet.type;
     isShowFirstYatIntroduction = false;
@@ -261,6 +263,7 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      showDecredInfoCard = wallet?.type == WalletType.decred;
     });
 
     _transactionDisposer?.reaction.dispose();
@@ -350,6 +353,10 @@ abstract class DashboardViewModelBase with Store {
       statusText = S.current.please_try_to_connect_to_another_node;
     }
 
+    if (status is ProcessingSyncStatus) {
+      statusText = (status as ProcessingSyncStatus).message ?? S.current.processing;
+    }
+
     return statusText;
   }
 
@@ -399,13 +406,7 @@ abstract class DashboardViewModelBase with Store {
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed
-  bool get hasRescan => [
-        WalletType.bitcoin,
-        WalletType.monero,
-        WalletType.litecoin,
-        WalletType.wownero,
-        WalletType.haven
-      ].contains(wallet.type);
+  bool get hasRescan => wallet.hasRescan;
 
   @computed
   bool get isMoneroViewOnly {
@@ -490,6 +491,9 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool mwebEnabled = false;
 
+  @observable
+  late bool showDecredInfoCard;
+
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
 
@@ -543,6 +547,12 @@ abstract class DashboardViewModelBase with Store {
     bitcoin!.setMwebEnabled(wallet, false);
   }
 
+  @action
+  void dismissDecredInfoCard() {
+    showDecredInfoCard = false;
+    sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
+  }
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
@@ -573,6 +583,9 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
 
+  @computed
+  bool get canSend => wallet.canSend();
+
   @observable
   bool hasSwapAction;
 
@@ -596,21 +609,28 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get hasSignMessages {
-    if (wallet.isHardwareWallet) return false;
-
-    return [
-      WalletType.monero,
-      WalletType.litecoin,
-      WalletType.bitcoin,
-      WalletType.bitcoinCash,
-      WalletType.ethereum,
-      WalletType.polygon,
-      WalletType.solana,
-      WalletType.nano,
-      WalletType.banano,
-      WalletType.tron,
-      WalletType.wownero
-    ].contains(wallet.type);
+    if (wallet.isHardwareWallet) {
+      return false;
+    }
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.litecoin:
+      case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.tron:
+      case WalletType.wownero:
+      case WalletType.decred:
+        return true;
+      case WalletType.zano:
+      case WalletType.haven:
+      case WalletType.none:
+        return false;
+    }
   }
 
   bool get showRepWarning {
