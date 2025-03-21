@@ -504,9 +504,10 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool backgroundSyncEnabled = false;
 
+  @action
   Future<bool> isBackgroundSyncEnabled() async {
-    if (Platform.isAndroid) {
-      return true;
+    if (!Platform.isAndroid) {
+      return false;
     }
     final resp = await FlutterDaemon().getBackgroundSyncStatus();
     printV("Background sync status: $resp");
