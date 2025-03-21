@@ -3,6 +3,8 @@ PODS:
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.3)
+  - cw_decred (0.0.1):
+    - Flutter
   - cw_mweb (0.0.1):
     - Flutter
   - device_display_brightness (0.0.1):
@@ -100,12 +102,11 @@ PODS:
     - Flutter
   - wakelock_plus (0.0.1):
     - Flutter
-  - workmanager (0.0.1):
-    - Flutter
 
 DEPENDENCIES:
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
+  - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
   - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -131,7 +132,6 @@ DEPENDENCIES:
   - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
-  - workmanager (from `.symlinks/plugins/workmanager/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -147,6 +147,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  cw_decred:
+    :path: ".symlinks/plugins/cw_decred/ios"
   cw_mweb:
     :path: ".symlinks/plugins/cw_mweb/ios"
   device_display_brightness:
@@ -197,12 +199,11 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock_plus:
     :path: ".symlinks/plugins/wakelock_plus/ios"
-  workmanager:
-    :path: ".symlinks/plugins/workmanager/ios"
 
 SPEC CHECKSUMS:
   connectivity_plus: 481668c94744c30c53b8895afb39159d1e619bdf
   CryptoSwift: 967f37cea5a3294d9cce358f78861652155be483
+  cw_decred: a02cf30175a46971c1e2fa22c48407534541edc6
   cw_mweb: 3aea2fb35b2bd04d8b2d21b83216f3b8fb768d85
   device_display_brightness: 04374ebd653619292c1d996f00f42877ea19f17f
   device_info_plus: 335f3ce08d2e174b9fdc3db3db0f4e3b1f66bd89
@@ -235,7 +236,6 @@ SPEC CHECKSUMS:
   universal_ble: ff19787898040d721109c6324472e5dd4bc86adc
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   wakelock_plus: 04623e3f525556020ebd4034310f20fe7fda8b49
-  workmanager: 01be2de7f184bd15de93a1812936a2b7f42ef07e
 
 PODFILE CHECKSUM: e448f662d4c41f0c0b1ccbb78afd57dbf895a597
 

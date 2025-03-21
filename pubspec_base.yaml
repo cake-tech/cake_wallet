@@ -68,7 +68,6 @@ dependencies:
    git:
      url: https://github.com/MrCyjaneK/device_display_brightness.git
      ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
-  workmanager: ^0.5.2
   wakelock_plus: ^1.2.5
   flutter_mailer:       
     git:
