@@ -64,7 +64,7 @@ class BackgroundSyncPage extends BasePage {
                 items: SyncMode.all,
                 displayItem: (SyncMode syncMode) => syncMode.name,
                 selectedItem: dashboardViewModel.syncMode,
-                onItemSelected: (syncMode) async {
+                onItemSelected: dashboardViewModel.backgroundSyncEnabled ? null : (syncMode) async {
                   dashboardViewModel.setSyncMode(syncMode);
                 });
           }),

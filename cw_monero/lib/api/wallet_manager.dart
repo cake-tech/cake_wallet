@@ -11,6 +11,7 @@ import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/ledger.dart';
+import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 
 class MoneroCException implements Exception {
@@ -50,9 +51,13 @@ final monero.WalletManager wmPtr = Pointer.fromAddress((() {
     // codebase, so it will be easier to debug what happens. At least easier
     // than plugging gdb in. Especially on windows/android.
     monero.printStarts = false;
-    monero.WalletManagerFactory_setLogLevel(4);
+    if (kDebugMode && debugMonero) {
+      monero.WalletManagerFactory_setLogLevel(4);
+    }
     _wmPtr ??= monero.WalletManagerFactory_getWalletManager();
-    monero.WalletManagerFactory_setLogLevel(4);
+    if (kDebugMode && debugMonero) {
+      monero.WalletManagerFactory_setLogLevel(4);
+    }
     printV("ptr: $_wmPtr");
   } catch (e) {
     printV(e);

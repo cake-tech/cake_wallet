@@ -547,13 +547,20 @@ abstract class DashboardViewModelBase with Store {
     })());
   }
 
-
+  @action
   Future<void> enableBackgroundSync() async {
+    if (hasBatteryOptimization) {
+      if (await isBackgroundSyncEnabled()) {
+        disableBackgroundSync();
+        return;
+      }
+    }
     final resp = await FlutterDaemon().startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
     printV("Background sync enabled: $resp");
     backgroundSyncEnabled = true;
   }
 
+  @action
   Future<void> disableBackgroundSync() async {
     final resp = await FlutterDaemon().stopBackgroundSync();
     printV("Background sync disabled: $resp");
@@ -870,7 +877,7 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void setSyncMode(SyncMode syncMode)  {
-    backgroundSyncEnabled = true;
+    enableBackgroundSync();
     settingsStore.currentSyncMode = syncMode;
   }
 
