@@ -28,6 +28,7 @@ pushd scripts/android
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh
     ./build_monero_all.sh
+    ./build_decred.sh
     ./build_mwebd.sh --dont-install
 popd
 pushd android/app
