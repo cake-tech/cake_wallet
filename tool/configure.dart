@@ -1504,10 +1504,6 @@ Future<void> generatePubspec({
     output += '\n$cwDecred';
   }
 
-  if (hasDecred) {
-    output += '\n$cwDecred';
-  }
-
   if (hasFlutterSecureStorage) {
     output += '\n$flutterSecureStorage\n';
   }
