@@ -650,10 +650,10 @@ packages:
     dependency: "direct main"
     description:
       name: polyseed
-      sha256: "11d4dbee409db053c5e9cd77382b2f5115f43fc2529158a826a96f3ba505d770"
+      sha256: ccc6ba0ed3976837e770a324a6295fbf3d7c0d05fc0fa1906e36479b07c2675b
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.6"
+    version: "0.0.7"
   pool:
     dependency: transitive
     description:

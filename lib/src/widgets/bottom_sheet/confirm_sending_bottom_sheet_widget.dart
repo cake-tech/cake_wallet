@@ -130,6 +130,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                           isBatchSending: isBatchSending,
                           itemTitleTextStyle: itemTitleTextStyle,
                           itemSubTitleTextStyle: itemSubTitleTextStyle,
+                          stealthAddress: item.stealthAddress,
                         )
                       : AddressTile(
                           itemTitle: 'Address',
@@ -297,9 +298,8 @@ class AddressTile extends StatelessWidget {
           ),
           buildSegmentedAddress(
             address: address,
-            evenTextStyle: currentTheme.type == ThemeType.bright
-                ? itemSubTitleTextStyle
-                : addressTextStyle,
+            evenTextStyle:
+                currentTheme.type == ThemeType.bright ? itemSubTitleTextStyle : addressTextStyle,
             oddTextStyle: itemSubTitleTextStyle,
           ),
         ],
@@ -345,6 +345,7 @@ class AddressExpansionTile extends StatelessWidget {
     required this.isBatchSending,
     required this.itemTitleTextStyle,
     required this.itemSubTitleTextStyle,
+    this.stealthAddress,
   });
 
   final String contactType;
@@ -355,6 +356,7 @@ class AddressExpansionTile extends StatelessWidget {
   final bool isBatchSending;
   final TextStyle itemTitleTextStyle;
   final TextStyle itemSubTitleTextStyle;
+  final String? stealthAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -410,6 +412,17 @@ class AddressExpansionTile extends StatelessWidget {
                               : addressTextStyle,
                           oddTextStyle: itemSubTitleTextStyle,
                         ),
+                        if (stealthAddressText(stealthAddress) != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: buildSegmentedAddress(
+                              address: stealthAddressText(stealthAddress)!,
+                              evenTextStyle: currentTheme.type == ThemeType.bright
+                                  ? itemSubTitleTextStyle
+                                  : addressTextStyle,
+                              oddTextStyle: itemSubTitleTextStyle,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -447,4 +460,12 @@ class AddressExpansionTile extends StatelessWidget {
       overflow: TextOverflow.visible,
     );
   }
+}
+
+String? stealthAddressText(String? stealthAddress) {
+  if (stealthAddress == null) {
+    return null;
+  }
+
+  return stealthAddress.isNotEmpty ? "-> $stealthAddress" : null;
 }

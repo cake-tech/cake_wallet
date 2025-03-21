@@ -302,7 +302,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   void resetActiveChangeAddress() {
-    wallet.walletAddresses.resetActiveChangeAddress();
+    try {
+      wallet.walletAddresses.resetActiveChangeAddress();
+    } catch (_) {}
   }
 
   @computed

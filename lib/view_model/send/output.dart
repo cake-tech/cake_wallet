@@ -114,7 +114,8 @@ abstract class OutputBase with Store {
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.zano:
-            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            _amount = zano!
+                .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -200,7 +201,8 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
+        return zano!.formatterIntAmountToDouble(
+            amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
 
       if (_wallet.type == WalletType.decred) {
@@ -214,7 +216,7 @@ abstract class OutputBase with Store {
   }
 
   @computed
-  Future<String> get estimatedFeeFiatAmount async {
+  Future<double> get estimatedFeeFiatAmount async {
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
               _wallet.type == WalletType.solana ||
@@ -223,9 +225,9 @@ abstract class OutputBase with Store {
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
           price: _fiatConversationStore.prices[currency]!, cryptoAmount: await estimatedFee);
-      return fiat;
+      return double.parse(fiat);
     } catch (_) {
-      return '0.00';
+      return 0;
     }
   }
 

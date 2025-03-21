@@ -32,7 +32,7 @@ then
     echo "You have these versions installed on your system currently:"
     ls ${ANDROID_HOME}/ndk/ | cat | awk '{ print "- " $1 }'
     echo "echo > ~/.zprofile"
-    echo "echo 'export ANDROID_NDK_CERSION=..... > ~/.zprofile"
+    echo "echo 'export ANDROID_NDK_VERSION=.....' >> ~/.zprofile"
     exit 1
 fi
 

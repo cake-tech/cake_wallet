@@ -2,7 +2,6 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -10,7 +9,6 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -18,7 +16,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
@@ -356,7 +353,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                       child: sendViewModel.isFiatDisabled
                                           ? const SizedBox(height: 14)
                                           : FutureBuilder<double>(
-                                              future: output.estimatedFee,
+                                              future: output.estimatedFeeFiatAmount,
                                               builder: (context, snapshot) {
                                                 if (snapshot.hasData) {
                                                   return Text(
