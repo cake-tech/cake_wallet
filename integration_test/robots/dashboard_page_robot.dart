@@ -105,6 +105,6 @@ class DashboardPageRobot {
   }
 
   Future<void> navigateToExchangePage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.exchange}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_${S.current.swap}_action_button_key');
   }
 }

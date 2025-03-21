@@ -7,6 +7,7 @@ import '../components/common_test_flows.dart';
 import '../robots/dashboard_page_robot.dart';
 import '../robots/exchange_confirm_page_robot.dart';
 import '../robots/exchange_page_robot.dart';
+import '../robots/exchange_trade_external_send_page_robot.dart';
 import '../robots/exchange_trade_page_robot.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -18,6 +19,7 @@ void main() {
   DashboardPageRobot dashboardPageRobot;
   ExchangeTradePageRobot exchangeTradePageRobot;
   ExchangeConfirmPageRobot exchangeConfirmPageRobot;
+  ExchangeTradeExternalSendPageRobot exchangeTradeExternalSendPageRobot;
 
   testWidgets('Exchange flow', (tester) async {
     commonTestFlows = CommonTestFlows(tester);
@@ -25,6 +27,7 @@ void main() {
     dashboardPageRobot = DashboardPageRobot(tester);
     exchangeTradePageRobot = ExchangeTradePageRobot(tester);
     exchangeConfirmPageRobot = ExchangeConfirmPageRobot(tester);
+    exchangeTradeExternalSendPageRobot = ExchangeTradeExternalSendPageRobot(tester);
 
     await commonTestFlows.startAppFlow(ValueKey('exchange_app_test_key'));
     await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
@@ -43,12 +46,16 @@ void main() {
       depositAddress: CommonTestConstants.testWalletAddress,
     );
     await exchangePageRobot.enterReceiveAddress(CommonTestConstants.testWalletAddress);
-
     await exchangePageRobot.onExchangeButtonPressed();
-
     await exchangePageRobot.handleErrors(CommonTestConstants.exchangeTestAmount);
 
     await exchangeConfirmPageRobot.onSavedTradeIdButtonPressed();
+
     await exchangeTradePageRobot.onGotItButtonPressed();
+    await exchangeTradePageRobot.onSendFromExternalButtonPressed();
+
+    await exchangeTradeExternalSendPageRobot.isExchangeTradeExternalSendPage();
+    await exchangeTradeExternalSendPageRobot.verifySendDetailsItemsDisplayProperly();
+    await exchangeTradeExternalSendPageRobot.onContinueButtonPressed();
   });
 }
