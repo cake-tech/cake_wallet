@@ -384,7 +384,7 @@ class CakePayBuyCardDetailPage extends BasePage {
           paymentId: S.of(popupContext).payment_id,
           paymentIdValue: order?.orderId,
           expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
-          titleText: 'Confirm Transaction',
+          titleText: S.of(popupContext).confirm_transaction,
           titleIconPath: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
           currency: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency,
           amount: S.of(popupContext).send_amount,
@@ -432,7 +432,7 @@ class CakePayBuyCardDetailPage extends BasePage {
               builder: (BuildContext context) {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
-                  titleText: 'Generating transaction',
+                  titleText: S.of(context).generating_transaction,
                 );
               },
             );
