@@ -290,9 +290,11 @@ class BackupServiceV3 extends $BackupService {
       }
       printV("restoring: $filename");
       if (file.isFile) {
-        File('${appDir.path}/' + filename)
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(file.content, flush: true);
+        final output = File('${appDir.path}/' + filename)
+          ..createSync(recursive: true);
+        final outputStream = OutputFileStream(output.path);
+        file.writeContent(outputStream);
+        outputStream.flush();
       } else {
         final dir = Directory('${appDir.path}/' + filename);
         if (!dir.existsSync()) {
