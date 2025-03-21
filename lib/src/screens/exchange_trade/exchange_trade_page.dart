@@ -252,7 +252,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               builder: (BuildContext context) {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
-                  titleText: 'Generating transaction',
+                  titleText: S.of(context).generating_transaction,
                 );
               },
             );
@@ -271,7 +271,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                   currentTheme: widget.currentTheme,
-                  titleText: 'Confirm Transaction',
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
                   titleIconPath: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
@@ -307,7 +307,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             builder: (BuildContext bottomSheetContext) {
               return InfoBottomSheet(
                   currentTheme: widget.currentTheme,
-                  titleText: 'Transaction Sent',
+                  titleText: S.of(bottomSheetContext).transaction_sent,
                   contentImage: 'assets/images/birthday_cake.svg',
                   actionButtonText: S.of(bottomSheetContext).close,
                   actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
