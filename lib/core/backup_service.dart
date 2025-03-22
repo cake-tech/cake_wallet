@@ -386,8 +386,6 @@ class $BackupService {
   Future<Uint8List> exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final encodedPin = await _secureStorage.read(key: key);
-    final decodedPin = decodedPinCode(pin: encodedPin!);
     final wallets = await Future.wait(walletInfoSource.values.map((walletInfo) async {
       return {
         'name': walletInfo.name,
