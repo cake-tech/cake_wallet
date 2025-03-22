@@ -823,6 +823,7 @@
   "sync_status_syncronizing": "SINCRONIZZAZIONE",
   "sync_status_timed_out": "TIMED OUT",
   "sync_status_unsupported": "NODO NON SUPPORTATO",
+  "synchronizing": "Sincronizzazione",
   "syncing_wallet_alert_content": "Il saldo e l'elenco delle transazioni potrebbero non essere completi fin quando non viene visualizzato \"SINCRONIZZATO\" in alto. Clicca/tocca per saperne di più.",
   "syncing_wallet_alert_title": "Il tuo portafoglio si sta sincronizzando",
   "template": "Modello",

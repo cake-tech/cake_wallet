@@ -3,7 +3,6 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:async';
 import 'dart:isolate';
-import 'package:flutter/foundation.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_decred/api/libdcrwallet_bindings.dart';
 import 'package:cw_decred/api/util.dart';
@@ -300,7 +299,7 @@ class Libwallet {
             break;
           case "shutdown":
             final name = args["name"] ?? "";
-            final cName = name.toCString();
+            // final cName = name.toCString();
             executePayloadFn(
               fn: () => dcrwalletApi.shutdown(),
               ptrsToFree: [],
@@ -463,7 +462,11 @@ class Libwallet {
     };
     _commands.send((id, req));
     final res = await completer.future as PayloadResult;
-    return jsonDecode(res.payload);
+    try {
+      return jsonDecode(res.payload);
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<String> estimateFee(String walletName, int numBlocks) async {
