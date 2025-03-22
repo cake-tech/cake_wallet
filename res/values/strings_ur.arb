@@ -821,6 +821,7 @@
   "sync_status_syncronizing": "مطابقت پذیری",
   "sync_status_timed_out": "وقت ختم",
   "sync_status_unsupported": "غیر تعاون یافتہ نوڈ",
+  "synchronizing": "ہم آہنگی",
   "syncing_wallet_alert_content": "آپ کے بیلنس اور لین دین کی فہرست اس وقت تک مکمل نہیں ہو سکتی جب تک کہ یہ سب سے اوپر \"SYNCRONIZED\" نہ کہے۔ مزید جاننے کے لیے کلک/تھپتھپائیں۔",
   "syncing_wallet_alert_title": "آپ کا بٹوہ مطابقت پذیر ہو رہا ہے۔",
   "template": "سانچے",

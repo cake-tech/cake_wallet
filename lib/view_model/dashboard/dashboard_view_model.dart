@@ -261,7 +261,8 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
-      showDecredInfoCard = wallet?.type == WalletType.decred;
+      showDecredInfoCard = wallet?.type == WalletType.decred &&
+          sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
     });
 
     _transactionDisposer?.reaction.dispose();
@@ -719,7 +720,7 @@ abstract class DashboardViewModelBase with Store {
             (List<TransactionInfo> txs) {
 
           transactions.clear();
-          
+
           transactions.addAll(
             txs.where((tx) {
               if (wallet.type == WalletType.monero) {

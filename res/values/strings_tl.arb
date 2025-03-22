@@ -819,6 +819,7 @@
   "sync_status_syncronizing": "PAG-SYNCHRONIZE",
   "sync_status_timed_out": "NAG-TIME OUT",
   "sync_status_unsupported": "HINDI SUPORTADONG NODE",
+  "synchronizing": "Pag -synchronize",
   "syncing_wallet_alert_content": "Ang iyong balanse at listahan ng transaksyon ay maaaring hindi kumpleto hanggang sa sabihin nito na \"NAKA-SYNCHRONIZE\" sa tuktok. Mag-click/tap upang malaman ang higit pa.",
   "syncing_wallet_alert_title": "Ang iyong wallet ay nag-sync",
   "template": "Template",

@@ -819,6 +819,7 @@
   "sync_status_syncronizing": "正在同步",
   "sync_status_timed_out": "时间到",
   "sync_status_unsupported": "不支持的节点",
+  "synchronizing": "同步",
   "syncing_wallet_alert_content": "您的余额和交易列表可能不完整，直到顶部显示“已同步”。单击/点击以了解更多信息。",
   "syncing_wallet_alert_title": "您的钱包正在同步",
   "template": "模板",

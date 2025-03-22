@@ -820,6 +820,7 @@
   "sync_status_syncronizing": "СИНХРОНИЗАЦИЯ",
   "sync_status_timed_out": "ВРЕМЯ ВЫШЛО",
   "sync_status_unsupported": "Неподдерживаемый узел",
+  "synchronizing": "Синхронизация",
   "syncing_wallet_alert_content": "Ваш баланс и список транзакций могут быть неполными, пока вверху не будет написано «СИНХРОНИЗИРОВАНО». Щелкните/коснитесь, чтобы узнать больше.",
   "syncing_wallet_alert_title": "Ваш кошелек синхронизируется",
   "template": "Шаблон",

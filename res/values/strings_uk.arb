@@ -820,6 +820,7 @@
   "sync_status_syncronizing": "СИНХРОНІЗАЦІЯ",
   "sync_status_timed_out": "ТАЙМ-АУТ",
   "sync_status_unsupported": "Непідтримуваний вузол",
+  "synchronizing": "Синхронізація",
   "syncing_wallet_alert_content": "Ваш баланс та список транзакцій може бути неповним, доки вгорі не буде написано «СИНХРОНІЗОВАНО». Натисніть/торкніться, щоб дізнатися більше.",
   "syncing_wallet_alert_title": "Ваш гаманець синхронізується",
   "template": "Шаблон",

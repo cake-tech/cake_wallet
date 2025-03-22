@@ -820,6 +820,7 @@
   "sync_status_syncronizing": "SINCRONIZANDO",
   "sync_status_timed_out": "CADUCADO",
   "sync_status_unsupported": "Nodo no compatible",
+  "synchronizing": "Sincronización",
   "syncing_wallet_alert_content": "Es posible que su lista de saldo y transacciones no esté completa hasta que diga \"SINCRONIZADO\" en la parte superior. Haga clic/toque para obtener más información.",
   "syncing_wallet_alert_title": "Tu billetera se está sincronizando",
   "template": "Plantilla",

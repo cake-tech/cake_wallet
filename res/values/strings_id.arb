@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "SEDANG SINKRONISASI",
   "sync_status_timed_out": "WAKTU HABIS",
   "sync_status_unsupported": "Node yang tidak didukung",
+  "synchronizing": "Sinkronisasi",
   "syncing_wallet_alert_content": "Saldo dan daftar transaksi Anda mungkin belum lengkap sampai tertulis “SYNCHRONIZED” di bagian atas. Klik/ketuk untuk mempelajari lebih lanjut.",
   "syncing_wallet_alert_title": "Dompet Anda sedang disinkronkan",
   "template": "Template",

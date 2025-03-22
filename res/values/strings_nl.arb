@@ -819,6 +819,7 @@
   "sync_status_syncronizing": "SYNCHRONISEREN",
   "sync_status_timed_out": "Uitgeput",
   "sync_status_unsupported": "Niet ondersteund knooppunt",
+  "synchronizing": "Synchronisatie",
   "syncing_wallet_alert_content": "Uw saldo- en transactielijst is mogelijk pas compleet als er bovenaan 'GESYNCHRONISEERD' staat. Klik/tik voor meer informatie.",
   "syncing_wallet_alert_title": "Uw portemonnee wordt gesynchroniseerd",
   "template": "Sjabloon",

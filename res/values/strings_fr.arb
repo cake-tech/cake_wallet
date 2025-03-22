@@ -819,6 +819,7 @@
   "sync_status_syncronizing": "SYNCHRONISATION EN COURS",
   "sync_status_timed_out": "FIN DU TEMPS",
   "sync_status_unsupported": "Nœud non pris en charge",
+  "synchronizing": "Synchronisation",
   "syncing_wallet_alert_content": "Votre solde et votre liste de transactions peuvent ne pas être à jour tant que la mention « SYNCHRONISÉ » n'apparaît en haut de l'écran. Cliquez/appuyez pour en savoir plus.",
   "syncing_wallet_alert_title": "Votre portefeuille (wallet) est en cours de synchronisation",
   "template": "Modèle",
