@@ -397,7 +397,7 @@ class SendPage extends BasePage {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
-                              Focus.of(context).unfocus();
+                              FocusManager.instance.primaryFocus?.unfocus();
                               if (sendViewModel.state is IsExecutingState) return;
                               if (_formKey.currentState != null &&
                                   !_formKey.currentState!.validate()) {
