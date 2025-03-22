@@ -415,7 +415,6 @@ class $BackupService {
       PreferencesKey.shouldSaveRecipientAddressKey:
           sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
       PreferencesKey.disableTradeOption: sharedPreferences.getBool(PreferencesKey.disableTradeOption),
-      PreferencesKey.currentPinLength: sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
       PreferencesKey.currentBitcoinElectrumSererIdKey:
