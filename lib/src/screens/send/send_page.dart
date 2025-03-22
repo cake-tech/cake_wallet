@@ -530,7 +530,7 @@ class SendPage extends BasePage {
               builder: (BuildContext context) {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
-                  titleText: 'Generating transaction',
+                  titleText: S.of(context).generating_transaction,
                 );
               },
             );
@@ -548,7 +548,7 @@ class SendPage extends BasePage {
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('send_page_confirm_sending_dialog_key'),
-                  titleText: 'Confirm Transaction',
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
@@ -596,7 +596,7 @@ class SendPage extends BasePage {
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,
                       onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
-                      titleText: 'Transaction Sent',
+                      titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/contact_icon.svg',
                       contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
@@ -605,6 +605,8 @@ class SendPage extends BasePage {
                       rightButtonText: 'Yes',
                       actionLeftButton: () {
                         Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
                         RequestReviewHandler.requestReview();
                         newContactAddress = null;
                       },
@@ -618,11 +620,17 @@ class SendPage extends BasePage {
                     )
                   : InfoBottomSheet(
                       currentTheme: currentTheme,
-                      titleText: 'Transaction Sent',
+                      titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/birthday_cake.svg',
                       actionButtonText: S.of(bottomSheetContext).close,
                       actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                      actionButton: () => Navigator.of(bottomSheetContext).pop());
+                      actionButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      });
             },
           );
 

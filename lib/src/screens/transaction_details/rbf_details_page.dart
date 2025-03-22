@@ -170,7 +170,7 @@ class RBFDetailsPage extends BasePage {
               builder: (BuildContext context) {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
-                  titleText: 'Generating transaction',
+                  titleText: S.of(context).generating_transaction,
                 );
               },
             );
@@ -188,7 +188,7 @@ class RBFDetailsPage extends BasePage {
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('rbf_confirm_sending_bottom_sheet'),
-                  titleText: 'Confirm Transaction',
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
                   titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,

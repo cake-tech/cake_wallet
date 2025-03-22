@@ -110,6 +110,8 @@ class Routes {
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
+  static const backgroundSync = '/background_sync';
+  static const devMoneroBackgroundSync = '/dev/monero_background_sync';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
