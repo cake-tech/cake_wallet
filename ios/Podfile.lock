@@ -3,6 +3,8 @@ PODS:
     - Flutter
     - ReachabilitySwift
   - CryptoSwift (1.8.3)
+  - cw_mweb (0.0.1):
+    - Flutter
   - cw_decred (0.0.1):
     - Flutter
   - cw_mweb (0.0.1):
@@ -65,7 +67,6 @@ PODS:
     - Flutter
   - fluttertoast (0.0.2):
     - Flutter
-    - Toast
   - in_app_review (2.0.0):
     - Flutter
   - integration_test (0.0.1):
@@ -76,7 +77,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - permission_handler_apple (9.1.1):
+  - permission_handler_apple (9.3.0):
     - Flutter
   - ReachabilitySwift (5.2.4)
   - SDWebImage (5.19.7):
@@ -92,7 +93,6 @@ PODS:
   - sp_scanner (0.0.1):
     - Flutter
   - SwiftyGif (5.4.5)
-  - Toast (4.1.1)
   - uni_links (0.0.1):
     - Flutter
   - universal_ble (0.0.1):
@@ -106,6 +106,7 @@ PODS:
 DEPENDENCIES:
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - CryptoSwift
+  - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
   - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
   - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
@@ -142,11 +143,12 @@ SPEC REPOS:
     - ReachabilitySwift
     - SDWebImage
     - SwiftyGif
-    - Toast
 
 EXTERNAL SOURCES:
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
+  cw_mweb:
+    :path: ".symlinks/plugins/cw_mweb/ios"
   cw_decred:
     :path: ".symlinks/plugins/cw_decred/ios"
   cw_mweb:
@@ -211,19 +213,19 @@ SPEC CHECKSUMS:
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
   fast_scanner: 2cb1ad3e69e645e9980fb4961396ce5804caa3e3
-  file_picker: 07c75322ede1d47ec9bb4ac82b27c94d3598251a
+  file_picker: 9b3292d7c8bc68c8a7bf8eb78f730e49c8efc517
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   flutter_local_authentication: 989278c681612f1ee0e36019e149137f114b9d7f
   flutter_mailer: 3a8cd4f36c960fb04528d5471097270c19fec1c4
   flutter_secure_storage: 2c2ff13db9e0a5647389bff88b0ecac56e3f3418
-  fluttertoast: 76fea30fcf04176325f6864c87306927bd7d2038
+  fluttertoast: 2c67e14dce98bbdb200df9e1acf610d7a6264ea1
   in_app_review: 5596fe56fab799e8edb3561c03d053363ab13457
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
-  permission_handler_apple: 3787117e48f80715ff04a3830ca039283d6a4f29
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
   sensitive_clipboard: 161e9abc3d56b3131309d8a321eb4690a803c16b
