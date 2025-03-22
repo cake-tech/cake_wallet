@@ -99,7 +99,7 @@ abstract class BackupViewModelBase with Store {
   @action
   Future<void> saveToDownload(String name, File file) async {
     if (!Platform.isAndroid) {
-      throw Exception('Saving to download is only supported on Android');
+      return;
     }
     const downloadDirPath = '/storage/emulated/0/Download'; // For Android
     final filePath = '$downloadDirPath/${name}';
