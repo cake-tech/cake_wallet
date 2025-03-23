@@ -62,7 +62,7 @@ RUN set -o xtrace \
     # x86_64-linux-gnu dependencies
     g++-x86-64-linux-gnu gcc-x86-64-linux-gnu \
     # flatpak dependencies
-    flatpak flatpak-builder \
+    flatpak flatpak-builder binutils elfutils patch unzip xz-utils zstd \
     && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && sh -c 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen' \
     && locale-gen \
