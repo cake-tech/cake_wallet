@@ -27,17 +27,16 @@ class DecredWalletService extends WalletService<
   static final pubkeyRestorePathTestnet = "m/44'/1'/0'";
   final mainnet = "mainnet";
   final testnet = "testnet";
-  Libwallet? libwallet;
+  static Libwallet? libwallet;
 
   Future<void> init() async {
     if (libwallet != null) {
       return;
     }
     libwallet = await Libwallet.spawn();
-    // Use the general path for all dcr wallets as the general log directory.
-    // Individual wallet paths may be removed if the wallet is deleted.
-    final dcrLogDir = await pathForWalletDir(name: '', type: WalletType.decred);
-    libwallet!.initLibdcrwallet(dcrLogDir);
+    // Init logging with no directory to force printing to stdout and only
+    // print ERROR level logs.
+    libwallet!.initLibdcrwallet("", "err");
   }
 
   void closeLibwallet() {

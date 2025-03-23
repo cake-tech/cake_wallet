@@ -78,10 +78,12 @@ class Libwallet {
         switch (method) {
           case "initlibdcrwallet":
             final logDir = args["logdir"] ?? "";
+            final level = args["level"] ?? "";
             final cLogDir = logDir.toCString();
+            final cLevel = level.toCString();
             executePayloadFn(
-              fn: () => dcrwalletApi.initialize(cLogDir),
-              ptrsToFree: [cLogDir],
+              fn: () => dcrwalletApi.initialize(cLogDir, cLevel),
+              ptrsToFree: [cLogDir, cLevel],
             );
             break;
           case "createwallet":
@@ -325,8 +327,8 @@ class Libwallet {
 
   // initLibdcrwallet initializes libdcrwallet using the provided logDir and gets
   // it ready for use. This must be done before attempting to create, load or use
-  // a wallet.
-  Future<void> initLibdcrwallet(String logDir) async {
+  // a wallet. An empty string can be used to log to stdout and create no log files.
+  Future<void> initLibdcrwallet(String logDir, String level) async {
     if (_closed) throw StateError('Closed');
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
@@ -334,6 +336,7 @@ class Libwallet {
     final req = {
       "method": "initlibdcrwallet",
       "logdir": logDir,
+      "level": level,
     };
     _commands.send((id, req));
     await completer.future;
