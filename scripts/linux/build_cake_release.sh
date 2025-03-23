@@ -77,6 +77,7 @@ dart run tool/generate_localization.dart
 flutter build linux
 rm -rf build/linux/current
 cp -r build/linux/$flutter_arch build/linux/current
+rm -rf .flatpak-builder
 flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml
 flatpak build-export export flatpak-build
 flatpak build-bundle export build/linux/current/cake_wallet.flatpak com.cakewallet.CakeWallet
