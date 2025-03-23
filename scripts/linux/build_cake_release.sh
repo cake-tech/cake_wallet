@@ -80,7 +80,7 @@ cp -r build/linux/$flutter_arch build/linux/current
 flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml
 flatpak build-export export flatpak-build
 flatpak build-bundle export build/linux/current/cake_wallet.flatpak com.cakewallet.CakeWallet
-mkdir -p build/linux/$arch
+cp build/linux/current/cake_wallet.flatpak build/linux/$flutter_arch/
 EOF
 }
 
