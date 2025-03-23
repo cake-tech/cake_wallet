@@ -58,6 +58,7 @@ fi
 # Function to build for a specific architecture
 build_for_arch() {
     local arch=$1
+    local flutter_arch=$2
     echo "Building $APP_TYPE for Linux ($arch)"
     
     docker run --privileged -v$(pwd):$(pwd) -w $(pwd) -i --rm --platform linux/$arch $DOCKER_IMAGE bash -x << EOF
@@ -74,24 +75,23 @@ flutter clean
 ./model_generator.sh
 dart run tool/generate_localization.dart
 flutter build linux
-cp -r build/linux/* build/linux/current
+rm -rf build/linux/current
+cp -r build/linux/$flutter_arch build/linux/current
 flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml
 flatpak build-export export flatpak-build
 flatpak build-bundle export build/linux/current/cake_wallet.flatpak com.cakewallet.CakeWallet
 mkdir -p build/linux/$arch
-cp -r build/linux/current/release/bundle build/linux/$arch/
-echo "$arch build completed. Output is in build/linux/$arch/bundle/"
 EOF
 }
 
 # Build for specified architectures
 echo "Building $APP_TYPE for Linux"
 if [[ "$BUILD_AMD64" == "true" ]]; then
-    build_for_arch "amd64"
+    build_for_arch "amd64" "x64"
 fi
 
 if [[ "$BUILD_ARM64" == "true" ]]; then
-    build_for_arch "arm64"
+    build_for_arch "arm64" "arm64"
 fi
 
 echo "Build process completed."
