@@ -20,8 +20,8 @@ In order to build the latest version of Cake Wallet, simply run the following:
 git clone --branch main https://github.com/cake-tech/cake_wallet.git
 # NOTE: Replace `main` with the latest release tag available at https://github.com/cake-tech/cake_wallet/releases/latest.
 cd cake_wallet
-# docker build -t ghcr.io/cake-tech/cake_wallet:main-linux . # Uncomment to build the docker image yourself instead of pulling it from the registry
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+# docker build -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1 . # Uncomment to build the docker image yourself instead of pulling it from the registry
+docker run --privileged -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1 bash -x << EOF
 set -x -e
 pushd scripts
     ./gen_android_manifest.sh
@@ -37,6 +37,10 @@ flutter clean
 dart run tool/generate_localization.dart
 dart run tool/generate_new_secrets.dart
 flutter build linux
+# If you want to build flatpak you need --privileged flag
+flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml
+flatpak build-export export flatpak-build
+flatpak build-bundle export build/linux/current/cake_wallet.flatpak com.cakewallet.CakeWallet
 EOF
 ```
 
@@ -51,46 +55,11 @@ Building Linux application...
 ✓ Built build/linux/x64/release/bundle/cake_wallet
 ```
 
-Final builds can be found in `build/linux/x64/release/bundle/` as seen above.
+Final builds can be found in `build/linux/current/release/bundle/` as seen above.
 
-
-## Flatpak (optional)
-
-To package the built binaries as a flatpak, you need first to install `flatpak` and `flatpak-builder`:
-
-```bash
-sudo apt install flatpak flatpak-builder
-```
-
-Add the necessary Flathub:
-
-```bash
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-```
-
-Then need to install freedesktop runtime and sdk:
-
-```bash
-flatpak install flathub org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08
-```
-
-Next, build the flatpak bundle:
-
-```bash
-flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml
-```
-
-And then export bundle:
-
-```bash
-flatpak build-export export flatpak-build
-flatpak build-bundle export cake_wallet.flatpak com.cakewallet.CakeWallet
-```
-
-The Flatpak file, `cake_wallet.flatpak`, should be generated in the current directory.
 
 To install the newly built Flatpak, run:
 
 ```bash
-flatpak --user install cake_wallet.flatpak
+flatpak --user install build/linux/current/cake_wallet.flatpak
 ```
