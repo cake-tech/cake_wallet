@@ -78,12 +78,10 @@ cp -r build/linux/* build/linux/current
 flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml
 flatpak build-export export flatpak-build
 flatpak build-bundle export build/linux/current/cake_wallet.flatpak com.cakewallet.CakeWallet
+mkdir -p build/linux/$arch
+cp -r build/linux/current/release/bundle build/linux/$arch/
+echo "$arch build completed. Output is in build/linux/$arch/bundle/"
 EOF
-    
-    # Move the build to a platform-specific directory
-    mkdir -p build/linux/$arch
-    cp -r build/linux/current/release/bundle build/linux/$arch/
-    echo "$arch build completed. Output is in build/linux/$arch/bundle/"
 }
 
 # Build for specified architectures
