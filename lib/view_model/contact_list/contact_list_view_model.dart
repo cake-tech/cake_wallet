@@ -9,7 +9,6 @@ import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -43,7 +42,8 @@ abstract class ContactListViewModelBase with Store {
           }
         }
       } else if (info.addresses?.isNotEmpty == true && info.addresses!.length > 1) {
-        if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)) {
+        if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
+            .contains(info.type)) {
           final address = info.address;
           final name = _createName(info.name, "", key: 0);
           walletContacts.add(WalletContact(
@@ -129,11 +129,9 @@ abstract class ContactListViewModelBase with Store {
         (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
 
     return element.type == _currency ||
-        (element.type.tag != null &&
-            _currency?.tag != null &&
-            element.type.tag == _currency?.tag) ||
-        _currency?.toString() == element.type.tag ||
-        _currency?.tag == element.type.toString();
+        (element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag) ||
+        _currency.toString() == element.type.tag ||
+        _currency.tag == element.type.toString();
   }
 
   void dispose() => _subscription?.cancel();

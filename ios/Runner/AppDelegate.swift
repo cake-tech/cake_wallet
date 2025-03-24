@@ -1,6 +1,5 @@
 import UIKit
 import Flutter
-import workmanager
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {    
@@ -11,15 +10,6 @@ import workmanager
         if #available(iOS 10.0, *) {
           UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
         }
-
-        WorkmanagerPlugin.setPluginRegistrantCallback { registry in
-            // Registry in this case is the FlutterEngine that is created in Workmanager's
-            // performFetchWithCompletionHandler or BGAppRefreshTask.
-            // This will make other plugins available during a background operation.
-            GeneratedPluginRegistrant.register(with: registry)
-        }
-
-        WorkmanagerPlugin.registerTask(withIdentifier: "com.fotolockr.cakewallet.monero_sync_task")
 
         makeSecure()
         
