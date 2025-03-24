@@ -380,7 +380,7 @@ abstract class DecredWalletBase
         totalAmt = totalIn;
       } else if (out.cryptoAmount != null) {
         final coins = double.parse(out.cryptoAmount!);
-        amt = (coins * 1e8).toInt();
+        amt = (coins * 1e8).round();
       }
       totalAmt += amt;
       final o = {
@@ -415,7 +415,7 @@ abstract class DecredWalletBase
     };
     final fee = decoded["fee"] ?? 0;
     if (sendAll) {
-      totalAmt = (totalAmt - fee).toInt();
+      totalAmt = (totalAmt - fee).round();
     }
     return DecredPendingTransaction(
         txid: decoded["txid"] ?? "", amount: totalAmt, fee: fee, rawHex: signedHex, send: send);
@@ -485,9 +485,9 @@ abstract class DecredWalletBase
         direction = TransactionDirection.incoming;
       }
       final amountDouble = d["amount"] ?? 0.0;
-      final amount = (amountDouble * 1e8).toInt().abs();
+      final amount = (amountDouble * 1e8).round().abs();
       final feeDouble = d["fee"] ?? 0.0;
-      final fee = (feeDouble * 1e8).toInt().abs();
+      final fee = (feeDouble * 1e8).round().abs();
       final confs = d["confirmations"] ?? 0;
       final sendTime = d["time"] ?? 0;
       final height = d["height"] ?? 0;
@@ -621,7 +621,7 @@ abstract class DecredWalletBase
         continue;
       }
       final amountDouble = d["amount"] ?? 0.0;
-      final amount = (amountDouble * 1e8).toInt().abs();
+      final amount = (amountDouble * 1e8).round().abs();
       final utxo = Unspent(d["address"] ?? "", d["txid"] ?? "", amount, d["vout"] ?? 0, null);
       utxo.isChange = d["ischange"] ?? false;
       unspents.add(utxo);
