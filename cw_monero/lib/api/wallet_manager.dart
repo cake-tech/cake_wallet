@@ -186,13 +186,6 @@ void restoreWalletFromKeysSync(
         message: monero.Wallet_errorString(newWptr));
   }
 
-
-  monero.Wallet_setupBackgroundSync(newWptr, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
-  status = monero.Wallet_status(newWptr);
-  if (status != 0) {
-    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
-  }
-
   // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
   // match the view key provided
   if (spendKey != "") {
