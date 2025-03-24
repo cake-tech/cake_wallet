@@ -233,18 +233,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       return;
     }
     isBackgroundSyncRunning = true;
-    int status = monero.Wallet_status(wptr!);
-    if (status != 0) {
-      final err = monero.Wallet_errorString(wptr!);
-      throw Exception("unable to setup background sync: $err");
-    }
     await save();
 
     monero.Wallet_startBackgroundSync(wptr!);
-    status = monero.Wallet_status(wptr!);
+    final status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);
-      throw Exception("unable to start background sync: $err");
+      isBackgroundSyncRunning = false;
+      printV("startBackgroundSync: $err");
     }
     await save();
     await init();
@@ -260,9 +256,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       printV("Stopping background sync");
       await save();
       monero.Wallet_stopBackgroundSync(wptr!, '');
-      await save();
       isBackgroundSyncRunning = false;
     }
+    await save();
   }
 
   @action
