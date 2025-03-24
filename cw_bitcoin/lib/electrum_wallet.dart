@@ -2218,6 +2218,7 @@ abstract class ElectrumWalletBase
     var totalFrozen = 0;
     var totalConfirmed = 0;
     var totalUnconfirmed = 0;
+    var totalNonSending = 0;
 
     if (hasSilentPaymentsScanning) {
       // Add values from unspent coins that are not fetched by the address list
@@ -2228,6 +2229,7 @@ abstract class ElectrumWalletBase
             if (unspent.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
               if (unspent.isFrozen) totalFrozen += unspent.value;
               totalConfirmed += unspent.value;
+              if (!unspent.isSending) totalNonSending += unspent.value;
             }
           });
         }
@@ -2240,10 +2242,14 @@ abstract class ElectrumWalletBase
 
         if (element.hash == info.hash &&
             element.vout == info.vout &&
-            info.isFrozen &&
             element.bitcoinAddressRecord.address == info.address &&
             element.value == info.value) {
-          totalFrozen += element.value;
+          if (info.isFrozen) {
+            totalFrozen += element.value;
+          }
+          if (!info.isSending || info.isFrozen) {
+            totalNonSending += element.value;
+          }
         }
       });
     });
@@ -2275,6 +2281,7 @@ abstract class ElectrumWalletBase
       confirmed: totalConfirmed,
       unconfirmed: totalUnconfirmed,
       frozen: totalFrozen,
+      selected: totalConfirmed - totalNonSending,
     );
   }
 

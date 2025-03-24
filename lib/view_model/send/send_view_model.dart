@@ -226,6 +226,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
+  String get sendingBalance {
+    return wallet.balance[selectedCryptoCurrency]!.formattedSelectedBalance;
+  }
+
+  @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
 
   @computed

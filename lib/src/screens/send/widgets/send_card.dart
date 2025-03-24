@@ -244,7 +244,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   currencyValueValidator: output.sendAll
                       ? sendViewModel.allAmountValidator
                       : sendViewModel.amountValidator,
-                  allAmountCallback: () async => output.setSendAll(sendViewModel.balance)),
+                  allAmountCallback: () async => output.setSendAll(sendViewModel.sendingBalance)),
               Divider(
                   height: 1,
                   color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
@@ -266,7 +266,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         ),
                       ),
                       Text(
-                        sendViewModel.balance,
+                        sendViewModel.sendingBalance,
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -505,7 +505,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) {
       if (output.sendAll) {
-        output.setSendAll(sendViewModel.balance);
+        output.setSendAll(sendViewModel.sendingBalance);
       }
 
       output.setCryptoAmount(cryptoAmountController.text);
