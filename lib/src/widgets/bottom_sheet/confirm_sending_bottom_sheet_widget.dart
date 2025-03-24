@@ -276,7 +276,7 @@ class AddressTile extends StatelessWidget {
       fontFamily: 'Lato',
       fontWeight: FontWeight.w600,
       color: currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<BalancePageTheme>()!.labelTextColor
+          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.5)
           : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       decoration: TextDecoration.none,
     );
@@ -298,8 +298,7 @@ class AddressTile extends StatelessWidget {
           ),
           buildSegmentedAddress(
             address: address,
-            evenTextStyle:
-                currentTheme.type == ThemeType.bright ? itemSubTitleTextStyle : addressTextStyle,
+            evenTextStyle: addressTextStyle,
             oddTextStyle: itemSubTitleTextStyle,
           ),
         ],
@@ -365,7 +364,7 @@ class AddressExpansionTile extends StatelessWidget {
       fontFamily: 'Lato',
       fontWeight: FontWeight.w600,
       color: currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<BalancePageTheme>()!.labelTextColor
+          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.5)
           : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       decoration: TextDecoration.none,
     );
@@ -380,14 +379,16 @@ class AddressExpansionTile extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: isBatchSending ? 0 : 8),
           child: ExpansionTile(
-            childrenPadding: EdgeInsets.zero,
+            childrenPadding: isBatchSending ? const EdgeInsets.only(bottom: 8) : EdgeInsets.zero,
             tilePadding: EdgeInsets.zero,
             dense: true,
             visualDensity: VisualDensity.compact,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(isBatchSending ? name : contactType, style: itemTitleTextStyle),
+                Expanded(
+                    child: Text(isBatchSending ? name : contactType,
+                        style: itemTitleTextStyle, softWrap: true)),
                 Text(isBatchSending ? amount : name,
                     style: TextStyle(
                       fontSize: 14,
@@ -407,9 +408,7 @@ class AddressExpansionTile extends StatelessWidget {
                       children: [
                         buildSegmentedAddress(
                           address: address,
-                          evenTextStyle: currentTheme.type == ThemeType.bright
-                              ? itemSubTitleTextStyle
-                              : addressTextStyle,
+                          evenTextStyle: addressTextStyle,
                           oddTextStyle: itemSubTitleTextStyle,
                         ),
                         if (stealthAddressText(stealthAddress) != null)
@@ -417,9 +416,7 @@ class AddressExpansionTile extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: buildSegmentedAddress(
                               address: stealthAddressText(stealthAddress)!,
-                              evenTextStyle: currentTheme.type == ThemeType.bright
-                                  ? itemSubTitleTextStyle
-                                  : addressTextStyle,
+                              evenTextStyle: addressTextStyle,
                               oddTextStyle: itemSubTitleTextStyle,
                             ),
                           ),

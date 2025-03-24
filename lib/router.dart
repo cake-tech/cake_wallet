@@ -36,6 +36,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
+import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -73,6 +74,7 @@ import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
+import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -846,6 +848,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.exchangeTradeExternalSendPage:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<ExchangeTradeExternalSendPage>(),
+      );
+
+    case Routes.backgroundSync:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<BackgroundSyncPage>());
+    case Routes.devMoneroBackgroundSync:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevMoneroBackgroundSyncPage>(),
       );
 
     default:
