@@ -1,6 +1,7 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 
@@ -33,13 +34,17 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
       final double effectiveMaxWidth = maxWidth - 2 * sideMargin;
       const double sliderWidth = 42.0;
 
+      final tileBackgroundColor = widget.currentTheme.type == ThemeType.light
+          ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
+          : widget.currentTheme.type == ThemeType.oled
+          ? Colors.black.withOpacity(0.5)
+          : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+
       return Container(
         height: widget.height,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: widget.currentTheme.type == ThemeType.light || widget.currentTheme.type == ThemeType.bright
-                ?  Theme.of(context).disabledColor
-                : widget.currentTheme.type == ThemeType.oled ? Colors.black : Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor),
+            color: tileBackgroundColor),
         child: Stack(
           alignment: Alignment.centerLeft,
           children: [
@@ -74,11 +79,11 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                   height: widget.height - 8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: widget.currentTheme.type == ThemeType.bright ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor : Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                   alignment: Alignment.center,
                   child: Icon(Icons.arrow_forward,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                      color: widget.currentTheme.type == ThemeType.bright ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor : Theme.of(context).extension<FilterTheme>()!.buttonColor),
                 ),
               ),
             )

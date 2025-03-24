@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -71,6 +72,12 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
       decoration: TextDecoration.none,
     );
 
+    final tileBackgroundColor = currentTheme.type == ThemeType.light
+        ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
+        : currentTheme.type == ThemeType.oled
+        ? Colors.black.withOpacity(0.5)
+        : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+
     Widget content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),
       child: Column(
@@ -86,6 +93,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                 amount: '',
                 address: paymentIdValue!,
                 itemSubTitleTextStyle: itemSubTitleTextStyle,
+                tileBackgroundColor: tileBackgroundColor,
               ),
             ),
           StandardTile(
@@ -94,6 +102,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             itemTitleTextStyle: itemTitleTextStyle,
             itemSubTitle: fiatAmountValue,
             itemSubTitleTextStyle: itemSubTitleTextStyle,
+            tileBackgroundColor: tileBackgroundColor,
           ),
           const SizedBox(height: 8),
           StandardTile(
@@ -102,6 +111,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             itemTitleTextStyle: itemTitleTextStyle,
             itemSubTitle: feeFiatAmount,
             itemSubTitleTextStyle: itemSubTitleTextStyle,
+            tileBackgroundColor: tileBackgroundColor,
           ),
           const SizedBox(height: 8),
           Column(
@@ -130,6 +140,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                           isBatchSending: isBatchSending,
                           itemTitleTextStyle: itemTitleTextStyle,
                           itemSubTitleTextStyle: itemSubTitleTextStyle,
+                          tileBackgroundColor: tileBackgroundColor,
                         )
                       : AddressTile(
                           itemTitle: 'Address',
@@ -139,6 +150,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                           amount: _amount,
                           address: _address,
                           itemSubTitleTextStyle: itemSubTitleTextStyle,
+                          tileBackgroundColor: tileBackgroundColor,
                         );
                 },
               ),
@@ -154,6 +166,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                     isBatchSending: true,
                     itemTitleTextStyle: itemTitleTextStyle,
                     itemSubTitleTextStyle: itemSubTitleTextStyle,
+                    tileBackgroundColor: tileBackgroundColor,
                   ),
                 ),
             ],
@@ -214,6 +227,7 @@ class StandardTile extends StatelessWidget {
     required this.itemTitleTextStyle,
     this.itemSubTitle,
     required this.itemSubTitleTextStyle,
+    required this.tileBackgroundColor,
   });
 
   final String itemTitle;
@@ -221,14 +235,14 @@ class StandardTile extends StatelessWidget {
   final TextStyle itemTitleTextStyle;
   final String? itemSubTitle;
   final TextStyle itemSubTitleTextStyle;
+  final Color tileBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Theme.of(context).extension<FilterTheme>()!.buttonColor),
+      decoration:
+          BoxDecoration(borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -258,6 +272,7 @@ class AddressTile extends StatelessWidget {
     required this.amount,
     required this.address,
     required this.itemSubTitleTextStyle,
+    required this.tileBackgroundColor,
   });
 
   final String itemTitle;
@@ -267,6 +282,7 @@ class AddressTile extends StatelessWidget {
   final String amount;
   final String address;
   final TextStyle itemSubTitleTextStyle;
+  final Color tileBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -283,7 +299,7 @@ class AddressTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+        color: tileBackgroundColor,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,6 +359,7 @@ class AddressExpansionTile extends StatelessWidget {
     required this.isBatchSending,
     required this.itemTitleTextStyle,
     required this.itemSubTitleTextStyle,
+    required this.tileBackgroundColor,
   });
 
   final String contactType;
@@ -353,6 +370,7 @@ class AddressExpansionTile extends StatelessWidget {
   final bool isBatchSending;
   final TextStyle itemTitleTextStyle;
   final TextStyle itemSubTitleTextStyle;
+  final Color tileBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +387,7 @@ class AddressExpansionTile extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
-        color: Theme.of(context).extension<FilterTheme>()!.buttonColor,
+        color: tileBackgroundColor,
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -383,7 +401,9 @@ class AddressExpansionTile extends StatelessWidget {
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: Text(isBatchSending ? name : contactType, style: itemTitleTextStyle, softWrap: true)),
+                Expanded(
+                    child: Text(isBatchSending ? name : contactType,
+                        style: itemTitleTextStyle, softWrap: true)),
                 Text(isBatchSending ? amount : name,
                     style: TextStyle(
                       fontSize: 14,
