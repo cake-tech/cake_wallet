@@ -37,6 +37,9 @@ flutter clean
 dart run tool/generate_localization.dart
 dart run tool/generate_new_secrets.dart
 flutter build linux
+cp -r build/linux/x64 build/linux/current
+# use line below if you are building on arm64
+# cp -r build/linux/arm64 build/linux/current
 # If you want to build flatpak you need --privileged flag
 flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml
 flatpak build-export export flatpak-build
