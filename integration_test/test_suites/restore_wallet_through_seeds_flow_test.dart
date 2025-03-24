@@ -45,10 +45,10 @@ void main() {
         }
         final seed = commonTestFlows.getWalletSeedsByWalletType(walletType);
         if (seed.isEmpty) {
-          printV("----------------------------");
-          printV("- Skipped wallet: ${walletType}");
-          printV("- Make sure to add seed to secrets");
-          printV("----------------------------");
+          tester.printToConsole("----------------------------");
+          tester.printToConsole("- Skipped wallet: ${walletType}");
+          tester.printToConsole("- Make sure to add seed to secrets");
+          tester.printToConsole("----------------------------");
           continue;
         }
 
