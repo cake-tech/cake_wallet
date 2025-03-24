@@ -89,11 +89,7 @@ void createWalletSync(
     throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
   }
 
-  setupBackgroundSync(password);
-  status = monero.Wallet_status(newWptr);
-  if (status != 0) {
-    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
-  }
+  setupBackgroundSync(password, newWptr);
 
   wptr = newWptr;
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
@@ -210,11 +206,7 @@ void restoreWalletFromKeysSync(
             message: monero.Wallet_errorString(newWptr));
       }
 
-      setupBackgroundSync(password);
-      status = monero.Wallet_status(newWptr);
-      if (status != 0) {
-        throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
-      }
+      setupBackgroundSync(password, newWptr);
     }
   }
 
@@ -261,11 +253,7 @@ void restoreWalletFromPolyseedWithOffset(
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: seedOffset);
   monero.Wallet_store(wptr!);
 
-  setupBackgroundSync(password);
-  status = monero.Wallet_status(newWptr);
-  if (status != 0) {
-    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
-  }
+  setupBackgroundSync(password, newWptr);
   storeSync();
 
   openedWalletsByPath[path] = wptr!;
@@ -317,11 +305,7 @@ void restoreWalletFromSpendKeySync(
 
   storeSync();
 
-  setupBackgroundSync(password);
-  status = monero.Wallet_status(newWptr);
-  if (status != 0) {
-    throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
-  }
+  setupBackgroundSync(password, newWptr);
 
   openedWalletsByPath[path] = wptr!;
   _lastOpenedWallet = path;
@@ -424,7 +408,7 @@ Future<void> loadWallet(
       throw WalletOpeningException(message: err);
     }
     if (deviceType == 0) {
-      setupBackgroundSync(password);
+      setupBackgroundSync(password, newWptr);
     }
 
     wptr = newWptr;
@@ -433,14 +417,14 @@ Future<void> loadWallet(
   }
 }
 
-void setupBackgroundSync(String password) {
-  if (isViewOnlyBySpendKey()) {
+void setupBackgroundSync(String password, Pointer<Void>? wptrOverride) {
+  if (isViewOnlyBySpendKey(wptrOverride)) {
     return;
   }
-  monero.Wallet_setupBackgroundSync(wptr!, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
-  if (monero.Wallet_status(wptr!) != 0) {
+  monero.Wallet_setupBackgroundSync(wptrOverride ?? wptr!, backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  if (monero.Wallet_status(wptrOverride ?? wptr!) != 0) {
     // We simply ignore the error.
-    printV("setupBackgroundSync: ${monero.Wallet_errorString(wptr!)}");
+    printV("setupBackgroundSync: ${monero.Wallet_errorString(wptrOverride ?? wptr!)}");
   }
 }
 
@@ -584,4 +568,4 @@ Future<void> restoreFromSpendKey(
 
 bool isWalletExist({required String path}) => _isWalletExist(path);
 
-bool isViewOnlyBySpendKey() => int.tryParse(monero.Wallet_secretSpendKey(wptr!)) == 0;
+bool isViewOnlyBySpendKey(Pointer<Void>? wptrOverride) => int.tryParse(monero.Wallet_secretSpendKey(wptrOverride ?? wptr!)) == 0;
