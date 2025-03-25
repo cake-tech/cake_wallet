@@ -384,10 +384,16 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   padding: EdgeInsets.only(top: 6),
                   child: GestureDetector(
                     key: ValueKey('send_page_unspent_coin_button_key'),
-                    onTap: () => Navigator.of(context).pushNamed(
-                      Routes.unspentCoinsList,
-                      arguments: widget.sendViewModel.coinTypeToSpendFrom,
-                    ),
+                    onTap: () async {
+                      await Navigator.of(context).pushNamed(
+                        Routes.unspentCoinsList,
+                        arguments: widget.sendViewModel.coinTypeToSpendFrom,
+                      );
+                      if (mounted) {
+                        // we just got back from the unspent coins list screen, so we need to recompute the sending balance:
+                        sendViewModel.updateSendingBalance();
+                      }
+                    },
                     child: Container(
                       color: Colors.transparent,
                       child: Row(

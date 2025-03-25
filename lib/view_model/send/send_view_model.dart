@@ -225,18 +225,38 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
   }
 
+  @action
+  Future<void> updateSendingBalance() async {
+    // force the sendingBalance to recompute since unspent coins aren't observable
+    // or at least mobx can't detect the changes
+
+    final currentType = coinTypeToSpendFrom;
+
+    if (currentType == UnspentCoinType.any) {
+      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    } else if (currentType == UnspentCoinType.nonMweb) {
+      coinTypeToSpendFrom = UnspentCoinType.any;
+    } else if (currentType == UnspentCoinType.mweb) {
+      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    }
+
+    // set it back to the original value:
+    coinTypeToSpendFrom = currentType;
+  }
+
   @computed
   String get sendingBalance {
-    
     // only for electrum and monero wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-        return wallet.formatCryptoAmount(unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
+        return wallet.formatCryptoAmount(
+            unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
       case WalletType.monero:
       case WalletType.wownero:
-        return wallet.formatCryptoAmount(unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
+        return wallet.formatCryptoAmount(
+            unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
       default:
         return balance;
     }
@@ -519,14 +539,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate:feesViewModel. customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate:feesViewModel. customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           // if it's an exchange flow then disable sending from mweb coins
           coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
         );
