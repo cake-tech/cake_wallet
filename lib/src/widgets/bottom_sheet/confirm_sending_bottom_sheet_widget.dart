@@ -403,15 +403,18 @@ class AddressExpansionTile extends StatelessWidget {
               children: [
                 Expanded(
                     child: Text(isBatchSending ? name : contactType,
-                        style: itemTitleTextStyle, softWrap: true)),
-                Text(isBatchSending ? amount : name,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      decoration: TextDecoration.none,
-                    )),
+                        style: itemTitleTextStyle)),
+                Expanded(
+                  child: Text(isBatchSending ? amount : name,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        decoration: TextDecoration.none,
+                      )),
+                ),
               ],
             ),
             children: [
