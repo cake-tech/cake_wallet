@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
 import 'package:cw_core/address_info.dart';
@@ -103,13 +104,18 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     if (this.isEnabledAutoGenerateSubaddress) {
       nUnused = "3";
     }
-    final res = await _libwallet.addresses(walletInfo.name, nUsed, nUnused);
-    final decoded = json.decode(res);
-    final usedAddrs = List<String>.from(decoded["used"] ?? []);
-    final unusedAddrs = List<String>.from(decoded["unused"] ?? []);
-    // index is the index of the first unused address.
-    final index = decoded["index"] ?? 0;
-    return new LibAddresses(usedAddrs, unusedAddrs, index);
+    try {
+      final res = await _libwallet.addresses(walletInfo.name, nUsed, nUnused);
+      final decoded = json.decode(res);
+      final usedAddrs = List<String>.from(decoded["used"] ?? []);
+      final unusedAddrs = List<String>.from(decoded["unused"] ?? []);
+      // index is the index of the first unused address.
+      final index = decoded["index"] ?? 0;
+      return new LibAddresses(usedAddrs, unusedAddrs, index);
+    } catch (e) {
+      printV(e);
+      return LibAddresses([], [], 0);
+    }
   }
 
   Future<void> generateNewAddress(String label) async {
