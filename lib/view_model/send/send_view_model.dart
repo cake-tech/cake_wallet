@@ -1,3 +1,7 @@
+import 'dart:developer';
+
+import 'package:cake_wallet/core/open_crypto_pay/models.dart';
+import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -15,6 +19,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -27,6 +32,7 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -265,6 +271,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
+  @observable
+  OpenCryptoPayRequest? openCryptoPayRequest;
+
   List<CryptoCurrency> currencies;
 
   bool get hasYat => outputs
@@ -354,6 +363,34 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return conditionsList.contains(true);
   }
 
+  final ocpService = OpenCryptoPayService();
+  OpenCryptoPayRequest? ocpRequest;
+
+  @action
+  Future<PendingTransaction?> createOpenCryptoPayTransaction(String uri) async {
+    state = IsExecutingState();
+
+    try {
+      ocpRequest = await ocpService
+          .getOpenCryptoPayInvoice(uri.toString());
+      final paymentUri = await ocpService.getOpenCryptoPayAddress(
+        ocpRequest!,
+        selectedCryptoCurrency,
+      );
+
+      final paymentRequest = PaymentRequest.fromUri(paymentUri);
+      clearOutputs();
+
+      outputs.first.address = paymentRequest.address;
+      outputs.first.setCryptoAmount(paymentRequest.amount);
+      outputs.first.note = ocpRequest!.receiverName;
+
+      return createTransaction();
+    } catch (_) {
+      return null;
+    }
+  }
+
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
@@ -437,6 +474,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
+    }
+
+    if (ocpRequest != null) {
+
+      log(pendingTransaction!.hex);
+      final result = await ocpService.commitOpenCryptoPayRequest(pendingTransaction!.hex, request: ocpRequest!, asset: selectedCryptoCurrency);
+      printV(result);
+
+      return;
     }
 
     String address = outputs.fold('', (acc, value) {
