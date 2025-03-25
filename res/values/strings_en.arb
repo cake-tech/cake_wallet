@@ -823,6 +823,7 @@
   "sync_status_syncronizing": "SYNCHRONIZING",
   "sync_status_timed_out": "TIMED OUT",
   "sync_status_unsupported": "UNSUPPORTED NODE",
+  "synchronizing": "Synchronizing",
   "syncing_wallet_alert_content": "Your balance and transaction list may not be complete until it says “SYNCHRONIZED” at the top. Click/tap to learn more.",
   "syncing_wallet_alert_title": "Your wallet is syncing",
   "template": "Template",

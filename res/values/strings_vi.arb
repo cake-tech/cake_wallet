@@ -819,6 +819,7 @@
   "sync_status_syncronizing": "ĐANG ĐỒNG BỘ",
   "sync_status_timed_out": "HẾT THỜI GIAN",
   "sync_status_unsupported": "NÓT KHÔNG ĐƯỢC HỖ TRỢ",
+  "synchronizing": "Đồng bộ hóa",
   "syncing_wallet_alert_content": "Số dư và danh sách giao dịch của bạn có thể không đầy đủ cho đến khi nó hiển thị “ĐÃ ĐỒNG BỘ” ở trên cùng. Nhấn vào đây để tìm hiểu thêm.",
   "syncing_wallet_alert_title": "Ví của bạn đang đồng bộ",
   "template": "Mẫu",

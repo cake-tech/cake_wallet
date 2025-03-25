@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "SYNCHRONIZACJA",
   "sync_status_timed_out": "PRZEKROCZONO LIMIT CZASU",
   "sync_status_unsupported": "Nieobsługiwany węzeł",
+  "synchronizing": "Synchronizacja",
   "syncing_wallet_alert_content": "Twoje saldo i lista transakcji mogą nie być kompletne, dopóki u góry nie pojawi się napis „SYNCHRONIZOWANY”. Kliknij/stuknij, aby dowiedzieć się więcej.",
   "syncing_wallet_alert_title": "Twój portfel się synchronizuje",
   "template": "Szablon",

@@ -824,6 +824,7 @@
   "sync_status_syncronizing": "सिंक्रनाइज़ करने",
   "sync_status_timed_out": "समय समााप्त",
   "sync_status_unsupported": "असमर्थित नोड",
+  "synchronizing": "सिंक्रनाइज़ करना",
   "syncing_wallet_alert_content": "आपकी शेष राशि और लेनदेन सूची तब तक पूरी नहीं हो सकती जब तक कि शीर्ष पर \"सिंक्रनाइज़्ड\" न लिखा हो। अधिक जानने के लिए क्लिक/टैप करें।",
   "syncing_wallet_alert_title": "आपका वॉलेट सिंक हो रहा है",
   "template": "खाका",

@@ -823,6 +823,7 @@
   "sync_status_syncronizing": "同期",
   "sync_status_timed_out": "タイムアウトしました",
   "sync_status_unsupported": "サポートされていないノード",
+  "synchronizing": "同期",
   "syncing_wallet_alert_content": "上部に「同期済み」と表示されるまで、残高と取引リストが完了していない可能性があります。詳細については、クリック/タップしてください。",
   "syncing_wallet_alert_title": "ウォレットは同期中です",
   "template": "テンプレート",

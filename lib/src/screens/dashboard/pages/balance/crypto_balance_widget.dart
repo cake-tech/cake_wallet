@@ -315,7 +315,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
-                      title: S.of(context).decred_info_title,
+                      title: S.of(context).synchronizing,
                       description: S.of(context).decred_info_card_details,
                       image: 'assets/images/dcr_icon.png',
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
