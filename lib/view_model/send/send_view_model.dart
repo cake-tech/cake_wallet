@@ -227,7 +227,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get sendingBalance {
-    return wallet.balance[selectedCryptoCurrency]!.formattedSelectedBalance;
+    
+    // only for electrum and monero wallets atm:
+    switch (wallet.type) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        return wallet.formatCryptoAmount(unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
+      case WalletType.monero:
+      case WalletType.wownero:
+        return wallet.formatCryptoAmount(unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
+      default:
+        return balance;
+    }
   }
 
   @computed
