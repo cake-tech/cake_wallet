@@ -820,6 +820,7 @@
   "sync_status_syncronizing": "ՀԱՄԱԺԱՄԵՑՎՈՒՄ Է",
   "sync_status_timed_out": "Ժամանակը սպառվեց",
   "sync_status_unsupported": "ՉԱՋԱԿՑՎՈՂ ՀԱՆԳՈՒՅՑ,",
+  "synchronizing": "Համաժամանակող",
   "syncing_wallet_alert_content": "Ձեր հաշիվը և գործարքների ցանկը կարող են լինել անավարտ մինչև վերին մասում գրված լինի “ՀԱՂՈՒՄ”։ Սեղմեք/դիպեք ուսումնասիրելու համար։",
   "syncing_wallet_alert_title": "Ձեր դրամապանակը համաժամացվում է",
   "template": "Տարբերակ",

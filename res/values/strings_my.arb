@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "ထပ်တူပြုခြင်း။",
   "sync_status_timed_out": "ထွက်အချိန်ကုန်",
   "sync_status_unsupported": "node မထောက်ပံ့ node ကို",
+  "synchronizing": "ထပ်တူပြုခြင်း",
   "syncing_wallet_alert_content": "သင်၏လက်ကျန်နှင့် ငွေပေးငွေယူစာရင်းသည် ထိပ်တွင် \"Synchronizeed\" ဟုပြောသည်အထိ မပြီးမြောက်နိုင်ပါ။ ပိုမိုလေ့လာရန် နှိပ်/နှိပ်ပါ။",
   "syncing_wallet_alert_title": "သင့်ပိုက်ဆံအိတ်ကို စင့်ခ်လုပ်နေပါသည်။",
   "template": "ပုံစံခွက်",

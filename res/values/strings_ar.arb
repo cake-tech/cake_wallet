@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "يتم المزامنة",
   "sync_status_timed_out": "نفد وقته",
   "sync_status_unsupported": "عقدة غير مدعومة",
+  "synchronizing": "المزامنة",
   "syncing_wallet_alert_content": "قد لا يكتمل رصيدك وقائمة المعاملات الخاصة بك حتى تظهر عبارة “SYNCHRONIZED“ في الأعلى. انقر / اضغط لمعرفة المزيد.",
   "syncing_wallet_alert_title": "محفظتك تتم مزامنتها",
   "template": "قالب",

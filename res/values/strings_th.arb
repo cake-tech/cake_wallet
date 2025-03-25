@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "กำลังซิงโครไนซ์",
   "sync_status_timed_out": "หมดเวลา",
   "sync_status_unsupported": "โหนดที่ไม่ได้รับการสนับสนุน",
+  "synchronizing": "การซิงโครไนซ์",
   "syncing_wallet_alert_content": "รายการยอดเงินและธุรกรรมของคุณอาจไม่สมบูรณ์จนกว่าจะมีข้อความว่า “ซิงโครไนซ์” ที่ด้านบน คลิก/แตะเพื่อเรียนรู้เพิ่มเติม่",
   "syncing_wallet_alert_title": "กระเป๋าสตางค์ของคุณกำลังซิงค์",
   "template": "แบบฟอร์ม",
