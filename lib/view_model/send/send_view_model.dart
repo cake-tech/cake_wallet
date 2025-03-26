@@ -363,7 +363,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return conditionsList.contains(true);
   }
 
-  final ocpService = OpenCryptoPayService();
+  final _ocpService = OpenCryptoPayService();
   OpenCryptoPayRequest? ocpRequest;
 
   @action
@@ -371,22 +371,27 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     state = IsExecutingState();
 
     try {
-      ocpRequest = await ocpService
+      final originalOCPRequest = await _ocpService
           .getOpenCryptoPayInvoice(uri.toString());
-      final paymentUri = await ocpService.getOpenCryptoPayAddress(
-        ocpRequest!,
+      final paymentUri = await _ocpService.getOpenCryptoPayAddress(
+        originalOCPRequest,
         selectedCryptoCurrency,
       );
+
+      ocpRequest = originalOCPRequest;
 
       final paymentRequest = PaymentRequest.fromUri(paymentUri);
       clearOutputs();
 
       outputs.first.address = paymentRequest.address;
+      outputs.first.parsedAddress = ParsedAddress(
+          addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
       return createTransaction();
-    } catch (_) {
+    } catch (e) {
+      printV(e);
       return null;
     }
   }
@@ -394,7 +399,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
-      state = IsExecutingState();
+      if (!(state is IsExecutingState)) state = IsExecutingState();
 
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
 
@@ -477,10 +482,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     if (ocpRequest != null) {
-
-      log(pendingTransaction!.hex);
-      final result = await ocpService.commitOpenCryptoPayRequest(pendingTransaction!.hex, request: ocpRequest!, asset: selectedCryptoCurrency);
-      printV(result);
+      state = TransactionCommitting();
+      await _ocpService.commitOpenCryptoPayRequest(pendingTransaction!.hex,
+          request: ocpRequest!, asset: selectedCryptoCurrency);
+      state = TransactionCommitted();
 
       return;
     }

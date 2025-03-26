@@ -26,7 +26,7 @@ class OpenCryptoPayService {
 
     queryParams['quote'] = request.quote;
     queryParams['asset'] = asset.title;
-    queryParams['method'] = asset.fullName ?? 'Monero';
+    queryParams['method'] = _getMethod(asset);
     queryParams['hex'] = "$txHex";
 
     final response =
@@ -35,6 +35,7 @@ class OpenCryptoPayService {
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body) as Map;
 
+      printV(body);
       if (body.keys.contains("txId")) return body["txId"] as String;
       throw OpenCryptoPayException(body.toString());
     }
@@ -65,16 +66,16 @@ class OpenCryptoPayService {
     final params = await _getOpenCryptoPayParams(url);
 
     return OpenCryptoPayRequest(
-        address: "",
-        amount: BigInt.zero,
-        receiverName: params.$1.displayName ?? "Unknown",
-        expiry: params.$1.expiration.difference(DateTime.now()).inSeconds,
-        callbackUrl: params.$1.callbackUrl,
-        quote: params.$1.id);
+      receiverName: params.$1.displayName ?? "Unknown",
+      expiry: params.$1.expiration.difference(DateTime.now()).inSeconds,
+      callbackUrl: params.$1.callbackUrl,
+      quote: params.$1.id,
+      methods: params.$2,
+    );
   }
 
-  Future<(_OpenCryptoPayQuote, Map<String, num>)> _getOpenCryptoPayParams(
-      Uri uri) async {
+  Future<(_OpenCryptoPayQuote, Map<String, List<OpenCryptoPayQuoteAsset>>)>
+      _getOpenCryptoPayParams(Uri uri) async {
     final response = await _httpClient.get(uri);
 
     if (response.statusCode == 200) {
@@ -86,13 +87,13 @@ class OpenCryptoPayService {
         }
       }
 
-      final methods = <String, List<_OpenCryptoPayQuoteAsset>>{};
+      final methods = <String, List<OpenCryptoPayQuoteAsset>>{};
       for (final transferAmountRaw in responseBody['transferAmounts'] as List) {
         final transferAmount = transferAmountRaw as Map;
         final method = transferAmount['method'] as String;
         methods[method] = [];
         for (final assetJson in transferAmount['assets'] as List) {
-          final asset = _OpenCryptoPayQuoteAsset.fromJson(
+          final asset = OpenCryptoPayQuoteAsset.fromJson(
               assetJson as Map<String, dynamic>);
           methods[method]?.add(asset);
         }
@@ -105,7 +106,7 @@ class OpenCryptoPayService {
           responseBody['displayName'] as String?,
           responseBody['quote'] as Map<String, dynamic>);
 
-      return (quote, <String, num>{});
+      return (quote, methods);
     } else {
       throw OpenCryptoPayException(
           'Failed to get Open CryptoPay Request. Status: ${response.statusCode} ${response.body}');
@@ -119,7 +120,7 @@ class OpenCryptoPayService {
 
     queryParams['quote'] = request.quote;
     queryParams['asset'] = asset.title;
-    queryParams['method'] = asset.fullName ?? 'Monero';
+    queryParams['method'] = _getMethod(asset);
 
     final response =
         await _httpClient.get(Uri.https(uri.authority, uri.path, queryParams));
@@ -134,10 +135,39 @@ class OpenCryptoPayService {
         }
       }
 
-      return Uri.parse(responseBody['uri'] as String);
+      final result = Uri.parse(responseBody['uri'] as String);
+
+      if (result.queryParameters['amount'] != null) return result;
+
+      final newQueryParameters =
+          Map<String, dynamic>.from(result.queryParameters);
+
+      newQueryParameters['amount'] = _getAmountByAsset(request, asset);
+      return Uri(
+          scheme: result.scheme,
+          path: result.path.split("@").first,
+          queryParameters: newQueryParameters);
     } else {
       throw OpenCryptoPayException(
           'Failed to create Open CryptoPay Request. Status: ${response.statusCode} ${response.body}');
+    }
+  }
+
+  String _getAmountByAsset(OpenCryptoPayRequest request, CryptoCurrency asset) {
+    final method = _getMethod(asset);
+    return request.methods[method]!
+        .firstWhere((e) => e.symbol == asset.title)
+        .amount;
+  }
+
+  String _getMethod(CryptoCurrency asset) {
+    switch (asset.tag) {
+      case "ETH":
+        return "Ethereum";
+      case "POL":
+        return "Polygon";
+      default:
+        return asset.fullName!;
     }
   }
 }
@@ -155,15 +185,4 @@ class _OpenCryptoPayQuote {
       this.callbackUrl, this.displayName, Map<String, dynamic> json)
       : id = json['id'] as String,
         expiration = DateTime.parse(json['expiration'] as String);
-}
-
-class _OpenCryptoPayQuoteAsset {
-  final String symbol;
-  final String amount;
-
-  const _OpenCryptoPayQuoteAsset(this.symbol, this.amount);
-
-  _OpenCryptoPayQuoteAsset.fromJson(Map<String, dynamic> json)
-      : symbol = json['asset'] as String,
-        amount = (json['amount'] as double).toString();
 }

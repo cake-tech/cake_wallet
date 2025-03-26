@@ -191,7 +191,7 @@ PendingTransactionDescription createTransactionMultDestSync(
     amount: monero.PendingTransaction_amount(txptr),
     fee: monero.PendingTransaction_fee(txptr),
     hash: monero.PendingTransaction_txid(txptr, ''),
-    hex: monero.PendingTransaction_txid(txptr, ''),
+    hex: monero.PendingTransaction_hex(txptr, ''),
     txKey: monero.PendingTransaction_txid(txptr, ''),
     pointerAddress: txptr.address,
   );
