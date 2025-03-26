@@ -402,6 +402,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
               outputs: moneroOutputs,
               priorityRaw: _credentials.priority.serialize(),
               accountIndex: walletAddresses.account!.id,
+              paymentId: "",
               preferredInputs: inputs);
     } else {
       final output = outputs.first;
