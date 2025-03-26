@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -34,11 +36,13 @@ import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
@@ -68,6 +72,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
       return true;
     };
+    await FlutterDaemon().unmarkBackgroundSync();
     await initializeAppAtRoot();
 
     if (kDebugMode) {
@@ -100,7 +105,7 @@ Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
   await initializeAppConfigs();
 }
 
-Future<void> initializeAppConfigs() async {
+Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
   CakeHive.init(appDir.path);
@@ -200,6 +205,7 @@ Future<void> initializeAppConfigs() async {
       encryptionKey: havenSeedStoreBoxKey);
 
   await initialSetup(
+    loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
     nodes: nodes,
     powNodes: powNodes,
@@ -215,12 +221,13 @@ Future<void> initializeAppConfigs() async {
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 48,
+    initialMigrationVersion: 49,
   );
 }
 
 Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences,
+    {required bool loadWallet,
+    required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
@@ -262,7 +269,7 @@ Future<void> initialSetup(
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey);
+  await bootstrap(navigatorKey, loadWallet: loadWallet);
 }
 
 class App extends StatefulWidget {
@@ -388,5 +395,36 @@ class TopLevelErrorWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+@pragma('vm:entry-point')
+Future<void> backgroundSync() async {
+  bool shouldUnmark = false;
+  try {
+    printV("Background sync triggered");
+    printV("- WidgetsFlutterBinding.ensureInitialized()");
+    WidgetsFlutterBinding.ensureInitialized();
+    printV("- DartPluginRegistrant.ensureInitialized()");
+    DartPluginRegistrant.ensureInitialized();
+    printV("- FlutterDaemon.markBackgroundSync()");
+    final val = await FlutterDaemon().markBackgroundSync();
+    if (val) {
+      printV("Background sync already in progress");
+      return;
+    }
+    shouldUnmark = true;
+    printV("Starting background sync");
+    final backgroundSync = BackgroundSync();
+    await initializeAppConfigs(loadWallet: false);
+    await backgroundSync.sync();
+    printV("Background sync completed");
+  } finally {
+    if (shouldUnmark) {
+      printV("Unmarking background sync");
+      await FlutterDaemon().unmarkBackgroundSync();
+    } else {
+      printV("Not unmarking background sync");
+    }
   }
 }

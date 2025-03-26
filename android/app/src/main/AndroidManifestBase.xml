@@ -92,6 +92,9 @@
                 <data android:scheme="zano" />
                 <data android:scheme="zano-wallet" />
                 <data android:scheme="zano_wallet" />
+                <data android:scheme="decred" />
+                <data android:scheme="decred-wallet" />
+                <data android:scheme="decred_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">

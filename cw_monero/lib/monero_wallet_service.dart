@@ -11,8 +11,6 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
@@ -292,16 +290,14 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (credentials.mnemonic.split(" ").length == 16) {
-      // Restore from Polyseed
-      try {
-        if (Polyseed.isValidSeed(credentials.mnemonic)) {
-          return restoreFromPolyseed(credentials);
-        }
-      } catch (e) {
-        printV("Polyseed restore failed: $e");
-        rethrow;
+    // Restore from Polyseed
+    try {
+      if (Polyseed.isValidSeed(credentials.mnemonic)) {
+        return restoreFromPolyseed(credentials);
       }
+    } catch (e) {
+      printV("Polyseed restore failed: $e");
+      rethrow;
     }
 
     try {

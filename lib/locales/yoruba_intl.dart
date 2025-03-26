@@ -846,6 +846,7 @@ class _YoCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
         singleDigitHourFormat: intl.DateFormat('j', localeName),
         singleDigitMinuteFormat: intl.DateFormat.m(localeName),
         singleDigitSecondFormat: intl.DateFormat.s(localeName),
+        weekdayFormat: intl.DateFormat.E(localeName),
       ),
     );
   }
@@ -870,6 +871,7 @@ class YoCupertinoLocalizations extends GlobalCupertinoLocalizations {
     required super.singleDigitMinuteFormat,
     required super.doubleDigitMinuteFormat,
     required super.singleDigitSecondFormat,
+    required super.weekdayFormat,
   });
 
   @override
