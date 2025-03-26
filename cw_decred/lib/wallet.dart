@@ -380,7 +380,7 @@ abstract class DecredWalletBase
         totalAmt = totalIn;
       } else if (out.cryptoAmount != null) {
         final coins = double.parse(out.cryptoAmount!);
-        amt = (coins * 1e8).toInt();
+        amt = (coins * 1e8).round();
       }
       totalAmt += amt;
       final o = {
@@ -415,7 +415,7 @@ abstract class DecredWalletBase
     };
     final fee = decoded["fee"] ?? 0;
     if (sendAll) {
-      totalAmt = (totalAmt - fee).toInt();
+      totalAmt = (totalAmt - fee).round();
     }
     return DecredPendingTransaction(
         txid: decoded["txid"] ?? "", amount: totalAmt, fee: fee, rawHex: signedHex, send: send);
@@ -475,36 +475,41 @@ abstract class DecredWalletBase
   }
 
   Future<Map<String, DecredTransactionInfo>> fetchFiveTransactions(int from) async {
-    final res = await _libwallet.listTransactions(walletInfo.name, from.toString(), "5");
-    final decoded = json.decode(res);
-    var txs = <String, DecredTransactionInfo>{};
-    for (final d in decoded) {
-      final txid = uniqueTxID(d["txid"] ?? "", d["vout"] ?? 0);
-      var direction = TransactionDirection.outgoing;
-      if (d["category"] == "receive") {
-        direction = TransactionDirection.incoming;
+    try {
+      final res = await _libwallet.listTransactions(walletInfo.name, from.toString(), "5");
+      final decoded = json.decode(res);
+      var txs = <String, DecredTransactionInfo>{};
+      for (final d in decoded) {
+        final txid = uniqueTxID(d["txid"] ?? "", d["vout"] ?? 0);
+        var direction = TransactionDirection.outgoing;
+        if (d["category"] == "receive") {
+          direction = TransactionDirection.incoming;
+        }
+        final amountDouble = d["amount"] ?? 0.0;
+        final amount = (amountDouble * 1e8).round().abs();
+        final feeDouble = d["fee"] ?? 0.0;
+        final fee = (feeDouble * 1e8).round().abs();
+        final confs = d["confirmations"] ?? 0;
+        final sendTime = d["time"] ?? 0;
+        final height = d["height"] ?? 0;
+        final txInfo = DecredTransactionInfo(
+          id: txid,
+          amount: amount,
+          fee: fee,
+          direction: direction,
+          isPending: confs == 0,
+          date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: false),
+          height: height,
+          confirmations: confs,
+          to: d["address"] ?? "",
+        );
+        txs[txid] = txInfo;
       }
-      final amountDouble = d["amount"] ?? 0.0;
-      final amount = (amountDouble * 1e8).toInt().abs();
-      final feeDouble = d["fee"] ?? 0.0;
-      final fee = (feeDouble * 1e8).toInt().abs();
-      final confs = d["confirmations"] ?? 0;
-      final sendTime = d["time"] ?? 0;
-      final height = d["height"] ?? 0;
-      final txInfo = DecredTransactionInfo(
-        id: txid,
-        amount: amount,
-        fee: fee,
-        direction: direction,
-        isPending: confs == 0,
-        date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: false),
-        height: height,
-        confirmations: confs,
-        to: d["address"] ?? "",
-      );
-      txs[txid] = txInfo;
+      return txs;
+    } catch (e) {
+      printV(e);
+      return {};
     }
-    return txs;
   }
 
   // uniqueTxID combines the tx id and vout to create a unique id.
@@ -612,21 +617,25 @@ abstract class DecredWalletBase
   }
 
   Future<void> fetchUnspents() async {
-    final res = await _libwallet.listUnspents(walletInfo.name);
-    final decoded = json.decode(res);
-    var unspents = <Unspent>[];
-    for (final d in decoded) {
-      final spendable = d["spendable"] ?? false;
-      if (!spendable) {
-        continue;
+    try {
+      final res = await _libwallet.listUnspents(walletInfo.name);
+      final decoded = json.decode(res);
+      var unspents = <Unspent>[];
+      for (final d in decoded) {
+        final spendable = d["spendable"] ?? false;
+        if (!spendable) {
+          continue;
+        }
+        final amountDouble = d["amount"] ?? 0.0;
+        final amount = (amountDouble * 1e8).round().abs();
+        final utxo = Unspent(d["address"] ?? "", d["txid"] ?? "", amount, d["vout"] ?? 0, null);
+        utxo.isChange = d["ischange"] ?? false;
+        unspents.add(utxo);
       }
-      final amountDouble = d["amount"] ?? 0.0;
-      final amount = (amountDouble * 1e8).toInt().abs();
-      final utxo = Unspent(d["address"] ?? "", d["txid"] ?? "", amount, d["vout"] ?? 0, null);
-      utxo.isChange = d["ischange"] ?? false;
-      unspents.add(utxo);
+      _unspents = unspents;
+    } catch (e) {
+      printV(e);
     }
-    _unspents = unspents;
   }
 
   List<Unspent> unspents() {

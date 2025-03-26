@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 
 void printV(dynamic content) {
   CustomTrace programInfo = CustomTrace(StackTrace.current);
@@ -20,7 +21,7 @@ class CustomTrace {
     try {
       _parseTrace();
     } catch (e) {
-      print("Unable to parse trace (printV): $e");
+      if (kDebugMode) print("Unable to parse trace (printV): $e");
     }
   }
 
@@ -80,7 +81,7 @@ class CustomTrace {
       columnStr = columnStr.replaceFirst(")", "");
       this.columnNumber = int.tryParse(columnStr);
     } catch (e) {
-      print("Unable to parse trace (printV): $e");
+      if (kDebugMode) print("Unable to parse trace (printV): $e");
     }
   }
 }

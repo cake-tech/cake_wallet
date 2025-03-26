@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:cw_core/utils/print_verbose.dart';
+import './print_verbose_dummy.dart';
 import 'package:dio/dio.dart';
 import 'package:archive/archive_io.dart';
 

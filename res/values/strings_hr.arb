@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "SINKRONIZIRANJE",
   "sync_status_timed_out": "ISTEKLO",
   "sync_status_unsupported": "Nepodržani čvor",
+  "synchronizing": "Sinkronizirajući",
   "syncing_wallet_alert_content": "Vaš saldo i popis transakcija možda neće biti potpuni sve dok na vrhu ne piše \"SINKRONIZIRANO\". Kliknite/dodirnite da biste saznali više.",
   "syncing_wallet_alert_title": "Vaš novčanik se sinkronizira",
   "template": "Predložak",

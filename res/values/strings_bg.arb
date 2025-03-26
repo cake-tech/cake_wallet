@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "СИНХРОНИЗИРАНЕ",
   "sync_status_timed_out": "ВРЕМЕТО ИЗТЕЧЕ",
   "sync_status_unsupported": "Неподдържан възел",
+  "synchronizing": "Синхронизиране",
   "syncing_wallet_alert_content": "Списъкът ви с баланс и транзакции може да не е пълен, докато в горната част не пише „СИНХРОНИЗИРАН“. Кликнете/докоснете, за да научите повече.",
   "syncing_wallet_alert_title": "Вашият портфейл се синхронизира",
   "template": "Шаблон",

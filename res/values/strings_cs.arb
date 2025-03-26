@@ -822,6 +822,7 @@
   "sync_status_syncronizing": "SYNCHRONIZUJI",
   "sync_status_timed_out": "ČAS VYPRŠEL",
   "sync_status_unsupported": "Nepodporovaný uzel",
+  "synchronizing": "Synchronizace",
   "syncing_wallet_alert_content": "Váš seznam zůstatků a transakcí nemusí být úplný, dokud nebude nahoře uvedeno „SYNCHRONIZOVANÉ“. Kliknutím/klepnutím se dozvíte více.",
   "syncing_wallet_alert_title": "Vaše peněženka se synchronizuje",
   "template": "Šablona",

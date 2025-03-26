@@ -824,6 +824,7 @@
   "sync_status_syncronizing": "SINCRONIZANDO",
   "sync_status_timed_out": "TEMPO ESGOTADO",
   "sync_status_unsupported": "Nó não suportado",
+  "synchronizing": "Sincronizando",
   "syncing_wallet_alert_content": "Seu saldo e lista de transações podem não estar completos até que diga “SYNCHRONIZED” no topo. Clique/toque para saber mais.",
   "syncing_wallet_alert_title": "Sua carteira está sincronizando",
   "template": "Modelo",
