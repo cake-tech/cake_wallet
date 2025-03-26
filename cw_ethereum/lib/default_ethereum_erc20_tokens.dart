@@ -297,6 +297,13 @@ class DefaultEthereumErc20Tokens {
       decimal: 18,
       enabled: false,
     ),
+    Erc20Token(
+      name: "dEuro",
+      symbol: "dEUR",
+      contractAddress: "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea",
+      decimal: 18,
+      enabled: true,
+    ),
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {
