@@ -146,21 +146,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     String receiveAddress;
 
-    final typeMatchingReceiveAddresses =
-        receiveAddresses.where(_isAddressPageTypeMatch).where((addr) => !addr.isUsed);
+    final typeMatchingUnusedReceiveAddresses = receiveAddresses
+        .where(_isAddressPageTypeMatch)
+        .where((addr) => !addr.isUsed)
+        .toList();
 
-    if ((isEnabledAutoGenerateSubaddress && receiveAddresses.isEmpty) ||
-        typeMatchingReceiveAddresses.isEmpty) {
-      receiveAddress = generateNewAddress().address;
-    } else {
-      final previousAddressMatchesType =
-          previousAddressRecord != null && previousAddressRecord!.type == addressPageType;
-
-      if (previousAddressMatchesType &&
-          typeMatchingReceiveAddresses.first.address != addressesByReceiveType.first.address) {
-        receiveAddress = previousAddressRecord!.address;
+    if (isEnabledAutoGenerateSubaddress) {
+      if (typeMatchingUnusedReceiveAddresses.isEmpty) {
+        receiveAddress = generateNewAddress().address;
       } else {
-        receiveAddress = typeMatchingReceiveAddresses.first.address;
+        receiveAddress = typeMatchingUnusedReceiveAddresses.first.address;
+      }
+    } else {
+      if (previousAddressRecord != null && previousAddressRecord!.type == addressPageType) {
+        receiveAddress = previousAddressRecord!.address;
+      } else if (typeMatchingUnusedReceiveAddresses.isNotEmpty) {
+        receiveAddress = typeMatchingUnusedReceiveAddresses.first.address;
+      } else {
+        receiveAddress = generateNewAddress().address;
       }
     }
 
