@@ -541,9 +541,9 @@ class SendPage extends BasePage {
       }
 
       if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (context.mounted) {
-            showModalBottomSheet<void>(
+            final result = await showModalBottomSheet<bool>(
               context: context,
               isDismissible: false,
               isScrollControlled: true,
@@ -564,13 +564,16 @@ class SendPage extends BasePage {
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
                   onSlideComplete: () async {
-                    Navigator.of(bottomSheetContext).pop();
+                    Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
                   change: sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: sendViewModel.ocpRequest != null,
                 );
               },
             );
+
+            if (result == null) sendViewModel.dismissTransaction();
           }
         });
       }

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
@@ -364,7 +362,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   final _ocpService = OpenCryptoPayService();
+
+  @observable
   OpenCryptoPayRequest? ocpRequest;
+
+  @action
+  Future<void> dismissTransaction() async {
+    state = InitialExecutionState();
+    if (ocpRequest != null) {
+      clearOutputs();
+      _ocpService.cancelOpenCryptoPayRequest(ocpRequest!);
+      ocpRequest = null;
+    }
+  }
 
   @action
   Future<PendingTransaction?> createOpenCryptoPayTransaction(String uri) async {
