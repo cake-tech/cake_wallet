@@ -185,3 +185,5 @@ ios/MoneroWallet.framework/MoneroWallet
 ios/WowneroWallet.framework/WowneroWallet
 ios/ZanoWallet.framework/ZanoWallet
 *_libwallet2_api_c.dylib
+.flatpak-builder
+cake_wallet.flatpak
