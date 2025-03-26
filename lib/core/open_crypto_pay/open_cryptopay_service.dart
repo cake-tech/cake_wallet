@@ -5,7 +5,6 @@ import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/lnurl.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
 
 class OpenCryptoPayService {
@@ -35,7 +34,6 @@ class OpenCryptoPayService {
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body) as Map;
 
-      printV(body);
       if (body.keys.contains("txId")) return body["txId"] as String;
       throw OpenCryptoPayException(body.toString());
     }
@@ -60,9 +58,6 @@ class OpenCryptoPayService {
       lnUrl = params["lightning"] as String;
     }
     final url = decodeLNURL(lnUrl);
-
-    printV("Resolved URL: $url");
-
     final params = await _getOpenCryptoPayParams(url);
 
     return OpenCryptoPayRequest(
@@ -128,7 +123,6 @@ class OpenCryptoPayService {
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body) as Map;
 
-      printV(responseBody);
       for (final key in ['expiryDate', 'uri']) {
         if (!responseBody.keys.contains(key)) {
           throw OpenCryptoPayNotSupportedException(uri.authority);
