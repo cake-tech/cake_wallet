@@ -33,6 +33,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -118,6 +119,7 @@ class SolanaWalletService extends WalletService<SolanaNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 

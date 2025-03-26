@@ -1,3 +1,8 @@
-UI/UX enhancements
-Stability improvements
+Add background sync to Monero
+Add Decred Wallet
+Remove Haven Wallet
+Fix and Improve Solana Wallet
+Enhance Backup files
+Improve app usability and user experience
+User interface enhancements
 Bug fixes

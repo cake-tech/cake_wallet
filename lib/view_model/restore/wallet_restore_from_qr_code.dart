@@ -44,9 +44,10 @@ class WalletRestoreFromQRCode {
     'zano': WalletType.zano,
     'zano-wallet': WalletType.zano,
     'zano_wallet': WalletType.zano,
+    'decred': WalletType.decred,
+    'decred-wallet': WalletType.decred,
+    'decred_wallet': WalletType.decred,
   };
-
-  static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
 
   static WalletType? _extractWalletType(String code) {
     final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
@@ -55,21 +56,28 @@ class WalletRestoreFromQRCode {
 
     if (extracted == null) {
       // Special case for view-only monero wallet
-      final codeParsed = json.decode(code);
-      if (codeParsed["version"] == 0 &&
-          codeParsed["primaryAddress"] != null &&
-          codeParsed["privateViewKey"] != null &&
-          codeParsed["restoreHeight"] != null) {
-        return WalletType.monero;
+      try {
+        final codeParsed = json.decode(code);
+        if (codeParsed["version"] == 0 &&
+            codeParsed["primaryAddress"] != null &&
+            codeParsed["privateViewKey"] != null &&
+            codeParsed["restoreHeight"] != null) {
+          return WalletType.monero;
+        }
+      } catch (e) {
+        return null;
       }
     }
-
     return _walletTypeMap[extracted];
   }
 
   static String? _extractAddressFromUrl(String rawString, WalletType type) {
-    return AddressResolver.extractAddressByType(
-        raw: rawString, type: walletTypeToCryptoCurrency(type));
+    try {
+      return AddressResolver.extractAddressByType(
+          raw: rawString, type: walletTypeToCryptoCurrency(type));
+    } catch (_) {
+      return null;
+    }
   }
 
   static String? _extractSeedPhraseFromUrl(String rawString, WalletType walletType) {
@@ -93,10 +101,10 @@ class WalletRestoreFromQRCode {
     if (code == null) throw Exception("Unexpected scan QR code value: aborted");
     if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
 
-    WalletType? walletType;
     String formattedUri = '';
+    WalletType? walletType = _extractWalletType(code);
 
-    if (!_containsAssetSpecifier(code)) {
+    if (walletType == null) {
       await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
       walletType =
           await Navigator.pushNamed(context, Routes.restoreWalletTypeFromQR) as WalletType?;
@@ -108,7 +116,6 @@ class WalletRestoreFromQRCode {
           ? '$walletType:?seed=$seedPhrase'
           : throw Exception('Failed to determine valid seed phrase');
     } else {
-      walletType = _extractWalletType(code);
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
       formattedUri = '$walletType:?$query';
@@ -118,12 +125,10 @@ class WalletRestoreFromQRCode {
     Map<String, dynamic> queryParameters = {...uri.queryParameters};
 
     if (queryParameters['seed'] == null) {
-      queryParameters['seed'] = _extractSeedPhraseFromUrl(code, walletType!);
+      queryParameters['seed'] = _extractSeedPhraseFromUrl(code, walletType);
     }
     if (queryParameters['address'] == null) {
-      try {
-        queryParameters['address'] = _extractAddressFromUrl(code, walletType!);
-      } catch (_) {}
+      queryParameters['address'] = _extractAddressFromUrl(code, walletType);
     }
 
     Map<String, dynamic> credentials = {'type': walletType, ...queryParameters, 'raw_qr': code};

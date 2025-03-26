@@ -214,6 +214,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.nano:
       case WalletType.wownero:
       case WalletType.bitcoinCash:
+      case WalletType.decred:
         return false;
     }
 

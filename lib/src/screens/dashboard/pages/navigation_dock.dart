@@ -75,8 +75,10 @@ class NavigationDock extends StatelessWidget {
                                                 .labelTextColor,
                                       ),
                                       title: action.name(context),
-                                      onClick: () async =>
-                                          await action.onTap(context, dashboardViewModel),
+                                      onClick: (action.isEnabled?.call(dashboardViewModel) ?? true)
+                                          ? () async =>
+                                              await action.onTap(context, dashboardViewModel)
+                                          : null,
                                       textColor: action.isEnabled?.call(dashboardViewModel) ?? true
                                           ? null
                                           : Theme.of(context)

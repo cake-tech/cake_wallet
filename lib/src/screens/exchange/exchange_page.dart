@@ -248,7 +248,7 @@ class ExchangePage extends BasePage {
                   Observer(
                       builder: (_) => LoadingPrimaryButton(
                           key: ValueKey('exchange_page_exchange_button_key'),
-                          text: exchangeViewModel.isAvailableInSelected ? S.of(context).exchange : S.of(context).change_selected_exchanges,
+                          text: exchangeViewModel.isAvailableInSelected ? S.of(context).swap : S.of(context).change_selected_exchanges,
                           onPressed: exchangeViewModel.isAvailableInSelected ? () {
                             FocusScope.of(context).unfocus();
 
@@ -377,7 +377,7 @@ class ExchangePage extends BasePage {
       return;
     }
 
-    if (exchangeViewModel.isLowFee) {
+    if (exchangeViewModel.feesViewModel.isLowFee) {
       _showFeeAlert(context);
     }
 
@@ -640,7 +640,7 @@ class ExchangePage extends BasePage {
             }) ??
         false;
     if (confirmed) {
-      exchangeViewModel.setDefaultTransactionPriority();
+      exchangeViewModel.feesViewModel .setDefaultTransactionPriority();
     }
   }
 

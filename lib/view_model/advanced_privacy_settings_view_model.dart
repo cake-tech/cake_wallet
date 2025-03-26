@@ -55,6 +55,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.zano:
+      case WalletType.decred:
         return false;
     }
   }
@@ -78,6 +79,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.tron,
+        WalletType.solana,
         WalletType.monero,
         WalletType.wownero,
         WalletType.zano,

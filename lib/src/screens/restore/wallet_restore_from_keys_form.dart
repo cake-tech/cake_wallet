@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -10,14 +11,16 @@ import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/services.dart';
 
-class WalletRestoreFromKeysFrom extends StatefulWidget {
-  WalletRestoreFromKeysFrom({
+class WalletRestoreFromKeysForm extends StatefulWidget {
+  WalletRestoreFromKeysForm({
     required this.walletRestoreViewModel,
     required this.onPrivateKeyChange,
+    required this.onViewKeyEntered,
     required this.displayPrivateKeyField,
     required this.onHeightOrDateEntered,
     required this.displayWalletPassword,
     required this.onRepeatedPasswordChange,
+    this.restoredWallet,
     this.onPasswordChange,
     Key? key,
   }) : super(key: key);
@@ -25,25 +28,35 @@ class WalletRestoreFromKeysFrom extends StatefulWidget {
   final Function(bool) onHeightOrDateEntered;
   final WalletRestoreViewModel walletRestoreViewModel;
   final void Function(String)? onPrivateKeyChange;
+  final void Function(bool)? onViewKeyEntered;
   final bool displayPrivateKeyField;
   final bool displayWalletPassword;
+  final RestoredWallet? restoredWallet;
   final void Function(String)? onPasswordChange;
   final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromKeysFromState createState() =>
-      WalletRestoreFromKeysFromState(displayWalletPassword: displayWalletPassword);
+  WalletRestoreFromKeysFormState createState() =>
+      WalletRestoreFromKeysFormState(displayWalletPassword: displayWalletPassword, restoredWallet: restoredWallet);
 }
 
-class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
-  WalletRestoreFromKeysFromState({required bool displayWalletPassword})
+class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
+  WalletRestoreFromKeysFormState({required bool displayWalletPassword, RestoredWallet? restoredWallet})
       : formKey = GlobalKey<FormState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
         nameController = TextEditingController(),
-        addressController = TextEditingController(),
-        viewKeyController = TextEditingController(),
-        spendKeyController = TextEditingController(),
-        privateKeyController = TextEditingController(),
+        addressController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.address)
+            : TextEditingController(),
+        viewKeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.viewKey)
+            : TextEditingController(),
+        spendKeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.spendKey)
+            : TextEditingController(),
+        privateKeyController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.privateKey)
+            : TextEditingController(),
         nameTextEditingController = TextEditingController(),
         passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
         repeatedPasswordTextEditingController = displayWalletPassword ? TextEditingController() : null;
@@ -79,6 +92,16 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
         widget.onHeightOrDateEntered(true);
       }
       widget.onPrivateKeyChange?.call(privateKeyController.text);
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.restoredWallet?.height != null) {
+        blockchainHeightKey.currentState?.restoreHeightController.text = widget.restoredWallet!.height.toString();
+      }
+    });
+
+    viewKeyController.addListener(() {
+      widget.onViewKeyEntered?.call(viewKeyController.text.isNotEmpty);
     });
   }
 
@@ -170,6 +193,19 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
   }
 
   Widget _restoreFromKeysFormFields() {
+    // Decred can only restore a view only wallet with an account pubkey. Other
+    // fields are not used.
+    if (widget.walletRestoreViewModel.type == WalletType.decred) {
+      return Column(
+        children: [
+          BaseTextFormField(
+            controller: viewKeyController,
+            hintText: S.of(context).view_key_public,
+            maxLines: null,
+        )],
+      );
+    }
+
     if (widget.displayPrivateKeyField) {
       // the term "private key" isn't actually what we're accepting here, and it's confusing to
       // users of the nano community, what this form actually accepts (when importing for nano) is a nano seed in it's hex form, referred to in code as a "seed key"

@@ -1,6 +1,5 @@
-# Usage:
-# docker build . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:main-linux
-# docker push ghcr.io/cake-tech/cake_wallet:main-linux
+# docker build . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:3.27.4-linux
+# docker push ghcr.io/cake-tech/cake_wallet:3.27.4-linux
 
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
@@ -17,13 +16,13 @@ LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 ENV GOLANG_VERSION=1.24.1
 
 # Pin Flutter version to latest known-working version
-ENV FLUTTER_VERSION=3.24.4
+ENV FLUTTER_VERSION=3.27.4
 
 # Pin Android Studio, platform, and build tools versions to latest known-working version
 # Comes from https://developer.android.com/studio/#command-tools
 ENV ANDROID_SDK_TOOLS_VERSION=11076708
 # Comes from https://developer.android.com/studio/releases/build-tools
-ENV ANDROID_PLATFORM_VERSION=34
+ENV ANDROID_PLATFORM_VERSION=35
 ENV ANDROID_BUILD_TOOLS_VERSION=34.0.0
 
 # If we ever need to migrate the home directory...
@@ -106,6 +105,8 @@ RUN yes | sdkmanager \
     "platforms;android-$ANDROID_PLATFORM_VERSION" \
     "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
     "platforms;android-33" \
+    "platforms;android-34" \
+    "platforms;android-35" \
     "build-tools;33.0.2" \
     "build-tools;33.0.1" \
     "build-tools;33.0.0" \
@@ -118,10 +119,11 @@ RUN yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
 
 # Install dependencies for tests
 # Comes from https://github.com/ReactiveCircus/android-emulator-runner
-RUN yes | sdkmanager "system-images;android-29;default;x86" \
+RUN yes | sdkmanager \
     "system-images;android-29;default;x86_64" \
     "system-images;android-31;default;x86_64" \
-    "platforms;android-29"
+    "platforms;android-29" \
+    "platforms;android-31"
 
 # Fake the KVM status so the Android emulator doesn't complain (that much)
 RUN (addgroup kvm || true) && \

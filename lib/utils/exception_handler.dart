@@ -217,6 +217,7 @@ class ExceptionHandler {
     "invalid signature",
     "invalid password",
     "NetworkImage._loadAsync",
+    "SSLV3_ALERT_BAD_RECORD_MAC",
     // Temporary ignored, More context: Flutter secure storage reads the values as null some times
     // probably when the device was locked and then opened on Cake
     // this is solved by a restart of the app

@@ -59,6 +59,7 @@ class MainActions {
   static MainActions sendAction = MainActions._(
     name: (context) => S.of(context).send,
     image: 'assets/images/upload.png',
+    isEnabled: (viewModel) => viewModel.canSend,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       Navigator.pushNamed(context, Routes.send);
     },
