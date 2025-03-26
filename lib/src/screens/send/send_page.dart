@@ -36,7 +36,6 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -163,8 +162,6 @@ class SendPage extends BasePage {
                   output.reset();
                 });
       });
-
-  bool _bottomSheetOpened = false;
 
   @override
   Widget body(BuildContext context) {
@@ -400,6 +397,7 @@ class SendPage extends BasePage {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
+                              FocusManager.instance.primaryFocus?.unfocus();
                               if (sendViewModel.state is IsExecutingState) return;
                               if (_formKey.currentState != null &&
                                   !_formKey.currentState!.validate()) {
@@ -532,7 +530,7 @@ class SendPage extends BasePage {
               builder: (BuildContext context) {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
-                  titleText: 'Generating transaction',
+                  titleText: S.of(context).generating_transaction,
                 );
               },
             );
@@ -550,7 +548,7 @@ class SendPage extends BasePage {
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('send_page_confirm_sending_dialog_key'),
-                  titleText: 'Confirm Transaction',
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
@@ -601,7 +599,7 @@ class SendPage extends BasePage {
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,
                       onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
-                      titleText: 'Transaction Sent',
+                      titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/contact_icon.svg',
                       contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
@@ -610,6 +608,8 @@ class SendPage extends BasePage {
                       rightButtonText: 'Yes',
                       actionLeftButton: () {
                         Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
                         RequestReviewHandler.requestReview();
                         newContactAddress = null;
                       },
@@ -623,11 +623,17 @@ class SendPage extends BasePage {
                     )
                   : InfoBottomSheet(
                       currentTheme: currentTheme,
-                      titleText: 'Transaction Sent',
+                      titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/birthday_cake.svg',
                       actionButtonText: S.of(bottomSheetContext).close,
                       actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                      actionButton: () => Navigator.of(bottomSheetContext).pop());
+                      actionButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      });
             },
           );
 

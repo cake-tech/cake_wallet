@@ -162,31 +162,39 @@ Future<PendingTransactionDescription> createTransactionSync(
     );
 }
 
-PendingTransactionDescription createTransactionMultDestSync(
+Future<PendingTransactionDescription> createTransactionMultDest(
     {required List<MoneroOutput> outputs,
     required String paymentId,
     required int priorityRaw,
     int accountIndex = 0,
-    List<String> preferredInputs = const []}) {
+    List<String> preferredInputs = const []}) async {
   
   final dstAddrs = outputs.map((e) => e.address).toList();
   final amounts = outputs.map((e) => monero.Wallet_amountFromString(e.amount)).toList();
 
-  // printV("multDest: dstAddrs: $dstAddrs");
-  // printV("multDest: amounts: $amounts");
+  final waddr = wptr!.address;
 
-  final txptr = monero.Wallet_createTransactionMultDest(
-    wptr!,
-    dstAddr: dstAddrs,
-    isSweepAll: false,
-    amounts: amounts,
-    mixinCount: 0,
-    pendingTransactionPriority: priorityRaw,
-    subaddr_account: accountIndex,
-  );
+  // force reconnection in case the os killed the connection
+  Isolate.run(() async {
+    monero.Wallet_synchronized(Pointer.fromAddress(waddr));
+  });
+
+  final txptr = Pointer<Void>.fromAddress(await Isolate.run(() {
+    return monero.Wallet_createTransactionMultDest(
+      Pointer.fromAddress(waddr),
+      dstAddr: dstAddrs,
+      isSweepAll: false,
+      amounts: amounts,
+      mixinCount: 0,
+      pendingTransactionPriority: priorityRaw,
+      subaddr_account: accountIndex,
+    ).address;
+  }));
+
   if (monero.PendingTransaction_status(txptr) != 0) {
     throw CreationTransactionException(message: monero.PendingTransaction_errorString(txptr));
   }
+
   return PendingTransactionDescription(
     amount: monero.PendingTransaction_amount(txptr),
     fee: monero.PendingTransaction_fee(txptr),
@@ -256,21 +264,6 @@ Future<PendingTransactionDescription> _createTransactionSync(Map args) async {
       preferredInputs: preferredInputs);
 }
 
-PendingTransactionDescription _createTransactionMultDestSync(Map args) {
-  final outputs = args['outputs'] as List<MoneroOutput>;
-  final paymentId = args['paymentId'] as String;
-  final priorityRaw = args['priorityRaw'] as int;
-  final accountIndex = args['accountIndex'] as int;
-  final preferredInputs = args['preferredInputs'] as List<String>;
-
-  return createTransactionMultDestSync(
-      outputs: outputs,
-      paymentId: paymentId,
-      priorityRaw: priorityRaw,
-      accountIndex: accountIndex,
-      preferredInputs: preferredInputs);
-}
-
 Future<PendingTransactionDescription> createTransaction(
         {required String address,
         required int priorityRaw,
@@ -286,21 +279,6 @@ Future<PendingTransactionDescription> createTransaction(
       'accountIndex': accountIndex,
       'preferredInputs': preferredInputs
     });
-
-Future<PendingTransactionDescription> createTransactionMultDest(
-        {required List<MoneroOutput> outputs,
-        required int priorityRaw,
-        String paymentId = '',
-        int accountIndex = 0,
-        List<String> preferredInputs = const []}) async =>
-    _createTransactionMultDestSync({
-      'outputs': outputs,
-      'paymentId': paymentId,
-      'priorityRaw': priorityRaw,
-      'accountIndex': accountIndex,
-      'preferredInputs': preferredInputs
-    });
-
 
 class Transaction {
   final String displayLabel;

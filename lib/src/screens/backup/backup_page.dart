@@ -137,7 +137,7 @@ class BackupPage extends BasePage {
               leftButtonText: S.of(context).share,
               actionRightButton: () async {
                 await backupViewModelBase.saveToDownload(
-                    backup.name, backup.content);
+                    backup.name, backup.file);
                 Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () async {
@@ -160,8 +160,7 @@ class BackupPage extends BasePage {
         fileName: backup.name);
 
     try {
-      File returnedFile = File(outputFile!);
-      await returnedFile.writeAsBytes(backup.content);
+      await backup.file.copy(outputFile!);
     } catch (exception, stackTrace) {
       await ExceptionHandler.onError(FlutterErrorDetails(
         exception: exception,

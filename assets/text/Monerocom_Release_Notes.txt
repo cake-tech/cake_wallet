@@ -1,3 +1,5 @@
-UI/UX enhancements
-Stability improvements
+Add background sync to Monero
+Enhance Backup files
+Improve app usability and user experience
+User interface enhancements
 Bug fixes

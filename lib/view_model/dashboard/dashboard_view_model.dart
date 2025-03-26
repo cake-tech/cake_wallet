@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -40,12 +41,14 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -175,6 +178,8 @@ abstract class DashboardViewModelBase with Store {
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
+    unawaited(isBackgroundSyncEnabled());
+    unawaited(isBatteryOptimizationEnabled());
 
     final _wallet = wallet;
 
@@ -261,7 +266,8 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
-      showDecredInfoCard = wallet?.type == WalletType.decred;
+      showDecredInfoCard = wallet?.type == WalletType.decred &&
+          sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
     });
 
     _transactionDisposer?.reaction.dispose();
@@ -407,6 +413,11 @@ abstract class DashboardViewModelBase with Store {
   bool get hasRescan => wallet.hasRescan;
 
   @computed
+  bool get hasBackgroundSync => [
+        WalletType.monero,
+      ].contains(wallet.type);
+
+  @computed
   bool get isMoneroViewOnly {
     if (wallet.type != WalletType.monero) return false;
     return monero!.isViewOnly();
@@ -491,6 +502,69 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   late bool showDecredInfoCard;
+
+  @observable
+  bool backgroundSyncEnabled = false;
+
+  @action
+  Future<bool> isBackgroundSyncEnabled() async {
+    if (!Platform.isAndroid) {
+      return false;
+    }
+    final resp = await FlutterDaemon().getBackgroundSyncStatus();
+    backgroundSyncEnabled = resp;
+    return resp;
+  }
+
+  bool get hasBatteryOptimization => Platform.isAndroid;
+
+  @observable
+  bool batteryOptimizationEnabled = false;
+
+  @action
+  Future<bool> isBatteryOptimizationEnabled() async {
+    if (!hasBatteryOptimization) {
+      return false;
+    }
+    final resp = await FlutterDaemon().isBatteryOptimizationDisabled();
+    batteryOptimizationEnabled = !resp;
+    if (batteryOptimizationEnabled && await isBackgroundSyncEnabled()) {
+      // If the battery optimization is enabled, we need to disable the background sync
+      await disableBackgroundSync();
+    }
+    return resp;
+  }
+
+  @action
+  Future<void> disableBatteryOptimization() async {
+    final resp = await FlutterDaemon().requestDisableBatteryOptimization();
+    unawaited((() async {
+      // android doesn't return if the permission was granted, so we need to poll it,
+      // minute should be enough for the fallback method (opening settings and changing the permission)
+      for (var i = 0; i < 4 * 60; i++) {
+        await Future.delayed(Duration(milliseconds: 250));
+        await isBatteryOptimizationEnabled();
+      }
+    })());
+  }
+
+  @action
+  Future<void> enableBackgroundSync() async {
+    if (hasBatteryOptimization && batteryOptimizationEnabled) {
+      disableBackgroundSync();
+      return;
+    }
+    final resp = await FlutterDaemon().startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
+    printV("Background sync enabled: $resp");
+    backgroundSyncEnabled = true;
+  }
+
+  @action
+  Future<void> disableBackgroundSync() async {
+    final resp = await FlutterDaemon().stopBackgroundSync();
+    printV("Background sync disabled: $resp");
+    backgroundSyncEnabled = false;
+  }
 
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
@@ -719,7 +793,7 @@ abstract class DashboardViewModelBase with Store {
             (List<TransactionInfo> txs) {
 
           transactions.clear();
-          
+
           transactions.addAll(
             txs.where((tx) {
               if (wallet.type == WalletType.monero) {
@@ -797,11 +871,11 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
-  @computed
-  SyncMode get syncMode => settingsStore.currentSyncMode;
-
   @action
-  void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
+  Future<void> setSyncMode(SyncMode syncMode) async {
+    settingsStore.currentSyncMode = syncMode;
+    await enableBackgroundSync();
+  }
 
   @computed
   bool get syncAll => settingsStore.currentSyncAll;

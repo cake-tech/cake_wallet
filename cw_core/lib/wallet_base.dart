@@ -67,6 +67,12 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   // there is a default definition here because only coins with a pow node (nano based) need to override this
   Future<void> connectToPowNode({required Node node}) async {}
 
+  // startBackgroundSync is used to start sync in the background, without doing any
+  // extra things in the background.
+  // startSync is used as a fallback.
+  Future<void> startBackgroundSync() => startSync();
+  Future<void> stopBackgroundSync(String password) => stopSync();
+
   Future<void> startSync();
 
   Future<void> stopSync() async {}
