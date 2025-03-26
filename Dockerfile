@@ -13,7 +13,7 @@ LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 
 # Set necessary environment variables
 # Set Go version to latest known-working version
-ENV GOLANG_VERSION=1.23.4
+ENV GOLANG_VERSION=1.24.1
 
 # Pin Flutter version to latest known-working version
 ENV FLUTTER_VERSION=3.27.4
