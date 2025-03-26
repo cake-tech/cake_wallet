@@ -160,9 +160,45 @@ class BuySellPage extends BasePage {
                           ),
                         ])),
                 bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                bottomSection: Column(children: [
-                  Observer(
-                      builder: (_) => LoadingPrimaryButton(
+                bottomSection: Observer(
+                    builder: (_) => Column(children: [
+                      buySellViewModel.isBuySellQuotFailed
+                          ? Padding(
+                        padding: EdgeInsets.only(bottom: 15),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                alignment: Alignment.centerRight,
+                                child: Icon(Icons.warning_amber_rounded,
+                                    color: Theme.of(context)
+                                        .extension<ExchangePageTheme>()!
+                                        .receiveAmountColor,
+                                    size: 26),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 8,
+                              child: Text(
+                                'this_pair_is_not_supported_warning', //S.of(context).this_pair_is_not_supported_warning,
+                                textAlign: TextAlign.center,
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .extension<ExchangePageTheme>()!
+                                      .receiveAmountColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                          : Container(),
+                      LoadingPrimaryButton(
                           text: S.current.choose_a_provider,
                           onPressed: () async {
                             if(!_formKey.currentState!.validate()) return;
@@ -172,8 +208,8 @@ class BuySellPage extends BasePage {
                           textColor: Colors.white,
                           isDisabled: buySellViewModel.isBuySellQuotFailed,
                           isLoading: !buySellViewModel.isReadyToTrade &&
-                              !buySellViewModel.isBuySellQuotFailed)),
-                ]),
+                              !buySellViewModel.isBuySellQuotFailed),
+                    ])),
               )),
         ));
   }
