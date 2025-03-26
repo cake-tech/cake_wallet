@@ -493,7 +493,7 @@ class SendPage extends BasePage {
       bitcoin!.updateFeeRates(sendViewModel.wallet);
     }
 
-    reaction((_) => sendViewModel.state, (ExecutionState state) async {
+    reaction((_) => sendViewModel.state, (ExecutionState state) {
       if (dialogContext != null && dialogContext?.mounted == true) {
         Navigator.of(dialogContext!).pop();
       }
@@ -522,15 +522,6 @@ class SendPage extends BasePage {
       }
 
       if (state is IsExecutingState) {
-
-        if (sendViewModel.wallet.type == WalletType.monero) {
-          await Future.delayed(const Duration(milliseconds: 200));
-          final currentState = sendViewModel.state;
-          if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
-            return;
-          }
-        }
-
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             showModalBottomSheet<void>(
