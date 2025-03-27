@@ -132,6 +132,7 @@
   "change_rep_message": "Jeste li sigurni da želite promijeniti predstavnika?",
   "change_rep_successful": "Uspješno promijenjena reprezentativna",
   "change_selected_exchanges": "Promijenite odabrane razmjene",
+  "change_selected_pair": "Promijenite odabrani par",
   "change_wallet_alert_content": "Želite li promijeniti trenutni novčanik u ${wallet_name}?",
   "change_wallet_alert_title": "Izmijeni trenutni novčanik",
   "choose_a_payment_method": "Odaberite način plaćanja",

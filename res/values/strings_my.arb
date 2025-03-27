@@ -132,6 +132,7 @@
   "change_rep_message": "ကိုယ်စားလှယ်ပြောင်းလိုသည်မှာ သေချာပါသလား။",
   "change_rep_successful": "အောင်မြင်စွာကိုယ်စားလှယ်ပြောင်းလဲသွားတယ်",
   "change_selected_exchanges": "ရွေးချယ်ထားသောအပြန်အလှန်ဖလှယ်မှုကိုပြောင်းလဲပါ",
+  "change_selected_pair": "ရွေးချယ်ထားသည့်စုံတွဲကိုပြောင်းပါ",
   "change_wallet_alert_content": "လက်ရှိပိုက်ဆံအိတ်ကို ${wallet_name} သို့ ပြောင်းလိုပါသလား။",
   "change_wallet_alert_title": "လက်ရှိပိုက်ဆံအိတ်ကို ပြောင်းပါ။",
   "choose_a_payment_method": "ငွေပေးချေမှုနည်းလမ်းကိုရွေးချယ်ပါ",

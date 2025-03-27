@@ -132,6 +132,7 @@
   "change_rep_message": "您确定要更换代表吗？",
   "change_rep_successful": "成功改变了代表",
   "change_selected_exchanges": "更改选定的交换",
+  "change_selected_pair": "更改选定对",
   "change_wallet_alert_content": "您是否想将当前钱包改为 ${wallet_name}?",
   "change_wallet_alert_title": "更换当前钱包",
   "choose_a_payment_method": "选择付款方式",

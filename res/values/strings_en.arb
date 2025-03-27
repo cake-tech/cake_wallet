@@ -132,6 +132,7 @@
   "change_rep_message": "Are you sure that you want to change representatives?",
   "change_rep_successful": "Successfully changed representative",
   "change_selected_exchanges": "Change Selected Exchanges",
+  "change_selected_pair": "Change Selected Pair",
   "change_wallet_alert_content": "Do you want to change current wallet to ${wallet_name}?",
   "change_wallet_alert_title": "Change current wallet",
   "choose_a_payment_method": "Choose a payment method",

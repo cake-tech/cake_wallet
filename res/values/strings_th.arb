@@ -132,6 +132,7 @@
   "change_rep_message": "คุณแน่ใจหรือไม่ว่าต้องการเปลี่ยนตัวแทน",
   "change_rep_successful": "เปลี่ยนตัวแทนสำเร็จ",
   "change_selected_exchanges": "เปลี่ยนการแลกเปลี่ยนที่เลือก",
+  "change_selected_pair": "เปลี่ยนคู่ที่เลือก",
   "change_wallet_alert_content": "คุณต้องการเปลี่ยนกระเป๋าปัจจุบันเป็น ${wallet_name} หรือไม่?",
   "change_wallet_alert_title": "เปลี่ยนกระเป๋าปัจจุบัน",
   "choose_a_payment_method": "เลือกวิธีการชำระเงิน",

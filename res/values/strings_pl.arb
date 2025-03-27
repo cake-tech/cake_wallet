@@ -132,6 +132,7 @@
   "change_rep_message": "Czy na pewno chcesz zmienić przedstawiciela?",
   "change_rep_successful": "Pomyślnie zmienił przedstawiciela",
   "change_selected_exchanges": "Zmień wybrane wymiany",
+  "change_selected_pair": "Zmień wybraną parę",
   "change_wallet_alert_content": "Czy chcesz zmienić obecny portfel na ${wallet_name}?",
   "change_wallet_alert_title": "Zmień obecny portfel",
   "choose_a_payment_method": "Wybierz metodę płatności",

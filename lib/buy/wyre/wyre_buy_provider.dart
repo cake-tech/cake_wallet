@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:cake_wallet/buy/buy_exception.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
@@ -14,7 +16,14 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 class WyreBuyProvider extends BuyProvider {
   WyreBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
       : baseApiUrl = isTestEnvironment ? _baseTestApiUrl : _baseProductApiUrl,
-        super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
+        super(
+          wallet: wallet,
+          isTestEnvironment: isTestEnvironment,
+          ledgerVM: null,
+          supportedCryptoList: supportedCryptoToFiatPairs(
+              notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+          supportedFiatList: supportedFiatToCryptoPairs(
+              notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _baseTestApiUrl = 'https://api.testwyre.com';
   static const _baseProductApiUrl = 'https://api.sendwyre.com';
@@ -29,6 +38,9 @@ class WyreBuyProvider extends BuyProvider {
   static const _countryCode = 'US';
   static const _secretKey = secrets.wyreSecretKey;
   static const _accountId = secrets.wyreAccountId;
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   @override
   String get title => 'Wyre';

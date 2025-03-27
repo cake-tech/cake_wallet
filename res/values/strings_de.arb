@@ -132,6 +132,7 @@
   "change_rep_message": "Sind Sie sicher, dass Sie den Vertreter wechseln möchten?",
   "change_rep_successful": "Vertreter erfolgreich gerändert",
   "change_selected_exchanges": "Änderung ausgewählter Austausch",
+  "change_selected_pair": "Ändern Sie das ausgewählte Paar",
   "change_wallet_alert_content": "Möchten Sie die aktuelle Wallet zu ${wallet_name} ändern?",
   "change_wallet_alert_title": "Aktuelle Wallet ändern",
   "choose_a_payment_method": "Wählen Sie eine Zahlungsmethode",

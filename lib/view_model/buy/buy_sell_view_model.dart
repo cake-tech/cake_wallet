@@ -386,7 +386,22 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
 
-    final result = await Future.wait<List<Quote>?>(providerList.map((element) => element
+    final List<BuyProvider> validProviders = providerList.where((provider) {
+      if (isBuyAction) {
+        return provider.supportedCryptoList.any((pair) =>
+        pair.from == cryptoCurrency && pair.to == fiatCurrency);
+      } else {
+        return provider.supportedFiatList.any((pair) =>
+        pair.from == fiatCurrency && pair.to == cryptoCurrency);
+      }
+    }).toList();
+
+    if (validProviders.isEmpty) {
+      buySellQuotState = BuySellQuotFailed();
+      return;
+    }
+
+    final result = await Future.wait<List<Quote>?>(validProviders.map((element) => element
         .fetchQuote(
           cryptoCurrency: cryptoCurrency,
           fiatCurrency: fiatCurrency,

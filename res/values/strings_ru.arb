@@ -132,6 +132,7 @@
   "change_rep_message": "Вы уверены, что хотите сменить представителя?",
   "change_rep_successful": "Успешно изменил представитель",
   "change_selected_exchanges": "Изменить выбранные обмены",
+  "change_selected_pair": "Изменить выбранную пару",
   "change_wallet_alert_content": "Вы хотите изменить текущий кошелек на ${wallet_name}?",
   "change_wallet_alert_title": "Изменить текущий кошелек",
   "choose_a_payment_method": "Выберите способ оплаты",

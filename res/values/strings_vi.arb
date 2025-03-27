@@ -132,6 +132,7 @@
   "change_rep_message": "Bạn có chắc chắn muốn thay đổi đại diện không?",
   "change_rep_successful": "Thay đổi đại diện thành công",
   "change_selected_exchanges": "Thay đổi các trao đổi được chọn",
+  "change_selected_pair": "Thay đổi cặp đã chọn",
   "change_wallet_alert_content": "Bạn có muốn thay đổi ví hiện tại thành ${wallet_name} không?",
   "change_wallet_alert_title": "Thay đổi ví hiện tại",
   "choose_account": "Chọn tài khoản",

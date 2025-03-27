@@ -132,6 +132,7 @@
   "change_rep_message": "Jste si jisti, že chcete změnit zástupce?",
   "change_rep_successful": "Úspěšně změnil zástupce",
   "change_selected_exchanges": "Změnit vybrané výměny",
+  "change_selected_pair": "Změnit vybraný pár",
   "change_wallet_alert_content": "Opravdu chcete změnit aktivní peněženku na ${wallet_name}?",
   "change_wallet_alert_title": "Přepnout peněženku",
   "choose_a_payment_method": "Vyberte metodu platby",

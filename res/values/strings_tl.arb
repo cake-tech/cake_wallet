@@ -132,6 +132,7 @@
   "change_rep_message": "Sigurado ka bang nais mong baguhin ang mga representative?",
   "change_rep_successful": "Matagumpay na nagbago ng representative",
   "change_selected_exchanges": "Baguhin ang mga napiling palitan",
+  "change_selected_pair": "Baguhin ang napiling pares",
   "change_wallet_alert_content": "Gusto mo bang palitan ang kasalukuyang wallet sa ${wallet_name}?",
   "change_wallet_alert_title": "Baguhin ang kasalukuyang wallet",
   "choose_a_payment_method": "Pumili ng isang paraan ng pagbabayad",

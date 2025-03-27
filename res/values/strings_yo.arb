@@ -132,6 +132,7 @@
   "change_rep_message": "Ṣe o da ọ loju pe o fẹ yi awọn aṣoju pada?",
   "change_rep_successful": "Ni ifijišẹ yipada aṣoju",
   "change_selected_exchanges": "Yiyipada awọn paṣipaarọ ti o yan",
+  "change_selected_pair": "Yi bata ti a yan",
   "change_wallet_alert_content": "Ṣe ẹ fẹ́ pààrọ̀ àpamọ́wọ́ yìí sí ${wallet_name}?",
   "change_wallet_alert_title": "Ẹ pààrọ̀ àpamọ́wọ́ yìí",
   "choose_a_payment_method": "Yan ọna isanwo kan",

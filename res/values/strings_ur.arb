@@ -132,6 +132,7 @@
   "change_rep_message": "؟ﮟﯿﮨ ﮯﺘﮨﺎﭼ ﺎﻧﺮﮐ ﻞﯾﺪﺒﺗ ﻮﮐ ﮞﻭﺪﻨﺋﺎﻤﻧ ﯽﻌﻗﺍﻭ ﭖﺁ ﺎﯿﮐ",
   "change_rep_successful": "نمائندہ کو کامیابی کے ساتھ تبدیل کیا",
   "change_selected_exchanges": "منتخب تبادلے کو تبدیل کریں",
+  "change_selected_pair": "منتخب کردہ جوڑی کو تبدیل کریں",
   "change_wallet_alert_content": "کیا آپ موجودہ والیٹ کو ${wallet_name} میں تبدیل کرنا چاہتے ہیں؟",
   "change_wallet_alert_title": "موجودہ پرس تبدیل کریں۔",
   "choose_a_payment_method": "ادائیگی کا طریقہ منتخب کریں",

@@ -132,6 +132,7 @@
   "change_rep_message": "؟ﻦﻴﻠﺜﻤﻤﻟﺍ ﺮﻴﻴﻐﺗ ﺪﻳﺮﺗ ﻚﻧﺃ ﺪﻛﺄﺘﻣ ﺖﻧﺃ ﻞﻫ",
   "change_rep_successful": "تم تغيير ممثل بنجاح",
   "change_selected_exchanges": "تغيير التبادلات المحددة",
+  "change_selected_pair": "تغيير الزوج المحدد",
   "change_wallet_alert_content": "هل تريد تغيير المحفظة الحالية إلى ${wallet_name}؟",
   "change_wallet_alert_title": "تغيير المحفظة الحالية",
   "choose_a_payment_method": "اختر طريقة الدفع",

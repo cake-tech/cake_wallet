@@ -132,6 +132,7 @@
   "change_rep_message": "Ви впевнені, що хочете змінити представника?",
   "change_rep_successful": "Успішно змінив представник",
   "change_selected_exchanges": "Змінити вибрані біржі",
+  "change_selected_pair": "Змінити вибрану пару",
   "change_wallet_alert_content": "Ви хочете змінити поточний гаманець на ${wallet_name}?",
   "change_wallet_alert_title": "Змінити поточний гаманець",
   "choose_a_payment_method": "Виберіть метод оплати",

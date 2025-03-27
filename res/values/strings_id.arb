@@ -132,6 +132,7 @@
   "change_rep_message": "Apakah Anda yakin ingin mengubah perwakilan?",
   "change_rep_successful": "Berhasil mengubah perwakilan",
   "change_selected_exchanges": "Ubah pertukaran yang dipilih",
+  "change_selected_pair": "Ubah pasangan yang dipilih",
   "change_wallet_alert_content": "Apakah Anda ingin mengganti dompet saat ini ke ${wallet_name}?",
   "change_wallet_alert_title": "Ganti dompet saat ini",
   "choose_a_payment_method": "Pilih metode pembayaran",

@@ -132,6 +132,7 @@
   "change_rep_message": "Сигурни ли сте, че искате да смените представителите?",
   "change_rep_successful": "Успешно промени представител",
   "change_selected_exchanges": "Променете избраните борси",
+  "change_selected_pair": "Променете избраната двойка",
   "change_wallet_alert_content": "Искате ли да смените сегашния портфейл на ${wallet_name}?",
   "change_wallet_alert_title": "Смяна на сегашния портфейл",
   "choose_a_payment_method": "Изберете начин на плащане",

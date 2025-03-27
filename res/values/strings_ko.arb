@@ -132,6 +132,7 @@
   "change_rep_message": "대표를 바꾸고 싶습니까?",
   "change_rep_successful": "대리인이 성공적으로 변경되었습니다",
   "change_selected_exchanges": "선택된 거래소 변경",
+  "change_selected_pair": "선택한 쌍을 변경하십시오",
   "change_wallet_alert_content": "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?",
   "change_wallet_alert_title": "현재 지갑 변경",
   "choose_a_payment_method": "결제 방법을 선택하십시오",
