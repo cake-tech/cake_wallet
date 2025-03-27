@@ -312,7 +312,6 @@ class DefaultEthereumErc20Tokens {
           iconPath = CryptoCurrency.all
               .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
               .iconPath;
-          print(iconPath);
         } catch (_) {}
 
         return Erc20Token.copyWith(token, iconPath, 'ETH');
