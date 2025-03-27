@@ -131,4 +131,9 @@ class CWZano extends Zano {
 
   @override
   bool validateAddress(String address) => ZanoUtils.validateAddress(address);
+
+  @override
+  Map<String, List<int>> debugCallLength() {
+    return api.debugCallLength();
+  }
 }
