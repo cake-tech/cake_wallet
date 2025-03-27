@@ -93,6 +93,7 @@
   "buy_bitcoin": "Koop Bitcoin",
   "buy_now": "Koop nu",
   "buy_provider_unavailable": "Provider momenteel niet beschikbaar.",
+  "buy_sell_pair_is_not_supported_warning": "Dit valutapaar wordt door een provider niet ondersteund voor de geselecteerde betaalmethode. Kies een ander paar of probeer de betaalmethode te wijzigen.",
   "buy_with": "Koop met",
   "by_cake_pay": "door Cake Pay",
   "cake_2fa_preset": "Taart 2FA Voorinstelling",

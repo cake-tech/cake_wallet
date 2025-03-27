@@ -180,7 +180,7 @@ class BuySellPage extends BasePage {
                             Expanded(
                               flex: 8,
                               child: Text(
-                                'this_pair_is_not_supported_warning', //S.of(context).this_pair_is_not_supported_warning,
+                                S.of(context).buy_sell_pair_is_not_supported_warning,
                                 textAlign: TextAlign.center,
                                 softWrap: true,
                                 overflow: TextOverflow.ellipsis,

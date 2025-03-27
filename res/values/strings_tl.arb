@@ -93,6 +93,7 @@
   "buy_bitcoin": "Bumili ng Bitcoin",
   "buy_now": "Bumili Ngayon",
   "buy_provider_unavailable": "Kasalukuyang hindi available ang provider.",
+  "buy_sell_pair_is_not_supported_warning": "Ang pares ng pera na ito ay hindi suportado ng anumang tagapagbigay ng serbisyo para sa napiling paraan ng pagbabayad. Mangyaring pumili ng ibang pares o subukang baguhin ang paraan ng pagbabayad.",
   "buy_with": "Bumili ng",
   "by_cake_pay": "by Cake Pay",
   "cake_2fa_preset": "Cake 2FA Preset",

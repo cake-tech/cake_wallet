@@ -93,6 +93,7 @@
   "buy_bitcoin": "Buy Bitcoin",
   "buy_now": "Buy Now",
   "buy_provider_unavailable": "Provider currently unavailable.",
+  "buy_sell_pair_is_not_supported_warning": "This currency pair isn’t supported by any provider for the selected payment method. Please choose a different pair or try changing the payment method.",
   "buy_with": "Buy with",
   "by_cake_pay": "by Cake Pay",
   "cake_2fa_preset": "Cake 2FA Preset",

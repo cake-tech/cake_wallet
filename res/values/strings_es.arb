@@ -93,6 +93,7 @@
   "buy_bitcoin": "Comprar Bitcoin",
   "buy_now": "Comprar ahora",
   "buy_provider_unavailable": "Proveedor actualmente no disponible.",
+  "buy_sell_pair_is_not_supported_warning": "Este par de divisas no es compatible con ningún proveedor para el método de pago seleccionado. Elija un par diferente o intente cambiar el método de pago.",
   "buy_with": "Compra con",
   "by_cake_pay": "por Cake Pay",
   "cake_2fa_preset": "Pastel 2FA preestablecido",
