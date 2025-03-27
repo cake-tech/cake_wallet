@@ -276,26 +276,52 @@ abstract class DashboardViewModelBase with Store {
             (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
             (List<TransactionInfo> txs) {
 
-          transactions.clear();
+          if (transactions.length == txs.length) return;
+          printV("txs: ${txs.length} / transactions: ${transactions.length}");
 
-          transactions.addAll(
-            txs.where((tx) {
-              if (wallet.type == WalletType.monero) {
-                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
-              }
-              if (wallet.type == WalletType.wownero) {
-                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
-              }
-              return true;
-            }).map(
-                  (tx) => TransactionListItem(
+          int? currentAccountId;
+          if (wallet.type == WalletType.monero) {
+            currentAccountId = monero!.getCurrentAccount(wallet).id;
+          } else if (wallet.type == WalletType.wownero) {
+            currentAccountId = wow.wownero!.getCurrentAccount(wallet).id;
+          } else {
+            currentAccountId = null;
+          }
+          
+          // Filter transactions based on account ID
+          final filteredTxs = txs.where((tx) {
+            if (wallet.type == WalletType.monero) {
+              return monero!.getTransactionInfoAccountId(tx) == currentAccountId;
+            } else if (wallet.type == WalletType.wownero) {
+              return wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
+            }
+            return true;
+          }).toList();
+          
+          // Create a map of existing transactions by ID for quick lookup
+          final existingTxMap = {
+            for (var item in transactions) item.transaction.id: item
+          };
+          
+          // Create a set of transaction IDs that should be in the list
+          final newTxIds = filteredTxs.map((tx) => tx.id).toSet();
+          
+          // Remove transactions that are no longer in the filtered list
+          transactions.removeWhere((item) => !newTxIds.contains(item.transaction.id));
+          
+          // Add new transactions that aren't already in the list
+          final newTransactions = <TransactionListItem>[];
+          for (var tx in filteredTxs) {
+            if (!existingTxMap.containsKey(tx.id)) {
+              newTransactions.add(TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
                 settingsStore: appStore.settingsStore,
                 key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-              ),
-            ),
-          );
+              ));
+            }
+          }
+          transactions.addAll(newTransactions);
         }
     );
 

@@ -13,15 +13,23 @@ import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
 import 'package:mutex/mutex.dart';
 
 
+Map<int, Map<String, String>> txKeys = {};
 String getTxKey(String txId) {
+  txKeys[wptr!.address] ??= {};
+  if (txKeys[wptr!.address]![txId] != null) {
+    return txKeys[wptr!.address]![txId]!;
+  }
   final txKey = monero.Wallet_getTxKey(wptr!, txid: txId);
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
-    final error = monero.Wallet_errorString(wptr!);
+    monero.Wallet_errorString(wptr!);
+    txKeys[wptr!.address]![txId] = "";
     return "";
   }
+  txKeys[wptr!.address]![txId] = txKey;
   return txKey;
 }
+
 final txHistoryMutex = Mutex();
 monero.TransactionHistory? txhistory;
 bool isRefreshingTx = false;

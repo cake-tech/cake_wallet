@@ -6,6 +6,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
@@ -199,12 +200,15 @@ void startRefreshSync() {
 }
 
 
-void setRefreshFromBlockHeight({required int height}) =>
-    monero.Wallet_setRefreshFromBlockHeight(wptr!,
-        refresh_from_block_height: height);
+void setRefreshFromBlockHeight({required int height}) {
+  monero.Wallet_setRefreshFromBlockHeight(wptr!,
+    refresh_from_block_height: height);
+}
 
-void setRecoveringFromSeed({required bool isRecovery}) =>
-    monero.Wallet_setRecoveringFromSeed(wptr!, recoveringFromSeed: isRecovery);
+void setRecoveringFromSeed({required bool isRecovery}) {
+  monero.Wallet_setRecoveringFromSeed(wptr!, recoveringFromSeed: isRecovery);
+  monero.Wallet_store(wptr!);
+}
 
 final storeMutex = Mutex();
 
@@ -395,3 +399,5 @@ String signMessage(String message, {String address = ""}) {
 bool verifyMessage(String message, String address, String signature) {
   return monero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
 }
+
+Map<String, List<int>> debugCallLength() => monero.debugCallLength;
