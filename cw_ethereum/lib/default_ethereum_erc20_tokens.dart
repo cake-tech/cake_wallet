@@ -18,6 +18,13 @@ class DefaultEthereumErc20Tokens {
       enabled: true,
     ),
     Erc20Token(
+      name: "dEuro",
+      symbol: "dEUR",
+      contractAddress: "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea",
+      decimal: 18,
+      enabled: true,
+    ),
+    Erc20Token(
       name: "Dai",
       symbol: "DAI",
       contractAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
