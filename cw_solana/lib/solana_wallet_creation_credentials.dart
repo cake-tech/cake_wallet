@@ -6,14 +6,12 @@ class SolanaNewWalletCredentials extends WalletCredentials {
     required String name,
     WalletInfo? walletInfo,
     String? password,
-    String? parentAddress,
     this.mnemonic,
     String? passphrase,
   }) : super(
           name: name,
           walletInfo: walletInfo,
           password: password,
-          parentAddress: parentAddress,
           passphrase: passphrase,
         );
   final String? mnemonic;

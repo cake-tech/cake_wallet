@@ -67,6 +67,11 @@ void main() {
         await authPageRobot.enterPinCode(CommonTestConstants.pin);
       }
 
+      final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+      if (onAuthPageDesktop) {
+        await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+      }
+
       // ----------- Exchange Confirm Page -------------
       await exchangeConfirmPageRobot.isExchangeConfirmPage();
 
@@ -79,7 +84,7 @@ void main() {
       exchangeTradePageRobot.hasInformationDialog();
       await exchangeTradePageRobot.onGotItButtonPressed();
 
-      await exchangeTradePageRobot.onConfirmSendingButtonPressed();
+      await exchangeTradePageRobot.onSendFromCakeButtonPressed();
 
       await exchangeTradePageRobot.handleConfirmSendResult();
 

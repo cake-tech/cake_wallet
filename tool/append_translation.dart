@@ -1,3 +1,4 @@
+
 import 'utils/translation/arb_file_utils.dart';
 import 'utils/translation/translation_constants.dart';
 import 'utils/translation/translation_utils.dart';
@@ -14,7 +15,7 @@ void main(List<String> args) async {
   final text = args[1];
   final force = args.last == "--force";
 
-  print('Appending "$name": "$text"');
+  printV('Appending "$name": "$text"');
 
   // add translation to all languages:
   for (var lang in langs) {
@@ -24,12 +25,12 @@ void main(List<String> args) async {
     appendStringToArbFile(fileName, name, translation, force: force);
   }
 
-  print('Alphabetizing all files...');
+  printV('Alphabetizing all files...');
   
   for (var lang in langs) {
     final fileName = getArbFileName(lang);
     alphabetizeArbFile(fileName);
   }
 
-  print('Done!');
+  printV('Done!');
 }

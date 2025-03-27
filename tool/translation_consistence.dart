@@ -1,18 +1,20 @@
 import 'dart:io';
 
+import './print_verbose_dummy.dart';
+
 import 'utils/translation/arb_file_utils.dart';
 import 'utils/translation/translation_constants.dart';
 import 'utils/translation/translation_utils.dart';
 
 void main(List<String> args) async {
-  print('Checking Consistency of all arb-files. Default: $defaultLang');
+  printV('Checking Consistency of all arb-files. Default: $defaultLang');
 
   final doFix = args.contains("--fix");
 
   if (doFix)
-    print('Auto fixing enabled!\n');
+    printV('Auto fixing enabled!\n');
   else
-    print('Auto fixing disabled!\nRun with arg "--fix" to enable autofix\n');
+    printV('Auto fixing disabled!\nRun with arg "--fix" to enable autofix\n');
 
   final fileName = getArbFileName(defaultLang);
   final file = File(fileName);
@@ -25,7 +27,7 @@ void main(List<String> args) async {
       final missingDefaults = <String, String>{};
 
       missingKeys.forEach((key) {
-        print('Missing in "$lang": "$key"');
+        printV('Missing in "$lang": "$key"');
         if (doFix)
           missingDefaults[key] = arbObj[key] as String;
       });

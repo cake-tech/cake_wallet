@@ -7,7 +7,6 @@ class EVMChainNewWalletCredentials extends WalletCredentials {
     required super.name,
     super.walletInfo,
     super.password,
-    super.parentAddress,
     this.mnemonic,
     super.passphrase,
   });

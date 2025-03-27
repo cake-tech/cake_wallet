@@ -9,6 +9,7 @@ class StandardCheckbox extends StatelessWidget {
       this.gradientBackground = false,
       this.borderColor,
       this.iconColor,
+      this.captionColor,
       required this.onChanged});
 
   final bool value;
@@ -16,6 +17,7 @@ class StandardCheckbox extends StatelessWidget {
   final bool gradientBackground;
   final Color? borderColor;
   final Color? iconColor;
+  final Color? captionColor;
   final Function(bool) onChanged;
 
   @override
@@ -26,7 +28,9 @@ class StandardCheckbox extends StatelessWidget {
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(
-        color: borderColor ?? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor, width: 1.0);
+      color: borderColor ?? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+      width: 1.0,
+    );
 
     final checkedBoxDecoration = BoxDecoration(
         gradient: gradientBackground ? baseGradient : null,
@@ -41,6 +45,7 @@ class StandardCheckbox extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
             height: 24.0,
@@ -55,13 +60,22 @@ class StandardCheckbox extends StatelessWidget {
                 : Offstage(),
           ),
           if (caption.isNotEmpty)
-            Padding(
+            Flexible(
+              child: Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
                   caption,
+                  softWrap: true,
                   style: TextStyle(
-                      fontSize: 16.0, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                ))
+                    fontSize: 16.0,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.normal,
+                    color: captionColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+            )
         ],
       ),
     );

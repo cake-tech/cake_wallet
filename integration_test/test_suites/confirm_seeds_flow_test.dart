@@ -1,6 +1,8 @@
+
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -95,13 +97,17 @@ Future<void> _confirmSeedsFlowForWalletType(
     await authPageRobot.enterPinCode(CommonTestConstants.pin);
   }
 
+  final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+  if (onAuthPageDesktop) {
+    await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+  }
   await tester.pumpAndSettle();
 
   await walletKeysAndSeedPageRobot.isWalletKeysAndSeedPage();
   walletKeysAndSeedPageRobot.hasTitle();
   walletKeysAndSeedPageRobot.hasShareWarning();
 
-  walletKeysAndSeedPageRobot.confirmWalletCredentials(walletType);
+  await walletKeysAndSeedPageRobot.confirmWalletCredentials(walletType);
 
   await walletKeysAndSeedPageRobot.backToDashboard();
 }

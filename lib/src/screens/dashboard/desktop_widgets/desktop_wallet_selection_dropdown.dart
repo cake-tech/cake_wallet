@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.da
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -45,6 +46,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
+  final decredIcon = Image.asset('assets/images/decred_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -157,6 +160,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       case WalletType.litecoin:
         return litecoinIcon;
       case WalletType.haven:
@@ -175,8 +180,10 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
-      case WalletType.wownero:
-        return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
+      case WalletType.decred:
+        return decredIcon;
       default:
         return nonWalletTypeIcon;
     }

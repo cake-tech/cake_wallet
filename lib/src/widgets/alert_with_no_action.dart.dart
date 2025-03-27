@@ -3,18 +3,18 @@ import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 
 class AlertWithNoAction extends BaseAlertDialog {
   AlertWithNoAction({
-    required this.alertTitle,
+    this.alertTitle,
     required this.alertContent,
     this.alertBarrierDismissible = true,
     Key? key,
   });
 
-  final String alertTitle;
+  final String? alertTitle;
   final String alertContent;
   final bool alertBarrierDismissible;
 
   @override
-  String get titleText => alertTitle;
+  String? get titleText => alertTitle;
 
   @override
   String get contentText => alertContent;
@@ -26,5 +26,5 @@ class AlertWithNoAction extends BaseAlertDialog {
   bool get isBottomDividerExists => false;
 
   @override
-  Widget actionButtons(BuildContext context) => Container(height: 60);
+  Widget actionButtons(BuildContext context) => Container();
 }

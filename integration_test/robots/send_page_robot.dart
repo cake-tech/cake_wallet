@@ -51,7 +51,7 @@ class SendPageRobot {
       commonTestCases.hasValueKey('send_page_fiat_amount_textfield_key');
     }
 
-    if (sendViewModel.hasFees) {
+    if (sendViewModel.feesViewModel.hasFees) {
       commonTestCases.hasValueKey('send_page_select_fee_priority_button_key');
     }
 
@@ -84,13 +84,11 @@ class SendPageRobot {
       return;
     }
 
-    await commonTestCases.dragUntilVisible(
-      'picker_items_index_${receiveCurrency.name}_button_key',
-      'picker_scrollbar_key',
-    );
+    await commonTestCases.enterText(receiveCurrency.title, 'search_bar_widget_key');
+
     await commonTestCases.defaultSleepTime();
 
-    await commonTestCases.tapItemByKey('picker_items_index_${receiveCurrency.name}_button_key');
+    await commonTestCases.tapItemByKey('picker_items_index_${receiveCurrency.fullName}_button_key');
   }
 
   Future<void> enterReceiveAddress(String receiveAddress) async {
@@ -106,12 +104,12 @@ class SendPageRobot {
     SendPage sendPage = tester.widget(find.byType(SendPage));
     final sendViewModel = sendPage.sendViewModel;
 
-    if (!sendViewModel.hasFees || priority == null) return;
+    if (!sendViewModel.feesViewModel.hasFees || priority == null) return;
 
     final transactionPriorityPickerKey = 'send_page_select_fee_priority_button_key';
     await commonTestCases.tapItemByKey(transactionPriorityPickerKey);
 
-    if (priority == sendViewModel.transactionPriority) {
+    if (priority == sendViewModel.feesViewModel.transactionPriority) {
       await commonTestCases
           .tapItemByKey('picker_items_index_${priority.title}_selected_item_button_key');
       return;
@@ -185,30 +183,14 @@ class SendPageRobot {
   }
 
   Future<void> _handleAuthPage() async {
-    tester.printToConsole('Inside _handleAuth');
-    await tester.pump();
-    tester.printToConsole('starting auth checks');
+    final onAuthPage = authPageRobot.onAuthPage();
+    if (onAuthPage) {
+      await authPageRobot.enterPinCode(CommonTestConstants.pin);
+    }
 
-    final authPage = authPageRobot.onAuthPage();
-
-    tester.printToConsole('hasAuth:$authPage');
-
-    if (authPage) {
-      await tester.pump();
-      tester.printToConsole('Starting inner _handleAuth loop checks');
-
-      try {
-        await authPageRobot.enterPinCode(CommonTestConstants.pin, pumpDuration: 500);
-        tester.printToConsole('Auth done');
-
-        await tester.pump();
-
-        tester.printToConsole('Auth pump done');
-      } catch (e) {
-        tester.printToConsole('Auth failed, retrying');
-        await tester.pump();
-        _handleAuthPage();
-      }
+    final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+    if (onAuthPageDesktop) {
+      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
     }
   }
 
@@ -222,7 +204,7 @@ class SendPageRobot {
 
     tester.printToConsole('Has an Error in the handle: $hasError');
 
-    int maxRetries = 20;
+    int maxRetries = 3;
     int retries = 0;
 
     while (hasError && retries < maxRetries) {

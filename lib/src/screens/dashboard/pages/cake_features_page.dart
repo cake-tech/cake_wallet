@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -5,6 +7,7 @@ import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
@@ -19,15 +22,13 @@ class CakeFeaturesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      return Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 50),
-            Text(
+            Padding(
+              padding: EdgeInsets.only(left: 24, top: 16),
+            child: Text(
               'Cake ${S.of(context).features}',
               style: TextStyle(
                 fontSize: 24,
@@ -35,12 +36,21 @@ class CakeFeaturesPage extends StatelessWidget {
                 color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
               ),
             ),
+            ),
             Expanded(
               child: ListView(
                 children: <Widget>[
-                  SizedBox(height: 20),
+                  SizedBox(height: 2),
                   DashBoardRoundedCardWidget(
-                    onTap: () => _navigatorToGiftCardsPage(context),
+                    shadowBlur: dashboardViewModel.getShadowBlur(),
+                    shadowSpread: dashboardViewModel.getShadowSpread(),
+                    onTap: () {
+                      if (Platform.isMacOS) {
+                        _launchUrl("buy.cakepay.com");
+                      } else {
+                        _navigatorToGiftCardsPage(context);
+                      }
+                    },
                     title: 'Cake Pay',
                     subTitle: S.of(context).cake_pay_subtitle,
                     image: Image.asset(
@@ -50,8 +60,9 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
                   DashBoardRoundedCardWidget(
+                    shadowBlur: dashboardViewModel.getShadowBlur(),
+                    shadowSpread: dashboardViewModel.getShadowSpread(),
                     onTap: () => _launchUrl("cake.nano-gpt.com"),
                     title: "NanoGPT",
                     subTitle: S.of(context).nanogpt_subtitle,
@@ -62,32 +73,13 @@ class CakeFeaturesPage extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Observer(
-                    builder: (context) {
-                      if (!dashboardViewModel.hasSignMessages) {
-                        return const SizedBox();
-                      }
-                      return DashBoardRoundedCardWidget(
-                        onTap: () => Navigator.of(context).pushNamed(Routes.signPage),
-                        title: S.current.sign_verify_message,
-                        subTitle: S.current.sign_verify_message_sub,
-                        icon: Icon(
-                          Icons.speaker_notes_rounded,
-                          color:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                          size: 75,
-                        ),
-                      );
-                    },
-                  ),
+                  SizedBox(height: 125),
                 ],
               ),
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   void _launchUrl(String url) {
@@ -97,7 +89,7 @@ class CakeFeaturesPage extends StatelessWidget {
         mode: LaunchMode.externalApplication,
       );
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 

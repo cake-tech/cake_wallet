@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -15,6 +16,9 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
   // having the connect function in electrum.dart when the syncstatus is lost or failed and add the not connected state
   _checkConnectionTimer = Timer.periodic(Duration(seconds: timeInterval), (_) async {
     if (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus) {
+      return;
+    }
+    if (wallet.type == WalletType.decred && wallet.syncStatus is ProcessingSyncStatus) {
       return;
     }
 
@@ -36,7 +40,7 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }

@@ -1,5 +1,8 @@
-Add Litecoin Ledger support
-Add airgapped Monero wallet support (best used with our new offline app Cupcake)
-MWEB fixes and enhancements
-New Buy & Sell flow
+Add background sync to Monero
+Add Decred Wallet
+Remove Haven Wallet
+Fix and Improve Solana Wallet
+Enhance Backup files
+Improve app usability and user experience
+User interface enhancements
 Bug fixes

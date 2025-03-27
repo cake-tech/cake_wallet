@@ -13,8 +13,10 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:http/http.dart' as http;
@@ -37,6 +39,8 @@ abstract class HomeSettingsViewModelBase with Store {
   final BalanceViewModel _balanceViewModel;
 
   final ObservableSet<CryptoCurrency> tokens;
+
+  WalletType get walletType => _balanceViewModel.wallet.type;
 
   @observable
   bool isAddingToken;
@@ -107,8 +111,14 @@ abstract class HomeSettingsViewModelBase with Store {
         await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
       }
 
+      if (_balanceViewModel.wallet.type == WalletType.zano) {
+        await zano!.addZanoAssetById(_balanceViewModel.wallet, contractAddress);
+      }
+
       _updateTokensList();
       _updateFiatPrices(token);
+    } catch (e) {
+      throw e;
     } finally {
       isAddingToken = false;
     }
@@ -132,6 +142,9 @@ abstract class HomeSettingsViewModelBase with Store {
 
       if (_balanceViewModel.wallet.type == WalletType.tron) {
         await tron!.deleteTronToken(_balanceViewModel.wallet, token);
+      }
+      if (_balanceViewModel.wallet.type == WalletType.zano) {
+        await zano!.deleteZanoAsset(_balanceViewModel.wallet, token);
       }
       _updateTokensList();
     } finally {
@@ -173,6 +186,41 @@ abstract class HomeSettingsViewModelBase with Store {
     } finally {
       isValidatingContractAddress = false;
     }
+  }
+
+  bool checkIfTokenIsWhitelisted(String contractAddress) {
+    // get the default tokens for each currency type:
+    List<String> defaultTokenAddresses = [];
+    switch (_balanceViewModel.wallet.type) {
+      case WalletType.ethereum:
+        defaultTokenAddresses = ethereum!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.polygon:
+        defaultTokenAddresses = polygon!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.solana:
+        defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.tron:
+        defaultTokenAddresses = tron!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.zano:
+      case WalletType.banano:
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.wownero:
+      case WalletType.bitcoinCash:
+      case WalletType.decred:
+        return false;
+    }
+
+    // check if the contractAddress is in the defaultTokenAddresses
+    bool isInWhitelist = defaultTokenAddresses.any((element) => element == contractAddress);
+    return isInWhitelist;
   }
 
   Future<bool> _isPotentialScamTokenViaMoralis(
@@ -236,7 +284,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       return false;
     } catch (e) {
-      print('Error while checking scam via moralis: ${e.toString()}');
+      printV('Error while checking scam via moralis: ${e.toString()}');
       return true;
     }
   }
@@ -277,7 +325,7 @@ abstract class HomeSettingsViewModelBase with Store {
 
       return false;
     } catch (e) {
-      print('Error while checking scam via explorers: ${e.toString()}');
+      printV('Error while checking scam via explorers: ${e.toString()}');
       return true;
     }
   }
@@ -303,21 +351,21 @@ abstract class HomeSettingsViewModelBase with Store {
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] == '0') {
-        print('${response.body}\n');
-        print('${decodedResponse['result']}\n');
+        printV('${response.body}\n');
+        printV('${decodedResponse['result']}\n');
         return true;
       }
 
       if (decodedResponse['status'] == '1' &&
           decodedResponse['result'][0]['ABI'] == 'Contract source code not verified') {
-        print('Call is valid but contract is not verified');
+        printV('Call is valid but contract is not verified');
         return true; // Contract is not verified
       } else {
-        print('Call is valid and contract is verified');
+        printV('Call is valid and contract is verified');
         return false; // Contract is verified
       }
     } catch (e) {
-      print('Error while checking contract verification: ${e.toString()}');
+      printV('Error while checking contract verification: ${e.toString()}');
       return true;
     }
   }
@@ -339,12 +387,17 @@ abstract class HomeSettingsViewModelBase with Store {
       return await tron!.getTronToken(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return await zano!.getZanoAsset(_balanceViewModel.wallet, contractAddress);
+    }
+
     return null;
   }
 
   CryptoCurrency get nativeToken => _balanceViewModel.wallet.currency;
 
   void _updateFiatPrices(CryptoCurrency token) async {
+    if (token.isPotentialScam) return; // don't fetch price data for potential scam tokens
     try {
       _balanceViewModel.fiatConvertationStore.prices[token] =
           await FiatConversionService.fetchPrice(
@@ -375,6 +428,10 @@ abstract class HomeSettingsViewModelBase with Store {
     if (_balanceViewModel.wallet.type == WalletType.tron) {
       final address = tron!.getTokenAddress(token);
       tron!.addTronToken(_balanceViewModel.wallet, token, address);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      await zano!.changeZanoAssetAvailability(_balanceViewModel.wallet, token);
     }
 
     _refreshTokensList();
@@ -431,6 +488,14 @@ abstract class HomeSettingsViewModelBase with Store {
           .toList()
         ..sort(_sortFunc));
     }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      tokens.addAll(zano!
+          .getZanoAssets(_balanceViewModel.wallet)
+          .where((element) => _matchesSearchText(element))
+          .toList()
+        ..sort(_sortFunc));
+    }
   }
 
   @action
@@ -473,6 +538,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.polygon) {
       return polygon!.getTokenAddress(asset);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return zano!.getZanoAssetAddress(asset);
     }
 
     // We return null if it's neither Tron, Polygon, Ethereum or Solana wallet (which is actually impossible because we only display home settings for either of these three wallets).

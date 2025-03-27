@@ -94,14 +94,12 @@ class CWNano extends Nano {
     WalletInfo? walletInfo,
     String? password,
     String? mnemonic,
-    String? parentAddress,
     String? passphrase,
   }) =>
       NanoNewWalletCredentials(
         name: name,
         password: password,
         mnemonic: mnemonic,
-        parentAddress: parentAddress,
         walletInfo: walletInfo,
         passphrase: passphrase,
       );
@@ -249,7 +247,7 @@ class CWNanoUtil extends NanoUtil {
           try {
             mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey);
           } catch (e) {
-            print("not a valid 'nano' seed key");
+            printV("not a valid 'nano' seed key");
           }
         }
         if (derivationType == DerivationType.bip39) {
@@ -306,7 +304,7 @@ class CWNanoUtil extends NanoUtil {
       try {
         mnemonic = NanoDerivations.standardSeedToMnemonic(seedKey!);
       } catch (e) {
-        print("not a valid 'nano' seed key");
+        printV("not a valid 'nano' seed key");
       }
     }
 

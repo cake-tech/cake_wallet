@@ -34,7 +34,6 @@ class CWBitcoin extends Bitcoin {
     String? password,
     String? passphrase,
     String? mnemonic,
-    String? parentAddress,
   }) =>
       BitcoinNewWalletCredentials(
         name: name,
@@ -42,7 +41,6 @@ class CWBitcoin extends Bitcoin {
         password: password,
         passphrase: passphrase,
         mnemonic: mnemonic,
-        parentAddress: parentAddress,
       );
 
   @override
@@ -149,7 +147,8 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority) async {
+  Future<int> estimateFakeSendAllTxAmount(Object wallet, TransactionPriority priority,
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     try {
       final sk = ECPrivate.random();
       final electrumWallet = wallet as ElectrumWallet;
@@ -173,6 +172,7 @@ class CWBitcoin extends Bitcoin {
               ? priority as LitecoinTransactionPriority
               : priority as BitcoinTransactionPriority,
         ),
+        coinTypeToSpendFrom: coinTypeToSpendFrom,
       );
 
       return estimatedTx.amount;
@@ -404,8 +404,8 @@ class CWBitcoin extends Bitcoin {
 
           list.add(dInfoCopy);
         } catch (e, s) {
-          print("derivationInfoError: $e");
-          print("derivationInfoStack: $s");
+          printV("derivationInfoError: $e");
+          printV("derivationInfoStack: $s");
         }
       }
     }
@@ -498,7 +498,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
   }
@@ -510,7 +510,7 @@ class CWBitcoin extends Bitcoin {
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
   }

@@ -1,17 +1,15 @@
 #!/bin/bash
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 set -x -e
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
-HAVEN="haven"
 DIR=`pwd`
 
 if [ -z "$APP_IOS_TYPE" ]; then
         echo "Please set APP_IOS_TYPE"
         exit 1
 fi
-./gen_framework.sh
-cd .. # go to scipts
+cd ..
 ./gen_android_manifest.sh
 cd .. # go to root
 cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
@@ -28,19 +26,12 @@ universal_sed "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $AP
 CONFIG_ARGS=""
 
 case $APP_IOS_TYPE in
-        $MONERO_COM)
+    $MONERO_COM)
 		CONFIG_ARGS="--monero"
 		;;
+
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero"
-		if [ "$CW_WITH_HAVEN" = true ];then
-		    CONFIG_ARGS="$CONFIG_ARGS --haven"
-		fi
-		;;
-	$HAVEN)
-
-
-		CONFIG_ARGS="--haven"
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred"
 		;;
 esac
 

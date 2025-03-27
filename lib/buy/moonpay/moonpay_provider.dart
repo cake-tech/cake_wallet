@@ -18,6 +18,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -81,6 +82,8 @@ class MoonPayProvider extends BuyProvider {
         return 'light';
       case ThemeType.dark:
         return 'dark';
+      case ThemeType.oled:
+        return 'dark';
     }
   }
 
@@ -113,21 +116,22 @@ class MoonPayProvider extends BuyProvider {
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        print('MoonPay does not support fiat: $fiatCurrency');
+        printV('MoonPay does not support fiat: $fiatCurrency');
         return {};
       }
     } catch (e) {
-      print('MoonPay Error fetching fiat currencies: $e');
+      printV('MoonPay Error fetching fiat currencies: $e');
       return {};
     }
   }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
     if (isBuyAction) {
-      final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency, null);
+      final fiatBuyCredentials =
+          await fetchFiatCredentials(fiatCurrency, cryptoCurrency.title, null);
       if (fiatBuyCredentials.isNotEmpty) {
         final paymentMethod = fiatBuyCredentials['paymentMethod'] as String?;
         paymentMethods.add(PaymentMethod.fromMoonPayJson(
@@ -165,8 +169,7 @@ class MoonPayProvider extends BuyProvider {
 
     final params = {
       'baseCurrencyCode': baseCurrencyCode,
-      'baseCurrencyAmount': amount.toString(),
-      'amount': amount.toString(),
+      'baseCurrencyAmount': amount.toStringAsFixed(2),
       'paymentMethod': paymentMethod,
       'areFeesIncluded': 'false',
       'apiKey': _apiKey
@@ -204,11 +207,11 @@ class MoonPayProvider extends BuyProvider {
 
         return [quote];
       } else {
-        print('Moon Pay: Error fetching buy quote: ');
+        printV('Moon Pay: Error fetching buy quote: ');
         return null;
       }
     } catch (e) {
-      print('Moon Pay: Error fetching buy quote: $e');
+      printV('Moon Pay: Error fetching buy quote: $e');
       return null;
     }
   }
@@ -221,7 +224,6 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-
     final Map<String, String> params = {
       'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
       'language': _settingsStore.languageCode,
@@ -229,7 +231,7 @@ class MoonPayProvider extends BuyProvider {
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
       'baseCurrencyCode': isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
-      'baseCurrencyAmount': amount.toString(),
+      'baseCurrencyAmount': amount.toStringAsFixed(2),
       'walletAddress': cryptoCurrencyAddress,
       'lockAmount': 'false',
       'showAllCurrencies': 'false',
@@ -244,19 +246,17 @@ class MoonPayProvider extends BuyProvider {
     if (!isBuyAction) params['quoteCurrencyCode'] = quote.cryptoCurrency.name;
 
     try {
-      {
-        final uri = await requestMoonPayUrl(
-            walletAddress: cryptoCurrencyAddress,
-            settingsStore: _settingsStore,
-            isBuyAction: isBuyAction,
-            amount: amount.toString(),
-            params: params);
+      final uri = await requestMoonPayUrl(
+          walletAddress: cryptoCurrencyAddress,
+          settingsStore: _settingsStore,
+          isBuyAction: isBuyAction,
+          amount: amount.toString(),
+          params: params);
 
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          throw Exception('Could not launch URL');
-        }
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Could not launch URL');
       }
     } catch (e) {
       if (context.mounted) {

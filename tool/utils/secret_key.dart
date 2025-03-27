@@ -30,7 +30,6 @@ class SecretKey {
     SecretKey('twitterBearerToken', () => ''),
     SecretKey('anonPayReferralCode', () => ''),
     SecretKey('fiatApiKey', () => ''),
-    SecretKey('payfuraApiKey', () => ''),
     SecretKey('chatwootWebsiteToken', () => ''),
     SecretKey('exolixApiKey', () => ''),
     SecretKey('robinhoodApplicationId', () => ''),
@@ -38,7 +37,8 @@ class SecretKey {
     SecretKey('walletConnectProjectId', () => ''),
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
-    SecretKey('quantexExchangeMarkup', () => ''),
+    SecretKey('chainStackApiKey', () => ''),
+    SecretKey('swapTradeExchangeMarkup', () => ''),
     SecretKey('seeds', () => ''),
     SecretKey('testCakePayApiKey', () => ''),
     SecretKey('cakePayApiKey', () => ''),
@@ -75,16 +75,23 @@ class SecretKey {
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
     SecretKey('moneroTestWalletBlockHeight', () => ''),
+    SecretKey('chainflipApiKey', () => ''),
+    SecretKey('chainflipAffiliateFee', () => ''),
+    SecretKey('kryptonimApiKey', () => ''),
+    SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
   ];
 
   static final evmChainsSecrets = [
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('moralisApiKey', () => ''),
+    SecretKey('nowNodesApiKey ', () => ''),
   ];
 
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
+    SecretKey('nowNodesApiKey', () => ''),
+    SecretKey('chainStackApiKey', () => ''),
   ];
 
   static final nanoSecrets = [

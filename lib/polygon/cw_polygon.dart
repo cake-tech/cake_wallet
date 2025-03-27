@@ -11,7 +11,6 @@ class CWPolygon extends Polygon {
   WalletCredentials createPolygonNewWalletCredentials({
     required String name,
     String? mnemonic,
-    String? parentAddress,
     WalletInfo? walletInfo,
     String? password,
     String? passphrase,
@@ -21,7 +20,6 @@ class CWPolygon extends Polygon {
         walletInfo: walletInfo,
         password: password,
         mnemonic: mnemonic,
-        parentAddress: parentAddress,
         passphrase: passphrase,
       );
 
@@ -204,8 +202,13 @@ class CWPolygon extends Polygon {
     try {
       return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
-      print(err);
+      printV(err);
       throw err;
     }
+  }
+  
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultPolygonErc20Tokens().initialPolygonErc20Tokens.map((e) => e.contractAddress).toList();
   }
 }

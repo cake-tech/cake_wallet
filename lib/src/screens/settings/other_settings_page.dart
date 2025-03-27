@@ -6,9 +6,11 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/setting_priority_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -62,6 +64,12 @@ class OtherSettingsPage extends BasePage {
                 handler: (BuildContext context) =>
                     Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
+              if (kDebugMode && _otherSettingsViewModel.walletType == WalletType.monero) 
+                SettingsCellWithArrow(
+                  title: '[dev] monero background sync',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync),
+                ),
               Spacer(),
               SettingsVersionCell(
                   title: S.of(context).version(_otherSettingsViewModel.currentVersion)),

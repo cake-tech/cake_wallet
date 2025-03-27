@@ -6,15 +6,19 @@ import 'package:cw_wownero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_wownero/api/wallet.dart';
 import 'package:cw_wownero/api/wownero_output.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
+import 'package:cw_wownero/exceptions/wownero_transaction_creation_exception.dart';
 import 'package:ffi/ffi.dart';
 import 'package:monero/wownero.dart' as wownero;
 import 'package:monero/src/generated_bindings_wownero.g.dart' as wownero_gen;
-
+import 'package:mutex/mutex.dart';
 
 String getTxKey(String txId) {
-  return wownero.Wallet_getTxKey(wptr!, txid: txId);
+  final ret = wownero.Wallet_getTxKey(wptr!, txid: txId);
+  wownero.Wallet_status(wptr!);
+  return ret;
 }
 
+final txHistoryMutex = Mutex();
 wownero.TransactionHistory? txhistory;
 
 bool isRefreshingTx = false;
@@ -23,22 +27,25 @@ Future<void> refreshTransactions() async {
   isRefreshingTx = true;
   txhistory ??= wownero.Wallet_history(wptr!);
   final ptr = txhistory!.address;
+  await txHistoryMutex.acquire();
   await Isolate.run(() {
     wownero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
   });
+  txHistoryMutex.release();
   isRefreshingTx = false;
 }
 
 int countOfTransactions() => wownero.TransactionHistory_count(txhistory!);
 
-List<Transaction> getAllTransactions() {
+Future<List<Transaction>> getAllTransactions() async {
   List<Transaction> dummyTxs = [];
 
+  await txHistoryMutex.acquire();
   txhistory ??= wownero.Wallet_history(wptr!);
-  wownero.TransactionHistory_refresh(txhistory!);
   int size = countOfTransactions();
   final list = List.generate(size, (index) => Transaction(txInfo: wownero.TransactionHistory_transaction(txhistory!, index: index)));
-
+  txHistoryMutex.release();
+  
   final accts = wownero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
     final fullBalance = wownero.Wallet_balance(wptr!, accountIndex: i);
@@ -86,7 +93,10 @@ Future<PendingTransactionDescription> createTransactionSync(
   final amt = amount == null ? 0 : wownero.Wallet_amountFromString(amount);
   
   final address_ = address.toNativeUtf8(); 
-  final paymentId_ = paymentId.toNativeUtf8(); 
+  final paymentId_ = paymentId.toNativeUtf8();
+  if (preferredInputs.isEmpty) {
+    throw WowneroTransactionCreationException("No inputs provided, transaction cannot be constructed");
+  }
   final preferredInputs_ = preferredInputs.join(wownero.defaultSeparatorStr).toNativeUtf8();
 
   final waddr = wptr!.address;
@@ -175,13 +185,23 @@ void commitTransaction({required wownero.PendingTransaction transactionPointer})
   
   final txCommit = wownero.PendingTransaction_commit(transactionPointer, filename: '', overwrite: false);
 
-  final String? error = (() {
+  String? error = (() {
     final status = wownero.PendingTransaction_status(transactionPointer.cast());
     if (status == 0) {
       return null;
     }
-    return wownero.Wallet_errorString(wptr!);
+    return wownero.PendingTransaction_errorString(transactionPointer.cast());
   })();
+  if (error == null) {
+    error = (() {
+      final status = wownero.Wallet_status(wptr!);
+      if (status == 0) {
+        return null;
+      }
+      return wownero.Wallet_errorString(wptr!);
+    })();
+
+  }
   
   if (error != null) {
     throw CreationTransactionException(message: error);

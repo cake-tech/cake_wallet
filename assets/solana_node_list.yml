@@ -1,6 +1,5 @@
 -
   uri: rpc.ankr.com
-  is_default: true
   useSSL: true
 -
   uri: api.mainnet-beta.solana.com:443
@@ -8,3 +7,7 @@
 -
   uri: solana-rpc.publicnode.com:443
   useSSL: true
+-
+  uri: solana-mainnet.core.chainstack.com
+  useSSL: true
+  is_default: true

@@ -11,6 +11,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -47,7 +48,7 @@ class OnRamperBuyProvider extends BuyProvider {
   bool get isAggregator => true;
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final params = {
       'fiatCurrency': fiatCurrency,
       'type': isBuyAction ? 'buy' : 'sell',
@@ -67,11 +68,11 @@ class OnRamperBuyProvider extends BuyProvider {
             .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
             .toList();
       } else {
-        print('Failed to fetch available payment types');
+        printV('Failed to fetch available payment types');
         return [];
       }
     } catch (e) {
-      print('Failed to fetch available payment types: $e');
+      printV('Failed to fetch available payment types: $e');
       return [];
     }
   }
@@ -98,11 +99,11 @@ class OnRamperBuyProvider extends BuyProvider {
 
         return result;
       } else {
-        print('Failed to fetch onramp metadata');
+        printV('Failed to fetch onramp metadata');
         return {};
       }
     } catch (e) {
-      print('Error occurred: $e');
+      printV('Error occurred: $e');
       return {};
     }
   }
@@ -178,11 +179,11 @@ class OnRamperBuyProvider extends BuyProvider {
 
         return validQuotes;
       } else {
-        print('Onramper: Failed to fetch rate');
+        printV('Onramper: Failed to fetch rate');
         return null;
       }
     } catch (e) {
-      print('Onramper: Failed to fetch rate $e');
+      printV('Onramper: Failed to fetch rate $e');
       return null;
     }
   }
@@ -221,8 +222,7 @@ class OnRamperBuyProvider extends BuyProvider {
       '${prefix}defaultAmount': amount.toString(),
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
-      'networkWallets': '$defaultCrypto:$cryptoCurrencyAddress',
-      'walletAddress': cryptoCurrencyAddress,
+      'networkWallets': '${quote.cryptoCurrency.fullName?.toUpperCase()}:$cryptoCurrencyAddress',
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,
@@ -248,9 +248,12 @@ class OnRamperBuyProvider extends BuyProvider {
   String _tagToNetwork(String tag) {
     switch (tag) {
       case 'OMNI':
+      case 'BSC':
         return tag;
       case 'POL':
         return 'POLYGON';
+      case 'ZEC':
+        return 'ZCASH';
     default:
         try {
           return CryptoCurrency.fromString(tag).fullName!;

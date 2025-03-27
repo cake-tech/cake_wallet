@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="__APP_PACKAGE__">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
@@ -90,6 +89,12 @@
                 <data android:scheme="wownero" />
                 <data android:scheme="wownero-wallet" />
                 <data android:scheme="wownero_wallet" />
+                <data android:scheme="zano" />
+                <data android:scheme="zano-wallet" />
+                <data android:scheme="zano_wallet" />
+                <data android:scheme="decred" />
+                <data android:scheme="decred-wallet" />
+                <data android:scheme="decred_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">

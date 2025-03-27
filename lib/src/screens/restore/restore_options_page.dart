@@ -1,18 +1,14 @@
 import 'dart:io';
 
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
@@ -56,9 +52,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     }
 
     if (isMoneroOnly) {
-      // return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
-      //     .isNotEmpty;
-      return false;
+      return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
+          .isNotEmpty;
     }
 
     return true;
@@ -85,9 +80,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   key: ValueKey('restore_options_from_seeds_or_keys_button_key'),
                   onPressed: () => Navigator.pushNamed(
                     context,
-                    Routes.restoreWalletFromSeedKeys,
-                    arguments: widget.isNewInstall,
-                  ),
+                    Routes.restoreWalletFromSeedKeys),
                   image: imageSeedKeys,
                   title: S.of(context).restore_title_from_seed_keys,
                   description: S.of(context).restore_description_from_seed_keys,
@@ -109,8 +102,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     child: OptionTile(
                       key: ValueKey('restore_options_from_hardware_wallet_button_key'),
                       onPressed: () => Navigator.pushNamed(
-                          context, Routes.restoreWalletFromHardwareWallet,
-                          arguments: widget.isNewInstall),
+                          context, Routes.restoreWalletFromHardwareWallet),
                       image: imageLedger,
                       title: S.of(context).restore_title_from_hardware_wallet,
                       description: S.of(context).restore_description_from_hardware_wallet,
@@ -135,10 +127,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     );
   }
 
-  void _onWalletCreateFailure(BuildContext context, String error) {
-    setState(() {
-      isRestoring = false;
-    });
+  void _showQRScanError(BuildContext context, String error) {
+    setState(() => isRestoring = false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showPopUp<void>(
@@ -155,38 +145,23 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
   Future<void> _onScanQRCode(BuildContext context) async {
     final isCameraPermissionGranted =
-        await PermissionHandler.checkPermission(Permission.camera, context);
+    await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
-    bool isPinSet = false;
-    if (widget.isNewInstall) {
-      await Navigator.pushNamed(context, Routes.setupPin,
-          arguments: (PinCodeState<PinCodeWidget> setupPinContext, String _) {
-        setupPinContext.close();
-        isPinSet = true;
+    try {
+      if (isRestoring) return;
+
+      setState(() => isRestoring = true);
+
+      final restoredWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+
+      final params = {'walletType': restoredWallet.type, 'restoredWallet': restoredWallet};
+
+      Navigator.pushNamed(context, Routes.restoreWallet, arguments: params).then((_) {
+        if (mounted) setState(() => isRestoring = false);
       });
-    }
-    if (!widget.isNewInstall || isPinSet) {
-      try {
-        if (isRestoring) {
-          return;
-        }
-        setState(() {
-          isRestoring = true;
-        });
-        final restoreWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
-
-        final restoreFromQRViewModel =
-            getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
-
-        await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
-        if (restoreFromQRViewModel.state is FailureState) {
-          _onWalletCreateFailure(context,
-              'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
-        }
-      } catch (e) {
-        _onWalletCreateFailure(context, e.toString());
-      }
+    } catch (e) {
+      _showQRScanError(context, e.toString());
     }
   }
 }

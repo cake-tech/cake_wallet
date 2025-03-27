@@ -242,19 +242,21 @@ class CWMonero extends Monero {
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,
+          required String passphrase,
           required int height,
           required String mnemonic}) =>
       MoneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, height: height, mnemonic: mnemonic);
+          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({
     required String name,
     required String language,
     required bool isPolyseed,
+    required String? passphrase,
     String? password}) =>
       MoneroNewWalletCredentials(
-        name: name, password: password, language: language, isPolyseed: isPolyseed);
+        name: name, password: password, language: language, isPolyseed: isPolyseed, passphrase: passphrase);
 
   @override
   Map<String, String> getKeys(Object wallet) {
@@ -265,7 +267,8 @@ class CWMonero extends Monero {
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,
-      'publicViewKey': keys.publicViewKey
+      'publicViewKey': keys.publicViewKey,
+      'passphrase': keys.passphrase
     };
   }
 
@@ -392,6 +395,12 @@ class CWMonero extends Monero {
   }
 
   @override
+  bool needExportOutputs(Object wallet, int amount) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.needExportOutputs(amount);
+  }
+
+  @override
   void monerocCheck() {
     checkIfMoneroCIsFine();
   }
@@ -413,6 +422,6 @@ class CWMonero extends Monero {
   }
 
   bool isViewOnly() {
-    return isViewOnlyBySpendKey();
+    return isViewOnlyBySpendKey(null);
   }
 }

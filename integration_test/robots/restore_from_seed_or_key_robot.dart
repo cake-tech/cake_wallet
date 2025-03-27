@@ -65,9 +65,25 @@ class RestoreFromSeedOrKeysPageRobot {
 
   Future<void> enterSeedPhraseForWalletRestore(String text) async {
     ValidatableAnnotatedEditableTextState seedTextState =
-        await tester.state(find.byType(ValidatableAnnotatedEditableText));
+      await tester.state(find.byType(ValidatableAnnotatedEditableText));
 
     seedTextState.widget.controller.text = text;
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> enterPasswordForWalletRestore(String text) async {
+    await commonTestCases.enterText(
+      text,
+      'password',
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> enterPasswordRepeatForWalletRestore(String text) async {
+    await commonTestCases.enterText(
+      text,
+      'repeat_wallet_password',
+    );
     await tester.pumpAndSettle();
   }
 

@@ -60,10 +60,18 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  bool get hasRescan => false;
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
   Future<void> connectToPowNode({required Node node}) async {}
+
+  // startBackgroundSync is used to start sync in the background, without doing any
+  // extra things in the background.
+  // startSync is used as a fallback.
+  Future<void> startBackgroundSync() => startSync();
+  Future<void> stopBackgroundSync(String password) => stopSync();
 
   Future<void> startSync();
 
@@ -83,7 +91,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> rescan({required int height});
 
-  Future<void> close({required bool shouldCleanup});
+  Future<void> close({bool shouldCleanup = false});
 
   Future<void> changePassword(String password);
 
@@ -100,4 +108,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<bool> verifyMessage(String message, String signature, {String? address = null});
 
   bool isTestnet = false;
+
+  bool canSend() => true;
 }

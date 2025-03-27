@@ -2,15 +2,17 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/exceptions/setup_wallet_exception.dart';
 import 'package:monero/wownero.dart' as wownero;
 import 'package:mutex/mutex.dart';
+import 'package:polyseed/polyseed.dart';
 
 int getSyncingHeight() {
   // final height = wownero.WOWNERO_cw_WalletListener_height(getWlptr());
   final h2 = wownero.Wallet_blockChainHeight(wptr!);
-  // print("height: $height / $h2");
+  // printV("height: $height / $h2");
   return h2;
 }
 
@@ -31,22 +33,37 @@ bool isNewTransactionExist() {
 String getFilename() => wownero.Wallet_filename(wptr!);
 
 String getSeed() {
-  // wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+  // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  final cakepassphrase = getPassphrase();
+
+  final weirdPolyseed = wownero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
+  if (weirdPolyseed != "") return weirdPolyseed;
+
   if (cakepolyseed != "") {
+    if (cakepassphrase != "") {
+      try {
+        final lang = PolyseedLang.getByPhrase(cakepolyseed);
+        final coin = PolyseedCoin.POLYSEED_WOWNERO;
+        final ps = Polyseed.decode(cakepolyseed, lang, coin);
+        final passphrase = getPassphrase();
+        if (ps.isEncrypted || passphrase == "") return ps.encode(lang, coin);
+        ps.crypt(passphrase);
+        return ps.encode(lang, coin);
+      } catch (e) {
+        printV(e);
+      }
+    }
     return cakepolyseed;
-  }
-  final polyseed = wownero.Wallet_getPolyseed(wptr!, passphrase: '');
-  if (polyseed != "") {
-    return polyseed;
   }
   final legacy = getSeedLegacy(null);
   return legacy;
 }
 
 String getSeedLegacy(String? language) {
-  var legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+  final cakepassphrase = getPassphrase();
+  var legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   switch (language) {
     case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
     case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
@@ -56,7 +73,7 @@ String getSeedLegacy(String? language) {
   }
   if (wownero.Wallet_status(wptr!) != 0) {
     wownero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
-    legacy = wownero.Wallet_seed(wptr!, seedOffset: '');
+    legacy = wownero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   }
   if (wownero.Wallet_status(wptr!) != 0) {
     final err = wownero.Wallet_errorString(wptr!);
@@ -69,9 +86,13 @@ String getSeedLegacy(String? language) {
 }
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
+String getPassphrase() {
+  return wownero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
+}
+
 String getAddress({int accountIndex = 0, int addressIndex = 1}) {
   while (wownero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
-    print("adding subaddress");
+    printV("adding subaddress");
     wownero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
   }
   addressCache[wptr!.address] ??= {};
@@ -100,7 +121,7 @@ Future<bool> setupNodeSync(
     bool useSSL = false,
     bool isLightWallet = false,
     String? socksProxyAddress}) async {
-  print('''
+  printV('''
 {
   wptr!,
   daemonAddress: $address,
@@ -125,7 +146,7 @@ Future<bool> setupNodeSync(
 
   if (status != 0) {
     final error = wownero.Wallet_errorString(wptr!);
-    print("error: $error");
+    printV("error: $error");
     throw SetupWalletException(message: error);
   }
 

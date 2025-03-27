@@ -12,6 +12,7 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
@@ -152,7 +153,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
       return double.parse(responseJSON['rate'] as String);
     } catch (e) {
-      log('Error fetching rate in SideShift Provider: ${e.toString()}');
+      printV(e.toString());
       return 0.00;
     }
   }
@@ -203,6 +204,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final inputAddress = responseJSON['depositAddress'] as String;
     final settleAddress = responseJSON['settleAddress'] as String;
     final depositAmount = responseJSON['depositAmount'] as String?;
+    final depositMemo = responseJSON['depositMemo'] as String?;
 
     return Trade(
       id: id,
@@ -217,6 +219,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
+      extraId: depositMemo
     );
   }
 
@@ -251,6 +254,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final isVariable = (responseJSON['type'] as String) == 'variable';
     final expiredAtRaw = responseJSON['expiresAt'] as String;
     final expiredAt = isVariable ? null : DateTime.tryParse(expiredAtRaw)?.toLocal();
+    final depositMemo = responseJSON['depositMemo'] as String?;
 
     return Trade(
         id: id,
@@ -261,7 +265,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         amount: expectedSendAmount ?? '',
         state: TradeState.deserialize(raw: status ?? 'created'),
         expiredAt: expiredAt,
-        payoutAddress: settleAddress);
+        payoutAddress: settleAddress,
+        extraId: depositMemo);
   }
 
   Future<String> _createQuote(TradeRequest request) async {

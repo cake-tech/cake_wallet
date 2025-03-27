@@ -42,7 +42,7 @@ class SupportPage extends BasePage {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(top: 24),
+                padding: EdgeInsets.only(top: 20),
                 child: OptionTile(
                   icon: Icon(
                     Icons.support_agent,
@@ -61,7 +61,7 @@ class SupportPage extends BasePage {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 24),
+                padding: EdgeInsets.only(top: 20),
                 child: OptionTile(
                   icon: Icon(
                       Icons.find_in_page,
@@ -70,11 +70,11 @@ class SupportPage extends BasePage {
                   ),
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
-                  onPressed: () => _launchUrl(supportViewModel.guidesUrl),
+                  onPressed: () => _launchUrl(supportViewModel.docsUrl),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 24),
+                padding: EdgeInsets.only(top: 20),
                 child: OptionTile(
                   icon: Icon(
                     Icons.contact_support,

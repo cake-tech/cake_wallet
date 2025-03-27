@@ -37,7 +37,9 @@ class MenuWidgetState extends State<MenuWidget> {
         this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
         this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
         this.tronIcon = Image.asset('assets/images/trx_icon.png'),
-        this.wowneroIcon = Image.asset('assets/images/wownero_icon.png');
+        this.wowneroIcon = Image.asset('assets/images/wownero_icon.png'),
+        this.zanoIcon = Image.asset('assets/images/zano_icon.png'),
+        this.decredIcon = Image.asset('assets/images/decred_menu.png');
 
   final largeScreen = 731;
 
@@ -62,6 +64,8 @@ class MenuWidgetState extends State<MenuWidget> {
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
+  Image zanoIcon;
+  Image decredIcon;
 
   @override
   void initState() {
@@ -141,6 +145,7 @@ class MenuWidgetState extends State<MenuWidget> {
                     return Container(
                       height: headerHeight,
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
                         gradient: LinearGradient(colors: [
                           Theme.of(context).extension<CakeMenuTheme>()!.headerFirstGradientColor,
                           Theme.of(context).extension<CakeMenuTheme>()!.headerSecondGradientColor,
@@ -207,7 +212,7 @@ class MenuWidgetState extends State<MenuWidget> {
                   );
                 },
                 separatorBuilder: (_, index) => Container(
-                  height: 1,
+                  height: 0,
                   color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
                 ),
                 itemCount: itemCount + 1,
@@ -245,6 +250,10 @@ class MenuWidgetState extends State<MenuWidget> {
         return tronIcon;
       case WalletType.wownero:
         return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
+      case WalletType.decred:
+        return decredIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }
