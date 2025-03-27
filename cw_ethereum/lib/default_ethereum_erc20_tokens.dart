@@ -18,8 +18,8 @@ class DefaultEthereumErc20Tokens {
       enabled: true,
     ),
     Erc20Token(
-      name: "dEuro",
-      symbol: "dEUR",
+      name: "Digital Euro",
+      symbol: "DEURO",
       contractAddress: "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea",
       decimal: 18,
       enabled: true,
@@ -312,6 +312,7 @@ class DefaultEthereumErc20Tokens {
           iconPath = CryptoCurrency.all
               .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
               .iconPath;
+          print(iconPath);
         } catch (_) {}
 
         return Erc20Token.copyWith(token, iconPath, 'ETH');
