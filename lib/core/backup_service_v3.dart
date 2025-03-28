@@ -198,7 +198,7 @@ class BackupServiceV3 extends $BackupService {
     final version = getVersionFile(file);
     switch (version) {
       case BackupVersion.unknown:
-        throw Exception('Invalid backup file: unknown version');
+        throw Exception('unknown_backup_version');
       case BackupVersion.v1:
         final data = file.readAsBytesSync();
         final backupBytes = data.toList()..removeAt(0);
