@@ -12,5 +12,5 @@ String get moneroCBinaryName {
   if (Platform.isWindows)
     return "monero_libwallet2_api_c.dll";
   if (Platform.isMacOS) return "monero_libwallet2_api_c.dylib";
-  return "monero_libwallet2_api_c.so";
+  return "/usr/lib/monero_libwallet2_api_c.so";
 }
