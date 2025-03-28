@@ -29,37 +29,41 @@ class WalletGroupDescriptionPage extends BasePage {
           Image.asset(currentTheme.type.walletGroupImage, height: 200),
           SizedBox(height: 32),
           Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: '${S.of(context).wallet_group_description_one} '),
+            child: Scrollbar(
+              child: SingleChildScrollView(
+                child: Text.rich(
                   TextSpan(
-                    text: '${S.of(context).wallet_group.toLowerCase()} ',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    children: [
+                      TextSpan(text: '${S.of(context).wallet_group_description_one} '),
+                      TextSpan(
+                        text: '${S.of(context).wallet_group.toLowerCase()} ',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).wallet_group_description_two} ',
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).choose_wallet_group} ',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).wallet_group_description_three} ',
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).create_new_seed} ',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(text: S.of(context).wallet_group_description_four),
+                    ],
                   ),
-                  TextSpan(
-                    text: '${S.of(context).wallet_group_description_two} ',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                   ),
-                  TextSpan(
-                    text: '${S.of(context).choose_wallet_group} ',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  TextSpan(
-                    text: '${S.of(context).wallet_group_description_three} ',
-                  ),
-                  TextSpan(
-                    text: '${S.of(context).create_new_seed} ',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  TextSpan(text: S.of(context).wallet_group_description_four),
-                ],
-              ),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                height: 1.5,
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                ),
               ),
             ),
           ),

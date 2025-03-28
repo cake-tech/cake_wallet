@@ -506,6 +506,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final currentCacheFile = File(renamedWalletPath);
       final currentKeysFile = File('$renamedWalletPath.keys');
       final currentAddressListFile = File('$renamedWalletPath.address.txt');
+      final backgroundSyncFile = File('$renamedWalletPath.background');
 
       final newWalletPath =
           await pathForWallet(name: newWalletName, type: type);
@@ -518,6 +519,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
       if (currentAddressListFile.existsSync()) {
         await currentAddressListFile.rename('$newWalletPath.address.txt');
+      }
+      if (backgroundSyncFile.existsSync()) {
+        await backgroundSyncFile.rename('$newWalletPath.background');
       }
 
       await backupWalletFiles(newWalletName);
