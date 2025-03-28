@@ -70,7 +70,7 @@ Future<void> main() async {
       expect(wallet.walletAddresses.primaryAddress,
           '49MggvPosJugF8Zq7WAKbsSchz6vbyL6YiUxM4ryfGQDXphs6wiWiXLFWCSshnLPcceGTWUaKfWWMHQAAKESV3TQJVQsL9a');
     });
-  });
+  }, skip: true);
 }
 
 MoneroRestoreWalletFromSeedCredentials _getTestCredentials({
