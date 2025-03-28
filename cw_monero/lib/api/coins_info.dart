@@ -47,12 +47,14 @@ Future<int?> getCoinByKeyImage(String keyImage) async {
 
 Future<void> freezeCoin(int index) async {
   await coinsMutex.acquire();
-  monero.Coins_setFrozen(coins!, index: index);
+  final coinsPtr = coins!.address;
+  await Isolate.run(() => monero.Coins_setFrozen(Pointer.fromAddress(coinsPtr), index: index));
   coinsMutex.release();
 }
 
 Future<void> thawCoin(int index) async {
   await coinsMutex.acquire();
-  monero.Coins_thaw(coins!, index: index);
+  final coinsPtr = coins!.address;
+  await Isolate.run(() => monero.Coins_thaw(Pointer.fromAddress(coinsPtr), index: index));
   coinsMutex.release();
 }

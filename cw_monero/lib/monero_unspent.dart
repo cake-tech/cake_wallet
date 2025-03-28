@@ -7,7 +7,6 @@ class MoneroUnspent extends Unspent {
   MoneroUnspent(
       String address, String hash, String keyImage, int value, bool isFrozen, this.isUnlocked)
       : super(address, hash, value, 0, keyImage) {
-    printV("get isFrozen");
     getCoinByKeyImage(keyImage).then((coinId) {
       if (coinId == null) throw Exception("Unable to find a coin for address $address");
       getCoin(coinId).then((coin) {
@@ -21,13 +20,13 @@ class MoneroUnspent extends Unspent {
   @override
   set isFrozen(bool freeze) {
     printV("set isFrozen: $freeze ($keyImage): $freeze");
-    getCoinByKeyImage(keyImage!).then((coinId) {
+    getCoinByKeyImage(keyImage!).then((coinId) async {
       if (coinId == null) throw Exception("Unable to find a coin for address $address");
       if (freeze) {
-        freezeCoin(coinId);
+        await freezeCoin(coinId);
         _frozen = true;
       } else {
-        thawCoin(coinId);
+        await thawCoin(coinId);
         _frozen = false;
       }
     });

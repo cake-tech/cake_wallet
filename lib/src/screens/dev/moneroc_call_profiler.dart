@@ -31,14 +31,6 @@ class PerformanceDebug extends StatefulWidget {
 
   @override
   State<PerformanceDebug> createState() => _PerformanceDebugState();
-
-  static void push(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) {
-        return const PerformanceDebug();
-      },
-    ));
-  }
 }
 
 enum ProfilableWallet {
@@ -60,7 +52,7 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
   };
   final precalc = 1700298;
 
-  Map<String, List<int>> get debugCallLength => switch (wallet) {
+  late Map<String, List<int>> debugCallLength = switch (wallet) {
     ProfilableWallet.monero => monero!.debugCallLength(),
     ProfilableWallet.wownero => wownero!.debugCallLength(),
     ProfilableWallet.zano => zano!.debugCallLength(),

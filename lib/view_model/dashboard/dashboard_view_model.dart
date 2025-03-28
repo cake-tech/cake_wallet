@@ -271,48 +271,44 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-
+    bool isTransctionDisposerUpdating = false;
     _transactionDisposer = reaction(
-            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
-            (List<TransactionInfo> txs) {
-
-          if (transactions.length == txs.length) return;
-          printV("txs: ${txs.length} / transactions: ${transactions.length}");
-
-          int? currentAccountId;
-          if (wallet.type == WalletType.monero) {
-            currentAccountId = monero!.getCurrentAccount(wallet).id;
-          } else if (wallet.type == WalletType.wownero) {
-            currentAccountId = wow.wownero!.getCurrentAccount(wallet).id;
-          } else {
-            currentAccountId = null;
-          }
+            (_) => appStore.wallet!.transactionHistory.transactions.length,
+            (int txsLength) async {
+          if (transactions.length == txsLength) return;
+          final sw = Stopwatch()..start();
+          final currentAccountId = wallet.type == WalletType.monero 
+              ? monero!.getCurrentAccount(wallet).id
+              : wallet.type == WalletType.wownero 
+                  ? wow.wownero!.getCurrentAccount(wallet).id 
+                  : null;
+          final Set<String> newTxIds = {};
+          final List<TransactionInfo> relevantTxs = [];
           
-          // Filter transactions based on account ID
-          final filteredTxs = txs.where((tx) {
+          for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
+            bool isRelevant = true;
             if (wallet.type == WalletType.monero) {
-              return monero!.getTransactionInfoAccountId(tx) == currentAccountId;
+              isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
             } else if (wallet.type == WalletType.wownero) {
-              return wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
+              isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
             }
-            return true;
-          }).toList();
-          
-          // Create a map of existing transactions by ID for quick lookup
-          final existingTxMap = {
-            for (var item in transactions) item.transaction.id: item
-          };
-          
-          // Create a set of transaction IDs that should be in the list
-          final newTxIds = filteredTxs.map((tx) => tx.id).toSet();
-          
-          // Remove transactions that are no longer in the filtered list
+            
+            if (isRelevant) {
+              newTxIds.add(tx.id);
+              relevantTxs.add(tx);
+            }
+          }
+
           transactions.removeWhere((item) => !newTxIds.contains(item.transaction.id));
-          
-          // Add new transactions that aren't already in the list
+
+          final existingIds = transactions.map((t) => t.transaction.id).toSet();
+
           final newTransactions = <TransactionListItem>[];
-          for (var tx in filteredTxs) {
-            if (!existingTxMap.containsKey(tx.id)) {
+          
+          for (var i = 0; i < relevantTxs.length; i++) {
+            final tx = relevantTxs[i];
+            
+            if (!existingIds.contains(tx.id)) {
               newTransactions.add(TransactionListItem(
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
@@ -322,6 +318,7 @@ abstract class DashboardViewModelBase with Store {
             }
           }
           transactions.addAll(newTransactions);
+          printV("[benchmark] [${relevantTxs.length}] added new txs: ${sw.elapsed}");
         }
     );
 
