@@ -272,9 +272,10 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
     _transactionDisposer = reaction(
-            (_) => appStore.wallet!.transactionHistory.transactions.length,
-            (int txsLength) async {
-          if (transactions.length == txsLength) return;
+            (_) => appStore.wallet!.transactionHistory.transactions.length *
+            appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
+            (int _) async {
+          await Future.delayed(Duration.zero);
           final currentAccountId = wallet.type == WalletType.monero 
               ? monero!.getCurrentAccount(wallet).id
               : wallet.type == WalletType.wownero 
@@ -795,29 +796,37 @@ abstract class DashboardViewModelBase with Store {
     _transactionDisposer?.reaction.dispose();
 
     _transactionDisposer = reaction(
-            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
-            (List<TransactionInfo> txs) {
+            (_) => appStore.wallet!.transactionHistory.transactions.length *
+            appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
+            (int _) async {
+          await Future.delayed(Duration.zero);
+          final currentAccountId = wallet.type == WalletType.monero 
+              ? monero!.getCurrentAccount(wallet).id
+              : wallet.type == WalletType.wownero 
+                  ? wow.wownero!.getCurrentAccount(wallet).id 
+                  : null;
+          final List<TransactionInfo> relevantTxs = [];
+          
+          for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
+            bool isRelevant = true;
+            if (wallet.type == WalletType.monero) {
+              isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
+            } else if (wallet.type == WalletType.wownero) {
+              isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
+            }
+            
+            if (isRelevant) {
+              relevantTxs.add(tx);
+            }
+          }
 
           transactions.clear();
-
-          transactions.addAll(
-            txs.where((tx) {
-              if (wallet.type == WalletType.monero) {
-                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
-              }
-              if (wallet.type == WalletType.wownero) {
-                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
-              }
-              return true;
-            }).map(
-                  (tx) => TransactionListItem(
-                transaction: tx,
-                balanceViewModel: balanceViewModel,
-                settingsStore: appStore.settingsStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-              ),
-            ),
-          );
+          transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
+            transaction: tx,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+          )));
         }
     );
   }
