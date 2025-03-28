@@ -14,6 +14,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
+import 'package:cw_monero/bip39_seed.dart';
 import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:collection/collection.dart';
@@ -301,6 +302,15 @@ class MoneroWalletService extends WalletService<
     }
 
     try {
+      if (isBip39Seed(credentials.mnemonic)) {
+        return restoreFromBip39(credentials);
+      }
+    } catch (e) {
+      printV("Bip39 restore failed: $e");
+      rethrow;
+    }
+
+    try {
       final path = await pathForWallet(name: credentials.name, type: getType());
       monero_wallet_manager.restoreFromSeed(
           path: path,
@@ -320,6 +330,30 @@ class MoneroWalletService extends WalletService<
       printV('MoneroWalletsManager Error: $e');
       rethrow;
     }
+  }
+
+  Future<MoneroWallet> restoreFromBip39(
+      MoneroRestoreWalletFromSeedCredentials credentials) async {
+    final mnemonic = getLegacySeedFromBip39(credentials.mnemonic);
+
+    final path = await pathForWallet(name: credentials.name, type: getType());
+    monero_wallet_manager.restoreFromSeed(
+        path: path,
+        password: credentials.password!,
+        passphrase: '',
+        seed: mnemonic,
+        restoreHeight: credentials.height!);
+
+    monero.Wallet_setCacheAttribute(wptr!,
+        key: "cakewallet.seed.bip39", value: credentials.mnemonic);
+
+    final wallet = MoneroWallet(
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: credentials.password!);
+    await wallet.init();
+
+    return wallet;
   }
 
   Future<MoneroWallet> restoreFromPolyseed(
@@ -385,7 +419,6 @@ class MoneroWalletService extends WalletService<
         language: lang.nameEnglish,
         restoreHeight: height,
         spendKey: spendKey);
-
 
     monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
     monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase??'');
