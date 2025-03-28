@@ -1,9 +1,9 @@
 -
   uri: nano.nownodes.io
   useSSL: true
-  is_default: true
 -
   uri: rpc.nano.to
+  is_default: true
   useSSL: true
 -
   uri: node.nautilus.io
