@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -2240,10 +2242,11 @@ abstract class ElectrumWalletBase
 
         if (element.hash == info.hash &&
             element.vout == info.vout &&
-            info.isFrozen &&
             element.bitcoinAddressRecord.address == info.address &&
             element.value == info.value) {
-          totalFrozen += element.value;
+          if (info.isFrozen) {
+            totalFrozen += element.value;
+          }
         }
       });
     });
@@ -2498,6 +2501,12 @@ abstract class ElectrumWalletBase
 
       transactionHistory.addOne(tx);
     }
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    final amountInt = int.parse(amount);
+    return bitcoinAmountToString(amount: amountInt);
   }
 }
 
