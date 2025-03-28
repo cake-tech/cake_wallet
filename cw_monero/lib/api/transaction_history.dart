@@ -42,6 +42,7 @@ Future<void> refreshTransactions() async {
   await Isolate.run(() {
     monero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
   });
+  await Future.delayed(Duration.zero);
   txHistoryMutex.release();
   isRefreshingTx = false;
 }
@@ -54,7 +55,18 @@ Future<List<Transaction>> getAllTransactions() async {
   await txHistoryMutex.acquire();
   txhistory ??= monero.Wallet_history(wptr!);
   int size = countOfTransactions();
-  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
+  final list = <Transaction>[];
+  for (int index = 0; index < size; index++) {
+    if (index % 25 == 0) {
+      // Give main thread a chance to do other things.
+      await Future.delayed(Duration.zero);
+    }
+    final txInfo = monero.TransactionHistory_transaction(txhistory!, index: index);
+    final txHash = monero.TransactionInfo_hash(txInfo);
+    txCache[wptr!.address] ??= {};
+    txCache[wptr!.address]![txHash] = Transaction(txInfo: txInfo);
+    list.add(txCache[wptr!.address]![txHash]!);
+  }
   txHistoryMutex.release();
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
@@ -87,8 +99,18 @@ Future<List<Transaction>> getAllTransactions() async {
   return list;
 }
 
-Transaction getTransaction(String txId) {
-  return Transaction(txInfo: monero.TransactionHistory_transactionById(txhistory!, txid: txId));
+Map<int, Map<String, Transaction>> txCache = {};
+Future<Transaction> getTransaction(String txId) async {
+  if (txCache[wptr!.address] != null && txCache[wptr!.address]![txId] != null) {
+    return txCache[wptr!.address]![txId]!;
+  }
+  await txHistoryMutex.acquire();
+  final tx = monero.TransactionHistory_transactionById(txhistory!, txid: txId);
+  final txDart = Transaction(txInfo: tx);
+  txCache[wptr!.address] ??= {};
+  txCache[wptr!.address]![txId] = txDart;
+  txHistoryMutex.release();
+  return txDart;
 }
 
 Future<PendingTransactionDescription> createTransactionSync(
