@@ -271,18 +271,15 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    bool isTransctionDisposerUpdating = false;
     _transactionDisposer = reaction(
             (_) => appStore.wallet!.transactionHistory.transactions.length,
             (int txsLength) async {
           if (transactions.length == txsLength) return;
-          final sw = Stopwatch()..start();
           final currentAccountId = wallet.type == WalletType.monero 
               ? monero!.getCurrentAccount(wallet).id
               : wallet.type == WalletType.wownero 
                   ? wow.wownero!.getCurrentAccount(wallet).id 
                   : null;
-          final Set<String> newTxIds = {};
           final List<TransactionInfo> relevantTxs = [];
           
           for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
@@ -294,31 +291,17 @@ abstract class DashboardViewModelBase with Store {
             }
             
             if (isRelevant) {
-              newTxIds.add(tx.id);
               relevantTxs.add(tx);
             }
           }
 
-          transactions.removeWhere((item) => !newTxIds.contains(item.transaction.id));
-
-          final existingIds = transactions.map((t) => t.transaction.id).toSet();
-
-          final newTransactions = <TransactionListItem>[];
-          
-          for (var i = 0; i < relevantTxs.length; i++) {
-            final tx = relevantTxs[i];
-            
-            if (!existingIds.contains(tx.id)) {
-              newTransactions.add(TransactionListItem(
-                transaction: tx,
-                balanceViewModel: balanceViewModel,
-                settingsStore: appStore.settingsStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-              ));
-            }
-          }
-          transactions.addAll(newTransactions);
-          printV("[benchmark] [${relevantTxs.length}] added new txs: ${sw.elapsed}");
+          transactions.clear();
+          transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
+            transaction: tx,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+          )));
         }
     );
 
