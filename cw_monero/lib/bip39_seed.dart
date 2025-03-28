@@ -6,6 +6,8 @@ import 'package:polyseed/polyseed.dart';
 
 bool isBip39Seed(String mnemonic) => bip39.validateMnemonic(mnemonic);
 
+String getBip39Seed() => bip39.generateMnemonic();
+
 String getLegacySeedFromBip39(String mnemonic, [int accountIndex = 0]) {
   final seed = bip39.mnemonicToSeed(mnemonic);
 

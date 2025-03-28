@@ -2,11 +2,9 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
-import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 import 'package:polyseed/polyseed.dart';
@@ -58,6 +56,11 @@ String getSeed() {
     }
     return cakepolyseed;
   }
+
+  final bip39 = monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed.bip39");
+
+  if(bip39.isNotEmpty) return bip39;
+
   final legacy = getSeedLegacy(null);
   return legacy;
 }

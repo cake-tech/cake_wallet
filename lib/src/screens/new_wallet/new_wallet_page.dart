@@ -401,7 +401,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
       } else {
         await _walletNewVM.create(
             options: _walletNewVM.hasLanguageSelector
-                ? [_languageSelectorKey.currentState!.selected, isPolyseed]
+                ? [_languageSelectorKey.currentState!.selected, widget._seedSettingsViewModel.moneroSeedType]
                 : null);
       }
     } catch (e) {

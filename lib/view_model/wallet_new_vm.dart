@@ -47,6 +47,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector =>
+      newWalletArguments?.mnemonic == null &&
       [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
   int get seedPhraseWordsLength {
@@ -81,7 +82,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     }
   }
 
-  bool get hasSeedType => [WalletType.monero, WalletType.wownero].contains(type);
+  bool get hasSeedType =>
+      newWalletArguments?.mnemonic == null &&
+      [WalletType.monero, WalletType.wownero].contains(type);
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
@@ -96,7 +99,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             language: options!.first as String,
             password: walletPassword,
             passphrase: passphrase,
-            isPolyseed: options.last as bool);
+            seedType: (options.last as MoneroSeedType).raw,
+            mnemonic: newWalletArguments!.mnemonic,
+        );
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(
