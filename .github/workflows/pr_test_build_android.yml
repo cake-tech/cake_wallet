@@ -274,7 +274,7 @@ jobs:
 
       - name: Build
         run: |
-          flutter build apk --release --split-per-abi
+          flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi
 
       - name: Rename apk file
         run: |

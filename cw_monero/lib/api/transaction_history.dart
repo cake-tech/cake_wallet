@@ -13,15 +13,23 @@ import 'package:monero/src/generated_bindings_monero.g.dart' as monero_gen;
 import 'package:mutex/mutex.dart';
 
 
+Map<int, Map<String, String>> txKeys = {};
 String getTxKey(String txId) {
+  txKeys[wptr!.address] ??= {};
+  if (txKeys[wptr!.address]![txId] != null) {
+    return txKeys[wptr!.address]![txId]!;
+  }
   final txKey = monero.Wallet_getTxKey(wptr!, txid: txId);
   final status = monero.Wallet_status(wptr!);
   if (status != 0) {
-    final error = monero.Wallet_errorString(wptr!);
+    monero.Wallet_errorString(wptr!);
+    txKeys[wptr!.address]![txId] = "";
     return "";
   }
+  txKeys[wptr!.address]![txId] = txKey;
   return txKey;
 }
+
 final txHistoryMutex = Mutex();
 monero.TransactionHistory? txhistory;
 bool isRefreshingTx = false;
@@ -34,6 +42,7 @@ Future<void> refreshTransactions() async {
   await Isolate.run(() {
     monero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
   });
+  await Future.delayed(Duration.zero);
   txHistoryMutex.release();
   isRefreshingTx = false;
 }
@@ -46,7 +55,18 @@ Future<List<Transaction>> getAllTransactions() async {
   await txHistoryMutex.acquire();
   txhistory ??= monero.Wallet_history(wptr!);
   int size = countOfTransactions();
-  final list = List.generate(size, (index) => Transaction(txInfo: monero.TransactionHistory_transaction(txhistory!, index: index)));
+  final list = <Transaction>[];
+  for (int index = 0; index < size; index++) {
+    if (index % 25 == 0) {
+      // Give main thread a chance to do other things.
+      await Future.delayed(Duration.zero);
+    }
+    final txInfo = monero.TransactionHistory_transaction(txhistory!, index: index);
+    final txHash = monero.TransactionInfo_hash(txInfo);
+    txCache[wptr!.address] ??= {};
+    txCache[wptr!.address]![txHash] = Transaction(txInfo: txInfo);
+    list.add(txCache[wptr!.address]![txHash]!);
+  }
   txHistoryMutex.release();
   final accts = monero.Wallet_numSubaddressAccounts(wptr!);
   for (var i = 0; i < accts; i++) {  
@@ -79,8 +99,18 @@ Future<List<Transaction>> getAllTransactions() async {
   return list;
 }
 
-Transaction getTransaction(String txId) {
-  return Transaction(txInfo: monero.TransactionHistory_transactionById(txhistory!, txid: txId));
+Map<int, Map<String, Transaction>> txCache = {};
+Future<Transaction> getTransaction(String txId) async {
+  if (txCache[wptr!.address] != null && txCache[wptr!.address]![txId] != null) {
+    return txCache[wptr!.address]![txId]!;
+  }
+  await txHistoryMutex.acquire();
+  final tx = monero.TransactionHistory_transactionById(txhistory!, txid: txId);
+  final txDart = Transaction(txInfo: tx);
+  txCache[wptr!.address] ??= {};
+  txCache[wptr!.address]![txId] = txDart;
+  txHistoryMutex.release();
+  return txDart;
 }
 
 Future<PendingTransactionDescription> createTransactionSync(

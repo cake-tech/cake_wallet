@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -64,11 +65,17 @@ class OtherSettingsPage extends BasePage {
                 handler: (BuildContext context) =>
                     Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
-              if (kDebugMode && _otherSettingsViewModel.walletType == WalletType.monero) 
+              if (FeatureFlag.hasDevOptions && _otherSettingsViewModel.walletType == WalletType.monero) 
                 SettingsCellWithArrow(
                   title: '[dev] monero background sync',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync),
+                ),
+              if (FeatureFlag.hasDevOptions && [WalletType.monero, WalletType.wownero, WalletType.zano].contains(_otherSettingsViewModel.walletType))
+                SettingsCellWithArrow(
+                  title: '[dev] xmr call profiler',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
                 ),
               Spacer(),
               SettingsVersionCell(
