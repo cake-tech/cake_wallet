@@ -5,13 +5,14 @@ import 'package:cw_core/wallet_info.dart';
 class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
   const MoneroSeedType({required String title, required int raw}) : super(title: title, raw: raw);
 
-  static const all = [MoneroSeedType.legacy, MoneroSeedType.polyseed];
+  static const all = [MoneroSeedType.legacy, MoneroSeedType.polyseed, bip39Seed];
 
   static const defaultSeedType = polyseed;
 
   static const legacy = MoneroSeedType(raw: 0, title: 'Legacy (25 words)');
   static const polyseed = MoneroSeedType(raw: 1, title: 'Polyseed (16 words)');
   static const wowneroSeed = MoneroSeedType(raw: 2, title: 'Wownero (14 words)');
+  static const bip39Seed = MoneroSeedType(raw: 3, title: 'bip39 (12 words)');
 
   static MoneroSeedType deserialize({required int raw}) {
     switch (raw) {
@@ -21,6 +22,8 @@ class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
         return polyseed;
       case 2:
         return wowneroSeed;
+      case 3:
+        return bip39Seed;
       default:
         throw Exception('Unexpected token: $raw for SeedType deserialize');
     }
@@ -36,7 +39,7 @@ class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
       case MoneroSeedType.wowneroSeed:
         return S.current.seedtype_wownero;
       default:
-        return '';
+        return title;
     }
   }
 }
