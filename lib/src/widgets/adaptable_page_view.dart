@@ -137,10 +137,25 @@ class _RenderSizingContainer extends RenderProxyBox {
         parentUsesSize: true,
       );
 
-      final a = sizes[page.floor()]!;
-      final b = sizes[page.ceil()]!;
+      final int floorPage = page.floor();
+      final int ceilPage = page.ceil();
 
-      final height = lerpDouble(a.height, b.height, page - page.floor());
+      Size? a = sizes[floorPage];
+      Size? b = sizes[ceilPage];
+
+      if (a == null && sizes.isNotEmpty) {
+        a = sizes.values.first;
+      }
+      if (b == null && sizes.isNotEmpty) {
+        b = sizes.values.first;
+      }
+
+      a ??= child.getDryLayout(constraints);
+      b ??= a;
+
+      final double t = (page - floorPage).clamp(0.0, 1.0);
+      final double height = lerpDouble(a.height, b.height, t) ?? a.height;
+
 
       child.layout(
         constraints.copyWith(minHeight: height, maxHeight: height),
