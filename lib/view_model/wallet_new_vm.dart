@@ -95,12 +95,14 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name,
-            language: options!.first as String,
-            password: walletPassword,
-            passphrase: passphrase,
-            seedType: (options.last as MoneroSeedType).raw,
-            mnemonic: newWalletArguments!.mnemonic,
+          name: name,
+          language: options!.first as String,
+          password: walletPassword,
+          passphrase: passphrase,
+          seedType: newWalletArguments!.mnemonic != null
+              ? MoneroSeedType.bip39Seed.raw
+              : (options.last as MoneroSeedType).raw,
+          mnemonic: newWalletArguments!.mnemonic,
         );
       case WalletType.bitcoin:
       case WalletType.litecoin:
