@@ -16,6 +16,7 @@ class OpenCryptoPayService {
 
   Future<String> commitOpenCryptoPayRequest(
     String txHex, {
+    required String txId,
     required OpenCryptoPayRequest request,
     required CryptoCurrency asset,
   }) async {
@@ -26,7 +27,8 @@ class OpenCryptoPayService {
     queryParams['quote'] = request.quote;
     queryParams['asset'] = asset.title;
     queryParams['method'] = _getMethod(asset);
-    queryParams['hex'] = "$txHex";
+    queryParams['hex'] = txHex;
+    queryParams['tx'] = txId;
 
     final response =
         await _httpClient.get(Uri.https(uri.authority, uri.path, queryParams));
