@@ -78,22 +78,28 @@ String? getSeedLanguage(String? language) {
 
 String getSeedLegacy(String? language) {
   final cakepassphrase = getPassphrase();
-  var legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   language = getSeedLanguage(language);
+  var legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   if (monero.Wallet_status(wptr!) != 0) {
-    if (language != null) {
-      monero.Wallet_setSeedLanguage(wptr!, language: language);
-      final status = monero.Wallet_status(wptr!);
-      if (status != 0) {
-        final err = monero.Wallet_errorString(wptr!);
-        if (legacy.isNotEmpty) {
-          return "$err\n\n$legacy";
-        }
-        return err;
+    if (monero.Wallet_errorString(wptr!).contains("seed_language")) {
+      monero.Wallet_setSeedLanguage(wptr!, language: "English");
+      legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
+    }
+  }
+
+  if (language != null) {
+    monero.Wallet_setSeedLanguage(wptr!, language: language);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      if (legacy.isNotEmpty) {
+        return "$err\n\n$legacy";
       }
+      return err;
     }
     legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   }
+
   if (monero.Wallet_status(wptr!) != 0) {
     final err = monero.Wallet_errorString(wptr!);
     if (legacy.isNotEmpty) {
