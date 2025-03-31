@@ -384,6 +384,11 @@ class MoneroWalletService extends WalletService<
     required WalletInfo walletInfo,
     int height = 0,
   }) async {
+    walletInfo.derivationInfo = DerivationInfo(
+        derivationType: DerivationType.bip39,
+        derivationPath: "m/44'/128'/0'/0/0",
+    );
+
     final legacyMnemonic = getLegacySeedFromBip39(mnemonic);
 
     monero_wallet_manager.restoreFromSeed(

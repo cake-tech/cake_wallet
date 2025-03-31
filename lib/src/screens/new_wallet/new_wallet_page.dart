@@ -305,7 +305,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       ),
                     ),
                   ),
-                  if (_walletNewVM.hasLanguageSelector) ...[
+                  if (_walletNewVM.showLanguageSelector) ...[
                     if (_walletNewVM.hasSeedType) ...[
                       Observer(
                         builder: (BuildContext build) => Padding(
@@ -401,7 +401,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
       } else {
         await _walletNewVM.create(
             options: _walletNewVM.hasLanguageSelector
-                ? [_languageSelectorKey.currentState!.selected, widget._seedSettingsViewModel.moneroSeedType]
+                ? [
+                    _languageSelectorKey.currentState?.selected ??
+                        defaultSeedLanguage,
+                    widget._seedSettingsViewModel.moneroSeedType
+                  ]
                 : null);
       }
     } catch (e) {
