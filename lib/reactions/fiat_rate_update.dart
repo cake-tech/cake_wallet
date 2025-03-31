@@ -31,7 +31,8 @@ Future<void> startFiatRateUpdate(
           await FiatConversionService.fetchPrice(
               crypto: appStore.wallet!.currency,
               fiat: settingsStore.fiatCurrency,
-              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+              fiatConversionStore: fiatConversionStore);
 
       Iterable<CryptoCurrency>? currencies;
       if (appStore.wallet!.type == WalletType.ethereum) {
