@@ -137,17 +137,6 @@ class BalanceRowWidget extends StatelessWidget {
                                             .extension<BalancePageTheme>()!
                                             .labelTextColor),
                                   ),
-                                if (currency.isPotentialScam)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                                    child: Text(
-                                      "(${S.of(context).potential_scam})",
-                                      style: TextStyle(
-                                        color: Colors.red[800],
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
                               ],
                             ),
                           ),
@@ -229,7 +218,33 @@ class BalanceRowWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  //),
+                  if (currency.isPotentialScam)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      margin: EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red[800],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_outlined,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            S.of(context).potential_scam,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (frozenBalance.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
