@@ -540,6 +540,7 @@
   "please_try_to_connect_to_another_node": "Intenta conectarte a otro nodo",
   "please_wait": "Espera por favor",
   "polygonscan_history": "Historial de PolygonScan",
+  "potential_scam": "Estafa potencial",
   "powered_by": "Posible gracias a ${title}",
   "pre_seed_button_text": "Entiendo. Muéstrame mi semilla",
   "pre_seed_description": "En la página siguiente verás una serie de ${words} palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar tu billetera en caso de pérdida o mal funcionamiento. Es TU responsabilidad escribirla y guardarla en un lugar seguro fuera de la aplicación Cake Wallet.",

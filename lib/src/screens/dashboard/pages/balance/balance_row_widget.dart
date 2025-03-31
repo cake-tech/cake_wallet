@@ -16,7 +16,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 
 class BalanceRowWidget extends StatelessWidget {
   BalanceRowWidget({
@@ -66,8 +65,6 @@ class BalanceRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool brightThemeType = false;
-    if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) brightThemeType = true;
     return Column(
       children: [
         Container(
@@ -139,6 +136,17 @@ class BalanceRowWidget extends StatelessWidget {
                                         color: Theme.of(context)
                                             .extension<BalancePageTheme>()!
                                             .labelTextColor),
+                                  ),
+                                if (currency.isPotentialScam)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: Text(
+                                      "(${S.of(context).potential_scam})",
+                                      style: TextStyle(
+                                        color: Colors.red[800],
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
                                   ),
                               ],
                             ),
