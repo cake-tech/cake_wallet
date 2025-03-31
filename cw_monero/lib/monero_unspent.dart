@@ -32,5 +32,8 @@ class MoneroUnspent extends Unspent {
     });
   }
 
+  @override
+  bool get isFrozen => _frozen;
+
   final bool isUnlocked;
 }

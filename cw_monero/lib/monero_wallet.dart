@@ -713,7 +713,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
-      // Update transactions by adding new ones and removing deleted ones
+
       final currentIds = transactionHistory.transactions.keys.toSet();
       final newIds = transactions.keys.toSet();
       
