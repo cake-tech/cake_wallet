@@ -1,26 +1,101 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:io';
 
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BackgroundSync {
+  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  bool _isInitialized = false;
+
+  Future<void> _initializeNotifications() async {
+    if (_isInitialized) return;
+
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
+    const initializationSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: iosSettings,
+    );
+
+    await _notificationsPlugin.initialize(initializationSettings);
+    _isInitialized = true;
+  }
+
+  Future<bool> requestPermissions() async {
+    if (Platform.isIOS || Platform.isMacOS) {
+      return await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          ) ?? false;
+    } else if (Platform.isAndroid) {
+      return await _notificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.areNotificationsEnabled() ?? false;
+    }
+    return false;
+  }
+
+  Future<void> showNotification(String title, String content) async {
+    await _initializeNotifications();
+    final hasPermission = await requestPermissions();
+    
+    if (!hasPermission) {
+      printV('Notification permissions not granted');
+      return;
+    }
+
+    const androidDetails = AndroidNotificationDetails(
+      'transactions',
+      'Transactions',
+      channelDescription: 'Channel for notifications about transactions',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+    );
+
+    const iosDetails = DarwinNotificationDetails();
+
+    const notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: iosDetails,
+    );
+
+    await _notificationsPlugin.show(
+      DateTime.now().millisecondsSinceEpoch.hashCode,
+      title,
+      content,
+      notificationDetails,
+    );
+  }
+
   Future<void> sync() async {
     printV("Background sync started");
-    await _syncMonero();
+    await _syncWallets();
     printV("Background sync completed");
   }
 
-  Future<void> _syncMonero() async {
+  Future<void> _syncWallets() async {
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
     final settingsStore = getIt.get<SettingsStore>();
@@ -28,10 +103,10 @@ class BackgroundSync {
 
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => !element.isHardware)
-        .where((element) => [WalletType.monero].contains(element.type))
+        .where((element) => ![WalletType.haven].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
-      final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
+      final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name, isBackground: true);
       int syncedTicks = 0;
       final keyService = getIt.get<KeyService>();
       
@@ -75,7 +150,7 @@ class BackgroundSync {
         } else {
           syncedTicks = 0;
         }
-        if (kDebugMode) {
+        if (FeatureFlag.hasDevOptions) {
           if (syncStatus is SyncingSyncStatus) {
             final blocksLeft = syncStatus.blocksLeft;
             printV("$blocksLeft Blocks Left");
@@ -100,6 +175,27 @@ class BackgroundSync {
           }
         }
       }
+      final txs = wallet.transactionHistory;
+      final sortedTxs = txs.transactions.values.toList()..sort((a, b) => a.date.compareTo(b.date));
+      final sharedPreferences = await SharedPreferences.getInstance();
+      for (final tx in sortedTxs) {
+        final lastTriggerString = sharedPreferences.getString(PreferencesKey.backgroundSyncLastTrigger(wallet.name));
+        final lastTriggerDate = lastTriggerString != null 
+            ? DateTime.parse(lastTriggerString) 
+            : DateTime.now();
+        
+        if (tx.date.isBefore(lastTriggerDate.subtract(Duration(minutes: 1)))) {
+          printV("TX ${tx.date} is before $lastTriggerDate");
+          continue;
+        }
+        await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name), tx.date.add(Duration(minutes: 1)).toIso8601String());
+        final action = tx.direction == TransactionDirection.incoming ? "Received" : "Sent";
+        if (sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false) {
+          await showNotification("$action ${wallet.currency.fullName} in ${wallet.name}", "${tx.amountFormatted()}");
+        }
+        printV("${wallet.currency.fullName} in ${wallet.name}: TX: ${tx.date} ${tx.amount} ${tx.direction}");
+      }
+      wallet.id;
       await wallet.stopBackgroundSync(await keyService.getWalletPassword(walletName: wallet.name));
       await wallet.close(shouldCleanup: true);
     }
