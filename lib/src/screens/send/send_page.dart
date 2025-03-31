@@ -667,7 +667,7 @@ class SendPage extends BasePage {
               contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
               contentImageColor:
               Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-              content: S.of(context).proceed_on_device_description,
+              content: S.of(bottomSheetContext).proceed_on_device_description,
               isTwoAction: false,
               actionButtonText: S.of(context).cancel,
               actionButton: () {
