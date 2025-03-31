@@ -2,7 +2,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -10,6 +9,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -31,8 +31,6 @@ class SeedValidator extends Validator<MnemonicItem> {
         return getBitcoinWordList(language);
       case WalletType.monero:
         return monero!.getMoneroWordList(language);
-      case WalletType.haven:
-        return haven!.getMoneroWordList(language);
       case WalletType.ethereum:
         return ethereum!.getEthereumWordList(language);
       case WalletType.bitcoinCash:
@@ -50,7 +48,10 @@ class SeedValidator extends Validator<MnemonicItem> {
           return wownero!.getWowneroWordList(language);
       case WalletType.zano:
         return zano!.getWordList(language);
+      case WalletType.decred:
+        return decred!.getDecredWordList();
       case WalletType.none:
+      case WalletType.haven:
         return [];
     }
   }

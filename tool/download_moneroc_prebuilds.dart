@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:cw_core/utils/print_verbose.dart';
+import './print_verbose_dummy.dart';
 import 'package:dio/dio.dart';
 import 'package:archive/archive_io.dart';
 
@@ -47,7 +47,7 @@ Future<void> main() async {
       if (localFilename.endsWith(".xz")) {
         printV("  extracting $localFilename");
         final inputStream = InputFileStream(localFilename);
-        final archive = XZDecoder().decodeBuffer(inputStream);
+        final archive = XZDecoder().decodeBytes(inputStream.toUint8List());
         final outputStream = OutputFileStream(localFilename.replaceAll(".xz", ""));
         outputStream.writeBytes(archive);
       }

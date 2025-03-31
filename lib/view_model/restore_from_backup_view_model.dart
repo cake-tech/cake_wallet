@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
@@ -20,7 +20,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
       : state = InitialExecutionState(),
         filePath = '';
 
-  final BackupService backupService;
+  final BackupServiceV3 backupService;
 
   @observable
   String filePath;
@@ -42,15 +42,23 @@ abstract class RestoreFromBackupViewModelBase with Store {
       }
 
       final file = File(filePath);
-      final data = await file.readAsBytes();
 
-      
-      await backupService.importBackup(data, password);
+      try {
+        await backupService.importBackupFile(file, password);
+      } catch (e, s) {
+        if (e.toString().contains("unknown_backup_version")) {
+          state = FailureState('This is not a valid backup file, please make sure you selected the correct backup file');
+        } else {
+          state = FailureState('Failed to restore backup, please try again');
+          ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s, silent: true));
+        }
+      }
 
       try {
         await initializeAppAtRoot(reInitializing: true);
       } catch (e, s) {
-        throw Exception('failed_app_initialization: $e $s');
+        state = FailureState('Failed app initialization, please try again');
+        ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s, silent: true));
       }
 
       final store = getIt.get<AppStore>();

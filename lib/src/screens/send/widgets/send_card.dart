@@ -249,7 +249,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   currencyValueValidator: output.sendAll
                       ? sendViewModel.allAmountValidator
                       : sendViewModel.amountValidator,
-                  allAmountCallback: () async => output.setSendAll(sendViewModel.balance)),
+                  allAmountCallback: () async => output.setSendAll(sendViewModel.sendingBalance)),
               Divider(
                   height: 1,
                   color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
@@ -271,7 +271,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                         ),
                       ),
                       Text(
-                        sendViewModel.balance,
+                        sendViewModel.sendingBalance,
                         style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -389,10 +389,16 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   padding: EdgeInsets.only(top: 6),
                   child: GestureDetector(
                     key: ValueKey('send_page_unspent_coin_button_key'),
-                    onTap: () => Navigator.of(context).pushNamed(
-                      Routes.unspentCoinsList,
-                      arguments: widget.sendViewModel.coinTypeToSpendFrom,
-                    ),
+                    onTap: () async {
+                      await Navigator.of(context).pushNamed(
+                        Routes.unspentCoinsList,
+                        arguments: widget.sendViewModel.coinTypeToSpendFrom,
+                      );
+                      if (mounted) {
+                        // we just got back from the unspent coins list screen, so we need to recompute the sending balance:
+                        sendViewModel.updateSendingBalance();
+                      }
+                    },
                     child: Container(
                       color: Colors.transparent,
                       child: Row(
@@ -510,7 +516,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) {
       if (output.sendAll) {
-        output.setSendAll(sendViewModel.balance);
+        output.setSendAll(sendViewModel.sendingBalance);
       }
 
       output.setCryptoAmount(cryptoAmountController.text);

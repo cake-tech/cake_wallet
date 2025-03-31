@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/country.dart';
@@ -41,6 +42,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,7 +54,6 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {required SecureStorage secureStorage,
-      required BackgroundTasks backgroundTasks,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
@@ -136,12 +137,12 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialPolygonTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
+      TransactionPriority? initialDecredTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
         _secureStorage = secureStorage,
         _sharedPreferences = sharedPreferences,
-        _backgroundTasks = backgroundTasks,
         fiatCurrency = initialFiatCurrency,
         balanceDisplayMode = initialBalanceDisplayMode,
         shouldSaveRecipientAddress = initialSaveRecipientAddress,
@@ -222,6 +223,9 @@ abstract class SettingsStoreBase with Store {
     if (initialZanoTransactionPriority != null) {
       priority[WalletType.zano] = initialZanoTransactionPriority;
     }
+    if (initialDecredTransactionPriority != null) {
+      priority[WalletType.decred] = initialDecredTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -277,6 +281,9 @@ abstract class SettingsStoreBase with Store {
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
           break;
+        case WalletType.decred:
+          key = PreferencesKey.decredTransactionPriority;
+          break;
         default:
           key = null;
       }
@@ -292,11 +299,11 @@ abstract class SettingsStoreBase with Store {
             PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress));
 
     if (DeviceInfo.instance.isMobile) {
-      setIsAppSecureNative(isAppSecure);
+      unawaited(setIsAppSecureNative(isAppSecure));
 
       reaction((_) => isAppSecure, (bool isAppSecure) {
         sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
-        setIsAppSecureNative(isAppSecure);
+        unawaited(setIsAppSecureNative(isAppSecure));
       });
     }
 
@@ -391,14 +398,11 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => currentSyncMode, (SyncMode syncMode) {
       sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode.type.index);
-
-      _backgroundTasks.registerSyncTask(changeExisting: true);
+      FlutterDaemon().startBackgroundSync(syncMode.frequency.inMinutes);
     });
 
     reaction((_) => currentSyncAll, (bool syncAll) {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
-
-      _backgroundTasks.registerSyncTask(changeExisting: true);
     });
 
     reaction(
@@ -841,7 +845,6 @@ abstract class SettingsStoreBase with Store {
 
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
-  final BackgroundTasks _backgroundTasks;
 
   ObservableMap<WalletType, Node> nodes;
   ObservableMap<WalletType, Node> powNodes;
@@ -883,7 +886,6 @@ abstract class SettingsStoreBase with Store {
       ThemeBase? initialTheme}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final secureStorage = await getIt.get<SecureStorage>();
-    final backgroundTasks = getIt.get<BackgroundTasks>();
     final currentFiatCurrency = FiatCurrency.deserialize(
         raw: sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey)!);
     final savedCakePayCountryRaw = sharedPreferences.getString(PreferencesKey.currentCakePayCountry);
@@ -904,6 +906,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
+    TransactionPriority? decredTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -933,6 +936,10 @@ abstract class SettingsStoreBase with Store {
       zanoTransactionPriority = monero?.deserializeMoneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.decredTransactionPriority) != null) {
+      decredTransactionPriority = decred?.deserializeDecredTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -941,6 +948,7 @@ abstract class SettingsStoreBase with Store {
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
+    decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
@@ -1045,7 +1053,7 @@ abstract class SettingsStoreBase with Store {
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
-
+    final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1054,6 +1062,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
+    final decredNode = nodeSource.get(decredNodeId);
     final nanoPowNode = powNodeSource.get(nanoPowNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
@@ -1144,8 +1153,12 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.zano] = zanoNode;
     }
 
+    if (decredNode != null) {
+      nodes[WalletType.decred] = decredNode;
+    }
+
     final savedSyncMode = SyncMode.all.firstWhere((element) {
-      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 0);
+      return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 2); // default to 2 - daily sync
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
 
@@ -1312,6 +1325,7 @@ abstract class SettingsStoreBase with Store {
       initialHavenTransactionPriority: havenTransactionPriority,
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
+      initialDecredTransactionPriority: decredTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1327,7 +1341,6 @@ abstract class SettingsStoreBase with Store {
           shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       initialEthereumTransactionPriority: ethereumTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
-      backgroundTasks: backgroundTasks,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,
@@ -1385,6 +1398,11 @@ abstract class SettingsStoreBase with Store {
     if (zano != null && sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
       priority[WalletType.zano] = zano!.deserializeMoneroTransactionPriority(
               raw: sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority)!);
+    }
+    if (decred != null &&
+        sharedPreferences.getInt(PreferencesKey.decredTransactionPriority) != null) {
+      priority[WalletType.decred] = decred!.deserializeDecredTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1497,6 +1515,7 @@ abstract class SettingsStoreBase with Store {
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
+    final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1504,11 +1523,12 @@ abstract class SettingsStoreBase with Store {
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
-    final nanoNode = nodeSource.get(nanoNodeId);   
+    final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
     final wowneroNode = nodeSource.get(wowneroNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
+    final decredNode = nodeSource.get(decredNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1557,6 +1577,10 @@ abstract class SettingsStoreBase with Store {
 
     if (zanoNode != null) {
       nodes[WalletType.zano] = zanoNode;
+    }
+
+    if (decredNode != null) {
+      nodes[WalletType.decred] = decredNode;
     }
 
     // MIGRATED:
@@ -1694,6 +1718,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.wownero:
         await _sharedPreferences.setInt(PreferencesKey.currentWowneroNodeIdKey, node.key as int);
+        break;
+      case WalletType.decred:
+        await _sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
         break;
       case WalletType.zano:
         await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);

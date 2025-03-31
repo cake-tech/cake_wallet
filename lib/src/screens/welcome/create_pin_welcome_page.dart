@@ -26,20 +26,12 @@ class CreatePinWelcomePage extends BasePage {
       return S.of(context).monero_com;
     }
 
-    if (isHaven) {
-      return S.of(context).haven_app;
-    }
-
     return S.of(context).cake_wallet;
   }
 
   String appDescription(BuildContext context) {
     if (isMoneroOnly) {
       return S.of(context).monero_com_wallet_text;
-    }
-
-    if (isHaven) {
-      return S.of(context).haven_app_wallet_text;
     }
 
     return S.of(context).new_first_wallet_text;

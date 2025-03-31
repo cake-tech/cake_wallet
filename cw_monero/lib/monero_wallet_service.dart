@@ -11,8 +11,6 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
-import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
@@ -75,6 +73,12 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String address;
   final String viewKey;
   final String spendKey;
+}
+
+enum OpenWalletTry {
+  initial,
+  cacheRestored,
+  cacheRemoved,
 }
 
 class MoneroWalletService extends WalletService<
@@ -141,7 +145,7 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<MoneroWallet> openWallet(String name, String password, {bool? retryOnFailure}) async {
+  Future<MoneroWallet> openWallet(String name, String password, {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
 
@@ -174,12 +178,16 @@ class MoneroWalletService extends WalletService<
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
 
-      if (retryOnFailure == false) {
-        rethrow;
+      switch (openWalletTry) {
+        case OpenWalletTry.initial:
+          await restoreOrResetWalletFiles(name);
+          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRestored);
+        case OpenWalletTry.cacheRestored:
+          await removeCache(name);
+          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRemoved);
+        case OpenWalletTry.cacheRemoved:
+          rethrow;
       }
-
-      await restoreOrResetWalletFiles(name);
-      return await openWallet(name, password, retryOnFailure: false);
     }
   }
 
@@ -292,16 +300,14 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (credentials.mnemonic.split(" ").length == 16) {
-      // Restore from Polyseed
-      try {
-        if (Polyseed.isValidSeed(credentials.mnemonic)) {
-          return restoreFromPolyseed(credentials);
-        }
-      } catch (e) {
-        printV("Polyseed restore failed: $e");
-        rethrow;
+    // Restore from Polyseed
+    try {
+      if (Polyseed.isValidSeed(credentials.mnemonic)) {
+        return restoreFromPolyseed(credentials);
       }
+    } catch (e) {
+      printV("Polyseed restore failed: $e");
+      rethrow;
     }
 
     try {

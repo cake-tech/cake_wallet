@@ -101,6 +101,7 @@ Build the necessary libraries and their dependencies:
 ```zsh
 ./build_monero_all.sh
 ./build_mwebd.sh
+./build_decred.sh
 ```
 
 NOTE: This step will take quite a while, so be sure you grab a cup of coffee or a good book!

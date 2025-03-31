@@ -122,6 +122,7 @@ class WalletListBodyState extends State<WalletListBody> {
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
+  final decredIcon = Image.asset('assets/images/decred_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
@@ -135,6 +136,8 @@ class WalletListBodyState extends State<WalletListBody> {
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
+
+  bool _loadingWallet = false;
 
   @override
   Widget build(BuildContext context) {
@@ -480,6 +483,10 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {
+    if (_loadingWallet) return;
+
+    _loadingWallet = true;
+
     if (SettingsStoreBase.walletPasswordDirectInput) {
       Navigator.of(context).pushNamed(Routes.walletUnlockLoadable,
           arguments: WalletUnlockArguments(
@@ -492,13 +499,17 @@ class WalletListBodyState extends State<WalletListBody> {
               },
               walletName: wallet.name,
               walletType: wallet.type));
+      _loadingWallet = false;
       return;
     }
 
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
-        if (!isAuthenticatedSuccessfully) return;
+        if (!isAuthenticatedSuccessfully) {
+          _loadingWallet = false;
+          return;
+        }
 
         try {
           final requireHardwareWalletConnection = widget.walletListViewModel
@@ -555,6 +566,8 @@ class WalletListBodyState extends State<WalletListBody> {
                 .of(context)
                 .wallet_list_failed_to_load(wallet.name, e.toString()));
           }
+        } finally {
+          _loadingWallet = false;
         }
       },
       conditionToDetermineIfToUse2FA:

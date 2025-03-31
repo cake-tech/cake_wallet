@@ -12,18 +12,20 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/adaptable_page_view.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
@@ -34,7 +36,6 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -290,7 +291,7 @@ class SendPage extends BasePage {
                                               ? template.cryptoCurrency
                                               : template.fiatCurrency,
                                           onTap: () async {
-                                            sendViewModel.state = IsExecutingState();
+                                            sendViewModel.state = LoadingTemplateExecutingState();
                                             if (template.additionalRecipients?.isNotEmpty ??
                                                 false) {
                                               sendViewModel.clearOutputs();
@@ -396,6 +397,10 @@ class SendPage extends BasePage {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
+
+                              //Request dummy node to get the focus out of the text fields
+                              FocusScope.of(context).requestFocus(FocusNode());
+
                               if (sendViewModel.state is IsExecutingState) return;
                               if (_formKey.currentState != null &&
                                   !_formKey.currentState!.validate()) {
@@ -464,7 +469,8 @@ class SendPage extends BasePage {
                             textColor: Colors.white,
                             isLoading: sendViewModel.state is IsExecutingState ||
                                 sendViewModel.state is TransactionCommitting ||
-                                sendViewModel.state is IsAwaitingDeviceResponseState,
+                                sendViewModel.state is IsAwaitingDeviceResponseState ||
+                                sendViewModel.state is LoadingTemplateExecutingState,
                             isDisabled: !sendViewModel.isReadyForSend,
                           );
                         },
@@ -479,6 +485,7 @@ class SendPage extends BasePage {
   }
 
   BuildContext? dialogContext;
+  BuildContext? loadingBottomSheetContext;
 
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
@@ -493,6 +500,13 @@ class SendPage extends BasePage {
       if (dialogContext != null && dialogContext?.mounted == true) {
         Navigator.of(dialogContext!).pop();
       }
+
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -510,41 +524,59 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is ExecutedSuccessfullyState) {
+      if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
-            showPopUp<void>(
-                context: context,
-                builder: (BuildContext _dialogContext) {
-                  return ConfirmSendingAlert(
-                      key: ValueKey('send_page_confirm_sending_dialog_key'),
-                      alertTitle: S.of(_dialogContext).confirm_sending,
-                      amount: S.of(_dialogContext).send_amount,
-                      amountValue: sendViewModel.pendingTransaction!.amountFormatted,
-                      fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
-                      fee: isEVMCompatibleChain(sendViewModel.walletType)
-                          ? S.of(_dialogContext).send_estimated_fee
-                          : S.of(_dialogContext).send_fee,
-                      feeRate: sendViewModel.pendingTransaction!.feeRate,
-                      feeValue: sendViewModel.pendingTransaction!.feeFormatted,
-                      feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                      outputs: sendViewModel.outputs,
-                      change: sendViewModel.pendingTransaction!.change,
-                      rightButtonText: S.of(_dialogContext).send,
-                      leftButtonText: S.of(_dialogContext).cancel,
-                      alertRightActionButtonKey:
-                          ValueKey('send_page_confirm_sending_dialog_send_button_key'),
-                      alertLeftActionButtonKey:
-                          ValueKey('send_page_confirm_sending_dialog_cancel_button_key'),
-                      actionRightButton: () async {
-                        Navigator.of(_dialogContext).pop();
-                        sendViewModel.commitTransaction(context);
-                      },
-                      actionLeftButton: () => Navigator.of(_dialogContext).pop());
-                });
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: S.of(context).generating_transaction,
+                );
+              },
+            );
           }
         });
       }
+
+      if (state is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              isScrollControlled: true,
+              builder: (BuildContext bottomSheetContext) {
+                return ConfirmSendingBottomSheet(
+                  key: ValueKey('send_page_confirm_sending_dialog_key'),
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
+                  currentTheme: currentTheme,
+                  titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
+                  currency: sendViewModel.selectedCryptoCurrency,
+                  amount: S.of(bottomSheetContext).send_amount,
+                  amountValue: sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: sendViewModel.pendingTransactionFiatAmountFormatted,
+                  fee: isEVMCompatibleChain(sendViewModel.walletType)
+                      ? S.of(bottomSheetContext).send_estimated_fee
+                      : S.of(bottomSheetContext).send_fee,
+                  feeValue: sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  outputs: sendViewModel.outputs,
+                  onSlideComplete: () async {
+                    Navigator.of(bottomSheetContext).pop();
+                    sendViewModel.commitTransaction(context);
+                  },
+                  change: sendViewModel.pendingTransaction!.change,
+                );
+              },
+            );
+          }
+        });
+      }
+
+
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -552,50 +584,58 @@ class SendPage extends BasePage {
             return;
           }
 
-          final successMessage =
-              S.of(context).send_success(sendViewModel.selectedCryptoCurrency.toString());
-
-          final waitMessage = sendViewModel.walletType == WalletType.solana
-              ? '. ${S.of(context).waitFewSecondForTxUpdate}'
-              : '';
-
-          String alertContent = "$successMessage$waitMessage";
-
-          await Navigator.of(context)
-              .pushNamed(Routes.transactionSuccessPage, arguments: alertContent);
-
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
+
           if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
             newContactAddress = null;
           }
 
-          if (sendViewModel.coinTypeToSpendFrom != UnspentCoinType.any) newContactAddress = null;
-
-          if (newContactAddress != null && sendViewModel.showAddressBookPopup) {
-            await showPopUp<void>(
-                context: context,
-                builder: (BuildContext _dialogContext) => AlertWithTwoActions(
-                    alertDialogKey: ValueKey('send_page_sent_dialog_key'),
-                    alertTitle: '',
-                    alertContent: S.of(_dialogContext).add_contact_to_address_book,
-                    rightButtonText: S.of(_dialogContext).add_contact,
-                    leftButtonText: S.of(_dialogContext).ignor,
-                    alertLeftActionButtonKey: ValueKey('send_page_sent_dialog_ignore_button_key'),
-                    alertRightActionButtonKey:
-                        ValueKey('send_page_sent_dialog_add_contact_button_key'),
-                    actionRightButton: () {
-                      Navigator.of(_dialogContext).pop();
-                      RequestReviewHandler.requestReview();
-                      Navigator.of(context)
-                          .pushNamed(Routes.addressBookAddContact, arguments: newContactAddress);
-                      newContactAddress = null;
-                    },
-                    actionLeftButton: () {
-                      Navigator.of(_dialogContext).pop();
-                      RequestReviewHandler.requestReview();
-                      newContactAddress = null;
-                    }));
-          }
+          await showModalBottomSheet<void>(
+            context: context,
+            isDismissible: false,
+            builder: (BuildContext bottomSheetContext) {
+              return newContactAddress != null && sendViewModel.showAddressBookPopup
+                  ? InfoBottomSheet(
+                      currentTheme: currentTheme,
+                      showDontAskMeCheckbox: true,
+                      onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/contact_icon.svg',
+                      contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      content: S.of(bottomSheetContext).add_contact_to_address_book,
+                      isTwoAction: true,
+                      leftButtonText: 'No',
+                      rightButtonText: 'Yes',
+                      actionLeftButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      },
+                      actionRightButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        Navigator.of(context)
+                            .pushNamed(Routes.addressBookAddContact, arguments: newContactAddress);
+                        newContactAddress = null;
+                      },
+                    )
+                  : InfoBottomSheet(
+                      currentTheme: currentTheme,
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/birthday_cake.svg',
+                      actionButtonText: S.of(bottomSheetContext).close,
+                      actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                      actionButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      });
+            },
+          );
 
           if (initialPaymentRequest?.callbackUrl?.isNotEmpty ?? false) {
             // wait a second so it's not as jarring:
