@@ -4,6 +4,7 @@ import 'package:cake_wallet/anonpay/anonpay_request.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -27,6 +28,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
     this._anonpayInvoiceInfoSource,
     this.sharedPreferences,
     this.pageOption,
+    this.fiatConversionStore,
   )   : receipientEmail = '',
         receipientName = '',
         description = '',
@@ -46,6 +48,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
   final Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
   final SharedPreferences sharedPreferences;
   final ReceivePageOption pageOption;
+  final FiatConversionStore fiatConversionStore;
 
   @observable
   Currency selectedCurrency;
@@ -159,6 +162,7 @@ abstract class AnonInvoicePageViewModelBase with Store {
     final limit = await anonPayApi.fetchLimits(
       cryptoCurrency: cryptoCurrency,
       fiatCurrency: selectedCurrency is FiatCurrency ? selectedCurrency as FiatCurrency : null,
+      fiatConversionStore: fiatConversionStore,
     );
     minimum = limit.min;
     maximum = limit.max != null ? limit.max! / 4 : null;

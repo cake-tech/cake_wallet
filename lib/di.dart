@@ -703,6 +703,7 @@ Future<void> setup({
       _anonpayInvoiceInfoSource,
       getIt.get<SharedPreferences>(),
       pageOption,
+      getIt.get<FiatConversionStore>(),
     );
   });
 

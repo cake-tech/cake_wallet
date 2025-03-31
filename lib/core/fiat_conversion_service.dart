@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
@@ -22,46 +23,51 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
   };
 
   num price = 0.0;
-
-  try {
-    late final Uri uri;
-    if (torOnly) {
-      uri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
-    } else {
-      uri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
-    }
-
-    final response = await get(uri);
-
-    if (response.statusCode != 200) {
-      return 0.0;
-    }
-
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final results = responseJSON['results'] as Map<String, dynamic>;
-
-    if (results.isNotEmpty) {
-      price = results.values.first as num;
-    }
-
-    return price.toDouble();
-  } catch (e) {
-    return price.toDouble();
+  late final Uri uri;
+  if (torOnly) {
+    uri = Uri.http(_fiatApiOnionAuthority, _fiatApiPath, queryParams);
+  } else {
+    uri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
   }
+
+  final response = await get(uri);
+
+  if (response.statusCode != 200) {
+    throw Exception('Fiat conversion service unavailable: ${response.statusCode}');
+  }
+
+  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+  final results = responseJSON['results'] as Map<String, dynamic>;
+
+  if (results.isNotEmpty) {
+    price = results.values.first as num;
+  }
+
+  return price.toDouble();
 }
 
-Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly) async =>
-    compute(_fetchPrice, {
+Future<double> _fetchPriceAsync(CryptoCurrency crypto, FiatCurrency fiat, bool torOnly,
+    FiatConversionStore fiatConversionStore) async {
+  try {
+    final price = await compute(_fetchPrice, {
       'fiat': fiat.toString(),
       'crypto': crypto.toString(),
       'torOnly': torOnly,
     });
+    fiatConversionStore.unavailable = false;
+    return price;
+  } catch (e) {
+    fiatConversionStore.unavailable = true;
+    return 0.0;
+  }
+}
 
 class FiatConversionService {
   static Future<double> fetchPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
+    required FiatConversionStore fiatConversionStore,
   }) async =>
-      await _fetchPriceAsync(crypto, fiat, torOnly);
+      await _fetchPriceAsync(crypto, fiat, torOnly, fiatConversionStore);
 }

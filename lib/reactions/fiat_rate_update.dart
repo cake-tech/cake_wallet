@@ -64,7 +64,8 @@ Future<void> startFiatRateUpdate(
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
                 crypto: currency,
                 fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+                fiatConversionStore: fiatConversionStore);
           }.call();
         }
       }

@@ -644,6 +644,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         crypto: cryptoCurrency,
         fiat: currency,
         torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
+        fiatConversionStore: fiatConversionStore,
       ).then((value) {
         dev.log("Received Fiat rate 1 $cryptoCurrency = $value $currency");
         _fiatRate = value;
