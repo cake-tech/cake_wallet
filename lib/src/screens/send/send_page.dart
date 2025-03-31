@@ -597,7 +597,9 @@ class SendPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return newContactAddress != null && sendViewModel.showAddressBookPopup
+              return newContactAddress != null &&
+                      sendViewModel.showAddressBookPopup &&
+                      sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,
