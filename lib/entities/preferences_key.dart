@@ -105,4 +105,7 @@ class PreferencesKey {
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
+  static const backgtoundSyncNotificationEnabled = 'background_sync_notification_enabled';
+  static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
+  static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
 }

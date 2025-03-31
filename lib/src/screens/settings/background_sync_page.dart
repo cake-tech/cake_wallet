@@ -12,6 +12,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BackgroundSyncPage extends BasePage {
   BackgroundSyncPage(this.dashboardViewModel);
@@ -28,15 +29,18 @@ class BackgroundSyncPage extends BasePage {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (dashboardViewModel.hasBatteryOptimization)
             Observer(builder: (context) {
-              return SettingsSwitcherCell(
-                title: S.current.unrestricted_background_service,
-                value: !dashboardViewModel.batteryOptimizationEnabled,
-                onValueChange: (_, bool value) {
-                  dashboardViewModel.disableBatteryOptimization();
-                },
-              );
+              if (dashboardViewModel.hasBatteryOptimization && dashboardViewModel.batteryOptimizationEnabled) {
+                return SettingsSwitcherCell(
+                  title: S.current.unrestricted_background_service,
+                  value: !dashboardViewModel.batteryOptimizationEnabled,
+                  onValueChange: (_, bool value) {
+                    dashboardViewModel.disableBatteryOptimization();
+                  },
+                );
+              } else {
+                return Container();
+              }
             }),
           Observer(builder: (context) {
             return SettingsSwitcherCell(
@@ -68,22 +72,58 @@ class BackgroundSyncPage extends BasePage {
                   dashboardViewModel.setSyncMode(syncMode);
                 });
           }),
-          
-          // Observer(builder: (context) {
-          //   return SettingsSwitcherCell(
-          //     title: S.current.background_sync_on_battery,
-          //     value: dashboardViewModel.backgroundSyncOnBattery,
-          //     onValueChange: (_, bool value) =>
-          //         dashboardViewModel.setBackgroundSyncOnBattery(value),
-          //   );
-          // }),
-          // Observer(builder: (context) {
-          //   return SettingsSwitcherCell(
-          //     title: S.current.background_sync_on_data,
-          //     value: dashboardViewModel.backgroundSyncOnData,
-          //     onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncOnData(value),
-          //   );
-          // }),
+          if (dashboardViewModel.hasBgsyncNetworkConstraints)
+            Observer(builder: (context) {
+              return SettingsSwitcherCell(
+                title: S.current.background_sync_on_unmetered_network,
+                value: dashboardViewModel.backgroundSyncNetworkUnmetered,
+                onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncNetworkUnmetered(value),
+              );
+            }),
+          if (dashboardViewModel.hasBgsyncBatteryNotLowConstraints)
+            Observer(builder: (context) {
+              return SettingsSwitcherCell(
+                title: S.current.background_sync_on_battery_low,
+                value: !dashboardViewModel.backgroundSyncBatteryNotLow,
+                onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncBatteryNotLow(!value),
+              );
+            }),
+          if (dashboardViewModel.hasBgsyncChargingConstraints)
+            Observer(builder: (context) {
+              return SettingsSwitcherCell(
+                title: S.current.background_sync_on_charging,
+                value: dashboardViewModel.backgroundSyncCharging,
+                onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncCharging(value),
+              );
+            }),
+          if (dashboardViewModel.hasBgsyncDeviceIdleConstraints)
+            Observer(builder: (context) {
+              return SettingsSwitcherCell(
+                title: S.current.background_sync_on_device_idle,
+                value: dashboardViewModel.backgroundSyncDeviceIdle,
+                onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncDeviceIdle(value),
+              );
+            }),
+          Observer(builder: (context) {
+            return SettingsSwitcherCell(
+              title: S.current.new_transactions_notifications,
+              value: dashboardViewModel.backgroundSyncNotificationsEnabled,
+              onValueChange: (_, bool value) { 
+                try {
+                  dashboardViewModel.setBackgroundSyncNotificationsEnabled(value);
+                } catch (e) {
+                  showPopUp(context: context, builder: (context) => AlertWithOneAction(
+                    alertTitle: S.current.error,
+                    alertContent: S.current.notification_permission_denied,
+                    buttonText: S.current.ok,
+                    buttonAction: () {
+                      Navigator.of(context).pop();
+                    },
+                  ));
+                }
+              },
+            );
+          }),
         ],
       ),
     );

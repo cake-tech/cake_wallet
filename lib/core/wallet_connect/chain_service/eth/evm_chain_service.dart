@@ -22,6 +22,7 @@ import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:web3dart/web3dart.dart';
 import '../chain_service.dart';
 import '../../wallet_connect_key_service.dart';
+import 'package:web3dart/src/crypto/formatting.dart' as formatting;
 
 class EvmChainServiceImpl implements ChainService {
   final AppStore appStore;
@@ -230,7 +231,7 @@ class EvmChainServiceImpl implements ChainService {
           ? EtherAmount.inWei(BigInt.parse(ethTransaction.gasPrice ?? ""))
           : null,
       value: EtherAmount.inWei(BigInt.parse(ethTransaction.value)),
-      data: hexToBytes(ethTransaction.data ?? ""),
+      data: formatting.hexToBytes(ethTransaction.data ?? ""),
       nonce: ethTransaction.nonce != null ? int.tryParse(ethTransaction.nonce ?? "") : null,
     );
 
