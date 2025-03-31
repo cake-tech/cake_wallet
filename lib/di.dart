@@ -35,8 +35,10 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
+import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
@@ -911,6 +913,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => DevMoneroBackgroundSync(getIt.get<AppStore>().wallet!));
 
+  getIt.registerFactory(() => DevSharedPreferences());
+
   getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
       WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
 
@@ -1449,6 +1453,10 @@ Future<void> setup({
   getIt.registerFactory(() => SeedVerificationPage(getIt.get<WalletSeedViewModel>()));
 
   getIt.registerFactory(() => DevMoneroBackgroundSyncPage(getIt.get<DevMoneroBackgroundSync>()));
+
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
+
+  getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
+  
   _isSetupFinished = true;
 }

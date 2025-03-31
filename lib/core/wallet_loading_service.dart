@@ -52,8 +52,11 @@ class WalletLoadingService {
     }
   }
 
-  Future<WalletBase> load(WalletType type, String name, {String? password}) async {
+  Future<WalletBase> load(WalletType type, String name, {String? password, bool isBackground = false}) async {
     try {
+      if (!isBackground) {
+        await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(name), DateTime.now().toIso8601String());
+      }
       final walletService = walletServiceFactory.call(type);
       final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
       final wallet = await walletService.openWallet(name, walletPassword);

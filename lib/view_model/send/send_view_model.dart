@@ -14,6 +14,7 @@ import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -52,6 +53,25 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/core/amount_validator.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
 
@@ -587,6 +607,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 transactionNote: note,
               ));
       }
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name), DateTime.now().add(Duration(minutes: 1)).toIso8601String());
 
       state = TransactionCommitted();
     } catch (e) {
