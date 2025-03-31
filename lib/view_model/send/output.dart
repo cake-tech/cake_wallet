@@ -294,37 +294,26 @@ abstract class OutputBase with Store {
 
     switch (_wallet.type) {
       case WalletType.monero:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
+      case WalletType.haven:
+      case WalletType.zano:
+      case WalletType.nano:
+      case WalletType.decred:
         maximumFractionDigits = 12;
         break;
       case WalletType.bitcoin:
-        maximumFractionDigits = 8;
-        break;
       case WalletType.litecoin:
-        maximumFractionDigits = 8;
-        break;
       case WalletType.bitcoinCash:
         maximumFractionDigits = 8;
-        break;
-      case WalletType.haven:
-        maximumFractionDigits = 12;
-        break;
-      case WalletType.ethereum:
-      case WalletType.polygon:
-        maximumFractionDigits = 12;
-        break;
-      case WalletType.solana:
-        maximumFractionDigits = 12;
-        break;
-      case WalletType.tron:
-        maximumFractionDigits = 12;
         break;
       case WalletType.wownero:
         maximumFractionDigits = 11;
         break;
-      case WalletType.zano:
-        maximumFractionDigits = 12;
-        break;
-      default:
+      case WalletType.none:
+      case WalletType.banano:
         break;
     }
 

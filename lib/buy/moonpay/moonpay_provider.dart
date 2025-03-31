@@ -7,6 +7,7 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -31,7 +32,14 @@ class MoonPayProvider extends BuyProvider {
   })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
         this._settingsStore = settingsStore,
-        super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
+        super(
+          wallet: wallet,
+          isTestEnvironment: isTestEnvironment,
+          ledgerVM: null,
+          supportedCryptoList: supportedCryptoToFiatPairs(
+              notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+          supportedFiatList: supportedFiatToCryptoPairs(
+              notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   final SettingsStore _settingsStore;
 
@@ -47,6 +55,9 @@ class MoonPayProvider extends BuyProvider {
   static const _sellQuote = '/sell_quote';
 
   static const _transactionsSuffix = '/v1/transactions';
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   final String baseBuyUrl;
   final String baseSellUrl;

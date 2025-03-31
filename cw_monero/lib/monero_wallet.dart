@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/account.dart';
@@ -233,18 +234,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       return;
     }
     isBackgroundSyncRunning = true;
-    int status = monero.Wallet_status(wptr!);
-    if (status != 0) {
-      final err = monero.Wallet_errorString(wptr!);
-      throw Exception("unable to setup background sync: $err");
-    }
     await save();
 
     monero.Wallet_startBackgroundSync(wptr!);
-    status = monero.Wallet_status(wptr!);
+    final status = monero.Wallet_status(wptr!);
     if (status != 0) {
       final err = monero.Wallet_errorString(wptr!);
-      throw Exception("unable to start background sync: $err");
+      isBackgroundSyncRunning = false;
+      printV("startBackgroundSync: $err");
     }
     await save();
     await init();
@@ -260,9 +257,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       printV("Stopping background sync");
       await save();
       monero.Wallet_stopBackgroundSync(wptr!, '');
-      await save();
       isBackgroundSyncRunning = false;
     }
+    await save();
   }
 
   @action
@@ -406,6 +403,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
               outputs: moneroOutputs,
               priorityRaw: _credentials.priority.serialize(),
               accountIndex: walletAddresses.account!.id,
+              paymentId: "",
               preferredInputs: inputs);
     } else {
       final output = outputs.first;
@@ -509,6 +507,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final currentCacheFile = File(renamedWalletPath);
       final currentKeysFile = File('$renamedWalletPath.keys');
       final currentAddressListFile = File('$renamedWalletPath.address.txt');
+      final backgroundSyncFile = File('$renamedWalletPath.background');
 
       final newWalletPath =
           await pathForWallet(name: newWalletName, type: type);
@@ -521,6 +520,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
       if (currentAddressListFile.existsSync()) {
         await currentAddressListFile.rename('$newWalletPath.address.txt');
+      }
+      if (backgroundSyncFile.existsSync()) {
+        await backgroundSyncFile.rename('$newWalletPath.background');
       }
 
       await backupWalletFiles(newWalletName);
@@ -903,5 +905,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final dummyWPtr = wptr ??
         monero.WalletManager_openWallet(wmPtr, path: '', password: '');
     enableLedgerExchange(dummyWPtr, connection);
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    return moneroAmountToString(amount: int.parse(amount));
   }
 }
