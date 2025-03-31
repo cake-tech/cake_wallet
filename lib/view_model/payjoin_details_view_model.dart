@@ -89,16 +89,12 @@ abstract class PayjoinDetailsViewModelBase with Store {
         StandartListItem(
           title: S.current.transaction_details_transaction_id,
           value: payjoinSession.txId!,
+          key: ValueKey('standard_list_item_transaction_details_id_key'),
         )
     ]);
 
     if (transactionInfo != null) {
       items.addAll([
-        StandartListItem(
-          title: S.current.transaction_details_transaction_id,
-          value: transactionInfo!.txHash,
-          key: ValueKey('standard_list_item_transaction_details_id_key'),
-        ),
         StandartListItem(
           title: S.current.transaction_details_date,
           value: dateFormat.format(transactionInfo!.date),
