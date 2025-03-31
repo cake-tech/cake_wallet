@@ -9,6 +9,9 @@ import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
+import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -39,13 +42,29 @@ class TransactionDetailsPage extends BasePage {
               final item = transactionDetailsViewModel.items[index];
 
               if (item is StandartListItem) {
+
+                final addressTextWidget = item.title.toLowerCase() == 'recipient addresses' ?
+                AddressFormatter.buildSegmentedAddress(
+                  address: item.value,
+                  walletType: transactionDetailsViewModel.sendViewModel.walletType,
+                  evenTextStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor
+                  ),
+                  oddTextStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor
+                  )) : null;
+
                 return GestureDetector(
                   key: item.key,
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: item.value));
                     showBar<void>(context, S.of(context).transaction_details_copied(item.title));
                   },
-                  child: ListRow(title: '${item.title}:', value: item.value),
+                  child: ListRow(title: '${item.title}:', value: item.value, textWidget: addressTextWidget),
                 );
               }
 
