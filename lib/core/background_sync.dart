@@ -183,9 +183,9 @@ class BackgroundSync {
         final lastTriggerDate = lastTriggerString != null 
             ? DateTime.parse(lastTriggerString) 
             : DateTime.now();
-        
+        final keys = sharedPreferences.getKeys();
         if (tx.date.isBefore(lastTriggerDate)) {
-          printV("TX ${tx.date} is before $lastTriggerDate");
+          printV("w: ${wallet.name}, tx: ${tx.date} is before $lastTriggerDate (lastTriggerString: $lastTriggerString) (k: ${keys.length})");
           continue;
         }
         await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name), tx.date.add(Duration(minutes: 1)).toIso8601String());
