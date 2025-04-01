@@ -101,21 +101,10 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
+  @Deprecated("""This method, by current design cannot be called, as this box will always be valid.
+That being said, subaddressList may get a little bit out of sync (couple frames), which prevents
+freezes, but causes check that was here previously to fail.""")
   bool validate() {
-    accountList.update();
-    final accountListLength = accountList.accounts.length;
-
-    if (accountListLength <= 0) {
-      return false;
-    }
-
-    subaddressList.update(accountIndex: accountList.accounts.first.id);
-    final subaddressListLength = subaddressList.subaddresses.length;
-
-    if (subaddressListLength <= 0) {
-      return false;
-    }
-
     return true;
   }
 

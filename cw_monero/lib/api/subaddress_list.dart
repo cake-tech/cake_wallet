@@ -67,24 +67,44 @@ List<TinyTransactionDetails> ttDetails = [];
 
 List<Subaddress> getAllSubaddresses() {
   if (txCache[wptr!.address] == null) {
-    return [];
-  }
-  final txCount = txCache[wptr!.address]!.length;
-  if (lastTxCount != txCount && lastWptr != wptr!.address) {
-    final List<TinyTransactionDetails> newttDetails = [];
-    lastTxCount = txCount;
-    lastWptr = wptr!.address;
-    for (var tx in txCache[wptr!.address]!.values) {
-      if (tx.isSpend) continue;
-      final subaddrs = tx.addressIndexList;
-      final account = tx.accountIndex;
-      newttDetails.add(TinyTransactionDetails(
-        address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex: subaddrs[index])),
-        amount: tx.amount,
-      ));
+    // old, unsafe method that can cause a crash
+    txhistory = monero.Wallet_history(wptr!);
+    final txCount = monero.TransactionHistory_count(txhistory!);
+    if (lastTxCount != txCount && lastWptr != wptr!.address) {
+      final List<TinyTransactionDetails> newttDetails = [];
+      lastTxCount = txCount;
+      lastWptr = wptr!.address;
+      for (var i = 0; i < txCount; i++) {
+        final tx = monero.TransactionHistory_transaction(txhistory!, index: i);
+        if (monero.TransactionInfo_direction(tx) == monero.TransactionInfo_Direction.Out) continue;
+        final subaddrs = monero.TransactionInfo_subaddrIndex(tx).split(",");
+        final account = monero.TransactionInfo_subaddrAccount(tx);
+        newttDetails.add(TinyTransactionDetails(
+          address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex: int.tryParse(subaddrs[index])??0)),
+          amount: monero.TransactionInfo_amount(tx),
+        ));
+      }
+      ttDetails.clear();
+      ttDetails.addAll(newttDetails);
     }
-    ttDetails.clear();
-    ttDetails.addAll(newttDetails);
+  } else {
+    final txCount = txCache[wptr!.address]!.length;
+    if (lastTxCount != txCount && lastWptr != wptr!.address) {
+      final List<TinyTransactionDetails> newttDetails = [];
+      lastTxCount = txCount;
+      lastWptr = wptr!.address;
+      for (var tx in txCache[wptr!.address]!.values) {
+        if (tx.isSpend) continue;
+        final subaddrs = tx.addressIndexList;
+        final account = tx.accountIndex;
+        newttDetails.add(TinyTransactionDetails(
+          address: List.generate(subaddrs.length, (index) => getAddress(accountIndex: account, addressIndex: subaddrs[index])),
+          amount: tx.amount,
+        ));
+      }
+      ttDetails.clear();
+      ttDetails.addAll(newttDetails);
+    }
   }
   final size = monero.Wallet_numSubaddresses(wptr!, accountIndex: subaddress!.accountIndex);
   final list = List.generate(size, (index) {

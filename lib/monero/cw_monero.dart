@@ -69,6 +69,22 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
           txCount: sub.txCount??0,
         ))
         .toList();
+    if (subAddresses.length == 0) {
+      // This is far from ideal, but previously (waiting for subaddresses to load) the wallet would
+      // be unresponsive, with this workaround the UI is responsive, and by the time user unlocks
+      // the wallet and navigates to the subaddresses page, the subaddresses are loaded, and if
+      // they are not then this will show a placeholder.
+      // Better than freezing the entire app or risking a crash.
+      return ObservableList<Subaddress>.of([
+        Subaddress(
+          id: 0,
+          address: "<still loading>",
+          label: "<still loading>",
+          received: "unknown",
+          txCount: 0,
+        )
+      ]);
+    }
     return ObservableList<Subaddress>.of(subAddresses);
   }
 

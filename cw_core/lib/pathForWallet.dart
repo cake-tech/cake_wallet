@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:path_provider/path_provider.dart';
 
 Future<String> pathForWalletDir({required String name, required  WalletType type}) async {
   final root = await getAppDir();
