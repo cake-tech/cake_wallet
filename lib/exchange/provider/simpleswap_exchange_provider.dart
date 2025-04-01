@@ -34,10 +34,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   String get title => 'SimpleSwap';
 
   @override
-  bool get isAvailable => true;
+  bool get isAvailable => false;
 
   @override
-  bool get isEnabled => true;
+  bool get isEnabled => false;
 
   @override
   bool get supportsFixedRate => false;
