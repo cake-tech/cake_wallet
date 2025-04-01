@@ -467,9 +467,9 @@ abstract class DashboardViewModelBase with Store {
         "public view key is 0",
       // if (wallet.seed == null) "wallet seed is null",
       // if (wallet.seed == "") "wallet seed is empty",
-      // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
-      //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-      //   "primary address is invalid, you won't be able to receive / spend funds",
+      if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
+          "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
+        "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }

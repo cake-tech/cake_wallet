@@ -6,5 +6,5 @@ class FeatureFlag {
   static const bool isInAppTorEnabled = false;
   static const bool isBackgroundSyncEnabled = true;
   static const int verificationWordsCount = kDebugMode ? 0 : 2;
-  static const bool hasDevOptions = bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode || kProfileMode);
+  static const bool hasDevOptions = bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
 }
