@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/http_client.dart';
@@ -14,9 +15,8 @@ import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/spl_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as ioc;
-import 'package:solana/dto.dart';
-import 'package:solana/encoder.dart';
-import 'package:solana/solana.dart';
+import 'package:on_chain/solana/solana.dart';
+import 'package:on_chain/solana/src/models/pda/pda.dart';
 import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {

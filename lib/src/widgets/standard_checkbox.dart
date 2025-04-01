@@ -18,7 +18,7 @@ class StandardCheckbox extends StatelessWidget {
   final Color? borderColor;
   final Color? iconColor;
   final Color? captionColor;
-  final Function(bool) onChanged;
+  final Function(bool)? onChanged;
 
   @override
   Widget build(BuildContext context) {
