@@ -333,6 +333,8 @@
   "fetching": "ń wá",
   "fiat_api": "Ojú ètò áàpù owó tí ìjọba pàṣẹ wa lò",
   "fiat_balance": "Fiat Iwontunws.funfun",
+  "fiat_unavailable": "Fiatp API ko si",
+  "fiat_unavailable_desc": "Fiat awọn oye ko lagbara lati han nitori fiatp ape ko si. Eyi le fa nipasẹ awọn ọran asopọ, tabi API ti n jade ni igba diẹ.\n\nTi o ba ti ṣeto eto Fiat API rẹ si oriri, rii daju pe Hobot n ṣiṣẹ ati ni anfani lati sopọ.\n\nJọwọ ṣayẹwo ibojì fun eyikeyi ipo lori iṣẹ, tabi tẹ kọ ẹkọ diẹ sii fun eyikeyi awọn ọran asopọ to wọpọ.",
   "field_required": "E ni lati se nkan si aye yi",
   "fill_code": "Ẹ jọ̀wọ́ tẹ̀ ọ̀rọ̀ ìjẹ́rìísí t'á ti ránṣẹ́ sí ímeèlì yín.",
   "filter_by": "Ṣẹ́ láti",

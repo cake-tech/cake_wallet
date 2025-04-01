@@ -332,6 +332,8 @@
   "fetching": "Daukewa",
   "fiat_api": "API ɗin Fiat",
   "fiat_balance": "Fiat Balance",
+  "fiat_unavailable": "Fiat Api Baza",
+  "fiat_unavailable_desc": "Fiat Adadin sun kasa nuna saboda Fiat API ba shi da shi. Ana iya haifar da wannan ta hanyar batutuwan haɗin kai, ko API suna ƙasa na ɗan lokaci.\n\nIdan an saita fiat api saiti zuwa tor, tabbatar orbot yana gudana kuma yana da ikon haɗawa.\n\nDa fatan za a duba kararrawa don kowane matsayi a sabis ɗin, ko inba ƙarin koyo don kowane lamuran haɗin gama gari.",
   "field_required": "wannan fillin ana bukatansa",
   "fill_code": "Da fatan za a cika lambar tabbatarwa da aka bayar zuwa imel ɗin ku",
   "filter_by": "Tace ta",

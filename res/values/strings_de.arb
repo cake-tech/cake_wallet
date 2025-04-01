@@ -332,6 +332,8 @@
   "fetching": "Frage ab",
   "fiat_api": "Fiat API",
   "fiat_balance": "Fiat Balance",
+  "fiat_unavailable": "Fiat API nicht verfügbar",
+  "fiat_unavailable_desc": "Fiat -Beträge können nicht angezeigt werden, da die Fiat -API nicht verfügbar ist. Dies kann durch Verbindungsprobleme oder die API verursacht werden, die vorübergehend gesunken ist.\n\nWenn Ihre Fiat -API -Einstellung auf TOR eingestellt ist, stellen Sie sicher, dass Orbot ausgeführt wird und eine Verbindung herstellen kann.\n\nBitte überprüfen Sie die Glocke auf einen beliebigen Status im Dienst oder tippen Sie auf mehr für alle häufig vorkommenden Verbindungsprobleme.",
   "field_required": "Dieses Feld ist erforderlich",
   "fill_code": "Geben Sie den Bestätigungscode ein, den Sie per E-Mail erhalten haben",
   "filter_by": "Filtern nach",

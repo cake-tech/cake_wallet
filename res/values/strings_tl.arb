@@ -332,6 +332,8 @@
   "fetching": "Pagkuha",
   "fiat_api": "Fiat API",
   "fiat_balance": "Balanse ng fiat",
+  "fiat_unavailable": "Hindi magagamit ang Fiat API",
+  "fiat_unavailable_desc": "Ang mga halaga ng fiat ay hindi maipakita dahil sa hindi magagamit na API. Maaari itong sanhi ng mga isyu sa koneksyon, o pansamantalang bumaba ang API.\n\nKung ang iyong setting ng Fiat API ay nakatakda sa tor, siguraduhin na ang Orbot ay tumatakbo at nakakonekta.\n\nMangyaring suriin ang kampanilya para sa anumang katayuan sa Serbisyo, o i -tap ang matuto nang higit pa para sa anumang mga karaniwang isyu sa koneksyon.",
   "field_required": "Kinakailangan ang patlang na ito",
   "fill_code": "Mangyaring ilagay ang verfification code na ibinigay sa iyong email",
   "filter_by": "Filter ni",

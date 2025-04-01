@@ -332,6 +332,8 @@
   "fetching": "Récupération",
   "fiat_api": "Fiat API",
   "fiat_balance": "Solde fiat",
+  "fiat_unavailable": "API Fiat indisponible",
+  "fiat_unavailable_desc": "Les quantités FIAT ne peuvent pas être montrées en raison de l'indisponibilité de l'API Fiat. Cela peut être causé par des problèmes de connexion, ou l'API est temporairement en baisse.\n\nSi votre paramètre API FIAT est défini sur Tor, assurez-vous que Orbot est en cours d'exécution et est capable de vous connecter.\n\nVeuillez vérifier la cloche de tout état sur le service, ou appuyez sur En savoir plus pour tout problème de connexion commun.",
   "field_required": "Ce champ est obligatoire",
   "fill_code": "Veuillez remplir le code de vérification fourni sur votre e-mail",
   "filter_by": "Filtrer par",

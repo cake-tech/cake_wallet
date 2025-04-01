@@ -75,8 +75,6 @@ class BalancePage extends StatelessWidget {
                 child: TabBarView(
                   physics: NeverScrollableScrollPhysics(),
                   children: [
-                    if (!dashboardViewModel.isFiatConversionServiceAvailable)
-                      Center(child: Text('Fiat conversion service is unavailable')),
                     CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
                     if (isNFTActivated) NFTListingPage(nftViewModel: nftViewModel)
                   ],

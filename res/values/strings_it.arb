@@ -332,6 +332,8 @@
   "fetching": "Recupero",
   "fiat_api": "Fiat API",
   "fiat_balance": "Saldo fiat",
+  "fiat_unavailable": "API Fiat non disponibile",
+  "fiat_unavailable_desc": "Gli importi delle fiat non sono in grado di essere mostrati a causa della non disponibile API Fiat. Ciò può essere causato da problemi di connessione o dall'API che viene temporaneamente diminuita.\n\nSe l'impostazione API Fiat è impostata su TOR, assicurarsi che Orbot sia in esecuzione e sia in grado di connettersi.\n\nSi prega di controllare la campana per qualsiasi stato nel servizio o toccare Ulteriori informazioni per eventuali problemi di connessione comuni.",
   "field_required": "Questo campo è obbligatorio",
   "fill_code": "Compila il codice di verifica fornito alla tua email",
   "filter_by": "Filtra per",

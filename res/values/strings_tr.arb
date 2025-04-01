@@ -332,6 +332,8 @@
   "fetching": "Getiriliyor",
   "fiat_api": "İtibari Para API",
   "fiat_balance": "Fiat Bakiyesi",
+  "fiat_unavailable": "Fiat API kullanılamıyor",
+  "fiat_unavailable_desc": "Fiat API'sının kullanılamaması nedeniyle fiat miktarları gösterilemez. Bu, bağlantı sorunlarının veya API'nın geçici olarak aşağı inmesinden kaynaklanabilir.\n\nFiat API ayarınız TOR olarak ayarlanmışsa, Orbot'un çalıştığından ve bağlanabildiğinden emin olun.\n\nLütfen Hizmetteki herhangi bir durum olup olmadığını kontrol edin veya ortak bağlantı sorunları için daha fazla bilgi edinin.",
   "field_required": "Bu alan gereklidir",
   "fill_code": "Lütfen e-postanıza gelen doğrulama kodunu girin",
   "filter_by": "Şuna göre filtrele",

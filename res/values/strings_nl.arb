@@ -332,6 +332,8 @@
   "fetching": "Ophalen",
   "fiat_api": "Fiat API",
   "fiat_balance": "Fiat Balans",
+  "fiat_unavailable": "Fiat API niet beschikbaar",
+  "fiat_unavailable_desc": "Fiat -hoeveelheden kunnen niet worden getoond omdat de FIAT API niet beschikbaar is. Dit kan worden veroorzaakt door verbindingsproblemen, of dat de API tijdelijk daalt.\n\nAls uw FIAT -API -instelling is ingesteld op TOR, zorg er dan voor dat Orbot actief is en in staat is om verbinding te maken.\n\nControleer de bel voor elke status op de service of tik op Meer informatie voor algemene verbindingsproblemen.",
   "field_required": "dit veld is verplicht",
   "fill_code": "Vul de verificatiecode in die u in uw e-mail hebt ontvangen",
   "filter_by": "Filteren op",

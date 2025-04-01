@@ -332,6 +332,8 @@
   "fetching": "正在获取",
   "fiat_api": "法币API",
   "fiat_balance": "法币余额",
+  "fiat_unavailable": "菲亚特API不可用",
+  "fiat_unavailable_desc": "由于菲亚特API不可用，因此无法显示法定金额。这可能是由连接问题或API暂时造成的。\n\n如果您的FIAT API设置设置为TOR，请确保Orbot正在运行并能够连接。\n\n请检查铃有服务上的任何状态，或者点击了解有关任何常见连接问题的更多信息。",
   "field_required": "此字段是必需的",
   "fill_code": "请填写提供给您邮箱的验证码",
   "filter_by": "过滤",
