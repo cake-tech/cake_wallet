@@ -346,7 +346,7 @@ class MoneroWalletService extends WalletService<
           password: credentials.password!,
           mnemonic: credentials.mnemonic,
           walletInfo: credentials.walletInfo!,
-          height: credentials.height!,
+          overrideHeight: credentials.height!,
         );
       }
     } catch (e) {
@@ -382,7 +382,7 @@ class MoneroWalletService extends WalletService<
     required String password,
     required String mnemonic,
     required WalletInfo walletInfo,
-    int height = 0,
+    int? overrideHeight
   }) async {
     walletInfo.derivationInfo = DerivationInfo(
         derivationType: DerivationType.bip39,
@@ -390,6 +390,10 @@ class MoneroWalletService extends WalletService<
     );
 
     final legacyMnemonic = getLegacySeedFromBip39(mnemonic);
+    final height = overrideHeight ??
+        getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 1))); // Just to be sure sync the last day
+
+    walletInfo.restoreHeight = height;
 
     monero_wallet_manager.restoreFromSeed(
       path: path,
