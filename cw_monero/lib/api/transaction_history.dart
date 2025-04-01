@@ -36,9 +36,9 @@ bool isRefreshingTx = false;
 Future<void> refreshTransactions() async {
   if (isRefreshingTx == true) return;
   isRefreshingTx = true;
+  await txHistoryMutex.acquire();
   txhistory ??= monero.Wallet_history(wptr!);
   final ptr = txhistory!.address;
-  await txHistoryMutex.acquire();
   await Isolate.run(() {
     monero.TransactionHistory_refresh(Pointer.fromAddress(ptr));
   });
