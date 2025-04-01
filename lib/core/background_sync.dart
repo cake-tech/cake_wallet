@@ -184,7 +184,7 @@ class BackgroundSync {
             ? DateTime.parse(lastTriggerString) 
             : DateTime.now();
         
-        if (tx.date.isBefore(lastTriggerDate.subtract(Duration(minutes: 1)))) {
+        if (tx.date.isBefore(lastTriggerDate)) {
           printV("TX ${tx.date} is before $lastTriggerDate");
           continue;
         }
