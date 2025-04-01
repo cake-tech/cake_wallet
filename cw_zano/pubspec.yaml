@@ -22,11 +22,11 @@ dependencies:
   cw_core:
     path: ../cw_core
   json_bigint: ^3.0.0
-  fluttertoast: ^8.2.8
+  fluttertoast: ^8.2.12
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
-      ref: 127c54599c612d7d3d226e4c016d5812e7a0966d # monero_c hash
+      ref: 84e52393e395d75f449bcd81e23028889538118f # monero_c hash
       path: impls/monero.dart
 dev_dependencies:
   flutter_test:

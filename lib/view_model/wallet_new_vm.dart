@@ -5,28 +5,21 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cake_wallet/zano/zano.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
-import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
 
 import '../polygon/polygon.dart';
 import 'advanced_privacy_settings_view_model.dart';
@@ -83,6 +76,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return 25;
       case WalletType.zano:
         return 26;
+      case WalletType.decred:
+        return 15;
     }
   }
 
@@ -109,17 +104,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           passphrase: passphrase,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
         );
-      case WalletType.haven:
-        return haven!.createHavenNewWalletCredentials(
-            name: name, language: options!.first as String, password: walletPassword);
       case WalletType.ethereum:
         return ethereum!.createEthereumNewWalletCredentials(
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.bitcoinCash:
@@ -128,7 +118,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           passphrase: passphrase,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
         );
       case WalletType.nano:
       case WalletType.banano:
@@ -136,7 +125,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.polygon:
@@ -144,7 +132,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.solana:
@@ -152,7 +139,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.tron:
@@ -160,7 +146,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
-          parentAddress: newWalletArguments!.parentAddress,
           passphrase: passphrase,
         );
       case WalletType.wownero:
@@ -175,8 +160,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return zano!.createZanoNewWalletCredentials(
           name: name,
           password: walletPassword,
+          passphrase: passphrase,
         );
+      case WalletType.decred:
+        return decred!.createDecredNewWalletCredentials(name: name);
       case WalletType.none:
+      case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');
     }
   }

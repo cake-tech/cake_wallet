@@ -124,6 +124,9 @@ abstract class WowneroWalletBase
   String _password;
 
   @override
+  bool get hasRescan => true;
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       primaryAddress: wownero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: wownero_wallet.getSecretSpendKey(),
@@ -766,5 +769,10 @@ abstract class WowneroWalletBase
     if (address == null) return false;
 
     return wownero_wallet.verifyMessage(message, address, signature);
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    return wowneroAmountToString(amount: int.parse(amount));
   }
 }

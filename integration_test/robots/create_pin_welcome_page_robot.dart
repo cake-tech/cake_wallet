@@ -21,10 +21,6 @@ class CreatePinWelcomePageRobot {
       title = S.current.monero_com;
     }
 
-    if (isHaven) {
-      title = S.current.haven_app;
-    }
-
     title = S.current.cake_wallet;
 
     commonTestCases.hasText(title);
@@ -34,10 +30,6 @@ class CreatePinWelcomePageRobot {
     String description;
     if (isMoneroOnly) {
       description = S.current.monero_com_wallet_text;
-    }
-
-    if (isHaven) {
-      description = S.current.haven_app_wallet_text;
     }
 
     description = S.current.new_first_wallet_text;

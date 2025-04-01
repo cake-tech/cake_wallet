@@ -9,6 +9,7 @@ class PaymentRequest {
     var amount = "";
     var note = "";
     var scheme = "";
+    String? walletType;
     String? callbackUrl;
     String? callbackMessage;
 
@@ -19,11 +20,11 @@ class PaymentRequest {
       scheme = uri.scheme;
       callbackUrl = uri.queryParameters['callback'];
       callbackMessage = uri.queryParameters['callbackMessage'];
+      walletType = uri.queryParameters['type'];
     }
 
     if (scheme == "nano-gpt") {
-      // treat as nano so filling out the address works:
-      scheme = "nano";
+      scheme = walletType ?? "nano";
     }
 
     if (nano != null) {

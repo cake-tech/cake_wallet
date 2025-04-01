@@ -144,7 +144,7 @@ abstract class TronWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = TronBalance.fromJSON(data?['balance'] as String) ?? TronBalance(BigInt.zero);
+    final balance = TronBalance.fromJSON(data?['balance'] as String?) ?? TronBalance(BigInt.zero);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
@@ -462,7 +462,11 @@ abstract class TronWalletBase
   String get privateKey => _tronPrivateKey.toHex();
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: _mnemonic,
+        privateKey: privateKey,
+        passphrase: passphrase,
+      );
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,

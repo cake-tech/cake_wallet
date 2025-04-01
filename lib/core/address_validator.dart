@@ -117,7 +117,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zec:
         pattern = 't1[0-9a-zA-Z]{33}|t3[0-9a-zA-Z]{33}';
       case CryptoCurrency.dcr:
-        pattern = 'D[ksecS]([0-9a-zA-Z])+';
+        pattern = '(D|T|S)[ksecS]([0-9a-zA-Z])+';
       case CryptoCurrency.rvn:
         pattern = '[Rr]([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.near:
@@ -280,6 +280,9 @@ class AddressValidator extends TextValidator {
         return null;
     }
   }
+
+  static String get silentPaymentAddressPattern => SilentPaymentAddress.regex.pattern;
+  static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
   static String? getAddressFromStringPattern(CryptoCurrency type) {
     String? pattern = null;

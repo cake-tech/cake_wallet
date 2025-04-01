@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:convert/convert.dart' as convert;
 import 'dart:math';
@@ -77,6 +76,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) : super(
           mnemonic: mnemonic,
           password: password,
+          passphrase: passphrase,
           xpub: xpub,
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfo,
@@ -154,6 +154,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @observable
   SyncStatus mwebSyncStatus = NotConnectedSyncStatus();
+
+  @override
+  bool get hasRescan => true;
 
   List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;

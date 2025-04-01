@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cw_core/utils/print_verbose.dart';
+import '../../print_verbose_dummy.dart';
 
 void appendStringToArbFile(String fileName, String name, String text, {bool force = false}) {
   final file = File(fileName);

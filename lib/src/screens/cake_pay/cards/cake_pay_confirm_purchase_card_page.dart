@@ -7,10 +7,11 @@ import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.da
 import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -371,38 +372,38 @@ class CakePayBuyCardDetailPage extends BasePage {
     });
 
     final order = cakePayPurchaseViewModel.order;
-    final pendingTransaction = cakePayPurchaseViewModel.sendViewModel.pendingTransaction!;
 
-    await showPopUp<void>(
+    showModalBottomSheet<void>(
       context: context,
-      builder: (popupContext) {
-        return Observer(
-            builder: (_) => ConfirmSendingAlert(
-                alertTitle: S.of(popupContext).confirm_sending,
-                paymentId: S.of(popupContext).payment_id,
-                paymentIdValue: order?.orderId,
-                expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
-                onDispose: () => _handleDispose(disposer),
-                amount: S.of(popupContext).send_amount,
-                amountValue: pendingTransaction.amountFormatted,
-                fiatAmountValue:
-                    cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-                fee: S.of(popupContext).send_fee,
-                feeValue: pendingTransaction.feeFormatted,
-                feeFiatAmount:
-                    cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-                feeRate: pendingTransaction.feeRate,
-                outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
-                rightButtonText: S.of(popupContext).send,
-                leftButtonText: S.of(popupContext).cancel,
-                actionRightButton: () async {
-                  Navigator.of(context).pop();
-                  await cakePayPurchaseViewModel.sendViewModel.commitTransaction(context);
-                },
-                actionLeftButton: () => Navigator.of(popupContext).pop()));
+      isDismissible: false,
+      isScrollControlled: true,
+      builder: (BuildContext popupContext) {
+        return ConfirmSendingBottomSheet(
+          key: ValueKey('send_page_confirm_sending_dialog_key'),
+          currentTheme: currentTheme,
+          paymentId: S.of(popupContext).payment_id,
+          paymentIdValue: order?.orderId,
+          expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
+          titleText: S.of(popupContext).confirm_transaction,
+          titleIconPath: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+          currency: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency,
+          amount: S.of(popupContext).send_amount,
+          amountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+          fiatAmountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+          fee: S.of(popupContext).send_fee,
+          feeValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+          feeFiatAmount: cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+          outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
+          onSlideComplete: () async {
+            Navigator.of(popupContext).pop();
+            cakePayPurchaseViewModel.sendViewModel.commitTransaction(context);
+          },
+        );
       },
     );
   }
+
+  BuildContext? loadingBottomSheetContext;
 
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
@@ -413,6 +414,29 @@ class CakePayBuyCardDetailPage extends BasePage {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) showStateAlert(context, S.of(context).error, state.error);
+        });
+      }
+
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+
+      if (state is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: S.of(context).generating_transaction,
+                );
+              },
+            );
+          }
         });
       }
 

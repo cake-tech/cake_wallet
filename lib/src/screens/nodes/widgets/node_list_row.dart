@@ -19,6 +19,37 @@ class NodeListRow extends StandardListRow {
   final bool isPow;
 
   @override
+  Widget build(BuildContext context) {
+    final leading = buildLeading(context);
+    final trailing = buildTrailing(context);
+    return Container(
+      height: 56,
+      padding: EdgeInsets.only(left: 12, right: 12, top: 2, bottom: 2),
+      margin: EdgeInsets.only(top: 2, bottom: 2),
+      child: TextButton(
+        onPressed: () => onTap?.call(context),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Theme.of(context).cardColor),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)
+              ),
+            ),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            if (leading != null) leading,
+            buildCenter(context, hasLeftOffset: leading != null),
+            if (trailing != null) trailing,
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget buildLeading(BuildContext context) {
     return FutureBuilder(
         future: node.requestNode(),
@@ -55,6 +86,36 @@ class NodeListRow extends StandardListRow {
 class NodeHeaderListRow extends StandardListRow {
   NodeHeaderListRow({required String title, required void Function(BuildContext context) onTap})
       : super(title: title, onTap: onTap, isSelected: false);
+
+  @override
+  Widget build(BuildContext context) {
+    final leading = buildLeading(context);
+    final trailing = buildTrailing(context);
+    return Container(
+      height: 56,
+      padding: EdgeInsets.only(left: 12, right: 12, top: 2, bottom: 2),
+      child: TextButton(
+        onPressed: () => onTap?.call(context),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Theme.of(context).cardColor),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)
+              ),
+            ),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            if (leading != null) leading,
+            buildCenter(context, hasLeftOffset: leading != null),
+            if (trailing != null) trailing,
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget buildTrailing(BuildContext context) {

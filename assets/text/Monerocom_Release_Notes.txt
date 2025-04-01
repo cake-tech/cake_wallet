@@ -1,4 +1,5 @@
-Monero restore with passphrase support
-Add Chainflip Exchange provider
-UI enhancements
+Add background sync to Monero
+Enhance Backup files
+Improve app usability and user experience
+User interface enhancements
 Bug fixes

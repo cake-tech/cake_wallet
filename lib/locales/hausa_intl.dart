@@ -825,7 +825,6 @@ class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
       patterns: haLocaleDatePatterns,
       symbols: intl.DateSymbols.deserializeFromMap(haDateSymbols),
     );
-
     return SynchronousFuture<CupertinoLocalizations>(
       HaCupertinoLocalizations(
         localeName: localeName,
@@ -847,6 +846,7 @@ class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
         singleDigitHourFormat: intl.DateFormat('j', localeName),
         singleDigitMinuteFormat: intl.DateFormat.m(localeName),
         singleDigitSecondFormat: intl.DateFormat.s(localeName),
+        weekdayFormat: intl.DateFormat.E(localeName),
       ),
     );
   }
@@ -871,6 +871,7 @@ class HaCupertinoLocalizations extends GlobalCupertinoLocalizations {
     required super.singleDigitMinuteFormat,
     required super.doubleDigitMinuteFormat,
     required super.singleDigitSecondFormat,
+    required super.weekdayFormat,
   });
 
   @override

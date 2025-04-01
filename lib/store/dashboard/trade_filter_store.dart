@@ -19,7 +19,9 @@ abstract class TradeFilterStoreBase with Store {
         displayChainflip = true,
         displayThorChain = true,
         displayLetsExchange = true,
-        displayStealthEx = true;
+        displayStealthEx = true,
+        displayXOSwap = true,
+        displaySwapTrade = true;
 
   @observable
   bool displayXMRTO;
@@ -44,7 +46,7 @@ abstract class TradeFilterStoreBase with Store {
 
   @observable
   bool displayChainflip;
-  
+
   @observable
   bool displayThorChain;
 
@@ -54,17 +56,25 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displayStealthEx;
 
+  @observable
+  bool displayXOSwap;
+
+  @observable
+  bool displaySwapTrade;
+
   @computed
   bool get displayAllTrades =>
       displayChangeNow &&
       displaySideShift &&
       displaySimpleSwap &&
       displayTrocador &&
-      displayExolix && 
+      displayExolix &&
       displayChainflip &&
       displayThorChain &&
       displayLetsExchange &&
-      displayStealthEx;
+      displayStealthEx &&
+      displayXOSwap &&
+      displaySwapTrade;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -102,6 +112,12 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.stealthEx:
         displayStealthEx = !displayStealthEx;
         break;
+      case ExchangeProviderDescription.xoSwap:
+        displayXOSwap = !displayXOSwap;
+        break;
+      case ExchangeProviderDescription.swapTrade:
+        displaySwapTrade = !displaySwapTrade;
+        break;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -115,6 +131,8 @@ abstract class TradeFilterStoreBase with Store {
           displayThorChain = false;
           displayLetsExchange = false;
           displayStealthEx = false;
+          displayXOSwap = false;
+          displaySwapTrade = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -127,6 +145,8 @@ abstract class TradeFilterStoreBase with Store {
           displayThorChain = true;
           displayLetsExchange = true;
           displayStealthEx = true;
+          displayXOSwap = true;
+          displaySwapTrade = true;
         }
         break;
     }
@@ -158,7 +178,9 @@ abstract class TradeFilterStoreBase with Store {
                     item.trade.provider == ExchangeProviderDescription.thorChain) ||
                 (displayLetsExchange &&
                     item.trade.provider == ExchangeProviderDescription.letsExchange) ||
-                (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx))
+                (displayStealthEx && item.trade.provider == ExchangeProviderDescription.stealthEx) ||
+                (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap) ||
+                (displaySwapTrade && item.trade.provider == ExchangeProviderDescription.swapTrade))
             .toList()
         : _trades;
   }

@@ -10,7 +10,7 @@ class WalletEditPageArguments {
     this.isWalletGroup = false,
     this.walletListViewModel,
     this.groupName = '',
-    this.parentAddress = '',
+    this.walletGroupKey = '',
     this.walletEditViewModel,
     this.walletNewVM,
     this.authService,
@@ -19,7 +19,7 @@ class WalletEditPageArguments {
   final WalletListItem editingWallet;
   final bool isWalletGroup;
   final String groupName;
-  final String parentAddress;
+  final String walletGroupKey;
   final WalletListViewModel? walletListViewModel;
 
   final WalletEditViewModel? walletEditViewModel;

@@ -12,8 +12,6 @@ WORKDIR /opt/android/cakewallet/
 
 # build_all.sh
 # build_boost.sh
-# build_haven.sh
-# build_haven_all.sh
 # build_iconv.sh
 # build_monero.sh
 # build_openssl.sh
@@ -56,7 +54,5 @@ RUN ./build_zmq.sh
 COPY entrypoint.sh /opt/android/cakewallet/
 COPY build_monero.sh /opt/android/cakewallet/
 COPY copy_monero_deps.sh /opt/android/cakewallet/
-COPY build_haven.sh /opt/android/cakewallet/
-COPY copy_haven_deps.sh /opt/android/cakewallet/
 
 ENTRYPOINT ["./entrypoint.sh"]

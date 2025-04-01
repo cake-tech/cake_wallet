@@ -17,14 +17,12 @@ class CWBitcoinCash extends BitcoinCash {
     String? password,
     String? passphrase,
     String? mnemonic,
-    String? parentAddress,
   }) =>
       BitcoinCashNewWalletCredentials(
         name: name,
         walletInfo: walletInfo,
         password: password,
         passphrase: passphrase,
-        parentAddress: parentAddress,
         mnemonic: mnemonic,
       );
 

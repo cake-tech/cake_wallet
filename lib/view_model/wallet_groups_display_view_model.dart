@@ -47,8 +47,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   @observable
   WalletInfo? selectedSingleWallet;
 
-  @observable
-  String? parentAddress;
 
   @observable
   bool isFetchingMnemonic;
@@ -76,9 +74,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         walletToUse.type,
         walletToUse.name,
       );
-
-      parentAddress =
-          isGroupSelected ? selectedWalletGroup!.parentAddress : selectedSingleWallet!.address;
 
       return wallet.seed;
     } catch (e) {
@@ -130,11 +125,14 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         // Check that selected wallet type is not present already in group
         bool isSameTypeAsSelectedWallet = wallet.type == type;
 
+        bool isNonSeedWallet = wallet.isNonSeedWallet;
+
         // Exclude if any of these conditions are true
         return isNonBIP39Wallet ||
             isNanoDerivationType ||
             isElectrumDerivationType ||
-            isSameTypeAsSelectedWallet;
+            isSameTypeAsSelectedWallet ||
+            isNonSeedWallet;
       });
 
       if (shouldExcludeGroup) continue;
@@ -160,6 +158,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
+      isHardware: info.isHardwareWallet,
     );
   }
 }

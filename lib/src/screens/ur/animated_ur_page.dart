@@ -100,6 +100,7 @@ class AnimatedURPage extends BasePage {
     switch (urQrType) {
       case "ur:xmr-txunsigned": // ur:xmr-txsigned
         final ur = await presentQRScanner(context);
+        if (ur == null) return;
         final result = await monero!.commitTransactionUR(animatedURmodel.wallet, ur);
         if (result) {
           Navigator.of(context).pop(true);
@@ -107,6 +108,7 @@ class AnimatedURPage extends BasePage {
         break;
       case "ur:xmr-output": // xmr-keyimage
         final ur = await presentQRScanner(context);
+        if (ur == null) return;
         final result = await monero!.importKeyImagesUR(animatedURmodel.wallet, ur);
         if (result) {
           Navigator.of(context).pop(true);

@@ -32,28 +32,30 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
           Image.asset(currentTheme.type.walletGroupImage, height: 200),
           SizedBox(height: 32),
           Expanded(
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                      text: S.current.wallet_group_description_existing_seed + '\n\n',
-                      style: textStyle),
-                  TextSpan(
-                      text: S.current.wallet_group_description_open_wallet + '\n\n',
-                      style: textStyle),
-                  TextSpan(
-                      text: S.current.wallet_group_description_view_seed + '\n', style: textStyle),
-                  TextSpan(
-                    text: S.current.seed_display_path,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+            child: SingleChildScrollView(
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text: S.current.wallet_group_description_existing_seed + '\n\n',
+                        style: textStyle),
+                    TextSpan(
+                        text: S.current.wallet_group_description_open_wallet + '\n\n',
+                        style: textStyle),
+                    TextSpan(
+                        text: S.current.wallet_group_description_view_seed + '\n', style: textStyle),
+                    TextSpan(
+                      text: S.current.seed_display_path,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ),
           Column(

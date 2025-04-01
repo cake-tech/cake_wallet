@@ -1,10 +1,9 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -12,6 +11,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -64,8 +64,8 @@ abstract class WalletKeysViewModelBase with Store {
 
   bool get isLegacySeedOnly =>
       (_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
-          _wallet.seed != null &&
-          !Polyseed.isValidSeed(_wallet.seed!);
+      _wallet.seed != null &&
+      !Polyseed.isValidSeed(_wallet.seed!);
 
   String get legacySeed {
     if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
@@ -92,11 +92,9 @@ abstract class WalletKeysViewModelBase with Store {
     return '';
   }
 
-
-
   @observable
   bool obscurePassphrase = true;
-  
+
   String get passphrase {
     return _wallet.passphrase ?? '';
   }
@@ -111,9 +109,74 @@ abstract class WalletKeysViewModelBase with Store {
   void _populateKeysItems() {
     items.clear();
 
-    if (_wallet.type == WalletType.monero) {
-      final keys = monero!.getKeys(_wallet);
+    Map<String, String>? keys;
 
+    switch (_wallet.type) {
+      case WalletType.monero:
+        keys = monero!.getKeys(_wallet);
+        break;
+      case WalletType.wownero:
+        keys = wownero!.getKeys(_wallet);
+        break;
+      case WalletType.zano:
+        keys = zano!.getKeys(_wallet);
+        break;
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
+        items.addAll([
+          if (_wallet.privateKey != null)
+            StandartListItem(
+              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              title: S.current.private_key,
+              value: _wallet.privateKey!,
+            ),
+        ]);
+        break;
+      case WalletType.nano:
+      case WalletType.banano:
+        // we always have the hex version of the seed and private key:
+        items.addAll([
+          if (_wallet.hexSeed != null)
+            StandartListItem(
+              key: ValueKey('${_walletName}_wallet_hex_seed_key'),
+              title: S.current.seed_hex_form,
+              value: _wallet.hexSeed!,
+            ),
+          if (_wallet.privateKey != null)
+            StandartListItem(
+              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              title: S.current.private_key,
+              value: _wallet.privateKey!,
+            ),
+        ]);
+        break;
+      case WalletType.decred:
+        final pubkey = decred!.pubkey(_appStore.wallet!);
+        items.addAll([
+          StandartListItem(title: S.current.view_key_public, value: pubkey),
+        ]);
+        break;
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.none:
+      case WalletType.haven:
+        //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
+        //
+        //   items.addAll([
+        //     if (keys['wif'] != null)
+        //       StandartListItem(title: "WIF", value: keys['wif']!),
+        //     if (keys['privateKey'] != null)
+        //       StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+        //     if (keys['publicKey'] != null)
+        //       StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
+        //   ]);
+        break;
+    }
+
+    if (keys != null) {
       items.addAll([
         if (keys['primaryAddress'] != null)
           StandartListItem(
@@ -144,140 +207,11 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.view_key_private,
             value: keys['privateViewKey']!,
           ),
-      ]);
-    }
-
-    if (_wallet.type == WalletType.haven) {
-      final keys = haven!.getKeys(_wallet);
-
-      items.addAll([
-        if (keys['primaryAddress'] != null)
-          StandartListItem(
-              key: ValueKey('${_walletName}_wallet_primary_address_item_key'),
-              title: S.current.primary_address,
-              value: keys['primaryAddress']!),
-        if (keys['publicSpendKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_spend_key_item_key'),
-            title: S.current.spend_key_public,
-            value: keys['publicSpendKey']!,
-          ),
-        if (keys['privateSpendKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_spend_key_item_key'),
-            title: S.current.spend_key_private,
-            value: keys['privateSpendKey']!,
-          ),
-        if (keys['publicViewKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_view_key_item_key'),
-            title: S.current.view_key_public,
-            value: keys['publicViewKey']!,
-          ),
-        if (keys['privateViewKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_view_key_item_key'),
-            title: S.current.view_key_private,
-            value: keys['privateViewKey']!,
-          ),
-      ]);
-    }
-
-    if (_wallet.type == WalletType.wownero) {
-      final keys = wownero!.getKeys(_wallet);
-
-      items.addAll([
-        if (keys['primaryAddress'] != null)
-          StandartListItem(
-              key: ValueKey('${_walletName}_wallet_primary_address_item_key'),
-              title: S.current.primary_address,
-              value: keys['primaryAddress']!),
-        if (keys['publicSpendKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_spend_key_item_key'),
-            title: S.current.spend_key_public,
-            value: keys['publicSpendKey']!,
-          ),
-        if (keys['privateSpendKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_spend_key_item_key'),
-            title: S.current.spend_key_private,
-            value: keys['privateSpendKey']!,
-          ),
-        if (keys['publicViewKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_view_key_item_key'),
-            title: S.current.view_key_public,
-            value: keys['publicViewKey']!,
-          ),
-        if (keys['privateViewKey'] != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_view_key_item_key'),
-            title: S.current.view_key_private,
-            value: keys['privateViewKey']!,
-          ),
-      ]);
-    }
-
-    // if (_wallet.type == WalletType.bitcoin ||
-    //     _wallet.type == WalletType.litecoin ||
-    //     _wallet.type == WalletType.bitcoinCash) {
-    //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
-    //
-    //   items.addAll([
-    //     if (keys['wif'] != null)
-    //       StandartListItem(title: "WIF", value: keys['wif']!),
-    //     if (keys['privateKey'] != null)
-    //       StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
-    //     if (keys['publicKey'] != null)
-    //       StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-    //   ]);
-    // }
-
-    if (isEVMCompatibleChain(_wallet.type) ||
-        _wallet.type == WalletType.solana ||
-        _wallet.type == WalletType.tron) {
-      items.addAll([
-        if (_wallet.privateKey != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_key_item_key'),
-            title: S.current.private_key,
-            value: _wallet.privateKey!,
-          ),
-      ]);
-    }
-
-    bool nanoBased = _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
-
-    if (nanoBased) {
-      // we always have the hex version of the seed and private key:
-      items.addAll([
-        if (_wallet.hexSeed != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_hex_seed_key'),
-            title: S.current.seed_hex_form,
-            value: _wallet.hexSeed!,
-          ),
-        if (_wallet.privateKey != null)
-          StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_key_item_key'),
-            title: S.current.private_key,
-            value: _wallet.privateKey!,
-          ),
-      ]);
-    }
-
-    if (_appStore.wallet!.type == WalletType.zano) {
-      items.addAll([
-        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
   }
 
   Future<int?> _currentHeight() async {
-    if (_wallet.type == WalletType.haven) {
-      return await haven!.getCurrentHeight();
-    }
     if (_wallet.type == WalletType.monero) {
       return await monero!.getCurrentHeight();
     }
@@ -315,6 +249,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'wownero-wallet';
       case WalletType.zano:
         return 'zano-wallet';
+      case WalletType.decred:
+        return 'decred-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }
@@ -365,8 +301,6 @@ abstract class WalletKeysViewModelBase with Store {
   List<TransactionInfo> _getWalletTransactions(WalletBase wallet) {
     if (wallet.type == WalletType.monero) {
       return monero!.getTransactionHistory(wallet).transactions.values.toList();
-    } else if (wallet.type == WalletType.haven) {
-      return haven!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.wownero) {
       return wownero!.getTransactionHistory(wallet).transactions.values.toList();
     }
@@ -376,8 +310,6 @@ abstract class WalletKeysViewModelBase with Store {
   int _getRestoreHeightByTransactions(WalletType type, DateTime date) {
     if (type == WalletType.monero) {
       return monero!.getHeightByDate(date: date);
-    } else if (type == WalletType.haven) {
-      return haven!.getHeightByDate(date: date);
     } else if (type == WalletType.wownero) {
       return wownero!.getHeightByDate(date: date);
     }

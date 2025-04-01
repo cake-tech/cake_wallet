@@ -7,13 +7,11 @@ class TronNewWalletCredentials extends WalletCredentials {
     WalletInfo? walletInfo,
     String? password,
     this.mnemonic,
-    String? parentAddress,
     String? passphrase,
   }) : super(
           name: name,
           walletInfo: walletInfo,
           password: password,
-          parentAddress: parentAddress,
           passphrase: passphrase,
         );
 

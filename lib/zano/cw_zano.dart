@@ -53,21 +53,21 @@ class CWZano extends Zano {
   }
 
   @override
-  WalletCredentials createZanoNewWalletCredentials({required String name, required String? password}) {
-    return ZanoNewWalletCredentials(name: name, password: password);
+  WalletCredentials createZanoNewWalletCredentials({required String name, required String? password, required String? passphrase}) {
+    return ZanoNewWalletCredentials(name: name, password: password, passphrase: passphrase);
   }
 
-  // @override
-  // Map<String, String> getKeys(Object wallet) {
-  //   final zanoWallet = wallet as ZanoWallet;
-  //   final keys = zanoWallet.keys;
-  //   return <String, String>{
-  //     'privateSpendKey': keys.privateSpendKey,
-  //     'privateViewKey': keys.privateViewKey,
-  //     'publicSpendKey': keys.publicSpendKey,
-  //     'publicViewKey': keys.publicViewKey
-  //   };
-  // }
+  @override
+  Map<String, String> getKeys(Object wallet) {
+    final zanoWallet = wallet as ZanoWallet;
+    final keys = zanoWallet.keys;
+    return <String, String>{
+      'privateSpendKey': keys.privateSpendKey,
+      'privateViewKey': keys.privateViewKey,
+      'publicSpendKey': keys.publicSpendKey,
+      'publicViewKey': keys.publicViewKey
+    };
+  }
 
   @override
   Object createZanoTransactionCredentials({required List<Output> outputs, required TransactionPriority priority, required CryptoCurrency currency}) {

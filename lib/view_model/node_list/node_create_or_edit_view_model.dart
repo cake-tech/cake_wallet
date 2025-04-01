@@ -1,8 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_core/utils/http_client.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -68,12 +66,12 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   String socksProxyAddress;
 
   @computed
-  bool get isReady => address.isNotEmpty && port.isNotEmpty;
+  bool get isReady =>
+      (address.isNotEmpty && port.isNotEmpty) ||
+      _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
-
-  bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
 
   bool get hasPathSupport {
     switch (_walletType) {
@@ -92,6 +90,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
       case WalletType.zano:
+      case WalletType.decred:
         return false;
     }
   }
@@ -220,7 +219,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       bool isCameraPermissionGranted =
           await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
-      String code = await presentQRScanner(context);
+      String? code = await presentQRScanner(context);
+      if (code == null) throw Exception("Unexpected QR code value: aborted");
+
       if (code.isEmpty) {
         throw Exception('Unexpected scan QR code value: value is empty');
       }

@@ -337,7 +337,11 @@ abstract class NanoWalletBase
   String get hexSeed => _hexSeed!;
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, altMnemonic: hexSeed);
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: _mnemonic,
+        altMnemonic: hexSeed,
+        passphrase: passphrase,
+      );
 
   String get representative => _representativeAddress ?? "";
 

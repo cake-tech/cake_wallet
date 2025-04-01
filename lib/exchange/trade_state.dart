@@ -100,6 +100,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'waiting':
         return waiting;
       case 'processing':
+      case 'inProgress':
         return processing;
       case 'waitingPayment':
         return waitingPayment;
@@ -131,6 +132,8 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'success':
       case 'done':
         return success;
+      case 'expired':
+        return expired;
       default:
         throw Exception('Unexpected token: $raw in TradeState deserialize');
     }

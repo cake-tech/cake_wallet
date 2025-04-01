@@ -11,7 +11,6 @@ class CWEthereum extends Ethereum {
   WalletCredentials createEthereumNewWalletCredentials({
     required String name,
     String? mnemonic,
-    String? parentAddress,
     WalletInfo? walletInfo,
     String? password,
     String? passphrase,
@@ -20,7 +19,6 @@ class CWEthereum extends Ethereum {
         name: name,
         walletInfo: walletInfo,
         password: password,
-        parentAddress: parentAddress,
         mnemonic: mnemonic,
         passphrase: passphrase,
       );
@@ -208,5 +206,10 @@ class CWEthereum extends Ethereum {
       printV(err);
       throw err;
     }
+  }
+
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
   }
 }

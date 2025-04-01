@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
-import 'package:cw_core/crypto_currency.dart';
 
 class MoneroLabelValidator extends TextValidator {
   MoneroLabelValidator()

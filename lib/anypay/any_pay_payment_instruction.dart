@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_instruction_output.dart';
 
 class AnyPayPaymentInstruction {

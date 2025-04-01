@@ -422,6 +422,6 @@ class CWMonero extends Monero {
   }
 
   bool isViewOnly() {
-    return isViewOnlyBySpendKey();
+    return isViewOnlyBySpendKey(null);
   }
 }

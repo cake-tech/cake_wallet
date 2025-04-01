@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -25,7 +26,6 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -35,7 +35,6 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -53,10 +52,13 @@ import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tor/tor.dart';
+
+import '../../themes/theme_base.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -75,8 +77,8 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
-      : hasTradeAction = false,
-        hasExchangeAction = false,
+      : hasTradeAction = true,
+        hasSwapAction = true,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
@@ -156,6 +158,16 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.stealthEx.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.stealthEx)),
+            FilterItem(
+                value: () => tradeFilterStore.displayXOSwap,
+                caption: ExchangeProviderDescription.xoSwap.title,
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.xoSwap)),
+            FilterItem(
+                value: () => tradeFilterStore.displaySwapTrade,
+                caption: ExchangeProviderDescription.swapTrade.title,
+                onChanged: () => tradeFilterStore
+                    .toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
           ]
         },
         subname = '',
@@ -163,12 +175,16 @@ abstract class DashboardViewModelBase with Store {
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         wallet = appStore.wallet! {
+    showDecredInfoCard = wallet.type == WalletType.decred &&
+        (sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) ?? true);
+
     name = wallet.name;
     type = wallet.type;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
-    updateActions();
+    unawaited(isBackgroundSyncEnabled());
+    unawaited(isBatteryOptimizationEnabled());
 
     final _wallet = wallet;
 
@@ -255,35 +271,38 @@ abstract class DashboardViewModelBase with Store {
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
+      showDecredInfoCard = wallet?.type == WalletType.decred &&
+          sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
     });
 
-    connectMapToListWithTransform(
-        appStore.wallet!.transactionHistory.transactions,
-        transactions,
-        (TransactionInfo? transaction) => TransactionListItem(
-              transaction: transaction!,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore,
-              key: ValueKey(
-                '${_wallet.type.name}_transaction_history_item_${transaction.id}_key',
+    _transactionDisposer?.reaction.dispose();
+
+    _transactionDisposer = reaction(
+            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
+            (List<TransactionInfo> txs) {
+
+          transactions.clear();
+
+          transactions.addAll(
+            txs.where((tx) {
+              if (wallet.type == WalletType.monero) {
+                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
+              }
+              if (wallet.type == WalletType.wownero) {
+                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+              }
+              return true;
+            }).map(
+                  (tx) => TransactionListItem(
+                transaction: tx,
+                balanceViewModel: balanceViewModel,
+                settingsStore: appStore.settingsStore,
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
               ),
-            ), filter: (TransactionInfo? transaction) {
-      if (transaction == null) {
-        return false;
-      }
-
-      final wallet = _wallet;
-      if (wallet.type == WalletType.monero) {
-        return monero!.getTransactionInfoAccountId(transaction) ==
-            monero!.getCurrentAccount(wallet).id;
-      }
-      if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(transaction) ==
-            wow.wownero!.getCurrentAccount(wallet).id;
-      }
-
-      return true;
-    });
+            ),
+          );
+        }
+    );
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -343,6 +362,10 @@ abstract class DashboardViewModelBase with Store {
       statusText = S.current.please_try_to_connect_to_another_node;
     }
 
+    if (status is ProcessingSyncStatus) {
+      statusText = (status as ProcessingSyncStatus).message ?? S.current.processing;
+    }
+
     return statusText;
   }
 
@@ -392,12 +415,11 @@ abstract class DashboardViewModelBase with Store {
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
 
   @computed
-  bool get hasRescan => [
-        WalletType.bitcoin,
+  bool get hasRescan => wallet.hasRescan;
+
+  @computed
+  bool get hasBackgroundSync => [
         WalletType.monero,
-        WalletType.litecoin,
-        WalletType.wownero,
-        WalletType.haven
       ].contains(wallet.type);
 
   @computed
@@ -483,8 +505,102 @@ abstract class DashboardViewModelBase with Store {
   @observable
   bool mwebEnabled = false;
 
+  @observable
+  late bool showDecredInfoCard;
+
+  @observable
+  bool backgroundSyncEnabled = false;
+
+  @action
+  Future<bool> isBackgroundSyncEnabled() async {
+    if (!Platform.isAndroid) {
+      return false;
+    }
+    final resp = await FlutterDaemon().getBackgroundSyncStatus();
+    backgroundSyncEnabled = resp;
+    return resp;
+  }
+
+  bool get hasBatteryOptimization => Platform.isAndroid;
+
+  @observable
+  bool batteryOptimizationEnabled = false;
+
+  @action
+  Future<bool> isBatteryOptimizationEnabled() async {
+    if (!hasBatteryOptimization) {
+      return false;
+    }
+    final resp = await FlutterDaemon().isBatteryOptimizationDisabled();
+    batteryOptimizationEnabled = !resp;
+    if (batteryOptimizationEnabled && await isBackgroundSyncEnabled()) {
+      // If the battery optimization is enabled, we need to disable the background sync
+      await disableBackgroundSync();
+    }
+    return resp;
+  }
+
+  @action
+  Future<void> disableBatteryOptimization() async {
+    final resp = await FlutterDaemon().requestDisableBatteryOptimization();
+    unawaited((() async {
+      // android doesn't return if the permission was granted, so we need to poll it,
+      // minute should be enough for the fallback method (opening settings and changing the permission)
+      for (var i = 0; i < 4 * 60; i++) {
+        await Future.delayed(Duration(milliseconds: 250));
+        await isBatteryOptimizationEnabled();
+      }
+    })());
+  }
+
+  @action
+  Future<void> enableBackgroundSync() async {
+    if (hasBatteryOptimization && batteryOptimizationEnabled) {
+      disableBackgroundSync();
+      return;
+    }
+    final resp = await FlutterDaemon().startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
+    printV("Background sync enabled: $resp");
+    backgroundSyncEnabled = true;
+  }
+
+  @action
+  Future<void> disableBackgroundSync() async {
+    final resp = await FlutterDaemon().stopBackgroundSync();
+    printV("Background sync disabled: $resp");
+    backgroundSyncEnabled = false;
+  }
+
   @computed
   bool get hasEnabledMwebBefore => settingsStore.hasEnabledMwebBefore;
+
+  @action
+  double getShadowSpread() {
+    double spread = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      spread = 0;
+    return spread;
+  }
+
+  @action
+  double getShadowBlur() {
+    double blur = 0;
+    if (settingsStore.currentTheme.type == ThemeType.bright)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.light)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.dark)
+      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled)
+      blur = 0;
+    return blur;
+  }
 
   @action
   void setMwebEnabled() {
@@ -506,6 +622,12 @@ abstract class DashboardViewModelBase with Store {
     settingsStore.mwebAlwaysScan = false;
     mwebEnabled = false;
     bitcoin!.setMwebEnabled(wallet, false);
+  }
+
+  @action
+  void dismissDecredInfoCard() {
+    showDecredInfoCard = false;
+    sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
   }
 
   BalanceViewModel balanceViewModel;
@@ -536,10 +658,13 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) => settingsStore.shouldShowYatPopup = shouldShow;
 
   @computed
-  bool get isEnabledExchangeAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+  bool get isEnabledSwapAction => settingsStore.exchangeStatus != ExchangeApiMode.disabled;
+
+  @computed
+  bool get canSend => wallet.canSend();
 
   @observable
-  bool hasExchangeAction;
+  bool hasSwapAction;
 
   @computed
   bool get isEnabledTradeAction => !settingsStore.disableTradeOption;
@@ -554,26 +679,35 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onMoneroBalanceChangeReaction;
 
+  ReactionDisposer? _transactionDisposer;
+
   @computed
   bool get hasPowNodes => [WalletType.nano, WalletType.banano].contains(wallet.type);
 
   @computed
   bool get hasSignMessages {
-    if (wallet.isHardwareWallet) return false;
-
-    return [
-      WalletType.monero,
-      WalletType.litecoin,
-      WalletType.bitcoin,
-      WalletType.bitcoinCash,
-      WalletType.ethereum,
-      WalletType.polygon,
-      WalletType.solana,
-      WalletType.nano,
-      WalletType.banano,
-      WalletType.tron,
-      WalletType.wownero
-    ].contains(wallet.type);
+    if (wallet.isHardwareWallet) {
+      return false;
+    }
+    switch (wallet.type) {
+      case WalletType.monero:
+      case WalletType.litecoin:
+      case WalletType.bitcoin:
+      case WalletType.bitcoinCash:
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.tron:
+      case WalletType.wownero:
+      case WalletType.decred:
+        return true;
+      case WalletType.zano:
+      case WalletType.haven:
+      case WalletType.none:
+        return false;
+    }
   }
 
   bool get showRepWarning {
@@ -607,7 +741,6 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
-    updateActions();
 
     if (wallet.type == WalletType.monero) {
       subname = monero!.getCurrentAccount(wallet).label;
@@ -658,32 +791,34 @@ abstract class DashboardViewModelBase with Store {
       );
     }
 
-    connectMapToListWithTransform(
-        appStore.wallet!.transactionHistory.transactions,
-        transactions,
-        (TransactionInfo? transaction) => TransactionListItem(
-              transaction: transaction!,
-              balanceViewModel: balanceViewModel,
-              settingsStore: appStore.settingsStore,
-              key: ValueKey(
-                '${wallet.type.name}_transaction_history_item_${transaction.id}_key',
+    _transactionDisposer?.reaction.dispose();
+
+    _transactionDisposer = reaction(
+            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
+            (List<TransactionInfo> txs) {
+
+          transactions.clear();
+
+          transactions.addAll(
+            txs.where((tx) {
+              if (wallet.type == WalletType.monero) {
+                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
+              }
+              if (wallet.type == WalletType.wownero) {
+                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
+              }
+              return true;
+            }).map(
+                  (tx) => TransactionListItem(
+                transaction: tx,
+                balanceViewModel: balanceViewModel,
+                settingsStore: appStore.settingsStore,
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
               ),
-            ), filter: (TransactionInfo? tx) {
-      if (tx == null) {
-        return false;
-      }
-
-      if (wallet.type == WalletType.monero) {
-        return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
-      }
-
-      if (wallet.type == WalletType.wownero) {
-        return wow.wownero!.getTransactionInfoAccountId(tx) ==
-            wow.wownero!.getCurrentAccount(wallet).id;
-      }
-
-      return true;
-    });
+            ),
+          );
+        }
+    );
   }
 
   @action
@@ -741,16 +876,11 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
-  void updateActions() {
-    hasExchangeAction = !isHaven;
-    hasTradeAction = !isHaven;
-  }
-
-  @computed
-  SyncMode get syncMode => settingsStore.currentSyncMode;
-
   @action
-  void setSyncMode(SyncMode syncMode) => settingsStore.currentSyncMode = syncMode;
+  Future<void> setSyncMode(SyncMode syncMode) async {
+    settingsStore.currentSyncMode = syncMode;
+    await enableBackgroundSync();
+  }
 
   @computed
   bool get syncAll => settingsStore.currentSyncAll;

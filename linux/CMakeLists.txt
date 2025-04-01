@@ -107,7 +107,7 @@ install(CODE "
 set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
   set(LIB_TRIPLET "aarch64-linux-gnu")
 else()
   set(LIB_TRIPLET "x86_64-linux-gnu")
@@ -117,9 +117,6 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/${
   COMPONENT Runtime)
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/wownero/${LIB_TRIPLET}_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "wownero_libwallet2_api_c.so"
-  COMPONENT Runtime)
-
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/zano/${LIB_TRIPLET}_libwallet2_api_c.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "zano_libwallet2_api_c.so"
   COMPONENT Runtime)
 
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"

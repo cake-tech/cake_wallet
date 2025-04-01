@@ -9,6 +9,7 @@ class StandardCheckbox extends StatelessWidget {
       this.gradientBackground = false,
       this.borderColor,
       this.iconColor,
+      this.captionColor,
       required this.onChanged});
 
   final bool value;
@@ -16,7 +17,8 @@ class StandardCheckbox extends StatelessWidget {
   final bool gradientBackground;
   final Color? borderColor;
   final Color? iconColor;
-  final Function(bool)? onChanged;
+  final Color? captionColor;
+  final Function(bool) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +70,7 @@ class StandardCheckbox extends StatelessWidget {
                     fontSize: 16.0,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: captionColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                     decoration: TextDecoration.none,
                   ),
                 ),

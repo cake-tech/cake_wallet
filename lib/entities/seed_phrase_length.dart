@@ -1,4 +1,3 @@
-import 'package:cake_wallet/generated/i18n.dart';
 
 enum SeedPhraseLength {
   twelveWords(12),

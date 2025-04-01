@@ -8,13 +8,11 @@ class NanoNewWalletCredentials extends WalletCredentials {
     String? password,
     DerivationType? derivationType,
     this.mnemonic,
-    String? parentAddress,
     String? passphrase,
   }) : super(
           name: name,
           password: password,
           walletInfo: walletInfo,
-          parentAddress: parentAddress,
           passphrase: passphrase,
         );
 
