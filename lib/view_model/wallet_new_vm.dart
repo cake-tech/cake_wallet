@@ -102,7 +102,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           passphrase: passphrase,
           seedType: newWalletArguments!.mnemonic != null
-              ? MoneroSeedType.bip39Seed.raw
+              ? MoneroSeedType.bip39.raw
               : (options.last as MoneroSeedType).raw,
           mnemonic: newWalletArguments!.mnemonic,
         );

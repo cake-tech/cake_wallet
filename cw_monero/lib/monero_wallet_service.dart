@@ -391,8 +391,9 @@ class MoneroWalletService extends WalletService<
 
     final legacyMnemonic = getLegacySeedFromBip39(mnemonic);
     final height = overrideHeight ??
-        getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 1))); // Just to be sure sync the last day
+        getMoneroHeigthByDate(date: DateTime.now());
 
+    walletInfo.isRecovery = true;
     walletInfo.restoreHeight = height;
 
     monero_wallet_manager.restoreFromSeed(

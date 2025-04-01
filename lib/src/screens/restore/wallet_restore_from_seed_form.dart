@@ -134,7 +134,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       } else if (seed.split(" ").length == 12) {
         final lang = PolyseedLang.getByPhrase(seed);
 
-        _changeSeedType(MoneroSeedType.bip39Seed);
+        _changeSeedType(MoneroSeedType.bip39);
         _changeLanguage(lang.nameEnglish, true);
       }
     }
@@ -301,7 +301,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       (widget.type == WalletType.monero || widget.type == WalletType.wownero);
 
   bool get isBip39 =>
-      widget.seedSettingsViewModel.moneroSeedType == MoneroSeedType.bip39Seed &&
+      widget.seedSettingsViewModel.moneroSeedType == MoneroSeedType.bip39 &&
       (widget.type == WalletType.monero || widget.type == WalletType.wownero);
 
   Widget get expandIcon => Container(
@@ -348,7 +348,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         return [
           MoneroSeedType.legacy,
           MoneroSeedType.polyseed,
-          MoneroSeedType.bip39Seed
+          MoneroSeedType.bip39
         ];
       case WalletType.wownero:
         return [

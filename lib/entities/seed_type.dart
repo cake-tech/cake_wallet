@@ -1,18 +1,17 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:cw_core/wallet_info.dart';
 
 class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
   const MoneroSeedType({required String title, required int raw}) : super(title: title, raw: raw);
 
-  static const all = [MoneroSeedType.legacy, MoneroSeedType.polyseed, bip39Seed];
+  static const all = [legacy, polyseed, bip39];
 
   static const defaultSeedType = polyseed;
 
-  static const legacy = MoneroSeedType(raw: 0, title: 'Legacy (25 words)');
-  static const polyseed = MoneroSeedType(raw: 1, title: 'Polyseed (16 words)');
-  static const wowneroSeed = MoneroSeedType(raw: 2, title: 'Wownero (14 words)');
-  static const bip39Seed = MoneroSeedType(raw: 3, title: 'bip39 (12 words)');
+  static const legacy = MoneroSeedType(raw: 0, title: 'Legacy');
+  static const polyseed = MoneroSeedType(raw: 1, title: 'Polyseed');
+  static const wowneroSeed = MoneroSeedType(raw: 2, title: 'Wownero');
+  static const bip39 = MoneroSeedType(raw: 3, title: 'BIP39');
 
   static MoneroSeedType deserialize({required int raw}) {
     switch (raw) {
@@ -23,25 +22,14 @@ class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
       case 2:
         return wowneroSeed;
       case 3:
-        return bip39Seed;
+        return bip39;
       default:
         throw Exception('Unexpected token: $raw for SeedType deserialize');
     }
   }
 
   @override
-  String toString() {
-    switch (this) {
-      case MoneroSeedType.legacy:
-        return S.current.seedtype_legacy;
-      case MoneroSeedType.polyseed:
-        return S.current.seedtype_polyseed;
-      case MoneroSeedType.wowneroSeed:
-        return S.current.seedtype_wownero;
-      default:
-        return title;
-    }
-  }
+  String toString() => title;
 }
 
 class BitcoinSeedType extends EnumerableItem<int> with Serializable<int> {
