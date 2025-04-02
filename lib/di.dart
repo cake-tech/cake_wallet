@@ -348,7 +348,7 @@ Future<void> setup({
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
-  getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
+  getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
   getIt.registerSingleton<SendTemplateStore>(SendTemplateStore(templateSource: _templates));
   getIt.registerSingleton<ExchangeTemplateStore>(

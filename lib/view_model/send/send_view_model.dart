@@ -217,12 +217,48 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get balance {
-    if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+    } else if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+  }
+
+  @action
+  Future<void> updateSendingBalance() async {
+    // force the sendingBalance to recompute since unspent coins aren't observable
+    // or at least mobx can't detect the changes
+
+    final currentType = coinTypeToSpendFrom;
+
+    if (currentType == UnspentCoinType.any) {
+      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    } else if (currentType == UnspentCoinType.nonMweb) {
+      coinTypeToSpendFrom = UnspentCoinType.any;
+    } else if (currentType == UnspentCoinType.mweb) {
+      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    }
+
+    // set it back to the original value:
+    coinTypeToSpendFrom = currentType;
+  }
+
+  @computed
+  String get sendingBalance {
+    // only for electrum, monero, wownero, decred wallets atm:
+    switch (wallet.type) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.decred:
+        return wallet.formatCryptoAmount(
+            unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
+      default:
+        return balance;
+    }
   }
 
   @computed
@@ -357,9 +393,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
-      state = IsExecutingState();
-
-      if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
+      if (wallet.isHardwareWallet)
+        state = IsAwaitingDeviceResponseState();
+      else
+        state = IsExecutingState();
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
@@ -502,14 +539,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate:feesViewModel. customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
-          feeRate:feesViewModel. customBitcoinFeeRate,
+          feeRate: feesViewModel.customBitcoinFeeRate,
           // if it's an exchange flow then disable sending from mweb coins
           coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
         );

@@ -13,7 +13,7 @@
   },
   {
     "question" : "Co oznaczają słowa „seed” i „keys”?",
-    "answer" : "Twoje klucze kodują prywatne informacje w twoim portfelu i pozwalają wydać monety i zobaczyć przychodzące transakcje.\nTwoje ziarno to tylko wersja twojego klucza prywatnego napisana w sposób, który łatwiej Ci zapisać. Wasze nasiona i klucze są w rzeczywistości takie same, tylko w różnych formach!\nNigdy nie dawaj nikomu swojego ziarna ani kluczy. Twoje fundusze zostaną skradzione, jeśli wydasz swoje nasiona lub klucze. Zapisz jednak swoje ziarno i przechowuj je w bezpiecznym miejscu (pozwoli to przywrócić portfel, jeśli zgubisz telefon).\n"
+    "answer" : "Twoje klucze i fraza seed zawierają prywatne informacje o twoim portfelu i pozwalają wysyłać kryptowalutę oraz zobaczyć przychodzące transakcje.\nFraza „seed” to wersja twojego klucza prywatnego napisana w sposób, który łatwiej Ci zapisać. Wasze frazy seed i klucze są w rzeczywistości takie same, tylko w różnych formach zapisu!\nNigdy nie dawaj nikomu swojej frazy seed ani swoich kluczy. Twoje fundusze zostaną skradzione, jeśli upublicznisz frazę seed lub klucze. Zapisz jednak swoją frazę seed i przechowuj ją w bezpiecznym miejscu (pozwoli to przywrócić portfel, jeśli zgubisz telefon).\n"
   },
   {
     "question" : "Ile portfeli mogę utworzyć?",
@@ -24,11 +24,11 @@
     "answer" : "Stuknij menu •••, wybierz „Portfele”, a następnie „Przywróć portfel”. Następnie wprowadź dane początkowe (lub klucze) i opcjonalnie wprowadź datę przed pierwszą transakcją w portfelu (przyspieszy to proces synchronizacji .) Może być konieczne pozostawienie aplikacji otwartej przez 15-30 minut, aby całkowicie przywrócić portfel.\n"
   },
   {
-    "question" : "Co mogę zrobić, jeśli stracę nasiona?",
-    "answer" : "Jeśli zapomniałeś o nasieniu, prawdopodobnie gdzieś je zapisałeś. Sprawdź swoje notatki i rozejrzyj się po komputerze. Jeśli nie możesz go nigdzie znaleźć, być może utworzono kopię zapasową Cake Wallet (w takim przypadku będziesz mógł przywrócić dane z tej kopii zapasowej). Jeśli żadna z tych czynności nie działa, niestety nic nie możemy zrobić.\n"
+    "question" : "Co mogę zrobić, jeśli zapomniałem frazę seed?",
+    "answer" : "Jeśli zapomniałeś swoją frazę seed, prawdopodobnie gdzieś je zapisałeś. Sprawdź swoje notatki i rozejrzyj się po komputerze. Jeśli nie możesz go nigdzie znaleźć, być może utworzono kopię zapasową Cake Wallet (w takim przypadku będziesz mógł przywrócić dane z tej kopii zapasowej). Jeśli żadna z tych czynności nie działa, niestety nic nie możemy zrobić.\n"
   },
   {
-    "question" : "Czy zbierasz jakieś informacje o moim portfelu?",
+    "question" : "Czy zbieracie jakieś informacje o moim portfelu?",
     "answer" : "Portfel Cake NIE gromadzi ani nie rejestruje żadnych informacji o Twoim portfelu. Dbamy o Twoją prywatność.\n"
   },
   {
@@ -37,7 +37,7 @@
   },
   {
     "question" : "Co to są „podadresy” i jak z nich korzystać?",
-    "answer" : "Podadres jest w zasadzie unikalnym adresem, który można wygenerować w dowolnym momencie. Monety wysłane do niego nadal będą pojawiać się w głównym portfelu, ale osoba wysyłająca monety nie może podać Twojego głównego adresu. Podadresy zawsze zaczynają się od „8”.\nMożesz utworzyć nowy podadres na ekranie Odbieranie, dotykając „+” obok przycisku Podadresy. Wprowadź nazwę podadresu i dotknij „Dodaj”. Następnie dotknij nazwy podadresu, gdy chcesz go użyć!\nJeśli jesteś paranoikiem, prawdopodobnie za każdym razem, gdy otrzymasz Monero, powinieneś utworzyć nowy podadres.\n"
+    "answer" : "Podadres jest w unikalnym adresem, który można wygenerować w dowolnym momencie. Monety wysłane do niego nadal będą pojawiać się w głównym portfelu, ale osoba wysyłająca monety nie zna Twojego głównego adresu. Podadresy zawsze zaczynają się od „8”.\nMożesz utworzyć nowy podadres na ekranie Odbieranie, dotykając „+” obok przycisku Podadresy. Wprowadź nazwę podadresu i dotknij „Dodaj”. Następnie dotknij nazwy podadresu, gdy chcesz go użyć!\nJeśli jesteś paranoikiem, prawdopodobnie za każdym razem, gdy otrzymasz Monero, powinieneś utworzyć nowy podadres.\n"
   },
   {
     "question" : "Co to jest ID transakcji?",

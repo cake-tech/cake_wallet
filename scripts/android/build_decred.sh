@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 cd "$(dirname "$0")"
@@ -9,8 +9,8 @@ LIBWALLET_PATH="${PWD}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
 LIBWALLET_VERSION="dba5327d35cb5d5d1ff113b780869deee154511f"
 
-if [ -e $LIBWALLET_PATH ]; then
-       rm -fr $LIBWALLET_PATH/{*,.*} || true
+if [[ -e $LIBWALLET_PATH ]]; then
+    rm -fr $LIBWALLET_PATH || true
 fi
 mkdir -p $LIBWALLET_PATH || true
 
@@ -32,7 +32,7 @@ then
     echo "You have these versions installed on your system currently:"
     ls ${ANDROID_HOME}/ndk/ | cat | awk '{ print "- " $1 }'
     echo "echo > ~/.zprofile"
-    echo "echo 'export ANDROID_NDK_CERSION=..... > ~/.zprofile"
+    echo "echo 'export ANDROID_NDK_VERSION=..... > ~/.zprofile"
     exit 1
 fi
 
@@ -65,7 +65,7 @@ do
     esac
 
     # PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
-    if [ -e ./build ]; then
+    if [[ -e ./build ]]; then
         rm -fr ./build
     fi
 

@@ -21,7 +21,7 @@ dependencies:
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.1.4
-  flutter_mobx: ^2.0.6+5
+  flutter_mobx: 2.0.6+5
   flutter_slidable: ^3.0.1
   share_plus: ^10.0.0
   # date_range_picker: ^1.0.6

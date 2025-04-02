@@ -1,6 +1,7 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
@@ -13,11 +14,15 @@ abstract class BuyProvider {
     required this.wallet,
     required this.isTestEnvironment,
     required this.ledgerVM,
+    required this.supportedCryptoList,
+    required this.supportedFiatList
   });
 
   final WalletBase wallet;
   final bool isTestEnvironment;
   final LedgerViewModel? ledgerVM;
+  final List<TradePair<dynamic, dynamic>> supportedCryptoList;
+  final List<TradePair<dynamic, dynamic>> supportedFiatList;
 
   String get title;
 

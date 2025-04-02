@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -18,7 +19,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MeldBuyProvider extends BuyProvider {
   MeldBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
+      : super(
+      wallet: wallet,
+      isTestEnvironment: isTestEnvironment,
+      ledgerVM: null,
+      supportedCryptoList: supportedCryptoToFiatPairs(
+          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+      supportedFiatList: supportedFiatToCryptoPairs(
+          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _isProduction = false;
 
@@ -33,6 +41,9 @@ class MeldBuyProvider extends BuyProvider {
   static const String _baseWidgetUrl = _isProduction ? productionUrl : sandboxUrl;
 
   static String get _testApiKey => secrets.meldTestApiKey;
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   static String get _testPublicKey => '' ; //secrets.meldTestPublicKey;
 

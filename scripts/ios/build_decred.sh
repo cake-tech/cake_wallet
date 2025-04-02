@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 . ./config.sh
 LIBWALLET_PATH="${EXTERNAL_IOS_SOURCE_DIR}/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
 LIBWALLET_VERSION="dba5327d35cb5d5d1ff113b780869deee154511f"
 
-if [ -e $LIBWALLET_PATH ]; then
-       rm -fr $LIBWALLET_PATH
+if [[ -e $LIBWALLET_PATH ]]; then
+    rm -fr $LIBWALLET_PATH
 fi
 mkdir -p $LIBWALLET_PATH
 git clone $LIBWALLET_URL $LIBWALLET_PATH
@@ -17,8 +17,8 @@ SYSROOT=`xcrun --sdk iphoneos --show-sdk-path`
 CLANG="clang -target arm64-apple-ios -isysroot ${SYSROOT}"
 CLANGXX="clang++ -target arm64-apple-ios -isysroot ${SYSROOT}"
 
-if [ -e ./build ]; then
-       rm -fr ./build
+if [[ -e ./build ]]; then
+    rm -fr ./build
 fi
 CGO_ENABLED=1 GOOS=ios GOARCH=arm64 CC=$CLANG CXX=$CLANGXX \
 go build -v -buildmode=c-archive -o ./build/libdcrwallet.a ./cgo || exit 1

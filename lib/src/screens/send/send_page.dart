@@ -397,7 +397,10 @@ class SendPage extends BasePage {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
-                              FocusManager.instance.primaryFocus?.unfocus();
+
+                              //Request dummy node to get the focus out of the text fields
+                              FocusScope.of(context).requestFocus(FocusNode());
+
                               if (sendViewModel.state is IsExecutingState) return;
                               if (_formKey.currentState != null &&
                                   !_formKey.currentState!.validate()) {
@@ -653,20 +656,26 @@ class SendPage extends BasePage {
 
       if (state is IsAwaitingDeviceResponseState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                dialogContext = context;
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).proceed_on_device,
-                    alertContent: S.of(context).proceed_on_device_description,
-                    buttonText: S.of(context).cancel,
-                    alertBarrierDismissible: false,
-                    buttonAction: () {
-                      sendViewModel.state = InitialExecutionState();
-                      Navigator.of(context).pop();
-                    });
-              });
+          if (!context.mounted) return;
+
+          showModalBottomSheet<void>(
+            context: context,
+            isDismissible: false,
+            builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+              currentTheme: currentTheme,
+              titleText: S.of(bottomSheetContext).proceed_on_device,
+              contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
+              contentImageColor:
+              Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              content: S.of(bottomSheetContext).proceed_on_device_description,
+              isTwoAction: false,
+              actionButtonText: S.of(context).cancel,
+              actionButton: () {
+                sendViewModel.state = InitialExecutionState();
+                Navigator.of(bottomSheetContext).pop();
+              },
+            ),
+          );
         });
       }
     });
