@@ -1,5 +1,4 @@
-# docker build . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:3.27.4-linux
-# docker push ghcr.io/cake-tech/cake_wallet:3.27.4-linux
+# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1
 
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
@@ -7,7 +6,7 @@
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/34-ndk/Dockerfile
 # https://github.com/cirruslabs/docker-images-flutter/blob/master/sdk/Dockerfile
 
-FROM --platform=linux/amd64 docker.io/debian:12
+FROM docker.io/debian:12
 
 LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 
@@ -60,10 +59,19 @@ RUN set -o xtrace \
     ffmpeg network-manager x11-utils xvfb psmisc \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
+    # x86_64-linux-gnu dependencies
+    g++-x86-64-linux-gnu gcc-x86-64-linux-gnu \
+    # flatpak dependencies
+    flatpak flatpak-builder binutils elfutils patch unzip xz-utils zstd \
     && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     && sh -c 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen' \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8
+
+ENV FLATPAK_RUNTIME_VERSION=24.08
+RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo \
+    && flatpak install -y flathub org.freedesktop.Platform//${FLATPAK_RUNTIME_VERSION} \
+    && flatpak install -y flathub org.freedesktop.Sdk//${FLATPAK_RUNTIME_VERSION}
 
 # Install nodejs for Github Actions
 RUN curl -fsSL https://deb.nodesource.com/setup_23.x | bash - && \
@@ -74,14 +82,28 @@ RUN curl -fsSL https://deb.nodesource.com/setup_23.x | bash - && \
 ENV PATH=${PATH}:/usr/local/go/bin:${HOME}/go/bin
 ENV GOROOT=/usr/local/go
 ENV GOPATH=${HOME}/go
-RUN wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz &&\
-    rm -rf /usr/local/go &&\
-    tar -C /usr/local -xzf go${GOLANG_VERSION}.linux-amd64.tar.gz && \
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz -O go.tar.gz; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+      wget https://go.dev/dl/go${GOLANG_VERSION}.linux-arm64.tar.gz -O go.tar.gz; \
+    else \
+      echo "Unsupported architecture: $ARCH"; exit 1; \
+    fi && \
+    rm -rf /usr/local/go && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz && \
     go install golang.org/x/mobile/cmd/gomobile@latest && \
     gomobile init
 
+RUN git config --global user.email "czarek@cakewallet.com" \
+    && git config --global user.name "CakeWallet CI"
+
+
 # Install Android SDK commandline tools and emulator
-RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip -O android-sdk-tools.zip \
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
+    && wget -q https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip -O android-sdk-tools.zip \
     && mkdir -p ${ANDROID_HOME}/cmdline-tools/ \
     && unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}/cmdline-tools/ \
     && mv ${ANDROID_HOME}/cmdline-tools/cmdline-tools ${ANDROID_HOME}/cmdline-tools/latest \
@@ -94,14 +116,17 @@ RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-${AN
     && sdkmanager platform-tools \
     && mkdir -p ${HOME}/.android \
     && touch ${HOME}/.android/repositories.cfg \
-    && git config --global user.email "czarek@cakewallet.com" \
-    && git config --global user.name "CakeWallet CI"
+
 
 # Handle emulator not being available on linux/arm64 (https://issuetracker.google.com/issues/227219818)
-RUN if [ $(uname -m) == "x86_64" ]; then sdkmanager emulator ; fi
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
+    && sdkmanager emulator
 
 # Pre-install extra Android SDK dependencies in order to not have to download them for each build
-RUN yes | sdkmanager \
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
+    && yes | sdkmanager \
     "platforms;android-$ANDROID_PLATFORM_VERSION" \
     "build-tools;$ANDROID_BUILD_TOOLS_VERSION" \
     "platforms;android-33" \
@@ -114,12 +139,16 @@ RUN yes | sdkmanager \
 
 # Install extra NDK dependency for sp_scanner
 ENV ANDROID_NDK_VERSION=27.2.12479018
-RUN yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
+    && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
     "ndk;27.0.12077973"
 
 # Install dependencies for tests
 # Comes from https://github.com/ReactiveCircus/android-emulator-runner
-RUN yes | sdkmanager \
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
+    && yes | sdkmanager \
     "system-images;android-29;default;x86_64" \
     "system-images;android-31;default;x86_64" \
     "platforms;android-29" \
@@ -135,7 +164,7 @@ RUN (addgroup kvm || true) && \
 ENV PATH=${HOME}/.cargo/bin:${PATH}
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     cargo install cargo-ndk && \
-    for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android x86_64-unknown-linux-gnu; \
+    for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu aarch64-unknown-linux-gnu; \
     do \
         rustup target add --toolchain stable $target; \
     done

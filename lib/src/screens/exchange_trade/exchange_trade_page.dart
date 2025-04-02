@@ -26,23 +26,20 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
-void showInformation(
-    ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
+void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_trade_result_confirm(trade.amount, trade.from.toString(), walletName) +
-        exchangeTradeViewModel.extraInfo
-      : S.current.exchange_result_description(
-          trade.amount, trade.from.toString()) +
-        exchangeTradeViewModel.extraInfo;
+          exchangeTradeViewModel.extraInfo
+      : S.current.exchange_result_description(trade.amount, trade.from.toString()) +
+          exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
       context: context,
-      builder: (_) => InformationPage(
-        key: ValueKey('information_page_dialog_key'),
-        information: information));
+      builder: (_) =>
+          InformationPage(key: ValueKey('information_page_dialog_key'), information: information));
 }
 
 class ExchangeTradePage extends BasePage {
@@ -52,9 +49,6 @@ class ExchangeTradePage extends BasePage {
 
   @override
   String get title => S.current.swap;
-
-  @override
-  bool get gradientBackground => true;
 
   @override
   bool get gradientAll => true;
@@ -141,7 +135,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
     return Container(
       child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(top: 10, bottom: 16),
+        contentPadding: EdgeInsets.only(bottom: 16),
         content: Observer(builder: (_) {
           final trade = widget.exchangeTradeViewModel.trade;
 
@@ -198,7 +192,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty,
                         isLoading: sendingState is IsExecutingState,
                         onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
-                        text:S.current.send_from_cake_wallet,
+                        text: S.current.send_from_cake_wallet,
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                       )
@@ -220,12 +214,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
     _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) {
-
-          if (state is! IsExecutingState &&
-              loadingBottomSheetContext != null &&
-              loadingBottomSheetContext!.mounted) {
-            Navigator.of(loadingBottomSheetContext!).pop();
-          }
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -273,16 +266,21 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   currentTheme: widget.currentTheme,
                   walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                   titleText: S.of(bottomSheetContext).confirm_transaction,
-                  titleIconPath: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  titleIconPath:
+                      widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  amountValue: widget
+                      .exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: widget
+                      .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
                       ? S.of(bottomSheetContext).send_estimated_fee
                       : S.of(bottomSheetContext).send_fee,
-                  feeValue: widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  feeValue:
+                      widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
+                      .pendingTransactionFeeFiatAmountFormatted,
                   outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
                   onSlideComplete: () async {
                     Navigator.of(bottomSheetContext).pop();
@@ -300,7 +298,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           if (!context.mounted) {
             return;
           }
-
 
           await showModalBottomSheet<void>(
             context: context,
@@ -322,10 +319,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   });
             },
           );
-
         });
       }
-
     });
 
     _effectsInstalled = true;
