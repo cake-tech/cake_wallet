@@ -274,36 +274,7 @@ abstract class DashboardViewModelBase with Store {
     _transactionDisposer = reaction(
             (_) => appStore.wallet!.transactionHistory.transactions.length *
             appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
-            (int _) async {
-          await Future.delayed(Duration.zero);
-          final currentAccountId = wallet.type == WalletType.monero 
-              ? monero!.getCurrentAccount(wallet).id
-              : wallet.type == WalletType.wownero 
-                  ? wow.wownero!.getCurrentAccount(wallet).id 
-                  : null;
-          final List<TransactionInfo> relevantTxs = [];
-          
-          for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
-            bool isRelevant = true;
-            if (wallet.type == WalletType.monero) {
-              isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
-            } else if (wallet.type == WalletType.wownero) {
-              isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
-            }
-            
-            if (isRelevant) {
-              relevantTxs.add(tx);
-            }
-          }
-
-          transactions.clear();
-          transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
-            transaction: tx,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-          )));
-        }
+            _transactionDisposerCallback
     );
 
     if (hasSilentPayments) {
@@ -316,6 +287,50 @@ abstract class DashboardViewModelBase with Store {
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
+  }
+
+  
+  bool _isTransactionDisposerCallbackRunning = false;
+  
+  void _transactionDisposerCallback(int _) async {
+    // Simple check to prevent the callback from being called multiple times in the same frame
+    if (_isTransactionDisposerCallbackRunning) return;
+    _isTransactionDisposerCallbackRunning = true;
+    await Future.delayed(Duration.zero);
+
+
+    try {
+      final currentAccountId = wallet.type == WalletType.monero 
+          ? monero!.getCurrentAccount(wallet).id
+          : wallet.type == WalletType.wownero 
+              ? wow.wownero!.getCurrentAccount(wallet).id 
+              : null;
+      final List<TransactionInfo> relevantTxs = [];
+      
+      for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
+        bool isRelevant = true;
+        if (wallet.type == WalletType.monero) {
+          isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
+        } else if (wallet.type == WalletType.wownero) {
+          isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
+        }
+        
+        if (isRelevant) {
+          relevantTxs.add(tx);
+        }
+      }
+      // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
+
+      transactions.clear();
+      transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
+        transaction: tx,
+        balanceViewModel: balanceViewModel,
+        settingsStore: appStore.settingsStore,
+        key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+      )));
+    } finally {
+      _isTransactionDisposerCallbackRunning = false;
+    }
   }
 
   void _checkMweb() {
@@ -798,36 +813,7 @@ abstract class DashboardViewModelBase with Store {
     _transactionDisposer = reaction(
             (_) => appStore.wallet!.transactionHistory.transactions.length *
             appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
-            (int _) async {
-          await Future.delayed(Duration.zero);
-          final currentAccountId = wallet.type == WalletType.monero 
-              ? monero!.getCurrentAccount(wallet).id
-              : wallet.type == WalletType.wownero 
-                  ? wow.wownero!.getCurrentAccount(wallet).id 
-                  : null;
-          final List<TransactionInfo> relevantTxs = [];
-          
-          for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
-            bool isRelevant = true;
-            if (wallet.type == WalletType.monero) {
-              isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
-            } else if (wallet.type == WalletType.wownero) {
-              isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
-            }
-            
-            if (isRelevant) {
-              relevantTxs.add(tx);
-            }
-          }
-
-          transactions.clear();
-          transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
-            transaction: tx,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore,
-            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-          )));
-        }
+            _transactionDisposerCallback
     );
   }
 

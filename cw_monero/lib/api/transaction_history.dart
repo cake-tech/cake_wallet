@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:isolate';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
 import 'package:cw_monero/api/monero_output.dart';
@@ -54,12 +55,17 @@ Future<List<Transaction>> getAllTransactions() async {
   
   await txHistoryMutex.acquire();
   txhistory ??= monero.Wallet_history(wptr!);
+  final startAddress = txhistory!.address * wptr!.address;
   int size = countOfTransactions();
   final list = <Transaction>[];
   for (int index = 0; index < size; index++) {
     if (index % 25 == 0) {
       // Give main thread a chance to do other things.
       await Future.delayed(Duration.zero);
+    }
+    if (txhistory!.address * wptr!.address != startAddress) {
+      printV("Loop broken because txhistory!.address * wptr!.address != startAddress");
+      break;
     }
     final txInfo = monero.TransactionHistory_transaction(txhistory!, index: index);
     final txHash = monero.TransactionInfo_hash(txInfo);
