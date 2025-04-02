@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -114,58 +113,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                  if (!dashboardViewModel.isFiatConversionServiceAvailable)
-                                    InkWell(
-                                      onTap: () async {
-                                        final learnMorePressed = await showPopUp<bool>(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertWithTwoActions(
-                                                      alertTitle: S.of(context).fiat_unavailable,
-                                                      alertContent:
-                                                          S.of(context).fiat_unavailable_desc,
-                                                      leftButtonText: S.of(context).learn_more,
-                                                      rightButtonText: S.of(context).ok,
-                                                      actionLeftButton: () =>
-                                                          Navigator.of(context).pop(true),
-                                                      actionRightButton: () =>
-                                                          Navigator.of(context).pop(false));
-                                                }) ??
-                                            false;
-                                        if (learnMorePressed) {
-                                          launchUrl(
-                                            Uri.parse("https://docs.cakewallet.com/fiat-api-unavailable"),
-                                            mode: LaunchMode.externalApplication,
-                                          );
-                                        }
-                                      },
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            S.of(context).fiat_unavailable,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Lato',
-                                              fontWeight: FontWeight.w400,
-                                              color: Theme.of(context)
-                                                  .extension<BalancePageTheme>()!
-                                                  .labelTextColor,
-                                              height: 1,
-                                            ),
-                                            softWrap: true,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                                            child: Icon(Icons.help_outline,
-                                                size: 16,
-                                                color: Theme.of(context)
-                                                    .extension<BalancePageTheme>()!
-                                                    .labelTextColor),
-                                          ),
-                                          SizedBox(width: 16),
-                                        ],
-                                      ),
-                                    ),
                                 ],
                               );
                             },
@@ -173,6 +120,57 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ),
                       ],
                     )),
+          if (!dashboardViewModel.isFiatConversionServiceAvailable)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    final learnMorePressed = await showPopUp<bool>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertWithTwoActions(
+                                  alertTitle: S.of(context).fiat_unavailable,
+                                  alertContent: S.of(context).fiat_unavailable_desc,
+                                  leftButtonText: S.of(context).learn_more,
+                                  rightButtonText: S.of(context).ok,
+                                  actionLeftButton: () => Navigator.of(context).pop(true),
+                                  actionRightButton: () => Navigator.of(context).pop(false));
+                            }) ??
+                        false;
+                    if (learnMorePressed) {
+                      launchUrl(
+                        Uri.parse("https://docs.cakewallet.com/fiat-api-unavailable"),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        S.of(context).fiat_unavailable,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'Lato',
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                          height: 1,
+                        ),
+                        softWrap: true,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, right: 4, bottom: 16, top: 16),
+                        child: Icon(Icons.help_outline,
+                            size: 16,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor),
+                      ),
+                      SizedBox(width: 16),
+                    ],
+                  ),
+                ),
+                SizedBox(width: 16),
+              ],
+            ),
           Observer(
             builder: (_) {
               if (dashboardViewModel.balanceViewModel.isShowCard && FeatureFlag.isCakePayEnabled) {
