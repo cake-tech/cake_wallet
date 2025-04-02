@@ -217,9 +217,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get balance {
-    if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+    } else if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
