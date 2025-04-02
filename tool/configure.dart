@@ -1402,6 +1402,7 @@ import 'package:xelis_flutter/src/api/wallet.dart' as x_wallet;
   const xelisContent = """
 
 abstract class Xelis {
+  List<String> getXelisWordList(String language);
   WalletCredentials createXelisNewWalletCredentials(
       {required String name, WalletInfo? walletInfo});
   WalletCredentials createXelisRestoreWalletFromSeedCredentials(
