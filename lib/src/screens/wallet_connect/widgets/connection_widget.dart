@@ -1,14 +1,14 @@
+import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/wallet_connect/models/connection_model.dart';
 import 'connection_item_widget.dart';
 
-class ConnectionWidget extends StatelessWidget {
-  const ConnectionWidget({required this.title, required this.info, super.key});
+class WCConnectionWidget extends StatelessWidget {
+  const WCConnectionWidget({required this.title, required this.info, super.key});
 
   final String title;
-  final List<ConnectionModel> info;
+  final List<WCConnectionModel> info;
 
   @override
   Widget build(BuildContext context) {

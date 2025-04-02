@@ -9,7 +9,7 @@ class Web3RequestModal extends StatelessWidget {
   final Widget child;
   final VoidCallback? onAccept;
   final VoidCallback? onReject;
-  
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -21,7 +21,6 @@ class Web3RequestModal extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-             
               Expanded(
                 child: PrimaryButton(
                   onPressed: onReject ?? () => Navigator.of(context).pop(false),
@@ -38,7 +37,7 @@ class Web3RequestModal extends StatelessWidget {
                   color: Theme.of(context).primaryColor,
                   textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                 ),
-              ),       
+              ),
             ],
           ),
         ],

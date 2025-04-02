@@ -1,5 +1,3 @@
-import 'solana_chain_service.dart';
-
 enum SolanaChainId {
   mainnet,
   // testnet,
@@ -25,6 +23,6 @@ extension SolanaChainIdX on SolanaChainId {
       //   break;
     }
 
-    return '${SolanaChainServiceImpl.namespace}:$name';
+    return 'solana:$name';
   }
 }

@@ -1,7 +1,6 @@
-import 'dart:developer';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/enter_wallet_connect_uri_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -9,7 +8,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -19,9 +18,9 @@ import 'widgets/pairing_item_widget.dart';
 import 'wc_pairing_detail_page.dart';
 
 class WalletConnectConnectionsView extends StatelessWidget {
-  final Web3WalletService web3walletService;
+  final WalletKitService walletKitService;
 
-  WalletConnectConnectionsView({required this.web3walletService, Uri? launchUri, Key? key})
+  WalletConnectConnectionsView({required this.walletKitService, Uri? launchUri, Key? key})
       : super(key: key) {
     _triggerPairingFromDeeplink(launchUri);
   }
@@ -39,31 +38,31 @@ class WalletConnectConnectionsView extends StatelessWidget {
 
     final uriData = Uri.parse(uri);
 
-    await web3walletService.pairWithUri(uriData);
+    await walletKitService.pairWithUri(uriData);
   }
 
   @override
   Widget build(BuildContext context) {
-    return WCPairingsWidget(web3walletService: web3walletService);
+    return WCPairingsWidget(walletKitService: walletKitService);
   }
 }
 
 class WCPairingsWidget extends BasePage {
-  WCPairingsWidget({required this.web3walletService, Key? key})
-      : web3wallet = web3walletService.getWeb3Wallet();
+  WCPairingsWidget({required this.walletKitService, Key? key})
+      : walletKit = walletKitService.walletKit;
 
-  final Web3Wallet web3wallet;
-  final Web3WalletService web3walletService;
+  final ReownWalletKit walletKit;
+  final WalletKitService walletKitService;
 
   @override
   String get title => S.current.walletConnect;
 
-  Future<void> _onScanQrCode(BuildContext context, Web3Wallet web3Wallet) async {
+  Future<void> _onScanQrCode(BuildContext context, ReownWalletKit web3Wallet) async {
     final String? uri;
 
     if (DeviceInfo.instance.isMobile) {
       bool isCameraPermissionGranted =
-      await PermissionHandler.checkPermission(Permission.camera, context);
+          await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
       uri = await presentQRScanner(context);
     } else {
@@ -74,7 +73,7 @@ class WCPairingsWidget extends BasePage {
 
     log('_onFoundUri: $uri');
     final Uri uriData = Uri.parse(uri);
-    await web3walletService.pairWithUri(uriData);
+    await walletKitService.pairWithUri(uriData);
   }
 
   Future<String?> _showEnterWalletConnectURIPopUp(BuildContext context) async {
@@ -126,7 +125,7 @@ class WCPairingsWidget extends BasePage {
                     text: S.current.newConnection,
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
-                    onPressed: () => _onScanQrCode(context, web3wallet),
+                    onPressed: () => _onScanQrCode(context, walletKit),
                   ),
                 ],
               ),
@@ -134,7 +133,7 @@ class WCPairingsWidget extends BasePage {
             SizedBox(height: 48),
             Expanded(
               child: Visibility(
-                visible: web3walletService.pairings.isEmpty,
+                visible: walletKitService.pairings.isEmpty,
                 child: Center(
                   child: Text(
                     S.current.activeConnectionsPrompt,
@@ -147,9 +146,9 @@ class WCPairingsWidget extends BasePage {
                   ),
                 ),
                 replacement: ListView.builder(
-                  itemCount: web3walletService.pairings.length,
+                  itemCount: walletKitService.pairings.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final pairing = web3walletService.pairings[index];
+                    final pairing = walletKitService.pairings[index];
                     return PairingItemWidget(
                       key: ValueKey(pairing.topic),
                       pairing: pairing,
@@ -159,7 +158,7 @@ class WCPairingsWidget extends BasePage {
                           MaterialPageRoute(
                             builder: (context) => WalletConnectPairingDetailsPage(
                               pairing: pairing,
-                              web3walletService: web3walletService,
+                              walletKitService: walletKitService,
                             ),
                           ),
                         );

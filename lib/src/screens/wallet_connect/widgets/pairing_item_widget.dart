@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:walletconnect_flutter_v2/apis/core/pairing/utils/pairing_models.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 
 class PairingItemWidget extends StatelessWidget {
   const PairingItemWidget({required this.pairing, required this.onTap, super.key});

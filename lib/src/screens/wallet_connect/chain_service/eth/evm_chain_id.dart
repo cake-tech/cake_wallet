@@ -1,5 +1,3 @@
-import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_service.dart';
-
 enum EVMChainId {
   ethereum,
   polygon,
@@ -30,6 +28,6 @@ extension EVMChainIdX on EVMChainId {
         break;
     }
 
-    return '${EvmChainServiceImpl.namespace}:$name';
+    return 'eip155:$name';
   }
 }

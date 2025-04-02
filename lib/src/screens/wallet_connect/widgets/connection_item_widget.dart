@@ -1,11 +1,11 @@
+import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/wallet_connect/models/connection_model.dart';
 
 class ConnectionItemWidget extends StatelessWidget {
   const ConnectionItemWidget({required this.model, Key? key}) : super(key: key);
 
-  final ConnectionModel model;
+  final WCConnectionModel model;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class ConnectionItemWidget extends StatelessWidget {
 class _NoModelElementWidget extends StatelessWidget {
   const _NoModelElementWidget({required this.model});
 
-  final ConnectionModel model;
+  final WCConnectionModel model;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class _ModelElementWidget extends StatelessWidget {
     required this.modelElement,
   });
 
-  final ConnectionModel model;
+  final WCConnectionModel model;
   final String modelElement;
 
   @override

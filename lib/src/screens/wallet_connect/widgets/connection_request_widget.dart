@@ -1,180 +1,233 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/key_service/wallet_connect_key_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/utils/namespace_model_builder.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/material.dart';
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-
-import '../../../../core/wallet_connect/models/auth_request_model.dart';
-import '../../../../core/wallet_connect/models/connection_model.dart';
-import '../../../../core/wallet_connect/models/session_request_model.dart';
-import '../utils/namespace_model_builder.dart';
-import 'connection_widget.dart';
-
-class ConnectionRequestWidget extends StatefulWidget {
-  const ConnectionRequestWidget({
-    required this.wallet,
-    required this.chaindIdNamespace,
-    this.authRequest,
-    this.sessionProposal,
-    Key? key,
-  }) : super(key: key);
-
-  final Web3Wallet wallet;
-  final String chaindIdNamespace;
-  final AuthRequestModel? authRequest;
-  final SessionRequestModel? sessionProposal;
-
-  @override
-  State<ConnectionRequestWidget> createState() => _ConnectionRequestWidgetState();
-}
-
-class _ConnectionRequestWidgetState extends State<ConnectionRequestWidget> {
-  ConnectionMetadata? metadata;
-
-  @override
-  void initState() {
-    super.initState();
-    // Get the connection metadata
-    metadata = widget.authRequest?.request.requester ?? widget.sessionProposal?.request.proposer;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (metadata == null) {
-      return Text(
-        S.current.error,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.normal,
-          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-        ),
-      );
-    }
-
-    return _ConnectionMetadataDisplayWidget(
-      metadata: metadata,
-      wallet: widget.wallet,
-      authRequest: widget.authRequest,
-      sessionProposal: widget.sessionProposal,
-      chaindIdNamespace: widget.chaindIdNamespace,
-    );
-  }
-}
-
-class _ConnectionMetadataDisplayWidget extends StatelessWidget {
-  const _ConnectionMetadataDisplayWidget({
-    required this.wallet,
-    required this.metadata,
-    required this.sessionProposal,
-    required this.chaindIdNamespace,
-    this.authRequest,
+class WCConnectionRequestWidget extends StatelessWidget {
+  const WCConnectionRequestWidget({
+    super.key,
+    // this.authPayloadParams,
+    this.sessionAuthPayload,
+    this.proposalData,
+    this.requester,
+    this.verifyContext,
+    required this.walletKeyService,
+    required this.walletKit,
+    required this.appStore,
   });
 
-  final ConnectionMetadata? metadata;
-  final Web3Wallet wallet;
-  final String chaindIdNamespace;
-  final AuthRequestModel? authRequest;
-  final SessionRequestModel? sessionProposal;
+  // final AuthPayloadParams? authPayloadParams;
+  final SessionAuthPayload? sessionAuthPayload;
+  final ProposalData? proposalData;
+  final ConnectionMetadata? requester;
+  final VerifyContext? verifyContext;
+  final WalletConnectKeyService walletKeyService;
+  final AppStore appStore;
+  final ReownWalletKit walletKit;
 
   @override
   Widget build(BuildContext context) {
+    if (requester == null) {
+      return const Text('ERROR');
+    }
+
     return Container(
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 18, 18, 19),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          const SizedBox(height: 8),
           Text(
-            metadata!.metadata.name,
+            '${requester!.metadata.name} would like to connect',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            S.current.wouoldLikeToConnect,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          Text(
-            metadata!.metadata.url,
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Visibility(
-            visible: authRequest != null,
-            child: _AuthRequestWidget(
-              wallet: wallet,
-              authRequest: authRequest,
-              chaindIdNamespace: chaindIdNamespace,
-            ),
-
-            //If authRequest is null, sessionProposal is not null.
-            replacement: _SessionProposalWidget(sessionProposal: sessionProposal!),
-          ),
+          (sessionAuthPayload != null)
+              ? _buildSessionAuthRequestView()
+              : _buildSessionProposalView(context),
         ],
       ),
     );
   }
-}
 
-class _AuthRequestWidget extends StatelessWidget {
-  const _AuthRequestWidget({
-    required this.wallet,
-    required this.chaindIdNamespace,
-    this.authRequest,
-  });
-
-  final Web3Wallet wallet;
-  final String chaindIdNamespace;
-  final AuthRequestModel? authRequest;
-
-  @override
-  Widget build(BuildContext context) {
-    final model = ConnectionModel(
-      text: wallet.formatAuthMessage(
-        iss: 'did:pkh:$chaindIdNamespace:${authRequest!.iss}',
-        cacaoPayload: CacaoRequestPayload.fromPayloadParams(
-          authRequest!.request.payloadParams,
-        ),
-      ),
+  Widget _buildSessionAuthRequestView() {
+    //
+    final cacaoPayload = CacaoRequestPayload.fromSessionAuthPayload(
+      sessionAuthPayload!,
     );
-    return ConnectionWidget(
-      title: S.current.message,
-      info: [model],
+    //
+    final List<WCConnectionModel> messagesModels = [];
+    for (var chain in sessionAuthPayload!.chains) {
+      final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+      final iss = 'did:pkh:$chain:${chainKeys.first.publicKey}';
+      final message = walletKit.formatAuthMessage(
+        iss: iss,
+        cacaoPayload: cacaoPayload,
+      );
+      messagesModels.add(
+        WCConnectionModel(
+          title: 'Message ${messagesModels.length + 1}',
+          elements: [
+            message,
+          ],
+        ),
+      );
+    }
+    //
+    return WCConnectionWidget(
+      title: '${messagesModels.length} Messages',
+      info: messagesModels,
+    );
+  }
+
+  Widget _buildSessionProposalView(BuildContext context) {
+    // Create the connection models using the required and optional namespaces provided by the proposal data
+    // The key is the title and the list of values is the data
+    final views = ConnectionWidgetBuilder.buildFromRequiredNamespaces(
+      proposalData!.generatedNamespaces!,
+    );
+
+    return Column(
+      children: views,
     );
   }
 }
 
-class _SessionProposalWidget extends StatelessWidget {
-  const _SessionProposalWidget({required this.sessionProposal});
-
-  final SessionRequestModel sessionProposal;
+class VerifyContextWidget extends StatelessWidget {
+  const VerifyContextWidget({
+    super.key,
+    required this.verifyContext,
+  });
+  final VerifyContext? verifyContext;
 
   @override
   Widget build(BuildContext context) {
-    // Create the connection models using the required and optional namespaces provided by the proposal data
-    // The key is the title and the list of values is the data
-    final List<ConnectionWidget> views = ConnectionWidgetBuilder.buildFromRequiredNamespaces(
-      sessionProposal.request.requiredNamespaces,
-    );
+    if (verifyContext == null) {
+      return const SizedBox.shrink();
+    }
 
-    return Column(children: views);
+    if (verifyContext!.validation.scam) {
+      return VerifyBanner(
+        color: Colors.red,
+        origin: verifyContext!.origin,
+        title: 'Security risk',
+        text: 'This domain is flagged as unsafe by multiple security providers.'
+            ' Leave immediately to protect your assets.',
+      );
+    }
+    if (verifyContext!.validation.invalid) {
+      return VerifyBanner(
+        color: Colors.red,
+        origin: verifyContext!.origin,
+        title: 'Domain mismatch',
+        text: 'This website has a domain that does not match the sender of this request.'
+            ' Approving may lead to loss of funds.',
+      );
+    }
+    if (verifyContext!.validation.valid) {
+      return VerifyHeader(
+        iconColor: Colors.green,
+        title: verifyContext!.origin,
+      );
+    }
+    return VerifyBanner(
+      color: Colors.orange,
+      origin: verifyContext!.origin,
+      title: 'Cannot verify',
+      text: 'This domain cannot be verified. '
+          'Check the request carefully before approving.',
+    );
+  }
+}
+
+class VerifyHeader extends StatelessWidget {
+  const VerifyHeader({
+    super.key,
+    required this.iconColor,
+    required this.title,
+  });
+  final Color iconColor;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.shield_outlined,
+          color: iconColor,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            color: iconColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class VerifyBanner extends StatelessWidget {
+  const VerifyBanner({
+    super.key,
+    required this.origin,
+    required this.title,
+    required this.text,
+    required this.color,
+  });
+  final String origin, title, text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          origin,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox.square(dimension: 8.0),
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.2),
+            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+          ),
+          child: Column(
+            children: [
+              VerifyHeader(
+                iconColor: color,
+                title: title,
+              ),
+              const SizedBox(height: 4.0),
+              Text(
+                text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
