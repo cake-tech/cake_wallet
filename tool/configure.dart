@@ -1397,11 +1397,13 @@ import 'package:hive/hive.dart';
   const xelisCWHeaders = """
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
 import 'package:xelis_flutter/src/api/wallet.dart' as x_wallet;
+import 'package:xelis_flutter/src/api/utils.dart' as x_utils;
 """;
   const xelisCwPart = "part 'cw_xelis.dart';";
   const xelisContent = """
 
 abstract class Xelis {
+  List<String> getXelisWordList(String language);
   WalletCredentials createXelisNewWalletCredentials(
       {required String name, WalletInfo? walletInfo});
   WalletCredentials createXelisRestoreWalletFromSeedCredentials(

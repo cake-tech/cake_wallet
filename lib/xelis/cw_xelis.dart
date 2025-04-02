@@ -1,8 +1,11 @@
 part of 'xelis.dart';
 
-class CWXelis { // extends Xelis
-//   @override
-//   List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
+class CWXelis extends Xelis { 
+  @override
+  List<String> getXelisWordList(String language) {
+    final lang_idx = x_utils.getLanguageIndexFromStr(language);
+    return x_utils.getMnemonicWords(lang_idx);
+  }
 
 //   WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
 //       EthereumWalletService(walletInfoSource, isDirect, client: EthereumClient());
