@@ -43,8 +43,6 @@ class TransactionDetailsPage extends BasePage {
               if (item is StandartListItem) {
                 Widget? addressTextWidget;
 
-                print(item.title.toLowerCase());
-
                 if (item.title.toLowerCase() == 'recipient addresses' ||
                     item.title.toLowerCase() == 'source address') {
                   if (item.value.contains('\n')) {
