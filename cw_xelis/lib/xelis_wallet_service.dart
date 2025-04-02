@@ -1,202 +1,189 @@
+import 'dart:io';
+
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_xelis/src/api/wallet.dart';
+import 'package:cw_xelis/xelis_wallet.dart';
+import 'package:cw_xelis/xelis_transaction_info.dart';
+import 'package:cw_xelis/xelis_table_storage.dart';
 import 'package:cw_xelis/src/api/network.dart';
-
-class XelisNewWalletCredentials extends WalletCredentials {
-  XelisNewWalletCredentials(
-      {required String name, required this.language, this.passphrase, String? password})
-      : super(name: name, password: password);
-
-  final String language;
-  final String? passphrase;
-}
-
-class XelisRestoreWalletFromSeedCredentials extends WalletCredentials {
-  XelisRestoreWalletFromSeedCredentials(
-      {required String name, required this.mnemonic, required this.passphrase, int height = 0, String? password})
-      : super(name: name, password: password, height: height);
-
-  final String mnemonic;
-  final String passphrase;
-}
+import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
+import 'package:cw_xelis/xelis_wallet_creation_credentials.dart';
+import 'package:collection/collection.dart';
 
 class XelisWalletService extends WalletService<
-    XelisNewWalletCredentials,
-    XelisRestoreWalletFromSeedCredentials,
-> 
-with Store, WalletKeysFile {
-  XelisWalletService(super.walletInfoSource);
+  XelisNewWalletCredentials,
+  XelisRestoreWalletFromSeedCredentials
+> {
+  XelisWalletService(this.walletInfoSource);
+
+  final Box<WalletInfo> walletInfoSource;
 
   @override
   WalletType getType() => WalletType.xelis;
 
-  Future<String> pathForTables() async {
-    final root = await getAppDir();
-    final prefix = walletTypeToString(WalletType.xelis).toLowerCase();
-    final walletsDir = Directory('${root.path}/wallets');
-    final walletDire = Directory('${walletsDir.path}/$prefix/tables');
+  @override
+  Future<bool> isWalletExit(String name) async =>
+      File(await pathForWallet(name: name, type: getType())).existsSync();
 
-    if (!walletDire.existsSync()) {
-      walletDire.createSync(recursive: true);
+  Future<String> _getTablePath() async {
+    final root = await getAppDir();
+    final prefix = walletTypeToString(getType()).toLowerCase();
+    final tablesDir = Directory('${root.path}/wallets/$prefix/tables');
+
+    if (!tablesDir.existsSync()) {
+      tablesDir.createSync(recursive: true);
     }
 
-    return walletDire.path;
+    return tablesDir.path;
   }
+
+  Network _resolveNetwork({bool? isTestnet}) =>
+      isTestnet == true ? Network.testnet : Network.mainnet;
 
   @override
   Future<XelisWallet> create(XelisNewWalletCredentials credentials, {bool? isTestnet}) async {
-    final fullPath = await pathForWallet(name: credentials.name, type:WalletType.xelis);
-    final tablePath = await pathForTables();
+    final fullPath = await pathForWallet(name: credentials.name, type: getType());
+    final tablePath = await _getTablePath();
     final tableState = await getTableState();
 
-    final Network network;
+    final network = _resolveNetwork(isTestnet: isTestnet);
 
-    if (isTestnet == false) {
-      network = Network.mainnet
-    } else {
-      network = Network.testnet
-    }
-
-    final wallet = await x_wallet.createXelisWallet(
+    final frbWallet = await x_wallet.createXelisWallet(
       name: fullPath,
       directory: "",
-      password: credentials.password,
+      password: credentials.password ?? '',
       network: network,
       precomputedTablesPath: tablePath,
       l1Low: tableState.currentSize.isLow,
     );
 
+    final walletInfo = credentials.walletInfo!;
+    walletInfo.address = frbWallet.getAddressStr();
+    walletInfo.network = network.name;
+
+    final wallet = XelisWallet(walletInfo: walletInfo, wallet: frbWallet);
+    await wallet.init();
     return wallet;
   }
 
   @override
   Future<XelisWallet> openWallet(String name, String password, {bool? isTestnet}) async {
-    final fullPath = await pathForWallet(name: credentials.name, type:WalletType.xelis);
-    final tablePath = await pathForTables();
+    final walletInfo = walletInfoSource.values
+        .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
+
+    final fullPath = await pathForWallet(name: name, type: getType());
+    final tablePath = await _getTablePath();
     final tableState = await getTableState();
-
-    final Network network;
-
-    if (isTestnet == false) {
-      network = Network.mainnet
-    } else {
-      network = Network.testnet
-    }
+    final network = _resolveNetwork(isTestnet: isTestnet);
 
     try {
-      final wallet = await openXelisWallet(
+      final frbWallet = await x_wallet.openXelisWallet(
         name: fullPath,
-        directory: directory,
+        directory: "",
         password: password,
         network: network,
         precomputedTablesPath: tablePath,
         l1Low: tableState.currentSize.isLow,
       );
 
-      saveBackup(name);
+      final wallet = XelisWallet(walletInfo: walletInfo, wallet: frbWallet);
+      await wallet.init();
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
 
-      final wallet = await openXelisWallet(
+      final frbWallet = await x_wallet.openXelisWallet(
         name: fullPath,
-        directory: directory,
+        directory: "",
         password: password,
         network: network,
         precomputedTablesPath: tablePath,
         l1Low: tableState.currentSize.isLow,
       );
 
+      final wallet = XelisWallet(walletInfo: walletInfo, wallet: frbWallet);
+      await wallet.init();
       return wallet;
     }
   }
 
-  // @override
-  // Future<void> rename(String currentName, String password, String newName) async {
-  //   final currentWalletInfo = walletInfoSource.values
-  //       .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-  //   final currentWallet = await EthereumWallet.open(
-  //     password: password,
-  //     name: currentName,
-  //     walletInfo: currentWalletInfo,
-  //     encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-  //   );
+  @override
+  Future<void> rename(String currentName, String password, String newName) async {
+    final currentWalletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
 
-  //   await currentWallet.renameWalletFiles(newName);
-  //   await saveBackup(newName);
+    final fullPath = await pathForWallet(name: currentName, type: getType());
+    final tablePath = await _getTablePath();
+    final tableState = await getTableState();
+    final network = _resolveNetwork(
+      isTestnet: currentWalletInfo.network == Network.testnet.name,
+    );
 
-  //   final newWalletInfo = currentWalletInfo;
-  //   newWalletInfo.id = WalletBase.idFor(newName, getType());
-  //   newWalletInfo.name = newName;
+    final frbWallet = await x_wallet.openXelisWallet(
+      name: fullPath,
+      directory: "",
+      password: password,
+      network: network,
+      precomputedTablesPath: tablePath,
+      l1Low: tableState.currentSize.isLow,
+    );
 
-  //   await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
-  // }
+    final wallet = XelisWallet(walletInfo: currentWalletInfo, wallet: frbWallet);
+    final newPath = await pathForWallet(name: newName, type: getType());
+    final newDir = Directory(newPath);
+    final exists = await newDir.exists();
+    if (exists) {
+      throw 'A wallet with this name already exists.';
+    }
 
-  // @override
-  // Future<EthereumWallet> restoreFromHardwareWallet(
-  //     EVMChainRestoreWalletFromHardware credentials) async {
-  //   credentials.walletInfo!.derivationInfo = DerivationInfo(
-  //     derivationType: DerivationType.bip39,
-  //     derivationPath: "m/44'/60'/${credentials.hwAccountData.accountIndex}'/0/0"
-  //   );
-  //   credentials.walletInfo!.hardwareWalletType = credentials.hardwareWalletType;
-  //   credentials.walletInfo!.address = credentials.hwAccountData.address;
+    await Directory(fullPath).rename(newPath);
 
-  //   final wallet = EthereumWallet(
-  //     walletInfo: credentials.walletInfo!,
-  //     password: credentials.password!,
-  //     client: client,
-  //     encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-  //   );
+    final newWalletInfo = currentWalletInfo;
+    newWalletInfo.id = WalletBase.idFor(newName, getType());
+    newWalletInfo.name = newName;
+    newWalletInfo.dirPath = await pathForWalletDir(name: newName, type: getType());
 
-  //   await wallet.init();
-  //   wallet.addInitialTokens();
-  //   await wallet.save();
+    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+  }
 
-  //   return wallet;
-  // }
+  @override
+  Future<void> remove(String wallet) async {
+    File(await pathForWalletDir(name: wallet, type: getType())).deleteSync(recursive: true);
 
-  // @override
-  // Future<EthereumWallet> restoreFromKeys(EVMChainRestoreWalletFromPrivateKey credentials,
-  //     {bool? isTestnet}) async {
-  //   final wallet = EthereumWallet(
-  //     password: credentials.password!,
-  //     privateKey: credentials.privateKey,
-  //     walletInfo: credentials.walletInfo!,
-  //     client: client,
-  //     encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-  //   );
+    final walletInfo = walletInfoSource.values
+        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
 
-  //   await wallet.init();
-  //   wallet.addInitialTokens();
-  //   await wallet.save();
+    await walletInfoSource.delete(walletInfo.key);
+  }
 
-  //   return wallet;
-  // }
+  @override
+  Future<XelisWallet> restoreFromSeed(XelisRestoreWalletFromSeedCredentials credentials,
+      {bool? isTestnet}) async {
+    final fullPath = await pathForWallet(name: credentials.name, type: getType());
+    final tablePath = await _getTablePath();
+    final tableState = await getTableState();
+    final network = _resolveNetwork(isTestnet: isTestnet);
 
-  // @override
-  // Future<EthereumWallet> restoreFromSeed(EVMChainRestoreWalletFromSeedCredentials credentials,
-  //     {bool? isTestnet}) async {
-  //   if (!bip39.validateMnemonic(credentials.mnemonic)) {
-  //     throw EthereumMnemonicIsIncorrectException();
-  //   }
+    final frbWallet = await x_wallet.createXelisWallet(
+      name: fullPath,
+      directory: "",
+      password: credentials.password ?? '',
+      seed: credentials.mnemonic,
+      network: network,
+      precomputedTablesPath: tablePath,
+      l1Low: tableState.currentSize.isLow,
+    );
 
-  //   final wallet = EthereumWallet(
-  //     password: credentials.password!,
-  //     mnemonic: credentials.mnemonic,
-  //     walletInfo: credentials.walletInfo!,
-  //     passphrase: credentials.passphrase,
-  //     client: client,
-  //     encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-  //   );
+    final walletInfo = credentials.walletInfo!;
+    walletInfo.address = frbWallet.getAddressStr();
+    walletInfo.network = network.name;
+    await walletInfo.save();
 
-  //   await wallet.init();
-  //   wallet.addInitialTokens();
-  //   await wallet.save();
-
-  //   return wallet;
-  // }
+    final wallet = XelisWallet(walletInfo: walletInfo, wallet: frbWallet);
+    await wallet.init();
+    return wallet;
+  }
 }
