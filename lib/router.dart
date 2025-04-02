@@ -277,33 +277,40 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletFromHardwareWallet:
       if (isSingleCoin) {
         return MaterialPageRoute<void>(
-            builder: (_) => ConnectDevicePage(
-                  ConnectDevicePageParams(
-                    walletType: availableWalletTypes.first,
-                    onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                        Routes.chooseHardwareWalletAccount,
-                        arguments: [availableWalletTypes.first]),
-                  ),
-                  getIt.get<LedgerViewModel>(),
-                ));
-      }
-        return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NewWalletTypePage>(
-            param1: NewWalletTypeArguments(
-              onTypeSelected: (BuildContext context, WalletType type) {
-                final arguments = ConnectDevicePageParams(
-                  walletType: type,
-                  onConnectDevice: (BuildContext context, _) => Navigator.of(context)
-                      .pushNamed(Routes.chooseHardwareWalletAccount, arguments: [type]),
-                );
-
-                Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
-              },
-              isCreate: false,
-              isHardwareWallet: true,
+          builder: (_) => ConnectDevicePage(
+            ConnectDevicePageParams(
+              walletType: availableWalletTypes.first,
+              onConnectDevice: (BuildContext context, _) =>
+                  Navigator.of(context).pushNamed(
+                      Routes.chooseHardwareWalletAccount,
+                      arguments: [availableWalletTypes.first]),
+              isReconnect: false,
             ),
+            getIt.get<LedgerViewModel>(),
           ),
         );
+      }
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<NewWalletTypePage>(
+          param1: NewWalletTypeArguments(
+            onTypeSelected: (BuildContext context, WalletType type) {
+              final arguments = ConnectDevicePageParams(
+                walletType: type,
+                onConnectDevice: (BuildContext context, _) =>
+                    Navigator.of(context).pushNamed(
+                        Routes.chooseHardwareWalletAccount,
+                        arguments: [type]),
+                isReconnect: false,
+              );
+
+              Navigator.of(context)
+                  .pushNamed(Routes.connectDevices, arguments: arguments);
+            },
+            isCreate: false,
+            isHardwareWallet: true,
+          ),
+        ),
+      );
 
     case Routes.restoreWalletTypeFromQR:
       return CupertinoPageRoute<void>(
