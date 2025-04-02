@@ -50,11 +50,13 @@ class PayjoinSenderWorker {
     try {
       return await _runSenderV2(sender, httpClient);
     } catch (e) {
+      printV(e);
       if (e is PayjoinException &&
           // TODO condition on error type instead of message content
           e.message?.contains('parse receiver public key') == true) {
         return await _runSenderV1(sender, httpClient);
       } else if (e is HttpException) {
+        printV(e);
         throw Exception(PayjoinSessionError.recoverable(e.toString()));
       } else {
         throw Exception(PayjoinSessionError.unrecoverable(e.toString()));
@@ -66,7 +68,7 @@ class PayjoinSenderWorker {
   Future<String> _runSenderV2(Sender sender, http.Client httpClient) async {
     try {
       final postRequest = await sender.extractV2(
-        ohttpProxyUrl: await await PayjoinManager.randomOhttpRelayUrl(),
+        ohttpProxyUrl: await PayjoinManager.randomOhttpRelayUrl(),
       );
 
       final postResult = await _postRequest(httpClient, postRequest.$1);
