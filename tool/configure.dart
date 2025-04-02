@@ -1535,10 +1535,8 @@ Future<void> generatePubspec({
     path: ./cw_decred
   """;
   const cwXelis = """
-  xelis_flutter:
-    git:
-      url: https://github.com/xelis-project/xelis-flutter-ffi.git
-      ref: v0.1.0
+  cw_xelis:
+    path: ./cw_xelis
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
