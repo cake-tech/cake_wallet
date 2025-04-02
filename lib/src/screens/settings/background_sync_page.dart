@@ -29,33 +29,30 @@ class BackgroundSyncPage extends BasePage {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-            Observer(builder: (context) {
-              if (dashboardViewModel.hasBatteryOptimization && dashboardViewModel.batteryOptimizationEnabled) {
-                return SettingsSwitcherCell(
-                  title: S.current.unrestricted_background_service,
-                  value: !dashboardViewModel.batteryOptimizationEnabled,
-                  onValueChange: (_, bool value) {
-                    dashboardViewModel.disableBatteryOptimization();
-                  },
-                );
-              } else {
-                return Container();
-              }
-            }),
           Observer(builder: (context) {
             return SettingsSwitcherCell(
               title: S.current.background_sync,
               value: dashboardViewModel.backgroundSyncEnabled,
-              onValueChange: (dashboardViewModel.batteryOptimizationEnabled && dashboardViewModel.hasBatteryOptimization) ? (_, bool value) {
-                unawaited(showPopUp(context: context, builder: (context) => AlertWithOneAction(
-                  alertTitle: S.current.background_sync,
-                  alertContent: S.current.unrestricted_background_service_notice,
-                  buttonText: S.current.ok,
-                  buttonAction: () => Navigator.of(context).pop(),
-                )));
-              } : (_, bool value) {
+              onValueChange: (_, bool value) async {
                 if (value) {
-                  dashboardViewModel.enableBackgroundSync();
+                  if (dashboardViewModel.batteryOptimizationEnabled) {
+                    await showPopUp(context: context, builder: (context) => AlertWithOneAction(
+                      alertTitle: S.current.background_sync,
+                      alertContent: S.current.unrestricted_background_service_notice,
+                      buttonText: S.current.ok,
+                      buttonAction: () => Navigator.of(context).pop(),
+                    ));
+                    await dashboardViewModel.disableBatteryOptimization();
+                    for (var i = 0; i < 4 * 60; i++) {
+                      await Future.delayed(Duration(milliseconds: 250));
+                      if (!dashboardViewModel.batteryOptimizationEnabled) {
+                        await dashboardViewModel.enableBackgroundSync();
+                        return;
+                      }
+                    }
+                  } else {
+                    dashboardViewModel.enableBackgroundSync();
+                  }
                 } else {
                   dashboardViewModel.disableBackgroundSync();
                 }
