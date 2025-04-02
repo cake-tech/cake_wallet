@@ -695,14 +695,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
-    transaction_history.refreshTransactions();
-    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
+    await transaction_history.refreshTransactions();
+    final resp = (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, MoneroTransactionInfo>>(
             <String, MoneroTransactionInfo>{},
             (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
+    return resp;
   }
 
   Future<void> updateTransactions() async {
