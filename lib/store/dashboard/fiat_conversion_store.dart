@@ -10,4 +10,7 @@ abstract class FiatConversionStoreBase with Store {
 
   @observable
   ObservableMap<CryptoCurrency, double> prices;
+
+  @observable
+  bool unavailable = false;
 }

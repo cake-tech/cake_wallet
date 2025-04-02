@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -130,6 +131,7 @@ class AnonPayApi {
   Future<Limits> fetchLimits({
     FiatCurrency? fiatCurrency,
     required CryptoCurrency cryptoCurrency,
+    required FiatConversionStore fiatConversionStore,
   }) async {
     double fiatRate = 0.0;
     if (fiatCurrency != null) {
@@ -137,6 +139,7 @@ class AnonPayApi {
         crypto: cryptoCurrency,
         fiat: fiatCurrency,
         torOnly: useTorOnly,
+        fiatConversionStore: fiatConversionStore,
       );
     }
 

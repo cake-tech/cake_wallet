@@ -332,6 +332,8 @@
   "fetching": "Mengambil",
   "fiat_api": "API fiat",
   "fiat_balance": "Saldo Fiat",
+  "fiat_unavailable": "Fiat API tidak tersedia",
+  "fiat_unavailable_desc": "Jumlah fiat tidak dapat ditampilkan karena API Fiat tidak tersedia. Ini dapat disebabkan oleh masalah koneksi, atau API yang sementara turun.\n\nJika pengaturan FIAT API Anda diatur ke Tor, pastikan Orbot sedang berjalan dan dapat terhubung.\n\nSilakan periksa BELL untuk status apa pun di Layanan, atau ketuk pelajari lebih lanjut untuk masalah koneksi umum.",
   "field_required": "Bagian ini diperlukan",
   "fill_code": "Silakan isi kode verifikasi yang diterima di email Anda",
   "filter_by": "Filter berdasarkan",

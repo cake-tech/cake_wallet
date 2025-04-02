@@ -399,11 +399,12 @@ abstract class HomeSettingsViewModelBase with Store {
   void _updateFiatPrices(CryptoCurrency token) async {
     if (token.isPotentialScam) return; // don't fetch price data for potential scam tokens
     try {
-      _balanceViewModel.fiatConvertationStore.prices[token] =
+      _balanceViewModel.fiatConversionStore.prices[token] =
           await FiatConversionService.fetchPrice(
               crypto: token,
               fiat: _settingsStore.fiatCurrency,
-              torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly);
+              torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
+              fiatConversionStore: _balanceViewModel.fiatConversionStore);
     } catch (_) {}
   }
 

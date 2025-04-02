@@ -332,6 +332,8 @@
   "fetching": "Cargando",
   "fiat_api": "Fiat API",
   "fiat_balance": "Balance fiat",
+  "fiat_unavailable": "API fiat no disponible",
+  "fiat_unavailable_desc": "Las cantidades fiduciarias no pueden mostrarse debido a que la API de Fiat no está disponible. Esto puede ser causado por problemas de conexión, o la API está temporalmente baja.\n\nSi su configuración de API de Fiat está configurada en TOR, asegúrese de que Orbot se esté ejecutando y pueda conectarse.\n\nConsulte la campana para obtener cualquier estado en el servicio, o toque Obtenga más información para cualquier problema de conexión común.",
   "field_required": "Este campo es obligatorio",
   "fill_code": "Por favor completa el código de verificación proporcionado en tu correo electrónico",
   "filter_by": "Filtrado por",

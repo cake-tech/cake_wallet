@@ -717,6 +717,9 @@ abstract class DashboardViewModelBase with Store {
     return !nano!.isRepOk(wallet);
   }
 
+  @computed
+  bool get isFiatConversionServiceAvailable => !balanceViewModel.fiatConversionStore.unavailable;
+  
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
     await wallet.connectToNode(node: node);

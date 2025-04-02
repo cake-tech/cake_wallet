@@ -108,7 +108,8 @@ void startCurrentWalletChangeReaction(
       fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
           crypto: wallet.currency,
           fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+          fiatConversionStore: fiatConversionStore);
 
       Iterable<CryptoCurrency>? currencies;
       if (wallet.type == WalletType.ethereum) {
@@ -134,7 +135,8 @@ void startCurrentWalletChangeReaction(
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
                 crypto: currency,
                 fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+                fiatConversionStore: fiatConversionStore);
           }.call();
         }
       }

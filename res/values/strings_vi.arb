@@ -331,6 +331,8 @@
   "fetching": "Đang tải",
   "fiat_api": "API Fiat",
   "fiat_balance": "Số dư Fiat",
+  "fiat_unavailable": "API Fiat không có sẵn",
+  "fiat_unavailable_desc": "Số tiền Fiat không thể được hiển thị do API Fiat không có sẵn. Điều này có thể được gây ra bởi các vấn đề kết nối hoặc API tạm thời giảm.\n\nNếu cài đặt API Fiat của bạn được đặt thành Tor, hãy đảm bảo ORBOT đang chạy và có thể kết nối.\n\nVui lòng kiểm tra chuông cho bất kỳ trạng thái nào trên dịch vụ hoặc nhấn Tìm hiểu thêm về bất kỳ vấn đề kết nối phổ biến nào.",
   "field_required": "Trường này là bắt buộc",
   "fill_code": "Vui lòng điền mã xác minh được gửi đến email của bạn",
   "filter_by": "Lọc theo",

@@ -332,6 +332,8 @@
   "fetching": "Načítá se",
   "fiat_api": "Fiat API",
   "fiat_balance": "Fiat Balance",
+  "fiat_unavailable": "Fiat API není k dispozici",
+  "fiat_unavailable_desc": "Částky Fiat nejsou schopny být zobrazeny kvůli tomu, že API FIAT není k dispozici. To může být způsobeno problémy s připojením nebo API dočasně dole.\n\nPokud je nastavení API Fiat API nastaveno na TOR, ujistěte se, že je spuštěn Orbot a je schopen se připojit.\n\nZkontrolujte prosím jakýkoli stav ve službě nebo klepněte na další informace o běžných problémech s připojením.",
   "field_required": "Toto pole je povinné",
   "fill_code": "Prosím vyplňte ověřovací kód zaslaný na Váš e-mail",
   "filter_by": "Filtrovat podle",

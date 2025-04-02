@@ -332,6 +332,8 @@
   "fetching": "Pobieranie",
   "fiat_api": "API Walut FIAT",
   "fiat_balance": "Bilans Fiata",
+  "fiat_unavailable": "Fiat API niedostępne",
+  "fiat_unavailable_desc": "Kwoty Fiat nie można pokazać, ponieważ Fiat API jest niedostępny. Może to być spowodowane problemami związanymi z połączeniem lub tymczasowo API.\n\nJeśli ustawienie API FIAT jest ustawione na TOR, upewnij się, że Orbot działa i jest w stanie się połączyć.\n\nSprawdź Bell pod kątem dowolnego statusu w usłudze lub dotknij Dowiedz się więcej, aby uzyskać wspólne problemy z połączeniem.",
   "field_required": "To pole jest wymagane",
   "fill_code": "Proszę wpisać kod weryfikacyjny który otrzymałeś w wiadomości e-mail",
   "filter_by": "Filtruj według",

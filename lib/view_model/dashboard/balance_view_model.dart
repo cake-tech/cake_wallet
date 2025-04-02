@@ -52,7 +52,7 @@ class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
 
 abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
-      {required this.appStore, required this.settingsStore, required this.fiatConvertationStore})
+      {required this.appStore, required this.settingsStore, required this.fiatConversionStore})
       : isReversing = false,
         isShowCard = appStore.wallet!.walletInfo.isShowIntroCakePayCard,
         wallet = appStore.wallet! {
@@ -76,7 +76,7 @@ abstract class BalanceViewModelBase with Store {
 
   final AppStore appStore;
   final SettingsStore settingsStore;
-  final FiatConversionStore fiatConvertationStore;
+  final FiatConversionStore fiatConversionStore;
 
   bool get canReverse => false;
 
@@ -91,7 +91,7 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   double get price {
-    final price = fiatConvertationStore.prices[appStore.wallet!.currency];
+    final price = fiatConversionStore.prices[appStore.wallet!.currency];
 
     if (price == null) {
       // price should update on next fetch:
@@ -229,7 +229,7 @@ abstract class BalanceViewModelBase with Store {
                 formattedAssetTitle: _formatterAsset(key)));
       }
       final fiatCurrency = settingsStore.fiatCurrency;
-      final price = fiatConvertationStore.prices[key] ?? 0;
+      final price = fiatConversionStore.prices[key] ?? 0;
 
       // if (price == null) {
       //   throw Exception('Price is null for: $key');
@@ -366,9 +366,9 @@ abstract class BalanceViewModelBase with Store {
       switch (sortBalanceBy) {
         case SortBalanceBy.FiatBalance:
           final aFiatBalance = _getFiatBalance(
-              price: fiatConvertationStore.prices[a.asset] ?? 0, cryptoAmount: a.availableBalance);
+              price: fiatConversionStore.prices[a.asset] ?? 0, cryptoAmount: a.availableBalance);
           final bFiatBalance = _getFiatBalance(
-              price: fiatConvertationStore.prices[b.asset] ?? 0, cryptoAmount: b.availableBalance);
+              price: fiatConversionStore.prices[b.asset] ?? 0, cryptoAmount: b.availableBalance);
 
           return (double.tryParse(bFiatBalance) ?? 0)
               .compareTo((double.tryParse(aFiatBalance)) ?? 0);

@@ -332,6 +332,8 @@
   "fetching": "가져 오는 중",
   "fiat_api": "명목 화폐 API",
   "fiat_balance": "피아트 잔액",
+  "fiat_unavailable": "피아트 API를 사용할 수 없습니다",
+  "fiat_unavailable_desc": "피아트 API를 사용할 수 없기 때문에 피아트 금액이 표시되지 않습니다. 이는 연결 문제 또는 API가 일시적으로 다운 된 경우 발생할 수 있습니다.\n\nFiat API 설정이 Tor로 설정된 경우 Orbot이 실행 중이고 연결할 수 있는지 확인하십시오.\n\n서비스의 상태를 확인하거나 일반적인 연결 문제에 대해 자세히 알아보십시오.",
   "field_required": "이 필드는 필수입니다",
   "fill_code": "이메일에 제공된 인증 코드를 입력하세요.",
   "filter_by": "필터링 기준",

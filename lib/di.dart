@@ -488,7 +488,7 @@ Future<void> setup({
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      fiatConvertationStore: getIt.get<FiatConversionStore>()));
+      fiatConversionStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
       balanceViewModel: getIt.get<BalanceViewModel>(),
@@ -703,6 +703,7 @@ Future<void> setup({
       _anonpayInvoiceInfoSource,
       getIt.get<SharedPreferences>(),
       pageOption,
+      getIt.get<FiatConversionStore>(),
     );
   });
 
