@@ -360,7 +360,7 @@ Future<void> setup({
   getIt.registerSingleton<PayjoinTransactionsStore>(
       PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
-  getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
+  getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
   getIt.registerSingleton<SendTemplateStore>(SendTemplateStore(templateSource: _templates));
   getIt.registerSingleton<ExchangeTemplateStore>(
