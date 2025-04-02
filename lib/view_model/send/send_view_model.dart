@@ -393,9 +393,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
-      state = IsExecutingState();
-
-      if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
+      if (wallet.isHardwareWallet)
+        state = IsAwaitingDeviceResponseState();
+      else
+        state = IsExecutingState();
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
