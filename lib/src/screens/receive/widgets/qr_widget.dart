@@ -169,13 +169,7 @@ class QRWidget extends StatelessWidget {
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 color:
-                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-                            oddTextStyle: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor),
-                          ),
-                        ),
+                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor))),
                         Padding(
                           padding: EdgeInsets.only(left: 12),
                           child: copyImage,

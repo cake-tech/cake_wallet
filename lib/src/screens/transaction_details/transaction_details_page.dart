@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_li
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -42,21 +41,53 @@ class TransactionDetailsPage extends BasePage {
               final item = transactionDetailsViewModel.items[index];
 
               if (item is StandartListItem) {
+                Widget? addressTextWidget;
 
-                final addressTextWidget = item.title.toLowerCase() == 'recipient addresses' ?
-                AddressFormatter.buildSegmentedAddress(
-                  address: item.value,
-                  walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                  evenTextStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor
-                  ),
-                  oddTextStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor
-                  )) : null;
+                print(item.title.toLowerCase());
+
+                if (item.title.toLowerCase() == 'recipient addresses' ||
+                    item.title.toLowerCase() == 'source address') {
+                  if (item.value.contains('\n')) {
+                    final parts = item.value.split('\n');
+
+                    final nonFormattedPart = parts.sublist(0, parts.length - 1).join('\n').trim();
+
+                    final extractedAddress = parts.last.trim();
+
+                    addressTextWidget = Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          nonFormattedPart,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          ),
+                        ),
+                        // Display the formatted segmented address.
+                        AddressFormatter.buildSegmentedAddress(
+                          address: extractedAddress,
+                          walletType: transactionDetailsViewModel.sendViewModel.walletType,
+                          evenTextStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    addressTextWidget = AddressFormatter.buildSegmentedAddress(
+                      address: item.value,
+                      walletType: transactionDetailsViewModel.sendViewModel.walletType,
+                      evenTextStyle: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      ),
+                    );
+                  }
 
                 return GestureDetector(
                   key: item.key,
@@ -64,7 +95,11 @@ class TransactionDetailsPage extends BasePage {
                     Clipboard.setData(ClipboardData(text: item.value));
                     showBar<void>(context, S.of(context).transaction_details_copied(item.title));
                   },
-                  child: ListRow(title: '${item.title}:', value: item.value, textWidget: addressTextWidget),
+                  child: ListRow(
+                    title: '${item.title}:',
+                    value: item.value,
+                    textWidget: addressTextWidget,
+                  ),
                 );
               }
 

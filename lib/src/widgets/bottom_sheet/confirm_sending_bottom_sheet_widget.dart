@@ -295,15 +295,6 @@ class AddressTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final addressTextStyle = TextStyle(
-      fontSize: 12,
-      fontFamily: 'Lato',
-      fontWeight: FontWeight.w600,
-      color: currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.5)
-          : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-      decoration: TextDecoration.none,
-    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
@@ -323,8 +314,12 @@ class AddressTile extends StatelessWidget {
           AddressFormatter.buildSegmentedAddress(
             address: address,
             walletType: walletType,
-            evenTextStyle: addressTextStyle,
-            oddTextStyle: itemSubTitleTextStyle,
+            evenTextStyle: TextStyle(
+                fontSize: 12,
+                fontFamily: 'Lato',
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                decoration: TextDecoration.none)
           ),
         ],
       ),
@@ -360,16 +355,6 @@ class AddressExpansionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final addressTextStyle = TextStyle(
-      fontSize: 12,
-      fontFamily: 'Lato',
-      fontWeight: FontWeight.w600,
-      color: currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.5)
-          : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-      decoration: TextDecoration.none,
-    );
-
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -405,10 +390,14 @@ class AddressExpansionTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: AddressFormatter.buildSegmentedAddress(
-                      address: address,
-                      walletType: walletType,
-                      evenTextStyle: addressTextStyle,
-                      oddTextStyle: itemSubTitleTextStyle,
+                        address: address,
+                        walletType: walletType,
+                        evenTextStyle: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            decoration: TextDecoration.none)
                     ),
                   ),
                 ],

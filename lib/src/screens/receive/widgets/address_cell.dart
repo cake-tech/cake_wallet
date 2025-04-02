@@ -85,21 +85,6 @@ class AddressCell extends StatelessWidget {
   final bool hasBalance;
   final bool hasReceived;
 
-  static const int addressPreviewLength = 8;
-
-  String get formattedAddress {
-    final formatIfCashAddr = address.replaceAll('bitcoincash:', '');
-
-    if (formatIfCashAddr.length <= (name.isNotEmpty ? 16 : 43)) {
-      return formatIfCashAddr;
-    } else {
-      return formatIfCashAddr.substring(0, addressPreviewLength) +
-          '...' +
-          formatIfCashAddr.substring(
-              formatIfCashAddr.length - addressPreviewLength, formatIfCashAddr.length);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final Widget cell = InkWell(
@@ -152,17 +137,13 @@ class AddressCell extends StatelessWidget {
                         ),
                         Flexible(
                           child: AddressFormatter.buildSegmentedAddress(
-                              address: responsiveLayoutUtil.shouldRenderTabletUI ? address : formattedAddress,
+                              address: address,
                               walletType: walletType,
+                              shouldTruncate: name.isNotEmpty || address.length <= 41 ,
                               evenTextStyle: TextStyle(
                                   fontSize: isChange ? 10 : 14,
                                   color: textColor
-                              ),
-                              oddTextStyle: TextStyle(
-                                  fontSize: isChange ? 10 : 14,
-                                  color: currentTheme.type == ThemeType.bright ? Theme.of(context).extension<ReceivePageTheme>()!.iconsColor : Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor
-                              ))
-                        ),
+                              ))),
                       ],
                     ),
                     if (hasBalance || hasReceived)
