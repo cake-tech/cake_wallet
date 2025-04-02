@@ -4,13 +4,19 @@ import 'package:cw_core/wallet_info.dart';
 class NanoNewWalletCredentials extends WalletCredentials {
   NanoNewWalletCredentials({
     required String name,
+    WalletInfo? walletInfo,
     String? password,
     DerivationType? derivationType,
+    this.mnemonic,
+    String? passphrase,
   }) : super(
           name: name,
           password: password,
-          derivationInfo: DerivationInfo(derivationType: derivationType),
+          walletInfo: walletInfo,
+          passphrase: passphrase,
         );
+
+  final String? mnemonic;
 }
 
 class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -19,10 +25,12 @@ class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
     required this.mnemonic,
     String? password,
     required DerivationType derivationType,
+    String? passphrase,
   }) : super(
           name: name,
           password: password,
           derivationInfo: DerivationInfo(derivationType: derivationType),
+          passphrase: passphrase,
         );
 
   final String mnemonic;

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 import 'package:cw_core/balance.dart';
 
@@ -11,15 +12,16 @@ class EVMChainERC20Balance extends Balance {
   final int exponent;
 
   @override
-  String get formattedAdditionalBalance {
-    final String formattedBalance = (balance / BigInt.from(10).pow(exponent)).toString();
-    return formattedBalance.substring(0, min(12, formattedBalance.length));
-  }
+  String get formattedAdditionalBalance => _balance();
 
   @override
-  String get formattedAvailableBalance {
-    final String formattedBalance = (balance / BigInt.from(10).pow(exponent)).toString();
-    return formattedBalance.substring(0, min(12, formattedBalance.length));
+  String get formattedAvailableBalance => _balance();
+
+  String _balance() {
+    NumberFormat formatter = NumberFormat('0.00##########', 'en_US');
+    double numBalance = (balance / BigInt.from(10).pow(exponent)).toDouble();
+    String formattedBalance = formatter.format(numBalance);
+    return formattedBalance;
   }
 
   String toJSON() => json.encode({

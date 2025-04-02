@@ -82,5 +82,11 @@ class PendingBitcoinCashTransaction with PendingTransaction {
       date: DateTime.now(),
       isPending: true,
       confirmations: 0,
-      fee: fee);
+      fee: fee, 
+      isReplaced: false,
+      );
+  @override
+  Future<String?> commitUR() {
+    throw UnimplementedError();
+  }
 }

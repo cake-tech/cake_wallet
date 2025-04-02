@@ -1,26 +1,27 @@
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:flutter/services.dart';
+import 'dart:convert';
 
-const channel = MethodChannel('com.cake_wallet/native_utils');
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:http/http.dart' as http;
 
 Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
   var address = '';
 
   try {
-    if (DeviceInfo.instance.isMobile) {
-      address = await channel.invokeMethod<String>(
-          'getUnstoppableDomainAddress',
-          <String, String> {
-            'domain' : domain,
-            'ticker' : ticker
-          }
-      ) ?? '';
-    } else {
-      // TODO: Integrate with Unstoppable domains resolution API
-      return address;
+    final uri = Uri.parse("https://api.unstoppabledomains.com/profile/public/${Uri.encodeQueryComponent(domain)}?fields=records");
+    final jsonString = await http.read(uri);
+    final jsonParsed = json.decode(jsonString) as Map<String, dynamic>;
+    if (jsonParsed["records"] == null) {
+      throw Exception(".records response from $uri is empty");
+    };
+    final records = jsonParsed["records"] as Map<String, dynamic>;
+    final key = "crypto.${ticker.toUpperCase()}.address";
+    if (records[key] == null) {
+      throw Exception(".records.${key} response from $uri is empty");
     }
+
+    return records[key] as String? ?? '';
   } catch (e) {
-    print('Unstoppable domain error: ${e.toString()}');
+    printV('Unstoppable domain error: ${e.toString()}');
     address = '';
   }
 

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cake_wallet/core/wallet_connect/chain_service/solana/entities/solana_sign_message.dart';
 import 'package:cake_wallet/core/wallet_connect/chain_service/solana/solana_chain_id.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
@@ -8,8 +10,9 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_w
 import 'package:cake_wallet/core/wallet_connect/models/connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
-import 'package:solana/base58.dart';
-import 'package:solana/solana.dart';
+import 'package:cw_core/solana_rpc_http_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:on_chain/solana/solana.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import '../chain_service.dart';
 import '../../wallet_connect_key_service.dart';
@@ -26,25 +29,19 @@ class SolanaChainServiceImpl implements ChainService {
 
   final SolanaChainId reference;
 
-  final SolanaClient solanaClient;
+  final SolanaRPC solanaProvider;
 
-  final Ed25519HDKeyPair? ownerKeyPair;
+  final SolanaPrivateKey? ownerPrivateKey;
 
   SolanaChainServiceImpl({
     required this.reference,
     required this.wcKeyService,
     required this.bottomSheetService,
     required this.wallet,
-    required this.ownerKeyPair,
-    required String webSocketUrl,
-    required Uri rpcUrl,
-    SolanaClient? solanaClient,
-  }) : solanaClient = solanaClient ??
-            SolanaClient(
-              rpcUrl: rpcUrl,
-              websocketUrl: Uri.parse(webSocketUrl),
-              timeout: const Duration(minutes: 5),
-            ) {
+    required this.ownerPrivateKey,
+    required String formattedRPCUrl,
+    SolanaRPC? solanaProvider,
+  }) : solanaProvider = solanaProvider ?? SolanaRPC(SolanaRPCHTTPService(url: formattedRPCUrl)) {
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);
     }
@@ -109,25 +106,19 @@ class SolanaChainServiceImpl implements ChainService {
     }
 
     try {
-      final message =
-          await solanaClient.rpcClient.getMessageFromEncodedTx(solanaSignTx.transaction);
+      // Convert transaction string to bytes
+      List<int> transactionBytes = base64Decode(solanaSignTx.transaction);
 
-      final sign = await ownerKeyPair?.signMessage(
-        message: message,
-        recentBlockhash: solanaSignTx.recentBlockhash ?? '',
+      final message = SolanaTransactionUtils.deserializeMessageLegacy(transactionBytes);
+
+      final sign = ownerPrivateKey!.sign(message.serialize());
+
+      final signature = solanaProvider.request(
+        SolanaRPCSendTransaction(
+          encodedTransaction: Base58Encoder.encode(sign),
+          commitment: Commitment.confirmed,
+        ),
       );
-
-      if (sign == null) {
-        return '';
-      }
-
-      String signature = await solanaClient.sendAndConfirmTransaction(
-        message: message,
-        signers: [ownerKeyPair!],
-        commitment: Commitment.confirmed,
-      );
-
-      print(signature);
 
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
@@ -160,19 +151,19 @@ class SolanaChainServiceImpl implements ChainService {
     if (authError != null) {
       return authError;
     }
-    Signature? sign;
+    List<int>? sign;
 
     try {
-      sign = await ownerKeyPair?.sign(base58decode(solanaSignMessage.message));
+      sign = ownerPrivateKey!.sign(Base58Decoder.decode(solanaSignMessage.message));
     } catch (e) {
-      print(e);
+      printV(e);
     }
 
     if (sign == null) {
       return '';
     }
 
-    String signature = sign.toBase58();
+    final signature = Base58Encoder.encode(sign);
 
     return signature;
   }

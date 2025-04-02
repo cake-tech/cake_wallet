@@ -2,6 +2,7 @@ import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart' as monero;
 
 monero.wallet? wptr = null;
+bool get isViewOnly => int.tryParse(monero.Wallet_secretSpendKey(wptr!)) == 0;
 
 int _wlptrForW = 0;
 monero.WalletListener? _wlptr = null;
@@ -34,10 +35,10 @@ List<monero.SubaddressAccountRow> getAllAccount() {
   // final size = monero.Wallet_numSubaddressAccounts(wptr!);
   refreshAccounts();
   int size = monero.SubaddressAccount_getAll_size(subaddressAccount!);
-  print("size: $size");
   if (size == 0) {
     monero.Wallet_addSubaddressAccount(wptr!);
-    return getAllAccount();
+    monero.Wallet_status(wptr!);
+    return [];
   }
   return List.generate(size, (index) {
     return monero.SubaddressAccount_getAll_byIndex(subaddressAccount!, index: index);

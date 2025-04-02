@@ -4,23 +4,38 @@ class CWSolana extends Solana {
   @override
   List<String> getSolanaWordList(String language) => SolanaMnemonics.englishWordlist;
 
-  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource) =>
-      SolanaWalletService(walletInfoSource);
+  WalletService createSolanaWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      SolanaWalletService(walletInfoSource, isDirect);
 
   @override
   WalletCredentials createSolanaNewWalletCredentials({
     required String name,
+    String? mnemonic,
     WalletInfo? walletInfo,
+    String? password,
+    String? passphrase,
   }) =>
-      SolanaNewWalletCredentials(name: name, walletInfo: walletInfo);
+      SolanaNewWalletCredentials(
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createSolanaRestoreWalletFromSeedCredentials({
     required String name,
     required String mnemonic,
     required String password,
+    String? passphrase,
   }) =>
-      SolanaRestoreWalletFromSeedCredentials(name: name, password: password, mnemonic: mnemonic);
+      SolanaRestoreWalletFromSeedCredentials(
+        name: name,
+        password: password,
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createSolanaRestoreWalletFromPrivateKey({
@@ -37,11 +52,8 @@ class CWSolana extends Solana {
   String getPrivateKey(WalletBase wallet) => (wallet as SolanaWallet).privateKey;
 
   @override
-  String getPublicKey(WalletBase wallet) => (wallet as SolanaWallet).keys.publicKey.toBase58();
-
-  @override
-  Ed25519HDKeyPair? getWalletKeyPair(WalletBase wallet) => (wallet as SolanaWallet).walletKeyPair;
-
+  String getPublicKey(WalletBase wallet) =>
+      (wallet as SolanaWallet).solanaPublicKey.toAddress().address;
   Object createSolanaTransactionCredentials(
     List<Output> outputs, {
     required CryptoCurrency currency,
@@ -136,5 +148,10 @@ class CWSolana extends Solana {
   @override
   double? getEstimateFees(WalletBase wallet) {
     return (wallet as SolanaWallet).estimatedFee;
+  }
+
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultSPLTokens().initialSPLTokens.map((e) => e.mintAddress).toList();
   }
 }

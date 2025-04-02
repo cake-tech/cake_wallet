@@ -8,7 +8,7 @@ class SyncIndicatorIcon extends StatelessWidget {
       {this.boolMode = true,
       this.isSynced = false,
       this.value = waiting,
-      this.size = 4.0});
+      this.size = 6.0});
 
   final bool boolMode;
   final bool isSynced;
@@ -21,6 +21,7 @@ class SyncIndicatorIcon extends StatelessWidget {
   static const String fetching = 'fetching';
   static const String finished = 'finished';
   static const String success = 'success';
+  static const String complete = 'complete';
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,7 @@ class SyncIndicatorIcon extends StatelessWidget {
           break;
         case finished:
         case success:
+        case complete:
           indicatorColor = PaletteDark.brightGreen;
           break;
         default:

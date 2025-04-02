@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,8 +10,16 @@ import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:flutter/services.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
+
+abstract class AuthPageState<T extends StatefulWidget> extends State<T> {
+  void changeProcessText(String text);
+  void hideProgressText();
+  Future<void> close({String? route, dynamic arguments});
+}
 
 class AuthPage extends StatefulWidget {
   AuthPage(this.authViewModel,
@@ -22,10 +31,10 @@ class AuthPage extends StatefulWidget {
   final bool closable;
 
   @override
-  AuthPageState createState() => AuthPageState();
+  AuthPageState createState() => AuthPagePinCodeStateImpl();
 }
 
-class AuthPageState extends State<AuthPage> {
+class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
   final _key = GlobalKey<ScaffoldState>();
   final _pinCodeKey = GlobalKey<PinCodeState>();
   final _backArrowImageDarkTheme =
@@ -55,14 +64,11 @@ class AuthPageState extends State<AuthPage> {
       }
 
       if (state is FailureState) {
-        print('X');
-        print(state.error);
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           _pinCodeKey.currentState?.clear();
           dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
-
           widget.onAuthenticationFinished(false, this);
         });
       }
@@ -73,11 +79,11 @@ class AuthPageState extends State<AuthPage> {
           dismissFlushBar(_authBar);
           showBar<void>(
               context, S.of(context).failed_authentication(state.error));
-
           widget.onAuthenticationFinished(false, this);
         });
       }
     });
+
 
     if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -89,23 +95,43 @@ class AuthPageState extends State<AuthPage> {
     super.initState();
   }
 
+   Future<void> _showSeedsPopup(BuildContext context, String message) async {
+      await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+            alertTitle: "Corrupted seeds",
+            alertContent: message,
+            leftButtonText: S.of(context).copy,
+            rightButtonText: S.of(context).ok,
+            actionLeftButton: () async {
+              await Clipboard.setData(ClipboardData(text: message));
+            },
+            actionRightButton: () => Navigator.of(context).pop(),
+          );
+      });
+    }
+
   @override
   void dispose() {
     _reaction?.reaction.dispose();
     super.dispose();
   }
 
+  @override
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
     _progressBar = createBar<void>(text, duration: null)
       ..show(_key.currentContext!);
   }
 
+  @override
   void hideProgressText() {
     dismissFlushBar(_progressBar);
     _progressBar = null;
   }
 
+  @override
   Future<void> close({String? route, dynamic arguments}) async {
     if (_key.currentContext == null) {
       throw Exception('Key context is null. Should be not happened');

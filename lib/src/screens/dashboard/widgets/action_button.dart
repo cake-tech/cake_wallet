@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class ActionButton extends StatelessWidget {
-  ActionButton(
-      {required this.image,
-        required this.title,
-        this.route,
-        this.onClick,
-        this.alignment = Alignment.center,
-        this.textColor});
+  ActionButton({
+    required this.image,
+    required this.title,
+    this.route,
+    this.onClick,
+    this.alignment = Alignment.center,
+    this.textColor,
+    super.key,
+  });
 
   final Image image;
   final String title;
@@ -19,8 +21,8 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+    return TextButton(
+      onPressed: () {
         if (route?.isNotEmpty ?? false) {
           Navigator.of(context, rootNavigator: true).pushNamed(route!);
         } else {
@@ -29,11 +31,12 @@ class ActionButton extends StatelessWidget {
       },
       child: Container(
         color: Colors.transparent,
-        padding: EdgeInsets.only(top: 14, bottom: 16, left: 10, right: 10),
+        padding: EdgeInsets.only(top: 5, bottom: 4, left: 0, right: 0),
         alignment: alignment,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
               alignment: Alignment.center,
@@ -45,9 +48,10 @@ class ActionButton extends StatelessWidget {
             Text(
               title,
               style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 9,
                   color: textColor ??
                       Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
+              textAlign: TextAlign.center,
             )
           ],
         ),

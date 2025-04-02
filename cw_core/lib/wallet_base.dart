@@ -36,6 +36,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   ObservableMap<CryptoCurrency, BalanceType> get balance;
 
+  String formatCryptoAmount(String amount) => amount;
+
   SyncStatus get syncStatus;
 
   set syncStatus(SyncStatus status);
@@ -45,6 +47,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   String? get privateKey => null;
 
   String? get hexSeed => null;
+
+  String? get passphrase => null;
 
   Object get keys;
 
@@ -58,17 +62,26 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  bool get hasRescan => false;
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
   Future<void> connectToPowNode({required Node node}) async {}
 
+  // startBackgroundSync is used to start sync in the background, without doing any
+  // extra things in the background.
+  // startSync is used as a fallback.
+  Future<void> startBackgroundSync() => startSync();
+  Future<void> stopBackgroundSync(String password) => stopSync();
+
   Future<void> startSync();
+
+  Future<void> stopSync() async {}
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
-
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,
@@ -80,9 +93,11 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> rescan({required int height});
 
-  void close();
+  Future<void> close({bool shouldCleanup = false});
 
   Future<void> changePassword(String password);
+
+  String get password;
 
   Future<void>? updateBalance();
 
@@ -90,7 +105,11 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> renameWalletFiles(String newWalletName);
 
-  Future<String> signMessage(String message, {String? address = null}) => throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null});
 
-  bool? isTestnet;
+  Future<bool> verifyMessage(String message, String signature, {String? address = null});
+
+  bool isTestnet = false;
+
+  bool canSend() => true;
 }

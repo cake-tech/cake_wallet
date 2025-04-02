@@ -10,20 +10,14 @@ case $APP_ANDROID_TYPE in
                 CONFIG_ARGS="--monero"
                 ;;
         $CAKEWALLET)
-                CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero"
-                if [ "$CW_WITH_HAVEN" = true ];then
-                    CONFIG_ARGS="$CONFIG_ARGS --haven"
-                fi
-                ;;
-        $HAVEN)
-                CONFIG_ARGS="--haven"
+                CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred"
                 ;;
 esac
 
 cd ../..
 cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
-flutter pub run tool/generate_pubspec.dart
+dart run tool/generate_pubspec.dart
 flutter pub get
-flutter packages pub run tool/configure.dart $CONFIG_ARGS
+dart run tool/configure.dart $CONFIG_ARGS
 cd scripts/android

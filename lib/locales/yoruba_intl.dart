@@ -794,6 +794,14 @@ class YoMaterialLocalizations extends GlobalMaterialLocalizations {
   @override
   // TODO: implement shareButtonLabel
   String get shareButtonLabel => "shareButtonLabel";
+  
+  @override
+  // TODO: implement clearButtonTooltip
+  String get clearButtonTooltip => "clearButtonTooltip";
+  
+  @override
+  // TODO: implement selectedDateLabel
+  String get selectedDateLabel => "selectedDateLabel";
 }
 
 /// Cupertino Support
@@ -838,6 +846,7 @@ class _YoCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
         singleDigitHourFormat: intl.DateFormat('j', localeName),
         singleDigitMinuteFormat: intl.DateFormat.m(localeName),
         singleDigitSecondFormat: intl.DateFormat.s(localeName),
+        weekdayFormat: intl.DateFormat.E(localeName),
       ),
     );
   }
@@ -862,6 +871,7 @@ class YoCupertinoLocalizations extends GlobalCupertinoLocalizations {
     required super.singleDigitMinuteFormat,
     required super.doubleDigitMinuteFormat,
     required super.singleDigitSecondFormat,
+    required super.weekdayFormat,
   });
 
   @override

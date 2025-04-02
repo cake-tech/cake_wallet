@@ -3,6 +3,14 @@ abstract class SyncStatus {
   double progress();
 }
 
+class StartingScanSyncStatus extends SyncStatus {
+  StartingScanSyncStatus(this.beginHeight);
+
+  final int beginHeight;
+  @override
+  double progress() => 0.0;
+}
+
 class SyncingSyncStatus extends SyncStatus {
   SyncingSyncStatus(this.blocksLeft, this.ptc);
 
@@ -24,6 +32,16 @@ class SyncingSyncStatus extends SyncStatus {
     // sum 1 because if at the chain tip, will say "0 blocks left"
     return SyncingSyncStatus(left + 1, ptc);
   }
+}
+
+class ProcessingSyncStatus extends SyncStatus {
+  final String? message;
+
+  ProcessingSyncStatus({this.message});
+
+  @override
+  double progress() => 0.99;
+
 }
 
 class SyncedSyncStatus extends SyncStatus {
@@ -54,7 +72,18 @@ class AttemptingSyncStatus extends SyncStatus {
   double progress() => 0.0;
 }
 
-class FailedSyncStatus extends NotConnectedSyncStatus {}
+class AttemptingScanSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+}
+
+class FailedSyncStatus extends NotConnectedSyncStatus {
+  String? error;
+  FailedSyncStatus({this.error});
+
+  @override
+  String toString() => error ?? super.toString();
+}
 
 class ConnectingSyncStatus extends SyncStatus {
   @override

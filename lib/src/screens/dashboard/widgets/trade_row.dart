@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -12,6 +13,8 @@ class TradeRow extends StatelessWidget {
     required this.createdAtFormattedDate,
     this.onTap,
     this.formattedAmount,
+    this.formattedReceiveAmount,
+    super.key,
   });
 
   final VoidCallback? onTap;
@@ -20,10 +23,12 @@ class TradeRow extends StatelessWidget {
   final CryptoCurrency to;
   final String? createdAtFormattedDate;
   final String? formattedAmount;
+  final String? formattedReceiveAmount;
 
   @override
   Widget build(BuildContext context) {
     final amountCrypto = from.toString();
+    final receiveAmountCrypto = to.toString();
 
     return InkWell(
         onTap: onTap,
@@ -36,7 +41,8 @@ class TradeRow extends StatelessWidget {
             children: [
               ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: Image.asset(provider.image, width: 36, height: 36)),
+                  child: ImageUtil.getImageFromPath(
+                      imagePath: provider.image, height: 36, width: 36)),
               SizedBox(width: 12),
               Expanded(
                   child: Column(
@@ -58,12 +64,21 @@ class TradeRow extends StatelessWidget {
                         : Container()
                   ]),
                   SizedBox(height: 5),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    if (createdAtFormattedDate != null)
-                      Text(createdAtFormattedDate!,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                      children: <Widget>[
+                        createdAtFormattedDate != null
+                          ? Text(createdAtFormattedDate!,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                          : Container(),
+                        formattedReceiveAmount != null
+                          ? Text(formattedReceiveAmount! + ' ' + receiveAmountCrypto,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                          : Container(),
                   ])
                 ],
               ))

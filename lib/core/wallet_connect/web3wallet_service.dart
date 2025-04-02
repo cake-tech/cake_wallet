@@ -17,10 +17,12 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_reques
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:on_chain/solana/solana.dart' hide Store;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
@@ -139,30 +141,28 @@ abstract class Web3WalletServiceBase with Store {
       for (final cId in SolanaChainId.values) {
         final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
 
-        Uri? rpcUri;
-        String webSocketUrl;
-        bool isModifiedNodeUri = false;
+        String formattedUrl;
+        String protocolUsed = node.isSSL ? "https" : "http";
 
         if (node.uriRaw == 'rpc.ankr.com') {
-          isModifiedNodeUri = true;
-          
-          //A better way to handle this instead of adding this to the general secrets?
           String ankrApiKey = secrets.ankrApiKey;
 
-          rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
-          webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
+          formattedUrl = '$protocolUsed://${node.uriRaw}/$ankrApiKey';
+        } else if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
+          String chainStackApiKey = secrets.chainStackApiKey;
+
+          formattedUrl = '$protocolUsed://${node.uriRaw}/$chainStackApiKey';
         } else {
-          webSocketUrl = 'wss://${node.uriRaw}';
+          formattedUrl = '$protocolUsed://${node.uriRaw}';
         }
 
         SolanaChainServiceImpl(
           reference: cId,
-          rpcUrl: isModifiedNodeUri ? rpcUri! : node.uri,
-          webSocketUrl: webSocketUrl,
+          formattedRPCUrl: formattedUrl,
           wcKeyService: walletKeyService,
           bottomSheetService: _bottomSheetHandler,
           wallet: _web3Wallet,
-          ownerKeyPair: solana!.getWalletKeyPair(appStore.wallet!),
+          ownerPrivateKey: SolanaPrivateKey.fromSeedHex(solana!.getPrivateKey(appStore.wallet!)),
         );
       }
     }
@@ -260,12 +260,14 @@ abstract class Web3WalletServiceBase with Store {
 
   @action
   void _refreshPairings() {
-    print('Refreshing pairings');
+    printV('Refreshing pairings');
     pairings.clear();
 
     final allPairings = _web3Wallet.pairings.getAll();
 
     final keyForWallet = getKeyForStoringTopicsForWallet();
+
+    if (keyForWallet.isEmpty) return;
 
     final currentTopicsForWallet = getPairingTopicsForWallet(keyForWallet);
 
@@ -360,6 +362,10 @@ abstract class Web3WalletServiceBase with Store {
   String getKeyForStoringTopicsForWallet() {
     List<ChainKeyModel> chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
 
+    if (chainKeys.isEmpty) {
+      return '';
+    }
+
     final keyForPairingTopic =
         PreferencesKey.walletConnectPairingTopicsListForWallet(chainKeys.first.publicKey);
 
@@ -386,13 +392,15 @@ abstract class Web3WalletServiceBase with Store {
     // Get key specific to the current wallet
     final key = getKeyForStoringTopicsForWallet();
 
+    if (key.isEmpty) return;
+
     // Get all pairing topics attached to this key
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);
 
-    print(pairingTopicsForWallet);
+    printV(pairingTopicsForWallet);
 
     bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
-    print('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');
+    printV('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');
 
     if (!isPairingTopicAlreadySaved) {
       // Update the list with the most recent pairing topic

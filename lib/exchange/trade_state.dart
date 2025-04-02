@@ -40,7 +40,6 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
   static const exchanging = TradeState(raw: 'exchanging', title: 'Exchanging');
   static const sending = TradeState(raw: 'sending', title: 'Sending');
   static const success = TradeState(raw: 'success', title: 'Success');
-  
   static TradeState deserialize({required String raw}) {
 
     switch (raw) {
@@ -101,12 +100,14 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'waiting':
         return waiting;
       case 'processing':
+      case 'inProgress':
         return processing;
       case 'waitingPayment':
         return waitingPayment;
       case 'waitingAuthorization':
         return waitingAuthorization;
       case 'failed':
+      case 'error':
         return failed;
       case 'completed':
         return completed;
@@ -119,16 +120,20 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'refunded':
         return refunded;
       case 'confirmation':
+      case 'verifying':
         return confirmation;
       case 'confirmed':
         return confirmed;
       case 'exchanging':
         return exchanging;
       case 'sending':
+      case 'sending_confirmation':
         return sending;
       case 'success':
       case 'done':
         return success;
+      case 'expired':
+        return expired;
       default:
         throw Exception('Unexpected token: $raw in TradeState deserialize');
     }

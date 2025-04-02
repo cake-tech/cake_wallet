@@ -30,8 +30,47 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.trx;
     case WalletType.wownero:
       return CryptoCurrency.wow;
+    case WalletType.zano:
+      return CryptoCurrency.zano;
+    case WalletType.decred:
+      return CryptoCurrency.dcr;
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
+  }
+}
+
+WalletType? walletTypeForCurrency(CryptoCurrency currency) {
+  switch (currency) {
+    case CryptoCurrency.btc:
+      return WalletType.bitcoin;
+    case CryptoCurrency.xmr:
+      return WalletType.monero;
+    case CryptoCurrency.ltc:
+      return WalletType.litecoin;
+    case CryptoCurrency.xhv:
+      return WalletType.haven;
+    case CryptoCurrency.eth:
+      return WalletType.ethereum;
+    case CryptoCurrency.bch:
+      return WalletType.bitcoinCash;
+    case CryptoCurrency.nano:
+      return WalletType.nano;
+    case CryptoCurrency.banano:
+      return WalletType.banano;
+    case CryptoCurrency.maticpoly:
+      return WalletType.polygon;
+    case CryptoCurrency.sol:
+      return WalletType.solana;
+    case CryptoCurrency.trx:
+      return WalletType.tron;
+    case CryptoCurrency.wow:
+      return WalletType.wownero;
+    case CryptoCurrency.zano:
+      return WalletType.zano;
+    case CryptoCurrency.dcr:
+      return WalletType.decred;
+    default:
+      return null;
   }
 }

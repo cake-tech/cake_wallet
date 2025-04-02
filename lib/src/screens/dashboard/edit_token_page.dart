@@ -2,16 +2,21 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class EditTokenPage extends BasePage {
   EditTokenPage({
@@ -79,7 +84,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
     if (widget.token != null) {
       address = widget.homeSettingsViewModel.getTokenAddressBasedOnWallet(widget.token!);
-      
+
       _contractAddressController.text = address ?? '';
       _tokenNameController.text = widget.token!.name;
       _tokenSymbolController.text = widget.token!.title;
@@ -135,8 +140,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             S.of(context).warning,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).dialogTheme.backgroundColor,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                             ),
                           ),
                           Padding(
@@ -145,7 +150,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               S.of(context).add_token_warning,
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.normal,
+                                fontWeight: FontWeight.bold,
                                 color: Theme.of(context)
                                     .extension<TransactionTradeTheme>()!
                                     .detailsTitlesColor,
@@ -176,47 +181,129 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               ),
               SizedBox(height: 20),
             ],
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: PrimaryButton(
-                    onPressed: () async {
-                      if (widget.token != null) {
-                        await widget.homeSettingsViewModel.deleteToken(widget.token!);
-                      }
-                      Navigator.pop(context);
-                    },
-                    text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
-                    color: Colors.red,
-                    textColor: Colors.white,
-                  ),
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                  child: PrimaryButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate() &&
-                          (!_showDisclaimer || _disclaimerChecked)) {
-                        await widget.homeSettingsViewModel.addToken(
-                          token: CryptoCurrency(
-                            name: _tokenNameController.text,
-                            title: _tokenSymbolController.text.toUpperCase(),
-                            decimals: int.parse(_tokenDecimalController.text),
-                            iconPath: _tokenIconPathController.text,
-                          ),
-                          contractAddress: _contractAddressController.text,
-                        );
-                        if (context.mounted) {
+            Observer(
+              builder: (context) {
+                return Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: LoadingPrimaryButton(
+                        isLoading: widget.homeSettingsViewModel.isDeletingToken,
+                        onPressed: () async {
+                          if (widget.token != null) {
+                            await widget.homeSettingsViewModel.deleteToken(widget.token!);
+                          }
                           Navigator.pop(context);
-                        }
-                      }
-                    },
-                    text: S.of(context).save,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                  ),
-                ),
-              ],
+                        },
+                        text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
+                        color: Colors.red,
+                        textColor: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: LoadingPrimaryButton(
+                        isLoading: widget.homeSettingsViewModel.isAddingToken ||
+                            widget.homeSettingsViewModel.isValidatingContractAddress,
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate() &&
+                              (!_showDisclaimer || _disclaimerChecked)) {
+                            final hasPotentialError = await widget.homeSettingsViewModel
+                                .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
+                              _contractAddressController.text,
+                            );
+
+                            final isWhitelisted = await widget.homeSettingsViewModel
+                                .checkIfTokenIsWhitelisted(_contractAddressController.text);
+
+                            bool isPotentialScam = hasPotentialError;
+                            final tokenSymbol = _tokenSymbolController.text.toUpperCase();
+                            
+                            // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
+                            // if it is, then it's probably a scam unless it's in the whitelist
+                            final baseCurrencySymbols =
+                                CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
+                            if (baseCurrencySymbols.contains(tokenSymbol) && !isWhitelisted) {
+                              isPotentialScam = true;
+                            }
+
+                            final actionCall = () async {
+                              try {
+                                await widget.homeSettingsViewModel.addToken(
+                                  token: CryptoCurrency(
+                                    name: _tokenNameController.text,
+                                    title: _tokenSymbolController.text.toUpperCase(),
+                                    decimals: int.parse(_tokenDecimalController.text),
+                                    iconPath: _tokenIconPathController.text,
+                                    isPotentialScam: isPotentialScam,
+                                  ),
+                                  contractAddress: _contractAddressController.text,
+                                );
+
+                                if (mounted) {
+                                  Navigator.pop(context);
+                                }
+                              } catch (e) {
+                                showPopUp<void>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertWithOneAction(
+                                      alertTitle: S.current.warning,
+                                      alertContent: e.toString(),
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () => Navigator.of(dialogContext).pop(),
+                                    );
+                                  },
+                                );
+                              }
+                            };
+
+                            if (hasPotentialError) {
+                              showPopUp<void>(
+                                context: context,
+                                builder: (dialogContext) {
+                                  return AlertWithTwoActions(
+                                    alertTitle: S.current.warning,
+                                    alertContent: S.current.contract_warning,
+                                    rightButtonText: S.of(context).continue_text,
+                                    leftButtonText: S.of(context).cancel,
+                                    actionRightButton: () async {
+                                      Navigator.of(dialogContext).pop();
+                                      await actionCall();
+                                    },
+                                    actionLeftButton: () => Navigator.of(dialogContext).pop(),
+                                  );
+                                },
+                              );
+                            } else {
+                              try {
+                                await actionCall();
+                              } catch (e) {
+                                showPopUp<void>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertWithOneAction(
+                                      alertTitle: "Unable to add token",
+                                      alertContent: "$e",
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () => Navigator.of(context).pop(),
+                                    );
+                                  },
+                                );
+                              }
+                              if (mounted) {
+                                Navigator.pop(context);
+                              }
+                            }
+                          }
+                        },
+                        text: S.of(context).save,
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -229,11 +316,13 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       final token = await widget.homeSettingsViewModel.getToken(_contractAddressController.text);
 
       if (token != null) {
-        if (_tokenNameController.text.isEmpty) _tokenNameController.text = token.name;
-        if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.title;
+        final isZano = widget.homeSettingsViewModel.walletType == WalletType.zano;
+        if (_tokenNameController.text.isEmpty || isZano) _tokenNameController.text = token.name;
+        if (_tokenSymbolController.text.isEmpty || isZano)
+          _tokenSymbolController.text = token.title;
         if (_tokenIconPathController.text.isEmpty)
           _tokenIconPathController.text = token.iconPath ?? '';
-        if (_tokenDecimalController.text.isEmpty)
+        if (_tokenDecimalController.text.isEmpty || isZano)
           _tokenDecimalController.text = token.decimals.toString();
       }
     }
@@ -265,7 +354,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
             buttonColor: Theme.of(context).hintColor,
-            validator: AddressValidator(type: widget.homeSettingsViewModel.nativeToken),
+            validator: widget.homeSettingsViewModel.walletType == WalletType.zano
+                ? null
+                : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,
             onPushPasteButton: (_) {
               _pasteText();
             },

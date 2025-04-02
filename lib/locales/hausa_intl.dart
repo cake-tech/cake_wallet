@@ -795,6 +795,14 @@ class HaMaterialLocalizations extends GlobalMaterialLocalizations {
   @override
   // TODO: implement shareButtonLabel
   String get shareButtonLabel => "shareButtonLabel";
+  
+  @override
+  // TODO: implement clearButtonTooltip
+  String get clearButtonTooltip => "clearButtonTooltip";
+  
+  @override
+  // TODO: implement selectedDateLabel
+  String get selectedDateLabel => "selectedDateLabel";
 }
 
 /// Cupertino Support
@@ -817,7 +825,6 @@ class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
       patterns: haLocaleDatePatterns,
       symbols: intl.DateSymbols.deserializeFromMap(haDateSymbols),
     );
-
     return SynchronousFuture<CupertinoLocalizations>(
       HaCupertinoLocalizations(
         localeName: localeName,
@@ -839,6 +846,7 @@ class _HaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoL
         singleDigitHourFormat: intl.DateFormat('j', localeName),
         singleDigitMinuteFormat: intl.DateFormat.m(localeName),
         singleDigitSecondFormat: intl.DateFormat.s(localeName),
+        weekdayFormat: intl.DateFormat.E(localeName),
       ),
     );
   }
@@ -863,6 +871,7 @@ class HaCupertinoLocalizations extends GlobalCupertinoLocalizations {
     required super.singleDigitMinuteFormat,
     required super.doubleDigitMinuteFormat,
     required super.singleDigitSecondFormat,
+    required super.weekdayFormat,
   });
 
   @override
