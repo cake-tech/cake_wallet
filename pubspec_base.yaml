@@ -122,10 +122,6 @@ dependencies:
     git:
       url: https://github.com/MrCyjaneK/flutter_daemon
       ref: 5c369e0e69e6f459357b9802bc694a221397298a
-  xelis_flutter:
-    git:
-      url: https://github.com/xelis-project/xelis-flutter-ffi.git
-      ref: v0.1.0
 
 dev_dependencies:
   flutter_test:
@@ -166,6 +162,7 @@ dependency_overrides:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+  web_socket_channel: ">= 2.4.5"
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
