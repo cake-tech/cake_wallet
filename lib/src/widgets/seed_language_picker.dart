@@ -16,7 +16,7 @@ class SeedLanguagePickerOption {
 
 final List<SeedLanguagePickerOption> seedLanguages = [
   SeedLanguagePickerOption('English', S.current.seed_language_english,
-      Image.asset('assets/images/flags/usa.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
+      Image.asset('assets/images/flags/usa.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.bip39]),
   SeedLanguagePickerOption('Chinese (Simplified)', S.current.seed_language_chinese,
       Image.asset('assets/images/flags/chn.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Chinese (Traditional)', S.current.seed_language_chinese_traditional,
