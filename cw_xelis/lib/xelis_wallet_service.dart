@@ -26,7 +26,7 @@ class XelisWalletService extends WalletService<
 
   @override
   Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
+      File(await pathForWalletDir(name: name, type: getType())).existsSync();
 
   Future<String> _getTablePath() async {
     final root = await getAppDir();
@@ -45,7 +45,7 @@ class XelisWalletService extends WalletService<
 
   @override
   Future<XelisWallet> create(XelisNewWalletCredentials credentials, {bool? isTestnet}) async {
-    final fullPath = await pathForWallet(name: credentials.name, type: getType());
+    final fullPath = await pathForWalletDir(name: credentials.name, type: getType());
     final tablePath = await _getTablePath();
     final tableState = await getTableState();
 
@@ -74,7 +74,7 @@ class XelisWalletService extends WalletService<
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
 
-    final fullPath = await pathForWallet(name: name, type: getType());
+    final fullPath = await pathForWalletDir(name: name, type: getType());
     final tablePath = await _getTablePath();
     final tableState = await getTableState();
     final network = _resolveNetwork(isTestnet: isTestnet);
@@ -115,7 +115,7 @@ class XelisWalletService extends WalletService<
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
 
-    final fullPath = await pathForWallet(name: currentName, type: getType());
+    final fullPath = await pathForWalletDir(name: currentName, type: getType());
     final tablePath = await _getTablePath();
     final tableState = await getTableState();
     final network = _resolveNetwork(
@@ -132,7 +132,7 @@ class XelisWalletService extends WalletService<
     );
 
     final wallet = XelisWallet(walletInfo: currentWalletInfo, wallet: frbWallet);
-    final newPath = await pathForWallet(name: newName, type: getType());
+    final newPath = await pathForWalletDir(name: newName, type: getType());
     final newDir = Directory(newPath);
     final exists = await newDir.exists();
     if (exists) {
@@ -162,7 +162,7 @@ class XelisWalletService extends WalletService<
   @override
   Future<XelisWallet> restoreFromSeed(XelisRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    final fullPath = await pathForWallet(name: credentials.name, type: getType());
+    final fullPath = await pathForWalletDir(name: credentials.name, type: getType());
     final tablePath = await _getTablePath();
     final tableState = await getTableState();
     final network = _resolveNetwork(isTestnet: isTestnet);
