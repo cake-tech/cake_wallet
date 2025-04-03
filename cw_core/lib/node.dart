@@ -215,16 +215,13 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
-      final authenticatingClient = HttpClient();
-      authenticatingClient.badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => true);
-
       final jsonBody = json.encode(body);
 
       final response = await ProxyWrapper().post(
         clearnetUri: rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
+        allowMitmMoneroBypassSSLCheck: true,
       );
       // Check if we received a 401 Unauthorized response
       if (response.statusCode == 401) {
