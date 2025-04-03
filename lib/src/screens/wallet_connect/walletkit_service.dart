@@ -42,13 +42,6 @@ abstract class WalletKitServiceBase with Store {
 
   late ReownWalletKit _walletKit;
 
-  // @override
-  // final ValueNotifier<ChainMetadata?> currentSelectedChain = ValueNotifier(
-  //   ChainsDataList.eip155Chains.firstWhere(
-  //     (e) => e.chainId == 'eip155:1',
-  //   ),
-  // );
-
   @observable
   bool isInitialized;
 
@@ -75,7 +68,9 @@ abstract class WalletKitServiceBase with Store {
   void create() {
     // Create the walletkit client
     _walletKit = ReownWalletKit(
-      core: ReownCore(projectId: secrets.walletConnectProjectId),
+      core: ReownCore(
+        projectId: secrets.walletConnectProjectId,
+      ),
       metadata: const PairingMetadata(
         name: 'Cake Wallet',
         description: 'Cake Wallet',
@@ -99,9 +94,9 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.onSessionConnect.subscribe(_onSessionConnect);
     _walletKit.onSessionAuthRequest.subscribe(_onSessionAuthRequest);
 
-    // _walletKit.pairings.onSync.subscribe(_onPairingsSync);
-    // _walletKit.core.pairing.onPairingDelete.subscribe(_onPairingDelete);
-    // _walletKit.core.pairing.onPairingExpire.subscribe(_onPairingDelete);
+    _walletKit.pairings.onSync.subscribe(_onPairingsSync);
+    _walletKit.core.pairing.onPairingDelete.subscribe(_onPairingDelete);
+    _walletKit.core.pairing.onPairingExpire.subscribe(_onPairingDelete);
 
     // Setup our accounts
     List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
@@ -163,27 +158,9 @@ abstract class WalletKitServiceBase with Store {
 
     if (appStore.wallet!.type == WalletType.solana) {
       for (final cId in SolanaChainId.values) {
-        final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
-
-        String formattedUrl;
-        String protocolUsed = node.isSSL ? "https" : "http";
-
-        if (node.uriRaw == 'rpc.ankr.com') {
-          String ankrApiKey = secrets.ankrApiKey;
-
-          formattedUrl = '$protocolUsed://${node.uriRaw}/$ankrApiKey';
-        } else if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
-          String chainStackApiKey = secrets.chainStackApiKey;
-
-          formattedUrl = '$protocolUsed://${node.uriRaw}/$chainStackApiKey';
-        } else {
-          formattedUrl = '$protocolUsed://${node.uriRaw}';
-        }
-
         SolanaChainService(
           reference: cId,
           appStore: appStore,
-          // formattedRPCUrl: formattedUrl,
           wcKeyService: walletKeyService,
           bottomSheetService: _bottomSheetHandler,
           walletKit: _walletKit,
@@ -243,32 +220,25 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.onSessionConnect.unsubscribe(_onSessionConnect);
     _walletKit.onSessionAuthRequest.unsubscribe(_onSessionAuthRequest);
 
-    // _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
-    // _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
-    // _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+    _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
+    _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
+    _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
 
     isInitialized = false;
   }
 
   ReownWalletKit get walletKit => _walletKit;
 
-  List<String> get _loaderMethods => [
-        MethodConstants.WC_SESSION_PROPOSE,
-        MethodConstants.WC_SESSION_REQUEST,
-        MethodConstants.WC_SESSION_AUTHENTICATE,
-      ];
-
   void _onRelayClientMessage(MessageEvent? event) async {
     if (event != null) {
       final jsonObject = await EthUtils.decodeMessageEvent(event);
       debugPrint('_onRelayClientMessage $jsonObject');
       if (jsonObject is JsonRpcRequest) {
-        print(jsonObject.id);
-        print(jsonObject.method);
-
-        // DeepLinkHandler.waiting.value = _loaderMethods.contains(
-        //   jsonObject.method,
-        // );
+        debugPrint(jsonObject.id.toString());
+        debugPrint(jsonObject.method);
+        if (jsonObject.method == 'wc_sessionDelete') {
+          await disconnectSession(topic: event.topic);
+        }
       }
     }
   }
@@ -307,19 +277,19 @@ abstract class WalletKitServiceBase with Store {
         // generatedNamespaces is constructed based on registered methods handlers
         // so if you want to handle requests using onSessionRequest event then you would need to manually add that method in the approved namespaces
         try {
-          _walletKit.approveSession(
+          final response = await _walletKit.approveSession(
             id: args.id,
             namespaces: NamespaceUtils.regenerateNamespacesWithChains(
               args.params.generatedNamespaces!,
             ),
             sessionProperties: args.params.sessionProperties,
           );
-          // MethodsUtils.handleRedirect(
-          //   session.topic,
-          //   session.session!.peer.metadata.redirect,
-          //   '',
-          //   true,
-          // );
+          MethodsUtils.handleRedirect(
+            response.session!.topic,
+            response.session!.peer.metadata.redirect,
+            '',
+            true,
+          );
         } on ReownSignError catch (error) {
           MethodsUtils.handleRedirect(
             '',
@@ -330,9 +300,7 @@ abstract class WalletKitServiceBase with Store {
       } else {
         final error = Errors.getSdkError(Errors.USER_REJECTED).toSignError();
         await _walletKit.rejectSession(id: args.id, reason: error);
-        await _walletKit.core.pairing.disconnect(
-          topic: args.params.pairingTopic,
-        );
+        await _walletKit.core.pairing.disconnect(topic: args.params.pairingTopic);
         MethodsUtils.handleRedirect(
           '',
           proposer.metadata.redirect,
@@ -363,7 +331,8 @@ abstract class WalletKitServiceBase with Store {
   Future<void> _onSessionConnect(SessionConnect? args) async {
     if (args != null) {
       final session = jsonEncode(args.session.toJson());
-      log('_onSessionConnect $session');
+
+      debugPrint('_onSessionConnect $session');
 
       await savePairingTopicToLocalStorage(args.session.pairingTopic);
 
@@ -433,7 +402,7 @@ abstract class WalletKitServiceBase with Store {
         formattedMessages.add({iss: message});
       }
 
-      final WCBottomSheetResult rs = (await _bottomSheetHandler.queueBottomSheet(
+      final WCBottomSheetResult result = (await _bottomSheetHandler.queueBottomSheet(
             widget: WCSessionAuthRequestWidget(
               child: WCConnectionRequestWidget(
                 sessionAuthPayload: newAuthPayload,
@@ -447,13 +416,13 @@ abstract class WalletKitServiceBase with Store {
           ) as WCBottomSheetResult?) ??
           WCBottomSheetResult.reject;
 
-      if (rs != WCBottomSheetResult.reject) {
+      if (result != WCBottomSheetResult.reject) {
         final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
         final privateKey = '0x${chainKeys.first.privateKey}';
         final credentials = EthPrivateKey.fromHex(privateKey);
         //
         final messageToSign = formattedMessages.length;
-        final count = (rs == WCBottomSheetResult.one) ? 1 : messageToSign;
+        final count = (result == WCBottomSheetResult.one) ? 1 : messageToSign;
         //
         final List<Cacao> cacaos = [];
         for (var i = 0; i < count; i++) {
@@ -628,8 +597,6 @@ abstract class WalletKitServiceBase with Store {
 
     // Get all pairing topics attached to this key
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);
-
-    printV(pairingTopicsForWallet);
 
     bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
     printV('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');

@@ -46,15 +46,14 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }
-              } catch (e) {
-                debugPrint('[$runtimeType] close $e');
+              } catch (e, s) {
+                debugPrint('[$runtimeType] close $e $s');
               }
             });
           }
           return Material(
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
+            color: Theme.of(context).colorScheme.background,
+            borderRadius: BorderRadius.all(Radius.circular(16)),
             child: Padding(
               padding: EdgeInsets.only(
                 top: 16,
@@ -69,6 +68,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
+                        color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
                         padding: const EdgeInsets.all(0.0),
                         visualDensity: VisualDensity.compact,
                         onPressed: () {

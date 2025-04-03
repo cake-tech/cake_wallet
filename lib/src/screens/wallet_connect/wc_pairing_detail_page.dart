@@ -70,7 +70,6 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               await widget.walletKitService.extendSession(
                 topic: session.topic,
               );
-              // setState(() {});
             } catch (e) {
               debugPrint('${e.toString()}');
             }
@@ -89,7 +88,6 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
                 topic: session.topic,
                 namespaces: session.namespaces,
               );
-              // setState(() {});
             } catch (e) {
               debugPrint('${e.toString()}');
             }
@@ -107,7 +105,6 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               await widget.walletKitService.disconnectSession(
                 topic: session.topic,
               );
-              // setState(() {});
             } catch (e) {
               debugPrint('${e.toString()}');
             }

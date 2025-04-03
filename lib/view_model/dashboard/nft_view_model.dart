@@ -118,12 +118,6 @@ abstract class NFTViewModelBase with Store {
     } catch (e) {
       isLoading = false;
       log(e.toString());
-      bottomSheetService.queueBottomSheet(
-        isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(
-          message: e.toString(),
-        ),
-      );
     }
   }
 

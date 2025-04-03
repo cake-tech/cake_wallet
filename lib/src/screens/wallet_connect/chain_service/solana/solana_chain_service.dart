@@ -268,7 +268,6 @@ class SolanaChainService {
         topic: topic,
         response: response,
       );
-      // 1743580460796165
       MethodsUtils.handleRedirect(
         topic,
         session!.peer.metadata.redirect,

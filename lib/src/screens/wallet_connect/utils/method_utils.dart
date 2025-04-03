@@ -91,30 +91,52 @@ class MethodsUtils {
   }) async {
     await getIt.get<BottomSheetService>().queueBottomSheet(
           closeAfter: success ? 3 : 0,
-          widget: Container(
-            color: Colors.white,
-            height: 280.0,
-            width: double.infinity,
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                Icon(
-                  success ? Icons.check_circle_sharp : Icons.error_outline_sharp,
-                  color: success ? Colors.green[100] : Colors.red[100],
-                  size: 80.0,
-                ),
-                Text(
-                  title ?? 'Connected',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(message ?? 'You can go back to your dApp now'),
-              ],
-            ),
+          widget: GoBackModalWidget(
+            isSuccess: success,
+            title: title,
+            message: message,
           ),
         );
+  }
+}
+
+class GoBackModalWidget extends StatelessWidget {
+  const GoBackModalWidget({
+    required this.isSuccess,
+    this.message,
+    this.title,
+    super.key,
+  });
+
+  final bool isSuccess;
+  final String? title;
+  final String? message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.background,
+      height: 280.0,
+      width: double.infinity,
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          Icon(
+            isSuccess ? Icons.check_circle_sharp : Icons.error_outline_sharp,
+            color: isSuccess ? Colors.green[100] : Colors.red[100],
+            size: 80.0,
+          ),
+          Text(
+            title ?? 'Connected',
+            style: TextStyle(
+              color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
+              fontSize: 18.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(message ?? 'You can go back to your dApp now'),
+        ],
+      ),
+    );
   }
 }

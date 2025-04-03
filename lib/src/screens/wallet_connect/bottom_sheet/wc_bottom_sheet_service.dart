@@ -3,11 +3,7 @@ import 'dart:collection';
 import 'package:cake_wallet/src/screens/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 import 'package:flutter/material.dart';
 
-enum WCBottomSheetResult {
-  reject,
-  one,
-  all,
-}
+enum WCBottomSheetResult { reject, one, all }
 
 abstract class BottomSheetService {
   abstract final ValueNotifier<BottomSheetQueueItemModel?> currentSheet;

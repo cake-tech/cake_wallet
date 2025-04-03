@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'connection_item_widget.dart';
@@ -12,6 +11,7 @@ class WCConnectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColorLight,
@@ -23,7 +23,7 @@ class WCConnectionWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context) .colorScheme.background,
               borderRadius: BorderRadius.circular(8),
             ),
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -32,7 +32,7 @@ class WCConnectionWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).appBarTheme.titleTextStyle!.color!
               ),
             ),
           ),
