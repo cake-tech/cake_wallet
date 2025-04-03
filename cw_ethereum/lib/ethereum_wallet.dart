@@ -115,6 +115,7 @@ class EthereumWallet extends EVMChainWallet {
       enabled: token.enabled,
       tag: token.tag ?? "ETH",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
   }
 

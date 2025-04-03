@@ -363,3 +363,5 @@ String signMessage(String message, {String address = ""}) {
 bool verifyMessage(String message, String address, String signature) {
   return wownero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
 }
+
+Map<String, List<int>> debugCallLength() => wownero.debugCallLength;

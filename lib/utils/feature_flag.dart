@@ -7,4 +7,5 @@ class FeatureFlag {
   static final bool isInAppTorEnabled = (Platform.isAndroid || Platform.isIOS);
   static const bool isBackgroundSyncEnabled = true;
   static const int verificationWordsCount = kDebugMode ? 0 : 2;
+  static const bool hasDevOptions = bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
 }

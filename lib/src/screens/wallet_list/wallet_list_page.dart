@@ -525,6 +525,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   didConnect = true;
                   Navigator.of(context).pop();
                 },
+                isReconnect: true,
               ),
             );
 

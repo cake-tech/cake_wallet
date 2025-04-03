@@ -20,9 +20,6 @@ class ExchangeTradeExternalSendPage extends BasePage {
   String get title => S.current.swap;
 
   @override
-  bool get gradientBackground => true;
-
-  @override
   bool get gradientAll => true;
 
   @override
@@ -46,7 +43,7 @@ class ExchangeTradeExternalSendPage extends BasePage {
     );
     return Container(
       child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(top: 36, bottom: 24),
+        contentPadding: EdgeInsets.only(bottom: 24),
         content: Observer(
           builder: (_) {
             return Column(

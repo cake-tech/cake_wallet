@@ -541,6 +541,7 @@
   "please_try_to_connect_to_another_node": "Bitte versuchen Sie, sich mit einem anderen Knoten zu verbinden",
   "please_wait": "Warten Sie mal",
   "polygonscan_history": "PolygonScan-Verlauf",
+  "potential_scam": "Potenzieller Betrug",
   "powered_by": "Ermöglicht durch ${title}",
   "pre_seed_button_text": "Verstanden. Zeig mir meinen Seed",
   "pre_seed_description": "Auf der nächsten Seite sehen Sie eine Reihe von ${words} Wörtern. Dies ist Ihr einzigartiger und privater Seed und der EINZIGE Weg, um Ihre Wallet im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, ihn aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet-App aufzubewahren.",

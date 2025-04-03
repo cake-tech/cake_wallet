@@ -626,13 +626,13 @@ abstract class EVMChainWalletBase
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
 
-    if (token.iconPath == null || token.iconPath!.isEmpty) {
+    if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
       try {
         iconPath = CryptoCurrency.all
             .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
             .iconPath;
       } catch (_) {}
-    } else {
+    } else if (!token.isPotentialScam) {
       iconPath = token.iconPath;
     }
 

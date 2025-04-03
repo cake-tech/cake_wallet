@@ -188,12 +188,21 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(_apiAuthority, '$_apiPath$_orders');
 
+      final curFrom = await _getAssets(request.fromCurrency);
+      final curTo = await _getAssets(request.toCurrency);
+
+      if (curFrom == null || curTo == null) {
+        throw TradeNotCreatedException(description);
+      }
+
+      final pairId = curFrom + '_' + curTo;
+
       final payload = {
         'fromAmount': request.fromAmount,
         'fromAddress': request.refundAddress,
         'toAmount': request.toAmount,
         'toAddress': request.toAddress,
-        'pairId': '${request.fromCurrency.title}_${request.toCurrency.title}',
+        'pairId': pairId,
       };
 
       final response = await http.post(uri, headers: _headers, body: json.encode(payload));

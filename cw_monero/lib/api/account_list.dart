@@ -7,7 +7,8 @@ bool get isViewOnly => int.tryParse(monero.Wallet_secretSpendKey(wptr!)) == 0;
 int _wlptrForW = 0;
 monero.WalletListener? _wlptr = null;
 
-monero.WalletListener getWlptr() {
+monero.WalletListener? getWlptr() {
+  if (wptr == null) return null;
   if (wptr!.address == _wlptrForW) return _wlptr!;
   _wlptrForW = wptr!.address;
   _wlptr = monero.MONERO_cw_getWalletListener(wptr!);
