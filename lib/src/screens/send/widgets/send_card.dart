@@ -94,6 +94,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      sendViewModel.updateSendingBalance();
+    });
 
     /// if the current wallet doesn't match the one in the qr code
     if (initialPaymentRequest != null &&
@@ -244,38 +247,47 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   currencyValueValidator: output.sendAll
                       ? sendViewModel.allAmountValidator
                       : sendViewModel.amountValidator,
-                  allAmountCallback: () async => output.setSendAll(sendViewModel.sendingBalance)),
+                  allAmountCallback: () async => output.setSendAll(await sendViewModel.sendingBalance)),
               Divider(
                   height: 1,
                   color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
               Observer(
-                builder: (_) => Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          S.of(context).available_balance + ':',
-                          style: TextStyle(
+                builder: (_) {
+                  // force rebuild on mobx
+                  final _ = sendViewModel.coinTypeToSpendFrom;
+                  return Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            S.of(context).available_balance + ':',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
+                          ),
+                        ),
+                        FutureBuilder<String>(
+                          future: sendViewModel.sendingBalance,
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.data ?? sendViewModel.balance, // default to balance while loading
+                              style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color:
                                   Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
-                        ),
-                      ),
-                      Text(
-                        sendViewModel.sendingBalance,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
-                      )
-                    ],
-                  ),
-                ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  );
+                },
               ),
               if (!sendViewModel.isFiatDisabled)
                 CurrencyAmountTextField(
@@ -509,9 +521,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       }
     });
 
-    reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) {
+    reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) async {
       if (output.sendAll) {
-        output.setSendAll(sendViewModel.sendingBalance);
+        output.setSendAll(await sendViewModel.sendingBalance);
       }
 
       output.setCryptoAmount(cryptoAmountController.text);
