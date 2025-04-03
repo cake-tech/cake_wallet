@@ -87,18 +87,19 @@ class TransactionDetailsPage extends BasePage {
                     );
                   }
 
-                return GestureDetector(
-                  key: item.key,
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: item.value));
-                    showBar<void>(context, S.of(context).transaction_details_copied(item.title));
-                  },
-                  child: ListRow(
-                    title: '${item.title}:',
-                    value: item.value,
-                    textWidget: addressTextWidget,
-                  ),
-                );
+                  return GestureDetector(
+                    key: item.key,
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: item.value));
+                      showBar<void>(context, S.of(context).transaction_details_copied(item.title));
+                    },
+                    child: ListRow(
+                      title: '${item.title}:',
+                      value: item.value,
+                      textWidget: addressTextWidget,
+                    ),
+                  );
+                }
               }
 
               if (item is BlockExplorerListItem) {
