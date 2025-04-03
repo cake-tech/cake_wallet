@@ -1,9 +1,8 @@
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
@@ -32,7 +31,9 @@ Future<double> _fetchPrice(Map<String, dynamic> args) async {
       uri = Uri.https(_fiatApiClearNetAuthority, _fiatApiPath, queryParams);
     }
 
-    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
+    );
     final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode != 200) {
