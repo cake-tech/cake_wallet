@@ -4,21 +4,32 @@ import 'package:cw_monero/api/coins_info.dart';
 import 'package:monero/monero.dart' as monero;
 
 class MoneroUnspent extends Unspent {
+  static Future<MoneroUnspent> fromUnspent(String address, String hash, String keyImage, int value, bool isFrozen, bool isUnlocked) async {
+    return MoneroUnspent(
+        address: address,
+        hash: hash,
+        keyImage: keyImage,
+        value: value,
+        isFrozen: isFrozen,
+        isUnlocked: isUnlocked);
+  }
+
   MoneroUnspent(
-      String address, String hash, String keyImage, int value, bool isFrozen, this.isUnlocked)
+      {required String address,
+      required String hash,
+      required String keyImage,
+      required int value,
+      required bool isFrozen,
+      required this.isUnlocked})
       : super(address, hash, value, 0, keyImage) {
-    getCoinByKeyImage(keyImage).then((coinId) {
-      if (coinId == null) return;
-      getCoin(coinId).then((coin) {
-        _frozen = monero.CoinsInfo_frozen(coin);
-      });
-    });
+    _frozen = isFrozen;
   }
 
   bool _frozen = false;
 
   @override
   set isFrozen(bool freeze) {
+    _frozen = freeze;
     printV("set isFrozen: $freeze ($keyImage): $freeze");
     getCoinByKeyImage(keyImage!).then((coinId) async {
       if (coinId == null) return;
