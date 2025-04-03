@@ -7,8 +7,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -140,7 +139,6 @@ abstract class NFTViewModelBase with Store {
         "X-API-Key": secrets.moralisApiKey,
       },
     );
-
     final responseString = await response.transform(utf8.decoder).join();
     final decodedResponse = jsonDecode(responseString) as Map<String, dynamic>;
 

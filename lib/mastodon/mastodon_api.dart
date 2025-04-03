@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
 import 'package:cake_wallet/mastodon/mastodon_user.dart';
 
 class MastodonAPI {

@@ -10,10 +10,9 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
   LetsExchangeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -153,12 +152,16 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
       final uri = Uri.https(_baseUrl,
           isFixedRateMode ? _createTransactionRevertPath : _createTransactionPath, tradeParams);
-      final response = await http.post(uri, headers: headers);
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
+        headers: headers,
+      );
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode != 200) {
-        throw Exception('LetsExchange create trade failed: ${response.body}');
+        throw Exception('LetsExchange create trade failed: ${responseString}');
       }
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final id = responseJSON['transaction_id'] as String;
       final from = responseJSON['coin_from'] as String;
       final to = responseJSON['coin_to'] as String;
@@ -268,11 +271,15 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     try {
       final uri = Uri.https(_baseUrl, isFixedRateMode ? _infoRevertPath : _infoPath, params);
-      final response = await http.post(uri, headers: headers);
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
+        headers: headers,
+      );
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode != 200) {
-        throw Exception('LetsExchange fetch info failed: ${response.body}');
+        throw Exception('LetsExchange fetch info failed: ${responseString}');
       }
-      return json.decode(response.body) as Map<String, dynamic>;
+      return json.decode(responseString) as Map<String, dynamic>;
     } catch (e) {
       throw Exception('LetsExchange failed to fetch info ${e.toString()}');
     }
