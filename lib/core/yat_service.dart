@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/entities/yat_record.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class YatService {
   static bool isDevMode = false;
@@ -44,7 +43,7 @@ class YatService {
         results[MONERO_STD_ADDRESS] ??
         results[tag]) as Map<String, dynamic>;
 
-      if (yatRecord != null) {
+      if (yatRecord.isNotEmpty) {
         yatRecords.add(YatRecord.fromJson(yatRecord));
       }
 

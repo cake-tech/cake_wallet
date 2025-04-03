@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
@@ -11,7 +10,6 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 
 class BackgroundSync {
   Future<void> sync() async {

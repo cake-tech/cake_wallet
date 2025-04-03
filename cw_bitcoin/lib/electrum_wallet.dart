@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_core/utils/http_client.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -49,7 +49,6 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 import 'package:hex/hex.dart';
-import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -493,7 +492,7 @@ abstract class ElectrumWalletBase
   Future<void> updateFeeRates() async {
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
-        final req = await getHttpClient()
+        final req = await ProxyWrapper().getHttpClient()
           .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
           .timeout(Duration(seconds: 15));
         final response = await req.close();
@@ -1880,7 +1879,7 @@ abstract class ElectrumWalletBase
 
       if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
         try {
-          final req = await getHttpClient()
+          final req = await ProxyWrapper().getHttpClient()
             .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/block-height/$height"))
             .timeout(Duration(seconds: 15));
           final blockHash = await req.close();
@@ -1889,7 +1888,7 @@ abstract class ElectrumWalletBase
           if (blockHash.statusCode == 200 &&
               stringData.isNotEmpty &&
               jsonDecode(stringData) != null) {
-            final blockResponseReq = await getHttpClient()
+            final blockResponseReq = await ProxyWrapper().getHttpClient()
               .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/block/${stringData}"))
               .timeout(Duration(seconds: 15));
             final blockResponseRes = await blockResponseReq.close();

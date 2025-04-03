@@ -5,9 +5,8 @@ import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -134,15 +133,15 @@ abstract class NFTViewModelBase with Store {
       '/nft/$chainName/$address/metadata',
     );
 
-    final response = await http.get(
-      uri,
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
       headers: {
         "Accept": "application/json",
         "X-API-Key": secrets.moralisApiKey,
       },
     );
-
-    final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+    final responseString = await response.transform(utf8.decoder).join();
+    final decodedResponse = jsonDecode(responseString) as Map<String, dynamic>;
 
     return SolanaNFTAssetModel.fromJson(decodedResponse);
   }

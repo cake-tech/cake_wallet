@@ -5,7 +5,7 @@ import 'dart:math' as math;
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/utils/http_client.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/solana_rpc_http_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
@@ -13,14 +13,12 @@ import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/spl_token.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart' as ioc;
 import 'package:on_chain/solana/solana.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';
 import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {
-  final httpClient = http.Client();
+  final httpClient = ProxyWrapper().getHttpClient();
   SolanaRPC? _provider;
 
   bool connect(Node node) {
@@ -857,8 +855,7 @@ class SolanaWalletClient {
     if (uri.isEmpty || uri == '…') return null;
 
     try {
-      final httpClient = getHttpClient();
-      final http.Client client = ioc.IOClient(httpClient);
+      final client = ProxyWrapper().getHttpIOClient();
       final response = await client.get(Uri.parse(uri));
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;

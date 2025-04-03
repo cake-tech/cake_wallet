@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/twitter/twitter_user.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class TwitterApi {
   static const twitterBearerToken = secrets.twitterBearerToken;
