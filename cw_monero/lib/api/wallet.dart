@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
@@ -22,14 +21,18 @@ int getSyncingHeight() {
 }
 
 bool isNeededToRefresh() {
-  final ret = monero.MONERO_cw_WalletListener_isNeedToRefresh(getWlptr());
-  monero.MONERO_cw_WalletListener_resetNeedToRefresh(getWlptr());
+  final wlptr = getWlptr();
+  if (wlptr == null) return false;
+  final ret = monero.MONERO_cw_WalletListener_isNeedToRefresh(wlptr);
+  monero.MONERO_cw_WalletListener_resetNeedToRefresh(wlptr);
   return ret;
 }
 
 bool isNewTransactionExist() {
-  final ret = monero.MONERO_cw_WalletListener_isNewTransactionExist(getWlptr());
-  monero.MONERO_cw_WalletListener_resetIsNewTransactionExist(getWlptr());
+  final wlptr = getWlptr();
+  if (wlptr == null) return false;
+  final ret = monero.MONERO_cw_WalletListener_isNewTransactionExist(wlptr);
+  monero.MONERO_cw_WalletListener_resetIsNewTransactionExist(wlptr);
   return ret;
 }
 
