@@ -24,7 +24,7 @@ class AddressFormatter {
         address: address,
         walletType: walletType,
         evenTextStyle: evenTextStyle,
-        oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(150)),
+        oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(128)),
         textAlign: textAlign,
       );
     }

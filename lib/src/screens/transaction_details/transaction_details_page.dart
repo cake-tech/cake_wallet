@@ -13,6 +13,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -45,61 +46,25 @@ class TransactionDetailsPage extends BasePage {
 
                 if (item.title.toLowerCase() == 'recipient addresses' ||
                     item.title.toLowerCase() == 'source address') {
-                  if (item.value.contains('\n')) {
-                    final parts = item.value.split('\n');
-
-                    final nonFormattedPart = parts.sublist(0, parts.length - 1).join('\n').trim();
-
-                    final extractedAddress = parts.last.trim();
-
-                    addressTextWidget = Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          nonFormattedPart,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          ),
-                        ),
-                        // Display the formatted segmented address.
-                        AddressFormatter.buildSegmentedAddress(
-                          address: extractedAddress,
-                          walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                          evenTextStyle: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          ),
-                        ),
-                      ],
-                    );
-                  } else {
-                    addressTextWidget = AddressFormatter.buildSegmentedAddress(
-                      address: item.value,
-                      walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                      evenTextStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      ),
-                    );
-                  }
-
-                  return GestureDetector(
-                    key: item.key,
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: item.value));
-                      showBar<void>(context, S.of(context).transaction_details_copied(item.title));
-                    },
-                    child: ListRow(
-                      title: '${item.title}:',
-                      value: item.value,
-                      textWidget: addressTextWidget,
-                    ),
+                  addressTextWidget = getFormattedAddress(
+                    context: context,
+                    value: item.value,
+                    walletType: transactionDetailsViewModel.sendViewModel.walletType,
                   );
                 }
+
+                return GestureDetector(
+                  key: item.key,
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: item.value));
+                    showBar<void>(context, S.of(context).transaction_details_copied(item.title));
+                  },
+                  child: ListRow(
+                    title: '${item.title}:',
+                    value: item.value,
+                    textWidget: addressTextWidget,
+                  ),
+                );
               }
 
               if (item is BlockExplorerListItem) {
@@ -142,6 +107,82 @@ class TransactionDetailsPage extends BasePage {
           },
         ),
       ],
+    );
+  }
+
+  Widget getFormattedAddress({
+    required BuildContext context,
+    required String value,
+    required WalletType walletType,
+  }) {
+    final textStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+    );
+    final List<Widget> children = [];
+    final bool hasDoubleNewline = value.contains('\n\n');
+
+    if (hasDoubleNewline) {
+      final blocks = value
+          .split('\n\n')
+          .map((b) => b.trim())
+          .where((b) => b.isNotEmpty)
+          .toList();
+      for (final block in blocks) {
+        final lines = block
+            .split('\n')
+            .map((l) => l.trim())
+            .where((l) => l.isNotEmpty)
+            .toList();
+        if (lines.length > 1) {
+          children.add(Text(lines.first, style: textStyle));
+          for (int i = 1; i < lines.length; i++) {
+            children.add(
+              AddressFormatter.buildSegmentedAddress(
+                address: lines[i],
+                walletType: walletType,
+                evenTextStyle: textStyle,
+              ),
+            );
+          }
+        } else {
+          children.add(
+            AddressFormatter.buildSegmentedAddress(
+              address: lines.first,
+              walletType: walletType,
+              evenTextStyle: textStyle,
+            ),
+          );
+        }
+        children.add(SizedBox(height: 8));
+      }
+    } else {
+      final lines = value
+          .split('\n')
+          .map((l) => l.trim())
+          .where((l) => l.isNotEmpty)
+          .toList();
+      bool firstLineIsContactName = (lines.length > 1 && lines.first.length < 20);
+      int startIndex = 0;
+      if (firstLineIsContactName) {
+        children.add(Text(lines.first, style: textStyle));
+        startIndex = 1;
+      }
+      for (int i = startIndex; i < lines.length; i++) {
+        children.add(
+          AddressFormatter.buildSegmentedAddress(
+            address: lines[i],
+            walletType: walletType,
+            evenTextStyle: textStyle,
+          ),
+        );
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
     );
   }
 }
