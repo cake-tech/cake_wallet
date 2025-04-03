@@ -539,6 +539,7 @@
   "please_try_to_connect_to_another_node": "Моля, опитайте се да се свържете към друг node.",
   "please_wait": "Моля Изчакай",
   "polygonscan_history": "История на PolygonScan",
+  "potential_scam": "Потенциална измама",
   "powered_by": "Powered by ${title}",
   "pre_seed_button_text": "Разбирам. Покажи seed",
   "pre_seed_description": "На следващата страница ще видите поредица от ${words} думи. Това е вашият таен личен seed и е единственият начин да възстановите портфейла си. Отговорността за съхранението му на сигурно място извън приложението на Cake Wallet е изцяло ВАША.",

@@ -539,6 +539,7 @@
   "please_try_to_connect_to_another_node": "Merci d'essayer la connexion vers un autre nœud",
   "please_wait": "Merci de patienter",
   "polygonscan_history": "Historique de PolygonScan",
+  "potential_scam": "Arnaque potentielle",
   "powered_by": "Proposé par ${title}",
   "pre_seed_button_text": "J'ai compris. Montrez moi ma phrase secrète (seed)",
   "pre_seed_description": "Sur la page suivante vous allez voir une série de ${words} mots. Ils constituent votre phrase secrète (seed) unique et privée et sont le SEUL moyen de restaurer votre portefeuille (wallet) en cas de perte ou de dysfonctionnement. Il est de VOTRE responsabilité d'écrire cette série de mots et de la stocker dans un lieu sûr en dehors de l'application Cake Wallet.",
