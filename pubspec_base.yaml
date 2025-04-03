@@ -10,7 +10,7 @@ dependencies:
       url: https://github.com/cake-tech/qr.flutter.git
       ref: cake-4.0.2
       version: 4.0.2
-  shared_preferences: 2.3.2
+  shared_preferences: 2.5.3
   # provider: ^6.0.3
   rxdart: ^0.28.0
   yaml: ^3.1.1
@@ -21,7 +21,7 @@ dependencies:
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.1.4
-  flutter_mobx: ^2.0.6+5
+  flutter_mobx: 2.0.6+5
   flutter_slidable: ^3.0.1
   share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
@@ -83,7 +83,6 @@ dependencies:
       version: 1.0.0
   flutter_plugin_android_lifecycle: 2.0.23
   path_provider_android: ^2.2.1
-  shared_preferences_android: 2.3.3
   url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   sensitive_clipboard:

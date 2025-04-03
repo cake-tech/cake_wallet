@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 cd "$(dirname "$0")"
@@ -7,10 +7,10 @@ cd "$(dirname "$0")"
 CW_DECRED_DIR=$(realpath ../..)/cw_decred
 LIBWALLET_PATH="${PWD}/decred/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="87b2769538db3065b334d247b25774593fc6443d"
+LIBWALLET_VERSION="dba5327d35cb5d5d1ff113b780869deee154511f"
 
-if [ -e $LIBWALLET_PATH ]; then
-       rm -fr $LIBWALLET_PATH/{*,.*} || true
+if [[ -e $LIBWALLET_PATH ]]; then
+    rm -fr $LIBWALLET_PATH || true
 fi
 mkdir -p $LIBWALLET_PATH || true
 
@@ -65,7 +65,7 @@ do
     esac
 
     # PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
-    if [ -e ./build ]; then
+    if [[ -e ./build ]]; then
         rm -fr ./build
     fi
 

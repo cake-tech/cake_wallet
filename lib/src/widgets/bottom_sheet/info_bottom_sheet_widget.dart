@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
@@ -85,7 +86,7 @@ class InfoBottomSheet extends BaseBottomSheet {
                   const Spacer(flex: 2),
                   Expanded(
                     flex: 6,
-                    child: Text(
+                    child: AutoSizeText(
                       content!,
                       textAlign: TextAlign.center,
                       style: TextStyle(

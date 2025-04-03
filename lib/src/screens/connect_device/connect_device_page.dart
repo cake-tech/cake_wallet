@@ -28,7 +28,7 @@ class ConnectDevicePageParams {
     required this.walletType,
     required this.onConnectDevice,
     this.allowChangeWallet = false,
-    this.isReconnect = false,
+    this.isReconnect = true,
   });
 }
 

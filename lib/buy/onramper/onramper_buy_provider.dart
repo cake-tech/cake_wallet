@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -20,13 +21,22 @@ import 'package:url_launcher/url_launcher.dart';
 class OnRamperBuyProvider extends BuyProvider {
   OnRamperBuyProvider(this._settingsStore,
       {required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
+      : super(wallet: wallet,
+      isTestEnvironment: isTestEnvironment,
+      ledgerVM: null,
+      supportedCryptoList: supportedCryptoToFiatPairs(
+          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+      supportedFiatList: supportedFiatToCryptoPairs(
+          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _baseUrl = 'buy.onramper.com';
   static const _baseApiUrl = 'api.onramper.com';
   static const quotes = '/quotes';
   static const paymentTypes = '/payment-types';
   static const supported = '/supported';
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   final SettingsStore _settingsStore;
 
@@ -222,8 +232,7 @@ class OnRamperBuyProvider extends BuyProvider {
       '${prefix}defaultAmount': amount.toString(),
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
-      'networkWallets': '$defaultCrypto:$cryptoCurrencyAddress',
-      'walletAddress': cryptoCurrencyAddress,
+      'networkWallets': '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress',
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,

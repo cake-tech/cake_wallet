@@ -231,7 +231,7 @@ abstract class BalanceViewModelBase with Store {
                 formattedAssetTitle: _formatterAsset(key)));
       }
       final fiatCurrency = settingsStore.fiatCurrency;
-      final price = fiatConvertationStore.prices[key] ?? 0;
+      final price = key.isPotentialScam ? 0.0 : fiatConvertationStore.prices[key] ?? 0;
 
       // if (price == null) {
       //   throw Exception('Price is null for: $key');

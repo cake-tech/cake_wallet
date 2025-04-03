@@ -509,11 +509,15 @@ abstract class TronWalletBase extends WalletBase<TronBalance, TronTransactionHis
 
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
-    try {
-      iconPath = CryptoCurrency.all
-          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-          .iconPath;
-    } catch (_) {}
+    if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else if (!token.isPotentialScam) {
+      iconPath = token.iconPath;
+    }
 
     final newToken = TronToken(
       name: token.name,
@@ -523,6 +527,7 @@ abstract class TronWalletBase extends WalletBase<TronBalance, TronTransactionHis
       enabled: token.enabled,
       tag: token.tag ?? "TRX",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
 
     await tronTokensBox.put(newToken.contractAddress, newToken);

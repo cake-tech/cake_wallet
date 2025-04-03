@@ -39,6 +39,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   ObservableMap<CryptoCurrency, BalanceType> get balance;
 
+  String formatCryptoAmount(String amount) => amount;
+
   SyncStatus get syncStatus;
 
   set syncStatus(SyncStatus status);

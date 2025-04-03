@@ -1,5 +1,6 @@
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_monero/api/wallet_manager.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/account.dart';
 import 'package:cw_monero/api/account_list.dart' as account_list;
@@ -44,7 +45,18 @@ abstract class MoneroAccountListBase with Store {
     }
   }
 
-  List<Account> getAll() => account_list.getAllAccount().map((accountRow) {
+  Map<int, List<Account>> _cachedAccounts = {};
+  
+  List<Account> getAll() {
+    final allAccounts = account_list.getAllAccount();
+    final currentCount = allAccounts.length;
+    _cachedAccounts[account_list.wptr!.address] ??= [];
+    
+    if (_cachedAccounts[account_list.wptr!.address]!.length == currentCount) {
+      return _cachedAccounts[account_list.wptr!.address]!;
+    }
+    
+    _cachedAccounts[account_list.wptr!.address] = allAccounts.map((accountRow) {
         final balance = monero.SubaddressAccountRow_getUnlockedBalance(accountRow);
 
         return Account(
@@ -53,6 +65,9 @@ abstract class MoneroAccountListBase with Store {
           balance: moneroAmountToString(amount: monero.Wallet_amountFromString(balance)),
         );
       }).toList();
+    
+    return _cachedAccounts[account_list.wptr!.address]!;
+  }
 
   Future<void> addAccount({required String label}) async {
     await account_list.addAccount(label: label);

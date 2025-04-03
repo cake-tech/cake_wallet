@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -20,15 +21,28 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
-  DFXBuyProvider(
-      {required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: ledgerVM);
+  DFXBuyProvider({
+    required WalletBase wallet,
+    bool isTestEnvironment = false,
+    LedgerViewModel? ledgerVM,
+  }) : super(
+      wallet: wallet,
+      isTestEnvironment: isTestEnvironment,
+      ledgerVM: ledgerVM,
+      supportedCryptoList: supportedCryptoToFiatPairs(
+          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+      supportedFiatList: supportedFiatToCryptoPairs(
+          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto)
+  );
 
   static const _baseUrl = 'api.dfx.swiss';
 
   // static const _signMessagePath = '/v1/auth/signMessage';
   static const _authPath = '/v1/auth';
   static const walletName = 'CakeWallet';
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   @override
   String get title => 'DFX.swiss';

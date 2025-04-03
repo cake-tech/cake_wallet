@@ -770,4 +770,9 @@ abstract class WowneroWalletBase extends WalletBase<WowneroBalance, WowneroTrans
 
     return wownero_wallet.verifyMessage(message, address, signature);
   }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    return wowneroAmountToString(amount: int.parse(amount));
+  }
 }
