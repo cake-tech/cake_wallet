@@ -1,13 +1,11 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cw_core/utils/http_client.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:ens_dart/ens_dart.dart';
-import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:http/io_client.dart' as ioc;
 
 class EnsRecord {
   
@@ -24,8 +22,7 @@ class EnsRecord {
     }
 
     if (_client == null) {
-      final httpClient = getHttpClient();
-      late final Client client = ioc.IOClient(httpClient);
+      late final client = ProxyWrapper().getHttpIOClient();
 
       _client = Web3Client("https://ethereum-rpc.publicnode.com", client);
     }

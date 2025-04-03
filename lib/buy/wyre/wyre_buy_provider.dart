@@ -3,8 +3,7 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
@@ -74,19 +73,22 @@ class WyreBuyProvider extends BuyProvider {
       'referrerAccountId': _accountId,
       'lockFields': ['amount', 'sourceCurrency', 'destCurrency', 'dest']
     };
-    final response = await post(uri,
-        headers: {
-          'Authorization': 'Bearer $_secretKey',
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache'
-        },
-        body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {
+        'Authorization': 'Bearer $_secretKey',
+        'Content-Type': 'application/json',
+        'cache-control': 'no-cache'
+      },
+      body: json.encode(body),
+    );
 
     if (response.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Url $url is not found!');
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseString = await response.transform(utf8.decoder).join();
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final urlFromResponse = responseJSON['url'] as String;
     return urlFromResponse;
   }
@@ -102,19 +104,22 @@ class WyreBuyProvider extends BuyProvider {
       'country': _countryCode
     };
     final uri = Uri.parse(quoteUrl);
-    final response = await post(uri,
-        headers: {
-          'Authorization': 'Bearer $_secretKey',
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache'
-        },
-        body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {
+        'Authorization': 'Bearer $_secretKey',
+        'Content-Type': 'application/json',
+        'cache-control': 'no-cache'
+      },
+      body: json.encode(body),
+    );
 
     if (response.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Quote is not found!');
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseString = await response.transform(utf8.decoder).join();
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final sourceAmount = responseJSON['sourceAmount'] as double;
     final destAmount = responseJSON['destAmount'] as double;
     final achAmount = responseJSON['sourceAmountWithoutFees'] as double;
