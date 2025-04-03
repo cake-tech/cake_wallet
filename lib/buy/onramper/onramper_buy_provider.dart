@@ -9,12 +9,12 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class OnRamperBuyProvider extends BuyProvider {
@@ -67,8 +67,10 @@ class OnRamperBuyProvider extends BuyProvider {
     final url = Uri.https(_baseApiUrl, '$supported$defaultsAll', params);
 
     try {
-      final response =
-      await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
+        headers: {'Authorization': _apiKey, 'accept': 'application/json'},
+      );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;

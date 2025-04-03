@@ -8,14 +8,13 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class MeldBuyProvider extends BuyProvider {
@@ -132,10 +131,15 @@ class MeldBuyProvider extends BuyProvider {
     });
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await ProxyWrapper().post(
+        clearnetUri: url,
+        headers: headers,
+        body: body,
+      );
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final data = jsonDecode(responseString) as Map<String, dynamic>;
         final paymentType = _getPaymentTypeByString(data['paymentMethodType'] as String?);
         final quote = Quote.fromMeldJson(data, isBuyAction, paymentType);
 

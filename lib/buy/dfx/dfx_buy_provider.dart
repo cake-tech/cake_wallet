@@ -10,7 +10,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -18,7 +18,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
@@ -101,21 +100,22 @@ class DFXBuyProvider extends BuyProvider {
     });
 
     final uri = Uri.https(_baseUrl, _authPath);
-    var response = await http.post(
-      uri,
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
       headers: {'Content-Type': 'application/json'},
       body: requestBody,
     );
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 201) {
-      final responseBody = jsonDecode(response.body);
+      final responseBody = jsonDecode(responseString);
       return responseBody['accessToken'] as String;
     } else if (response.statusCode == 403) {
-      final responseBody = jsonDecode(response.body);
+      final responseBody = jsonDecode(responseString);
       final message = responseBody['message'] ?? 'Service unavailable in your country';
       throw Exception(message);
     } else {
-      throw Exception('Failed to sign up. Status: ${response.statusCode} ${response.body}');
+      throw Exception('Failed to sign up. Status: ${response.statusCode} ${responseString}');
     }
   }
 
@@ -274,8 +274,13 @@ class DFXBuyProvider extends BuyProvider {
     });
 
     try {
-      final response = await http.put(url, headers: headers, body: body);
-      final responseData = jsonDecode(response.body);
+      final response = await ProxyWrapper().put(
+        clearnetUri: url,
+        headers: headers,
+        body: body,
+      );
+      final responseString = await response.transform(utf8.decoder).join();
+      final responseData = jsonDecode(responseString);
 
       if (response.statusCode == 200) {
         if (responseData is Map<String, dynamic>) {

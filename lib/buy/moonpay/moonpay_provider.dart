@@ -16,13 +16,12 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MoonPayProvider extends BuyProvider {
@@ -99,15 +98,18 @@ class MoonPayProvider extends BuyProvider {
   Future<String> getMoonpaySignature(String query) async {
     final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
 
-    final response = await post(uri,
-        headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
-        body: json.encode({'query': query}));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
+      body: json.encode({'query': query}),
+    );
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 200) {
-      return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
+      return (jsonDecode(responseString) as Map<String, dynamic>)['signature'] as String;
     } else {
       throw Exception(
-          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+          'Provider currently unavailable. Status: ${response.statusCode} ${responseString}');
     }
   }
 
@@ -121,7 +123,10 @@ class MoonPayProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, path, params);
 
     try {
-      final response = await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
+        headers: {'accept': 'application/json'},
+      );
       final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
         return jsonDecode(responseString) as Map<String, dynamic>;

@@ -1,17 +1,33 @@
 import 'dart:io';
-
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_core/utils/http_client.dart';
-import 'package:socks5_proxy/socks.dart';
+import 'package:socks5_proxy/socks_client.dart';
 import 'package:tor/tor.dart';
+import 'package:http/io_client.dart' as ioc;
+
+
 
 class ProxyWrapper {
-  ProxyWrapper({
-    this.settingsStore,
-  });
+  ProxyWrapper();
 
-  SettingsStore? settingsStore;
+  ioc.IOClient getHttpIOClient() {
+    final httpClient = ProxyWrapper().getHttpClient();
+    return ioc.IOClient(httpClient);
+  }
 
+  @Deprecated('Use ProxyWrapper().get/post/put methods instead, and provide proper clearnet and onion uri.')
+  HttpClient getHttpClient() {
+    final client = HttpClient();
+
+    if (CakeTor.instance.enabled) {
+      SocksTCPClient.assignToHttpClient(client, [
+        ProxySettings(InternetAddress.loopbackIPv4,
+            CakeTor.instance.port,
+            password: null,
+          ),
+      ]);
+    }
+
+    return client;
+  }
 
   int getPort() => CakeTor.instance.port;
 
@@ -50,6 +66,7 @@ class ProxyWrapper {
     required HttpClient client,
     required Uri uri,
     required Map<String, String>? headers,
+    String? body,
   }) async {
     final request = await client.postUrl(uri);
     if (headers != null) {
@@ -57,6 +74,29 @@ class ProxyWrapper {
         request.headers.add(key, value);
       });
     }
+    if (body != null) {
+      request.write(body);
+    }
+    await request.flush();
+    return await request.close();
+  }
+
+  Future<HttpClientResponse> makePut({
+    required HttpClient client,
+    required Uri uri,
+    required Map<String, String>? headers,
+    String? body,
+  }) async {
+    final request = await client.putUrl(uri);
+    if (headers != null) {
+      headers.forEach((key, value) {
+        request.headers.add(key, value);
+      });
+    }
+    if (body != null) {
+      request.write(body);
+    }
+    await request.flush();
     return await request.close();
   }
 
@@ -122,12 +162,14 @@ class ProxyWrapper {
 
     throw Exception("Unable to connect to server");
   }
+  
 
   Future<HttpClientResponse> post({
     Map<String, String>? headers,
     int? portOverride,
     Uri? clearnetUri,
     Uri? onionUri,
+    String? body,
   }) async {
     HttpClient? torClient;
     bool torEnabled = CakeTor.instance.started;
@@ -143,6 +185,7 @@ class ProxyWrapper {
             client: torClient!,
             uri: onionUri,
             headers: headers,
+            body: body,
           );
         } catch (_) {}
       }
@@ -153,6 +196,7 @@ class ProxyWrapper {
             client: torClient!,
             uri: clearnetUri,
             headers: headers,
+            body: body,
           );
         } catch (_) {}
       }
@@ -166,6 +210,7 @@ class ProxyWrapper {
               client: HttpClient(),
               uri: clearnetUri,
               headers: headers,
+              body: body,
             );
           },
           createHttpClient: NullOverrides().createHttpClient,
@@ -178,4 +223,69 @@ class ProxyWrapper {
 
     throw Exception("Unable to connect to server");
   }
+
+  Future<HttpClientResponse> put({
+    Map<String, String>? headers,
+    int? portOverride,
+    Uri? clearnetUri,
+    Uri? onionUri,
+    String? body,
+  }) async {
+    HttpClient? torClient;
+    bool torEnabled = CakeTor.instance.started;
+
+    if (torEnabled) {
+      try {
+        torClient = await getProxyHttpClient(portOverride: portOverride);
+      } catch (_) {}
+
+      if (onionUri != null) {
+        try {
+          return await makePut(
+            client: torClient!,
+            uri: onionUri,
+            headers: headers,
+            body: body,
+          );
+        } catch (_) {}
+      }
+
+      if (clearnetUri != null) {
+        try {
+          return await makePut(
+            client: torClient!,
+            uri: clearnetUri,
+            headers: headers,
+            body: body,
+          );
+        } catch (_) {}
+      }
+    }
+
+    if (clearnetUri != null) {
+      try {
+        return HttpOverrides.runZoned(
+          () async {
+            return await makePut(
+              client: HttpClient(),
+              uri: clearnetUri,
+              headers: headers,
+              body: body,
+            );
+          },
+          createHttpClient: NullOverrides().createHttpClient,
+        );
+      } catch (_) {
+        // we weren't able to get a response:
+        rethrow;
+      }
+    }
+
+    throw Exception("Unable to connect to server");
+  }
+}
+
+
+class CakeTor {
+  static final Tor instance = Tor.instance;
 }

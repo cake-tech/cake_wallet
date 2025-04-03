@@ -1,4 +1,4 @@
-import 'package:cw_core/utils/http_client.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:tor/tor.dart';
@@ -37,11 +37,14 @@ Future<void> showFullscreenDialog(BuildContext context) async {
     context: context,
     barrierDismissible: false,
     builder: (context) {
-      return Container(
-        color: Colors.transparent,
-        child: Center(
-          child: CircularProgressIndicator(
-            color: Colors.white,
+      return PopScope(
+        canPop: false,
+        child: Container(
+          color: Colors.transparent,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
           ),
         ),
       );

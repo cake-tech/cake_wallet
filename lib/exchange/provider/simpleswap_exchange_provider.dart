@@ -11,9 +11,8 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
 
 class SimpleSwapExchangeProvider extends ExchangeProvider {
   SimpleSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -137,11 +136,16 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       if (response.statusCode == 400) {
-        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
         final error = responseJSON['message'] as String;
 
         throw TradeNotCreatedException(description, description: error);
@@ -150,7 +154,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       throw TradeNotCreatedException(description);
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['address_from'] as String;
     final payoutAddress = responseJSON['address_to'] as String;

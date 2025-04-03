@@ -1,18 +1,15 @@
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
-import 'package:cw_core/utils/http_client.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:http/io_client.dart' as ioc;
 import 'dart:math' as math;
 import 'package:convert/convert.dart';
 
 import 'package:crypto/crypto.dart';
-import 'package:tor/tor.dart' as tor;
 
 part 'node.g.dart';
 
@@ -186,24 +183,22 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': "getinfo"};
 
     try {
-      final authenticatingClient = HttpClient();
+      final authenticatingClient = ProxyWrapper().getHttpClient();
 
       authenticatingClient.badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
 
-      final http.Client client = ioc.IOClient(authenticatingClient);
-
       final jsonBody = json.encode(body);
 
-      final response = await client.post(
-        rpcUri,
+      final response = await ProxyWrapper().post(
+        clearnetUri: rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
       );
 
-      printV("node check response: ${response.body}");
+      final responseString = await response.transform(utf8.decoder).join();
+      final resBody = json.decode(responseString) as Map<String, dynamic>;
 
-      final resBody = json.decode(response.body) as Map<String, dynamic>;
       return resBody['result']['height'] != null;
     } catch (e) {
       printV("error: $e");
@@ -221,16 +216,14 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
-      final authenticatingClient = HttpClient();
+      final authenticatingClient = ProxyWrapper().getHttpClient();
       authenticatingClient.badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
 
-      final http.Client client = ioc.IOClient(authenticatingClient);
-
       final jsonBody = json.encode(body);
 
-      final response = await client.post(
-        rpcUri,
+      final response = await ProxyWrapper().post(
+        clearnetUri: rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
       );
@@ -245,15 +238,15 @@ class Node extends HiveObject with Keyable {
         return !(response['offline'] as bool);
       }
 
-      printV("node check response: ${response.body}");
+      final responseString = await response.transform(utf8.decoder).join();
 
-      if ((response.body.contains("400 Bad Request") // Some other generic error
+      if ((responseString.contains("400 Bad Request") // Some other generic error
               ||
-              response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
               ||
               response.headers["location"] != null // Generic reverse proxy
               ||
-              response.body
+              responseString
                   .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
           ) &&
           !(useSSL ?? false)) {
@@ -271,7 +264,7 @@ class Node extends HiveObject with Keyable {
         }
       }
 
-      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      final resBody = json.decode(responseString) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
     } catch (e) {
       printV("error: $e");
@@ -326,8 +319,8 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestNanoNode() async {
     try {
-      final response = await http.post(
-        uri,
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
         headers: {"Content-Type": "application/json", "nano-app": "cake-wallet"},
         body: jsonEncode(
           {
@@ -336,7 +329,8 @@ class Node extends HiveObject with Keyable {
           },
         ),
       );
-      final data = await jsonDecode(response.body);
+      final responseString = await response.transform(utf8.decoder).join();
+      final data = jsonDecode(responseString);
       if (response.statusCode != 200 ||
           data["error"] != null ||
           data["balance"] == null ||
@@ -352,7 +346,7 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestEthereumServer() async {
     try {
-      final req = await getHttpClient()
+      final req = await ProxyWrapper().getHttpClient()
         .getUrl(uri,)
         .timeout(Duration(seconds: 15));
       final response = await req.close();
@@ -467,12 +461,11 @@ class DaemonRpc {
 
   /// Perform a JSON-RPC call with Digest Authentication.
   Future<Map<String, dynamic>> call(String method, Map<String, dynamic> params) async {
-    final http.Client client = http.Client();
     final DigestAuth digestAuth = DigestAuth(username, password);
 
     // Initial request to get the `WWW-Authenticate` header.
-    final initialResponse = await client.post(
-      Uri.parse(rpcUrl),
+    final initialResponse = await ProxyWrapper().post(
+      clearnetUri: Uri.parse(rpcUrl),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -484,25 +477,26 @@ class DaemonRpc {
       }),
     );
 
-    if (initialResponse.statusCode != 401 ||
-        !initialResponse.headers.containsKey('www-authenticate')) {
-      throw Exception('Unexpected response: ${initialResponse.body}');
+    final authHeader = initialResponse.headers.value('www-authenticate');
+    final responseString = await initialResponse.transform(utf8.decoder).join();
+
+    if (initialResponse.statusCode != 401 || authHeader == null) {
+      throw Exception('Unexpected response: $responseString');
     }
 
     // Extract Digest details from `WWW-Authenticate` header.
-    final String authInfo = initialResponse.headers['www-authenticate']!;
-    digestAuth.initFromAuthorizationHeader(authInfo);
+    digestAuth.initFromAuthorizationHeader(authHeader);
 
     // Create Authorization header for the second request.
     String uri = Uri.parse(rpcUrl).path;
-    String authHeader = digestAuth.getAuthString('POST', uri);
+    String newAuthHeader = digestAuth.getAuthString('POST', uri);
 
     // Make the authenticated request.
-    final authenticatedResponse = await client.post(
-      Uri.parse(rpcUrl),
+    final authenticatedResponse = await ProxyWrapper().post(
+      clearnetUri: Uri.parse(rpcUrl),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader,
+        'Authorization': newAuthHeader,
       },
       body: jsonEncode({
         'jsonrpc': '2.0',
@@ -513,11 +507,12 @@ class DaemonRpc {
     );
 
     if (authenticatedResponse.statusCode != 200) {
-      throw Exception('RPC call failed: ${authenticatedResponse.body}');
+      final responseString = await authenticatedResponse.transform(utf8.decoder).join();
+      throw Exception('RPC call failed: $responseString');
     }
 
-    final Map<String, dynamic> result =
-        jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
+    final responseString2 = await authenticatedResponse.transform(utf8.decoder).join();
+    final result = jsonDecode(responseString2) as Map<String, dynamic>;
     if (result['error'] != null) {
       throw Exception('RPC Error: ${result['error']}');
     }

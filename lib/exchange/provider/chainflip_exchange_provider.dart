@@ -12,7 +12,7 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class ChainflipExchangeProvider extends ExchangeProvider {
   ChainflipExchangeProvider({required this.tradesStore})
@@ -275,27 +275,29 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Map<String, dynamic>> _getRequest(String path, Map<String, String> params) async {
     final uri = Uri.https(_baseURL, path, params);
 
-    final response = await http.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final responseString = await response.transform(utf8.decoder).join();
 
-    if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+    if ((response.statusCode != 200) || (responseString.contains('error'))) {
+      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${responseString}');
     }
 
-    return json.decode(response.body) as Map<String, dynamic>;
+    return json.decode(responseString) as Map<String, dynamic>;
   }
 
   Future<Map<String, dynamic>?> _getStatus(Map<String, String> params) async {
     final uri = Uri.https(_baseURL, _txInfoPath, params);
 
-    final response = await http.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 404) return null;
 
-    if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+    if ((response.statusCode != 200) || (responseString.contains('error'))) {
+      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${responseString}');
     }
 
-    return json.decode(response.body) as Map<String, dynamic>;
+    return json.decode(responseString) as Map<String, dynamic>;
   }
 
   TradeState _determineState(String state) {

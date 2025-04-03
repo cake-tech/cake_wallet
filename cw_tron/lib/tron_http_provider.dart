@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:cw_core/utils/http_client.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart' as ioc;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:on_chain/tron/tron.dart';
 import '.secrets.g.dart' as secrets;
 
@@ -13,8 +12,7 @@ class TronHTTPProvider implements TronServiceProvider {
 
   @override
   final String url;
-  final httpClient = getHttpClient();
-  late final http.Client client = ioc.IOClient(httpClient);
+  late final client = ProxyWrapper().getHttpIOClient();
   final Duration defaultRequestTimeout;
 
   @override

@@ -11,7 +11,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -19,7 +19,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class RobinhoodBuyProvider extends BuyProvider {
@@ -123,13 +122,15 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     final uri = Uri.https(_cIdBaseUrl, "/api/robinhood");
 
-    var response = await http.post(uri,
-        headers: {'Content-Type': 'application/json'},
-        body: json
-            .encode({'valid_until': valid_until, 'wallet': walletAddress, 'signature': signature}));
+    var response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'valid_until': valid_until, 'wallet': walletAddress, 'signature': signature}),
+    );
 
     if (response.statusCode == 200) {
-      return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
+      final responseString = await response.transform(utf8.decoder).join();
+      return (jsonDecode(responseString) as Map<String, dynamic>)['connectId'] as String;
     } else {
       throw Exception('Provider currently unavailable. Status: ${response.statusCode}');
     }

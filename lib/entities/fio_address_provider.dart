@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class FioAddressProvider {
   static const apiAuthority = 'fio.blockpane.com';
@@ -13,14 +13,18 @@ class FioAddressProvider {
     final body = <String, String>{"fio_name": fioAddress};
 
     final uri = Uri.https(apiAuthority, availCheck);
-    final response =
-        await http.post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
 
     if (response.statusCode != 200) {
       return isFioRegistered;
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseString = await response.transform(utf8.decoder).join();
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     isFioRegistered = responseJSON['is_registered'] as int == 1;
 
     return isFioRegistered;
@@ -35,11 +39,15 @@ class FioAddressProvider {
     };
 
     final uri = Uri.https(apiAuthority, getAddress);
-    final response =
-        await http.post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
 
+    final responseString = await response.transform(utf8.decoder).join();
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
       throw Exception('${error}\n$message');
@@ -49,7 +57,7 @@ class FioAddressProvider {
       throw Exception('Unexpected response http status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final String pubAddress = responseJSON['public_address'] as String;
 
     return pubAddress;

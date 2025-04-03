@@ -10,9 +10,8 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart' as http;
 
 class StealthExExchangeProvider extends ExchangeProvider {
   StealthExExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -64,12 +63,16 @@ class StealthExExchangeProvider extends ExchangeProvider {
     };
 
     try {
-      final response = await http.post(Uri.parse(_baseUrl + _rangePath),
-          headers: headers, body: json.encode(body));
+      final response = await ProxyWrapper().post(
+        clearnetUri: Uri.parse(_baseUrl + _rangePath),
+        headers: headers,
+        body: json.encode(body),
+      );
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode != 200) {
-        throw Exception('StealthEx fetch limits failed: ${response.body}');
+        throw Exception('StealthEx fetch limits failed: ${responseString}');
       }
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final min = toDouble(responseJSON['min_amount']);
       final max = responseJSON['max_amount'] as double?;
       return Limits(min: min, max: max);
@@ -135,13 +138,17 @@ class StealthExExchangeProvider extends ExchangeProvider {
         'additional_fee_percent': _additionalFeePercent,
       };
 
-      final response = await http.post(Uri.parse(_baseUrl + _exchangesPath),
-          headers: headers, body: json.encode(body));
+      final response = await ProxyWrapper().post(
+        clearnetUri: Uri.parse(_baseUrl + _exchangesPath),
+        headers: headers,
+        body: json.encode(body),
+      );
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode != 201) {
-        throw Exception('StealthEx create trade failed: ${response.body}');
+        throw Exception('StealthEx create trade failed: ${responseString}');
       }
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final deposit = responseJSON['deposit'] as Map<String, dynamic>;
       final withdrawal = responseJSON['withdrawal'] as Map<String, dynamic>;
 
@@ -262,10 +269,14 @@ class StealthExExchangeProvider extends ExchangeProvider {
     };
 
     try {
-      final response = await http.post(Uri.parse(_baseUrl + _amountPath),
-          headers: headers, body: json.encode(body));
+      final response = await ProxyWrapper().post(
+        clearnetUri: Uri.parse(_baseUrl + _amountPath),
+        headers: headers,
+        body: json.encode(body),
+      );
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode != 200) return {};
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final rate = responseJSON['rate'] as Map<String, dynamic>?;
       return {
         'estimated_amount': responseJSON['estimated_amount'] as double?,

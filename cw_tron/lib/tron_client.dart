@@ -5,7 +5,7 @@ import 'dart:developer';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/utils/http_client.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
@@ -14,14 +14,11 @@ import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_transaction_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
 import '.secrets.g.dart' as secrets;
 import 'package:on_chain/on_chain.dart';
-import 'package:http/io_client.dart' as ioc;
 
 class TronClient {
-  final httpClient = getHttpClient();
-  late final Client client = ioc.IOClient(httpClient);
+  late final client = ProxyWrapper().getHttpIOClient();
 
   TronProvider? _provider;
   // This is an internal tracker, so we don't have to "refetch".
