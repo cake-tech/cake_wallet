@@ -84,6 +84,7 @@ class CWTron extends Tron {
       decimal: token.decimals,
       enabled: token.enabled,
       iconPath: token.iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
     await (wallet as TronWallet).addTronToken(tronToken);
   }
