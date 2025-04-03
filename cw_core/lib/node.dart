@@ -226,6 +226,7 @@ class Node extends HiveObject with Keyable {
         clearnetUri: rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
+        allowMitmMoneroBypassSSLCheck: true,
       );
       // Check if we received a 401 Unauthorized response
       if (response.statusCode == 401) {

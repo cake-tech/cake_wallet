@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:socks5_proxy/socks_client.dart';
 import 'package:tor/tor.dart';
@@ -75,7 +76,7 @@ class ProxyWrapper {
       });
     }
     if (body != null) {
-      request.write(body);
+      request.add(utf8.encode(body));
     }
     await request.flush();
     return await request.close();
@@ -94,7 +95,7 @@ class ProxyWrapper {
       });
     }
     if (body != null) {
-      request.write(body);
+      request.add(utf8.encode(body));
     }
     await request.flush();
     return await request.close();
@@ -170,15 +171,26 @@ class ProxyWrapper {
     Uri? clearnetUri,
     Uri? onionUri,
     String? body,
+    bool allowMitmMoneroBypassSSLCheck = false,
   }) async {
     HttpClient? torClient;
+    HttpClient clearnetClient = HttpClient();
+
+    if (allowMitmMoneroBypassSSLCheck) {
+      clearnetClient.badCertificateCallback =
+          ((X509Certificate cert, String host, int port) => true);
+    }
+
     bool torEnabled = CakeTor.instance.started;
 
     if (torEnabled) {
       try {
         torClient = await getProxyHttpClient(portOverride: portOverride);
       } catch (_) {}
-
+      if (allowMitmMoneroBypassSSLCheck) {
+        torClient!.badCertificateCallback =
+            ((X509Certificate cert, String host, int port) => true);
+      }
       if (onionUri != null) {
         try {
           return await makePost(
@@ -207,7 +219,7 @@ class ProxyWrapper {
         return HttpOverrides.runZoned(
           () async {
             return await makePost(
-              client: HttpClient(),
+              client: clearnetClient,
               uri: clearnetUri,
               headers: headers,
               body: body,
