@@ -232,7 +232,7 @@ class OnRamperBuyProvider extends BuyProvider {
       '${prefix}defaultAmount': amount.toString(),
       if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
       'onlyOnramps': quote.rampId,
-      'networkWallets': '${quote.cryptoCurrency.fullName?.toUpperCase()}:$cryptoCurrencyAddress',
+      'networkWallets': '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress',
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,

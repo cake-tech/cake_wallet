@@ -541,6 +541,7 @@
   "please_try_to_connect_to_another_node": "Por favor, tente conectar-se a outro nó",
   "please_wait": "Por favor, aguarde",
   "polygonscan_history": "História do PolygonScan",
+  "potential_scam": "Golpe potencial",
   "powered_by": "Troca realizada por ${title}",
   "pre_seed_button_text": "Compreendo. Me mostre minha semente",
   "pre_seed_description": "Na próxima página, você verá uma série de ${words} palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.",

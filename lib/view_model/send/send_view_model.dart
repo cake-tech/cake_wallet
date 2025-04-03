@@ -217,9 +217,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get balance {
-    if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+    } else if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
@@ -393,9 +393,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
-      state = IsExecutingState();
-
-      if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
+      if (wallet.isHardwareWallet)
+        state = IsAwaitingDeviceResponseState();
+      else
+        state = IsExecutingState();
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 

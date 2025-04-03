@@ -361,4 +361,9 @@ class CWWownero extends Wownero {
   void wownerocCheck() {
     checkIfMoneroCIsFine();
   }
+
+  @override
+  Map<String, List<int>> debugCallLength() {
+    return wownero_wallet_api.debugCallLength();
+  }
 }

@@ -225,7 +225,7 @@ jobs:
 
       - name: Build linux
         run: |
-          flutter build linux --release
+          flutter build linux --dart-define=hasDevOptions=true --release
 
       - name: Compress release
         run: |

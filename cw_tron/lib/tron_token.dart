@@ -25,9 +25,12 @@ class TronToken extends CryptoCurrency with HiveObjectMixin {
 
   @HiveField(5)
   final String? iconPath;
-  
+
   @HiveField(6)
   final String? tag;
+
+  @HiveField(7, defaultValue: false)
+  final bool isPotentialScam;
 
   bool get enabled => _enabled;
 
@@ -41,14 +44,17 @@ class TronToken extends CryptoCurrency with HiveObjectMixin {
     bool enabled = true,
     this.iconPath,
     this.tag = 'TRX',
+    this.isPotentialScam = false,
   })  : _enabled = enabled,
         super(
-            name: symbol.toLowerCase(),
-            title: symbol.toUpperCase(),
-            fullName: name,
-            tag: tag,
-            iconPath: iconPath,
-            decimals: decimal);
+          name: symbol.toLowerCase(),
+          title: symbol.toUpperCase(),
+          fullName: name,
+          tag: tag,
+          iconPath: iconPath,
+          decimals: decimal,
+          isPotentialScam: isPotentialScam,
+        );
 
   TronToken.copyWith(TronToken other, String? icon, String? tag)
       : name = other.name,
@@ -58,6 +64,7 @@ class TronToken extends CryptoCurrency with HiveObjectMixin {
         _enabled = other.enabled,
         tag = tag ?? other.tag,
         iconPath = icon ?? other.iconPath,
+        isPotentialScam = other.isPotentialScam,
         super(
           name: other.name,
           title: other.symbol.toUpperCase(),
@@ -65,6 +72,7 @@ class TronToken extends CryptoCurrency with HiveObjectMixin {
           tag: tag ?? other.tag,
           iconPath: icon ?? other.iconPath,
           decimals: other.decimal,
+          isPotentialScam: other.isPotentialScam,
         );
 
   static const typeId = TRON_TOKEN_TYPE_ID;
