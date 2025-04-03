@@ -7,6 +7,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/sync_status.dart';
@@ -91,6 +92,11 @@ class BackgroundSync {
   }
 
   Future<void> sync() async {
+    final settingsStore = getIt.get<SettingsStore>();
+    if (settingsStore.currentBuiltinTor) {
+      printV("Starting Tor");
+      await ensureTorStarted(context: null);
+    }
     printV("Background sync started");
     await _syncWallets();
     printV("Background sync completed");
@@ -100,7 +106,6 @@ class BackgroundSync {
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
     final settingsStore = getIt.get<SettingsStore>();
-
 
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => !element.isHardware)
