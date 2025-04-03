@@ -13,7 +13,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';

@@ -10,8 +10,7 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
-
+import 'package:cw_core/utils/proxy_wrapper.dart';
 class XOSwapExchangeProvider extends ExchangeProvider {
   XOSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
@@ -72,11 +71,12 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(_apiAuthority, _apiPath + _assets,
           {'networks': normalizedNetwork, 'query': currency.title});
 
-      final response = await http.get(uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
       }
-      final assets = json.decode(response.body) as List<dynamic>;
+      final assets = json.decode(responseString) as List<dynamic>;
 
       final asset = assets.firstWhere(
         (asset) {
@@ -102,9 +102,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (curFrom == null || curTo == null) return [];
       final pairId = curFrom + '_' + curTo;
       final uri = Uri.https(_apiAuthority, '$_apiPath$_pairsPath/$pairId$_ratePath');
-      final response = await http.get(uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode != 200) return [];
-      return json.decode(response.body) as List<dynamic>;
+      return json.decode(responseString) as List<dynamic>;
     } catch (e) {
       printV(e.toString());
       return [];
@@ -205,14 +206,19 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         'pairId': pairId,
       };
 
-      final response = await http.post(uri, headers: _headers, body: json.encode(payload));
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
+        headers: _headers,
+        body: json.encode(payload),
+      );
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode != 201) {
-        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
         final error = responseJSON['error'] ?? 'Unknown error';
         final message = responseJSON['message'] ?? '';
         throw Exception('$error\n$message');
       }
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
@@ -254,9 +260,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     try {
       final uri = Uri.https(_apiAuthority, '$_apiPath$_orders/$id');
-      final response = await http.get(uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode != 200) {
-        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
         if (responseJSON.containsKey('code') && responseJSON['code'] == 'NOT_FOUND') {
           throw Exception('Trade not found');
         }
@@ -264,7 +271,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         final message = responseJSON['message'] ?? responseJSON['details'] ?? '';
         throw Exception('$error\n$message');
       }
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
 
       final pairId = responseJSON['pairId'] as String;
       final pairParts = pairId.split('_');

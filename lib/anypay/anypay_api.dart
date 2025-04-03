@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_trasnaction.dart';
@@ -53,14 +53,18 @@ class AnyPayApi {
 		final body = <String, dynamic>{
 			'chain': chainByScheme(scheme),
 			'currency': currencyByScheme(scheme).title};
-		final response = await post(url, headers: headers, body: utf8.encode(json.encode(body)));
-
+		final response = await ProxyWrapper().post(
+      clearnetUri: url,
+      headers: headers,
+      body: json.encode(body),
+    );
+    final responseString = await response.transform(utf8.decoder).join();
     if (response.statusCode != 200) {
 			await ExceptionHandler.onError(FlutterErrorDetails(exception: response));
       throw Exception('Unexpected response http code: ${response.statusCode}');
 		}
 
-    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+    final decodedBody = json.decode(responseString) as Map<String, dynamic>;
     return AnyPayPayment.fromMap(decodedBody);
 	}
 
@@ -79,9 +83,14 @@ class AnyPayApi {
 			'chain': chain,
 			'currency': currency,
 			'transactions': transactions.map((tx) => {'tx': tx.tx, 'tx_hash': tx.id, 'tx_key': tx.key}).toList()};
-		final response = await post(Uri.parse(uri), headers: headers, body: utf8.encode(json.encode(body)));
+		final response = await ProxyWrapper().post(
+      clearnetUri: Uri.parse(uri),
+      headers: headers,
+      body: json.encode(body),
+    );
+    final responseString = await response.transform(utf8.decoder).join();
 		if (response.statusCode == 400) {
-			final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+			final decodedBody = json.decode(responseString) as Map<String, dynamic>;
 			throw Exception(decodedBody['message'] as String? ?? 'Unexpected response\nError code: 400');
 		}
 
@@ -89,7 +98,7 @@ class AnyPayApi {
 			throw Exception('Unexpected response');
 		}
 
-		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final decodedBody = json.decode(responseString) as Map<String, dynamic>;
 		return AnyPayPaymentCommittedInfo(
 			uri: uri,
 			currency: currency,

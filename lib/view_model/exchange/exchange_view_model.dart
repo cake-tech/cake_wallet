@@ -7,9 +7,9 @@ import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -17,7 +17,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -940,8 +939,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<bool> _isContractAddress(String chainName, String contractAddress) async {
-    final httpClient = http.Client();
-
     final uri = Uri.https(
       'deep-index.moralis.io',
       '/api/v2.2/erc20/metadata',
