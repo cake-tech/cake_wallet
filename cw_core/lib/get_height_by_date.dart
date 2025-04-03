@@ -1,8 +1,7 @@
-import 'package:cw_core/utils/http_client.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 // FIXME: Hardcoded values; Works only for monero
 
@@ -235,7 +234,7 @@ int getHavenHeightByDate({required DateTime date}) {
 }
 
 Future<int> getHavenCurrentHeight() async {
-  final req = await getHttpClient()
+  final req = await ProxyWrapper().getHttpClient()
     .getUrl(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'))
     .timeout(Duration(seconds: 15));
   final response = await req.close();
@@ -274,7 +273,7 @@ const bitcoinDates = {
 };
 
 Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
-  final req = await getHttpClient()
+  final req = await ProxyWrapper().getHttpClient()
     .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}"))
     .timeout(Duration(seconds: 15));
   final response = await req.close();

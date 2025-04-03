@@ -12,7 +12,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -20,7 +20,6 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
-import 'package:http/http.dart' as http;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'home_settings_view_model.g.dart';

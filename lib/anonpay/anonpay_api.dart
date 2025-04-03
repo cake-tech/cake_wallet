@@ -6,9 +6,8 @@ import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
-import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -31,7 +30,10 @@ class AnonPayApi {
 
   Future<AnonpayStatusResponse> paymentStatus(String id) async {
     final authority = await _getAuthority();
-    final response = await ProxyWrapper().get(clearnetUri: Uri.https(authority, "$anonPayStatus/$id"));
+    final response = await ProxyWrapper().get(
+      clearnetUri: Uri.https(authority, "$anonPayStatus/$id"),
+      onionUri: Uri.https(onionApiAuthority, "$anonPayStatus/$id"),
+    );
     final responseString = await response.transform(utf8.decoder).join();
     final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final status = responseJSON['Status'] as String;
@@ -205,7 +207,7 @@ class AnonPayApi {
         return onionApiAuthority;
       }
       final uri = Uri.https(onionApiAuthority, '/anonpay');
-      await ProxyWrapper().get(clearnetUri: uri);
+      await ProxyWrapper().get(clearnetUri: uri, onionUri: uri);
       return onionApiAuthority;
     } catch (e) {
       return clearNetAuthority;
