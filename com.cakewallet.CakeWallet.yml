@@ -26,7 +26,7 @@ modules:
       - "cp com.cakewallet.CakeWallet.desktop /app/share/applications"
     sources:
       - type: dir
-        path: build/linux/current/release
+        path: build/linux/x64/release
       - type: file
         path: assets/images/cakewallet_icon_180.png
       - type: file
