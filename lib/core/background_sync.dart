@@ -1,20 +1,24 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 
 class BackgroundSync {
   Future<void> sync() async {
+    final settingsStore = getIt.get<SettingsStore>();
+    if (settingsStore.currentBuiltinTor) {
+      printV("Starting Tor");
+      await ensureTorStarted(context: null);
+    }
     printV("Background sync started");
     await _syncMonero();
     printV("Background sync completed");
@@ -24,7 +28,6 @@ class BackgroundSync {
     final walletLoadingService = getIt.get<WalletLoadingService>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
     final settingsStore = getIt.get<SettingsStore>();
-
 
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => !element.isHardware)

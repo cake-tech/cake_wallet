@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class WellKnownRecord {
   WellKnownRecord({
@@ -40,15 +40,16 @@ class WellKnownRecord {
       }
 
       // lookup domain/.well-known/nano-currency.json and check if it has a nano address:
-      final http.Response response = await http.get(
-        Uri.parse("https://$domain/.well-known/$jsonLocation.json?names=$name"),
+      final response = await ProxyWrapper().get(
+        clearnetUri: Uri.parse("https://$domain/.well-known/$jsonLocation.json?names=$name"),
         headers: <String, String>{"Accept": "application/json"},
       );
 
       if (response.statusCode != 200) {
         return null;
       }
-      final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
+      final responseString = await response.transform(utf8.decoder).join();
+      final Map<String, dynamic> decoded = json.decode(responseString) as Map<String, dynamic>;
 
       // Access the first element in the names array and retrieve its address
       final List<dynamic> names = decoded["names"] as List<dynamic>;

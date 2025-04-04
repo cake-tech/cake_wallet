@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
@@ -13,12 +14,12 @@ import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_transaction_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
 import '.secrets.g.dart' as secrets;
 import 'package:on_chain/on_chain.dart';
 
 class TronClient {
-  final httpClient = Client();
+  late final client = ProxyWrapper().getHttpIOClient();
+
   TronProvider? _provider;
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
@@ -28,7 +29,7 @@ class TronClient {
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response = await httpClient.get(
+      final response = await client.get(
         Uri.https(
           "api.trongrid.io",
           "/v1/accounts/$address/transactions",
@@ -61,7 +62,7 @@ class TronClient {
 
   Future<List<TronTRC20TransactionModel>> fetchTrc20ExcludedTransactions(String address) async {
     try {
-      final response = await httpClient.get(
+      final response = await client.get(
         Uri.https(
           "api.trongrid.io",
           "/v1/accounts/$address/transactions/trc20",

@@ -207,6 +207,7 @@ class $BackupService {
     final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
     final lookupsWellKnown = data[PreferencesKey.lookupsWellKnown] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
+    final builtinTor = data[PreferencesKey.builtinTorKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus =
         data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
@@ -295,6 +296,7 @@ class $BackupService {
       await sharedPreferences.setString(PreferencesKey.defaultBananoRep, defaultBananoRep);
 
     if (syncAll != null) await sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+    if (builtinTor != null) await sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
     if (lookupsTwitter != null)
       await sharedPreferences.setBool(PreferencesKey.lookupsTwitter, lookupsTwitter);
 
@@ -317,6 +319,8 @@ class $BackupService {
       await sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, lookupsWellKnown);
 
     if (syncAll != null) await sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+
+    if (builtinTor != null) await sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
 
     if (syncMode != null) await sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
 
@@ -452,6 +456,7 @@ class $BackupService {
           sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
       PreferencesKey.syncModeKey: sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: sharedPreferences.getBool(PreferencesKey.syncAllKey),
+      PreferencesKey.builtinTorKey: sharedPreferences.getBool(PreferencesKey.builtinTorKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:
           sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
     };
