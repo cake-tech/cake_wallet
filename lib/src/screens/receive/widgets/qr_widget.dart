@@ -5,6 +5,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -160,16 +161,15 @@ class QRWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Expanded(
-                          child: Text(
-                            addressUri.address,
+                          child: AddressFormatter.buildSegmentedAddress(
+                            address: addressUri.address,
+                            walletType: addressListViewModel.type,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            evenTextStyle: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                                 color:
-                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-                          ),
-                        ),
+                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor))),
                         Padding(
                           padding: EdgeInsets.only(left: 12),
                           child: copyImage,

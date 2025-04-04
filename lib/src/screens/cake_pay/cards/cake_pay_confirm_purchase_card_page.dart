@@ -381,6 +381,7 @@ class CakePayBuyCardDetailPage extends BasePage {
         return ConfirmSendingBottomSheet(
           key: ValueKey('send_page_confirm_sending_dialog_key'),
           currentTheme: currentTheme,
+          walletType: cakePayPurchaseViewModel.sendViewModel.walletType,
           paymentId: S.of(popupContext).payment_id,
           paymentIdValue: order?.orderId,
           expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
