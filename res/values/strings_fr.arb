@@ -333,6 +333,7 @@
   "fiat_api": "Fiat API",
   "fiat_balance": "Solde fiat",
   "field_required": "Ce champ est obligatoire",
+  "file_saved": "Dossier enregistré",
   "fill_code": "Veuillez remplir le code de vérification fourni sur votre e-mail",
   "filter_by": "Filtrer par",
   "first_wallet_text": "Super portefeuille (wallet) pour Monero, Bitcoin, Ethereum, Litecoin et Haven",

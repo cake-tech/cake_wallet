@@ -333,6 +333,7 @@
   "fiat_api": "API fiat",
   "fiat_balance": "Saldo Fiat",
   "field_required": "Bagian ini diperlukan",
+  "file_saved": "File disimpan",
   "fill_code": "Silakan isi kode verifikasi yang diterima di email Anda",
   "filter_by": "Filter berdasarkan",
   "first_wallet_text": "Dompet luar biasa untuk Monero, Bitcoin, Ethereum, Litecoin, dan Haven",

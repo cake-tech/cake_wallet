@@ -333,6 +333,7 @@
   "fiat_api": "İtibari Para API",
   "fiat_balance": "Fiat Bakiyesi",
   "field_required": "Bu alan gereklidir",
+  "file_saved": "Dosya kaydedildi",
   "fill_code": "Lütfen e-postanıza gelen doğrulama kodunu girin",
   "filter_by": "Şuna göre filtrele",
   "first_wallet_text": "Monero, Bitcoin, Ethereum, Litecoin ve Haven için harika cüzdan",
