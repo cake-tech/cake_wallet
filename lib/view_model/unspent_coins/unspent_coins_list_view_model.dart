@@ -156,8 +156,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
     await _updateUnspents();
     Set<String> seen = {};
     for (final item in _getSpecificUnspents(overrideCoinTypeToSpendFrom)) {
-      if (seen.contains(item.hash)) continue;
-      seen.add(item.hash);
+      if (seen.contains(item.toString())) continue;
+      seen.add(item.toString());
       if (item.isFrozen || !item.isSending) continue;
       total += item.value;
     }
@@ -166,8 +166,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @action
   void _updateUnspentCoinsInfo() {
-    items.clear();
-
     final unspents = _getUnspents()
         .map((elem) {
           try {
@@ -201,7 +199,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
         .toList();
 
     unspents.sort((a, b) => b.value.compareTo(a.value));
-
+    items.clear();
     items.addAll(unspents);
   }
 
