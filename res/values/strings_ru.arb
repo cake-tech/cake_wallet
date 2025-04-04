@@ -333,6 +333,7 @@
   "fiat_api": "Фиат API",
   "fiat_balance": "Фиатный баланс",
   "field_required": "Это поле обязательно к заполнению",
+  "file_saved": "Файл сохранен",
   "fill_code": "Пожалуйста, введите код подтверждения, отправленный на вашу электронную почту",
   "filter_by": "Фильтровать по",
   "first_wallet_text": "В самом удобном кошельке для Monero, Bitcoin, Ethereum, Litecoin, и Haven",

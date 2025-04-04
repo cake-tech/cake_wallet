@@ -333,6 +333,7 @@
   "fiat_api": "不換紙幣 API",
   "fiat_balance": "フィアットバランス",
   "field_required": "この項目は必須です",
+  "file_saved": "保存されたファイル",
   "fill_code": "メールアドレスに記載されている確認コードを入力してください",
   "filter_by": "でフィルタリング",
   "first_wallet_text": "Monero、Bitcoin、Ethereum、Litecoin、Haven用の素晴らしいウォレット",
