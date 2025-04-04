@@ -1,17 +1,12 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/walletkit_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/foundation.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 class EthUtils {
-  static final addressRegEx = RegExp(
-    r'^0x[a-fA-F0-9]{40}$',
-    caseSensitive: false,
-  );
-
   static String getUtf8Message(String maybeHex) {
     if (maybeHex.startsWith('0x')) {
       final List<int> decoded = hex.decode(
@@ -56,7 +51,7 @@ class EthUtils {
         return p != address;
       });
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('getDataFromSessionRequest $e');
       return null;
     }
   }
@@ -68,17 +63,19 @@ class EthUtils {
       final param = (request.params as List<dynamic>).first;
       return param as Map<String, dynamic>;
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrint('getTransactionFromSessionRequest $e');
       return null;
     }
   }
 
   static Future<dynamic> decodeMessageEvent(MessageEvent event) async {
     final walletKit = getIt<WalletKitService>().walletKit;
+
     final payloadString = await walletKit.core.crypto.decode(
       event.topic,
       event.message,
     );
+
     if (payloadString == null) return null;
 
     final data = jsonDecode(payloadString) as Map<String, dynamic>;

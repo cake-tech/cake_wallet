@@ -2,7 +2,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/key_service/chain_key_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -14,9 +14,6 @@ abstract class WalletConnectKeyService {
   /// If the chain is not found, returns an empty list.
   ///  - [chain]: The chain to get the keys for.
   List<ChainKeyModel> getKeysForChain(WalletBase wallet);
-
-  /// Returns a list of all the accounts in namespace:chainId:address format.
-  List<String> getAllAccounts();
 }
 
 class KeyServiceImpl implements WalletConnectKeyService {
@@ -79,11 +76,5 @@ class KeyServiceImpl implements WalletConnectKeyService {
     final keys = getKeys(wallet);
 
     return keys.where((e) => e.chains.contains(chain)).toList();
-  }
-
-  @override
-  List<String> getAllAccounts() {
-    // TODO: implement getAllAccounts
-    throw UnimplementedError();
   }
 }

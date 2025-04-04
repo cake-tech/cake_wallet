@@ -1,7 +1,8 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/bottom_sheet/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_verify_context_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -11,8 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 class WCRequestWidget extends StatelessWidget {
-  const WCRequestWidget({
-    super.key,
+  WCRequestWidget({
     required this.child,
     this.verifyContext,
     this.onAccept,
@@ -31,14 +31,13 @@ class WCRequestWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        VerifyContextWidget(
+        WCVerifyContextWidget(
+          currentTheme: currentTheme,
           verifyContext: verifyContext,
         ),
         const SizedBox(height: 8),
         Flexible(
-          child: SingleChildScrollView(
-            child: child,
-          ),
+          child: SingleChildScrollView(child: child),
         ),
         const SizedBox(height: 16),
         Row(

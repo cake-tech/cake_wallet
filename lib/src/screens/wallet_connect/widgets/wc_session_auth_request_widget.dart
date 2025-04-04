@@ -1,14 +1,11 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/bottom_sheet/wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class WCSessionAuthRequestWidget extends StatelessWidget {
-  const WCSessionAuthRequestWidget({
-    super.key,
-    required this.child,
-  });
+  const WCSessionAuthRequestWidget({super.key, required this.child});
 
   final Widget child;
 
@@ -18,9 +15,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Expanded(
-          child: SingleChildScrollView(
-            child: child,
-          ),
+          child: SingleChildScrollView(child: child),
         ),
         const SizedBox(height: 16),
         Row(
@@ -43,7 +38,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
                   Navigator.of(context).pop(WCBottomSheetResult.one);
                 }
               },
-              text: 'Sign One',
+              text: S.current.sign_one,
               color: Theme.of(context).primaryColor,
               textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
             ),
@@ -54,7 +49,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
                   Navigator.of(context).pop(WCBottomSheetResult.one);
                 }
               },
-              text: 'Sign All',
+              text: S.current.sign_all,
               color: Theme.of(context).secondaryHeaderColor,
               textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
             ),

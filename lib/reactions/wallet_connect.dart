@@ -1,7 +1,7 @@
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/eth/evm_chain_id.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/eth/evm_supported_methods.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/solana/solana_chain_id.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/solana/solana_supported_methods.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_supported_methods.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
 import 'package:cw_core/wallet_type.dart';
 
 bool isEVMCompatibleChain(WalletType walletType) {

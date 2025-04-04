@@ -1,9 +1,9 @@
-import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
-class ConnectionItemWidget extends StatelessWidget {
-  const ConnectionItemWidget({required this.model, Key? key}) : super(key: key);
+class WCConnectionItemWidget extends StatelessWidget {
+  const WCConnectionItemWidget({required this.model, Key? key}) : super(key: key);
 
   final WCConnectionModel model;
 

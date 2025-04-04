@@ -7,7 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/bottom_sheet/wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';

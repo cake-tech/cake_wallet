@@ -1,7 +1,7 @@
-import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:flutter/material.dart';
 
-import 'connection_item_widget.dart';
+import 'wc_connection_item_widget.dart';
 
 class WCConnectionWidget extends StatelessWidget {
   const WCConnectionWidget({required this.title, required this.info, super.key});
@@ -37,7 +37,7 @@ class WCConnectionWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          ...info.map((e) => ConnectionItemWidget(model: e)),
+          ...info.map((e) => WCConnectionItemWidget(model: e)),
         ],
       ),
     );

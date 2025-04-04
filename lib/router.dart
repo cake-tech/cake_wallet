@@ -106,7 +106,7 @@ import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/walletkit_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';

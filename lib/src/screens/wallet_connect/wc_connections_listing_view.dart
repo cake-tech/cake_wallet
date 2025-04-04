@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/walletkit_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/enter_wallet_connect_uri_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -14,7 +14,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 
-import 'widgets/pairing_item_widget.dart';
+import 'widgets/wc_pairing_item_widget.dart';
 import 'wc_pairing_detail_page.dart';
 
 class WalletConnectConnectionsView extends StatelessWidget {
@@ -149,7 +149,7 @@ class WCPairingsWidget extends BasePage {
                   itemCount: walletKitService.pairings.length,
                   itemBuilder: (BuildContext context, int index) {
                     final pairing = walletKitService.pairings[index];
-                    return PairingItemWidget(
+                    return WCPairingItemWidget(
                       key: ValueKey(pairing.topic),
                       pairing: pairing,
                       onTap: () {

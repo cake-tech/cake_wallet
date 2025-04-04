@@ -1,15 +1,16 @@
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/bottom_sheet/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/deeplink_handler.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/walletkit_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/request_widget.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_request_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 class MethodsUtils {
   static final walletKit = getIt.get<WalletKitService>().walletKit;
+  static final bottomSheetService = getIt.get<BottomSheetService>();
 
   static Future<bool> requestApproval(
     String text, {
@@ -21,22 +22,19 @@ class MethodsUtils {
     List<WCConnectionModel> extraModels = const [],
     VerifyContext? verifyContext,
   }) async {
-    final bottomSheetService = getIt.get<BottomSheetService>();
-    final WCBottomSheetResult rs = (await bottomSheetService.queueBottomSheet(
+    final WCBottomSheetResult result = (await bottomSheetService.queueBottomSheet(
           widget: WCRequestWidget(
             verifyContext: verifyContext,
             child: WCConnectionWidget(
-              title: title ?? 'Approve Request',
+              title: title ?? S.current.approve_request,
               info: [
                 WCConnectionModel(
-                  title: 'Method: $method\n'
-                      'Transport Type: ${transportType.toUpperCase()}\n'
-                      'Chain ID: $chainId\n'
-                      'Address: $address\n\n'
-                      'Message:',
-                  elements: [
-                    text,
-                  ],
+                  title: '${S.current.method}: $method\n'
+                      '${S.current.transport_type}: ${transportType.toUpperCase()}\n'
+                      '${S.current.chain_id}: $chainId\n'
+                      '${S.current.address}: $address\n\n'
+                      '${S.current.message}:',
+                  elements: [text],
                 ),
                 ...extraModels,
               ],
@@ -45,7 +43,7 @@ class MethodsUtils {
         ) as WCBottomSheetResult?) ??
         WCBottomSheetResult.reject;
 
-    return rs != WCBottomSheetResult.reject;
+    return result != WCBottomSheetResult.reject;
   }
 
   static void handleRedirect(
@@ -59,7 +57,7 @@ class MethodsUtils {
       topic,
       redirect,
       onFail: (e) => goBackModal(
-        title: success ? 'Success' : 'Error',
+        title: success ? S.current.success : S.current.error,
         message: error,
         success: success,
       ),
@@ -73,7 +71,6 @@ class MethodsUtils {
     Function(ReownSignError? error)? onFail,
   }) async {
     await Future.delayed(Duration(milliseconds: delay));
-    DeepLinkHandler.waiting.value = false;
     try {
       await walletKit.redirectToDapp(
         topic: topic,
@@ -89,14 +86,14 @@ class MethodsUtils {
     String? message,
     bool success = true,
   }) async {
-    await getIt.get<BottomSheetService>().queueBottomSheet(
-          closeAfter: success ? 3 : 0,
-          widget: GoBackModalWidget(
-            isSuccess: success,
-            title: title,
-            message: message,
-          ),
-        );
+    await bottomSheetService.queueBottomSheet(
+      closeAfter: success ? 3 : 0,
+      widget: GoBackModalWidget(
+        isSuccess: success,
+        title: title,
+        message: message,
+      ),
+    );
   }
 }
 
@@ -127,14 +124,14 @@ class GoBackModalWidget extends StatelessWidget {
             size: 80.0,
           ),
           Text(
-            title ?? 'Connected',
+            title ?? S.current.connected,
             style: TextStyle(
               color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
               fontSize: 18.0,
               fontWeight: FontWeight.w600,
             ),
           ),
-          Text(message ?? 'You can go back to your dApp now'),
+          Text(message ?? S.current.youCanGoBackToYourDapp),
         ],
       ),
     );

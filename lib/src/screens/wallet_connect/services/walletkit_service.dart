@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
@@ -14,19 +13,19 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/eth/evm_chain_id.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/eth/evm_chain_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/key_service/chain_key_model.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/key_service/wallet_connect_key_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_request_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/request_widget.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/session_auth_request.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_request_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_request_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_session_auth_request_widget.dart';
 import 'package:cake_wallet/store/app_store.dart';
 
-import 'bottom_sheet/wc_bottom_sheet_service.dart';
+import 'bottom_sheet_service.dart';
 import 'chain_service/solana/solana_chain_id.dart';
 import 'chain_service/solana/solana_chain_service.dart';
 
@@ -35,6 +34,16 @@ part 'walletkit_service.g.dart';
 class WalletKitService = WalletKitServiceBase with _$WalletKitService;
 
 abstract class WalletKitServiceBase with Store {
+  WalletKitServiceBase(
+    this._bottomSheetHandler,
+    this.walletKeyService,
+    this.appStore,
+    this.sharedPreferences,
+  )   : pairings = ObservableList<PairingInfo>(),
+        sessions = ObservableList<SessionData>(),
+        auth = ObservableList<PendingSessionAuthRequest>(),
+        isInitialized = false;
+
   final AppStore appStore;
   final SharedPreferences sharedPreferences;
   final BottomSheetService _bottomSheetHandler;
@@ -57,13 +66,6 @@ abstract class WalletKitServiceBase with Store {
   @observable
   ObservableList<PendingSessionAuthRequest> auth;
 
-  WalletKitServiceBase(
-      this._bottomSheetHandler, this.walletKeyService, this.appStore, this.sharedPreferences)
-      : pairings = ObservableList<PairingInfo>(),
-        sessions = ObservableList<SessionData>(),
-        auth = ObservableList<PendingSessionAuthRequest>(),
-        isInitialized = false;
-
   @action
   void create() {
     // Create the walletkit client
@@ -82,7 +84,7 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.core.addLogListener(_logListener);
 
     // Setup our listeners
-    log('Created instance of web3wallet');
+    log('Created instance of walletKit');
 
     _walletKit.core.pairing.onPairingInvalid.subscribe(_onPairingInvalid);
     _walletKit.core.pairing.onPairingCreate.subscribe(_onPairingCreate);
@@ -233,9 +235,11 @@ abstract class WalletKitServiceBase with Store {
     if (event != null) {
       final jsonObject = await EthUtils.decodeMessageEvent(event);
       debugPrint('_onRelayClientMessage $jsonObject');
+
       if (jsonObject is JsonRpcRequest) {
         debugPrint(jsonObject.id.toString());
         debugPrint(jsonObject.method);
+
         if (jsonObject.method == 'wc_sessionDelete') {
           await disconnectSession(topic: event.topic);
         }
@@ -256,6 +260,7 @@ abstract class WalletKitServiceBase with Store {
   @action
   Future<void> _onSessionProposal(SessionProposalEvent? args) async {
     debugPrint('_onSessionProposal ${jsonEncode(args?.params)}');
+
     if (args != null) {
       final proposer = args.params.proposer;
       final result = (await _bottomSheetHandler.queueBottomSheet(
@@ -274,8 +279,6 @@ abstract class WalletKitServiceBase with Store {
           WCBottomSheetResult.reject;
 
       if (result != WCBottomSheetResult.reject) {
-        // generatedNamespaces is constructed based on registered methods handlers
-        // so if you want to handle requests using onSessionRequest event then you would need to manually add that method in the approved namespaces
         try {
           final response = await _walletKit.approveSession(
             id: args.id,
@@ -313,14 +316,15 @@ abstract class WalletKitServiceBase with Store {
   @action
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
     debugPrint('_onSessionProposalError $args');
+
     if (args != null) {
       String errorMessage = args.error.message;
       if (args.error.code == 5100) {
-        errorMessage = errorMessage.replaceFirst('Requested:', '\n\nRequested:');
-        errorMessage = errorMessage.replaceFirst('Supported:', '\n\nSupported:');
+        errorMessage = errorMessage.replaceFirst('${S.current.requested}:', '\n\n${S.current.requested}:');
+        errorMessage = errorMessage.replaceFirst('${S.current.supported}:', '\n\n${S.current.supported}:');
       }
       MethodsUtils.goBackModal(
-        title: 'Error',
+        title: S.current.error,
         message: errorMessage,
         success: false,
       );
@@ -428,17 +432,16 @@ abstract class WalletKitServiceBase with Store {
         for (var i = 0; i < count; i++) {
           final iss = formattedMessages[i].keys.first;
           final message = formattedMessages[i].values.first as String;
+
           final signature = credentials.signPersonalMessageToUint8List(
             Uint8List.fromList(message.codeUnits),
           );
           final hexSignature = bytesToHex(signature, include0x: true);
+
           cacaos.add(
             AuthSignature.buildAuthObject(
               requestPayload: cacaoRequestPayload,
-              signature: CacaoSignature(
-                t: CacaoSignature.EIP191,
-                s: hexSignature,
-              ),
+              signature: CacaoSignature(t: CacaoSignature.EIP191, s: hexSignature),
               iss: iss,
             ),
           );
@@ -449,7 +452,9 @@ abstract class WalletKitServiceBase with Store {
             id: args.id,
             auths: cacaos,
           );
-          debugPrint('[$runtimeType] approveSessionAuthenticate $session');
+
+          debugPrint('_onSessionAuthRequest - approveSessionAuthenticate $session');
+
           MethodsUtils.handleRedirect(
             session.topic,
             session.session?.peer.metadata.redirect,
@@ -515,7 +520,7 @@ abstract class WalletKitServiceBase with Store {
   @action
   Future<void> pairWithUri(Uri uri) async {
     try {
-      log('Pairing with URI: $uri');
+      debugPrint('pairWithUri - Pairing with URI: $uri');
       await _walletKit.pair(uri: uri);
     } on ReownSignError catch (e) {
       _bottomSheetHandler.queueBottomSheet(
@@ -532,7 +537,8 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   void _refreshPairings() {
-    debugPrint('Refreshing pairings');
+    debugPrint('_refreshPairings - Refreshing pairings');
+
     pairings.clear();
 
     final allPairings = _walletKit.pairings.getAll();
@@ -599,7 +605,7 @@ abstract class WalletKitServiceBase with Store {
     final pairingTopicsForWallet = getPairingTopicsForWallet(key);
 
     bool isPairingTopicAlreadySaved = pairingTopicsForWallet.contains(pairingTopic);
-    printV('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');
+    debugPrint('Is Pairing Topic Saved: $isPairingTopicAlreadySaved');
 
     if (!isPairingTopicAlreadySaved) {
       // Update the list with the most recent pairing topic

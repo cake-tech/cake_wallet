@@ -2,7 +2,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/walletkit_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';

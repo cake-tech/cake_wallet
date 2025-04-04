@@ -1,6 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/walletkit_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -74,7 +74,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               debugPrint('${e.toString()}');
             }
           },
-          text: 'Extend Session',
+          text:  S.current.extend_session,
           color: Theme.of(context).primaryColor,
           textColor: Colors.white,
         ),
@@ -92,7 +92,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               debugPrint('${e.toString()}');
             }
           },
-          text: 'Update Session',
+          text: S.current.update_session,
           color: Theme.of(context).primaryColor,
           textColor: Colors.white,
         ),
@@ -109,7 +109,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               debugPrint('${e.toString()}');
             }
           },
-          text: 'Disconnect Session',
+          text:  S.current.disconnect_session,
           color: Theme.of(context).primaryColor,
           textColor: Colors.white,
         ),

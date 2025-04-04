@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
@@ -7,11 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:reown_walletkit/reown_walletkit.dart';
 
-import 'package:cake_wallet/src/screens/wallet_connect/bottom_sheet/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/eth/evm_chain_id.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/eth/evm_supported_methods.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/key_service/wallet_connect_key_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/connection_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_supported_methods.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -29,13 +30,6 @@ class EvmChainServiceImpl {
         EVMSupportedMethods.personalSign.name: personalSign,
         EVMSupportedMethods.ethSendTransaction.name: ethSendTransaction,
       };
-
-  final AppStore appStore;
-  final EVMChainId reference;
-  final Web3Client ethClient;
-  final ReownWalletKit walletKit;
-  final WalletConnectKeyService wcKeyService;
-  final BottomSheetService bottomSheetService;
 
   EvmChainServiceImpl({
     required this.reference,
@@ -74,9 +68,15 @@ class EvmChainServiceImpl {
     walletKit.onSessionRequest.subscribe(_onSessionRequest);
   }
 
+  final AppStore appStore;
+  final EVMChainId reference;
+  final Web3Client ethClient;
+  final ReownWalletKit walletKit;
+  final WalletConnectKeyService wcKeyService;
+  final BottomSheetService bottomSheetService;
+
   String getChainId() => reference.chain();
 
-  // personal_sign is handled using onSessionRequest event for demo purposes
   Future<void> personalSign(String topic, dynamic parameters) async {
     debugPrint('personalSign request: $parameters');
 
@@ -113,19 +113,13 @@ class EvmChainServiceImpl {
         debugPrint('personalSign error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } else {
       final error = Errors.getSdkError(Errors.USER_REJECTED);
       response = response.copyWith(
-        error: JsonRpcError(
-          code: error.code,
-          message: error.message,
-        ),
+        error: JsonRpcError(code: error.code, message: error.message),
       );
     }
 
@@ -168,19 +162,13 @@ class EvmChainServiceImpl {
         debugPrint('ethSign error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } else {
       final error = Errors.getSdkError(Errors.USER_REJECTED).toSignError();
       response = response.copyWith(
-        error: JsonRpcError(
-          code: error.code,
-          message: error.message,
-        ),
+        error: JsonRpcError(code: error.code, message: error.message),
       );
     }
 
@@ -219,19 +207,13 @@ class EvmChainServiceImpl {
         debugPrint('ethSignTypedData error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } else {
       final error = Errors.getSdkError(Errors.USER_REJECTED).toSignError();
       response = response.copyWith(
-        error: JsonRpcError(
-          code: error.code,
-          message: error.message,
-        ),
+        error: JsonRpcError(code: error.code, message: error.message),
       );
     }
 
@@ -272,15 +254,12 @@ class EvmChainServiceImpl {
         debugPrint('ethSignTypedDataV4 error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } else {
       response = response.copyWith(
-        error: const JsonRpcError(code: 5002, message: 'User rejected method'),
+        error: JsonRpcError(code: 5002, message: S.current.user_rejected_method),
       );
     }
 
@@ -327,19 +306,13 @@ class EvmChainServiceImpl {
       } on RPCError catch (e) {
         debugPrint('ethSignTransaction error $e');
         response = response.copyWith(
-          error: JsonRpcError(
-            code: e.errorCode,
-            message: e.message,
-          ),
+          error: JsonRpcError(code: e.errorCode, message: e.message),
         );
       } catch (e) {
         debugPrint('ethSignTransaction error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } else {
@@ -356,10 +329,7 @@ class EvmChainServiceImpl {
     final data = EthUtils.getTransactionFromSessionRequest(pRequest);
     if (data == null) return;
 
-    var response = JsonRpcResponse(
-      id: pRequest.id,
-      jsonrpc: '2.0',
-    );
+    var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
 
     final transaction = await _approveTransaction(
       data,
@@ -385,19 +355,13 @@ class EvmChainServiceImpl {
       } on RPCError catch (e) {
         debugPrint('ethSendTransaction error $e');
         response = response.copyWith(
-          error: JsonRpcError(
-            code: e.errorCode,
-            message: e.message,
-          ),
+          error: JsonRpcError(code: e.errorCode, message: e.message),
         );
       } catch (e) {
         debugPrint('ethSendTransaction error $e');
         final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } else {
@@ -463,8 +427,9 @@ class EvmChainServiceImpl {
 
     final amount = (transaction.value?.getInWei ?? BigInt.zero) / BigInt.from(1e18);
 
-    final txMessageText =
-        '''Value: ${amount.toStringAsFixed(9)} ETH\nFrom: ${transaction.from?.hex}\nTo: ${transaction.to?.hex}''';
+    final txMessageText = '${S.current.value}: ${amount.toStringAsFixed(9)} ETH\n'
+        '${S.current.from}: ${transaction.from?.hex}\n'
+        '${S.current.to}: ${transaction.to?.hex}';
 
     if (await MethodsUtils.requestApproval(
       txMessageText,
@@ -476,7 +441,7 @@ class EvmChainServiceImpl {
       verifyContext: verifyContext,
       extraModels: [
         WCConnectionModel(
-          title: 'Gas price',
+          title: S.current.gas_price,
           elements: ['${gweiGasPrice.toStringAsFixed(2)} GWEI'],
         ),
       ],
@@ -484,7 +449,7 @@ class EvmChainServiceImpl {
       return transaction;
     }
 
-    return const JsonRpcError(code: 5002, message: 'User rejected method');
+    return JsonRpcError(code: 5002, message: S.current.user_rejected_method);
   }
 
   void _onSessionRequest(SessionRequestEvent? args) async {
@@ -520,11 +485,10 @@ class EvmChainServiceImpl {
   }
 
   Future<String> extractPermitData(dynamic data) async {
-    // Ensure data is a List with at least 2 elements and the second is a Map.
     if (data is List && data.length >= 2) {
       final typedData = jsonDecode(data[1] as String) as Map<String, dynamic>;
 
-      // Extract domain details.
+      // Extracting domain details.
       final domain = typedData['domain'] ?? {} as Map<String, dynamic>;
       final domainName = domain['name']?.toString() ?? '';
       final verifyingContract = domain['verifyingContract']?.toString() ?? '';
@@ -535,7 +499,7 @@ class EvmChainServiceImpl {
       // Get the primary type.
       final primaryType = typedData['primaryType']?.toString() ?? '';
 
-      // Extract message details.
+      // Extracting message details.
       final message = typedData['message'] ?? {} as Map<String, dynamic>;
       final details = message['details'] ?? {} as Map<String, dynamic>;
       final amount = details['amount']?.toString() ?? '';
@@ -548,7 +512,7 @@ class EvmChainServiceImpl {
       final spender = message['spender']?.toString() ?? '';
       final sigDeadlineRaw = message['sigDeadline']?.toString() ?? '';
 
-      // Convert expiration and sigDeadline from Unix time (seconds) to DateTime.
+      // Converting expiration and sigDeadline from Unix time (seconds) to DateTime.
       DateTime? expirationDate;
       DateTime? sigDeadlineDate;
       try {
@@ -561,7 +525,7 @@ class EvmChainServiceImpl {
           sigDeadlineDate = DateTime.fromMillisecondsSinceEpoch(sigDeadlineInt * 1000);
         }
       } catch (e) {
-        // Parsing failed; leave dates as null.
+        // Parsing failed; we leave dates as null.
       }
 
       final permitData = {
@@ -577,16 +541,14 @@ class EvmChainServiceImpl {
         'sigDeadline': sigDeadlineDate,
       };
 
-      return '''
-Domain: ${permitData['domainName']}
-Chain ID: ${permitData['chainId']}
-Verifying Contract: ${permitData['verifyingContract']}
-Primary Type: ${permitData['primaryType']}
-Token: ${permitData['token']}
-Expiration: ${permitData['expiration'] != null ? permitData['expiration'] : 'N/A'}
-Spender: ${permitData['spender']}
-Signature Deadline: ${permitData['sigDeadline'] != null ? permitData['sigDeadline'] : 'N/A'}
-    ''';
+      return 'Domain: ${permitData['domainName']}'
+          'Chain ID: ${permitData['chainId']}'
+          'Verifying Contract: ${permitData['verifyingContract']}'
+          'Primary Type: ${permitData['primaryType']}'
+          'Token: ${permitData['token']}'
+          'Expiration: ${permitData['expiration'] != null ? permitData['expiration'] : 'N/A'}'
+          'Spender: ${permitData['spender']}'
+          'Signature Deadline: ${permitData['sigDeadline'] != null ? permitData['sigDeadline'] : 'N/A'}';
     }
     return '';
   }

@@ -13,6 +13,6 @@ class WCConnectionModel {
 
   @override
   String toString() {
-    return 'WalletConnectRequestModel(title: $title, text: $text, elements: $elements, elementActions: $elementActions)';
+    return 'WCConnectionModel(title: $title, text: $text, elements: $elements, elementActions: $elementActions)';
   }
 }

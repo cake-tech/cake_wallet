@@ -2,14 +2,15 @@ import 'dart:convert';
 
 import 'package:blockchain_utils/base58/base58.dart';
 import 'package:blockchain_utils/blockchain_utils.dart' as blockchain_utils;
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/solana/solana_supported_methods.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:on_chain/solana/solana.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
-import 'package:cake_wallet/src/screens/wallet_connect/bottom_sheet/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/chain_service/solana/solana_chain_id.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/key_service/wallet_connect_key_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 
@@ -19,12 +20,6 @@ class SolanaChainService {
         SolanaSupportedMethods.solSignTransaction.name: solanaSignTransaction,
         SolanaSupportedMethods.solSignAllTransaction.name: solanaSignAllTransaction,
       };
-
-  final AppStore appStore;
-  final BottomSheetService bottomSheetService;
-  final ReownWalletKit walletKit;
-  final WalletConnectKeyService wcKeyService;
-  final SolanaChainId reference;
 
   SolanaChainService({
     required this.appStore,
@@ -42,6 +37,12 @@ class SolanaChainService {
     }
   }
 
+  final AppStore appStore;
+  final BottomSheetService bottomSheetService;
+  final ReownWalletKit walletKit;
+  final WalletConnectKeyService wcKeyService;
+  final SolanaChainId reference;
+
   String getChainId() => reference.chain();
 
   Future<void> solanaSignMessage(String topic, dynamic parameters) async {
@@ -56,7 +57,7 @@ class SolanaChainService {
 
       final privateKey = _getSolanaPrivateKey();
 
-      // it's sent as encoded from dapp
+      // it's sent as base58 encoded from the dapp
       final base58Decoded = base58.decode(message);
       final decodedMessage = utf8.decode(base58Decoded);
 
@@ -77,28 +78,20 @@ class SolanaChainService {
       } else {
         final error = Errors.getSdkError(Errors.USER_REJECTED);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
       //
     } catch (e) {
       debugPrint('solanaSignMessage error $e');
       final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
+
       response = response.copyWith(
-        error: JsonRpcError(
-          code: error.code,
-          message: error.message,
-        ),
+        error: JsonRpcError(code: error.code, message: error.message),
       );
     }
 
-    await walletKit.respondSessionRequest(
-      topic: topic,
-      response: response,
-    );
+    await walletKit.respondSessionRequest(topic: topic, response: response);
 
     _handleResponseForTopic(topic, response);
   }
@@ -111,9 +104,30 @@ class SolanaChainService {
 
     try {
       final params = parameters as Map<String, dynamic>;
+      final privateKey = _getSolanaPrivateKey();
+
       final beautifiedTrx = const JsonEncoder.withIndent('  ').convert(params);
 
-      final privateKey = _getSolanaPrivateKey();
+      SolanaTransaction unSignedTransaction;
+      if (params.containsKey('transaction')) {
+        final transaction = params['transaction'] as String;
+        final transactionBytes = base64.decode(transaction);
+        unSignedTransaction = SolanaTransaction.deserialize(transactionBytes);
+      } else {
+        final feePayer = params['feePayer'].toString();
+        final recentBlockHash = params['recentBlockhash'].toString();
+        final instructionsList = params['instructions'] as List<dynamic>;
+
+        final instructions = instructionsList.map((json) {
+          return (json as Map<String, dynamic>).toInstruction();
+        }).toList();
+
+        unSignedTransaction = SolanaTransaction(
+          payerKey: SolAddress(feePayer),
+          instructions: instructions,
+          recentBlockhash: SolAddress(recentBlockHash),
+        );
+      }
 
       final isApproved = await MethodsUtils.requestApproval(
         beautifiedTrx,
@@ -124,61 +138,27 @@ class SolanaChainService {
       );
 
       if (isApproved) {
-        if (params.containsKey('transaction')) {
-          final transaction = params['transaction'] as String;
-          final transactionBytes = base64.decode(transaction);
-          final signedTransaction = SolanaTransaction.deserialize(transactionBytes);
+        final signedTx = await privateKey.sign(unSignedTransaction.serializeMessage());
 
-          final signedTx = await privateKey.sign(signedTransaction.serializeMessage());
+        final signature = Base58Encoder.encode(signedTx.toList(growable: false));
 
-          final signature = Base58Encoder.encode(signedTx.toList(growable: false));
-
-          response = response.copyWith(result: {'signature': signature});
-        } else {
-          final feePayer = params['feePayer'].toString();
-          final recentBlockHash = params['recentBlockhash'].toString();
-          final instructionsList = params['instructions'] as List<dynamic>;
-
-          final instructions = instructionsList.map((json) {
-            return (json as Map<String, dynamic>).toInstruction();
-          }).toList();
-
-          final message = Message.compile(
-            transactionInstructions: instructions,
-            payer: SolAddress(feePayer),
-            recentBlockhash: SolAddress(recentBlockHash),
-          );
-
-          final signedTx = await privateKey.sign(message.serialize());
-
-          final signature = Base58Encoder.encode(signedTx.toList(growable: false));
-
-          response = response.copyWith(result: {'signature': signature});
-        }
+        response = response.copyWith(result: {'signature': signature});
       } else {
         final error = Errors.getSdkError(Errors.USER_REJECTED);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } catch (e, s) {
       debugPrint('solanaSignTransaction error $e, $s');
       final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
+
       response = response.copyWith(
-        error: JsonRpcError(
-          code: error.code,
-          message: error.message,
-        ),
+        error: JsonRpcError(code: error.code, message: error.message),
       );
     }
 
-    await walletKit.respondSessionRequest(
-      topic: topic,
-      response: response,
-    );
+    await walletKit.respondSessionRequest(topic: topic, response: response);
 
     _handleResponseForTopic(topic, response);
   }
@@ -229,27 +209,19 @@ class SolanaChainService {
       } else {
         final error = Errors.getSdkError(Errors.USER_REJECTED);
         response = response.copyWith(
-          error: JsonRpcError(
-            code: error.code,
-            message: error.message,
-          ),
+          error: JsonRpcError(code: error.code, message: error.message),
         );
       }
     } catch (e, s) {
       debugPrint('solanaSignAllTransactions error $e, $s');
       final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
+
       response = response.copyWith(
-        error: JsonRpcError(
-          code: error.code,
-          message: error.message,
-        ),
+        error: JsonRpcError(code: error.code, message: error.message),
       );
     }
 
-    await walletKit.respondSessionRequest(
-      topic: topic,
-      response: response,
-    );
+    await walletKit.respondSessionRequest(topic: topic, response: response);
 
     _handleResponseForTopic(topic, response);
   }
@@ -264,10 +236,8 @@ class SolanaChainService {
     final session = walletKit.sessions.get(topic);
 
     try {
-      await walletKit.respondSessionRequest(
-        topic: topic,
-        response: response,
-      );
+      await walletKit.respondSessionRequest(topic: topic, response: response);
+
       MethodsUtils.handleRedirect(
         topic,
         session!.peer.metadata.redirect,
@@ -278,8 +248,7 @@ class SolanaChainService {
         MethodsUtils.handleRedirect(
           topic,
           session!.peer.metadata.redirect,
-          null,
-          true,
+          '${S.current.error_while_processing} ${S.current.youCanGoBackToYourDapp}',
         );
       } else {
         MethodsUtils.handleRedirect(
