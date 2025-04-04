@@ -539,6 +539,7 @@
   "please_try_to_connect_to_another_node": "Zkuste se prosím připojit k jinému uzlu",
   "please_wait": "Prosím, čekejte",
   "polygonscan_history": "Historie PolygonScan",
+  "potential_scam": "Potenciální podvod",
   "powered_by": "Zajišťuje ${title}",
   "pre_seed_button_text": "Rozumím. Ukaž mi můj seed.",
   "pre_seed_description": "Na následující stránce uvidíte sérii ${words} slov. Je to váš tzv. seed a je to JEDINÁ možnost, jak můžete později obnovit svou peněženku v případě ztráty nebo poruchy. Je VAŠÍ zodpovědností zapsat si ho a uložit si ho na bezpečném místě mimo aplikaci Cake Wallet.",

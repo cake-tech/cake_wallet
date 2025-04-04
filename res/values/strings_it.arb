@@ -540,6 +540,7 @@
   "please_try_to_connect_to_another_node": "Gentilmente prova a connetterti ad un altro nodo",
   "please_wait": "Attendere prego",
   "polygonscan_history": "Cronologia PolygonScan",
+  "potential_scam": "Potenziale truffa",
   "powered_by": "Sviluppato da ${title}",
   "pre_seed_button_text": "Ho capito. Mostrami il seme",
   "pre_seed_description": "Nella pagina seguente ti sarà mostrata una serie di parole ${words}. Questo è il tuo seme unico e privato ed è l'UNICO modo per recuperare il tuo portafoglio in caso di perdita o malfunzionamento. E' TUA responsabilità trascriverlo e conservarlo in un posto sicuro fuori dall'app Cake Wallet.",

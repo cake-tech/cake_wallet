@@ -36,6 +36,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -277,33 +278,40 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletFromHardwareWallet:
       if (isSingleCoin) {
         return MaterialPageRoute<void>(
-            builder: (_) => ConnectDevicePage(
-                  ConnectDevicePageParams(
-                    walletType: availableWalletTypes.first,
-                    onConnectDevice: (BuildContext context, _) => Navigator.of(context).pushNamed(
-                        Routes.chooseHardwareWalletAccount,
-                        arguments: [availableWalletTypes.first]),
-                  ),
-                  getIt.get<LedgerViewModel>(),
-                ));
-      }
-        return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NewWalletTypePage>(
-            param1: NewWalletTypeArguments(
-              onTypeSelected: (BuildContext context, WalletType type) {
-                final arguments = ConnectDevicePageParams(
-                  walletType: type,
-                  onConnectDevice: (BuildContext context, _) => Navigator.of(context)
-                      .pushNamed(Routes.chooseHardwareWalletAccount, arguments: [type]),
-                );
-
-                Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
-              },
-              isCreate: false,
-              isHardwareWallet: true,
+          builder: (_) => ConnectDevicePage(
+            ConnectDevicePageParams(
+              walletType: availableWalletTypes.first,
+              onConnectDevice: (BuildContext context, _) =>
+                  Navigator.of(context).pushNamed(
+                      Routes.chooseHardwareWalletAccount,
+                      arguments: [availableWalletTypes.first]),
+              isReconnect: false,
             ),
+            getIt.get<LedgerViewModel>(),
           ),
         );
+      }
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<NewWalletTypePage>(
+          param1: NewWalletTypeArguments(
+            onTypeSelected: (BuildContext context, WalletType type) {
+              final arguments = ConnectDevicePageParams(
+                walletType: type,
+                onConnectDevice: (BuildContext context, _) =>
+                    Navigator.of(context).pushNamed(
+                        Routes.chooseHardwareWalletAccount,
+                        arguments: [type]),
+                isReconnect: false,
+              );
+
+              Navigator.of(context)
+                  .pushNamed(Routes.connectDevices, arguments: arguments);
+            },
+            isCreate: false,
+            isHardwareWallet: true,
+          ),
+        ),
+      );
 
     case Routes.restoreWalletTypeFromQR:
       return CupertinoPageRoute<void>(
@@ -832,6 +840,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devMoneroBackgroundSync:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroBackgroundSyncPage>(),
+      );
+
+    case Routes.devMoneroCallProfiler:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
       );
 
     default:

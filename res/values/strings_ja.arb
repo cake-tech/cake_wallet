@@ -540,6 +540,7 @@
   "please_try_to_connect_to_another_node": "別のノードに接続してみてください",
   "please_wait": "お待ちください",
   "polygonscan_history": "ポリゴンスキャン履歴",
+  "potential_scam": "潜在的な詐欺",
   "powered_by": "搭載 ${title}",
   "pre_seed_button_text": "わかります。 種を見せて",
   "pre_seed_description": "次のページでは、一連の${words}語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。",
