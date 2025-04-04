@@ -3,10 +3,10 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:walletconnect_flutter_v2/apis/core/pairing/utils/pairing_models.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 
-class PairingItemWidget extends StatelessWidget {
-  const PairingItemWidget({required this.pairing, required this.onTap, super.key});
+class WCPairingItemWidget extends StatelessWidget {
+  const WCPairingItemWidget({required this.pairing, required this.onTap, super.key});
 
   final PairingInfo pairing;
   final void Function() onTap;
@@ -14,6 +14,7 @@ class PairingItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     PairingMetadata? metadata = pairing.peerMetadata;
+
     if (metadata == null) {
       return SizedBox.shrink();
     }

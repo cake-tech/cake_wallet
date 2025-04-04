@@ -1,24 +1,22 @@
-import 'dart:developer';
-
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 
 import 'utils/namespace_model_builder.dart';
 
 class WalletConnectPairingDetailsPage extends StatefulWidget {
   final PairingInfo pairing;
-  final Web3WalletService web3walletService;
+  final WalletKitService walletKitService;
 
   const WalletConnectPairingDetailsPage({
     required this.pairing,
-    required this.web3walletService,
+    required this.walletKitService,
     super.key,
   });
 
@@ -33,7 +31,9 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
   void initState() {
     super.initState();
     initDateTime();
-    initSessions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initSessions();
+    });
   }
 
   void initDateTime() {
@@ -46,13 +46,13 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
   }
 
   void initSessions() {
-    List<SessionData> sessions = widget.web3walletService.getSessionsForPairingInfo(widget.pairing);
+    List<SessionData> sessions = widget.walletKitService.getSessionsForPairingInfo(widget.pairing);
 
     for (final SessionData session in sessions) {
       List<Widget> namespaceWidget = ConnectionWidgetBuilder.buildFromNamespaces(
         session.topic,
         session.namespaces,
-        widget.web3walletService.getWeb3Wallet(),
+        context,
       );
       // Loop through and add the namespace widgets, but put 20 pixels between each one
       for (int i = 0; i < namespaceWidget.length; i++) {
@@ -61,6 +61,59 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
           sessionWidgets.add(const SizedBox(height: 20.0));
         }
       }
+
+      sessionWidgets.add(const SizedBox.square(dimension: 10.0));
+      sessionWidgets.add(
+        PrimaryButton(
+          onPressed: () async {
+            try {
+              await widget.walletKitService.extendSession(
+                topic: session.topic,
+              );
+            } catch (e) {
+              debugPrint('${e.toString()}');
+            }
+          },
+          text:  S.current.extend_session,
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+        ),
+      );
+      sessionWidgets.add(const SizedBox.square(dimension: 10.0));
+      sessionWidgets.add(
+        PrimaryButton(
+          onPressed: () async {
+            try {
+              await widget.walletKitService.updateSession(
+                topic: session.topic,
+                namespaces: session.namespaces,
+              );
+            } catch (e) {
+              debugPrint('${e.toString()}');
+            }
+          },
+          text: S.current.update_session,
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+        ),
+      );
+      sessionWidgets.add(const SizedBox.square(dimension: 10.0));
+      sessionWidgets.add(
+        PrimaryButton(
+          onPressed: () async {
+            try {
+              await widget.walletKitService.disconnectSession(
+                topic: session.topic,
+              );
+            } catch (e) {
+              debugPrint('${e.toString()}');
+            }
+          },
+          text:  S.current.disconnect_session,
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+        ),
+      );
     }
   }
 
@@ -70,7 +123,7 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
       widget.pairing,
       expiryDate,
       sessionWidgets,
-      widget.web3walletService,
+      widget.walletKitService,
     );
   }
 }
@@ -80,13 +133,13 @@ class WCCDetailsWidget extends BasePage {
     this.pairing,
     this.expiryDate,
     this.sessionWidgets,
-    this.web3walletService,
+    this.walletKitService,
   );
 
   final PairingInfo pairing;
   final String expiryDate;
   final List<Widget> sessionWidgets;
-  final Web3WalletService web3walletService;
+  final WalletKitService walletKitService;
 
   @override
   Widget body(BuildContext context) {
@@ -141,7 +194,7 @@ class WCCDetailsWidget extends BasePage {
               const SizedBox(height: 20.0),
               PrimaryButton(
                 onPressed: () =>
-                    _onDeleteButtonPressed(context, pairing.peerMetadata!.name, web3walletService),
+                    _onDeleteButtonPressed(context, pairing.peerMetadata!.name, walletKitService),
                 text: S.current.delete,
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
@@ -154,7 +207,10 @@ class WCCDetailsWidget extends BasePage {
   }
 
   Future<void> _onDeleteButtonPressed(
-      BuildContext context, String dAppName, Web3WalletService web3walletService) async {
+    BuildContext context,
+    String dAppName,
+    WalletKitService walletKitService,
+  ) async {
     bool confirmed = false;
 
     await showPopUp<void>(
@@ -175,11 +231,13 @@ class WCCDetailsWidget extends BasePage {
     );
     if (confirmed) {
       try {
-        await web3walletService.disconnectSession(pairing.topic);
+        await walletKitService.deletePairing(topic: pairing.topic);
 
-        Navigator.of(context).pop();
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
       } catch (e) {
-        log(e.toString());
+        debugPrint(e.toString());
       }
     }
   }
