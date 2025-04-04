@@ -1115,6 +1115,8 @@ Future<void> setup({
         return zano!.createZanoWalletService(_walletInfoSource);
       case WalletType.decred:
         return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+      case WalletType.xelis:
+        return decred!.createXelisWalletService(_walletInfoSource);
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');

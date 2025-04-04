@@ -14,9 +14,19 @@ abstract class XelisWalletAddressesBase extends WalletAddresses with Store {
 
   final WalletInfo walletInfo;
   final x_wallet.XelisWallet wallet;
-
   @observable
-  String address = '';
+  String selectedAddr = '';
+
+  @override
+  @computed
+  String get address {
+    return selectedAddr;
+  }
+
+  @override
+  set address(String addr) {
+    selectedAddr = addr;
+  }
 
   @override
   Future<void> init() async {
@@ -36,15 +46,8 @@ abstract class XelisWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> updateAddressesInBox() async {}
 
-  @override
   List<AddressInfo> getAddressInfos() => addressInfos[0] ?? [];
 
-  @override
-  set address(String addr) {
-    this.address = addr;
-  }
-
-  @override
   Future<void> updateAddress(String addr, String label) async {
     final infos = addressInfos[0];
     if (infos == null) return;
@@ -54,11 +57,5 @@ abstract class XelisWalletAddressesBase extends WalletAddresses with Store {
       }
     }
     await saveAddressesInBox();
-  }
-
-  @override
-  Future<void> generateNewAddress(String label) async {
-    // Xelis only uses one address, so this is a no-op or could optionally throw
-    return;
   }
 }

@@ -16,6 +16,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -78,6 +79,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return 26;
       case WalletType.decred:
         return 15;
+      case WalletType.xelis:
+        return 25;
     }
   }
 
@@ -92,11 +95,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name,
-            language: options!.first as String,
-            password: walletPassword,
-            passphrase: passphrase,
-            isPolyseed: options.last as bool);
+          name: name,
+          language: options!.first as String,
+          password: walletPassword,
+          passphrase: passphrase,
+          isPolyseed: options.last as bool);
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(
@@ -164,6 +167,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);
+      case WalletType.xelis:
+        return xelis!.createXelisNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+        );
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');

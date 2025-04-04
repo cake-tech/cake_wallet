@@ -1385,19 +1385,31 @@ abstract class Decred {
 Future<void> generateXelis(bool hasImplementation) async {
   final outputFile = File(xelisOutputPath);
   const xelisCommonHeaders = """
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/wallet_service.dart';
-// import 'package:cake_wallet/view_model/send/output.dart'; TODO
+import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';
 """;
   const xelisCWHeaders = """
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
 import 'package:xelis_flutter/src/api/wallet.dart' as x_wallet;
-import 'package:xelis_flutter/src/api/utils.dart' as x_utils;
+import 'package:xelis_flutter/src/api/utils.dart';
+
+import 'package:cw_xelis/xelis_wallet_service.dart';
+import 'package:cw_xelis/xelis_wallet.dart';
+import 'package:cw_xelis/xelis_wallet_creation_credentials.dart';
+import 'package:cw_xelis/xelis_transaction_info.dart';
+import 'package:cw_xelis/xelis_transaction_history.dart';
+import 'package:cw_xelis/xelis_formatting.dart';
 """;
   const xelisCwPart = "part 'cw_xelis.dart';";
   const xelisContent = """
@@ -1408,31 +1420,27 @@ abstract class Xelis {
       {required String name, WalletInfo? walletInfo});
   WalletCredentials createXelisRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
-  WalletCredentials createXelisRestoreWalletFromPubkeyCredentials(
-      {required String name, required String pubkey, required String password});
+
   WalletService createXelisWalletService(Box<WalletInfo> walletInfoSource);
 
   String getAddress(WalletBase wallet);
-  String getPublicKey(WalletBase wallet);
   bool validateAddress(String address);
 
   List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getXelisTransactionPriorityFast();
   TransactionPriority getXelisTransactionPriorityMedium();
   TransactionPriority getXelisTransactionPrioritySlow();
   TransactionPriority deserializeXelisTransactionPriority(int raw);
 
-  Object createXelisTransactionCredentials(List<Output> outputs, TransactionPriority priority);
+  Object createXelisTransactionCredentials(List<Output> outputs, TransactionPriority priority, CryptoCurrency currency);
 
-  String formatterXelisAmountToString({required int amount});
   double formatterXelisAmountToDouble({required int amount});
   int formatterStringDoubleToXelisAmount(String amount);
 
-  List<Erc20Token> getXelisAssets(WalletBase wallet);
+  // List<XelisAsset> getXelisAssets(WalletBase wallet);
 
-  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
-  String getTokenAddress(CryptoCurrency asset);
-  
+  // CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);  
   List<String> getDefaultAssetIDs();
 }
 """;

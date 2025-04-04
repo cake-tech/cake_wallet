@@ -14,9 +14,7 @@ abstract class XelisTransactionHistoryBase
   }
 
   @override
-  Future<void> save() async {
-    // possible TODO
-  }
+  Future<void> save() async {}
 
   @override
   void addOne(XelisTransactionInfo transaction) =>
@@ -25,4 +23,16 @@ abstract class XelisTransactionHistoryBase
   @override
   void addMany(Map<String, XelisTransactionInfo> transactions) =>
       this.transactions.addAll(transactions);
+
+  bool update(Map<String, XelisTransactionInfo> txs) {
+    var foundOldTx = false;
+    txs.forEach((_, tx) {
+      if (!transactions.containsKey(tx.id)) {
+        transactions[tx.id] = tx;
+      } else {
+        foundOldTx = true;
+      }
+    });
+    return foundOldTx;
+  }
 }

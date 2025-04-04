@@ -17,6 +17,7 @@ import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -33,9 +34,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type, this.restoredWallet})
       : hasSeedLanguageSelector =
-            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
+            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero ||
+            type == WalletType.xelis,
         hasBlockchainHeightLanguageSelector =
-            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
+            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero ||
+            type == WalletType.xelis,
         hasRestoreFromPrivateKey = type == WalletType.ethereum ||
             type == WalletType.polygon ||
             type == WalletType.nano ||
@@ -65,6 +68,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.zano:
+      case WalletType.xelis:
       case WalletType.none:
         availableModes = [WalletRestoreMode.seed];
         break;
@@ -177,10 +181,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
           );
         case WalletType.decred:
+        case WalletType.xelis:
           return decred!.createDecredRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: seed,
-              password: password,
+            name: name,
+            mnemonic: seed,
+            password: password,
           );
         case WalletType.none:
         case WalletType.haven:

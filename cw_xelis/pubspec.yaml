@@ -2,6 +2,7 @@ name: cw_xelis
 description: "A new Flutter plugin project."
 version: 0.0.1
 homepage:
+publish_to: none
 
 environment:
   sdk: ^3.7.2
@@ -20,7 +21,8 @@ dependencies:
   xelis_flutter:
     git:
       url: https://github.com/xelis-project/xelis-flutter-ffi.git
-      ref: 9aa4c84f3bf344dc8032925773e75d1d392ae4fa
+      ref: 32ad38066c69607b8ab0e77e295862725d425f56
+  xelis_dart_sdk:
   mutex: ^3.1.0
 
 dev_dependencies:
