@@ -43,7 +43,6 @@ class $BackupService {
   final KeyService keyService;
   List<WalletInfo> correctWallets;
 
-
   Future<void> importBackupV1(Uint8List data, String password, {required String nonce}) async {
     final appDir = await getAppDir();
     final decryptedData = await _decryptV1(data, password, nonce);
@@ -60,7 +59,7 @@ class $BackupService {
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    };
+    }
 
     await verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
@@ -84,7 +83,7 @@ class $BackupService {
     outer:
     for (var file in zip.files) {
       final filename = file.name;
-      for (var ignore in ignoreFiles) { 
+      for (var ignore in ignoreFiles) {
         if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
           printV("ignoring backup file: $filename");
           continue outer;
@@ -102,7 +101,7 @@ class $BackupService {
           dir.createSync(recursive: true);
         }
       }
-    };
+    }
 
     await verifyWallets();
     await importKeychainDumpV2(password);
@@ -146,12 +145,11 @@ class $BackupService {
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
     var box = transactionDescriptionBox;
     if (!box.isOpen) {
-      final transactionDescriptionsBoxKey = 
-        await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
-      box = await CakeHive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-      }
+      final transactionDescriptionsBoxKey = await getEncryptionKey(
+          secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
+      box = await CakeHive.openBox<TransactionDescription>(TransactionDescription.boxName,
+          encryptionKey: transactionDescriptionsBoxKey);
+    }
     await box.putAll(descriptionsMap);
   }
 
@@ -223,8 +221,7 @@ class $BackupService {
     await sharedPreferences.setInt(PreferencesKey.currentWalletType, currentWalletType);
 
     if (currentFiatCurrency != null)
-      await sharedPreferences.setString(
-          PreferencesKey.currentFiatCurrencyKey, currentFiatCurrency);
+      await sharedPreferences.setString(PreferencesKey.currentFiatCurrencyKey, currentFiatCurrency);
 
     if (shouldSaveRecipientAddress != null)
       await sharedPreferences.setBool(
@@ -395,8 +392,7 @@ class $BackupService {
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _secureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(
-        json.encode({'wallets': wallets, backupPasswordKey: backupPassword}));
+    final data = utf8.encode(json.encode({'wallets': wallets, backupPasswordKey: backupPassword}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
@@ -414,7 +410,8 @@ class $BackupService {
           sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
       PreferencesKey.shouldSaveRecipientAddressKey:
           sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
-      PreferencesKey.disableTradeOption: sharedPreferences.getBool(PreferencesKey.disableTradeOption),
+      PreferencesKey.disableTradeOption:
+          sharedPreferences.getBool(PreferencesKey.disableTradeOption),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
       PreferencesKey.currentBitcoinElectrumSererIdKey:
@@ -438,18 +435,15 @@ class $BackupService {
           sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
       PreferencesKey.useEtherscan: sharedPreferences.getBool(PreferencesKey.useEtherscan),
       PreferencesKey.defaultNanoRep: sharedPreferences.getString(PreferencesKey.defaultNanoRep),
-      PreferencesKey.defaultBananoRep:
-          sharedPreferences.getString(PreferencesKey.defaultBananoRep),
+      PreferencesKey.defaultBananoRep: sharedPreferences.getString(PreferencesKey.defaultBananoRep),
       PreferencesKey.lookupsTwitter: sharedPreferences.getBool(PreferencesKey.lookupsTwitter),
       PreferencesKey.lookupsMastodon: sharedPreferences.getBool(PreferencesKey.lookupsMastodon),
-      PreferencesKey.lookupsYatService:
-          sharedPreferences.getBool(PreferencesKey.lookupsYatService),
+      PreferencesKey.lookupsYatService: sharedPreferences.getBool(PreferencesKey.lookupsYatService),
       PreferencesKey.lookupsUnstoppableDomains:
           sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
       PreferencesKey.lookupsOpenAlias: sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
       PreferencesKey.lookupsENS: sharedPreferences.getBool(PreferencesKey.lookupsENS),
-      PreferencesKey.lookupsWellKnown:
-          sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
+      PreferencesKey.lookupsWellKnown: sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
       PreferencesKey.syncModeKey: sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:

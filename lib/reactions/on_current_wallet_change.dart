@@ -6,6 +6,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
@@ -52,9 +53,9 @@ void startCurrentWalletChangeReaction(
   //}
   //});
 
-  _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet,
-      (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-          wallet) async {
+  _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet, (WalletBase<Balance,
+          TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>?
+      wallet) async {
     try {
       if (wallet == null) {
         return;
@@ -96,9 +97,9 @@ void startCurrentWalletChangeReaction(
     }
   });
 
-  _onCurrentWalletChangeFiatRateUpdateReaction = reaction((_) => appStore.wallet,
-      (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
-          wallet) async {
+  _onCurrentWalletChangeFiatRateUpdateReaction = reaction((_) => appStore.wallet, (WalletBase<
+          Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>?
+      wallet) async {
     try {
       if (wallet == null || settingsStore.fiatApiMode == FiatApiMode.disabled) {
         return;
@@ -145,7 +146,8 @@ void startCurrentWalletChangeReaction(
 }
 
 void _setAutoGenerateSubaddressStatus(
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+      wallet,
   SettingsStore settingsStore,
 ) async {
   wallet.isEnabledAutoGenerateSubaddress =

@@ -75,8 +75,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     final tileBackgroundColor = currentTheme.type == ThemeType.light
         ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
         : currentTheme.type == ThemeType.oled
-        ? Colors.black.withOpacity(0.5)
-        : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+            ? Colors.black.withOpacity(0.5)
+            : Theme.of(context).extension<FilterTheme>()!.buttonColor;
 
     Widget content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),
@@ -141,6 +141,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                           itemTitleTextStyle: itemTitleTextStyle,
                           itemSubTitleTextStyle: itemSubTitleTextStyle,
                           tileBackgroundColor: tileBackgroundColor,
+                          stealthAddress: item.stealthAddress,
                         )
                       : AddressTile(
                           itemTitle: 'Address',
@@ -360,6 +361,7 @@ class AddressExpansionTile extends StatelessWidget {
     required this.itemTitleTextStyle,
     required this.itemSubTitleTextStyle,
     required this.tileBackgroundColor,
+    this.stealthAddress,
   });
 
   final String contactType;
@@ -371,6 +373,7 @@ class AddressExpansionTile extends StatelessWidget {
   final TextStyle itemTitleTextStyle;
   final TextStyle itemSubTitleTextStyle;
   final Color tileBackgroundColor;
+  final String? stealthAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -418,10 +421,24 @@ class AddressExpansionTile extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: buildSegmentedAddress(
-                      address: address,
-                      evenTextStyle: addressTextStyle,
-                      oddTextStyle: itemSubTitleTextStyle,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildSegmentedAddress(
+                          address: address,
+                          evenTextStyle: addressTextStyle,
+                          oddTextStyle: itemSubTitleTextStyle,
+                        ),
+                        if (stealthAddressText(stealthAddress) != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: buildSegmentedAddress(
+                              address: stealthAddressText(stealthAddress)!,
+                              evenTextStyle: addressTextStyle,
+                              oddTextStyle: itemSubTitleTextStyle,
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                 ],
@@ -458,4 +475,12 @@ class AddressExpansionTile extends StatelessWidget {
       overflow: TextOverflow.visible,
     );
   }
+}
+
+String? stealthAddressText(String? stealthAddress) {
+  if (stealthAddress == null) {
+    return null;
+  }
+
+  return stealthAddress.isNotEmpty ? "-> $stealthAddress" : null;
 }

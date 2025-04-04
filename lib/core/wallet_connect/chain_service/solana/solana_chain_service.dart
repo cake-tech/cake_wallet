@@ -29,7 +29,7 @@ class SolanaChainServiceImpl implements ChainService {
 
   final SolanaChainId reference;
 
-  final SolanaRPC solanaProvider;
+  final SolanaProvider solanaProvider;
 
   final SolanaPrivateKey? ownerPrivateKey;
 
@@ -40,8 +40,9 @@ class SolanaChainServiceImpl implements ChainService {
     required this.wallet,
     required this.ownerPrivateKey,
     required String formattedRPCUrl,
-    SolanaRPC? solanaProvider,
-  }) : solanaProvider = solanaProvider ?? SolanaRPC(SolanaRPCHTTPService(url: formattedRPCUrl)) {
+    SolanaProvider? solanaProvider,
+  }) : solanaProvider =
+            solanaProvider ?? SolanaProvider(SolanaRPCHTTPService(url: formattedRPCUrl)) {
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);
     }
@@ -114,7 +115,7 @@ class SolanaChainServiceImpl implements ChainService {
       final sign = ownerPrivateKey!.sign(message.serialize());
 
       final signature = solanaProvider.request(
-        SolanaRPCSendTransaction(
+        SolanaRequestSendTransaction(
           encodedTransaction: Base58Encoder.encode(sign),
           commitment: Commitment.confirmed,
         ),
