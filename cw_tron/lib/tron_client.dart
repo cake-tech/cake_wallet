@@ -25,6 +25,11 @@ class TronClient {
 
   int get chainId => 1000;
 
+  int retryCount = 0;
+  static const int MAX_RETRIES = 3;
+
+  Future<void> switchNodes() async {}
+
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
@@ -50,9 +55,14 @@ class TronClient {
         return (jsonResponse['data'] as List).map((e) {
           return TronTransactionModel.fromJson(e as Map<String, dynamic>);
         }).toList();
+      } else {
+        if (retryCount > MAX_RETRIES) {
+          retryCount++;
+          await switchNodes();
+          return fetchTransactions(address, contractAddress: contractAddress);
+        }
+        return [];
       }
-
-      return [];
     } catch (e, s) {
       log('Error getting tx: ${e.toString()}\n ${s.toString()}');
       return [];
@@ -83,8 +93,13 @@ class TronClient {
         return (jsonResponse['data'] as List).map((e) {
           return TronTRC20TransactionModel.fromJson(e as Map<String, dynamic>);
         }).toList();
+      } else {
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          await switchNodes();
+          return fetchTrc20ExcludedTransactions(address);
+        }
       }
-
       return [];
     } catch (e, s) {
       log('Error getting trc20 tx: ${e.toString()}\n ${s.toString()}');
