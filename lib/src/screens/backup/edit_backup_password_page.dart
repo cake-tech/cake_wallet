@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -68,7 +67,9 @@ class EditBackupPasswordPage extends BasePage {
               actionRightButton: () async {
                 await editBackupPasswordViewModel.save();
                 Navigator.of(dialogContext).pop();
-                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               actionLeftButton: () => Navigator.of(dialogContext).pop());
         });
