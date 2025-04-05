@@ -68,6 +68,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -448,6 +449,8 @@ Future<void> setup({
       getIt.get<SharedPreferences>()
         .getInt(PreferencesKey.currentWalletType) ?? 0;
     final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
+
+    print(args);
 
     return WalletUnlockLoadableViewModel(
       getIt.get<AppStore>(),
@@ -1116,7 +1119,7 @@ Future<void> setup({
       case WalletType.decred:
         return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.xelis:
-        return decred!.createXelisWalletService(_walletInfoSource);
+        return xelis!.createXelisWalletService(_walletInfoSource);
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');

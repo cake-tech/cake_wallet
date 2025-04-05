@@ -88,6 +88,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.decred:
         _addDecredListItems(tx, dateFormat);
         break;
+      case WalletType.xelis:
+        _addXelisListItems(tx, dateFormat);
+        break;
       case WalletType.none:
       case WalletType.banano:
       break;
@@ -193,6 +196,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://explorer.zano.org/transaction/${txId}';
       case WalletType.decred:
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
+      case WalletType.xelis:
+        return 'https://${wallet.isTestnet ? "testnet-" : ""}explorer.xelis.io/txs/${txId}';
       case WalletType.none:
         return '';
     }
@@ -227,6 +232,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'explorer.zano.org';
       case WalletType.decred:
         return S.current.view_transaction_on + 'dcrdata.decred.org';
+      case WalletType.xelis:
+        return S.current.view_transaction_on + 'explorer.xelis.io';
       case WalletType.none:
         return '';
     }
@@ -521,6 +528,46 @@ abstract class TransactionDetailsViewModelBase with Store {
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
         value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (showRecipientAddress && tx.to != null)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      if (tx.from != null)
+        StandartListItem(
+          title: S.current.transaction_details_source_address,
+          value: tx.from!,
+          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
+        ),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addXelisListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.id,
         key: ValueKey('standard_list_item_transaction_details_id_key'),
       ),
       StandartListItem(

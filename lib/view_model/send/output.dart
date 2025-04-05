@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
@@ -115,6 +116,9 @@ abstract class OutputBase with Store {
             break;
           case WalletType.zano:
             _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            break;
+          case WalletType.xelis:
+            _amount = xelis!.formatterStringDoubleToXelisAmount(_cryptoAmount);
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -302,6 +306,7 @@ abstract class OutputBase with Store {
       case WalletType.zano:
       case WalletType.nano:
       case WalletType.decred:
+      case WalletType.xelis:
         maximumFractionDigits = 12;
         break;
       case WalletType.bitcoin:

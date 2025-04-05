@@ -700,6 +700,7 @@ abstract class DashboardViewModelBase with Store {
         return true;
       case WalletType.zano:
       case WalletType.haven:
+      case WalletType.xelis: // TODO: finalize whether to change this
       case WalletType.none:
         return false;
     }

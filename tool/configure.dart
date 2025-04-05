@@ -12,6 +12,7 @@ const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
 const xelisOutputPath = 'lib/xelis/xelis.dart';
+const frbInitPath = 'lib/frb_init.g.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -77,6 +78,9 @@ Future<void> main(List<String> args) async {
     hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
+    hasXelis: hasXelis,
+  );
+  await generateFRBInit(
     hasXelis: hasXelis,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
@@ -1410,6 +1414,8 @@ import 'package:cw_xelis/xelis_wallet_creation_credentials.dart';
 import 'package:cw_xelis/xelis_transaction_info.dart';
 import 'package:cw_xelis/xelis_transaction_history.dart';
 import 'package:cw_xelis/xelis_formatting.dart';
+import 'package:cw_xelis/xelis_transaction_credentials.dart';
+import 'package:cw_xelis/xelis_transaction_priority.dart';
 """;
   const xelisCwPart = "part 'cw_xelis.dart';";
   const xelisContent = """
@@ -1417,7 +1423,7 @@ import 'package:cw_xelis/xelis_formatting.dart';
 abstract class Xelis {
   List<String> getXelisWordList(String language);
   WalletCredentials createXelisNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo});
+      {required String name, WalletInfo? walletInfo, required String password});
   WalletCredentials createXelisRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
 
@@ -1426,6 +1432,8 @@ abstract class Xelis {
   String getAddress(WalletBase wallet);
   bool validateAddress(String address);
 
+  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
+
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getXelisTransactionPriorityFast();
@@ -1433,9 +1441,9 @@ abstract class Xelis {
   TransactionPriority getXelisTransactionPrioritySlow();
   TransactionPriority deserializeXelisTransactionPriority(int raw);
 
-  Object createXelisTransactionCredentials(List<Output> outputs, TransactionPriority priority, CryptoCurrency currency);
+  Object createXelisTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, required CryptoCurrency currency});
 
-  double formatterXelisAmountToDouble({required int amount});
+  double formatterXelisAmountToDouble({TransactionInfo? transaction, BigInt? amount, int decimals = 8});
   int formatterStringDoubleToXelisAmount(String amount);
 
   // List<XelisAsset> getXelisAssets(WalletBase wallet);
@@ -1627,6 +1635,32 @@ Future<void> generatePubspec({
   await outputFile.writeAsString(outputContent);
 }
 
+Future<void> generateFRBInit({
+  required bool hasXelis,
+}) async {
+  final frbInitFile = File(frbInitPath);
+
+  if (frbInitFile.existsSync()) {
+    await frbInitFile.delete();
+  }
+
+  const outputDefinition = 'Future<void> frb_init() async {';
+  var outputHeader = "";
+  var inits = "";
+  var outputContent = outputHeader + '\n\n' + outputDefinition + '\n';
+
+  if (hasXelis) {
+    outputHeader += "import 'package:cw_xelis/src/frb_generated.dart' as xelis_rust;\n";
+    inits += '\tawait xelis_rust.RustLib.init();\n';
+  }
+
+  outputContent = outputHeader + '\n\n' + 
+    outputDefinition + '\n' +
+    inits + 
+    '}';
+  await frbInitFile.writeAsString(outputContent);
+}
+
 Future<void> generateWalletTypes({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1704,7 +1738,7 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.wownero,\n';
   }
 
-  if (hasDecred) {
+  if (hasXelis) {
     outputContent += '\tWalletType.xelis,\n';
   }
 

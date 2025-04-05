@@ -163,6 +163,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.xelis:
         //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
         //
         //   items.addAll([
@@ -251,6 +252,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'zano-wallet';
       case WalletType.decred:
         return 'decred-wallet';
+      case WalletType.xelis:
+        return 'xelis-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }

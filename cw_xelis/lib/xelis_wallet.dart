@@ -10,6 +10,8 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/encryption_file_utils.dart';
+
 
 import 'package:cw_xelis/xelis_asset_balance.dart';
 import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
@@ -18,7 +20,7 @@ import 'package:cw_xelis/xelis_transaction_info.dart';
 import 'package:cw_xelis/xelis_transaction_history.dart';
 import 'package:cw_xelis/xelis_wallet_addresses.dart';
 import 'package:cw_xelis/xelis_events.dart';
-// import 'package:cw_xelis/transaction_priority.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
 
@@ -48,6 +50,7 @@ abstract class XelisWalletBase
     required WalletInfo walletInfo,
     required x_wallet.XelisWallet libWallet,
     required String password,
+    required this.network,
   })
   : 
     _password = password,
@@ -59,17 +62,17 @@ abstract class XelisWalletBase
   {
     walletAddresses = XelisWalletAddresses(walletInfo, _libWallet);
     transactionHistory = XelisTransactionHistory();
-    _init();
   }
 
   String _password;
 
   bool synced = false;
   bool connecting = false;
-  String persistantPeer = "us-node.xelis.io";
+  String persistantPeer = "";
   Timer? syncTimer;
   int pruningHeight = 0;
   var _seed = "";
+  Network network;
 
   @override
   late ObservableMap<CryptoCurrency, XelisAssetBalance> balance;
@@ -119,6 +122,8 @@ abstract class XelisWalletBase
         final data = jsonDecode(raw);
         final event = xelis_sdk.WalletEvent.fromStr(data['event'] as String);
 
+        print("RECEIVED EVENT $data");
+
         switch (event) {
           case xelis_sdk.WalletEvent.newTransaction:
             yield NewTransaction(xelis_sdk.TransactionEntry.fromJson(data['data']));
@@ -144,12 +149,16 @@ abstract class XelisWalletBase
   }
 
   @override
-  Future<void> save() async {}
+  Future<void> save() async {
+    // TODO: backup network information for the wallet, as it is necessary for both
+    // creation and opening
+  }
 
   @action
   @override
   Future<void> startSync() async {
     try {
+      if (!(await _libWallet.isOnline())) { return; }
       syncStatus = AttemptingSyncStatus();
       await updateBalance();
       await _updateTransactions();
@@ -162,6 +171,7 @@ abstract class XelisWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
+    print("CALLED CONNECT");
     if (connecting) {
       return;
     }
@@ -179,10 +189,13 @@ abstract class XelisWalletBase
         syncTimer = null;
       }
       persistantPeer = addr;
-      await _libWallet.offlineMode();
-      await _libWallet.onlineMode(daemonAddress: addr);
     }
+    if (await _libWallet.isOnline()) {
+      await _libWallet.offlineMode();
+    }
+    await _libWallet.onlineMode(daemonAddress: addr);
     await this.startSync();
+    print("AFTER CONNECT");
     connecting = false;
   }
 
@@ -190,7 +203,7 @@ abstract class XelisWalletBase
   Future<void> rescan({required int height}) async {
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
-   _libWallet.rescan(topoheight: BigInt.from(pruningHeight));
+    _libWallet.rescan(topoheight: BigInt.from(pruningHeight));
     await startSync();
     await updateBalance();
     await _updateTransactions(isRescan: true);
@@ -217,13 +230,16 @@ abstract class XelisWalletBase
 
       case NewTopoheight():
         // maybe track height
+        print("NEW TOPOHEIGHT");
         break;
 
       case Online():
+        print("CONNECT");
         syncStatus = ConnectedSyncStatus();
         break;
 
       case Offline():
+        print("DISCONNECT");
         syncStatus = NotConnectedSyncStatus();
         break;
 
@@ -238,7 +254,7 @@ abstract class XelisWalletBase
   }
 
   @action
-  Future<void> _init() async {
+  Future<void> init() async {
     try {
       walletAddresses.init();
       _subscribeToWalletEvents();

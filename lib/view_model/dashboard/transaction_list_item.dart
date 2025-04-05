@@ -10,6 +10,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -223,6 +224,17 @@ class TransactionListItem extends ActionListItem with Keyable {
         amount = calculateFiatAmountRaw(
             cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
             price: price);
+        break;
+      case WalletType.xelis:
+        // TODO
+        // final asset = xelis!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        // final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: xelis!.formatterXelisAmountToDouble(
+                amount: xelis!.getTransactionAmountRaw(transaction)
+              ),
+              price: price
+            );
         break;
       case WalletType.none:
       case WalletType.banano:

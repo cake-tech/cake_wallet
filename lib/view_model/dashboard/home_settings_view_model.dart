@@ -14,6 +14,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -204,6 +205,11 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.tron:
         defaultTokenAddresses = tron!.getDefaultTokenContractAddresses();
         break;
+      case WalletType.xelis:
+        // TODO
+        // defaultTokenAddresses = xelis!.getDefaultAssetIDs();
+        // break;
+        return false;
       case WalletType.zano:
       case WalletType.banano:
       case WalletType.monero:

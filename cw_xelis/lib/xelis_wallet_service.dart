@@ -24,6 +24,7 @@ enum XelisTableSize {
   full,
   none;
 
+  bool get isFull => this == XelisTableSize.full;
   bool get isLow => this == XelisTableSize.low;
 
   static XelisTableSize get platformDefault {
@@ -137,9 +138,9 @@ class XelisWalletService extends WalletService<
     final tablesRoot = await _getTablePath();
 
     final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
-    final selectedTablePath = '$tablesRoot/$selectedTableSubdir';
+    final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     
-    final network = isTestnet == true ? Network.testnet : Network.mainnet;
+    network = isTestnet == true ? Network.testnet : Network.mainnet;
 
     final frbWallet = await x_wallet.createXelisWallet(
       name: fullPath,
@@ -147,7 +148,7 @@ class XelisWalletService extends WalletService<
       password: credentials.password!,
       network: network,
       precomputedTablesPath: selectedTablePath,
-      l1Low: tableState.currentSize.isLow,
+      l1Low: !tableState.currentSize.isFull,
     );
 
     final walletInfo = credentials.walletInfo!;
@@ -156,6 +157,8 @@ class XelisWalletService extends WalletService<
 
     final wallet = XelisWallet(walletInfo: walletInfo, libWallet: frbWallet, password: credentials.password!);
     unawaited(_upgradeTablesIfNeeded());
+    await wallet.init();
+    await wallet.save();
     return wallet;
   }
 
@@ -169,7 +172,7 @@ class XelisWalletService extends WalletService<
     final tablesRoot = await _getTablePath();
 
     final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
-    final selectedTablePath = '$tablesRoot/$selectedTableSubdir';
+    final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     
     final network = NetworkName.fromName(walletInfo!.network!);
 
@@ -180,11 +183,14 @@ class XelisWalletService extends WalletService<
         password: password,
         network: network,
         precomputedTablesPath: selectedTablePath,
-        l1Low: tableState.currentSize.isLow,
+        l1Low: !tableState.currentSize.isFull,
       );
 
       final wallet = XelisWallet(walletInfo: walletInfo, libWallet: frbWallet, password: password);
+      await wallet.save();
+      saveBackup(name);
       unawaited(_upgradeTablesIfNeeded());
+      await wallet.init();
       return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
@@ -195,11 +201,13 @@ class XelisWalletService extends WalletService<
         password: password,
         network: network,
         precomputedTablesPath: selectedTablePath,
-        l1Low: tableState.currentSize.isLow,
+        l1Low: !tableState.currentSize.isFull,
       );
 
       final wallet = XelisWallet(walletInfo: walletInfo, libWallet: frbWallet, password: password);
       unawaited(_upgradeTablesIfNeeded());
+      await wallet.init();
+      await wallet.save();
       return wallet;
     }
   }
@@ -219,6 +227,7 @@ class XelisWalletService extends WalletService<
     }
 
     await Directory(fullPath).rename(newPath);
+    await saveBackup(newName);
 
     final newWalletInfo = currentWalletInfo;
     newWalletInfo.id = WalletBase.idFor(newName, getType());
@@ -245,7 +254,7 @@ class XelisWalletService extends WalletService<
     final tablesRoot = await _getTablePath();
 
     final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
-    final selectedTablePath = '$tablesRoot/$selectedTableSubdir';
+    final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     final network = isTestnet == true ? Network.testnet : Network.mainnet;
 
     final frbWallet = await x_wallet.createXelisWallet(
@@ -255,16 +264,17 @@ class XelisWalletService extends WalletService<
       seed: credentials.mnemonic,
       network: network,
       precomputedTablesPath: selectedTablePath,
-      l1Low: tableState.currentSize.isLow,
+      l1Low: !tableState.currentSize.isFull,
     );
 
     final walletInfo = credentials.walletInfo!;
     walletInfo.address = frbWallet.getAddressStr();
     walletInfo.network = network.name;
-    await walletInfo.save();
 
-    final wallet = XelisWallet(walletInfo: walletInfo, libWallet: frbWallet, password: credentials.password!);
+    final wallet = XelisWallet(walletInfo: credentials.walletInfo!, libWallet: frbWallet, password: credentials.password!);
     unawaited(_upgradeTablesIfNeeded());
+    await wallet.init();
+    await wallet.save();
     return wallet;
   }
 

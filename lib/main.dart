@@ -50,6 +50,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
 
+import 'frb_init.g.dart';
+
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
 final RouteObserver<PageRoute<dynamic>> routeObserver = RouteObserver<PageRoute<dynamic>>();
@@ -61,6 +63,7 @@ Future<void> main({Key? topLevelKey}) async {
 Future<void> runAppWithZone({Key? topLevelKey}) async {
   bool isAppRunning = false;
 
+  await frb_init();
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     FlutterError.onError = ExceptionHandler.onError;
@@ -221,7 +224,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 49,
+    initialMigrationVersion: 50,
   );
 }
 

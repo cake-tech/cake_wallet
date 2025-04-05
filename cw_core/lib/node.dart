@@ -104,6 +104,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.tron:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.xelis:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
@@ -165,6 +166,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.polygon:
         case WalletType.solana:
         case WalletType.tron:
+        case WalletType.xelis:
           return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();
@@ -360,13 +362,13 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestDecredNode() async {
-  if (uri.host == "default-spv-nodes") {
-    // Just show default port as ok. The wallet will connect to a list of known
-    // nodes automatically.
-    return true;
-  }
-  try {
-    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+    if (uri.host == "default-spv-nodes") {
+      // Just show default port as ok. The wallet will connect to a list of known
+      // nodes automatically.
+      return true;
+    }
+    try {
+      final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
       socket.destroy();
       return true;
     } catch (_) {

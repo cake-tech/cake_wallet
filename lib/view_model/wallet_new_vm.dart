@@ -48,7 +48,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector =>
-      [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.xelis].contains(type);
 
   int get seedPhraseWordsLength {
     switch (type) {
@@ -170,7 +170,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.xelis:
         return xelis!.createXelisNewWalletCredentials(
           name: name,
-          password: walletPassword,
+          password: walletPassword!,
         );
       case WalletType.none:
       case WalletType.haven:

@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/di.dart';
@@ -141,6 +142,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
+      TransactionPriority? initialXelisTransactionPriority,
       Country? initialCakePayCountry})
       : nodes = ObservableMap<WalletType, Node>.of(nodes),
         powNodes = ObservableMap<WalletType, Node>.of(powNodes),
@@ -229,6 +231,9 @@ abstract class SettingsStoreBase with Store {
     if (initialDecredTransactionPriority != null) {
       priority[WalletType.decred] = initialDecredTransactionPriority;
     }
+    if (initialXelisTransactionPriority != null) {
+      priority[WalletType.xelis] = initialXelisTransactionPriority;
+    }
 
     if (initialCakePayCountry != null) {
       selectedCakePayCountry = initialCakePayCountry;
@@ -286,6 +291,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.decred:
           key = PreferencesKey.decredTransactionPriority;
+          break;
+        case WalletType.xelis:
+          key = PreferencesKey.xelisTransactionPriority;
           break;
         default:
           key = null;
@@ -902,6 +910,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
+    TransactionPriority? xelisTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -935,6 +944,10 @@ abstract class SettingsStoreBase with Store {
       decredTransactionPriority = decred?.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.xelisTransactionPriority) != null) {
+      xelisTransactionPriority = xelis?.deserializeXelisTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.xelisTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -944,6 +957,7 @@ abstract class SettingsStoreBase with Store {
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
+    xelisTransactionPriority ??= xelis?.getXelisTransactionPrioritySlow();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
@@ -1048,6 +1062,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final xelisNodeId = sharedPreferences.getInt(PreferencesKey.currentXelisNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1057,6 +1072,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final decredNode = nodeSource.get(decredNodeId);
+    final xelisNode = nodeSource.get(xelisNodeId);
     final nanoPowNode = powNodeSource.get(nanoPowNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
     final tronNode = nodeSource.get(tronNodeId);
@@ -1149,6 +1165,10 @@ abstract class SettingsStoreBase with Store {
 
     if (decredNode != null) {
       nodes[WalletType.decred] = decredNode;
+    }
+
+    if (xelisNode != null) {
+      nodes[WalletType.xelis] = xelisNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1319,6 +1339,7 @@ abstract class SettingsStoreBase with Store {
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
+      initialXelisTransactionPriority: xelisTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
       initialShouldRequireTOTP2FAForSendsToNonContact: shouldRequireTOTP2FAForSendsToNonContact,
@@ -1396,6 +1417,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.decredTransactionPriority) != null) {
       priority[WalletType.decred] = decred!.deserializeDecredTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.decredTransactionPriority)!);
+    }
+    if (xelis != null &&
+        sharedPreferences.getInt(PreferencesKey.xelisTransactionPriority) != null) {
+      priority[WalletType.xelis] = xelis!.deserializeXelisTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.xelisTransactionPriority)!);
     }
 
     final generateSubaddresses =
@@ -1509,6 +1535,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final xelisNodeId = sharedPreferences.getInt(PreferencesKey.currentXelisNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1522,6 +1549,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNode = nodeSource.get(wowneroNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
     final decredNode = nodeSource.get(decredNodeId);
+    final xelisNode = nodeSource.get(xelisNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1576,6 +1604,9 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.decred] = decredNode;
     }
 
+    if (xelisNode != null) {
+      nodes[WalletType.xelis] = xelisNode;
+    }
     // MIGRATED:
 
     useTOTP2FA = await SecureKey.getBool(
@@ -1714,6 +1745,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.decred:
         await _sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
+        break;
+      case WalletType.xelis:
+        await _sharedPreferences.setInt(PreferencesKey.currentXelisNodeIdKey, node.key as int);
         break;
       case WalletType.zano:
         await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);

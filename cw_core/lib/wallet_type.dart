@@ -18,6 +18,7 @@ const walletTypes = [
   WalletType.tron,
   WalletType.zano,
   WalletType.decred,
+  WalletType.xelis,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -176,7 +177,7 @@ String walletTypeToString(WalletType type) {
       return 'Zano';
     case WalletType.decred:
       return 'Decred';
-    case WalletType.decred:
+    case WalletType.xelis:
       return 'Xelis';
     case WalletType.none:
       return '';
@@ -213,7 +214,7 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Zano (ZANO)';
     case WalletType.decred:
       return 'Decred (DCR)';
-    case WalletType.decred:
+    case WalletType.xelis:
       return 'Xelis (XEL)';
     case WalletType.none:
       return '';

@@ -181,8 +181,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
           );
         case WalletType.decred:
-        case WalletType.xelis:
           return decred!.createDecredRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+          );
+        case WalletType.xelis:
+          return xelis!.createXelisRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,

@@ -3,8 +3,8 @@ part of 'xelis.dart';
 class CWXelis extends Xelis { 
   @override
   List<String> getXelisWordList(String language) {
-    final lang_idx = x_utils.getLanguageIndexFromStr(input: language);
-    return x_utils.getMnemonicWords(languageIndex: lang_idx);
+    final lang_idx = getLanguageIndexFromStr(input: language);
+    return getMnemonicWords(languageIndex: lang_idx);
   }
 
   WalletService createXelisWalletService(Box<WalletInfo> walletInfoSource) =>
@@ -16,7 +16,6 @@ class CWXelis extends Xelis {
     String? mnemonic,
     WalletInfo? walletInfo,
     required String password,
-    required String network,
   }) =>
       XelisNewWalletCredentials(
         name: name,
@@ -40,7 +39,7 @@ class CWXelis extends Xelis {
   String getAddress(WalletBase wallet) => (wallet as XelisWallet).walletAddresses.address;
 
   @override
-  bool validateAddress(String address) => isAddressValid(address);
+  bool validateAddress(String address) => isAddressValid(strAddress: address);
 
   @override
   List<TransactionPriority> getTransactionPriorities() => XelisTransactionPriority.all;
@@ -56,6 +55,11 @@ class CWXelis extends Xelis {
 
   @override
   TransactionPriority getXelisTransactionPrioritySlow() => XelisTransactionPriority.slow;
+
+  @override
+  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {
+    return (transactionInfo as XelisTransactionInfo).xelAmount;
+  }
 
   @override
   TransactionPriority deserializeXelisTransactionPriority(int raw) =>
@@ -84,18 +88,16 @@ class CWXelis extends Xelis {
         currency: currency,
       );
 
-   @override
+  @override
   Object createXelisTransactionCredentialsRaw(
     List<OutputInfo> outputs, {
     TransactionPriority? priority,
     required CryptoCurrency currency,
-    required int feeRate,
   }) =>
       XelisTransactionCredentials(
         outputs,
         priority: priority as XelisTransactionPriority?,
         currency: currency,
-        feeRate: feeRate,
       );
 
   @override
@@ -103,14 +105,14 @@ class CWXelis extends Xelis {
 
   @override
   double formatterXelisAmountToDouble(
-      {TransactionInfo? transaction, int? amount, int decimals = 8}) {
+      {TransactionInfo? transaction, BigInt? amount, int decimals = 8}) {
     assert(transaction != null || amount != null);
 
     if (transaction != null) {
       transaction as XelisTransactionInfo;
-      return transaction.ethAmount / BigInt.from(10).pow(transaction.decimals);
+      return transaction.xelAmount / BigInt.from(10).pow(transaction.decimals);
     } else {
-      return BigInt.from(amount!) / BigInt.from(10).pow(decimals);
+      return amount! / BigInt.from(10).pow(decimals);
     }
   }
 
