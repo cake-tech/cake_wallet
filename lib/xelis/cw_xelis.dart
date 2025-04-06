@@ -45,16 +45,13 @@ class CWXelis extends Xelis {
   List<TransactionPriority> getTransactionPriorities() => XelisTransactionPriority.all;
 
   @override
-  TransactionPriority getDefaultTransactionPriority() => XelisTransactionPriority.slow;
+  TransactionPriority getDefaultTransactionPriority() => XelisTransactionPriority.medium;
 
   @override
   TransactionPriority getXelisTransactionPriorityFast() => XelisTransactionPriority.fast;
 
   @override
   TransactionPriority getXelisTransactionPriorityMedium() => XelisTransactionPriority.medium;
-
-  @override
-  TransactionPriority getXelisTransactionPrioritySlow() => XelisTransactionPriority.slow;
 
   @override
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {

@@ -197,6 +197,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.decred) {
         return decred!.formatterDecredAmountToDouble(amount: fee);
       }
+
+      if (_wallet.type == WalletType.xelis) {
+        return xelis!.formatterXelisAmountToDouble(amount: fee);
+      }
     } catch (e) {
       printV(e.toString());
     }

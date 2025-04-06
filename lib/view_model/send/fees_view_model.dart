@@ -93,7 +93,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.decred:
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.xelis:
-        return transactionPriority == xelis!.getXelisTransactionPrioritySlow();
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:

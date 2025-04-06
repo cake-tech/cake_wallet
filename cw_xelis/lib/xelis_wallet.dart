@@ -13,13 +13,16 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 
+import 'package:cw_xelis/xelis_exception.dart';
 import 'package:cw_xelis/xelis_asset_balance.dart';
 import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
 import 'package:cw_xelis/src/api/network.dart';
 import 'package:cw_xelis/src/api/utils.dart';
 import 'package:cw_xelis/xelis_transaction_info.dart';
 import 'package:cw_xelis/xelis_transaction_history.dart';
+import 'package:cw_xelis/xelis_transaction_credentials.dart';
 import 'package:cw_xelis/xelis_wallet_addresses.dart';
+import 'package:cw_xelis/xelis_pending_transaction.dart';
 import 'package:cw_xelis/xelis_events.dart';
 import 'package:cw_xelis/xelis_store_utils.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -127,8 +130,6 @@ abstract class XelisWalletBase
         final data = jsonDecode(raw);
         final event = xelis_sdk.WalletEvent.fromStr(data['event'] as String);
 
-        print("RECEIVED EVENT $data");
-
         switch (event) {
           case xelis_sdk.WalletEvent.newTransaction:
             yield NewTransaction(xelis_sdk.TransactionEntry.fromJson(data['data']));
@@ -158,7 +159,7 @@ abstract class XelisWalletBase
             continue;
         }
       } catch (e) {
-        // print('Failed to parse wallet event: $e');
+        print('Failed to parse wallet event: $e');
       }
     }
   }
@@ -208,7 +209,6 @@ abstract class XelisWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
-    print("CALLED CONNECT");
     if (connecting) {
       return;
     }
@@ -232,7 +232,6 @@ abstract class XelisWalletBase
     }
     await _libWallet.onlineMode(daemonAddress: addr);
     await this.startSync();
-    print("AFTER CONNECT");
     connecting = false;
   }
 
@@ -262,6 +261,8 @@ abstract class XelisWalletBase
             balance: event.balance,
             decimals: 8,
           );
+        } else {
+          // TODO: associate asset IDs with balance instances
         }
         break;
 
@@ -299,7 +300,7 @@ abstract class XelisWalletBase
       _seed = await _libWallet.getSeed();
       await save();
     } catch (e) {
-      // print("Failed to init wallet: $e");
+      print("Failed to init wallet: $e");
     }
   }
 
@@ -342,60 +343,95 @@ abstract class XelisWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-    throw UnimplementedError();
-    // final creds = credentials as XelisTransactionCredentials;
-    // var totalAmt = 0;
-    // var sendAll = false;
-    // final outputs = [];
-    // for (final out in creds.outputs) {
-    //   var amt = 0;
-    //   if (out.sendAll) {
-    //     if (creds.outputs.length != 1) {
-    //       throw "can only send all to one output";
-    //     }
-    //     sendAll = true;
-    //     totalAmt = totalIn;
-    //   } else if (out.cryptoAmount != null) {
-    //     final coins = double.parse(out.cryptoAmount!);
-    //     amt = (coins * 1e8).round();
-    //   }
-    //   totalAmt += amt;
-    //   final o = {
-    //     "address": out.isParsedAddress ? out.extractedAddress! : out.address,
-    //     "amount": amt
-    //   };
-    //   outputs.add(o);
-    // }
+    final xelisCredentials = credentials as XelisTransactionCredentials;
 
-    // // throw exception if no selected coins under coin control
-    // // or if the total coins selected, is less than the amount the user wants to spend
-    // if (ignoreInputs.length == unspentCoinsInfo.values.length || totalIn < totalAmt) {
-    //   throw TransactionNoInputsException();
-    // }
+    final outputs = xelisCredentials.outputs;
 
-    // // The inputs are always used. Currently we don't have use for this
-    // // argument. sendall ingores output value and sends everything.
-    // final signReq = {
-    //   // "inputs": inputs,
-    //   "ignoreInputs": ignoreInputs,
-    //   "outputs": outputs,
-    //   "feerate": creds.feeRate ?? defaultFeeRate,
-    //   "password": _password,
-    //   "sendall": sendAll,
-    // };
-    // final res = await _libWallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
-    // final decoded = json.decode(res);
-    // final signedHex = decoded["signedhex"];
-    // final send = () async {
-    //   await _libWallet.sendRawTransaction(walletInfo.name, signedHex);
-    //   await updateBalance();
-    // };
-    // final fee = decoded["fee"] ?? 0;
-    // if (sendAll) {
-    //   totalAmt = (totalAmt - fee).round();
-    // }
-    // return DecredPendingTransaction(
-    //     txid: decoded["txid"] ?? "", amount: totalAmt, fee: fee, rawHex: signedHex, send: send);
+    final hasMultiDestination = outputs.length > 1;
+
+    final CryptoCurrency transactionCurrency =
+        balance.keys.firstWhere((element) => element.title == xelisCredentials.currency.title);
+
+    final asset = balance[transactionCurrency]!.asset;
+    final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
+    var totalAmountFromCredentials = 0;
+
+    final fee = calculateEstimatedFee(credentials.priority);
+
+    double totalAmount = 0.0;
+    bool shouldSendAll = false;
+    if (hasMultiDestination) {
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+        throw XelisTransactionCreationException(transactionCurrency);
+      }
+
+      totalAmountFromCredentials =
+          outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
+
+      totalAmount = double.parse(await _libWallet.formatCoin(
+        atomicAmount: BigInt.from(totalAmountFromCredentials),
+        assetHash: asset,
+      ));
+
+      if (walletBalanceForCurrency < totalAmount + fee) {
+        throw XelisTransactionCreationException(transactionCurrency);
+      }
+    } else {
+      final output = outputs.first;
+      shouldSendAll = output.sendAll;
+
+      if (!shouldSendAll) {
+        totalAmount = double.parse(output.cryptoAmount ?? '0.0');
+      } else {
+        totalAmountFromCredentials = balance[transactionCurrency]!.balance;
+      }
+
+      if (walletBalanceForCurrency < totalAmount + fee || totalAmount < 0) {
+        throw XelisTransactionCreationException(transactionCurrency);
+      }
+    }
+
+    late final String txJson;
+    if (shouldSendAll) {
+      txJson = await _libWallet.createTransferAllTransaction(
+        strAddress: xelisCredentials.outputs.first.isParsedAddress
+          ? xelisCredentials.outputs.first.extractedAddress!
+          : xelisCredentials.outputs.first.address,
+        assetHash: asset,
+        extraData: null,
+      );
+    } else {
+      txJson = await _libWallet.createTransfersTransaction(
+        transfers: [
+          x_wallet.Transfer(
+            floatAmount: totalAmount,
+            strAddress: xelisCredentials.outputs.first.isParsedAddress
+              ? xelisCredentials.outputs.first.extractedAddress!
+              : xelisCredentials.outputs.first.address,
+            assetHash: asset,
+            extraData: null,
+          ),
+        ],
+      );
+    }
+
+
+    final txMap = jsonDecode(txJson);
+    final txHash = txMap['hash'] as String;
+
+    // Broadcast the transaction
+    final send = () async {
+      await _libWallet.broadcastTransaction(txHash: txHash);
+      await updateBalance();
+    };
+
+    return XelisPendingTransaction(
+      txid: txHash,
+      amount: totalAmountFromCredentials,
+      fee: txMap['fee'] as int,
+      decimals: balance[transactionCurrency]!.decimals,
+      send: send
+    );
   }
 
   // TODO

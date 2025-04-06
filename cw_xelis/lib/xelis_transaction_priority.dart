@@ -4,7 +4,7 @@ class XelisTransactionPriority extends TransactionPriority {
   const XelisTransactionPriority({required String title, required int raw})
       : super(title: title, raw: raw);
 
-  static const List<XelisTransactionPriority> all = [fast, medium, slow];
+  static const List<XelisTransactionPriority> all = [medium];
   static const XelisTransactionPriority slow = XelisTransactionPriority(title: 'Slow', raw: 1);
   static const XelisTransactionPriority medium =
       XelisTransactionPriority(title: 'Medium', raw: 2);
@@ -31,13 +31,13 @@ class XelisTransactionPriority extends TransactionPriority {
 
     switch (this) {
       case XelisTransactionPriority.slow:
-        label = 'Standard';
+        label = 'Slow';
         break;
       case XelisTransactionPriority.medium:
-        label = 'Faster';
+        label = 'Standard';
         break;
       case XelisTransactionPriority.fast:
-        label = 'Fastest';
+        label = 'Fast';
         break;
       default:
         break;

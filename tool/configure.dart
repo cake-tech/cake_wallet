@@ -1438,7 +1438,6 @@ abstract class Xelis {
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority getXelisTransactionPriorityFast();
   TransactionPriority getXelisTransactionPriorityMedium();
-  TransactionPriority getXelisTransactionPrioritySlow();
   TransactionPriority deserializeXelisTransactionPriority(int raw);
 
   Object createXelisTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, required CryptoCurrency currency});

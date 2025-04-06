@@ -957,7 +957,7 @@ abstract class SettingsStoreBase with Store {
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
-    xelisTransactionPriority ??= xelis?.getXelisTransactionPrioritySlow();
+    xelisTransactionPriority ??= xelis?.getXelisTransactionPriorityMedium();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
