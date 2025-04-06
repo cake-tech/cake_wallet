@@ -11,15 +11,17 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-
+import 'package:cw_core/pathForWallet.dart';
 
 import 'package:cw_xelis/xelis_asset_balance.dart';
 import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
+import 'package:cw_xelis/src/api/network.dart';
 import 'package:cw_xelis/src/api/utils.dart';
 import 'package:cw_xelis/xelis_transaction_info.dart';
 import 'package:cw_xelis/xelis_transaction_history.dart';
 import 'package:cw_xelis/xelis_wallet_addresses.dart';
 import 'package:cw_xelis/xelis_events.dart';
+import 'package:cw_xelis/xelis_store_utils.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
@@ -43,7 +45,7 @@ class Recipient {
 abstract class XelisWalletBase 
   extends WalletBase<XelisAssetBalance,
     XelisTransactionHistory, XelisTransactionInfo
-> with Store {
+> with Store, WalletKeysFile {
   final x_wallet.XelisWallet _libWallet;
 
   XelisWalletBase({
@@ -51,6 +53,7 @@ abstract class XelisWalletBase
     required x_wallet.XelisWallet libWallet,
     required String password,
     required this.network,
+    required this.encryptionFileUtils,
   })
   : 
     _password = password,
@@ -65,9 +68,11 @@ abstract class XelisWalletBase
   }
 
   String _password;
+  final EncryptionFileUtils encryptionFileUtils;
 
   bool synced = false;
   bool connecting = false;
+  bool requestedClose = false;
   String persistantPeer = "";
   Timer? syncTimer;
   int pruningHeight = 0;
@@ -139,6 +144,16 @@ abstract class XelisWalletBase
             yield const Offline();
           case xelis_sdk.WalletEvent.historySynced:
             yield HistorySynced(data['data']['topoheight'] as int);
+          case xelis_sdk.WalletEvent.newAsset:
+            yield NewAsset(
+              data['data']['asset'] as String,
+              data['data']['decimals'] as int,
+              data['data']['max_supply'] as int,
+              data['data']['name'] as String,
+              data['data']['owner'] as String,
+              data['data']['ticker'] as String,
+              data['data']['topoheight'] as int,
+            );
           default:
             continue;
         }
@@ -150,9 +165,31 @@ abstract class XelisWalletBase
 
   @override
   Future<void> save() async {
-    // TODO: backup network information for the wallet, as it is necessary for both
-    // creation and opening
+    await saveXelisNetwork(name, network);
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(_password, encryptionFileUtils);
+      saveKeysFile(_password, encryptionFileUtils, true);
+    }
+
+    await walletAddresses.updateAddressesInBox();
+    final path = await makePath();
+    await encryptionFileUtils.write(path: path, password: _password, data: toJSON());
+    await transactionHistory.save();
   }
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(
+    mnemonic: _seed,
+    privateKey: "",
+    passphrase: "",
+  );
+
+  String toJSON() => json.encode({
+    'mnemonic': _seed,
+    'private_key': privateKey,
+    'balance': balance[currency]!.toJSON(),
+    'passphrase': passphrase,
+  });
 
   @action
   @override
@@ -223,23 +260,20 @@ abstract class XelisWalletBase
         if (event.asset == xelis_sdk.xelisAsset) {
           balance[CryptoCurrency.xel] = XelisAssetBalance(
             balance: event.balance,
-            decimals: 8
+            decimals: 8,
           );
         }
         break;
 
       case NewTopoheight():
         // maybe track height
-        print("NEW TOPOHEIGHT");
         break;
 
       case Online():
-        print("CONNECT");
         syncStatus = ConnectedSyncStatus();
         break;
 
       case Offline():
-        print("DISCONNECT");
         syncStatus = NotConnectedSyncStatus();
         break;
 
@@ -248,6 +282,10 @@ abstract class XelisWalletBase
         break;
 
       case Rescan():
+        // optional
+        break;
+      
+      case NewAsset():
         // optional
         break;
     }
@@ -259,6 +297,7 @@ abstract class XelisWalletBase
       walletAddresses.init();
       _subscribeToWalletEvents();
       _seed = await _libWallet.getSeed();
+      await save();
     } catch (e) {
       // print("Failed to init wallet: $e");
     }
@@ -278,6 +317,7 @@ abstract class XelisWalletBase
       balance: (await _libWallet.getXelisBalanceRaw()).toInt(),
       decimals: 8
     );
+    await save();
   }
 
   @override
@@ -430,7 +470,13 @@ abstract class XelisWalletBase
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
+    if (requestedClose) {
+      return;
+    }
+    requestedClose = true;
     await _unsubscribeFromWalletEvents();
+    await _libWallet.offlineMode();
     await _libWallet.close();
+    x_wallet.dropWallet(wallet: _libWallet);
   }
 }

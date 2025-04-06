@@ -1119,7 +1119,7 @@ Future<void> setup({
       case WalletType.decred:
         return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.xelis:
-        return xelis!.createXelisWalletService(_walletInfoSource);
+        return xelis!.createXelisWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');

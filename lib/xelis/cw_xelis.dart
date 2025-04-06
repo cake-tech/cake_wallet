@@ -7,8 +7,8 @@ class CWXelis extends Xelis {
     return getMnemonicWords(languageIndex: lang_idx);
   }
 
-  WalletService createXelisWalletService(Box<WalletInfo> walletInfoSource) =>
-      XelisWalletService(walletInfoSource);
+  WalletService createXelisWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+      XelisWalletService(walletInfoSource, isDirect: isDirect);
 
   @override
   WalletCredentials createXelisNewWalletCredentials({

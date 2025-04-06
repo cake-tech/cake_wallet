@@ -1427,7 +1427,7 @@ abstract class Xelis {
   WalletCredentials createXelisRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
 
-  WalletService createXelisWalletService(Box<WalletInfo> walletInfoSource);
+  WalletService createXelisWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
 
   String getAddress(WalletBase wallet);
   bool validateAddress(String address);

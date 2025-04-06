@@ -109,6 +109,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.wownero,
       WalletType.litecoin,
       WalletType.zano,
+      WalletType.xelis
     ].contains(balanceViewModel.wallet.type)) {
       return formattedPendingStatus;
     }

@@ -19,12 +19,12 @@ class XelisAssetBalance extends Balance {
     return formatter.format(value);
   }
 
-  String toJson() => json.encode({
+  String toJSON() => json.encode({
     'balance': balance.toString(),
     'decimals': decimals,
   });
 
-  static XelisAssetBalance fromJson(String jsonSource) {
+  static XelisAssetBalance fromJSON(String jsonSource) {
     final decoded = json.decode(jsonSource) as Map;
     return XelisAssetBalance(
       balance: decoded['balance'],

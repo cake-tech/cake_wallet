@@ -7,11 +7,13 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 
 import 'package:cw_xelis/xelis_wallet.dart';
 import 'package:cw_xelis/src/api/network.dart';
 import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
 import 'package:cw_xelis/xelis_wallet_creation_credentials.dart';
+import 'package:cw_xelis/xelis_store_utils.dart';
 
 import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
@@ -82,13 +84,15 @@ class XelisWalletService extends WalletService<
   XelisNewWalletCredentials,
   XelisNewWalletCredentials
 > {
-  XelisWalletService(this.walletInfoSource);
+  XelisWalletService(this.walletInfoSource, {required this.isDirect});
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
 
   static bool isGenerating = false;
   static final _tableUpgradeMutex = Mutex();
   static Completer<void>? _tableUpgradeCompleter;
+  static XelisWallet? _activeWallet;
 
   @override
   WalletType getType() => WalletType.xelis;
@@ -96,6 +100,18 @@ class XelisWalletService extends WalletService<
   @override
   Future<bool> isWalletExit(String name) async =>
       await File(await pathForWalletDir(name: name, type: getType())).exists();
+
+  Future<void> _closeActiveWalletIfNeeded() async {
+    if (_activeWallet != null) {
+      try {
+        print("CLOSING WALLET $_activeWallet");
+        await _activeWallet!.close();
+      } catch (e) {
+        
+      }
+      _activeWallet = null;
+    }
+  }
 
   Future<XelisTableState> _getTableState() async {
     final tablesPath = await _getTablePath();
@@ -140,8 +156,9 @@ class XelisWalletService extends WalletService<
     final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
     final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     
-    network = isTestnet == true ? Network.testnet : Network.mainnet;
+    final network = isTestnet == true ? Network.testnet : Network.mainnet;
 
+    await _closeActiveWalletIfNeeded();
     final frbWallet = await x_wallet.createXelisWallet(
       name: fullPath,
       directory: "",
@@ -155,10 +172,17 @@ class XelisWalletService extends WalletService<
     walletInfo.address = frbWallet.getAddressStr();
     walletInfo.network = network.name;
 
-    final wallet = XelisWallet(walletInfo: walletInfo, libWallet: frbWallet, password: credentials.password!);
+    final wallet = XelisWallet(
+      walletInfo: walletInfo, 
+      libWallet: frbWallet, 
+      password: credentials.password!,
+      network: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
     unawaited(_upgradeTablesIfNeeded());
     await wallet.init();
     await wallet.save();
+    _activeWallet = wallet;
     return wallet;
   }
 
@@ -174,10 +198,20 @@ class XelisWalletService extends WalletService<
     final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
     final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     
-    final network = NetworkName.fromName(walletInfo!.network!);
+    late final Network network;
 
+    if (walletInfo?.network != null) {
+      network = NetworkName.fromName(walletInfo!.network!);
+    } else {
+      network = await loadXelisNetwork(name);
+    }
+
+    await _closeActiveWalletIfNeeded();
+
+    late final x_wallet.XelisWallet frbWallet;
     try {
-      final frbWallet = await x_wallet.openXelisWallet(
+      print("FIRST OPEN");
+      frbWallet = await x_wallet.openXelisWallet(
         name: fullPath,
         directory: "",
         password: password,
@@ -185,17 +219,10 @@ class XelisWalletService extends WalletService<
         precomputedTablesPath: selectedTablePath,
         l1Low: !tableState.currentSize.isFull,
       );
-
-      final wallet = XelisWallet(walletInfo: walletInfo, libWallet: frbWallet, password: password);
-      await wallet.save();
-      saveBackup(name);
-      unawaited(_upgradeTablesIfNeeded());
-      await wallet.init();
-      return wallet;
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
-
-      final frbWallet = await x_wallet.openXelisWallet(
+      print("SECOND OPEN");
+      frbWallet = await x_wallet.openXelisWallet(
         name: fullPath,
         directory: "",
         password: password,
@@ -203,13 +230,20 @@ class XelisWalletService extends WalletService<
         precomputedTablesPath: selectedTablePath,
         l1Low: !tableState.currentSize.isFull,
       );
-
-      final wallet = XelisWallet(walletInfo: walletInfo, libWallet: frbWallet, password: password);
-      unawaited(_upgradeTablesIfNeeded());
-      await wallet.init();
-      await wallet.save();
-      return wallet;
     }
+    final wallet = XelisWallet(
+      walletInfo: walletInfo, 
+      libWallet: frbWallet, 
+      password: password,
+      network: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
+    unawaited(_upgradeTablesIfNeeded());
+    saveBackup(name);
+    await wallet.init();
+    await wallet.save();
+    _activeWallet = wallet;
+    return wallet;
   }
 
   @override
@@ -257,6 +291,7 @@ class XelisWalletService extends WalletService<
     final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     final network = isTestnet == true ? Network.testnet : Network.mainnet;
 
+    await _closeActiveWalletIfNeeded();
     final frbWallet = await x_wallet.createXelisWallet(
       name: fullPath,
       directory: "",
@@ -271,10 +306,17 @@ class XelisWalletService extends WalletService<
     walletInfo.address = frbWallet.getAddressStr();
     walletInfo.network = network.name;
 
-    final wallet = XelisWallet(walletInfo: credentials.walletInfo!, libWallet: frbWallet, password: credentials.password!);
+    final wallet = XelisWallet(
+      walletInfo: credentials.walletInfo!, 
+      libWallet: frbWallet, 
+      password: credentials.password!,
+      network: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+    );
     unawaited(_upgradeTablesIfNeeded());
     await wallet.init();
     await wallet.save();
+    _activeWallet = wallet;
     return wallet;
   }
 

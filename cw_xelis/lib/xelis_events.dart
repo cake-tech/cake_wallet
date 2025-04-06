@@ -37,3 +37,22 @@ class HistorySynced extends Event {
   final int topoheight;
   const HistorySynced(this.topoheight);
 }
+
+class NewAsset extends Event {
+  final String asset;
+  final int decimals;
+  final int max_supply;
+  final String name;
+  final String owner;
+  final String ticker;
+  final int topoheight;
+  const NewAsset(
+    this.asset,
+    this.decimals,
+    this.max_supply,
+    this.name,
+    this.owner,
+    this.ticker,
+    this.topoheight
+  );
+}
