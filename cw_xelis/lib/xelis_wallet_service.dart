@@ -104,7 +104,6 @@ class XelisWalletService extends WalletService<
   Future<void> _closeActiveWalletIfNeeded() async {
     if (_activeWallet != null) {
       try {
-        print("CLOSING WALLET $_activeWallet");
         await _activeWallet!.close();
       } catch (e) {
         
@@ -210,7 +209,6 @@ class XelisWalletService extends WalletService<
 
     late final x_wallet.XelisWallet frbWallet;
     try {
-      print("FIRST OPEN");
       frbWallet = await x_wallet.openXelisWallet(
         name: fullPath,
         directory: "",
@@ -221,7 +219,6 @@ class XelisWalletService extends WalletService<
       );
     } catch (_) {
       await restoreWalletFilesFromBackup(name);
-      print("SECOND OPEN");
       frbWallet = await x_wallet.openXelisWallet(
         name: fullPath,
         directory: "",

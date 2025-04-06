@@ -7,7 +7,7 @@ defaults:
     shell: bash
 jobs:
   PR_test_build:
-    runs-on: linux-amd64
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1
       env:

@@ -450,8 +450,6 @@ Future<void> setup({
         .getInt(PreferencesKey.currentWalletType) ?? 0;
     final currentWalletType = deserializeFromInt(currentWalletTypeRaw);
 
-    print(args);
-
     return WalletUnlockLoadableViewModel(
       getIt.get<AppStore>(),
       getIt.get<WalletLoadingService>(),

@@ -159,7 +159,7 @@ abstract class XelisWalletBase
             continue;
         }
       } catch (e) {
-        print('Failed to parse wallet event: $e');
+        printV('Failed to parse wallet event: $e');
       }
     }
   }
@@ -300,7 +300,7 @@ abstract class XelisWalletBase
       _seed = await _libWallet.getSeed();
       await save();
     } catch (e) {
-      print("Failed to init wallet: $e");
+      printV("Failed to init wallet: $e");
     }
   }
 
