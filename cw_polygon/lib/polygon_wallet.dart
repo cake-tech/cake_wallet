@@ -50,6 +50,10 @@ class PolygonWallet extends EVMChainWallet {
   }
 
   @override
+  List<String> get getDefaultTokenContractAddresses =>
+      DefaultPolygonErc20Tokens().initialPolygonErc20Tokens.map((e) => e.contractAddress).toList();
+
+  @override
   Future<bool> checkIfScanProviderIsEnabled() async {
     bool isPolygonScanEnabled = (await sharedPrefs.future).getBool("use_polygonscan") ?? true;
     return isPolygonScanEnabled;
