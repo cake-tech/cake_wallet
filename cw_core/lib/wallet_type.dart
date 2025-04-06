@@ -193,7 +193,7 @@ String walletTypeToDisplayName(WalletType type) {
     case WalletType.banano:
       return 'Banano (BAN)';
     case WalletType.polygon:
-      return 'Polygon (MATIC)';
+      return 'Polygon (POL)';
     case WalletType.solana:
       return 'Solana (SOL)';
     case WalletType.tron:
