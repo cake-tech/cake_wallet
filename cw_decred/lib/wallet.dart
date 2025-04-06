@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_decred/amount_format.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:flutter/foundation.dart';
@@ -121,6 +122,9 @@ abstract class DecredWalletBase
   String get pubkey {
     return _pubkey;
   }
+
+  @override
+  String formatCryptoAmount(String amount) => decredAmountToString(amount: int.parse(amount));
 
   Future<void> init() async {
     final getSeed = () async {

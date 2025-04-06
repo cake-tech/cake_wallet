@@ -137,6 +137,7 @@ void restoreWalletFromSeedSync(
   wptr = newWptr;
 
   setRefreshFromBlockHeight(height: restoreHeight);
+  setupBackgroundSync(password, newWptr);
 
   monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
 

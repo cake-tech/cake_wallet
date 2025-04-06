@@ -219,9 +219,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get balance {
-    if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+    } else if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
@@ -247,7 +247,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  String get sendingBalance {
+  Future<String> get sendingBalance async {
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
@@ -257,7 +257,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.wownero:
       case WalletType.decred:
         return wallet.formatCryptoAmount(
-            unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
+            (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom)).toString());
       default:
         return balance;
     }
@@ -395,9 +395,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
-      state = IsExecutingState();
-
-      if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
+      if (wallet.isHardwareWallet)
+        state = IsAwaitingDeviceResponseState();
+      else
+        state = IsExecutingState();
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 

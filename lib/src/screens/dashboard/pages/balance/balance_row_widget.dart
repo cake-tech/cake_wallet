@@ -16,7 +16,6 @@ import 'package:cw_core/unspent_coin_type.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 
 class BalanceRowWidget extends StatelessWidget {
   BalanceRowWidget({
@@ -66,8 +65,6 @@ class BalanceRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool brightThemeType = false;
-    if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) brightThemeType = true;
     return Column(
       children: [
         Container(
@@ -221,7 +218,33 @@ class BalanceRowWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  //),
+                  if (currency.isPotentialScam)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      margin: EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red[800],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_outlined,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            S.of(context).potential_scam,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (frozenBalance.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
