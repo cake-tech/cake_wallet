@@ -356,7 +356,7 @@ abstract class XelisWalletBase
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
     var totalAmountFromCredentials = 0;
 
-    final fee = calculateEstimatedFee(credentials.priority);
+    final fee = calculateEstimatedFee(credentials.priority!, 0);
 
     double totalAmount = 0.0;
     bool shouldSendAll = false;

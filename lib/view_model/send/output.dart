@@ -199,7 +199,7 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.xelis) {
-        return xelis!.formatterXelisAmountToDouble(amount: fee);
+        return xelis!.formatterXelisAmountToDouble(amount: BigInt.from(fee));
       }
     } catch (e) {
       printV(e.toString());
