@@ -140,10 +140,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'amount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
       'clientName': 'CakeWallet',
-      'type': actionType,
-      'walletAddress': walletAddress,
-      'isRecurringPayment': 'false',
-      'input': 'source',
+      if (actionType == 'sell') 'type': actionType,
     };
 
     log('Onramper: Fetching $actionType quote: ${isBuyAction ? normalizedCryptoCurrency : fiatCurrency.name} -> ${isBuyAction ? fiatCurrency.name : normalizedCryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
@@ -253,6 +250,14 @@ class OnRamperBuyProvider extends BuyProvider {
     CryptoCurrency.sol,
   ];
 
+  String? _getNetworkByCrypto(CryptoCurrency currency) {
+    final network = switch (currency) {
+      CryptoCurrency.eos => 'EOSIO',
+      _=> null
+    };
+    return network;
+  }
+
   String _tagToNetwork(String tag) {
     switch (tag) {
       case 'OMNI':
@@ -274,6 +279,10 @@ class OnRamperBuyProvider extends BuyProvider {
   String _getNormalizeCryptoCurrency(Currency currency) {
     if (currency is CryptoCurrency) {
       if (!mainCurrency.contains(currency)) {
+
+        final networkByCurrency = _getNetworkByCrypto(currency);
+        if (networkByCurrency != null) return '${currency.title}_$networkByCurrency';
+
         final network = currency.tag == null ? currency.fullName : _tagToNetwork(currency.tag!);
         return '${currency.title}_${network?.replaceAll(' ', '')}'.toUpperCase();
       }
