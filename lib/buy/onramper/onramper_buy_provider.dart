@@ -232,7 +232,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'skipTransactionScreen': "true",
       if (paymentMethod != null) 'txnPaymentMethod': paymentMethod,
       'txnOnramp': quote.rampId,
-      ''networkWallets': '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress',
+      'networkWallets': '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress',
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,
