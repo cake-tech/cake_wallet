@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:3.27.4-linux
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -22,9 +22,6 @@ jobs:
         - /opt/cw_cache_linux/root/.pub-cache/:/root/.pub-cache
         - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
         - /opt/cw_cache_linux/opt/generic_cache:/opt/generic_cache
-    strategy:
-      matrix:
-        api-level: [29]
 
     steps:
       - name: Fix github actions messing up $HOME...
@@ -229,7 +226,7 @@ jobs:
 
       - name: Build linux
         run: |
-          flutter build linux --release
+          flutter build linux --dart-define=hasDevOptions=true --release
 
       - name: Compress release
         run: |

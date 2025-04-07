@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -23,10 +24,20 @@ import 'package:url_launcher/url_launcher.dart';
 class RobinhoodBuyProvider extends BuyProvider {
   RobinhoodBuyProvider(
       {required WalletBase wallet, bool isTestEnvironment = false, LedgerViewModel? ledgerVM})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: ledgerVM);
+      : super(
+      wallet: wallet,
+      isTestEnvironment: isTestEnvironment,
+      ledgerVM: ledgerVM,
+      supportedCryptoList: supportedCryptoToFiatPairs(
+          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+      supportedFiatList: supportedFiatToCryptoPairs(
+          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _baseUrl = 'applink.robinhood.com';
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   @override
   String get title => 'Robinhood Connect';

@@ -1,1 +1,4 @@
-Update for Zano's Hard fork
+New App Logo
+UI/UX enhancements
+Performance improvements
+Bug fixes

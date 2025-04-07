@@ -422,6 +422,12 @@ class CWMonero extends Monero {
   }
 
   bool isViewOnly() {
-    return isViewOnlyBySpendKey();
+    return isViewOnlyBySpendKey(null);
   }
+
+  @override
+  Map<String, List<int>> debugCallLength() {
+    return monero_wallet_api.debugCallLength();
+  }
+  
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -16,7 +17,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 class KryptonimBuyProvider extends BuyProvider {
   KryptonimBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
-      : super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
+      : super(
+      wallet: wallet,
+      isTestEnvironment: isTestEnvironment,
+      ledgerVM: null,
+      supportedCryptoList: supportedCryptoToFiatPairs(
+          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+      supportedFiatList: supportedFiatToCryptoPairs(
+          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   static const _isProduction = true;
 
@@ -26,6 +34,9 @@ class KryptonimBuyProvider extends BuyProvider {
   static const _merchantId = 'a70fe053';
 
   static String get _kryptonimApiKey => secrets.kryptonimApiKey;
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   @override
   String get title => 'Kryptonim';

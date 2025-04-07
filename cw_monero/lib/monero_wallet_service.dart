@@ -75,6 +75,12 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String spendKey;
 }
 
+enum OpenWalletTry {
+  initial,
+  cacheRestored,
+  cacheRemoved,
+}
+
 class MoneroWalletService extends WalletService<
     MoneroNewWalletCredentials,
     MoneroRestoreWalletFromSeedCredentials,
@@ -139,7 +145,7 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<MoneroWallet> openWallet(String name, String password, {bool? retryOnFailure}) async {
+  Future<MoneroWallet> openWallet(String name, String password, {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
 
@@ -153,17 +159,10 @@ class MoneroWalletService extends WalletService<
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfoSource,
           password: password);
-      final isValid = wallet.walletAddresses.validate();
 
       if (wallet.isHardwareWallet) {
         wallet.setLedgerConnection(gLedger!);
         gLedger = null;
-      }
-
-      if (!isValid) {
-        await restoreOrResetWalletFiles(name);
-        wallet.close(shouldCleanup: false);
-        return openWallet(name, password);
       }
 
       await wallet.init();
@@ -172,12 +171,16 @@ class MoneroWalletService extends WalletService<
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
 
-      if (retryOnFailure == false) {
-        rethrow;
+      switch (openWalletTry) {
+        case OpenWalletTry.initial:
+          await restoreOrResetWalletFiles(name);
+          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRestored);
+        case OpenWalletTry.cacheRestored:
+          await removeCache(name);
+          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRemoved);
+        case OpenWalletTry.cacheRemoved:
+          rethrow;
       }
-
-      await restoreOrResetWalletFiles(name);
-      return await openWallet(name, password, retryOnFailure: false);
     }
   }
 
