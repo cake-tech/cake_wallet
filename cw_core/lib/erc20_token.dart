@@ -17,11 +17,11 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   @HiveField(4, defaultValue: true)
   bool _enabled;
   @HiveField(5)
-  final String? iconPath;
+  String? iconPath;
   @HiveField(6)
   final String? tag;
   @HiveField(7, defaultValue: false)
-  final bool isPotentialScam;
+  bool isPotentialScam;
 
   bool get enabled => _enabled;
 
