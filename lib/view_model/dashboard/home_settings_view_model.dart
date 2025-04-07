@@ -110,6 +110,14 @@ abstract class HomeSettingsViewModelBase with Store {
         );
       }
 
+      if (_balanceViewModel.wallet.type == WalletType.xelis) {
+        await xelis!.addAsset(
+          _balanceViewModel.wallet,
+          token,
+          contractAddress,
+        );
+      }
+
       if (_balanceViewModel.wallet.type == WalletType.tron) {
         await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
       }
@@ -391,6 +399,10 @@ abstract class HomeSettingsViewModelBase with Store {
       return await solana!.getSPLToken(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      return await xelis!.getAsset(_balanceViewModel.wallet, contractAddress);
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.tron) {
       return await tron!.getTronToken(_balanceViewModel.wallet, contractAddress);
     }
@@ -431,6 +443,11 @@ abstract class HomeSettingsViewModelBase with Store {
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       final address = solana!.getTokenAddress(token);
       solana!.addSPLToken(_balanceViewModel.wallet, token, address);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      final id = xelis!.getAssetId(token);
+      xelis!.addAsset(_balanceViewModel.wallet, token, id);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.tron) {

@@ -15,7 +15,7 @@ class CWXelis extends Xelis {
     required String name,
     String? mnemonic,
     WalletInfo? walletInfo,
-    required String password,
+    String? password,
   }) =>
       XelisNewWalletCredentials(
         name: name,
@@ -111,6 +111,40 @@ class CWXelis extends Xelis {
     } else {
       return amount! / BigInt.from(10).pow(decimals);
     }
+  }
+
+  @override
+  Future<void> addAsset(
+    WalletBase wallet,
+    CryptoCurrency asset,
+    String id,
+  ) async {
+    final xelAsset = XelisAsset(
+      name: asset.name,
+      symbol: asset.title,
+      id: id,
+      decimal: asset.decimals,
+      enabled: asset.enabled,
+      iconPath: asset.iconPath,
+      isPotentialScam: asset.isPotentialScam,
+    );
+
+    await (wallet as XelisWallet).addAsset(xelAsset);
+  }
+
+  @override
+  Future<void> deleteAsset(WalletBase wallet, CryptoCurrency asset) async =>
+      await (wallet as XelisWallet).deleteSPLToken(asset as XelisAsset);
+
+  @override
+  Future<XelisAsset?> getAsset(WalletBase wallet, String id) async {
+    final xelisWallet = wallet as XelisWallet;
+    return await xelisWallet.getAsset(id);
+  }
+
+  @override
+  double? getEstimateFees(WalletBase wallet) {
+    return (wallet as XelisWallet).estimatedFee;
   }
 
   @override

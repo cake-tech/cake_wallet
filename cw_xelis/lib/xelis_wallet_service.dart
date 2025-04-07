@@ -161,7 +161,7 @@ class XelisWalletService extends WalletService<
     final frbWallet = await x_wallet.createXelisWallet(
       name: fullPath,
       directory: "",
-      password: credentials.password!,
+      password: credentials.password ?? "x",
       network: network,
       precomputedTablesPath: selectedTablePath,
       l1Low: !tableState.currentSize.isFull,
@@ -174,7 +174,7 @@ class XelisWalletService extends WalletService<
     final wallet = XelisWallet(
       walletInfo: walletInfo, 
       libWallet: frbWallet, 
-      password: credentials.password!,
+      password: credentials.password ?? "x",
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -292,7 +292,7 @@ class XelisWalletService extends WalletService<
     final frbWallet = await x_wallet.createXelisWallet(
       name: fullPath,
       directory: "",
-      password: credentials.password!,
+      password: credentials.password ?? "x",
       seed: credentials.mnemonic,
       network: network,
       precomputedTablesPath: selectedTablePath,
@@ -306,7 +306,7 @@ class XelisWalletService extends WalletService<
     final wallet = XelisWallet(
       walletInfo: credentials.walletInfo!, 
       libWallet: frbWallet, 
-      password: credentials.password!,
+      password: credentials.password ?? "x",
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

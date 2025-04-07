@@ -1427,7 +1427,7 @@ import 'package:cw_xelis/xelis_transaction_priority.dart';
 abstract class Xelis {
   List<String> getXelisWordList(String language);
   WalletCredentials createXelisNewWalletCredentials(
-      {required String name, WalletInfo? walletInfo, required String password});
+      {required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createXelisRestoreWalletFromSeedCredentials(
       {required String name, required String mnemonic, required String password});
 
@@ -1452,6 +1452,16 @@ abstract class Xelis {
   // List<XelisAsset> getXelisAssets(WalletBase wallet);
 
   // CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);  
+  double? getEstimateFees(WalletBase wallet)
+
+  List<CryptoCurrency> getXelisAssets(WalletBase wallet);
+  Future<void> addAsset(
+    WalletBase wallet,
+    CryptoCurrency asset,
+    String id,
+  );
+  Future<void> deleteAsset(WalletBase wallet, CryptoCurrency asset);
+  Future<CryptoCurrency?> getAsset(WalletBase wallet, String id);
   List<String> getDefaultAssetIDs();
 }
 """;

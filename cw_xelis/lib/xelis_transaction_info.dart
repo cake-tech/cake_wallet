@@ -2,9 +2,22 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_xelis/xelis_formatting.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
+import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
 import 'package:cw_core/format_amount.dart';
 
 import 'dart:math';
+
+class XelisTxRecipient {
+  final String address;
+  final String amount;
+  final bool isChange;
+
+  const XelisTxRecipient({
+    required this.address,
+    required this.amount,
+    required this.isChange,
+  });
+}
 
 class XelisTransactionInfo extends TransactionInfo {
   XelisTransactionInfo({
@@ -16,6 +29,7 @@ class XelisTransactionInfo extends TransactionInfo {
     required this.xelFee,
     this.decimals = 8,
     this.assetSymbol = "XEL",
+    this.assetId = xelis_sdk.xelisAsset,
     required this.to,
     required this.from,
   }) :
@@ -33,6 +47,7 @@ class XelisTransactionInfo extends TransactionInfo {
   final TransactionDirection direction;
   final int decimals;
   final String assetSymbol;
+  final String assetId;
   final String? to;
   final String? from;
 
@@ -56,9 +71,9 @@ class XelisTransactionInfo extends TransactionInfo {
     _fiatAmount = formatAmount(amount);
   }
 
-  static XelisTransactionInfo fromTransactionEntry(
-    xelis_sdk.TransactionEntry entry
-  ) {
+  static Future<XelisTransactionInfo> fromTransactionEntry(
+    xelis_sdk.TransactionEntry entry, {required x_wallet.XelisWallet wallet}
+  ) async {
     final txType = entry.txEntryType;
 
     late TransactionDirection direction;
@@ -67,6 +82,7 @@ class XelisTransactionInfo extends TransactionInfo {
     String? to;
     String? from;
 
+    String asset = xelis_sdk.xelisAsset;
     switch (txType) {
       case xelis_sdk.IncomingEntry():
         direction = TransactionDirection.incoming;
@@ -76,26 +92,34 @@ class XelisTransactionInfo extends TransactionInfo {
           .fold(BigInt.zero, (a, b) => a + b);
 
         from = txType.from;
+        asset = txType.transfers.first.asset;
         break;
 
       case xelis_sdk.OutgoingEntry():
         direction = TransactionDirection.outgoing;
 
+        asset = txType.transfers.first.asset;
         amount = txType.transfers
-          .map((t) => BigInt.from(t.amount))
-          .fold(BigInt.zero, (a, b) => a + b);
+            .map((t) => BigInt.from(t.amount))
+            .fold(BigInt.zero, (a, b) => a + b);
 
         if (txType.transfers.isNotEmpty) {
-          to = txType.transfers.first.destination;
+          final firstRecipient = txType.transfers.first.destination;
+          final recipientCount = txType.transfers.length;
+
+          to = recipientCount > 1
+              ? '$firstRecipient + ${recipientCount - 1} more'
+              : firstRecipient;
         }
 
         fee = BigInt.from(txType.fee);
         break;
 
       case xelis_sdk.BurnEntry():
-        direction = TransactionDirection.incoming;
+        direction = TransactionDirection.outgoing;
         amount = BigInt.from(txType.amount);
         fee = BigInt.from(txType.fee);
+        asset = txType.asset;
         break;
 
       case xelis_sdk.CoinbaseEntry():
@@ -108,6 +132,8 @@ class XelisTransactionInfo extends TransactionInfo {
         break;
     }
 
+    final metadata = await wallet.getAssetMetadata(asset: asset);
+
     return XelisTransactionInfo(
       id: entry.hash,
       height: entry.topoheight,
@@ -117,8 +143,9 @@ class XelisTransactionInfo extends TransactionInfo {
       xelFee: fee,
       to: to,
       from: from,
-      decimals: 8, // TODO: get decimals from entry.asset
-      assetSymbol: "XEL", // TODO: get symbol from entry.asset
+      decimals: metadata.decimals,
+      assetSymbol: metadata.ticker,
+      assetId: asset,
     );
   }
 
@@ -131,6 +158,7 @@ class XelisTransactionInfo extends TransactionInfo {
       'direction': direction.index,
       'date': date.millisecondsSinceEpoch,
       'assetSymbol': assetSymbol,
+      'assetId': assetId,
       'to': to,
       'from': from,
     };

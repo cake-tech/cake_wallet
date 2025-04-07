@@ -170,7 +170,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.xelis:
         return xelis!.createXelisNewWalletCredentials(
           name: name,
-          password: walletPassword!,
+          password: walletPassword,
         );
       case WalletType.none:
       case WalletType.haven:

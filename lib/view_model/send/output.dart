@@ -153,7 +153,7 @@ abstract class OutputBase with Store {
         }
       }
 
-      if (_wallet.type == WalletType.solana) {
+      if (_wallet.type == WalletType.solana || walletType == WalletType.xelis) {
         return solana!.getEstimateFees(_wallet) ?? 0.0;
       }
 

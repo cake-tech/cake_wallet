@@ -14,3 +14,12 @@ class XelisTransactionCreationException implements Exception {
   @override
   String toString() => exceptionMessage;
 }
+class XelisTooManyOutputsException implements Exception {
+  final int count;
+
+  XelisTooManyOutputsException(this.count);
+
+  @override
+  String toString() =>
+      'Cannot include more than 255 transfers in a single TX. Attempted to use $count.';
+}
