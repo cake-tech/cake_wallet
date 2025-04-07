@@ -201,7 +201,6 @@ class OnRamperBuyProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     final actionType = isBuyAction ? 'buy' : 'sell';
-    final prefix = actionType == 'sell' ? actionType + '_' : '';
 
     final primaryColor = getColorStr(Theme.of(context).primaryColor);
     final secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
@@ -221,12 +220,13 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
-      'mode': actionType,
-      '${prefix}defaultFiat': quote.fiatCurrency.name,
-      '${prefix}defaultCrypto': defaultCrypto,
-      '${prefix}defaultAmount': amount.toString(),
-      if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
-      'onlyOnramps': quote.rampId,
+      'txnType': actionType,
+      'txnFiat': quote.fiatCurrency.name,
+      'txnCrypto': defaultCrypto,
+      'txnAmount': amount.toString(),
+      'skipTransactionScreen': "true",
+      if (paymentMethod != null) 'txnPaymentMethod': paymentMethod,
+      'txnOnramp': quote.rampId,
       'networkWallets': '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress',
       'supportSwap': "false",
       'primaryColor': primaryColor,
