@@ -1,4 +1,4 @@
-Bitcoin and Litecoin enhancements
-Solana and Nano fixes/improvements
-UI enhancements
+New App Logo
+UI/UX enhancements
+Performance improvements
 Bug fixes

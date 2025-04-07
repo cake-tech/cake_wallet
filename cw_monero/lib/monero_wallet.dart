@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/account.dart';
@@ -116,6 +117,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   ObservableMap<CryptoCurrency, MoneroBalance> balance;
 
   @override
+  bool get hasRescan => true;
+
+  @override
   String get seed => monero_wallet.getSeed();
   String seedLegacy(String? language) => monero_wallet.getSeedLegacy(language);
 
@@ -123,15 +127,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   String get password => _password;
 
   @override
+  String get passphrase => monero_wallet.getPassphrase();
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       primaryAddress: monero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: monero_wallet.getSecretSpendKey(),
       privateViewKey: monero_wallet.getSecretViewKey(),
       publicSpendKey: monero_wallet.getPublicSpendKey(),
-      publicViewKey: monero_wallet.getPublicViewKey());
+      publicViewKey: monero_wallet.getPublicViewKey(),
+      passphrase: monero_wallet.getPassphrase());
 
   int? get restoreHeight =>
-      transactionHistory.transactions.values.firstOrNull?.height;
+      transactionHistory.transactions.values.firstOrNull?.height ?? monero.Wallet_getRefreshFromBlockHeight(wptr!);
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -161,6 +169,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       if (monero_wallet.getCurrentHeight() <= 1) {
         monero_wallet.setRefreshFromBlockHeight(
             height: walletInfo.restoreHeight);
+        setupBackgroundSync(password, wptr!);
       }
     }
 
@@ -175,6 +184,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> close({bool shouldCleanup = false}) async {
+    if (isHardwareWallet) {
+      disableLedgerExchange();
+      final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+      if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
+        printV("closing wallet");
+        final wmaddr = wmPtr.address;
+        final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
+        await Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+        });
+        openedWalletsByPath.remove("$currentWalletDirPath/$name");
+        wptr = null;
+        printV("wallet closed");
+      }
+    }
+
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _onTxHistoryChangeReaction?.reaction.dispose();
@@ -194,11 +220,58 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           // FIXME: hardcoded value
           socksProxyAddress: node.socksProxyAddress);
 
-      monero_wallet.setTrustedDaemon(node.trusted);
+      await monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
       printV(e);
+    }
+  }
+
+  @override
+  Future<void> startBackgroundSync() async {
+    if (isBackgroundSyncRunning) {
+      printV("Background sync already running");
+      return;
+    }
+    isBackgroundSyncRunning = true;
+    await save();
+
+    monero.Wallet_startBackgroundSync(wptr!);
+    final status = monero.Wallet_status(wptr!);
+    if (status != 0) {
+      final err = monero.Wallet_errorString(wptr!);
+      isBackgroundSyncRunning = false;
+      printV("startBackgroundSync: $err");
+    }
+    await save();
+    await init();
+    await startSync();
+  }
+
+  bool isBackgroundSyncRunning = false;
+
+  @action
+  @override
+  Future<void> stopSync() async {
+    if (isBackgroundSyncRunning) {
+      printV("Stopping background sync");
+      await save();
+      monero.Wallet_stopBackgroundSync(wptr!, '');
+      isBackgroundSyncRunning = false;
+    }
+    await save();
+  }
+
+  @action
+  @override
+  Future<void> stopBackgroundSync(String password) async {
+    if (isBackgroundSyncRunning) {
+      printV("Stopping background sync");
+      await save();
+      monero.Wallet_stopBackgroundSync(wptr!, password);
+      await save();
+      isBackgroundSyncRunning = false;
     }
   }
 
@@ -226,7 +299,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       syncStatus = AttemptingSyncStatus();
       monero_wallet.startRefresh();
       _setListeners();
-      _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
       printV(e);
@@ -332,6 +404,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
               outputs: moneroOutputs,
               priorityRaw: _credentials.priority.serialize(),
               accountIndex: walletAddresses.account!.id,
+              paymentId: "",
               preferredInputs: inputs);
     } else {
       final output = outputs.first;
@@ -435,6 +508,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final currentCacheFile = File(renamedWalletPath);
       final currentKeysFile = File('$renamedWalletPath.keys');
       final currentAddressListFile = File('$renamedWalletPath.address.txt');
+      final backgroundSyncFile = File('$renamedWalletPath.background');
 
       final newWalletPath =
           await pathForWallet(name: newWalletName, type: type);
@@ -447,6 +521,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
       if (currentAddressListFile.existsSync()) {
         await currentAddressListFile.rename('$newWalletPath.address.txt');
+      }
+      if (backgroundSyncFile.existsSync()) {
+        await backgroundSyncFile.rename('$newWalletPath.background');
       }
 
       await backupWalletFiles(newWalletName);
@@ -494,6 +571,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
     monero_wallet.setRefreshFromBlockHeight(height: height);
+    setupBackgroundSync(password, wptr!);
     monero_wallet.rescanBlockchainAsync();
     await startSync();
     _askForUpdateBalance();
@@ -509,12 +587,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       unspentCoins.clear();
 
-      final coinCount = countOfCoins();
+      final coinCount = await countOfCoins();
       for (var i = 0; i < coinCount; i++) {
-        final coin = getCoin(i);
+        final coin = await getCoin(i);
         final coinSpent = monero.CoinsInfo_spent(coin);
         if (coinSpent == false && monero.CoinsInfo_subaddrAccount(coin) == walletAddresses.account!.id) {
-          final unspent = MoneroUnspent(
+          final unspent = await MoneroUnspent.fromUnspent(
             monero.CoinsInfo_address(coin),
             monero.CoinsInfo_hash(coin),
             monero.CoinsInfo_keyImage(coin),
@@ -524,7 +602,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history.getTransaction(unspent.hash).isSpend == true;
+            final tx = await transaction_history.getTransaction(unspent.hash);
+            unspent.isChange = tx.isSpend == true;
           }
           unspentCoins.add(unspent);
         }
@@ -616,14 +695,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
-    transaction_history.refreshTransactions();
-    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
+    await transaction_history.refreshTransactions();
+    final resp = (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, MoneroTransactionInfo>>(
             <String, MoneroTransactionInfo>{},
             (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
+    return resp;
   }
 
   Future<void> updateTransactions() async {
@@ -634,8 +714,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
-      transactionHistory.clear();
-      transactionHistory.addMany(transactions);
+
+      final currentIds = transactionHistory.transactions.keys.toSet();
+      final newIds = transactions.keys.toSet();
+      
+      // Remove transactions that no longer exist
+      currentIds.difference(newIds).forEach((id) => 
+          transactionHistory.transactions.remove(id));
+      
+      // Add or update transactions
+      transactions.forEach((key, tx) => 
+          transactionHistory.transactions[key] = tx);
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
@@ -702,6 +791,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     monero_wallet.setRecoveringFromSeed(isRecovery: true);
     monero_wallet.setRefreshFromBlockHeight(height: height);
+    setupBackgroundSync(password, wptr!);
   }
 
   int _getHeightDistance(DateTime date) {
@@ -758,6 +848,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
+    printV("onNewBlock: $height, $blocksLeft, $ptc");
     try {
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();
@@ -828,5 +919,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final dummyWPtr = wptr ??
         monero.WalletManager_openWallet(wmPtr, path: '', password: '');
     enableLedgerExchange(dummyWPtr, connection);
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    return moneroAmountToString(amount: int.parse(amount));
   }
 }

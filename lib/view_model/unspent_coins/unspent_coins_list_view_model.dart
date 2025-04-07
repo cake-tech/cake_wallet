@@ -1,6 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -68,7 +69,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   bool get hasAdjustableFieldChanged => items.any(_hasAdjustableFieldChanged);
 
-
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
       final existingInfo = _unspentCoinsInfo.values
@@ -78,7 +78,6 @@ abstract class UnspentCoinsListViewModelBase with Store {
       existingInfo.isFrozen = item.isFrozen;
       existingInfo.isSending = item.isSending;
       existingInfo.note = item.note;
-
 
       await existingInfo.save();
       _updateUnspentCoinsInfo();
@@ -94,6 +93,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
       return wownero!.formatterWowneroAmountToString(amount: fullBalance);
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type))
       return bitcoin!.formatterBitcoinAmountToString(amount: fullBalance);
+    if (wallet.type == WalletType.decred)
+      return decred!.formatterDecredAmountToString(amount: fullBalance);
     return '';
   }
 
@@ -107,7 +108,9 @@ abstract class UnspentCoinsListViewModelBase with Store {
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type)) {
       await bitcoin!.updateUnspents(wallet);
     }
-
+    if (wallet.type == WalletType.decred) {
+      decred!.updateUnspents(wallet);
+    }
     _updateUnspentCoinsInfo();
   }
 
@@ -121,15 +124,48 @@ abstract class UnspentCoinsListViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
         return bitcoin!.getUnspents(wallet, coinTypeToSpendFrom: coinTypeToSpendFrom);
+      case WalletType.decred:
+        return decred!.getUnspents(wallet);
+      default:
+        return List.empty();
+    }
+  }
+
+    List<Unspent> _getSpecificUnspents(UnspentCoinType overrideCoinTypeToSpendFrom) {
+    switch (wallet.type) {
+      case WalletType.monero:
+        return monero!.getUnspents(wallet);
+      case WalletType.wownero:
+        return wownero!.getUnspents(wallet);
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        return bitcoin!.getUnspents(wallet, coinTypeToSpendFrom: overrideCoinTypeToSpendFrom);
+      case WalletType.decred:
+        return decred!.getUnspents(wallet);
       default:
         return List.empty();
     }
   }
 
   @action
-  void _updateUnspentCoinsInfo() {
-    items.clear();
+  Future<int> getSendingBalance(UnspentCoinType overrideCoinTypeToSpendFrom) async {
+    // return items.where((element) => element.isSending).fold(0, (previousValue, element) => previousValue + element.value);
+    // go through all unspent coins and add up the value minus frozen and non sending:
+    int total = 0;
+    await _updateUnspents();
+    Set<String> seen = {};
+    for (final item in _getSpecificUnspents(overrideCoinTypeToSpendFrom)) {
+      if (seen.contains(item.toString())) continue;
+      seen.add(item.toString());
+      if (item.isFrozen || !item.isSending) continue;
+      total += item.value;
+    }
+    return total;
+  }
 
+  @action
+  void _updateUnspentCoinsInfo() {
     final unspents = _getUnspents()
         .map((elem) {
           try {
@@ -163,8 +199,19 @@ abstract class UnspentCoinsListViewModelBase with Store {
         .toList();
 
     unspents.sort((a, b) => b.value.compareTo(a.value));
-
+    items.clear();
     items.addAll(unspents);
+  }
+
+  @action
+  void resetUnspentCoinsInfoSelections() {
+    // reset all unspent coins selections to true except frozen ones
+    for (final item in items) {
+      if (!item.isFrozen) {
+        item.isSending = true;
+        saveUnspentCoinInfo(item);
+      }
+    }
   }
 
   @action

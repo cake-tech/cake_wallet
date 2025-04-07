@@ -1,6 +1,7 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/update_haven_rate.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -59,6 +60,8 @@ void startCurrentWalletChangeReaction(
         return;
       }
 
+      await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
+
       final node = settingsStore.getCurrentNode(wallet.type);
 
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
@@ -70,7 +73,8 @@ void startCurrentWalletChangeReaction(
           wallet.type == WalletType.wownero ||
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
-          wallet.type == WalletType.bitcoinCash) {
+          wallet.type == WalletType.bitcoinCash ||
+          wallet.type == WalletType.decred) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
 
@@ -78,10 +82,6 @@ void startCurrentWalletChangeReaction(
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);
         await wallet.connectToPowNode(node: powNode);
-      }
-
-      if (wallet.type == WalletType.haven) {
-        await updateHavenRate(fiatConversionStore);
       }
 
       if (wallet.walletInfo.address.isEmpty) {

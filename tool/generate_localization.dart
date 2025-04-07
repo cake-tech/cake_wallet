@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:cw_core/utils/print_verbose.dart';
+import './print_verbose_dummy.dart';
 
 import 'localization/localization_constants.dart';
 import 'utils/utils.dart';

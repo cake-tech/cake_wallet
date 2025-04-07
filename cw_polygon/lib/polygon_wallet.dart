@@ -68,6 +68,7 @@ class PolygonWallet extends EVMChainWallet {
       enabled: token.enabled,
       tag: token.tag ?? "MATIC",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
   }
 
@@ -121,7 +122,7 @@ class PolygonWallet extends EVMChainWallet {
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String) ??
+    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String?) ??
         EVMChainERC20Balance(BigInt.zero);
 
     final WalletKeysData keysData;

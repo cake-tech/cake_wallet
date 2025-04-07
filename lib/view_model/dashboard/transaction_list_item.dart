@@ -1,3 +1,4 @@
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -8,13 +9,13 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -63,6 +64,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     switch (balanceViewModel.wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.zano:
         if (transaction.confirmations >= 0 && transaction.confirmations < 10) {
           return ' (${transaction.confirmations}/10)';
         }
@@ -80,7 +82,9 @@ class TransactionListItem extends ActionListItem with Keyable {
         if (transaction.confirmations <= 0) {
           str = S.current.pending;
         }
-        if ((isPegOut || fromPegOut) && transaction.confirmations >= 0 && transaction.confirmations < 6) {
+        if ((isPegOut || fromPegOut) &&
+            transaction.confirmations >= 0 &&
+            transaction.confirmations < 6) {
           str = " (${transaction.confirmations}/6)";
         }
         if (isPegIn) {
@@ -103,6 +107,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.haven,
       WalletType.wownero,
       WalletType.litecoin,
+      WalletType.zano,
     ].contains(balanceViewModel.wallet.type)) {
       return formattedPendingStatus;
     }
@@ -166,13 +171,6 @@ class TransactionListItem extends ActionListItem with Keyable {
             cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
             price: price);
         break;
-      case WalletType.haven:
-        final asset = haven!.assetOfTransaction(transaction);
-        final price = balanceViewModel.fiatConvertationStore.prices[asset];
-        amount = calculateFiatAmountRaw(
-            cryptoAmount: haven!.formatterMoneroAmountToDouble(amount: transaction.amount),
-            price: price);
-        break;
       case WalletType.ethereum:
         final asset = ethereum!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
@@ -201,7 +199,6 @@ class TransactionListItem extends ActionListItem with Keyable {
           price: price,
         );
         break;
-
       case WalletType.tron:
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
@@ -211,7 +208,25 @@ class TransactionListItem extends ActionListItem with Keyable {
           price: price,
         );
         break;
-      default:
+      case WalletType.zano:
+        final asset = zano!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        if (asset == null) {
+          amount = "0.00";
+          break;
+        }
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+          cryptoAmount: zano!.formatterIntAmountToDouble(amount: transaction.amount, currency: asset, forFee: false),
+          price: price);
+          break;
+      case WalletType.decred:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.none:
+      case WalletType.banano:
+      case WalletType.haven:
         break;
     }
 

@@ -144,7 +144,7 @@ abstract class TronWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = TronBalance.fromJSON(data?['balance'] as String) ?? TronBalance(BigInt.zero);
+    final balance = TronBalance.fromJSON(data?['balance'] as String?) ?? TronBalance(BigInt.zero);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
@@ -462,7 +462,11 @@ abstract class TronWalletBase
   String get privateKey => _tronPrivateKey.toHex();
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: _mnemonic,
+        privateKey: privateKey,
+        passphrase: passphrase,
+      );
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
@@ -505,11 +509,15 @@ abstract class TronWalletBase
 
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
-    try {
-      iconPath = CryptoCurrency.all
-          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-          .iconPath;
-    } catch (_) {}
+    if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else if (!token.isPotentialScam) {
+      iconPath = token.iconPath;
+    }
 
     final newToken = TronToken(
       name: token.name,
@@ -519,6 +527,7 @@ abstract class TronWalletBase
       enabled: token.enabled,
       tag: token.tag ?? "TRX",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
 
     await tronTokensBox.put(newToken.contractAddress, newToken);

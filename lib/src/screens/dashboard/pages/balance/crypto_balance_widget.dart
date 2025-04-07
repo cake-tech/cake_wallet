@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_row_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/home_screen_account_widget.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/info_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
@@ -39,7 +40,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                   child: DashBoardRoundedCardWidget(
                     title: "Invalid monero bindings",
                     subTitle: dashboardViewModel.getMoneroError.toString(),
-                    onTap: () {},
                   ),
                 );
               }
@@ -54,7 +54,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                     child: DashBoardRoundedCardWidget(
                       title: "Invalid wownero bindings",
                       subTitle: dashboardViewModel.getWowneroError.toString(),
-                      onTap: () {},
                     ));
               }
               return Container();
@@ -153,7 +152,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               return ListView.separated(
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 8)),
+                separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 16)),
                 itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length,
                 itemBuilder: (__, index) {
                   final balance =
@@ -173,7 +172,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       frozenFiatBalance: balance.fiatFrozenBalance,
                       currency: balance.asset,
                       hasAdditionalBalance:
-                          dashboardViewModel.balanceViewModel.hasAdditionalBalance,
+                          dashboardViewModel.balanceViewModel.hasAdditionalBalance(balance.asset),
                       hasSecondAdditionalBalance:
                           dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
                       hasSecondAvailableBalance:
@@ -206,14 +205,17 @@ class CryptoBalanceWidget extends StatelessWidget {
                         subTitle: "Here are the things that you should note:\n - " +
                             dashboardViewModel.isMoneroWalletBrokenReasons.join("\n - ") +
                             "\n\nPlease restart your wallet and if it doesn't help contact our support.",
-                        onTap: () {},
                       ))
                 ],
                 if (dashboardViewModel.showSilentPaymentsCard) ...[
-                  SizedBox(height: 10),
+                  SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: DashBoardRoundedCardWidget(
+                      shadowBlur: dashboardViewModel.getShadowBlur(),
+                      shadowSpread: dashboardViewModel.getShadowSpread(),
+                      marginV: 0,
+                      marginH: 0,
                       customBorder: 30,
                       title: S.of(context).silent_payments,
                       subTitle: S.of(context).enable_silent_payments_scanning,
@@ -276,86 +278,57 @@ class CryptoBalanceWidget extends StatelessWidget {
                   ),
                 ],
                 if (dashboardViewModel.showMwebCard) ...[
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: InfoCard(
+                      title: S.of(context).litecoin_mweb,
+                      description: S.of(context).litecoin_mweb_description,
+                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
+                      rightButtonTitle: S.of(context).enable,
+                      image: 'assets/images/mweb_logo.png',
+                      leftButtonAction: () => _dismissMweb(context),
+                      rightButtonAction: () => _enableMweb(context),
+                      hintWidget: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/litecoin/#mweb"),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          S.of(context).learn_more,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            height: 1,
+                          ),
+                          softWrap: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                if (dashboardViewModel.showDecredInfoCard) ...[
                   SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: DashBoardRoundedCardWidget(
-                      customBorder: 30,
-                      title: S.of(context).litecoin_mweb,
-                      subTitle: S.of(context).litecoin_mweb_description,
-                      hint: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => launchUrl(
-                              Uri.parse("https://docs.cakewallet.com/cryptos/litecoin/#mweb"),
-                              mode: LaunchMode.externalApplication,
-                            ),
-                            child: Text(
-                              S.of(context).learn_more,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w400,
-                                color:
-                                    Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                                height: 1,
-                              ),
-                              softWrap: true,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () => _dismissMweb(context),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Theme.of(context).primaryColor,
-                                  ),
-                                  child: Text(
-                                    S.of(context).litecoin_mweb_dismiss,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () => _enableMweb(context),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: Colors.black,
-                                  ),
-                                  child: Text(
-                                    S.of(context).enable,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      onTap: () => {},
-                      icon: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: ImageIcon(
-                          AssetImage('assets/images/mweb_logo.png'),
-                          color: Color.fromARGB(255, 11, 70, 129),
-                          size: 40,
-                        ),
-                      ),
+                    child: InfoCard(
+                      title: S.of(context).synchronizing,
+                      description: S.of(context).decred_info_card_details,
+                      image: 'assets/images/dcr_icon.png',
+                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
+                      rightButtonTitle: S.of(context).learn_more,
+                      leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
+                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
                     ),
                   ),
                 ],
               ],
             );
           }),
+          SizedBox(height: 130),
         ],
       ),
     );

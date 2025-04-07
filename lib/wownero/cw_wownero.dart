@@ -222,19 +222,21 @@ class CWWownero extends Wownero {
   WalletCredentials createWowneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,
+          required String passphrase,
           required int height,
           required String mnemonic}) =>
       WowneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, height: height, mnemonic: mnemonic);
+          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createWowneroNewWalletCredentials(
           {required String name,
           required String language,
           required bool isPolyseed,
-          String? password}) =>
+          String? password,
+          String? passphrase}) =>
       WowneroNewWalletCredentials(
-          name: name, password: password, language: language, isPolyseed: isPolyseed);
+          name: name, password: password, language: language, isPolyseed: isPolyseed, passphrase: passphrase);
 
   @override
   Map<String, String> getKeys(Object wallet) {
@@ -244,8 +246,15 @@ class CWWownero extends Wownero {
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,
-      'publicViewKey': keys.publicViewKey
+      'publicViewKey': keys.publicViewKey,
+      'passphrase': keys.passphrase
     };
+  }
+
+  @override
+  int? getRestoreHeight(Object wallet) {
+    final wowneroWallet = wallet as WowneroWallet;
+    return wowneroWallet.restoreHeight;
   }
 
   @override
@@ -351,5 +360,10 @@ class CWWownero extends Wownero {
   @override
   void wownerocCheck() {
     checkIfMoneroCIsFine();
+  }
+
+  @override
+  Map<String, List<int>> debugCallLength() {
+    return wownero_wallet_api.debugCallLength();
   }
 }

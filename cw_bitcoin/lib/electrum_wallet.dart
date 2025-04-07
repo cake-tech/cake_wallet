@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -632,8 +634,8 @@ abstract class ElectrumWalletBase
     }).toList();
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
-    // sort the unconfirmed coins so that mweb coins are first:
-    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? -1 : 1);
+    // sort the unconfirmed coins so that mweb coins are last:
+    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? 1 : -1);
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
@@ -842,6 +844,7 @@ abstract class ElectrumWalletBase
     final changeAddress = await walletAddresses.getChangeAddress(
       inputs: utxoDetails.availableInputs,
       outputs: updatedOutputs,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
     );
     final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
     updatedOutputs.add(BitcoinOutput(
@@ -913,6 +916,10 @@ abstract class ElectrumWalletBase
           throw BitcoinTransactionWrongBalanceException();
         }
       }
+
+      // if the amount left for change is less than dust, but not less than 0
+      // then add it to the fees
+      fee += amountLeftForChange;
 
       return EstimatedTxResult(
         utxos: utxoDetails.utxos,
@@ -1365,7 +1372,7 @@ abstract class ElectrumWalletBase
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
-    utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
+        utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
         utxo.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord));
 
     if (hasSilentPaymentsScanning) {
@@ -1423,7 +1430,6 @@ abstract class ElectrumWalletBase
     required List<BitcoinUnspent> updatedUnspentCoins,
     required List<List<BitcoinUnspent>?> results,
   }) {
-
     if (failedCount == results.length) {
       printV("All UTXOs failed to fetch, falling back to previous UTXOs");
       return previousUnspentCoins;
@@ -2236,10 +2242,11 @@ abstract class ElectrumWalletBase
 
         if (element.hash == info.hash &&
             element.vout == info.vout &&
-            info.isFrozen &&
             element.bitcoinAddressRecord.address == info.address &&
             element.value == info.value) {
-          totalFrozen += element.value;
+          if (info.isFrozen) {
+            totalFrozen += element.value;
+          }
         }
       });
     });
@@ -2494,6 +2501,12 @@ abstract class ElectrumWalletBase
 
       transactionHistory.addOne(tx);
     }
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    final amountInt = int.parse(amount);
+    return bitcoinAmountToString(amount: amountInt);
   }
 }
 

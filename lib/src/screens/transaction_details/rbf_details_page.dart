@@ -1,7 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_list_fee_picker_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
@@ -9,6 +8,8 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_expandab
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_expandable_list.dart';
@@ -110,12 +111,21 @@ class RBFDetailsPage extends BasePage {
     );
   }
 
+  BuildContext? loadingBottomSheetContext;
+
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
     }
 
     reaction((_) => transactionDetailsViewModel.sendViewModel.state, (ExecutionState state) {
+
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -151,35 +161,56 @@ class RBFDetailsPage extends BasePage {
         });
       }
 
+      if (state is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: S.of(context).generating_transaction,
+                );
+              },
+            );
+          }
+        });
+      }
+
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
+          if (context.mounted) {
+            showModalBottomSheet<void>(
               context: context,
-              builder: (BuildContext popupContext) {
-                return ConfirmSendingAlert(
-                    alertTitle: S.of(popupContext).confirm_sending,
-                    amount: S.of(popupContext).send_amount,
-                    amountValue: transactionDetailsViewModel
-                        .sendViewModel.pendingTransaction!.amountFormatted,
-                    fee: S.of(popupContext).send_fee,
-                    feeValue:
-                        transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                    rightButtonText: S.of(popupContext).send,
-                    leftButtonText: S.of(popupContext).cancel,
-                    actionRightButton: () async {
-                      Navigator.of(popupContext).pop();
-                      await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
-                      try {
-                        Navigator.of(popupContext).pop();
-                      } catch (_) {}
-                    },
-                    actionLeftButton: () => Navigator.of(popupContext).pop(),
-                    feeFiatAmount:
-                        transactionDetailsViewModel.pendingTransactionFeeFiatAmountFormatted,
-                    fiatAmountValue:
-                        transactionDetailsViewModel.pendingTransactionFiatAmountValueFormatted,
-                    outputs: transactionDetailsViewModel.sendViewModel.outputs);
-              });
+              isDismissible: false,
+              isScrollControlled: true,
+              builder: (BuildContext bottomSheetContext) {
+                return ConfirmSendingBottomSheet(
+                  key: ValueKey('rbf_confirm_sending_bottom_sheet'),
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
+                  currentTheme: currentTheme,
+                  titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
+                  amount: S.of(bottomSheetContext).send_amount,
+                  amountValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  fee: S.of(bottomSheetContext).send_fee,
+                  feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  outputs: transactionDetailsViewModel.sendViewModel.outputs,
+                  onSlideComplete: () async {
+                    Navigator.of(bottomSheetContext).pop();
+                    await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
+                    try {
+                      Navigator.of(bottomSheetContext).pop();
+                    } catch (_) {}
+                  },
+                  change: transactionDetailsViewModel.sendViewModel.pendingTransaction!.change,
+                );
+              },
+            );
+          }
         });
       }
 

@@ -14,16 +14,15 @@ class CWTron extends Tron {
     WalletInfo? walletInfo,
     String? password,
     String? mnemonic,
-    String? parentAddress,
     String? passphrase,
   }) =>
       TronNewWalletCredentials(
-          name: name,
-          walletInfo: walletInfo,
-          password: password,
-          mnemonic: mnemonic,
-          passphrase: passphrase,
-          parentAddress: parentAddress);
+        name: name,
+        walletInfo: walletInfo,
+        password: password,
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+      );
 
   @override
   WalletCredentials createTronRestoreWalletFromSeedCredentials({
@@ -85,6 +84,7 @@ class CWTron extends Tron {
       decimal: token.decimals,
       enabled: token.enabled,
       iconPath: token.iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
     await (wallet as TronWallet).addTronToken(tronToken);
   }
@@ -132,5 +132,10 @@ class CWTron extends Tron {
   @override
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled) {
     (wallet as TronWallet).updateScanProviderUsageState(isEnabled);
+  }
+
+  @override
+  List<String> getDefaultTokenContractAddresses() {
+    return DefaultTronTokens().initialTronTokens.map((e) => e.contractAddress).toList();
   }
 }

@@ -76,6 +76,15 @@ class BalanceRowWidget extends StatelessWidget {
               width: 1,
             ),
             color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            // boxShadow: [
+            //   BoxShadow(
+            //       color: Theme.of(context)
+            //           .extension<BalancePageTheme>()!
+            //           .cardBorderColor
+            //           .withAlpha(50),
+            //       spreadRadius: dashboardViewModel.getShadowSpread(),
+            //       blurRadius: dashboardViewModel.getShadowBlur())
+            // ],
           ),
           child: TextButton(
             onPressed: () => Fluttertoast.showToast(
@@ -209,7 +218,33 @@ class BalanceRowWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  //),
+                  if (currency.isPotentialScam)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      margin: EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red[800],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_outlined,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            S.of(context).potential_scam,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (frozenBalance.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,7 +345,7 @@ class BalanceRowWidget extends StatelessWidget {
           ),
         ),
         if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
-          SizedBox(height: 10),
+          SizedBox(height: 16),
           Container(
             margin: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
@@ -320,6 +355,15 @@ class BalanceRowWidget extends StatelessWidget {
                 width: 1,
               ),
               color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              // boxShadow: [
+              //   BoxShadow(
+              //       color: Theme.of(context)
+              //           .extension<BalancePageTheme>()!
+              //           .cardBorderColor
+              //           .withAlpha(50),
+              //       spreadRadius: dashboardViewModel.getShadowSpread(),
+              //       blurRadius: dashboardViewModel.getShadowBlur())
+              // ],
             ),
             child: TextButton(
               onPressed: () => Fluttertoast.showToast(
@@ -642,6 +686,25 @@ class BalanceRowWidget extends StatelessWidget {
       ],
     );
   }
+
+  //  double getShadowSpread(){
+  //   double spread = 3;
+  //   if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) spread = 3;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.light) spread = 3;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.dark) spread = 1;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.oled) spread = 3;
+  //   return spread;
+  // }
+  //
+  //
+  // double getShadowBlur(){
+  //   double blur = 7;
+  //   if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) blur = 7;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.light) blur = 7;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.dark) blur = 3;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.oled) blur = 7;
+  //   return blur;
+  // }
 
   void _showBalanceDescription(BuildContext context, String content) {
     showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));

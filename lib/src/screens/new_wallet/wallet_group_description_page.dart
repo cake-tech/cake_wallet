@@ -7,6 +7,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/themes/extensions/theme_type_images.dart';
 
 class WalletGroupDescriptionPage extends BasePage {
   WalletGroupDescriptionPage({required this.selectedWalletType});
@@ -25,43 +26,44 @@ class WalletGroupDescriptionPage extends BasePage {
       padding: EdgeInsets.all(24),
       child: Column(
         children: [
-          Image.asset(
-            _getThemedWalletGroupImage(currentTheme.type),
-            height: 200,
-          ),
+          Image.asset(currentTheme.type.walletGroupImage, height: 200),
           SizedBox(height: 32),
           Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: '${S.of(context).wallet_group_description_one} '),
+            child: Scrollbar(
+              child: SingleChildScrollView(
+                child: Text.rich(
                   TextSpan(
-                    text: '${S.of(context).wallet_group.toLowerCase()} ',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    children: [
+                      TextSpan(text: '${S.of(context).wallet_group_description_one} '),
+                      TextSpan(
+                        text: '${S.of(context).wallet_group.toLowerCase()} ',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).wallet_group_description_two} ',
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).choose_wallet_group} ',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).wallet_group_description_three} ',
+                      ),
+                      TextSpan(
+                        text: '${S.of(context).create_new_seed} ',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      TextSpan(text: S.of(context).wallet_group_description_four),
+                    ],
                   ),
-                  TextSpan(
-                    text: '${S.of(context).wallet_group_description_two} ',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                   ),
-                  TextSpan(
-                    text: '${S.of(context).choose_wallet_group} ',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  TextSpan(
-                    text: '${S.of(context).wallet_group_description_three} ',
-                  ),
-                  TextSpan(
-                    text: '${S.of(context).create_new_seed} ',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  TextSpan(text: S.of(context).wallet_group_description_four),
-                ],
-              ),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                height: 1.5,
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                ),
               ),
             ),
           ),
@@ -90,20 +92,5 @@ class WalletGroupDescriptionPage extends BasePage {
         ],
       ),
     );
-  }
-
-  String _getThemedWalletGroupImage(ThemeType theme) {
-    final lightImage = 'assets/images/wallet_group_light.png';
-    final darkImage = 'assets/images/wallet_group_dark.png';
-    final brightImage = 'assets/images/wallet_group_bright.png';
-
-    switch (theme) {
-      case ThemeType.bright:
-        return brightImage;
-      case ThemeType.light:
-        return lightImage;
-      default:
-        return darkImage;
-    }
   }
 }

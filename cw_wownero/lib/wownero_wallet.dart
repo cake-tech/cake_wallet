@@ -20,6 +20,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
 import 'package:cw_core/wownero_balance.dart';
+import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:cw_wownero/api/transaction_history.dart' as transaction_history;
@@ -117,7 +118,13 @@ abstract class WowneroWalletBase
 
   String get password => _password;
 
+  @override
+  String get passphrase => wownero_wallet.getPassphrase();
+
   String _password;
+
+  @override
+  bool get hasRescan => true;
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
@@ -125,7 +132,12 @@ abstract class WowneroWalletBase
       privateSpendKey: wownero_wallet.getSecretSpendKey(),
       privateViewKey: wownero_wallet.getSecretViewKey(),
       publicSpendKey: wownero_wallet.getPublicSpendKey(),
-      publicViewKey: wownero_wallet.getPublicViewKey());
+      publicViewKey: wownero_wallet.getPublicViewKey(),
+      passphrase: wownero_wallet.getPassphrase());
+
+  int? get restoreHeight =>
+      transactionHistory.transactions.values.firstOrNull?.height ?? wownero.Wallet_getRefreshFromBlockHeight(wptr!);
+
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -557,7 +569,7 @@ abstract class WowneroWalletBase
   @override
   Future<Map<String, WowneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
+    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, WowneroTransactionInfo>>(<String, WowneroTransactionInfo>{},
             (Map<String, WowneroTransactionInfo> acc, WowneroTransactionInfo tx) {
       acc[tx.id] = tx;
@@ -586,9 +598,9 @@ abstract class WowneroWalletBase
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<WowneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
-      transaction_history
-          .getAllTransactions()
+  Future<List<WowneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async =>
+      (await transaction_history
+          .getAllTransactions())
           .map(
             (row) => WowneroTransactionInfo(
               row.hash,
@@ -757,5 +769,10 @@ abstract class WowneroWalletBase
     if (address == null) return false;
 
     return wownero_wallet.verifyMessage(message, address, signature);
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    return wowneroAmountToString(amount: int.parse(amount));
   }
 }

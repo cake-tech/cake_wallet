@@ -1,9 +1,7 @@
 import 'dart:math';
 
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:fast_scanner/fast_scanner.dart';
@@ -12,7 +10,7 @@ import 'package:flutter/scheduler.dart';
 
 var isQrScannerShown = false;
 
-Future<String> presentQRScanner(BuildContext context) async {
+Future<String?> presentQRScanner(BuildContext context) async {
   isQrScannerShown = true;
   try {
     final result = await Navigator.of(context).push<String>(
@@ -23,7 +21,7 @@ Future<String> presentQRScanner(BuildContext context) async {
       ),
     );
     isQrScannerShown = false;
-    return result??'';
+    return result;
   } catch (e) {
     isQrScannerShown = false;
     rethrow;
@@ -95,9 +93,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         setState(() {
           popped = true;
         });
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pop(_barcode?.rawValue ?? "");
-        });
+        Navigator.of(context).pop(_barcode!.rawValue ?? _barcode!.rawBytes);
       }
     }
   }

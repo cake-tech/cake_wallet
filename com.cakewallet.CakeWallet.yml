@@ -1,6 +1,6 @@
 app-id: com.cakewallet.CakeWallet
 runtime: org.freedesktop.Platform
-runtime-version: '22.08'
+runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 command: cake_wallet
 separate-locales: false
@@ -15,8 +15,6 @@ finish-args:
 modules:
   - name: cake_wallet
     buildsystem: simple
-    only-arches:
-      - x86_64
     build-commands:
       - "cp -R bundle /app/cake_wallet"
       - "chmod +x /app/cake_wallet/cake_wallet"

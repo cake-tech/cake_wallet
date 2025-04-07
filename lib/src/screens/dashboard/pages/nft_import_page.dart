@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -68,7 +69,6 @@ class _ImportNFTPage extends BasePage {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-       
           Text(
             S.current.address,
             textAlign: TextAlign.center,
@@ -76,8 +76,7 @@ class _ImportNFTPage extends BasePage {
               fontSize: 16,
               fontFamily: 'Lato',
               fontWeight: FontWeight.w800,
-              color:
-                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+              color: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
               height: 1,
             ),
           ),
@@ -92,9 +91,7 @@ class _ImportNFTPage extends BasePage {
                 tokenAddressController.text = tokenAddress;
               }
             },
-            borderColor: Theme.of(context)
-                .extension<CakeTextTheme>()!
-                .textfieldUnderlineColor,
+            borderColor: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
             iconColor: Theme.of(context).primaryColor,
             placeholder: '0x...',
             textStyle: TextStyle(
@@ -108,46 +105,45 @@ class _ImportNFTPage extends BasePage {
               color: PaletteDark.darkCyanBlue,
             ),
           ),
-      
-          SizedBox(height: 48),
-          Text(
-            S.current.tokenID,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Lato',
-              fontWeight: FontWeight.w800,
-              color: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
-              height: 1,
+          if (nftViewModel.appStore.wallet!.type != WalletType.solana) ...[
+            SizedBox(height: 48),
+            Text(
+              S.current.tokenID,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'Lato',
+                fontWeight: FontWeight.w800,
+                color: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                height: 1,
+              ),
             ),
-          ),
-          AddressTextField(
-            controller: tokenIDController,
-            options: [AddressTextFieldOption.paste],
-            onPushPasteButton: (context) async {
-              final clipboard = await Clipboard.getData('text/plain');
-              final tokenID = clipboard?.text ?? '';
+            AddressTextField(
+              controller: tokenIDController,
+              options: [AddressTextFieldOption.paste],
+              onPushPasteButton: (context) async {
+                final clipboard = await Clipboard.getData('text/plain');
+                final tokenID = clipboard?.text ?? '';
 
-              if (tokenID.isNotEmpty) {
-                tokenIDController.text = tokenID;
-              }
-            },
-            borderColor: Theme.of(context)
-                .extension<CakeTextTheme>()!
-                .textfieldUnderlineColor,
-            iconColor: Theme.of(context).primaryColor,
-            placeholder: S.current.enterTokenID,
-            textStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
+                if (tokenID.isNotEmpty) {
+                  tokenIDController.text = tokenID;
+                }
+              },
+              borderColor: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
+              iconColor: Theme.of(context).primaryColor,
+              placeholder: S.current.enterTokenID,
+              textStyle: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: PaletteDark.darkCyanBlue,
+              ),
+              hintStyle: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: PaletteDark.darkCyanBlue,
+              ),
             ),
-            hintStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
-            ),
-          ),
+          ],
           Spacer(),
           Observer(builder: (context) {
             return LoadingPrimaryButton(
@@ -161,6 +157,7 @@ class _ImportNFTPage extends BasePage {
               },
             );
           }),
+          SizedBox(height: 16),
         ],
       ),
     );

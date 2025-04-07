@@ -2,9 +2,9 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
-
 const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
 
@@ -19,7 +19,9 @@ class AddressValidator extends TextValidator {
                           ? BitcoinNetwork.mainnet
                           : LitecoinNetwork.mainnet,
                     )
-                : null,
+                : type == CryptoCurrency.zano 
+                    ? zano?.validateAddress
+                    : null,
             pattern: getPattern(type),
             length: getLength(type));
 
@@ -115,7 +117,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zec:
         pattern = 't1[0-9a-zA-Z]{33}|t3[0-9a-zA-Z]{33}';
       case CryptoCurrency.dcr:
-        pattern = 'D[ksecS]([0-9a-zA-Z])+';
+        pattern = '(D|T|S)[ksecS]([0-9a-zA-Z])+';
       case CryptoCurrency.rvn:
         pattern = '[Rr]([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.near:
@@ -132,6 +134,8 @@ class AddressValidator extends TextValidator {
         pattern = 'D([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.btcln:
         pattern = '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
+      case CryptoCurrency.zano:
+        pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       default:
         return '';
     }
@@ -271,10 +275,14 @@ class AddressValidator extends TextValidator {
         return [64];
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
+      case CryptoCurrency.zano:
       default:
         return null;
     }
   }
+
+  static String get silentPaymentAddressPattern => SilentPaymentAddress.regex.pattern;
+  static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
   static String? getAddressFromStringPattern(CryptoCurrency type) {
     String? pattern = null;
@@ -310,6 +318,8 @@ class AddressValidator extends TextValidator {
         pattern = '[1-9A-HJ-NP-Za-km-z]+';
       case CryptoCurrency.trx:
         pattern = '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
+      case CryptoCurrency.zano:
+        pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]{42}';

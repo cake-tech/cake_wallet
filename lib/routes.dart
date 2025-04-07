@@ -110,11 +110,15 @@ class Routes {
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
   static const torPage = '/tor_page';
-
+  static const backgroundSync = '/background_sync';
+  static const devMoneroBackgroundSync = '/dev/monero_background_sync';
+  static const devMoneroCallProfiler = '/dev/monero_call_profiler';
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
+  static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
+  static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 }

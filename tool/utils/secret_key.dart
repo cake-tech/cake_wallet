@@ -38,7 +38,7 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
     SecretKey('ankrApiKey', () => ''),
     SecretKey('chainStackApiKey', () => ''),
-    SecretKey('quantexExchangeMarkup', () => ''),
+    SecretKey('swapTradeExchangeMarkup', () => ''),
     SecretKey('seeds', () => ''),
     SecretKey('testCakePayApiKey', () => ''),
     SecretKey('cakePayApiKey', () => ''),
@@ -75,6 +75,10 @@ class SecretKey {
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
     SecretKey('moneroTestWalletBlockHeight', () => ''),
+    SecretKey('chainflipApiKey', () => ''),
+    SecretKey('chainflipAffiliateFee', () => ''),
+    SecretKey('kryptonimApiKey', () => ''),
+    SecretKey('walletGroupSalt', () => hex.encode(encrypt.Key.fromSecureRandom(16).bytes)),
   ];
 
   static final evmChainsSecrets = [
@@ -86,6 +90,7 @@ class SecretKey {
 
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
+    SecretKey('nowNodesApiKey', () => ''),
     SecretKey('chainStackApiKey', () => ''),
   ];
 

@@ -7,7 +7,8 @@ bool get isViewOnly => int.tryParse(monero.Wallet_secretSpendKey(wptr!)) == 0;
 int _wlptrForW = 0;
 monero.WalletListener? _wlptr = null;
 
-monero.WalletListener getWlptr() {
+monero.WalletListener? getWlptr() {
+  if (wptr == null) return null;
   if (wptr!.address == _wlptrForW) return _wlptr!;
   _wlptrForW = wptr!.address;
   _wlptr = monero.MONERO_cw_getWalletListener(wptr!);
@@ -37,7 +38,8 @@ List<monero.SubaddressAccountRow> getAllAccount() {
   int size = monero.SubaddressAccount_getAll_size(subaddressAccount!);
   if (size == 0) {
     monero.Wallet_addSubaddressAccount(wptr!);
-    return getAllAccount();
+    monero.Wallet_status(wptr!);
+    return [];
   }
   return List.generate(size, (index) {
     return monero.SubaddressAccount_getAll_byIndex(subaddressAccount!, index: index);

@@ -1,4 +1,3 @@
-
 import 'dart:math';
 
 import 'package:cake_wallet/di.dart';
@@ -21,6 +20,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class AddressList extends StatefulWidget {
   const AddressList({
@@ -37,7 +37,6 @@ class AddressList extends StatefulWidget {
 }
 
 class _AddressListState extends State<AddressList> {
-
   bool showHiddenAddresses = false;
 
   void _toggleHiddenAddresses() {
@@ -62,7 +61,7 @@ class _AddressListState extends State<AddressList> {
 
   void updateItems() {
     setState(() {
-      items = getItems(widget.addressListViewModel.items, showHiddenAddresses);
+      items = getItems(widget.addressListViewModel.forceRecomputeItems, showHiddenAddresses);
     });
   }
 
@@ -92,6 +91,7 @@ class _AddressListState extends State<AddressList> {
               walletAddressListViewModel: widget.addressListViewModel,
               trailingButtonTap: () async {
                 if (widget.addressListViewModel.type == WalletType.monero ||
+                    widget.addressListViewModel.type == WalletType.wownero ||
                     widget.addressListViewModel.type == WalletType.haven) {
                   await showPopUp<void>(
                       context: context, builder: (_) => getIt.get<MoneroAccountListPage>());
@@ -131,9 +131,10 @@ class _AddressListState extends State<AddressList> {
               showTrailingButton: widget.addressListViewModel.showAddManualAddresses,
               showSearchButton: true,
               onSearchCallback: updateItems,
-              trailingButtonTap: () => Navigator.of(context).pushNamed(Routes.newSubaddress).then((value) {
-                updateItems(); // refresh the new address
-              }),
+              trailingButtonTap: () =>
+                  Navigator.of(context).pushNamed(Routes.newSubaddress).then((value) {
+                    updateItems(); // refresh the new address
+                  }),
               trailingIcon: Icon(
                 Icons.add,
                 size: 20,
@@ -148,7 +149,8 @@ class _AddressListState extends State<AddressList> {
             cell = Container();
           } else {
             cell = Observer(builder: (_) {
-              final isCurrent = item.address == widget.addressListViewModel.address.address && editable;
+              final isCurrent =
+                  item.address == widget.addressListViewModel.address.address && editable;
               final backgroundColor = isCurrent
                   ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
                   : Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor;
@@ -156,17 +158,17 @@ class _AddressListState extends State<AddressList> {
                   ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileTextColor
                   : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
 
-
               return AddressCell.fromItem(
                 item,
                 isCurrent: isCurrent,
                 hasBalance: widget.addressListViewModel.isBalanceAvailable,
                 hasReceived: widget.addressListViewModel.isReceivedAvailable,
-                // hasReceived: 
-                backgroundColor: (kDebugMode && item.isHidden) ?
-                  Theme.of(context).colorScheme.error :
-                  (kDebugMode && item.isManual) ? Theme.of(context).colorScheme.error.withBlue(255) :
-                  backgroundColor,
+                // hasReceived:
+                backgroundColor: (kDebugMode && item.isHidden)
+                    ? Theme.of(context).colorScheme.error
+                    : (kDebugMode && item.isManual)
+                        ? Theme.of(context).colorScheme.error.withBlue(255)
+                        : backgroundColor,
                 textColor: textColor,
                 onTap: (_) {
                   if (widget.onSelect != null) {
@@ -176,9 +178,11 @@ class _AddressListState extends State<AddressList> {
                   widget.addressListViewModel.setAddress(item);
                 },
                 onEdit: editable
-                    ? () => Navigator.of(context).pushNamed(Routes.newSubaddress, arguments: item).then((value) {
-                      updateItems(); // refresh the new address
-                    })
+                    ? () => Navigator.of(context)
+                            .pushNamed(Routes.newSubaddress, arguments: item)
+                            .then((value) {
+                          updateItems(); // refresh the new address
+                        })
                     : null,
                 isHidden: item.isHidden,
                 onHide: () => _hideAddress(item),
@@ -190,8 +194,8 @@ class _AddressListState extends State<AddressList> {
         return index != 0
             ? cell
             : ClipRRect(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                borderRadius:
+                    BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
                 child: cell,
               );
       },
@@ -202,5 +206,4 @@ class _AddressListState extends State<AddressList> {
     await widget.addressListViewModel.toggleHideAddress(item);
     updateItems();
   }
-
 }

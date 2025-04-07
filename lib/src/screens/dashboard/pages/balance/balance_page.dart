@@ -23,12 +23,13 @@ class BalancePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (context) {
-        final isEVMCompatible = isEVMCompatibleChain(dashboardViewModel.type);
+        final isNFTActivated = isNFTACtivatedChain(dashboardViewModel.type);
         return DefaultTabController(
-          length: isEVMCompatible ? 2 : 1,
+          key: ValueKey<bool>(isNFTActivated),
+          length: isNFTActivated ? 2 : 1,
           child: Column(
             children: [
-              if (isEVMCompatible)
+              if (isNFTActivated)
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
@@ -75,7 +76,7 @@ class BalancePage extends StatelessWidget {
                   physics: NeverScrollableScrollPhysics(),
                   children: [
                     CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
-                    if (isEVMCompatible) NFTListingPage(nftViewModel: nftViewModel)
+                    if (isNFTActivated) NFTListingPage(nftViewModel: nftViewModel)
                   ],
                 ),
               ),

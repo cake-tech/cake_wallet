@@ -7,6 +7,7 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -31,7 +32,14 @@ class MoonPayProvider extends BuyProvider {
   })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
         this._settingsStore = settingsStore,
-        super(wallet: wallet, isTestEnvironment: isTestEnvironment, ledgerVM: null);
+        super(
+          wallet: wallet,
+          isTestEnvironment: isTestEnvironment,
+          ledgerVM: null,
+          supportedCryptoList: supportedCryptoToFiatPairs(
+              notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+          supportedFiatList: supportedFiatToCryptoPairs(
+              notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
   final SettingsStore _settingsStore;
 
@@ -47,6 +55,9 @@ class MoonPayProvider extends BuyProvider {
   static const _sellQuote = '/sell_quote';
 
   static const _transactionsSuffix = '/v1/transactions';
+
+  static const List<CryptoCurrency> _notSupportedCrypto = [];
+  static const List<FiatCurrency> _notSupportedFiat = [];
 
   final String baseBuyUrl;
   final String baseSellUrl;
@@ -81,6 +92,8 @@ class MoonPayProvider extends BuyProvider {
       case ThemeType.light:
         return 'light';
       case ThemeType.dark:
+        return 'dark';
+      case ThemeType.oled:
         return 'dark';
     }
   }
@@ -124,11 +137,12 @@ class MoonPayProvider extends BuyProvider {
   }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, String cryptoCurrency, bool isBuyAction) async {
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
     final List<PaymentMethod> paymentMethods = [];
 
     if (isBuyAction) {
-      final fiatBuyCredentials = await fetchFiatCredentials(fiatCurrency, cryptoCurrency, null);
+      final fiatBuyCredentials =
+          await fetchFiatCredentials(fiatCurrency, cryptoCurrency.title, null);
       if (fiatBuyCredentials.isNotEmpty) {
         final paymentMethod = fiatBuyCredentials['paymentMethod'] as String?;
         paymentMethods.add(PaymentMethod.fromMoonPayJson(
@@ -166,8 +180,7 @@ class MoonPayProvider extends BuyProvider {
 
     final params = {
       'baseCurrencyCode': baseCurrencyCode,
-      'baseCurrencyAmount': amount.toString(),
-      'amount': amount.toString(),
+      'baseCurrencyAmount': amount.toStringAsFixed(2),
       'paymentMethod': paymentMethod,
       'areFeesIncluded': 'false',
       'apiKey': _apiKey
@@ -222,7 +235,6 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-
     final Map<String, String> params = {
       'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
       'language': _settingsStore.languageCode,
@@ -230,7 +242,7 @@ class MoonPayProvider extends BuyProvider {
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
       'baseCurrencyCode': isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
-      'baseCurrencyAmount': amount.toString(),
+      'baseCurrencyAmount': amount.toStringAsFixed(2),
       'walletAddress': cryptoCurrencyAddress,
       'lockAmount': 'false',
       'showAllCurrencies': 'false',
@@ -245,19 +257,17 @@ class MoonPayProvider extends BuyProvider {
     if (!isBuyAction) params['quoteCurrencyCode'] = quote.cryptoCurrency.name;
 
     try {
-      {
-        final uri = await requestMoonPayUrl(
-            walletAddress: cryptoCurrencyAddress,
-            settingsStore: _settingsStore,
-            isBuyAction: isBuyAction,
-            amount: amount.toString(),
-            params: params);
+      final uri = await requestMoonPayUrl(
+          walletAddress: cryptoCurrencyAddress,
+          settingsStore: _settingsStore,
+          isBuyAction: isBuyAction,
+          amount: amount.toString(),
+          params: params);
 
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-        } else {
-          throw Exception('Could not launch URL');
-        }
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Could not launch URL');
       }
     } catch (e) {
       if (context.mounted) {
