@@ -37,6 +37,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
   static const List<CryptoCurrency> _notSupportedCrypto = [];
   static const List<FiatCurrency> _notSupportedFiat = [];
+  static Map<String, dynamic> _onrampMetadata = {};
 
   final SettingsStore _settingsStore;
 
@@ -59,11 +60,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
-    final params = {
-      'fiatCurrency': fiatCurrency,
-      'type': isBuyAction ? 'buy' : 'sell',
-      'isRecurringPayment': 'false'
-    };
+
+    final params = {'type': isBuyAction ? 'buy' : 'sell'};
 
     final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$fiatCurrency', params);
 
@@ -165,7 +163,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
         List<Quote> validQuotes = [];
 
-        final onrampMetadata = await getOnrampMetadata();
+        if (_onrampMetadata.isEmpty) _onrampMetadata = await getOnrampMetadata();
 
         for (var item in data) {
 
@@ -174,12 +172,12 @@ class OnRamperBuyProvider extends BuyProvider {
           final paymentMethod = (item as Map<String, dynamic>)['paymentMethod'] as String;
 
           final rampId = item['ramp'] as String?;
-          final rampMetaData = onrampMetadata[rampId] as Map<String, dynamic>?;
+          final rampMetaData = _onrampMetadata[rampId] as Map<String, dynamic>?;
 
           if (rampMetaData == null) continue;
 
           final quote = Quote.fromOnramperJson(
-              item, isBuyAction, onrampMetadata, _getPaymentTypeByString(paymentMethod));
+              item, isBuyAction, _onrampMetadata, _getPaymentTypeByString(paymentMethod));
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
