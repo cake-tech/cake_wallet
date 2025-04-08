@@ -15,7 +15,6 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -61,21 +60,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   late Timer bestRateSync;
 
   List<BuyProvider> get availableBuyProviders {
-    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(
-        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
+    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes();
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
         .cast<BuyProvider>()
         .toList();
   }
 
   List<BuyProvider> get availableSellProviders {
-    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(
-        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
+    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes();
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
         .cast<BuyProvider>()
         .toList();
   }
@@ -210,8 +205,11 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (!isReadyToTrade) {
+    if (!isReadyToTrade && !isBuySellQuotFailed) {
       cryptoAmount = S.current.fetching;
+      return;
+    } else if (isBuySellQuotFailed) {
+      cryptoAmount = '';
       return;
     }
 
@@ -238,8 +236,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     final enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (!isReadyToTrade) {
+    if (!isReadyToTrade && !isBuySellQuotFailed) {
       fiatAmount = S.current.fetching;
+      return;
+    } else if (isBuySellQuotFailed) {
+      fiatAmount = '';
+      return;
     }
 
     if (bestRateQuote != null) {
@@ -379,7 +381,22 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
 
-    final result = await Future.wait<List<Quote>?>(providerList.map((element) => element
+    final List<BuyProvider> validProviders = providerList.where((provider) {
+      if (isBuyAction) {
+        return provider.supportedCryptoList.any((pair) =>
+        pair.from == cryptoCurrency && pair.to == fiatCurrency);
+      } else {
+        return provider.supportedFiatList.any((pair) =>
+        pair.from == fiatCurrency && pair.to == cryptoCurrency);
+      }
+    }).toList();
+
+    if (validProviders.isEmpty) {
+      buySellQuotState = BuySellQuotFailed();
+      return;
+    }
+
+    final result = await Future.wait<List<Quote>?>(validProviders.map((element) => element
         .fetchQuote(
           cryptoCurrency: cryptoCurrency,
           fiatCurrency: fiatCurrency,

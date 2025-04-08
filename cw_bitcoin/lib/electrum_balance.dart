@@ -65,6 +65,6 @@ class ElectrumBalance extends Balance {
         'unconfirmed': unconfirmed,
         'frozen': frozen,
         'secondConfirmed': secondConfirmed,
-        'secondUnconfirmed': secondUnconfirmed
+        'secondUnconfirmed': secondUnconfirmed,
       });
 }

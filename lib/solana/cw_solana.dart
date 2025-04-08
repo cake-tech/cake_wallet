@@ -99,6 +99,7 @@ class CWSolana extends Solana {
       mint: token.name.toUpperCase(),
       enabled: token.enabled,
       iconPath: token.iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
 
     await (wallet as SolanaWallet).addSPLToken(splToken);

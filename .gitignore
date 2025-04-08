@@ -141,9 +141,28 @@ lib/wownero/wownero.dart
 lib/zano/zano.dart
 lib/decred/decred.dart
 
-ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@3x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@3x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@3x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@3x.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@2x~car.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@3x~car.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-83.5@2x~ipad.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ios-marketing.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ipad.png
+
 ios/Runner/Info.plist
 android/app/src/main/res/mipmap-*
 android/app/src/main/res/drawable/ic_launcher.png
@@ -186,6 +205,10 @@ ios/WowneroWallet.framework/WowneroWallet
 ios/ZanoWallet.framework/ZanoWallet
 *_libwallet2_api_c.dylib
 
+.flatpak-builder
+cake_wallet.flatpak
+flatpak-build/
+
 # macOS
 **/Flutter/ephemeral/
 **/Pods/
@@ -204,7 +227,3 @@ ios/ZanoWallet.framework/ZanoWallet
 **/linux/flutter/generated_plugin_registrant.cc
 **/linux/flutter/generated_plugin_registrant.h
 **/linux/flutter/generated_plugins.cmake
-
-cake_wallet.flatpak
-flatpak-build/
-export/

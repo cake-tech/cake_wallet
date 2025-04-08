@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:3.27.4-linux
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -274,7 +274,7 @@ jobs:
 
       - name: Build
         run: |
-          flutter build apk --release --split-per-abi
+          flutter build apk --dart-define=hasDevOptions=true --release --split-per-abi
 
       - name: Rename apk file
         run: |

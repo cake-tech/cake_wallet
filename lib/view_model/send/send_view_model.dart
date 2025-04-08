@@ -224,13 +224,49 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel
 
   @computed
   String get balance {
-    if (coinTypeToSpendFrom == UnspentCoinType.mweb) {
+    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+    } else if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
     return wallet
         .balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
+  }
+
+  @action
+  Future<void> updateSendingBalance() async {
+    // force the sendingBalance to recompute since unspent coins aren't observable
+    // or at least mobx can't detect the changes
+
+    final currentType = coinTypeToSpendFrom;
+
+    if (currentType == UnspentCoinType.any) {
+      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    } else if (currentType == UnspentCoinType.nonMweb) {
+      coinTypeToSpendFrom = UnspentCoinType.any;
+    } else if (currentType == UnspentCoinType.mweb) {
+      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    }
+
+    // set it back to the original value:
+    coinTypeToSpendFrom = currentType;
+  }
+
+  @computed
+  Future<String> get sendingBalance async {
+    // only for electrum, monero, wownero, decred wallets atm:
+    switch (wallet.type) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+      case WalletType.monero:
+      case WalletType.wownero:
+      case WalletType.decred:
+        return wallet.formatCryptoAmount(
+            (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom)).toString());
+      default:
+        return balance;
+    }
   }
 
   @computed

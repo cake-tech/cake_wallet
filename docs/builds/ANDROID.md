@@ -8,8 +8,6 @@ You can find the latest instructions for installing Docker on your given OS on t
 
 - <https://docs.docker.com/engine/install/>
 
-NOTE: If building on a Mac with an M-series CPU (arm64), you may encounter segmentation faults when building. If you do, simply retry the build.
-
 ## Building Cake Wallet or Monero.com
 
 ### Using the pre-built builder image
@@ -20,8 +18,8 @@ In order to build the latest version of Cake Wallet, simply run the following:
 git clone --branch main https://github.com/cake-tech/cake_wallet.git
 # NOTE: Replace `main` with the latest release tag available at https://github.com/cake-tech/cake_wallet/releases/latest.
 cd cake_wallet
-# docker build -t ghcr.io/cake-tech/cake_wallet:main-linux . # Uncomment to build the docker image yourself instead of pulling it from the registry
-docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:main-linux bash -x << EOF
+# docker build -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1 . # Uncomment to build the docker image yourself instead of pulling it from the registry
+docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1 bash -x << EOF
 set -x -e
 pushd scripts/android
     source ./app_env.sh cakewallet

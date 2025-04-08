@@ -144,6 +144,8 @@ abstract class EVMChainWalletBase
   //   required WalletInfo walletInfo,
   // });
 
+  List<String> get getDefaultTokenContractAddresses;
+
   Future<void> initErc20TokensBox();
 
   String getTransactionHistoryFileName();
@@ -171,6 +173,9 @@ abstract class EVMChainWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
 
+    // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
+    await _checkForExistingScamTokens();
+
     if (walletInfo.isHardwareWallet) {
       _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
       walletAddresses.address = walletInfo.address;
@@ -184,6 +189,31 @@ abstract class EVMChainWalletBase
       walletAddresses.address = _evmChainPrivateKey.address.hexEip55;
     }
     await save();
+  }
+
+  Future<void> _checkForExistingScamTokens() async {
+    final baseCurrencySymbols = CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
+
+    for (var token in erc20Currencies) {
+      bool isPotentialScam = false;
+
+      bool isWhitelisted =
+          getDefaultTokenContractAddresses.any((element) => element == token.contractAddress);
+
+      final tokenSymbol = token.title.toUpperCase();
+
+      // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
+      // if it is, then it's probably a scam unless it's in the whitelist
+      if (baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase()) && !isWhitelisted) {
+        isPotentialScam = true;
+      }
+
+      if (isPotentialScam) {
+        token.isPotentialScam = true;
+        token.iconPath = null;
+        await token.save();
+      }
+    }
   }
 
   @override
@@ -626,13 +656,13 @@ abstract class EVMChainWalletBase
   Future<void> addErc20Token(Erc20Token token) async {
     String? iconPath;
 
-    if (token.iconPath == null || token.iconPath!.isEmpty) {
+    if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
       try {
         iconPath = CryptoCurrency.all
             .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
             .iconPath;
       } catch (_) {}
-    } else {
+    } else if (!token.isPotentialScam) {
       iconPath = token.iconPath;
     }
 

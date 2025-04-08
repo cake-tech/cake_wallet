@@ -6,8 +6,6 @@ import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:http/http.dart';
 
 enum ProviderType { robinhood, dfx, onramper, moonpay, meld, kriptonim }
 
@@ -48,84 +46,23 @@ extension ProviderTypeName on ProviderType {
 }
 
 class ProvidersHelper {
-  static List<ProviderType> getAvailableBuyProviderTypes(WalletType walletType) {
-    switch (walletType) {
-      case WalletType.nano:
-      case WalletType.banano:
-      case WalletType.wownero:
-        return [ProviderType.onramper];
-      case WalletType.monero:
-        return [ProviderType.onramper, ProviderType.dfx];
-      case WalletType.bitcoin:
-      case WalletType.polygon:
-      case WalletType.ethereum:
-        return [
-          ProviderType.onramper,
-          ProviderType.dfx,
-          ProviderType.robinhood,
-          ProviderType.moonpay,
-          ProviderType.kriptonim
-        ];
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
-      case WalletType.solana:
-        return [
-          ProviderType.onramper,
-          ProviderType.robinhood,
-          ProviderType.moonpay,
-          ProviderType.kriptonim
-        ];
-      case WalletType.tron:
-        return [
-          ProviderType.onramper,
-          ProviderType.robinhood,
-          ProviderType.moonpay,
-          ProviderType.kriptonim
-        ];
-      case WalletType.decred:
-      case WalletType.none:
-      case WalletType.haven:
-      case WalletType.zano:
-        return [];
-    }
-  }
+  static List<ProviderType> getAvailableBuyProviderTypes() => [
+    ProviderType.robinhood,
+    ProviderType.dfx,
+    ProviderType.onramper,
+    ProviderType.moonpay,
+    ProviderType.kriptonim
+  ];
 
-  static List<ProviderType> getAvailableSellProviderTypes(WalletType walletType) {
-    switch (walletType) {
-      case WalletType.bitcoin:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-        return [
-          ProviderType.onramper,
-          ProviderType.moonpay,
-          ProviderType.dfx,
-        ];
-      case WalletType.litecoin:
-      case WalletType.bitcoinCash:
-        return [ProviderType.moonpay];
-      case WalletType.solana:
-        return [
-          ProviderType.onramper,
-          ProviderType.moonpay,
-        ];
-      case WalletType.tron:
-        return [
-          ProviderType.moonpay,
-        ];
-      case WalletType.monero:
-        return [ProviderType.dfx];
-      case WalletType.decred:
-      case WalletType.nano:
-      case WalletType.banano:
-      case WalletType.none:
-      case WalletType.haven:
-      case WalletType.wownero:
-      case WalletType.zano:
-        return [];
-    }
-  }
+  static List<ProviderType> getAvailableSellProviderTypes() => [
+    ProviderType.robinhood,
+    ProviderType.dfx,
+    ProviderType.onramper,
+    ProviderType.moonpay,
+    ProviderType.kriptonim
+  ];
 
-  static BuyProvider? getProviderByType(ProviderType type) {
+  static BuyProvider getProviderByType(ProviderType type) {
     switch (type) {
       case ProviderType.robinhood:
         return getIt.get<RobinhoodBuyProvider>();
@@ -139,8 +76,6 @@ class ProvidersHelper {
         return getIt.get<MeldBuyProvider>();
       case ProviderType.kriptonim:
         return getIt.get<KryptonimBuyProvider>();
-      default:
-        return null;
-    }
+      }
   }
 }
