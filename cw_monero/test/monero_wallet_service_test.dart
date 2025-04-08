@@ -65,7 +65,6 @@ Future<void> main() async {
             seedType: MoneroSeedType.bip39);
         final wallet = await walletService.create(credentials);
 
-        print(wallet.restoreHeight);
         expect(wallet.seed.split(" ").length, 12);
         expect(wallet.restoreHeight, greaterThan(3000000));
       });
