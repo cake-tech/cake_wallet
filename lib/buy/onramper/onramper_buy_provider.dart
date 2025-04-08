@@ -134,7 +134,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
-    final normalizedCryptoCurrency = _getNormalizeCryptoCurrency(cryptoCurrency);
+    final normalizedCryptoCurrency =
+        cryptoCurrency.title + _getNormalizeNetwork(cryptoCurrency).toUpperCase();
 
     final params = {
       'amount': amount.toString(),
@@ -214,7 +215,8 @@ class OnRamperBuyProvider extends BuyProvider {
       cardColor = getColorStr(Colors.white);
     }
 
-    final defaultCrypto = _getNormalizeCryptoCurrency(quote.cryptoCurrency);
+    final defaultCrypto =
+        quote.cryptoCurrency.title + _getNormalizeNetwork(quote.cryptoCurrency).toLowerCase();
 
     final paymentMethod = normalizePaymentMethod(quote.paymentType);
 
@@ -250,45 +252,31 @@ class OnRamperBuyProvider extends BuyProvider {
     CryptoCurrency.sol,
   ];
 
-  String? _getNetworkByCrypto(CryptoCurrency currency) {
-    final network = switch (currency) {
-      CryptoCurrency.eos => 'EOSIO',
-      _=> null
-    };
-    return network;
-  }
-
   String _tagToNetwork(String tag) {
     switch (tag) {
-      case 'OMNI':
-      case 'BSC':
-        return tag;
       case 'POL':
         return 'POLYGON';
+      case 'ETH':
+        return 'ETHEREUM';
+      case 'TRX':
+        return 'TRON';
+      case 'SOL':
+        return 'SOLANA';
       case 'ZEC':
         return 'ZCASH';
-    default:
-        try {
-          return CryptoCurrency.fromString(tag).fullName!;
-        } catch (_) {
-          return tag;
-        }
+      default:
+        return tag;
     }
   }
 
-  String _getNormalizeCryptoCurrency(Currency currency) {
-    if (currency is CryptoCurrency) {
-      if (!mainCurrency.contains(currency)) {
+  String _getNormalizeNetwork(CryptoCurrency currency) {
+    if (mainCurrency.contains(currency)) return '';
 
-        final networkByCurrency = _getNetworkByCrypto(currency);
-        if (networkByCurrency != null) return '${currency.title}_$networkByCurrency';
+    if (currency == CryptoCurrency.eos) return '_EOSIO';
 
-        final network = currency.tag == null ? currency.fullName : _tagToNetwork(currency.tag!);
-        return '${currency.title}_${network?.replaceAll(' ', '')}'.toUpperCase();
-      }
-      return currency.title.toUpperCase();
-    }
-    return currency.name.toUpperCase();
+    if (currency.tag != null) return '_' + _tagToNetwork(currency.tag!);
+
+    return '_' + (currency.fullName?.replaceAll(' ', '') ?? currency.title);;
   }
 
   String? normalizePaymentMethod(PaymentType paymentType) {
