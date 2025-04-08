@@ -139,6 +139,7 @@ class BackupPage extends BasePage {
                 await backupViewModelBase.saveToDownload(
                     backup.name, backup.file);
                 Navigator.of(dialogContext).pop();
+                await showBar<void>(context, S.of(context).file_saved);
               },
               actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();

@@ -13,9 +13,3 @@
 -
   uri: nodes.hashvault.pro:18081
   is_default: false
--
-  uri: node.c3pool.com:18081
-  is_default: false
--
-  uri: node.community.rino.io:18081
-  is_default: false

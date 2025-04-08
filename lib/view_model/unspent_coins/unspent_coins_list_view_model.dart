@@ -131,10 +131,41 @@ abstract class UnspentCoinsListViewModelBase with Store {
     }
   }
 
+    List<Unspent> _getSpecificUnspents(UnspentCoinType overrideCoinTypeToSpendFrom) {
+    switch (wallet.type) {
+      case WalletType.monero:
+        return monero!.getUnspents(wallet);
+      case WalletType.wownero:
+        return wownero!.getUnspents(wallet);
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+      case WalletType.bitcoinCash:
+        return bitcoin!.getUnspents(wallet, coinTypeToSpendFrom: overrideCoinTypeToSpendFrom);
+      case WalletType.decred:
+        return decred!.getUnspents(wallet);
+      default:
+        return List.empty();
+    }
+  }
+
+  @action
+  Future<int> getSendingBalance(UnspentCoinType overrideCoinTypeToSpendFrom) async {
+    // return items.where((element) => element.isSending).fold(0, (previousValue, element) => previousValue + element.value);
+    // go through all unspent coins and add up the value minus frozen and non sending:
+    int total = 0;
+    await _updateUnspents();
+    Set<String> seen = {};
+    for (final item in _getSpecificUnspents(overrideCoinTypeToSpendFrom)) {
+      if (seen.contains(item.toString())) continue;
+      seen.add(item.toString());
+      if (item.isFrozen || !item.isSending) continue;
+      total += item.value;
+    }
+    return total;
+  }
+
   @action
   void _updateUnspentCoinsInfo() {
-    items.clear();
-
     final unspents = _getUnspents()
         .map((elem) {
           try {
@@ -168,7 +199,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
         .toList();
 
     unspents.sort((a, b) => b.value.compareTo(a.value));
-
+    items.clear();
     items.addAll(unspents);
   }
 
