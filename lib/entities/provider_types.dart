@@ -6,7 +6,6 @@ import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cw_core/wallet_type.dart';
 
 enum ProviderType { robinhood, dfx, onramper, moonpay, meld, kriptonim }
 
@@ -47,7 +46,7 @@ extension ProviderTypeName on ProviderType {
 }
 
 class ProvidersHelper {
-  static List<ProviderType> getAvailableBuyProviderTypes(WalletType walletType) => [
+  static List<ProviderType> getAvailableBuyProviderTypes() => [
     ProviderType.robinhood,
     ProviderType.dfx,
     ProviderType.onramper,
@@ -55,7 +54,7 @@ class ProvidersHelper {
     ProviderType.kriptonim
   ];
 
-  static List<ProviderType> getAvailableSellProviderTypes(WalletType walletType) => [
+  static List<ProviderType> getAvailableSellProviderTypes() => [
     ProviderType.robinhood,
     ProviderType.dfx,
     ProviderType.onramper,
@@ -63,7 +62,7 @@ class ProvidersHelper {
     ProviderType.kriptonim
   ];
 
-  static BuyProvider? getProviderByType(ProviderType type) {
+  static BuyProvider getProviderByType(ProviderType type) {
     switch (type) {
       case ProviderType.robinhood:
         return getIt.get<RobinhoodBuyProvider>();
@@ -77,8 +76,6 @@ class ProvidersHelper {
         return getIt.get<MeldBuyProvider>();
       case ProviderType.kriptonim:
         return getIt.get<KryptonimBuyProvider>();
-      default:
-        return null;
-    }
+      }
   }
 }
