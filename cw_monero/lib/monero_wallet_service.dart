@@ -400,6 +400,8 @@ class MoneroWalletService extends WalletService<
     monero.Wallet_setCacheAttribute(wptr!,
         key: "cakewallet.seed.bip39", value: mnemonic);
 
+    monero.Wallet_store(wptr!);
+
     final wallet = MoneroWallet(
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
