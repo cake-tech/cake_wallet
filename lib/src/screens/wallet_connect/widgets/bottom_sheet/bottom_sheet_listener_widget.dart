@@ -91,7 +91,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
       if (!item.completer.isCompleted) {
         item.completer.complete(value);
       }
-      widget.bottomSheetService.resetCurrentSheet();
+      widget.bottomSheetService.showNext();
     }
   }
 

@@ -14,8 +14,6 @@ abstract class BottomSheetService {
     int closeAfter = 0,
   });
 
-  void resetCurrentSheet();
-
   void showNext();
 }
 
@@ -50,11 +48,6 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
     // Return the future
     return await completer.future;
-  }
-
-  @override
-  void resetCurrentSheet() {
-    currentSheet.value = null;
   }
 
   @override

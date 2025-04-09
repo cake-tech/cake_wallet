@@ -280,19 +280,19 @@ abstract class WalletKitServiceBase with Store {
 
       if (result != WCBottomSheetResult.reject) {
         try {
-          final response = await _walletKit.approveSession(
+          await _walletKit.approveSession(
             id: args.id,
             namespaces: NamespaceUtils.regenerateNamespacesWithChains(
               args.params.generatedNamespaces!,
             ),
             sessionProperties: args.params.sessionProperties,
           );
-          MethodsUtils.handleRedirect(
-            response.session!.topic,
-            response.session!.peer.metadata.redirect,
-            '',
-            true,
-          );
+          // MethodsUtils.handleRedirect(
+          //   response.session!.topic,
+          //   response.session!.peer.metadata.redirect,
+          //   '',
+          //   true,
+          // );
         } on ReownSignError catch (error) {
           MethodsUtils.handleRedirect(
             '',
@@ -320,8 +320,10 @@ abstract class WalletKitServiceBase with Store {
     if (args != null) {
       String errorMessage = args.error.message;
       if (args.error.code == 5100) {
-        errorMessage = errorMessage.replaceFirst('${S.current.requested}:', '\n\n${S.current.requested}:');
-        errorMessage = errorMessage.replaceFirst('${S.current.supported}:', '\n\n${S.current.supported}:');
+        errorMessage =
+            errorMessage.replaceFirst('${S.current.requested}:', '\n\n${S.current.requested}:');
+        errorMessage =
+            errorMessage.replaceFirst('${S.current.supported}:', '\n\n${S.current.supported}:');
       }
       MethodsUtils.goBackModal(
         title: S.current.error,

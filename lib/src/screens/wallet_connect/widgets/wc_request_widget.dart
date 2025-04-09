@@ -1,6 +1,5 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_verify_context_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';

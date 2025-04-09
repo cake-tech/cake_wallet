@@ -69,11 +69,7 @@ class WCPairingsWidget extends BasePage {
       uri = await _showEnterWalletConnectURIPopUp(context);
     }
 
-    if (uri == null) return _invalidUriToast(context, S.current.nullURIError);
-
-    log('_onFoundUri: $uri');
-    final Uri uriData = Uri.parse(uri);
-    await walletKitService.pairWithUri(uriData);
+    await _handleWalletConnectURI(uri, context);
   }
 
   Future<String?> _showEnterWalletConnectURIPopUp(BuildContext context) async {
@@ -84,6 +80,17 @@ class WCPairingsWidget extends BasePage {
       },
     );
     return walletConnectURI;
+  }
+
+  Future<void> _handleWalletConnectURI(
+    String? walletConnectURI,
+    BuildContext context,
+  ) async {
+    if (walletConnectURI == null) return _invalidUriToast(context, S.current.nullURIError);
+
+    log('_onFoundUri: $walletConnectURI');
+    final Uri uriData = Uri.parse(walletConnectURI);
+    await walletKitService.pairWithUri(uriData);
   }
 
   Future<void> _invalidUriToast(BuildContext context, String message) async {
@@ -127,10 +134,25 @@ class WCPairingsWidget extends BasePage {
                     textColor: Colors.white,
                     onPressed: () => _onScanQrCode(context, walletKit),
                   ),
+                  SizedBox(height: 4),
+                  TextButton(
+                    onPressed: () async {
+                      final uri = await _showEnterWalletConnectURIPopUp(context);
+                      await _handleWalletConnectURI(uri, context);
+                    },
+                    child: Text(
+                      'Click to paste WalletConnect Link',
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.normal,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: 48),
+            SizedBox(height: 16),
             Expanded(
               child: Visibility(
                 visible: walletKitService.pairings.isEmpty,

@@ -17,7 +17,6 @@ extension SolanaChainIdX on SolanaChainId {
         break;
     }
 
-    print('solana:$name');
     return 'solana:$name';
   }
 }
