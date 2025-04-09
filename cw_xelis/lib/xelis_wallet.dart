@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -62,7 +63,7 @@ abstract class XelisWalletBase
     required String password,
     required this.network,
     required this.encryptionFileUtils,
-  })
+  }) 
   : 
     _password = password,
     _libWallet = libWallet,
@@ -70,10 +71,21 @@ abstract class XelisWalletBase
     this.syncStatus = NotConnectedSyncStatus(),
     super(walletInfo)
   {
+    isTestnet = network == Network.testnet;
     final curr = isTestnet ? CryptoCurrency.txel : CryptoCurrency.xel;
     balance = ObservableMap.of({curr: XelisAssetBalance.zero(symbol: isTestnet ? "tXEL" : "XEL")});
     walletAddresses = XelisWalletAddresses(walletInfo, _libWallet);
-    transactionHistory = XelisTransactionHistory();
+    transactionHistory = XelisTransactionHistory(
+      walletInfo: walletInfo, 
+      password: password,
+      encryptionFileUtils: encryptionFileUtils
+    );
+
+    if (!CakeHive.isAdapterRegistered(XelisAsset.typeId)) {
+      CakeHive.registerAdapter(XelisAssetAdapter());
+    }
+
+    _sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
   String _password;
@@ -85,7 +97,7 @@ abstract class XelisWalletBase
   String persistantPeer = "";
   Timer? syncTimer;
   int pruningHeight = 0;
-  var _seed = "";
+  String _seed = "";
   Network network;
 
   late final Box<XelisAsset> xelAssetsBox;
@@ -95,6 +107,8 @@ abstract class XelisWalletBase
 
   @override
   late ObservableMap<CryptoCurrency, XelisAssetBalance> balance;
+
+  final Completer<SharedPreferences> _sharedPrefs = Completer();
 
   @override
   @observable
@@ -114,6 +128,8 @@ abstract class XelisWalletBase
   void updateSeed(String? language) async {
     _seed = await _libWallet.getSeed(languageIndex: getLanguageIndexFromStr(input: language ?? "english"));
   }
+
+  Future<String> langSeed(String? language) async => await _libWallet.getSeed(languageIndex: getLanguageIndexFromStr(input: language ?? "english"));
 
   @override
   Object get keys => {};
@@ -162,7 +178,7 @@ abstract class XelisWalletBase
               data['data']['decimals'] as int,
               data['data']['max_supply'] as int,
               data['data']['name'] as String,
-              data['data']['owner'] as String,
+              data['data']['owner'] as String?,
               data['data']['ticker'] as String,
               data['data']['topoheight'] as int,
             );
@@ -307,7 +323,17 @@ abstract class XelisWalletBase
         break;
       
       case NewAsset():
-        // optional
+        if (event.asset == xelis_sdk.xelisAsset) {
+          break;
+        } 
+        final newAsset = XelisAsset(
+          name: event.name,
+          symbol: event.ticker,
+          id: event.asset,
+          decimals: event.decimals,
+          enabled: false,
+        );
+        await addAsset(newAsset);
         break;
     }
   }
@@ -319,7 +345,8 @@ abstract class XelisWalletBase
       xelAssetsBox = await CakeHive.openBox<XelisAsset>(boxName);
   
       walletAddresses.init();
-      // await _fetchAssets();
+      await transactionHistory.init();
+      await _fetchAssets();
       _subscribeToWalletEvents();
       _seed = await _libWallet.getSeed();
       await save();
@@ -363,15 +390,44 @@ abstract class XelisWalletBase
     }
   }
 
-  List<XelisAsset> get xelAssetCurrencies => xelAssetsBox.values.toList();
+  List<XelisAsset> get xelAssets => xelAssetsBox.values.toList();
 
-  void addInitialAssets() {
-    // TODO after mainnet rollout of bridged tokens, add things like USDT etc.
+  Future<void> _fetchAssets() async {
+    final bal = await _libWallet.getAssetBalancesRaw();
+
+    for (final entry in bal.entries) {
+      final assetId = entry.key;
+      if (assetId == xelis_sdk.xelisAsset) { continue; }
+
+      final amount = entry.value;
+
+      final existing = xelAssetsBox.values
+          .cast<XelisAsset?>()
+          .firstWhere((e) => e?.id == assetId, orElse: () => null);
+
+      final metadata = await _libWallet.getAssetMetadata(asset: assetId);
+
+      final merged = XelisAsset(
+        name: metadata.name,
+        symbol: metadata.ticker,
+        id: assetId,
+        decimals: metadata.decimals,
+        enabled: existing?.enabled ?? false,
+      );
+
+      await xelAssetsBox.put(assetId, merged);
+
+      balance[merged] = XelisAssetBalance(
+        balance: amount.toInt(),
+        asset: merged.id,
+        symbol: merged.symbol,
+        decimals: merged.decimals,
+      );
+    }
   }
 
   Future<void> addAsset(XelisAsset asset) async {
     await xelAssetsBox.put(asset.id, asset);
-
     if (asset.enabled) {
       try {
         final assetBalance = (await _libWallet.getAssetBalanceByIdRaw(asset: asset.id)).toInt();
@@ -395,7 +451,7 @@ abstract class XelisWalletBase
   }
 
   Future<void> _removeTokenTransactionsInHistory(XelisAsset asset) async {
-    transactionHistory.transactions.removeWhere((key, value) => value.assetId == asset.id);
+    transactionHistory.transactions.removeWhere((key, value) => value.assetIds[0] == asset.id && value.assetIds.length == 1);
     await transactionHistory.save();
   }
 
@@ -524,7 +580,7 @@ abstract class XelisWalletBase
     double totalAmount = 0.0;
     bool shouldSendAll = false;
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) <= 0)) {
+      if (outputs.any((item) => item.sendAll || (item.formattedCryptoAmount ?? 0) < 0)) {
         throw XelisTransactionCreationException(transactionCurrency);
       }
 
@@ -664,6 +720,7 @@ abstract class XelisWalletBase
       } else {
         transactionHistory.update(transactions);
       }
+      await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (_) {
       _isTransactionUpdating = false;

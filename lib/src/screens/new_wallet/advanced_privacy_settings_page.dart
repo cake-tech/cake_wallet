@@ -275,7 +275,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               );
             }),
             if (widget.privacySettingsViewModel.type == WalletType.bitcoin ||
-                widget.privacySettingsViewModel.type == WalletType.decred)
+                widget.privacySettingsViewModel.type == WalletType.decred ||
+                widget.privacySettingsViewModel.type == WalletType.xelis)
               Builder(builder: (_) {
                 final val = testnetValue ?? false;
                 return SettingsSwitcherCell(

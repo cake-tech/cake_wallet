@@ -47,10 +47,17 @@ class TransactionListItem extends ActionListItem with Keyable {
   bool get hasTokens =>
       isEVMCompatibleChain(balanceViewModel.wallet.type) ||
       balanceViewModel.wallet.type == WalletType.solana ||
-      balanceViewModel.wallet.type == WalletType.tron;
+      balanceViewModel.wallet.type == WalletType.tron ||
+      balanceViewModel.wallet.type == WalletType.xelis;
 
   String get formattedCryptoAmount {
-    return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : transaction.amountFormatted();
+    late final String amtText;
+    if (transaction.amountFormatted() == "MULTI") {
+      amtText = S.current.multi_transfer;
+    } else {
+      amtText = transaction.amountFormatted();
+    }
+    return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : amtText;
   }
 
   String get formattedTitle {
@@ -145,6 +152,11 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
       }
+
+      if (balanceViewModel.wallet.type == WalletType.xelis) {
+        final asset = xelis!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
     } catch (e) {
       return null;
     }
@@ -227,15 +239,11 @@ class TransactionListItem extends ActionListItem with Keyable {
             price: price);
         break;
       case WalletType.xelis:
-        // TODO
-        // final asset = xelis!.assetOfTransaction(balanceViewModel.wallet, transaction);
-        // final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        final asset = xelis!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
-            cryptoAmount: xelis!.formatterXelisAmountToDouble(
-                amount: xelis!.getTransactionAmountRaw(transaction)
-              ),
-              price: price
-            );
+            cryptoAmount: xelis!.formatterXelisAmountToDouble(amount: xelis!.getTransactionAmountRaw(transaction)),
+            price: price);
         break;
       case WalletType.none:
       case WalletType.banano:

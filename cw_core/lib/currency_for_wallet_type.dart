@@ -35,6 +35,9 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
     case WalletType.decred:
       return CryptoCurrency.dcr;
     case WalletType.xelis:
+      if (isTestnet == true) {
+        return CryptoCurrency.txel;
+      }
       return CryptoCurrency.xel;
     case WalletType.none:
       throw Exception(

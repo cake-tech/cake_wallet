@@ -51,6 +51,8 @@ abstract class NodeListViewModelBase with Store {
     Node node;
     if (_appStore.wallet!.type == WalletType.bitcoin && _appStore.wallet!.isTestnet) {
       node = getBitcoinTestnetDefaultElectrumServer(nodes: _nodeSource)!;
+    } else if (_appStore.wallet!.type == WalletType.xelis && _appStore.wallet!.isTestnet) {
+      node = getXelisTestnetDefault(nodes: _nodeSource)!;
     } else {
       node = getDefaultNode(nodes: _nodeSource, type: _appStore.wallet!.type)!;
     }

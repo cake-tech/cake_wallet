@@ -56,6 +56,13 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
         });
       }
 
+      if (state is IsLoadingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // null duration to make it indefinite until its disposed
+          _authBar = createBar<void>(S.of(context).loading_wallet, duration: null)..show(context);
+        });
+      }
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           dismissFlushBar(_authBar);
@@ -227,8 +234,10 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                       text: S.of(context).unlock,
                       color: Colors.green,
                       textColor: Colors.white,
-                      isLoading: widget.walletUnlockViewModel.state is IsExecutingState,
-                      isDisabled: widget.walletUnlockViewModel.state is IsExecutingState),
+                      isLoading: widget.walletUnlockViewModel.state is IsExecutingState ||
+                        widget.walletUnlockViewModel.state is IsLoadingState,
+                      isDisabled: widget.walletUnlockViewModel.state is IsExecutingState ||
+                        widget.walletUnlockViewModel.state is IsLoadingState)
                 ),
               ),
             ],

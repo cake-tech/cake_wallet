@@ -20,3 +20,6 @@
 -
   uri: ca-node.xelis.io
   useSSL: true
+-
+  uri: testnet-node.xelis.io
+  useSSL: true

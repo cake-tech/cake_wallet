@@ -40,7 +40,7 @@ abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel w
   @action
   Future<void> unlock() async {
     try {
-      state = InitialExecutionState();
+      state = IsLoadingState();
       final wallet = await _walletLoadingService.load(walletType, walletName, password: password);
       _appStore.changeCurrentWallet(wallet);
       success();

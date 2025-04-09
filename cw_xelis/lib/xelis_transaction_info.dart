@@ -27,9 +27,10 @@ class XelisTransactionInfo extends TransactionInfo {
     required this.date,
     required this.xelAmount,
     required this.xelFee,
-    this.decimals = 8,
-    this.assetSymbol = "XEL",
-    this.assetId = xelis_sdk.xelisAsset,
+    required this.decimals,
+    required this.assetSymbols,
+    required this.assetIds,
+    required this.assetAmounts,
     required this.to,
     required this.from,
   }) :
@@ -45,9 +46,10 @@ class XelisTransactionInfo extends TransactionInfo {
   final BigInt xelFee;
   final DateTime date;
   final TransactionDirection direction;
-  final int decimals;
-  final String assetSymbol;
-  final String assetId;
+  final List<BigInt> assetAmounts;
+  final List<int> decimals;
+  final List<String> assetSymbols;
+  final List<String> assetIds;
   final String? to;
   final String? from;
 
@@ -55,8 +57,24 @@ class XelisTransactionInfo extends TransactionInfo {
 
   @override
   String amountFormatted() {
-    final amount = formatAmount((xelAmount / BigInt.from(10).pow(decimals)).toString());
-    return '${amount.substring(0, min(10, amount.length))} $assetSymbol';
+    final List<String> formattedAssets = [];
+
+    if (formattedAssets.length > 1) return ":MULTI:" + multiFormatted();
+
+    final amount = (assetAmounts[0] / BigInt.from(10).pow(decimals[0])).toString();
+    return '${formatAmount(amount)} ${assetSymbols[0]}';
+  }
+
+
+  String multiFormatted() {
+    final List<String> formattedAssets = [];
+
+    for (int i = 0; i < assetSymbols.length; i++) {
+      final amount = (assetAmounts[i] / BigInt.from(10).pow(decimals[i])).toString();
+      formattedAssets.add('${formatAmount(amount)} ${assetSymbols[i]}');
+    }
+
+    return formattedAssets.join('\n\n');
   }
 
   @override
@@ -83,34 +101,46 @@ class XelisTransactionInfo extends TransactionInfo {
     String? from;
 
     String asset = xelis_sdk.xelisAsset;
+
+    final Map<String, BigInt> assetAmounts = {};
+    final Map<String, int> assetDecimals = {};
+    final Map<String, String> assetSymbolsMap = {};
+
     switch (txType) {
       case xelis_sdk.IncomingEntry():
         direction = TransactionDirection.incoming;
 
-        amount = txType.transfers
-          .map((t) => BigInt.from(t.amount))
-          .fold(BigInt.zero, (a, b) => a + b);
+        for (final transfer in txType.transfers) {
+          final asset = transfer.asset;
+          assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
+
+          final meta = await wallet.getAssetMetadata(asset: asset);
+          assetDecimals[asset] = meta.decimals;
+          assetSymbolsMap[asset] = meta.ticker;
+        }
 
         from = txType.from;
-        asset = txType.transfers.first.asset;
         break;
 
       case xelis_sdk.OutgoingEntry():
         direction = TransactionDirection.outgoing;
 
-        asset = txType.transfers.first.asset;
-        amount = txType.transfers
-            .map((t) => BigInt.from(t.amount))
-            .fold(BigInt.zero, (a, b) => a + b);
+        for (final transfer in txType.transfers) {
+          final asset = transfer.asset;
+          assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
 
-        if (txType.transfers.isNotEmpty) {
-          final firstRecipient = txType.transfers.first.destination;
-          final recipientCount = txType.transfers.length;
-
-          to = recipientCount > 1
-              ? '$firstRecipient + ${recipientCount - 1} more'
-              : firstRecipient;
+          final meta = await wallet.getAssetMetadata(asset: asset);
+          assetDecimals[asset] = meta.decimals;
+          assetSymbolsMap[asset] = meta.ticker;
         }
+
+        final allRecipients = txType.transfers
+            .map((t) => t.destination)
+            .where((address) => address.isNotEmpty)
+            .toSet()
+            .toList();
+
+        to = allRecipients.join('\n\n');
 
         fee = BigInt.from(txType.fee);
         break;
@@ -132,34 +162,60 @@ class XelisTransactionInfo extends TransactionInfo {
         break;
     }
 
-    final metadata = await wallet.getAssetMetadata(asset: asset);
+    final assetIds = assetAmounts.keys.toList();
+    final assetSymbols = assetIds.map((id) => assetSymbolsMap[id] ?? '???').toList();
+    final decimals = assetIds.map((id) => assetDecimals[id] ?? 8).toList();
+    final amounts = assetIds.map((id) => assetAmounts[id]!).toList();
+
+    final xelAmount = amounts[0] ?? BigInt.zero;
 
     return XelisTransactionInfo(
       id: entry.hash,
       height: entry.topoheight,
       direction: direction,
       date: entry.timestamp ?? DateTime.now(),
-      xelAmount: amount,
+      xelAmount: xelAmount,
       xelFee: fee,
       to: to,
       from: from,
-      decimals: metadata.decimals,
-      assetSymbol: metadata.ticker,
-      assetId: asset,
+      decimals: decimals,
+      assetSymbols: assetSymbols,
+      assetIds: assetIds,
+      assetAmounts: amounts,
+    );
+  }
+
+  factory XelisTransactionInfo.fromJson(Map<String, dynamic> data) {
+    return XelisTransactionInfo(
+      id: data['id'] as String,
+      height: data['height'] as int,
+      decimals: List<int>.from(data['decimals']),
+      assetAmounts: (data['assetAmounts'] as List)
+          .map<BigInt>((val) => BigInt.parse(val.toString()))
+          .toList(),
+      xelAmount: BigInt.parse(data['xelAmount']),
+      xelFee: BigInt.parse(data['xelFee']),
+      direction: parseTransactionDirectionFromInt(data['direction'] as int),
+      date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
+      assetSymbols: List<String>.from(data['assetSymbols']),
+      assetIds: List<String>.from(data['assetIds']),
+      to: data['to'],
+      from: data['from'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-      'id': id,
-      'height': height,
-      'amount': xelAmount.toString(),
-      'decimals': decimals,
-      'fee': xelAmount.toString(),
-      'direction': direction.index,
-      'date': date.millisecondsSinceEpoch,
-      'assetSymbol': assetSymbol,
-      'assetId': assetId,
-      'to': to,
-      'from': from,
-    };
+    'id': id,
+    'height': height,
+    'decimals': decimals,
+    'assetSymbols': assetSymbols,
+    'assetIds': assetIds,
+    'assetAmounts': assetAmounts.map((e) => e.toString()).toList(),
+    'xelAmount': xelAmount.toString(),
+    'xelFee': xelFee.toString(),
+    'direction': direction.index,
+    'date': date.millisecondsSinceEpoch,
+    'to': to,
+    'from': from,
+  };
 }

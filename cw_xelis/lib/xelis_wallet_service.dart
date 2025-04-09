@@ -167,12 +167,11 @@ class XelisWalletService extends WalletService<
       l1Low: !tableState.currentSize.isFull,
     );
 
-    final walletInfo = credentials.walletInfo!;
-    walletInfo.address = frbWallet.getAddressStr();
-    walletInfo.network = network.name;
+    credentials.walletInfo!.address = frbWallet.getAddressStr();
+    credentials.walletInfo!.network = network.name;
 
     final wallet = XelisWallet(
-      walletInfo: walletInfo, 
+      walletInfo:credentials.walletInfo!, 
       libWallet: frbWallet, 
       password: credentials.password ?? "x",
       network: network,
@@ -218,15 +217,19 @@ class XelisWalletService extends WalletService<
         l1Low: !tableState.currentSize.isFull,
       );
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
-      frbWallet = await x_wallet.openXelisWallet(
-        name: fullPath,
-        directory: "",
-        password: password,
-        network: network,
-        precomputedTablesPath: selectedTablePath,
-        l1Low: !tableState.currentSize.isFull,
-      );
+      try {
+        await restoreWalletFilesFromBackup(name);
+        frbWallet = await x_wallet.openXelisWallet(
+          name: fullPath,
+          directory: "",
+          password: password,
+          network: network,
+          precomputedTablesPath: selectedTablePath,
+          l1Low: !tableState.currentSize.isFull,
+        );
+      } catch(_) {
+        rethrow;
+      }
     }
     final wallet = XelisWallet(
       walletInfo: walletInfo, 
@@ -299,9 +302,8 @@ class XelisWalletService extends WalletService<
       l1Low: !tableState.currentSize.isFull,
     );
 
-    final walletInfo = credentials.walletInfo!;
-    walletInfo.address = frbWallet.getAddressStr();
-    walletInfo.network = network.name;
+    credentials.walletInfo!.address = frbWallet.getAddressStr();
+    credentials.walletInfo!.network = network.name;
 
     final wallet = XelisWallet(
       walletInfo: credentials.walletInfo!, 

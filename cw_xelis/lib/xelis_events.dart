@@ -43,7 +43,7 @@ class NewAsset extends Event {
   final int decimals;
   final int max_supply;
   final String name;
-  final String owner;
+  final String? owner;
   final String ticker;
   final int topoheight;
   const NewAsset(

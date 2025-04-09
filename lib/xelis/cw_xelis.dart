@@ -42,6 +42,12 @@ class CWXelis extends Xelis {
   bool validateAddress(String address) => isAddressValid(strAddress: address);
 
   @override
+  bool isTestnet(Object wallet) {
+    final xelisWallet = wallet as XelisWallet;
+    return xelisWallet.isTestnet;
+  }
+
+  @override
   List<TransactionPriority> getTransactionPriorities() => XelisTransactionPriority.all;
 
   @override
@@ -56,6 +62,12 @@ class CWXelis extends Xelis {
   @override
   BigInt getTransactionAmountRaw(TransactionInfo transactionInfo) {
     return (transactionInfo as XelisTransactionInfo).xelAmount;
+  }
+
+  @override
+  List<XelisAsset> getXelisAssets(WalletBase wallet) {
+    final xelisWallet = wallet as XelisWallet;
+    return xelisWallet.xelAssets;
   }
 
   @override
@@ -107,7 +119,7 @@ class CWXelis extends Xelis {
 
     if (transaction != null) {
       transaction as XelisTransactionInfo;
-      return transaction.xelAmount / BigInt.from(10).pow(transaction.decimals);
+      return transaction.xelAmount / BigInt.from(10).pow(decimals);
     } else {
       return amount! / BigInt.from(10).pow(decimals);
     }
@@ -123,8 +135,8 @@ class CWXelis extends Xelis {
       name: asset.name,
       symbol: asset.title,
       id: id,
-      decimal: asset.decimals,
-      enabled: asset.enabled,
+      decimals: asset.decimals,
+      enabled: true,
       iconPath: asset.iconPath,
       isPotentialScam: asset.isPotentialScam,
     );
@@ -133,8 +145,25 @@ class CWXelis extends Xelis {
   }
 
   @override
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
+    transaction as XelisTransactionInfo;
+    if (transaction.assetIds[0] == xelis_sdk.xelisAsset) {
+      if (wallet.isTestnet) {
+        return CryptoCurrency.txel;
+      }
+      return CryptoCurrency.xel;
+    }
+
+    wallet as XelisWallet;
+
+    return wallet.xelAssets.firstWhere(
+      (element) => transaction.assetIds[0] == element.id,
+    );
+  }
+
+  @override
   Future<void> deleteAsset(WalletBase wallet, CryptoCurrency asset) async =>
-      await (wallet as XelisWallet).deleteSPLToken(asset as XelisAsset);
+      await (wallet as XelisWallet).deleteAsset(asset as XelisAsset);
 
   @override
   Future<XelisAsset?> getAsset(WalletBase wallet, String id) async {
@@ -146,6 +175,9 @@ class CWXelis extends Xelis {
   double? getEstimateFees(WalletBase wallet) {
     return (wallet as XelisWallet).estimatedFee;
   }
+
+  @override
+  String getAssetId(CryptoCurrency asset) => (asset as XelisAsset).id;
 
   @override
   List<String> getDefaultAssetIDs() {

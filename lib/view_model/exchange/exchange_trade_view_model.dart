@@ -257,11 +257,16 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.sol &&
         tradesStore.trade!.from.tag == CryptoCurrency.sol.title;
 
+    bool _isXelisAsset() =>
+        wallet.currency == CryptoCurrency.xel &&
+        tradesStore.trade!.from.tag == CryptoCurrency.xel.title;
+
     return tradesStore.trade!.from == wallet.currency ||
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||
         _isPolygonToken() ||
         _isSplToken() ||
-        _isTronToken();
+        _isTronToken() ||
+        _isXelisAsset();
   }
 }

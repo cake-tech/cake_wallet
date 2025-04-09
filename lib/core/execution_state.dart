@@ -5,6 +5,7 @@ class InitialExecutionState extends ExecutionState {}
 class LoadingTemplateExecutingState extends ExecutionState {}
 
 class IsExecutingState extends ExecutionState {}
+class IsLoadingState extends ExecutionState {}
 
 class ExecutedSuccessfullyState extends ExecutionState {
   ExecutedSuccessfullyState({this.payload});

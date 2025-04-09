@@ -16,6 +16,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
@@ -429,7 +430,8 @@ abstract class DashboardViewModelBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
 
   @computed
-  bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
+  bool get isTestnet => (wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet)) ||
+    (wallet.type == WalletType.xelis && xelis!.isTestnet(wallet));
 
   @computed
   bool get hasRescan => wallet.hasRescan;

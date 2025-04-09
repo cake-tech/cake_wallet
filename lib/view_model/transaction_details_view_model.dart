@@ -48,6 +48,11 @@ abstract class TransactionDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
+    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
+
     // TODO: can be cleaned further
     switch (wallet.type) {
       case WalletType.monero:
@@ -89,17 +94,12 @@ abstract class TransactionDetailsViewModelBase with Store {
         _addDecredListItems(tx, dateFormat);
         break;
       case WalletType.xelis:
-        _addXelisListItems(tx, dateFormat);
+        _addXelisListItems(tx, dateFormat, description.recipientAddress?.isEmpty ?? true);
         break;
       case WalletType.none:
       case WalletType.banano:
       break;
     }
-
-    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
-    final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
-        orElse: () => TransactionDescription(id: descriptionKey));
 
     if (showRecipientAddress && !isRecipientAddressShown) {
       final recipientAddress = description.recipientAddress;
@@ -563,7 +563,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
-  void _addXelisListItems(TransactionInfo tx, DateFormat dateFormat) {
+  void _addXelisListItems(TransactionInfo tx, DateFormat dateFormat, bool showTo) {
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,
@@ -575,18 +575,25 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: dateFormat.format(tx.date),
         key: ValueKey('standard_list_item_transaction_details_date_key'),
       ),
-      StandartListItem(
-        title: S.current.transaction_details_amount,
-        value: tx.amountFormatted(),
-        key: ValueKey('standard_list_item_transaction_details_amount_key'),
-      ),
-      if (tx.feeFormatted()?.isNotEmpty ?? false)
+      if (!tx.amountFormatted().startsWith(":MULTI:")) 
+        StandartListItem(
+          title: S.current.transaction_details_amount,
+          value: tx.amountFormatted(),
+          key: ValueKey('standard_list_item_transaction_details_amount_key'),
+        ),
+      if (tx.amountFormatted().startsWith(":MULTI:"))
+        StandartListItem(
+          title: S.current.transaction_details_multi_breakdown,
+          value: tx.amountFormatted().split(":MULTI:")[1]!,
+          key: ValueKey('standard_list_item_transaction_details_multi_breakdown_key'),
+        ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false && tx.direction == TransactionDirection.outgoing)
         StandartListItem(
           title: S.current.transaction_details_fee,
           value: tx.feeFormatted()!,
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
-      if (showRecipientAddress && tx.to != null)
+      if (showRecipientAddress && tx.to != null && showTo)
         StandartListItem(
           title: S.current.transaction_details_recipient_address,
           value: tx.to!,
@@ -711,7 +718,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           value: tx.feeFormatted()!,
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
-      if (showRecipientAddress && tx.to != null)
+      if (showRecipientAddress && tx.to != null && tx.direction == TransactionDirection.outgoing)
         StandartListItem(
           title: S.current.transaction_details_recipient_address,
           value: tron!.getTronBase58Address(tx.to!, wallet),

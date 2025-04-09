@@ -153,8 +153,12 @@ abstract class OutputBase with Store {
         }
       }
 
-      if (_wallet.type == WalletType.solana || walletType == WalletType.xelis) {
+      if (_wallet.type == WalletType.solana) {
         return solana!.getEstimateFees(_wallet) ?? 0.0;
+      }
+
+      if (_wallet.type == WalletType.xelis) {
+        return xelis!.getEstimateFees(_wallet) ?? 0.0;
       }
 
       int? fee = _wallet.calculateEstimatedFee(
@@ -213,7 +217,8 @@ abstract class OutputBase with Store {
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
               _wallet.type == WalletType.solana ||
-              _wallet.type == WalletType.tron)
+              _wallet.type == WalletType.tron ||
+              _wallet.type == WalletType.xelis)
           ? _wallet.currency
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(

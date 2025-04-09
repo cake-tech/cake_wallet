@@ -62,7 +62,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     hasMultipleTokens = isEVMCompatibleChain(wallet.type) ||
         wallet.type == WalletType.solana ||
         wallet.type == WalletType.tron ||
-        wallet.type == WalletType.zano;
+        wallet.type == WalletType.zano ||
+        wallet.type == WalletType.xelis;
   }
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
@@ -84,7 +85,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
             appStore.wallet!.type == WalletType.solana ||
             appStore.wallet!.type == WalletType.tron ||
-            appStore.wallet!.type == WalletType.zano,
+            appStore.wallet!.type == WalletType.zano ||
+            appStore.wallet!.type == WalletType.xelis,
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,

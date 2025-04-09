@@ -157,6 +157,9 @@ abstract class HomeSettingsViewModelBase with Store {
       if (_balanceViewModel.wallet.type == WalletType.zano) {
         await zano!.deleteZanoAsset(_balanceViewModel.wallet, token);
       }
+      if (_balanceViewModel.wallet.type == WalletType.xelis) {
+        await xelis!.deleteAsset(_balanceViewModel.wallet, token);
+      }
       _updateTokensList();
     } finally {
       isDeletingToken = false;
@@ -521,6 +524,15 @@ abstract class HomeSettingsViewModelBase with Store {
           .toList()
         ..sort(_sortFunc));
     }
+
+
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      tokens.addAll(xelis!
+          .getXelisAssets(_balanceViewModel.wallet)
+          .where((element) => _matchesSearchText(element))
+          .toList()
+        ..sort(_sortFunc));
+    }
   }
 
   @action
@@ -569,7 +581,12 @@ abstract class HomeSettingsViewModelBase with Store {
       return zano!.getZanoAssetAddress(asset);
     }
 
-    // We return null if it's neither Tron, Polygon, Ethereum or Solana wallet (which is actually impossible because we only display home settings for either of these three wallets).
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      return xelis!.getAssetId(asset);
+    }
+
+
+    // We return null if it's neither Tron, Polygon, Ethereum, Xelis or Solana wallet (which is actually impossible because we only display home settings for either of these five wallets).
     return null;
   }
 }
