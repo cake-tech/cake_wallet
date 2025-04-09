@@ -76,23 +76,23 @@ packages:
     source: git
     version: "1.0.1"
   bitcoin_base:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v9
-      resolved-ref: "86969a14e337383e14965f5fb45a72a63e5009bc"
+      ref: cake-update-v15
+      resolved-ref: db0856e1f69f148c8cfc5e8861e1c777ce8f85db
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
-    version: "4.7.0"
+    version: "5.0.0"
   blockchain_utils:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      ref: cake-update-v4
+      resolved-ref: "7bf4c263900a81fcddbd7797169f0e2fbd3a9f46"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "3.3.0"
+    version: "4.0.0"
   bluez:
     dependency: transitive
     description:
@@ -177,10 +177,10 @@ packages:
     dependency: transitive
     description:
       name: built_value
-      sha256: "8b158ab94ec6913e480dc3f752418348b5ae099eb75868b5f4775f0572999c61"
+      sha256: "28a712df2576b63c6c005c465989a348604960c0958d28be5303ba9baa841ac2"
       url: "https://pub.dev"
     source: hosted
-    version: "8.9.4"
+    version: "8.9.3"
   cake_backup:
     dependency: transitive
     description:
@@ -568,10 +568,10 @@ packages:
     dependency: "direct main"
     description:
       name: ledger_flutter_plus
-      sha256: "1c03f3c4a9754b5f0170a9eb9552ec54fa86e985f8ee71a255ee2c5629b53d31"
+      sha256: "58e550ef7f4e20801c1333847befb0d64592b9765a839d4463524bb6d674967c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.1"
+    version: "1.5.0"
   ledger_litecoin:
     dependency: "direct main"
     description:
@@ -657,11 +657,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
+      ref: cake-update-v4
+      resolved-ref: e99d7820e53a685cb4de7af995a493d6d1effd27
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "3.7.0"
+    version: "6.1.0"
   package_config:
     dependency: transitive
     description:
@@ -826,18 +826,18 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "846849e3e9b68f3ef4b60c60cf4b3e02e9321bc7f4d8c4692cf87ffa82fc8a3a"
+      sha256: a752ce92ea7540fc35a0d19722816e04d0e72828a4200e83a98cf1a1eb524c9a
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.2"
+    version: "2.3.5"
   shared_preferences_android:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: a768fc8ede5f0c8e6150476e14f38e2417c0864ca36bb4582be8e21925a03c22
+      sha256: "138b7bbbc7f59c56236e426c37afb8f78cbc57b094ac64c440e0bb90e380a4f5"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.6"
+    version: "2.4.2"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -935,8 +935,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v4.0.0"
-      resolved-ref: "2554cb8bd3ee1d026bc63e76a30d1226960c7cb4"
+      ref: cake-update-v4
+      resolved-ref: "888bd27c3c4495c890580ebaaba6771b4f40eff6"
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
@@ -1016,10 +1016,10 @@ packages:
     dependency: transitive
     description:
       name: universal_ble
-      sha256: "1fad089150a29db82b3b7d60327e18c5ad6b3a5bb509defc1c690b0a76b9c098"
+      sha256: c7e5156b9bbb0f9662f07e987d8d6f2083727fa8c221b19a7ecc2f3a6e8f33c3
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.0"
+    version: "0.14.0"
   universal_platform:
     dependency: transitive
     description:

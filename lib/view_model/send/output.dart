@@ -114,7 +114,8 @@ abstract class OutputBase with Store {
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.zano:
-            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            _amount = zano!
+                .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -137,8 +138,14 @@ abstract class OutputBase with Store {
   }
 
   @computed
-  double get estimatedFee {
+  Future<double> get estimatedFee async {
     try {
+      final address = extractedAddress.isEmpty ? this.address : extractedAddress;
+
+      if (address.isEmpty) {
+        return 0;
+      }
+
       if (_wallet.type == WalletType.tron) {
         if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
           final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;
@@ -153,22 +160,29 @@ abstract class OutputBase with Store {
         return solana!.getEstimateFees(_wallet) ?? 0.0;
       }
 
-      int? fee = _wallet.calculateEstimatedFee(
-          _settingsStore.priority[_wallet.type]!, formattedCryptoAmount);
+      final transactionPriority = _settingsStore.priority[_wallet.type]!;
 
-      if (_wallet.type == WalletType.bitcoin) {
-        if (_settingsStore.priority[_wallet.type] ==
-            bitcoin!.getBitcoinTransactionPriorityCustom()) {
-          fee = bitcoin!.getEstimatedFeeWithFeeRate(
-              _wallet, _settingsStore.customBitcoinFeeRate, formattedCryptoAmount);
+      if (_wallet.isElectrumBased) {
+        late int fee;
+
+        if (transactionPriority.title == bitcoin!.getBitcoinTransactionPriorityCustom().title) {
+          fee = await bitcoin!.estimatedFeeForOutputWithFeeRate(
+            _wallet,
+            feeRate: _settingsStore.customBitcoinFeeRate,
+            outputAddress: address,
+          );
+        } else {
+          fee = await bitcoin!.calculateEstimatedFee(
+            _wallet,
+            priority: transactionPriority,
+            outputAddress: address,
+          );
         }
 
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash) {
-        return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
-      }
+      final fee = await _wallet.calculateEstimatedFee(transactionPriority);
 
       if (_wallet.type == WalletType.monero) {
         return monero!.formatterMoneroAmountToDouble(amount: fee);
@@ -187,7 +201,8 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
+        return zano!.formatterIntAmountToDouble(
+            amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
 
       if (_wallet.type == WalletType.decred) {
@@ -201,7 +216,7 @@ abstract class OutputBase with Store {
   }
 
   @computed
-  String get estimatedFeeFiatAmount {
+  Future<double> get estimatedFeeFiatAmount async {
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
               _wallet.type == WalletType.solana ||
@@ -209,10 +224,10 @@ abstract class OutputBase with Store {
           ? _wallet.currency
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[currency]!, cryptoAmount: estimatedFee);
-      return fiat;
+          price: _fiatConversationStore.prices[currency]!, cryptoAmount: await estimatedFee);
+      return double.parse(fiat);
     } catch (_) {
-      return '0.00';
+      return 0;
     }
   }
 

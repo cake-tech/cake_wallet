@@ -25,7 +25,6 @@ class BackgroundSync {
     final walletListViewModel = getIt.get<WalletListViewModel>();
     final settingsStore = getIt.get<SettingsStore>();
 
-
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => !element.isHardware)
         .where((element) => [WalletType.monero].contains(element.type))
@@ -34,7 +33,7 @@ class BackgroundSync {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
       int syncedTicks = 0;
       final keyService = getIt.get<KeyService>();
-      
+
       int stuckTicks = 0;
 
       inner:
@@ -42,7 +41,9 @@ class BackgroundSync {
         await Future.delayed(const Duration(seconds: 1));
         final syncStatus = wallet.syncStatus;
         final progress = syncStatus.progress();
-        if (syncStatus is ConnectedSyncStatus || syncStatus is AttemptingSyncStatus || syncStatus is NotConnectedSyncStatus) {
+        if (syncStatus is ConnectedSyncStatus ||
+            syncStatus is AttemptingSyncStatus ||
+            syncStatus is NotConnectedSyncStatus) {
           stuckTicks++;
           if (stuckTicks > 30) {
             printV("${wallet.name} STUCK SYNCING");
@@ -66,7 +67,8 @@ class BackgroundSync {
             syncedTicks = 0;
             printV("WALLET $i SYNCED");
             try {
-              await wallet.stopBackgroundSync((await keyService.getWalletPassword(walletName: wallet.name)));
+              await wallet.stopBackgroundSync(
+                  (await keyService.getWalletPassword(walletName: wallet.name)));
             } catch (e) {
               printV("error stopping sync: $e");
             }
@@ -89,7 +91,7 @@ class BackgroundSync {
             printV("Attempting Sync");
           } else if (syncStatus is StartingScanSyncStatus) {
             printV("Starting Scan");
-          } else if (syncStatus is SyncronizingSyncStatus) {
+          } else if (syncStatus is SynchronizingSyncStatus) {
             printV("Syncronizing");
           } else if (syncStatus is FailedSyncStatus) {
             printV("Failed Sync");
@@ -105,3 +107,4 @@ class BackgroundSync {
     }
   }
 }
+

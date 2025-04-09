@@ -20,6 +20,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     super.key,
     this.marginV,
     this.marginH,
+    this.color,
+    this.boxShadow,
   });
 
   final VoidCallback? onTap;
@@ -35,6 +37,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final double? marginH;
   final double? shadowSpread;
   final double? shadowBlur;
+  final Color? color;
+  final List<BoxShadow>? boxShadow;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +54,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             //   color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
             //     width: 1
             // ),
+            color: color,
+            boxShadow: boxShadow,
             // boxShadow: [
             //   BoxShadow(
             //       color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor
@@ -62,11 +68,14 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           child: OutlinedButton(
             onPressed: onTap,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(width: 1, color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor),
-                backgroundColor:
-                    Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(customBorder ?? 20)),
+                side: BorderSide(
+                    width: 1,
+                    color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor),
+                backgroundColor: color != null
+                    ? null
+                    : Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                shape:
+                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(customBorder ?? 20)),
                 padding: EdgeInsets.all(24)),
             child: Column(
               children: [
@@ -80,9 +89,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                           Text(
                             title,
                             style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .cardTextColor,
+                              color:
+                                  Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
                               fontSize: 24,
                               fontWeight: FontWeight.w900,
                             ),
