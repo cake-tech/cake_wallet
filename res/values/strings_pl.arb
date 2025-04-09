@@ -343,6 +343,7 @@
   "fiat_api": "API Walut FIAT",
   "fiat_balance": "Bilans Fiata",
   "field_required": "To pole jest wymagane",
+  "file_saved": "Zapisano plik",
   "fill_code": "Proszę wpisać kod weryfikacyjny który otrzymałeś w wiadomości e-mail",
   "filter_by": "Filtruj według",
   "first_wallet_text": "Świetny portfel na Monero, Bitcoin, Ethereum, Litecoin, i Haven",

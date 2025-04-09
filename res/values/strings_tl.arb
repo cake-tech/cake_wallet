@@ -343,6 +343,7 @@
   "fiat_api": "Fiat API",
   "fiat_balance": "Balanse ng fiat",
   "field_required": "Kinakailangan ang patlang na ito",
+  "file_saved": "Nai -save ang file",
   "fill_code": "Mangyaring ilagay ang verfification code na ibinigay sa iyong email",
   "filter_by": "Filter ni",
   "first_wallet_text": "Kahanga-hangang wallet para sa Monero, Bitcoin, Litecoin, Ethereum, at Haven",

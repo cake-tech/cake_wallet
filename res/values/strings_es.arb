@@ -343,6 +343,7 @@
   "fiat_api": "Fiat API",
   "fiat_balance": "Balance fiat",
   "field_required": "Este campo es obligatorio",
+  "file_saved": "Archivo guardado",
   "fill_code": "Por favor completa el código de verificación proporcionado en tu correo electrónico",
   "filter_by": "Filtrado por",
   "first_wallet_text": "Impresionante billetera para Monero, Bitcoin, Ethereum, Litecoin, y Haven",

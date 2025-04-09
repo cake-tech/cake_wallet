@@ -343,6 +343,7 @@
   "fiat_api": "명목 화폐 API",
   "fiat_balance": "피아트 잔액",
   "field_required": "이 필드는 필수입니다",
+  "file_saved": "파일이 저장되었습니다",
   "fill_code": "이메일에 제공된 인증 코드를 입력하세요.",
   "filter_by": "필터링 기준",
   "first_wallet_text": "Monero, Bitcoin, Ethereum, Litecoin 및 Haven을 위한 멋진 지갑",

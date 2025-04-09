@@ -343,6 +343,7 @@
   "fiat_api": "Фіат API",
   "fiat_balance": "Фіат Баланс",
   "field_required": "Це поле є обов'язковим",
+  "file_saved": "Збережено файл",
   "fill_code": "Будь ласка, введіть код підтвердження, надісланий на вашу електронну адресу",
   "filter_by": "Фільтрувати по",
   "first_wallet_text": "В самому зручному гаманці для Monero, Bitcoin, Ethereum, Litecoin, та Haven",

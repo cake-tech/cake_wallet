@@ -342,6 +342,7 @@
   "fiat_api": "API Fiat",
   "fiat_balance": "Số dư Fiat",
   "field_required": "Trường này là bắt buộc",
+  "file_saved": "Tệp lưu",
   "fill_code": "Vui lòng điền mã xác minh được gửi đến email của bạn",
   "filter_by": "Lọc theo",
   "first_wallet_text": "Ví tuyệt vời cho Monero, Bitcoin, Ethereum, Litecoin, và Haven",

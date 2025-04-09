@@ -343,6 +343,7 @@
   "fiat_api": "Fiat API",
   "fiat_balance": "الرصيد فيات",
   "field_required": "هذه الخانة مطلوبه",
+  "file_saved": "تم حفظ الملف",
   "fill_code": "يرجى ملء رمز التحقق المرسل إلى بريدك الإلكتروني",
   "filter_by": "تصفية حسب",
   "first_wallet_text": "محفظة رائعة ل Monero, Bitcoin, Ethereum, Litecoin و Haven",

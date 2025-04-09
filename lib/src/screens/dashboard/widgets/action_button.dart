@@ -47,6 +47,8 @@ class ActionButton extends StatelessWidget {
             SizedBox(height: 4),
             Text(
               title,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
               style: TextStyle(
                   fontSize: 9,
                   color: textColor ??

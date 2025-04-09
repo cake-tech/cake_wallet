@@ -98,7 +98,7 @@ class SendPage extends BasePage {
     return MergeSemantics(
       child: SizedBox(
         height: isMobileView ? 37 : 45,
-        width: isMobileView ? 47: 45,
+        width: isMobileView ? 47 : 45,
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
@@ -397,7 +397,6 @@ class SendPage extends BasePage {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
-
                               //Request dummy node to get the focus out of the text fields
                               FocusScope.of(context).requestFocus(FocusNode());
 
@@ -507,7 +506,6 @@ class SendPage extends BasePage {
         Navigator.of(loadingBottomSheetContext!).pop();
       }
 
-
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
@@ -525,7 +523,6 @@ class SendPage extends BasePage {
       }
 
       if (state is IsExecutingState) {
-
         // wait a bit to avoid showing the loading dialog if transaction is failed
         await Future.delayed(const Duration(milliseconds: 300));
         final currentState = sendViewModel.state;
@@ -584,8 +581,6 @@ class SendPage extends BasePage {
         });
       }
 
-
-
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!context.mounted) {
@@ -594,7 +589,8 @@ class SendPage extends BasePage {
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
 
-          if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
+          if (newContactAddress?.address != null &&
+              isRegularElectrumAddress(newContactAddress!.address)) {
             newContactAddress = null;
           }
 
@@ -606,47 +602,53 @@ class SendPage extends BasePage {
             builder: (BuildContext bottomSheetContext) {
               return showContactSheet
                   ? InfoBottomSheet(
-                currentTheme: currentTheme,
-                showDontAskMeCheckbox: true,
-                onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
-                titleText: S.of(bottomSheetContext).transaction_sent,
-                contentImage: 'assets/images/contact_icon.svg',
-                contentImageColor: Theme.of(context)
-                    .extension<CakeTextTheme>()!
-                    .titleColor,
-                content: S.of(bottomSheetContext).add_contact_to_address_book,
-                isTwoAction: true,
-                leftButtonText: 'No',
-                rightButtonText: 'Yes',
-                actionLeftButton: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                  RequestReviewHandler.requestReview();
-                  newContactAddress = null;
-                },
-                actionRightButton: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  RequestReviewHandler.requestReview();
-                  Navigator.of(context)
-                      .pushNamed(Routes.addressBookAddContact, arguments: newContactAddress);
-                  newContactAddress = null;
-                },
-              )
+                      currentTheme: currentTheme,
+                      showDontAskMeCheckbox: true,
+                      onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/contact_icon.svg',
+                      contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      content: S.of(bottomSheetContext).add_contact_to_address_book,
+                      isTwoAction: true,
+                      leftButtonText: 'No',
+                      rightButtonText: 'Yes',
+                      actionLeftButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        }
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      },
+                      actionRightButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        if (context.mounted) {
+                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                              arguments: newContactAddress);
+                        }
+                        newContactAddress = null;
+                      },
+                    )
                   : InfoBottomSheet(
-                currentTheme: currentTheme,
-                titleText: S.of(bottomSheetContext).transaction_sent,
-                contentImage: 'assets/images/birthday_cake.svg',
-                actionButtonText: S.of(bottomSheetContext).close,
-                actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                actionButton: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                  RequestReviewHandler.requestReview();
-                  newContactAddress = null;
-                },
-              );
+                      currentTheme: currentTheme,
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/birthday_cake.svg',
+                      actionButtonText: S.of(bottomSheetContext).close,
+                      actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                      actionButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Future.delayed(Duration.zero, () {
+                          if (context.mounted) {
+                            Navigator.of(context)
+                                .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                          }
+                          RequestReviewHandler.requestReview();
+                          newContactAddress = null;
+                        });
+                      },
+                    );
             },
           );
 
@@ -678,8 +680,7 @@ class SendPage extends BasePage {
               currentTheme: currentTheme,
               titleText: S.of(bottomSheetContext).proceed_on_device,
               contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-              contentImageColor:
-              Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               content: S.of(bottomSheetContext).proceed_on_device_description,
               isTwoAction: false,
               actionButtonText: S.of(context).cancel,
@@ -778,5 +779,4 @@ class SendPage extends BasePage {
 
     return isValid;
   }
-
 }

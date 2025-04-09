@@ -343,6 +343,7 @@
   "fiat_api": "Fiat API",
   "fiat_balance": "Фиат Баланс",
   "field_required": "Това поле е задължително",
+  "file_saved": "Запасен файл",
   "fill_code": "Моля, въведето кода за потвърждаване, изпратен на Вашия имейл",
   "filter_by": "Филтрирай по",
   "first_wallet_text": "Невероятен портфейл за Monero, Bitcoin, Ethereum, Litecoin и Haven",
