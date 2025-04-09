@@ -105,7 +105,6 @@ class ElectrumClient {
 
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
-
     socket!.listen(
       (Uint8List event) {
         try {

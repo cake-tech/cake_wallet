@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/entities/yat_record.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class YatService {
   static bool isDevMode = false;
@@ -33,8 +33,9 @@ class YatService {
     final yatRecords = <YatRecord>[];
 
     try {
-      final response = await get(uri);
-      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
+      final resBody = json.decode(responseString) as Map<String, dynamic>;
       final results = resBody["result"] as Map<dynamic, dynamic>;
       // Favour a subaddress over a standard address.
       final yatRecord = (
@@ -42,7 +43,7 @@ class YatService {
         results[MONERO_STD_ADDRESS] ??
         results[tag]) as Map<String, dynamic>;
 
-      if (yatRecord != null) {
+      if (yatRecord.isNotEmpty) {
         yatRecords.add(YatRecord.fromJson(yatRecord));
       }
 

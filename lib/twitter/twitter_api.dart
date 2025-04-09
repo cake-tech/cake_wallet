@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/twitter/twitter_user.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class TwitterApi {
   static const twitterBearerToken = secrets.twitterBearerToken;
@@ -23,15 +23,16 @@ class TwitterApi {
         path: userPath + userName,
         queryParameters: queryParams);
 
-    final response = await http.get(uri, headers: headers).catchError((error) {
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers).catchError((error) {
       throw Exception('HTTP request failed: $error');
     });
 
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
+    final responseString = await response.transform(utf8.decoder).join();
 
-    final Map<String, dynamic> responseJSON = jsonDecode(response.body) as Map<String, dynamic>;
+    final Map<String, dynamic> responseJSON = jsonDecode(responseString) as Map<String, dynamic>;
     if (responseJSON['errors'] != null &&
         !responseJSON['errors'][0]['detail']
             .toString()
