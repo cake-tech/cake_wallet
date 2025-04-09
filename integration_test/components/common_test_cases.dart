@@ -230,6 +230,7 @@ class CommonTestCases {
       await Future.delayed(Duration(seconds: seconds));
 
   Future<void> takeScreenshots(String screenshotName) async {
-    await (tester.binding as IntegrationTestWidgetsFlutterBinding).takeScreenshot(screenshotName);
+    // Pausing this for now
+    // await (tester.binding as IntegrationTestWidgetsFlutterBinding).takeScreenshot(screenshotName);
   }
 }

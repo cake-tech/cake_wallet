@@ -225,7 +225,7 @@ class SendPageRobot {
         await authPageRobot.enterPinCode(CommonTestConstants.pin, pumpDuration: 500);
         tester.printToConsole('Auth done');
 
-        await tester.pumpAndSettle();
+        await tester.pump(Duration(seconds: 3));
 
         tester.printToConsole('Auth pump done');
       } catch (e) {

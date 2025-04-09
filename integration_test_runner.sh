@@ -22,8 +22,13 @@ monitor_test() {
             break
         fi
 
-        # Check for log activity
-        local last_modified=$(stat -c %Y "$log_file")
+        # Check for log activity: use OS-specific flag for stat command
+        if [[ "$(uname)" == "Darwin" ]]; then
+            last_modified=$(stat -f %m "$log_file")
+        else
+            last_modified=$(stat -c %Y "$log_file")
+        fi
+
         local current_time=$(date +%s)
         if (( current_time - last_modified > MAX_INACTIVITY )); then
             echo "❌ Test hung due to inactivity, terminating..."
@@ -34,6 +39,7 @@ monitor_test() {
 
     return 0
 }
+
 
 # Collect all Dart test files in the integration_test directory
 while IFS= read -r -d $'\0' file; do
