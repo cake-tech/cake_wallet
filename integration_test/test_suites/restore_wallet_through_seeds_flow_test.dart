@@ -1,4 +1,3 @@
-
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,7 @@ void main() {
           continue;
         }
 
-        await commonTestFlows.switchToWalletMenuFromDashboardPage();
+        await dashboardPageRobot.navigateToWalletsListPage();
 
         await commonTestFlows.restoreWalletFromWalletMenu(
           walletType,
@@ -62,7 +61,7 @@ void main() {
       }
 
       // Goes to the wallet menu and provides a visual confirmation that all the wallets were correctly restored
-      await commonTestFlows.switchToWalletMenuFromDashboardPage();
+           await dashboardPageRobot.navigateToWalletsListPage();
 
       commonTestFlows.confirmAllAvailableWalletTypeIconsDisplayCorrectly();
 

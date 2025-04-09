@@ -92,6 +92,10 @@ class DashboardPageRobot {
     await commonTestCases.tapItemByKey('dashboard_page_${S.current.buy}_action_button_key');
   }
 
+  Future<void> navigateToWalletsListPage() async {
+    await commonTestCases.tapItemByKey('dashboard_page_${S.current.wallets}_action_button_key');
+  }
+
   Future<void> navigateToSendPage() async {
     await commonTestCases.tapItemByKey('dashboard_page_${S.current.send}_action_button_key');
   }

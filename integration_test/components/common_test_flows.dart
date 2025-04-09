@@ -10,8 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cake_wallet/main.dart' as app;
 
 import '../robots/create_pin_welcome_page_robot.dart';
-import '../robots/dashboard_page_robot.dart';
-import '../robots/disclaimer_page_robot.dart';
 import '../robots/new_wallet_page_robot.dart';
 import '../robots/new_wallet_type_page_robot.dart';
 import '../robots/pre_seed_page_robot.dart';
@@ -34,9 +32,7 @@ class CommonTestFlows {
         _welcomePageRobot = WelcomePageRobot(_tester),
         _preSeedPageRobot = PreSeedPageRobot(_tester),
         _setupPinCodeRobot = SetupPinCodeRobot(_tester),
-        _dashboardPageRobot = DashboardPageRobot(_tester),
         _newWalletPageRobot = NewWalletPageRobot(_tester),
-        _disclaimerPageRobot = DisclaimerPageRobot(_tester),
         _walletSeedPageRobot = WalletSeedPageRobot(_tester),
         _walletListPageRobot = WalletListPageRobot(_tester),
         _newWalletTypePageRobot = NewWalletTypePageRobot(_tester),
@@ -53,8 +49,6 @@ class CommonTestFlows {
   final PreSeedPageRobot _preSeedPageRobot;
   final SetupPinCodeRobot _setupPinCodeRobot;
   final NewWalletPageRobot _newWalletPageRobot;
-  final DashboardPageRobot _dashboardPageRobot;
-  final DisclaimerPageRobot _disclaimerPageRobot;
   final WalletSeedPageRobot _walletSeedPageRobot;
   final WalletListPageRobot _walletListPageRobot;
   final NewWalletTypePageRobot _newWalletTypePageRobot;
@@ -111,13 +105,6 @@ class CommonTestFlows {
   ) async {
     await _welcomeToRestoreFromSeedsOrKeysPath(walletTypeToRestore, walletPin);
     await _restoreFromKeys();
-  }
-
-  //* ========== Handles switching to wallet list or menu from dashboard ===============
-  Future<void> switchToWalletMenuFromDashboardPage() async {
-    _tester.printToConsole('Switching to Wallet Menu');
-
-    await _dashboardPageRobot.dashboardMenuWidgetRobot.navigateToWalletMenu();
   }
 
   void confirmAllAvailableWalletTypeIconsDisplayCorrectly() {

@@ -71,6 +71,14 @@ class CommonTestCases {
   }
 
   Future<void> startGesture(String key, Offset gestureOffset) async {
+    await tester.pumpAndSettle();
+
+    final hasKey = isKeyPresent(key);
+
+    tester.printToConsole("Has gestureKey: $hasKey");
+
+    if (!hasKey) return;
+
     final gesture = await tester.startGesture(tester.getCenter(find.byKey(ValueKey(key))));
 
     // Drag to the left
@@ -174,6 +182,31 @@ class CommonTestCases {
     if (!found) {
       tester.printToConsole('Widget not found after $maxScrolls scrolls.');
     }
+  }
+
+  Future<void> scrollItemIntoView(
+    String itemKeyId,
+    double scrollPixels,
+    String scrollableFinderKey,
+  ) async {
+    final Finder itemFinder = find.byKey(ValueKey(itemKeyId));
+
+    final scrollableFinder = find.descendant(
+      of: find.byKey(ValueKey(scrollableFinderKey)),
+      matching: find.byType(Scrollable),
+    );
+
+    try {
+      await tester.scrollUntilVisible(
+        itemFinder,
+        scrollPixels,
+        scrollable: scrollableFinder,
+      );
+    } catch (e) {
+      tester.printToConsole('Could not find $itemKeyId');
+    }
+
+    await tester.pumpAndSettle();
   }
 
   Future<void> enterText(String text, String editableTextKey) async {

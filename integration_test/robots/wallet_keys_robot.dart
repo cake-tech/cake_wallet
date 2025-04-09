@@ -183,6 +183,5 @@ class WalletKeysAndSeedPageRobot {
     tester.printToConsole('Going back to dashboard from credentials page');
     await commonTestCases.goBack();
     await commonTestCases.goBack();
-    await commonTestCases.goBack();
   }
 }

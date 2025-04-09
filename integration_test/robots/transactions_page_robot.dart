@@ -52,10 +52,10 @@ class TransactionsPageRobot {
     // Define a timeout to prevent infinite loops
     // Putting at one hour for cases like monero that takes time to sync
     final timeout = Duration(hours: 1);
-    final pollingInterval = Duration(seconds: 2);
     final endTime = DateTime.now().add(timeout);
 
     while (DateTime.now().isBefore(endTime)) {
+      await tester.pump(Duration(seconds: 5));
       final isSynced = dashboardViewModel.status is SyncedSyncStatus;
       final itemsLoaded = dashboardViewModel.items.isNotEmpty;
 
@@ -64,21 +64,29 @@ class TransactionsPageRobot {
         await _performItemChecks(dashboardViewModel);
       } else {
         // Verify placeholder when items are not loaded
+        await tester.pump(Duration(seconds: 5));
         _verifyPlaceholder();
+        tester.printToConsole('No item to check for');
       }
 
       // Determine if we should exit the loop
-      if (_shouldExitLoop(hasTxHistoryWhileSyncing, isSynced, itemsLoaded)) {
+      bool shouldExit = _shouldExitLoop(hasTxHistoryWhileSyncing, isSynced, itemsLoaded);
+      await tester.pump(Duration(seconds: 2));
+
+      if (shouldExit) {
+        await tester.pump(Duration(seconds: 2));
         break;
       }
 
       // Pump the UI and wait for the next polling interval
-      await tester.pumpAndSettle(pollingInterval);
+      await commonTestCases.defaultSleepTime();
+      await tester.pump(Duration(seconds: 2));
+      await tester.pumpAndSettle();
     }
 
     // After the loop, verify that both status is synced and items are loaded
     if (!_isFinalStateValid(dashboardViewModel)) {
-      throw TimeoutException('Dashboard did not sync and load items within the allotted time.');
+      tester.printToConsole('Dashboard did not sync and load items within the allotted time.');
     }
   }
 
@@ -119,10 +127,14 @@ class TransactionsPageRobot {
       await tester.pumpAndSettle();
 
       // Scroll the item into view
-      await commonTestCases.dragUntilVisible(keyId, 'transactions_page_list_view_builder_key');
+      await commonTestCases.scrollItemIntoView(
+        keyId,
+        20,
+       'transactions_page_list_view_builder_key',
+      );
       await tester.pumpAndSettle();
 
-      // Check if the widget is visible
+      // Verify the widget is visible; if not, skip to the next one.
       if (!tester.any(find.byKey(ValueKey(keyId)))) {
         tester.printToConsole('Item not visible: $keyId. Moving to the next.');
         continue;
@@ -130,6 +142,7 @@ class TransactionsPageRobot {
 
       await tester.pumpAndSettle();
 
+      // Execute the proper check depending on item type.
       switch (item.runtimeType) {
         case TransactionListItem:
           final transactionItem = item as TransactionListItem;

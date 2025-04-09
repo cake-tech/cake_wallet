@@ -20,31 +20,33 @@ class StandardSlideButton extends StatefulWidget {
   final ThemeBase currentTheme;
 
   @override
-  _StandardSlideButtonState createState() => _StandardSlideButtonState();
+  StandardSlideButtonState createState() => StandardSlideButtonState();
 }
 
-class _StandardSlideButtonState extends State<StandardSlideButton> {
+class StandardSlideButtonState extends State<StandardSlideButton> {
   double _dragPosition = 0.0;
+  double get dragPosition => _dragPosition;
+
+  double sideMargin = 4.0;
+  double effectiveMaxWidth = 0.0;
+  double sliderWidth = 42.0;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final double maxWidth = constraints.maxWidth;
-      const double sideMargin = 4.0;
-      final double effectiveMaxWidth = maxWidth - 2 * sideMargin;
-      const double sliderWidth = 42.0;
+      effectiveMaxWidth = maxWidth - 2 * sideMargin;
 
       final tileBackgroundColor = widget.currentTheme.type == ThemeType.light
           ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
           : widget.currentTheme.type == ThemeType.oled
-          ? Colors.black.withOpacity(0.5)
-          : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+              ? Colors.black.withOpacity(0.5)
+              : Theme.of(context).extension<FilterTheme>()!.buttonColor;
 
       return Container(
         height: widget.height,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: tileBackgroundColor),
+        decoration:
+            BoxDecoration(borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
         child: Stack(
           alignment: Alignment.centerLeft,
           children: [
@@ -76,6 +78,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                   }
                 },
                 child: Container(
+                  key: ValueKey('standard_slide_button_widget_slider_container_key'),
                   width: sliderWidth,
                   height: widget.height - 8,
                   decoration: BoxDecoration(
@@ -83,8 +86,13 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                     color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                   ),
                   alignment: Alignment.center,
-                  child: Icon(Icons.arrow_forward,
-                      color: widget.currentTheme.type == ThemeType.bright ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor : Theme.of(context).extension<FilterTheme>()!.buttonColor),
+                  child: Icon(
+                    key: ValueKey('standard_slide_button_widget_slider_icon_key'),
+                    Icons.arrow_forward,
+                    color: widget.currentTheme.type == ThemeType.bright
+                        ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
+                        : Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                  ),
                 ),
               ),
             )

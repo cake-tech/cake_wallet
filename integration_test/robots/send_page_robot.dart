@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
+import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -299,37 +300,36 @@ class SendPageRobot {
 
   //* ------ On Sending Success ------------
   Future<void> onSendSliderOnConfirmSendingBottomSheetDragged() async {
-    tester.printToConsole('Inside confirm sending dialog: For sending');
     await commonTestCases.defaultSleepTime();
     await tester.pumpAndSettle();
 
-    bool hasConfirmSendBottomSheet =
-        commonTestCases.isKeyPresent('send_page_confirm_sending_bottom_sheet_key');
+    if (commonTestCases.isKeyPresent('send_page_confirm_sending_bottom_sheet_key')) {
+      final state = tester.state<StandardSlideButtonState>(find.byType(StandardSlideButton));
+      final double effectiveMaxWidth = state.effectiveMaxWidth;
+      final double sliderWidth = state.sliderWidth;
+      final double threshold = effectiveMaxWidth - sliderWidth - 10;
 
-    tester.printToConsole('Has Confirm Send BottomSheet: $hasConfirmSendBottomSheet');
+      final sliderFinder =
+          find.byKey(const ValueKey('standard_slide_button_widget_slider_container_key'));
+      expect(sliderFinder, findsOneWidget);
 
-    if (hasConfirmSendBottomSheet) {
-      await commonTestCases.startGesture(
-        'standard_slide_button_widget_slider_key',
-        Offset(200, 0),
-      );
+      // Using the center of the container as the drag start.
+      final Offset dragStart = tester.getCenter(sliderFinder);
 
-      tester.printToConsole('Slider moved');
-      
+      // Dragging by an offset sufficient to exceed the threshold.
+      await tester.dragFrom(dragStart, Offset(threshold + 20, 0));
       await tester.pumpAndSettle();
 
-      tester.printToConsole('Slider pump done');
+      tester.printToConsole('Final slider dragPosition: ${state.dragPosition}');
 
       // Loop to wait for the operation to commit transaction
       await _waitForCommitTransactionCompletion();
-
-      await tester.pump();
 
       await commonTestCases.defaultSleepTime(seconds: 4);
     } else {
       await commonTestCases.defaultSleepTime();
       await tester.pump();
-      onSendSliderOnConfirmSendingBottomSheetDragged();
+      await onSendSliderOnConfirmSendingBottomSheetDragged();
     }
   }
 
