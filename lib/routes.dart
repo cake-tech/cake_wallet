@@ -113,6 +113,7 @@ class Routes {
   static const backgroundSync = '/background_sync';
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+  static const devFileExplorer = '/dev/file_explorer';
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
   static const urqrAnimatedPage = '/urqr/animated_page';
