@@ -258,9 +258,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                             selected: language,
                             onItemSelected: (lang) =>
                                 _changeLanguage(lang, isPolyseed || isBip39),
-                            seedType: isPolyseed || isBip39
-                                ? MoneroSeedType.polyseed
-                                : MoneroSeedType.legacy,
+                            seedType:
+                                widget.seedSettingsViewModel.moneroSeedType,
                           ));
                 },
                 child: Container(
@@ -308,8 +307,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         ),
       );
 
-  void _changeLanguage(String language, [bool useBip32 = false]) {
-    final setLang = useBip32
+  void _changeLanguage(String language, [bool useBip39Wordlist = false]) {
+    final setLang = useBip39Wordlist
         ? "POLYSEED_$language"
         : seedTypeController.value.text.contains("14")
             ? "WOWSEED_" + language
