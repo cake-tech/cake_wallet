@@ -354,7 +354,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   bool checkIfWalletIsAnInternalWallet(String address) {
     final walletContactList =
-    walletContactsToShow.where((element) => element.address == address).toList();
+        walletContactsToShow.where((element) => element.address == address).toList();
 
     return walletContactList.isNotEmpty;
   }
