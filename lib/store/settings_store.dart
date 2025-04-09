@@ -18,7 +18,6 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
@@ -37,11 +36,8 @@ import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -123,6 +119,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsOpenAlias,
       required this.lookupsENS,
       required this.lookupsWellKnown,
+      required this.usePayjoin,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.silentPaymentsAlwaysScan,
@@ -485,6 +482,11 @@ abstract class SettingsStoreBase with Store {
         (bool looksUpWellKnown) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
 
+    reaction(
+        (_) => usePayjoin,
+        (bool usePayjoin) =>
+            _sharedPreferences.setBool(PreferencesKey.usePayjoin, usePayjoin));
+
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -805,6 +807,9 @@ abstract class SettingsStoreBase with Store {
   bool lookupsWellKnown;
 
   @observable
+  bool usePayjoin;
+
+  @observable
   SyncMode currentSyncMode;
 
   @observable
@@ -1011,6 +1016,7 @@ abstract class SettingsStoreBase with Store {
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
+    final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
@@ -1303,6 +1309,7 @@ abstract class SettingsStoreBase with Store {
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
       lookupsWellKnown: lookupsWellKnown,
+      usePayjoin: usePayjoin,
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,

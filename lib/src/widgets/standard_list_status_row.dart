@@ -1,5 +1,4 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +6,11 @@ import 'package:cake_wallet/themes/extensions/address_theme.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class StandardListStatusRow extends StatelessWidget {
-  StandardListStatusRow({required this.title, required this.value});
+  StandardListStatusRow({required this.title, required this.value, this.status});
 
   final String title;
   final String value;
+  final String? status; // waiting, action required, created, fetching, finished, success
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class StandardListStatusRow extends StatelessWidget {
                       children: <Widget>[
                         SyncIndicatorIcon(
                           boolMode: false,
-                          value: value,
+                          value: status ?? value,
                           size: 6,
                         ),
                         SizedBox(
