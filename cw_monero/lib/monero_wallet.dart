@@ -592,7 +592,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance, MoneroTransact
         final coin = await getCoin(i);
         final coinSpent = monero.CoinsInfo_spent(coin);
         if (coinSpent == false && monero.CoinsInfo_subaddrAccount(coin) == walletAddresses.account!.id) {
-          final unspent = MoneroUnspent(
+          final unspent = await MoneroUnspent.fromUnspent(
             monero.CoinsInfo_address(coin),
             monero.CoinsInfo_hash(coin),
             monero.CoinsInfo_keyImage(coin),

@@ -32,7 +32,7 @@ class NavigationDock extends StatelessWidget {
               ),
             ),
             child: Container(
-              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
                 child: BackdropFilter(
@@ -48,7 +48,7 @@ class NavigationDock extends StatelessWidget {
                           Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     ),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 8),
                       child: IntrinsicHeight(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

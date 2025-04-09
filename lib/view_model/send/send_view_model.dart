@@ -245,7 +245,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  String get sendingBalance {
+  Future<String> get sendingBalance async {
     // only for electrum, monero, wownero, decred wallets atm:
     switch (wallet.type) {
       case WalletType.bitcoin:
@@ -255,7 +255,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.wownero:
       case WalletType.decred:
         return wallet.formatCryptoAmount(
-            unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom).toString());
+            (await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom)).toString());
       default:
         return balance;
     }

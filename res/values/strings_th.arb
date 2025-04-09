@@ -333,6 +333,7 @@
   "fiat_api": "API สกุลเงินตรา",
   "fiat_balance": "เฟียต บาลานซ์",
   "field_required": "ช่องนี้จำเป็น",
+  "file_saved": "บันทึกไฟล์",
   "fill_code": "โปรดกรอกรหัสยืนยันที่ส่งไปยังอีเมลของคุณ",
   "filter_by": "กรองตาม",
   "first_wallet_text": "กระเป๋าสตางค์ที่สวยงามสำหรับ Monero, Bitcoin, Ethereum, Litecoin และ Haven",
