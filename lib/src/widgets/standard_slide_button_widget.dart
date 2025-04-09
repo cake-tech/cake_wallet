@@ -58,6 +58,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
             Positioned(
               left: sideMargin + _dragPosition,
               child: GestureDetector(
+                key: ValueKey('standard_slide_button_widget_slider_key'),
                 onHorizontalDragUpdate: (details) {
                   setState(() {
                     _dragPosition += details.delta.dx;

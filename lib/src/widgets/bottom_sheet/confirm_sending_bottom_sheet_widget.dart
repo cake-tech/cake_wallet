@@ -48,7 +48,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     this.change,
     Key? key,
   })  : showScrollbar = outputs.length > 3,
-        super(titleText: titleText, titleIconPath: titleIconPath);
+        super(titleText: titleText, titleIconPath: titleIconPath, key: key);
 
   final bool showScrollbar;
   final ScrollController scrollController = ScrollController();
@@ -211,6 +211,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
         ],
       ),
       child: StandardSlideButton(
+        key: ValueKey('confirm_sending_bottom_sheet_widget_standard_slide_button_key'),
         onSlideComplete: onSlideComplete,
         buttonText: 'Swipe to send',
         currentTheme: currentTheme,

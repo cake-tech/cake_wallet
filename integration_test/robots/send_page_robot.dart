@@ -298,17 +298,28 @@ class SendPageRobot {
   }
 
   //* ------ On Sending Success ------------
-  Future<void> onSendButtonOnConfirmSendingDialogPressed() async {
+  Future<void> onSendSliderOnConfirmSendingBottomSheetDragged() async {
     tester.printToConsole('Inside confirm sending dialog: For sending');
     await commonTestCases.defaultSleepTime();
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    final sendText = find.text(S.current.send).last;
-    bool hasText = sendText.tryEvaluate();
-    tester.printToConsole('Has Text: $hasText');
+    bool hasConfirmSendBottomSheet =
+        commonTestCases.isKeyPresent('send_page_confirm_sending_bottom_sheet_key');
 
-    if (hasText) {
-      await commonTestCases.tapItemByFinder(sendText, shouldPumpAndSettle: false);
+    tester.printToConsole('Has Confirm Send BottomSheet: $hasConfirmSendBottomSheet');
+
+    if (hasConfirmSendBottomSheet) {
+      await commonTestCases.startGesture(
+        'standard_slide_button_widget_slider_key',
+        Offset(200, 0),
+      );
+
+      tester.printToConsole('Slider moved');
+      
+      await tester.pumpAndSettle();
+
+      tester.printToConsole('Slider pump done');
+
       // Loop to wait for the operation to commit transaction
       await _waitForCommitTransactionCompletion();
 
@@ -318,7 +329,7 @@ class SendPageRobot {
     } else {
       await commonTestCases.defaultSleepTime();
       await tester.pump();
-      onSendButtonOnConfirmSendingDialogPressed();
+      onSendSliderOnConfirmSendingBottomSheetDragged();
     }
   }
 
@@ -355,39 +366,27 @@ class SendPageRobot {
     tester.printToConsole('Done Committing Transaction');
   }
 
-  Future<void> onCancelButtonOnConfirmSendingDialogPressed() async {
-    tester.printToConsole('Inside confirm sending dialog: For canceling');
-    await commonTestCases.defaultSleepTime(seconds: 4);
-
-    final cancelText = find.text(S.current.cancel);
-    bool hasText = cancelText.tryEvaluate();
-
-    if (hasText) {
-      await commonTestCases.tapItemByFinder(cancelText);
-
-      await commonTestCases.defaultSleepTime(seconds: 4);
-    }
-  }
-
-  //* ---- Add Contact Dialog On Send Successful Dialog -----
-  Future<void> onAddContactDialogPopUp() async {
+  //* ---- Add Contact BottomSheet On Send Success -----
+  Future<void> onAddContactBottomSheetPopUp() async {
     SendPage sendPage = tester.widget(find.byType(SendPage));
     final sendViewModel = sendPage.sendViewModel;
 
-    final newContactAddress = sendPage.newContactAddress ?? sendViewModel.newContactAddress();
-    if (newContactAddress != null) {
-      await _onAddContactButtonOnSentDialogPressed();
+    bool showContactSheet =
+        (sendPage.newContactAddress != null && sendViewModel.showAddressBookPopup);
+
+    if (showContactSheet) {
+      await _onYesButtonOnAddContactBottomSheetPressed();
     }
 
     await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> _onAddContactButtonOnSentDialogPressed() async {
-    await commonTestCases.tapItemByKey('send_page_sent_dialog_add_contact_button_key');
+  Future<void> _onYesButtonOnAddContactBottomSheetPressed() async {
+    await commonTestCases.tapItemByKey('send_page_add_contact_bottom_sheet_yes_button_key');
   }
 
   // ignore: unused_element
-  Future<void> _onIgnoreButtonOnSentDialogPressed() async {
-    await commonTestCases.tapItemByKey('send_page_sent_dialog_ignore_button_key');
+  Future<void> _onNoButtonOnAddContactBottomSheetPressed() async {
+    await commonTestCases.tapItemByKey('send_page_add_contact_bottom_sheet_no_button_key');
   }
 }

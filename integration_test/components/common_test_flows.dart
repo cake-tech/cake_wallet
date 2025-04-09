@@ -359,6 +359,7 @@ class CommonTestFlows {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
+      case WalletType.decred:
         throw Exception("Unable to get seeds for ${walletType}");
     }
   }

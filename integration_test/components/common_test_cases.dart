@@ -70,6 +70,18 @@ class CommonTestCases {
     await tester.pumpAndSettle();
   }
 
+  Future<void> startGesture(String key, Offset gestureOffset) async {
+    final gesture = await tester.startGesture(tester.getCenter(find.byKey(ValueKey(key))));
+
+    // Drag to the left
+    await gesture.moveBy(gestureOffset);
+
+    // End the gesture
+    await gesture.up();
+
+    await tester.pump();
+  }
+
   Future<void> dragUntilVisible(
     String childKey,
     String parentKey, {

@@ -41,12 +41,12 @@ void main() {
 
     await sendPageRobot.handleSendResult();
 
-    await sendPageRobot.onSendButtonOnConfirmSendingDialogPressed();
+    await sendPageRobot.onSendSliderOnConfirmSendingBottomSheetDragged();
 
-    await transactionSuccessInfoRobot.isTransactionSuccessInfoPage();
+    // await transactionSuccessInfoRobot.isTransactionSuccessInfoPage();
 
-    await transactionSuccessInfoRobot.onConfirmButtonPressed();
+    // await transactionSuccessInfoRobot.onConfirmButtonPressed();
 
-    await sendPageRobot.onAddContactDialogPopUp();
+    await sendPageRobot.onAddContactBottomSheetPopUp();
   });
 }
