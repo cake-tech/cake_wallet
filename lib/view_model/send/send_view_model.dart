@@ -438,6 +438,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return createTransaction();
     } catch (e) {
       printV(e);
+      state = FailureState(translateErrorMessage(e, walletType, currency));
       return null;
     }
   }
