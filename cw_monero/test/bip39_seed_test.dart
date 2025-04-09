@@ -14,7 +14,7 @@ void main() {
       });
 
       test("Get legacy Seed from bip39 with account index", () {
-        final legacySeed = getLegacySeedFromBip39(bip39Seed, 1);
+        final legacySeed = getLegacySeedFromBip39(bip39Seed, accountIndex: 1);
         expect(legacySeed, expectedLegacySeed1);
       });
     });
@@ -30,7 +30,7 @@ void main() {
       });
 
       test("Get legacy Seed from bip39 with account index", () {
-        final legacySeed = getLegacySeedFromBip39(bip39Seed, 1);
+        final legacySeed = getLegacySeedFromBip39(bip39Seed, accountIndex: 1);
         expect(legacySeed, expectedLegacySeed1);
       });
     });
