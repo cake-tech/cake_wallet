@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:path/path.dart' as p;
 
@@ -223,7 +224,7 @@ abstract class FileExplorerViewModelBase with Store {
       final file = File(filePath);
       return await file.readAsBytes();
     } catch (e) {
-      print('Error reading file bytes: $e');
+      printV('Error reading file bytes: $e');
       return Uint8List(0);
     }
   }
@@ -424,7 +425,7 @@ abstract class FileExplorerViewModelBase with Store {
           final stat = await entity.stat();
           
           if (stat.size > MAX_FILE_SIZE) {
-            print('Skipping large file: $relativePath (${_formatSize(stat.size)})');
+            printV('Skipping large file: $relativePath (${_formatSize(stat.size)})');
             continue;
           }
           
@@ -432,7 +433,7 @@ abstract class FileExplorerViewModelBase with Store {
           try {
             fileContent = await entity.readAsBytes();
           } catch (e) {
-            print('Error reading file content: $e');
+            printV('Error reading file content: $e');
           }
           
           result[relativePath] = FileInfo(
@@ -442,7 +443,7 @@ abstract class FileExplorerViewModelBase with Store {
             content: fileContent,
           );
         } catch (e) {
-          print('Error processing file ${entity.path}: $e');
+          printV('Error processing file ${entity.path}: $e');
         }
       }
     }
@@ -472,14 +473,14 @@ abstract class FileExplorerViewModelBase with Store {
             jsonData = jsonDecode(content) as Map<String, dynamic>;
           } catch (jsonError) {
             corruptedFiles.add(file.path);
-            print('Error parsing snapshot ${file.path}: $jsonError');
+            printV('Error parsing snapshot ${file.path}: $jsonError');
             continue;
           }
           
           if (jsonData.containsKey('files') || 
               !jsonData.containsKey('name') || !jsonData.containsKey('timestamp')) {
             corruptedFiles.add(file.path);
-            print('Invalid snapshot format in ${file.path}');
+            printV('Invalid snapshot format in ${file.path}');
             continue;
           }
           
@@ -503,11 +504,11 @@ abstract class FileExplorerViewModelBase with Store {
             ));
           } catch (e) {
             corruptedFiles.add(file.path);
-            print('Error processing snapshot data ${file.path}: $e');
+            printV('Error processing snapshot data ${file.path}: $e');
           }
         } catch (e) {
           corruptedFiles.add(file.path);
-          print('Error loading snapshot ${file.path}: $e');
+          printV('Error loading snapshot ${file.path}: $e');
         }
       }
       
@@ -517,24 +518,24 @@ abstract class FileExplorerViewModelBase with Store {
       
       snapshots.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     } catch (e) {
-      print('Error loading snapshots: $e');
+      printV('Error loading snapshots: $e');
     }
   }
 
   Future<void> _handleCorruptedSnapshots(List<String> corruptedFilePaths) async {
-    print('Found ${corruptedFilePaths.length} corrupted snapshot files:');
+    printV('Found ${corruptedFilePaths.length} corrupted snapshot files:');
     for (final path in corruptedFilePaths) {
-      print('  - ${p.basename(path)}');
+      printV('  - ${p.basename(path)}');
       
       try {
         final file = File(path);
         if (await file.exists()) {
           final newPath = '$path.corrupted';
           await file.rename(newPath);
-          print('    Renamed to ${p.basename(newPath)}');
+          printV('    Renamed to ${p.basename(newPath)}');
         }
       } catch (e) {
-        print('    Failed to rename corrupted file: $e');
+        printV('    Failed to rename corrupted file: $e');
       }
     }
   }
@@ -577,7 +578,7 @@ abstract class FileExplorerViewModelBase with Store {
       
       await loadSnapshots();
     } catch (e) {
-      print('Error creating snapshot: $e');
+      printV('Error creating snapshot: $e');
     }
   }
 
@@ -636,7 +637,7 @@ abstract class FileExplorerViewModelBase with Store {
       
       fileChanges.sort((a, b) => a.path.compareTo(b.path));
     } catch (e) {
-      print('Error comparing snapshot: $e');
+      printV('Error comparing snapshot: $e');
     }
   }
 
@@ -654,7 +655,7 @@ abstract class FileExplorerViewModelBase with Store {
       
       await loadSnapshots();
     } catch (e) {
-      print('Error deleting snapshot: $e');
+      printV('Error deleting snapshot: $e');
     }
   }
 
