@@ -139,7 +139,7 @@ class AddressCell extends StatelessWidget {
                           child: AddressFormatter.buildSegmentedAddress(
                               address: address,
                               walletType: walletType,
-                              shouldTruncate: name.isNotEmpty || address.length <= 41 ,
+                              shouldTruncate: name.isNotEmpty || address.length > 43 ,
                               evenTextStyle: TextStyle(
                                   fontSize: isChange ? 10 : 14,
                                   color: textColor
