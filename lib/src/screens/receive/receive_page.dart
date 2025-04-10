@@ -124,7 +124,7 @@ class ReceivePage extends BasePage {
                     isLight: currentTheme.type == ThemeType.light,
                   ),
               ),
-              AddressList(addressListViewModel: addressListViewModel),
+              AddressList(addressListViewModel: addressListViewModel, currentTheme: currentTheme),
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(

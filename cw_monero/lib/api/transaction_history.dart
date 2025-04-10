@@ -185,13 +185,14 @@ Future<PendingTransactionDescription> createTransactionSync(
   final rAmt = monero.PendingTransaction_amount(pendingTx);
   final rFee = monero.PendingTransaction_fee(pendingTx);
   final rHash = monero.PendingTransaction_txid(pendingTx, '');
+  final rHex = monero.PendingTransaction_hex(pendingTx, '');
   final rTxKey = rHash;
 
   return PendingTransactionDescription(
       amount: rAmt,
       fee: rFee,
       hash: rHash,
-      hex: '',
+      hex: rHex,
       txKey: rTxKey,
       pointerAddress: pendingTx.address,
     );
@@ -234,7 +235,7 @@ Future<PendingTransactionDescription> createTransactionMultDest(
     amount: monero.PendingTransaction_amount(txptr),
     fee: monero.PendingTransaction_fee(txptr),
     hash: monero.PendingTransaction_txid(txptr, ''),
-    hex: monero.PendingTransaction_txid(txptr, ''),
+    hex: monero.PendingTransaction_hex(txptr, ''),
     txKey: monero.PendingTransaction_txid(txptr, ''),
     pointerAddress: txptr.address,
   );
