@@ -305,9 +305,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   CryptoCurrency selectedCryptoCurrency;
 
-  @observable
-  OpenCryptoPayRequest? openCryptoPayRequest;
-
   List<CryptoCurrency> currencies;
 
   bool get hasYat => outputs
