@@ -358,6 +358,12 @@ abstract class WalletKitServiceBase with Store {
   @action
   void _onRelayClientError(ErrorEvent? args) {
     debugPrint('_onRelayClientError ${args?.error}');
+     _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(
+          message: "WC RelayClient Error: ${args?.error}",
+        ),
+      );
   }
 
   @action
