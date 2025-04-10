@@ -697,7 +697,7 @@
   "send": "Senden",
   "send_address": "${cryptoCurrency}-Adresse",
   "send_amount": "Betrag:",
-  "send_change_to_you": "Verändere dich zu dir:",
+  "send_change_to_you": "Rückgeld:",
   "send_creating_transaction": "Erstelle Transaktion",
   "send_error_currency": "Die Währung darf nur Zahlen enthalten",
   "send_error_minimum_value": "Der Mindestbetrag ist 0,01",

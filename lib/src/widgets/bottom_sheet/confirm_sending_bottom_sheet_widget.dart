@@ -28,6 +28,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final List<Output> outputs;
   final VoidCallback onSlideComplete;
   final PendingChange? change;
+  final bool isOpenCryptoPay;
 
   ConfirmSendingBottomSheet({
     required String titleText,
@@ -46,6 +47,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.outputs,
     required this.onSlideComplete,
     this.change,
+    this.isOpenCryptoPay = false,
     Key? key,
   })  : showScrollbar = outputs.length > 3,
         super(titleText: titleText, titleIconPath: titleIconPath);
@@ -132,7 +134,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   final _amount = item.cryptoAmount.replaceAll(',', '.') + ' ${currency.title}';
                   return isBatchSending || contactName.isNotEmpty
                       ? AddressExpansionTile(
-                          contactType: 'Contact',
+                          contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
                           currentTheme: currentTheme,
                           name: isBatchSending ? batchContactTitle : contactName,
                           address: _address,
@@ -143,7 +145,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                           tileBackgroundColor: tileBackgroundColor,
                         )
                       : AddressTile(
-                          itemTitle: 'Address',
+                          itemTitle: S.of(context).address,
                           currentTheme: currentTheme,
                           itemTitleTextStyle: itemTitleTextStyle,
                           isBatchSending: isBatchSending,
