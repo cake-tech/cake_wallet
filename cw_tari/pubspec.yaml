@@ -1,0 +1,25 @@
+name: cw_tari
+description: "A CakeWallet Package for Tari"
+version: 0.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cw_core:
+    path: ../cw_core
+  hive: ^2.2.3
+  mobx: ^2.0.7+4
+  tari:
+    path: ../../tari/clients/dart/
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
