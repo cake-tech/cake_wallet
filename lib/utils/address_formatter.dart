@@ -93,7 +93,7 @@ class AddressFormatter {
 
     if (isMWEB) {
       const fixedPrefix = 'ltcmweb';
-      final secondChunkStart = 7;
+      final secondChunkStart = fixedPrefix.length;
       const chunkSize = 4;
       final secondChunk = address.substring(
         secondChunkStart,
