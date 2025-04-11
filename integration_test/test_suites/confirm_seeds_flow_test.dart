@@ -1,4 +1,3 @@
-
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -58,7 +57,7 @@ void main() {
           continue;
         }
 
-        await commonTestFlows.switchToWalletMenuFromDashboardPage();
+        await dashboardPageRobot.navigateToWalletsListPage();
 
         await commonTestFlows.createNewWalletFromWalletMenu(walletType);
 
