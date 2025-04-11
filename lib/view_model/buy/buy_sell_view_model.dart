@@ -149,12 +149,13 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @computed
   bool get isReadyToTrade {
-    // final hasSelectedQuote = selectedQuote != null;
+    final hasSelectedQuote = selectedQuote != null;
     final hasSelectedPaymentMethod = selectedPaymentMethod != null;
     final isPaymentMethodLoaded = paymentMethodState is PaymentMethodLoaded;
     final isBuySellQuotLoaded = buySellQuotState is BuySellQuotLoaded;
 
-    return hasSelectedPaymentMethod &&
+    return hasSelectedQuote &&
+        hasSelectedPaymentMethod &&
         isPaymentMethodLoaded &&
         isBuySellQuotLoaded;
   }
@@ -213,15 +214,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
 
     if (bestRateQuote != null) {
+      if (bestRateQuote!.fiatCurrency != fiatCurrency) {
+        cryptoAmount = '';
+        return;
+      }
       _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
       cryptoAmount = _cryptoNumberFormat
           .format(enteredAmount / bestRateQuote!.rate)
           .toString()
           .replaceAll(RegExp('\\,'), '');
     } else {
-      if (bestRateQuote != null || fiatCurrency == bestRateQuote?.fiatCurrency) {
-        await calculateBestRate();
-      }
+      await calculateBestRate();
     }
   }
 
@@ -246,14 +249,16 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
 
     if (bestRateQuote != null) {
+      if (bestRateQuote!.cryptoCurrency != cryptoCurrency) {
+        fiatAmount = '';
+        return;
+      }
       fiatAmount = _cryptoNumberFormat
           .format(enteredAmount * bestRateQuote!.rate)
           .toString()
           .replaceAll(RegExp('\\,'), '');
     } else {
-      if (bestRateQuote != null || fiatCurrency == bestRateQuote?.fiatCurrency) {
-        await calculateBestRate();
-      }
+      await calculateBestRate();
     }
   }
 
@@ -433,7 +438,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return;
     }
 
-    final result = await Future.wait<List<Quote>?>(validProvidersNative.map((element) => element
+    final resultNative = await Future.wait<List<Quote>?>(validProvidersNative.map((element) => element
         .fetchQuote(
           cryptoCurrency: cryptoCurrency,
           fiatCurrency: fiatCurrency,
@@ -446,6 +451,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           Duration(seconds: 10),
           onTimeout: () => null,
         )));
+
     final resultSepa = await Future.wait<List<Quote>?>(validProvidersSepa.map((element) => element
         .fetchQuote(
           cryptoCurrency: cryptoCurrency,
@@ -463,7 +469,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     sortedRecommendedQuotes.clear();
     sortedQuotes.clear();
 
-    final validQuotesNative = result
+    final validQuotesNative = resultNative
         .where((element) => element != null && element.isNotEmpty)
         .expand((element) => element!)
         .toList();
@@ -489,6 +495,12 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       return true;
     }).toList();
 
+    final List<Quote> uniqueProviderQuotesSepa = validQuotesSepa.where((element) {
+      if (addedProviders.contains(element.provider.title)) return false;
+      addedProviders.add(element.provider.title);
+      return true;
+    }).toList();
+
 
     final List<Quote> successRateQuotes = [...validQuotesNative, ...validQuotesSepa].where((element) =>
     element.provider is OnRamperBuyProvider &&
@@ -498,7 +510,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     final List<Quote> uniqueProviderQuotes = [];
 
     for (final quote in successRateQuotes) {
-      if (!uniqueProviderQuotesNative.contains(quote)) {
+      if (![...uniqueProviderQuotesNative, ...uniqueProviderQuotesSepa].contains(quote)) {
         uniqueProviderQuotes.add(quote);
       }
     }
@@ -522,6 +534,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
       selectedQuote = sortedRecommendedQuotes.first;
       sortedRecommendedQuotes.first.setIsSelected = true;
+    } else if (sortedQuotes.isNotEmpty) {
+      sortedQuotes.first.setIsSelected = true;
+      bestRateQuote = sortedQuotes.first;
+      selectedQuote = sortedQuotes.first;
     }
 
     buySellQuotState = BuySellQuotLoaded();
