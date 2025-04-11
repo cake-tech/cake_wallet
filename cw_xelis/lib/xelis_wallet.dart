@@ -269,8 +269,6 @@ abstract class XelisWalletBase
     walletInfo.isRecovery = true;
     syncStatus = AttemptingSyncStatus();
     await _libWallet.rescan(topoheight: BigInt.from(pruneHeight > height ? pruneHeight : height));
-    await _updateTransactions(isRescan: true);
-    await updateBalance();
     await walletInfo.save();
     syncStatus = SyncedSyncStatus();
   }

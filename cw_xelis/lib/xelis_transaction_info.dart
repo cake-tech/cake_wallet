@@ -19,6 +19,21 @@ class XelisTxRecipient {
   });
 }
 
+class XelisTransfer {
+  final x_wallet.XelisAssetMetadata meta;
+  final int amount;
+
+  XelisTransfer({
+    required this.meta,
+    required this.amount
+  });
+
+  String format() {
+    final amountDouble = (BigInt.from(amount) / BigInt.from(10).pow(meta.decimals)).toString();
+    return '${formatAmount(amountDouble)} ${meta.ticker}';
+  }
+}
+
 class XelisTransactionInfo extends TransactionInfo {
   XelisTransactionInfo({
     required this.id,
@@ -64,7 +79,6 @@ class XelisTransactionInfo extends TransactionInfo {
     final amount = (assetAmounts[0] / BigInt.from(10).pow(decimals[0])).toString();
     return '${formatAmount(amount)} ${assetSymbols[0]}';
   }
-
 
   String multiFormatted() {
     final List<String> formattedAssets = [];
@@ -125,22 +139,35 @@ class XelisTransactionInfo extends TransactionInfo {
       case xelis_sdk.OutgoingEntry():
         direction = TransactionDirection.outgoing;
 
+        List<XelisTransfer> localTransfers = [];
+
         for (final transfer in txType.transfers) {
           final asset = transfer.asset;
           assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
 
           final meta = await wallet.getAssetMetadata(asset: asset);
+          localTransfers.add(
+            XelisTransfer(
+              meta: meta,
+              amount: transfer.amount
+            )
+          );
           assetDecimals[asset] = meta.decimals;
           assetSymbolsMap[asset] = meta.ticker;
         }
 
-        final allRecipients = txType.transfers
-            .map((t) => t.destination)
-            .where((address) => address.isNotEmpty)
-            .toSet()
-            .toList();
+        final formattedTransfers = txType.transfers
+          .asMap()
+          .entries
+          .map((entry) {
+            final index = entry.key;
+            final t = entry.value;
+            return "${t.destination} ( ${localTransfers[index].format()} )";
+          })
+          .where((transfer) => transfer.isNotEmpty)
+          .toList();
 
-        to = allRecipients.join('\n\n');
+        to = formattedTransfers.join('\n\n');
 
         fee = BigInt.from(txType.fee);
         break;
