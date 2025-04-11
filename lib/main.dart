@@ -30,6 +30,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/dev/file_explorer.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
@@ -63,6 +64,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await checkAndStartFileMonitoring();
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -85,6 +87,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         ledgerFile.writeAsStringSync("$content\n${event.message}");
       });
     }
+    
 
     runApp(App(key: topLevelKey));
     isAppRunning = true;
@@ -426,5 +429,17 @@ Future<void> backgroundSync() async {
     } else {
       printV("Not unmarking background sync");
     }
+  }
+}
+
+Future<void> checkAndStartFileMonitoring() async {
+  try {
+    final shouldMonitor = await FileExplorerViewModelBase.checkDevMonitorFileExists();
+    if (shouldMonitor) {
+      printV('Dev file monitoring enabled, starting file system watcher...');
+      await FileExplorerViewModelBase.startMonitoring();
+    }
+  } catch (e) {
+    printV('Failed to initialize file monitoring: $e');
   }
 }

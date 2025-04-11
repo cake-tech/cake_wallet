@@ -34,6 +34,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/src/screens/dev/file_explorer.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
@@ -1452,5 +1453,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => DevMoneroBackgroundSyncPage(getIt.get<DevMoneroBackgroundSync>()));
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
+  getIt.registerFactory(() => FileExplorerPage());
+
   _isSetupFinished = true;
 }
