@@ -403,6 +403,8 @@ class MoneroWalletService extends WalletService<
 
     monero.Wallet_setCacheAttribute(wptr!,
         key: "cakewallet.seed.bip39", value: mnemonic);
+    monero.Wallet_setCacheAttribute(wptr!,
+        key: "cakewallet.passphrase", value: passphrase ?? '');
 
     monero.Wallet_store(wptr!);
 
