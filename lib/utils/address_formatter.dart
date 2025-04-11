@@ -51,7 +51,7 @@ class AddressFormatter {
     if (isMWEB) {
       const mwebDisplayPrefix = 'ltcmweb';
       chunks.add(mwebDisplayPrefix);
-      final startIndex = 7;
+      final startIndex = mwebDisplayPrefix.length;
       for (int i = startIndex; i < address.length; i += chunkSize) {
         final chunk = address.substring(
           i,
