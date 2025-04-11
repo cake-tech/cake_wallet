@@ -152,7 +152,7 @@ class OpenCryptoPayService {
   String _getAmountByAsset(OpenCryptoPayRequest request, CryptoCurrency asset) {
     final method = _getMethod(asset);
     return request.methods[method]!
-        .firstWhere((e) => e.symbol == asset.title)
+        .firstWhere((e) => e.symbol.toUpperCase() == asset.title.toUpperCase())
         .amount;
   }
 
