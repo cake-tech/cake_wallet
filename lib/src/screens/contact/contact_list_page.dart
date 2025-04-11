@@ -500,13 +500,6 @@ class DialogService {
   }
 
   static Future<bool> showNameAndAddressDialog(BuildContext context,ContactBase contact) async {
-    final walletType = (() {
-      try {
-        return cryptoCurrencyToWalletType(contact.type);
-      } catch (_) {
-        return null;
-      }
-    })();
     return await showPopUp<bool>(
         context: context,
         builder: (BuildContext context) {
