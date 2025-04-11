@@ -509,7 +509,7 @@ class DialogService {
               alertContentTextWidget: AddressFormatter.buildSegmentedAddress(
                 address: contact.address,
                 textAlign: TextAlign.center,
-                walletType: walletType,
+                walletType: cryptoCurrencyToWalletType(contact.type),
                 evenTextStyle: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.normal,
