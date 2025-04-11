@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,14 +30,14 @@ class _EnterWallectConnectURIWrapperWidgetState extends State<EnterWalletConnect
 
   @override
   Widget build(BuildContext context) {
-    return _EnterWalletConnectURIWidget(
+    return EnterWalletConnectURIWidget(
       controller: controller,
     );
   }
 }
 
-class _EnterWalletConnectURIWidget extends BaseAlertDialog {
-  _EnterWalletConnectURIWidget({
+class EnterWalletConnectURIWidget extends BaseAlertDialog {
+  EnterWalletConnectURIWidget({
     required this.controller,
   });
 
@@ -57,18 +58,25 @@ class _EnterWalletConnectURIWidget extends BaseAlertDialog {
   @override
   Widget content(BuildContext context) {
     return Card(
+      color: Theme.of(context).dialogBackgroundColor,
+      elevation: 0.0,
       margin: EdgeInsets.zero,
       child: Column(
         children: [
           SizedBox(height: 8),
           Text(
             S.current.copyWalletConnectLink,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           SizedBox(height: 16),
           TextField(
             controller: controller,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+            ),
             decoration: InputDecoration(
               suffixIcon: Container(
                 width: 24,
@@ -79,14 +87,13 @@ class _EnterWalletConnectURIWidget extends BaseAlertDialog {
                   child: InkWell(
                     onTap: () => _pasteWalletConnectURI(),
                     child: Container(
-                      padding: EdgeInsets.all(8),
+                      padding: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(6)),
                       ),
                       child: Image.asset(
                         'assets/images/paste_ios.png',
-                        color:
-                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       ),
                     ),
                   ),
@@ -99,7 +106,7 @@ class _EnterWalletConnectURIWidget extends BaseAlertDialog {
                 ),
               ),
               hintStyle: TextStyle(
-                color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                 fontWeight: FontWeight.w500,
                 fontSize: 14,
               ),
