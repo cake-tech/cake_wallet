@@ -248,7 +248,7 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
   }
 }
 
-WalletType cryptoCurrencyToWalletType(CryptoCurrency type) {
+WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
   switch (type) {
     case CryptoCurrency.xmr:
       return WalletType.monero;
@@ -279,6 +279,6 @@ WalletType cryptoCurrencyToWalletType(CryptoCurrency type) {
     case CryptoCurrency.dcr:
       return WalletType.decred;
     default:
-      throw Exception('Unexpected token: $type for WalletType cryptoCurrencyToWalletType');
+      return null;
   }
 }
