@@ -6,6 +6,9 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:cake_wallet/utils/share_util.dart';
+import 'package:watcher/watcher.dart' as watcher;
+import 'package:cw_core/root_dir.dart';
 
 class FileExplorerPage extends BasePage {
   FileExplorerPage();
@@ -45,7 +48,7 @@ class FileExplorerPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: viewModel.viewMode == 0 
+                      color: viewModel.viewMode == ViewMode.fileExplorer 
                         ? Colors.white 
                         : Colors.transparent,
                       width: 2,
@@ -56,7 +59,7 @@ class FileExplorerPage extends BasePage {
                   'Files',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: viewModel.viewMode == 0 
+                    fontWeight: viewModel.viewMode == ViewMode.fileExplorer 
                       ? FontWeight.bold 
                       : FontWeight.normal,
                   ),
@@ -73,7 +76,7 @@ class FileExplorerPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: viewModel.viewMode == 1 
+                      color: viewModel.viewMode == ViewMode.snapshots 
                         ? Colors.white 
                         : Colors.transparent,
                       width: 2,
@@ -84,7 +87,35 @@ class FileExplorerPage extends BasePage {
                   'Snapshots',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: viewModel.viewMode == 1 
+                    fontWeight: viewModel.viewMode == ViewMode.snapshots 
+                      ? FontWeight.bold 
+                      : FontWeight.normal,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () => viewModel.switchToFileMonitor(),
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: viewModel.viewMode == ViewMode.fileMonitor 
+                        ? Colors.white 
+                        : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  'Monitor',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: viewModel.viewMode == ViewMode.fileMonitor 
                       ? FontWeight.bold 
                       : FontWeight.normal,
                   ),
@@ -109,6 +140,8 @@ class FileExplorerPage extends BasePage {
         return _buildSnapshotComparison(context);
       case ViewMode.detailedComparison:
         return _buildDetailedComparison(context);
+      case ViewMode.fileMonitor:
+        return _buildFileMonitor(context);
     }
   }
 
@@ -177,7 +210,7 @@ class FileExplorerPage extends BasePage {
           final file = files[fileIndex];
           final fileName = p.basename(file.path);
           final fileSize = _getFileSize(file);
-          
+
           return ListTile(
             leading: Icon(Icons.insert_drive_file, color: Colors.blue),
             title: Text(fileName),
@@ -185,9 +218,172 @@ class FileExplorerPage extends BasePage {
             onTap: () {
               viewModel.selectFile(file as File);
             },
+            onLongPress: () => _showFileOptions(context, file as File),
           );
         }
       },
+    );
+  }
+
+  Future<void> _showFileOptions(BuildContext context, File file) async {
+    final fileName = file.path;
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.edit),
+              title: Text('Rename/Move'),
+              onTap: () {
+                Navigator.pop(context);
+                _showRenameDialog(context, file);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.copy),
+              title: Text('Copy'),
+              onTap: () {
+                Navigator.pop(context);
+                _showCopyDialog(context, file);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.share),
+              title: Text('Share'),
+              onTap: () {
+                Navigator.pop(context);
+                ShareUtil.shareFile(
+                  filePath: file.path,
+                  fileName: fileName,
+                  context: context,
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete, color: Colors.red),
+              title: Text('Delete', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation(context, file);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showRenameDialog(BuildContext context, File file) async {
+    final fileName = file.path;
+    final controller = TextEditingController(text: fileName);
+    
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Rename/Move File'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: 'New name/path',
+            hintText: 'Enter new name or path',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newPath = controller.text.trim();
+              if (newPath.isNotEmpty) {
+                final success = await viewModel.renameFile(file.path, newPath);
+                Navigator.pop(context);
+                if (!success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to rename/move file')),
+                  );
+                }
+              }
+            },
+            child: Text('Rename'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showCopyDialog(BuildContext context, File file) async {
+    final fileName = file.path;
+    final controller = TextEditingController(text: fileName);
+    
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Copy File'),
+        content: TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            labelText: 'Destination name/path',
+            hintText: 'Enter destination name or path',
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newPath = controller.text.trim();
+              if (newPath.isNotEmpty) {
+                final success = await viewModel.copyFile(file.path, newPath);
+                Navigator.pop(context);
+                if (!success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to copy file')),
+                  );
+                }
+              }
+            },
+            child: Text('Copy'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showDeleteConfirmation(BuildContext context, File file) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete File'),
+        content: Text('Are you sure you want to delete "${p.basename(file.path)}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () async {
+              final success = await viewModel.deleteFile(file.path);
+              Navigator.pop(context);
+              if (!success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to delete file')),
+                );
+              }
+            },
+            child: Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -674,6 +870,170 @@ class FileExplorerPage extends BasePage {
       return _formatFileSize(fileSizeInBytes);
     } catch (e) {
       return 'Error getting size';
+    }
+  }
+
+  Widget _buildFileMonitor(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Monitoring file system events',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Switch(
+                value: FileExplorerViewModelBase.isMonitoringActive,
+                onChanged: (value) {
+                  if (value) {
+                    FileExplorerViewModelBase.startMonitoring();
+                  } else {
+                    FileExplorerViewModelBase.stopMonitoring();
+                  }
+                },
+              ),
+              SizedBox(width: 8),
+              IconButton(
+                icon: Icon(Icons.delete_sweep),
+                onPressed: () => viewModel.clearEvents(),
+                tooltip: 'Clear events',
+              ),
+              IconButton(
+                icon: Icon(Icons.restart_alt),
+                onPressed: () => _toggleDevMonitorFile(context),
+                tooltip: 'Toggle monitoring on app start',
+              ),
+            ],
+          ),
+        ),
+        Divider(),
+        FutureBuilder<bool>(
+          future: FileExplorerViewModelBase.checkDevMonitorFileExists(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SizedBox.shrink();
+            }
+            
+            final devFileExists = snapshot.data ?? false;
+            
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  Icon(
+                    devFileExists ? Icons.check_circle : Icons.cancel,
+                    color: devFileExists ? Colors.green : Colors.red,
+                    size: 16,
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      devFileExists 
+                        ? 'Monitor file exists - will start on app launch' 
+                        : 'Monitor file does not exist - will not start on app launch',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        Divider(),
+        Expanded(
+          child: Observer(
+            builder: (_) {
+              final events = FileExplorerViewModelBase.fileEvents;
+              
+              if (events.isEmpty) {
+                return Center(
+                  child: Text('No events recorded yet. Toggle monitoring to start.'),
+                );
+              }
+              
+              return ListView.builder(
+                itemCount: events.length,
+                itemBuilder: (context, index) {
+                  final event = events[events.length - 1 - index]; // Show newest first
+                  final icon = _getFileEventIcon(event.event.type);
+                  final color = _getFileEventColor(event.event.type);
+                  final formattedTime = DateFormat('HH:mm:ss.SSS').format(event.timestamp);
+                  
+                  return ListTile(
+                    leading: Icon(icon, color: color),
+                    title: Text(
+                      event.relativePath,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${event.event.type.toString().split('.').last} at $formattedTime',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    trailing: Text(
+                      event.event.type.toString().split('.').last,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    dense: true,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+  
+  IconData _getFileEventIcon(watcher.ChangeType type) {
+    switch (type) {
+      case watcher.ChangeType.ADD:
+        return Icons.add_circle;
+      case watcher.ChangeType.REMOVE:
+        return Icons.remove_circle;
+      case watcher.ChangeType.MODIFY:
+        return Icons.edit;
+      default:
+        return Icons.help_outline;
+    }
+  }
+  
+  Color _getFileEventColor(watcher.ChangeType type) {
+    switch (type) {
+      case watcher.ChangeType.ADD:
+        return Colors.green;
+      case watcher.ChangeType.REMOVE:
+        return Colors.red;
+      case watcher.ChangeType.MODIFY:
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Future<void> _toggleDevMonitorFile(BuildContext context) async {
+    final appDir = await getAppDir();
+    final devMonitorFile = File('${appDir.path}/.dev-monitor-fs');
+    
+    if (await devMonitorFile.exists()) {
+      await devMonitorFile.delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('File monitoring disabled. App restart required.')),
+      );
+    } else {
+      await devMonitorFile.create();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('File monitoring enabled. App restart required.')),
+      );
     }
   }
 }

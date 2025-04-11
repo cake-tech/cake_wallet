@@ -7,6 +7,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:path/path.dart' as p;
+import 'package:watcher/watcher.dart';
 
 part 'file_explorer.g.dart';
 
@@ -45,12 +46,26 @@ class FileChange {
 
 enum ChangeType { added, removed, modified, touched }
 
-enum ViewMode { fileExplorer, snapshots, hexdump, comparison, detailedComparison }
+enum ViewMode { fileExplorer, snapshots, hexdump, comparison, detailedComparison, fileMonitor }
+
+class FileEvent {
+  final DateTime timestamp;
+  final WatchEvent event;
+  final String relativePath;
+
+  FileEvent({required this.timestamp, required this.event, required this.relativePath});
+}
 
 abstract class FileExplorerViewModelBase with Store {
   FileExplorerViewModelBase() {
     unawaited(_initialize());
   }
+
+  static ObservableList<FileEvent> fileEvents = ObservableList<FileEvent>();
+  
+  static DirectoryWatcher? _watcher;
+  
+  static bool isMonitoringActive = false;
 
   @observable
   String? path;
@@ -169,6 +184,11 @@ abstract class FileExplorerViewModelBase with Store {
   void switchToDetailedComparison(FileChange fileChange) {
     selectedFileChange = fileChange;
     viewMode = ViewMode.detailedComparison;
+  }
+
+  @action
+  void switchToFileMonitor() {
+    viewMode = ViewMode.fileMonitor;
   }
 
   Future<String> getHexDump(File file, {int? maxBytes}) async {
@@ -477,8 +497,9 @@ abstract class FileExplorerViewModelBase with Store {
             continue;
           }
           
-          if (jsonData.containsKey('files') || 
-              !jsonData.containsKey('name') || !jsonData.containsKey('timestamp')) {
+          if (!jsonData.containsKey('files') || 
+              !jsonData.containsKey('name') || 
+              !jsonData.containsKey('timestamp')) {
             corruptedFiles.add(file.path);
             printV('Invalid snapshot format in ${file.path}');
             continue;
@@ -848,5 +869,99 @@ abstract class FileExplorerViewModelBase with Store {
     }
     
     return true;
+  }
+
+  @action
+  Future<bool> renameFile(String oldPath, String newPath) async {
+    try {
+      final oldFile = File(oldPath);
+      final newFile = File(newPath);
+      printV('Renaming file: $oldPath to $newPath');
+      if (await newFile.exists()) {
+        return false;
+      }
+      
+      await oldFile.rename(newFile.path);
+      printV('Renamed file: $oldPath to $newPath');
+      return true;
+    } catch (e) {
+      printV('Error renaming file: $e');
+      return false;
+    }
+  }
+
+  @action
+  Future<bool> deleteFile(String path) async {
+    try {
+      final file = File(path);
+      await file.delete();
+      return true;
+    } catch (e) {
+      printV('Error deleting file: $e');
+      return false;
+    }
+  }
+
+  @action
+  Future<bool> copyFile(String sourcePath, String destinationPath) async {
+    try {
+      final sourceFile = File(sourcePath);
+      final destinationFile = File(destinationPath);
+      
+      if (await destinationFile.exists()) {
+        return false;
+      }
+      
+      await sourceFile.copy(destinationFile.path);
+      return true;
+    } catch (e) {
+      printV('Error copying file: $e');
+      return false;
+    }
+  }
+
+  static Future<void> startMonitoring() async {
+    if (_watcher != null) {
+      return;
+    }
+    
+    isMonitoringActive = true;
+    final appDir = await getAppDir();
+    if (Platform.isAndroid) {
+      _watcher = DirectoryWatcher(appDir.parent.path); // get rid of weird app_flutter directory
+    } else {
+      _watcher = DirectoryWatcher(appDir.path);
+    }
+    
+    _watcher!.events.listen((event) {
+      if (event.path.contains('flutter_engine')) {
+        return;
+      }
+      final relativePath = event.path.replaceFirst(appDir.path, '~');
+      fileEvents.add(FileEvent(
+        timestamp: DateTime.now(),
+        event: event,
+        relativePath: relativePath,
+      ));
+    });
+  }
+
+  static void stopMonitoring() {
+    if (_watcher != null) {
+      _watcher!.events.drain();
+      _watcher = null;
+      isMonitoringActive = false;
+    }
+  }
+
+  @action
+  void clearEvents() {
+    fileEvents.clear();
+  }
+
+  static Future<bool> checkDevMonitorFileExists() async {
+    final appDir = await getAppDir();
+    final devMonitorFile = File('${appDir.path}/.dev-monitor-fs');
+    return devMonitorFile.exists();
   }
 }
