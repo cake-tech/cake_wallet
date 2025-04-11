@@ -38,13 +38,30 @@ class AddressFormatter {
     TextAlign? textAlign,
   }) {
 
+    final isMWEB = walletType == WalletType.litecoin && address.startsWith('ltcmweb');
     final cleanAddress = address.replaceAll('bitcoincash:', '');
     final chunkSize = _getChunkSize(walletType);
     final chunks = <String>[];
 
-    for (int i = 0; i < cleanAddress.length; i += chunkSize) {
-      final chunk = cleanAddress.substring(i, math.min(i + chunkSize, cleanAddress.length));
-      chunks.add(chunk);
+    if (isMWEB) {
+      const mwebDisplayPrefix = 'ltcmweb';
+      chunks.add(mwebDisplayPrefix);
+      final startIndex = 7;
+      for (int i = startIndex; i < cleanAddress.length; i += chunkSize) {
+        final chunk = cleanAddress.substring(
+          i,
+          math.min(i + chunkSize, cleanAddress.length),
+        );
+        chunks.add(chunk);
+      }
+    } else {
+      for (int i = 0; i < cleanAddress.length; i += chunkSize) {
+        final chunk = cleanAddress.substring(
+          i,
+          math.min(i + chunkSize, cleanAddress.length),
+        );
+        chunks.add(chunk);
+      }
     }
 
     final spans = <TextSpan>[];
@@ -69,39 +86,62 @@ class AddressFormatter {
   }) {
 
     final cleanAddress = address.replaceAll('bitcoincash:', '');
+    final isMWEB = walletType == WalletType.litecoin && address.startsWith('ltcmweb');
 
-    final int digitCount = (walletType == WalletType.monero ||
-        walletType == WalletType.wownero ||
-        walletType == WalletType.zano)
-        ? 6
-        : 4;
+    if (isMWEB) {
+      const fixedPrefix = 'ltcmweb';
+      final secondChunkStart = 7;
+      const chunkSize = 4;
+      final secondChunk = cleanAddress.substring(
+        secondChunkStart,
+        math.min(secondChunkStart + chunkSize, cleanAddress.length),
+      );
+      final lastChunk = cleanAddress.substring(cleanAddress.length - chunkSize);
 
-    if (cleanAddress.length <= 2 * digitCount) {
-      return _buildFullSegmentedAddress(
-        address: cleanAddress,
-        walletType: walletType,
-        evenTextStyle: evenTextStyle,
-        oddTextStyle: oddTextStyle,
-        textAlign: textAlign,
+      final spans = <TextSpan>[
+        TextSpan(text: '$fixedPrefix ', style: evenTextStyle),
+        TextSpan(text: '$secondChunk ', style: oddTextStyle),
+        TextSpan(text: '... ', style: oddTextStyle),
+        TextSpan(text: lastChunk, style: evenTextStyle),
+      ];
+
+      return RichText(
+        text: TextSpan(children: spans),
+        textAlign: textAlign ?? TextAlign.start,
+        overflow: TextOverflow.visible,
+      );
+    } else {
+      final int digitCount = _getChunkSize(walletType);
+
+      if (cleanAddress.length <= 2 * digitCount) {
+        return _buildFullSegmentedAddress(
+          address: cleanAddress,
+          walletType: walletType,
+          evenTextStyle: evenTextStyle,
+          oddTextStyle: oddTextStyle,
+          textAlign: textAlign,
+        );
+      }
+
+      final String firstPart = cleanAddress.substring(0, digitCount);
+      final String secondPart =
+      cleanAddress.substring(digitCount, digitCount * 2);
+      final String lastPart =
+      cleanAddress.substring(cleanAddress.length - digitCount);
+
+      final spans = <TextSpan>[
+        TextSpan(text: '$firstPart ', style: evenTextStyle),
+        TextSpan(text: '$secondPart ', style: oddTextStyle),
+        TextSpan(text: '... ', style: oddTextStyle),
+        TextSpan(text: lastPart, style: evenTextStyle),
+      ];
+
+      return RichText(
+        text: TextSpan(children: spans),
+        textAlign: textAlign ?? TextAlign.start,
+        overflow: TextOverflow.visible,
       );
     }
-
-    final String firstPart = cleanAddress.substring(0, digitCount);
-    final String secondPart = cleanAddress.substring(digitCount, digitCount * 2);
-    final String lastPart = cleanAddress.substring(cleanAddress.length - digitCount);
-
-    final spans = <TextSpan>[
-      TextSpan(text: '$firstPart ', style: evenTextStyle),
-      TextSpan(text: '$secondPart ', style: oddTextStyle),
-      TextSpan(text: '... ', style: oddTextStyle),
-      TextSpan(text: lastPart, style: evenTextStyle),
-    ];
-
-    return RichText(
-      text: TextSpan(children: spans),
-      textAlign: textAlign ?? TextAlign.start,
-      overflow: TextOverflow.visible,
-    );
   }
 
   static int _getChunkSize(WalletType walletType) {
