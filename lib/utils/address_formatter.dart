@@ -13,7 +13,7 @@ class AddressFormatter {
   }) {
 
     final cleanAddress = address.replaceAll('bitcoincash:', '');
-    final isMWEB = walletType == WalletType.litecoin && address.startsWith('ltcmweb');
+    final isMWEB = address.startsWith('ltcmweb');
     final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;
 
     if (shouldTruncate) {
