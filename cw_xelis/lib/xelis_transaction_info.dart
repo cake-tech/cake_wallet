@@ -147,14 +147,25 @@ class XelisTransactionInfo extends TransactionInfo {
 
       case xelis_sdk.BurnEntry():
         direction = TransactionDirection.outgoing;
-        amount = BigInt.from(txType.amount);
+        final asset = txType.asset;
+        final meta = await wallet.getAssetMetadata(asset: asset);
+
+        assetAmounts[asset] = BigInt.from(txType.amount);
+        assetDecimals[asset] = meta.decimals;
+        assetSymbolsMap[asset] = meta.ticker;
+
+        to = "Burned";
+
         fee = BigInt.from(txType.fee);
-        asset = txType.asset;
         break;
 
       case xelis_sdk.CoinbaseEntry():
         direction = TransactionDirection.incoming;
-        amount = BigInt.from(txType.reward);
+        final meta = await wallet.getAssetMetadata(asset: xelis_sdk.xelisAsset);
+
+        assetAmounts[xelis_sdk.xelisAsset] = BigInt.from(txType.reward);
+        assetDecimals[xelis_sdk.xelisAsset] = meta.decimals;
+        assetSymbolsMap[xelis_sdk.xelisAsset] = meta.ticker;
         break;
 
       default:

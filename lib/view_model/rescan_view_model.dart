@@ -39,8 +39,12 @@ abstract class RescanViewModelBase with Store {
   Future<void> rescanCurrentWallet({required int restoreHeight}) async {
     state = RescanWalletState.rescaning;
     if (wallet.type != WalletType.bitcoin) {
-      wallet.rescan(height: restoreHeight);
-      wallet.transactionHistory.clear();
+      if (wallet.type == WalletType.xelis) {
+        await wallet.rescan(height: restoreHeight);
+      } else {
+        wallet.rescan(height: restoreHeight);
+        wallet.transactionHistory.clear();
+      }
     } else {
       bitcoin!.rescan(wallet, height: restoreHeight, doSingleScan: doSingleScan);
     }

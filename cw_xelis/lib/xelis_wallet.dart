@@ -96,7 +96,7 @@ abstract class XelisWalletBase
   bool requestedClose = false;
   String persistantPeer = "";
   Timer? syncTimer;
-  int pruningHeight = 0;
+  int pruneHeight = 0;
   String _seed = "";
   Network network;
 
@@ -150,7 +150,7 @@ abstract class XelisWalletBase
   }
 
   Stream<Event> _convertRawEvents() async* {
-    final stream =_libWallet.eventsStream();
+    final stream = _libWallet.eventsStream();
 
     await for (final raw in stream) {
       try {
@@ -225,6 +225,7 @@ abstract class XelisWalletBase
     try {
       if (!(await _libWallet.isOnline())) { return; }
       syncStatus = AttemptingSyncStatus();
+      await _fetchPruneHeight();
       await updateBalance();
       await _updateTransactions();
       syncStatus = SyncedSyncStatus();
@@ -266,10 +267,12 @@ abstract class XelisWalletBase
   Future<void> rescan({required int height}) async {
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
-    _libWallet.rescan(topoheight: BigInt.from(pruningHeight));
-    await startSync();
+    syncStatus = AttemptingSyncStatus();
+    await _libWallet.rescan(topoheight: BigInt.from(pruneHeight > height ? pruneHeight : height));
     await _updateTransactions(isRescan: true);
+    await updateBalance();
     await walletInfo.save();
+    syncStatus = SyncedSyncStatus();
   }
 
   Future<void> _handleEvent(Event event) async {
@@ -336,6 +339,14 @@ abstract class XelisWalletBase
         await addAsset(newAsset);
         break;
     }
+  }
+
+  Future<void> _fetchPruneHeight() async {
+    final infoString = await _libWallet.getDaemonInfo();
+    final Map<String, dynamic> nodeInfo =
+        (json.decode(infoString) as Map).cast();
+
+    pruneHeight = int.tryParse(nodeInfo['pruned_topoheight']?.toString() ?? '0') ?? 0;
   }
 
   @action

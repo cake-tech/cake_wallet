@@ -123,7 +123,7 @@
   "change": "Change",
   "change_backup_password_alert": "Your previous backup files will be not available to import with new backup password. New backup password will be used only for new backup files. Are you sure that you want to change backup password?",
   "change_currency": "Change Currency",
-  "change_current_node": "Are you sure to change current node to ${node}?",
+  "change_current_node": "Are you sure you want to change the current node to ${node}?",
   "change_current_node_title": "Change current node",
   "change_exchange_provider": "Change Swap Provider",
   "change_language": "Change language",

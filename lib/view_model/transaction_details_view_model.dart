@@ -575,6 +575,11 @@ abstract class TransactionDetailsViewModelBase with Store {
         value: dateFormat.format(tx.date),
         key: ValueKey('standard_list_item_transaction_details_date_key'),
       ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
       if (!tx.amountFormatted().startsWith(":MULTI:")) 
         StandartListItem(
           title: S.current.transaction_details_amount,
