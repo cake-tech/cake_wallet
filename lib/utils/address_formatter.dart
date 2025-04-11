@@ -5,24 +5,31 @@ import 'dart:math' as math;
 class AddressFormatter {
   static Widget buildSegmentedAddress({
     required String address,
-    required WalletType walletType,
+    WalletType? walletType,
     required TextStyle evenTextStyle,
     TextStyle? oddTextStyle,
     TextAlign? textAlign,
     bool shouldTruncate = false,
   }) {
+
+    final cleanAddress = address.replaceAll('bitcoincash:', '');
+    final isMWEB = walletType == WalletType.litecoin && address.startsWith('ltcmweb');
+    final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;
+
     if (shouldTruncate) {
       return _buildTruncatedAddress(
-        address: address,
-        walletType: walletType,
+        address: cleanAddress,
+        isMWEB: isMWEB,
+        chunkSize: chunkSize,
         evenTextStyle: evenTextStyle,
         oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(150)),
         textAlign: textAlign,
       );
     } else {
       return _buildFullSegmentedAddress(
-        address: address,
-        walletType: walletType,
+        address: cleanAddress,
+        isMWEB: isMWEB,
+        chunkSize: chunkSize,
         evenTextStyle: evenTextStyle,
         oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(128)),
         textAlign: textAlign,
@@ -32,33 +39,31 @@ class AddressFormatter {
 
   static Widget _buildFullSegmentedAddress({
     required String address,
-    required WalletType walletType,
+    required bool isMWEB,
+    required int chunkSize,
     required TextStyle evenTextStyle,
     required TextStyle oddTextStyle,
     TextAlign? textAlign,
   }) {
 
-    final isMWEB = walletType == WalletType.litecoin && address.startsWith('ltcmweb');
-    final cleanAddress = address.replaceAll('bitcoincash:', '');
-    final chunkSize = _getChunkSize(walletType);
     final chunks = <String>[];
 
     if (isMWEB) {
       const mwebDisplayPrefix = 'ltcmweb';
       chunks.add(mwebDisplayPrefix);
       final startIndex = 7;
-      for (int i = startIndex; i < cleanAddress.length; i += chunkSize) {
-        final chunk = cleanAddress.substring(
+      for (int i = startIndex; i < address.length; i += chunkSize) {
+        final chunk = address.substring(
           i,
-          math.min(i + chunkSize, cleanAddress.length),
+          math.min(i + chunkSize, address.length),
         );
         chunks.add(chunk);
       }
     } else {
-      for (int i = 0; i < cleanAddress.length; i += chunkSize) {
-        final chunk = cleanAddress.substring(
+      for (int i = 0; i < address.length; i += chunkSize) {
+        final chunk = address.substring(
           i,
-          math.min(i + chunkSize, cleanAddress.length),
+          math.min(i + chunkSize, address.length),
         );
         chunks.add(chunk);
       }
@@ -79,24 +84,22 @@ class AddressFormatter {
 
   static Widget _buildTruncatedAddress({
     required String address,
-    required WalletType walletType,
+    required bool isMWEB,
+    required int chunkSize,
     required TextStyle evenTextStyle,
     required TextStyle oddTextStyle,
     TextAlign? textAlign,
   }) {
 
-    final cleanAddress = address.replaceAll('bitcoincash:', '');
-    final isMWEB = walletType == WalletType.litecoin && address.startsWith('ltcmweb');
-
     if (isMWEB) {
       const fixedPrefix = 'ltcmweb';
       final secondChunkStart = 7;
       const chunkSize = 4;
-      final secondChunk = cleanAddress.substring(
+      final secondChunk = address.substring(
         secondChunkStart,
-        math.min(secondChunkStart + chunkSize, cleanAddress.length),
+        math.min(secondChunkStart + chunkSize, address.length),
       );
-      final lastChunk = cleanAddress.substring(cleanAddress.length - chunkSize);
+      final lastChunk = address.substring(address.length - chunkSize);
 
       final spans = <TextSpan>[
         TextSpan(text: '$fixedPrefix ', style: evenTextStyle),
@@ -111,23 +114,24 @@ class AddressFormatter {
         overflow: TextOverflow.visible,
       );
     } else {
-      final int digitCount = _getChunkSize(walletType);
+      final int digitCount = chunkSize;
 
-      if (cleanAddress.length <= 2 * digitCount) {
+      if (address.length <= 2 * digitCount) {
         return _buildFullSegmentedAddress(
-          address: cleanAddress,
-          walletType: walletType,
+          address: address,
+          isMWEB: isMWEB,
+          chunkSize: chunkSize,
           evenTextStyle: evenTextStyle,
           oddTextStyle: oddTextStyle,
           textAlign: textAlign,
         );
       }
 
-      final String firstPart = cleanAddress.substring(0, digitCount);
+      final String firstPart = address.substring(0, digitCount);
       final String secondPart =
-      cleanAddress.substring(digitCount, digitCount * 2);
+      address.substring(digitCount, digitCount * 2);
       final String lastPart =
-      cleanAddress.substring(cleanAddress.length - digitCount);
+      address.substring(address.length - digitCount);
 
       final spans = <TextSpan>[
         TextSpan(text: '$firstPart ', style: evenTextStyle),
