@@ -682,7 +682,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       );
     }
 
-    if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty) {
+    if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty && wallet.type != WalletType.xelis) {
       final outputAddresses = transactionInfo.outputAddresses!.map((element) {
         if (element.contains('OP_RETURN:') && element.length > 40) {
           return element.substring(0, 40) + '...';

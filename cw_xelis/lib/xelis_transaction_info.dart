@@ -162,7 +162,10 @@ class XelisTransactionInfo extends TransactionInfo {
           .map((entry) {
             final index = entry.key;
             final t = entry.value;
-            return "${t.destination} ( ${localTransfers[index].format()} )";
+            if (txType.transfers.length > 1) {
+              return "${t.destination} ( ${localTransfers[index].format()} )";
+            }
+            return "${t.destination}";
           })
           .where((transfer) => transfer.isNotEmpty)
           .toList();

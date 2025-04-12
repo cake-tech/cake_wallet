@@ -103,7 +103,7 @@ abstract class XelisWalletBase
   late final Box<XelisAsset> xelAssetsBox;
 
   @observable
-  double? estimatedFee;
+  double? estimatedFee = 0.00025;
 
   @override
   late ObservableMap<CryptoCurrency, XelisAssetBalance> balance;
@@ -159,7 +159,7 @@ abstract class XelisWalletBase
 
         switch (event) {
           case xelis_sdk.WalletEvent.newTransaction:
-            yield NewTransaction(xelis_sdk.TransactionEntry.fromJson(data['data']));
+            yield NewTransaction(xelis_sdk.TransactionEntry.fromJson(data['data']) as xelis_sdk.TransactionEntry);
           case xelis_sdk.WalletEvent.balanceChanged:
             yield BalanceChanged(data['data']['asset'] as String, data['data']['balance'] as int);
           case xelis_sdk.WalletEvent.newTopoHeight:
