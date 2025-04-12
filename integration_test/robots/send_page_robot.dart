@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
+import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -24,6 +25,7 @@ class SendPageRobot {
 
   Future<void> isSendPage() async {
     await commonTestCases.isSpecificPage<SendPage>();
+    await commonTestCases.takeScreenshots('send_page');
   }
 
   void hasTitle() {
@@ -127,6 +129,21 @@ class SendPageRobot {
   Future<void> onSendButtonPressed() async {
     tester.printToConsole('Pressing send');
 
+    await tester.pumpAndSettle();
+    final sendPage = tester.widget<SendPage>(find.byType(SendPage));
+
+    while (true) {
+      bool isReadyForSend = sendPage.sendViewModel.isReadyForSend;
+      await tester.pump();
+      if (isReadyForSend) {
+        tester.printToConsole('Is ready for send');
+        break;
+      } else {
+        await commonTestCases.defaultSleepTime();
+        await tester.pumpAndSettle();
+        tester.printToConsole('not yet ready for send');
+      }
+    }
     await commonTestCases.tapItemByKey(
       'send_page_send_button_key',
       shouldPumpAndSettle: false,
@@ -148,6 +165,8 @@ class SendPageRobot {
       tester.printToConsole('Before _handleAuth');
 
       await _handleAuthPage();
+
+      await commonTestCases.defaultSleepTime();
 
       tester.printToConsole('After _handleAuth');
 
@@ -183,15 +202,39 @@ class SendPageRobot {
   }
 
   Future<void> _handleAuthPage() async {
-    final onAuthPage = authPageRobot.onAuthPage();
-    if (onAuthPage) {
-      await authPageRobot.enterPinCode(CommonTestConstants.pin);
-    }
+    tester.printToConsole('Inside _handleAuth');
 
     final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
     if (onAuthPageDesktop) {
       await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+      return;
     }
+
+    await tester.pump();
+    tester.printToConsole('starting auth checks');
+
+    final authPage = authPageRobot.onAuthPage();
+
+    tester.printToConsole('hasAuth:$authPage');
+
+    if (authPage) {
+      await tester.pump();
+      tester.printToConsole('Starting inner _handleAuth loop checks');
+
+      try {
+        await authPageRobot.enterPinCode(CommonTestConstants.pin, pumpDuration: 500);
+        tester.printToConsole('Auth done');
+
+        await tester.pump(Duration(seconds: 3));
+
+        tester.printToConsole('Auth pump done');
+      } catch (e) {
+        tester.printToConsole('Auth failed, retrying');
+        await tester.pump();
+        _handleAuthPage();
+      }
+    }
+    await tester.pump();
   }
 
   Future<void> handleSendResult() async {
@@ -256,27 +299,37 @@ class SendPageRobot {
   }
 
   //* ------ On Sending Success ------------
-  Future<void> onSendButtonOnConfirmSendingDialogPressed() async {
-    tester.printToConsole('Inside confirm sending dialog: For sending');
+  Future<void> onSendSliderOnConfirmSendingBottomSheetDragged() async {
     await commonTestCases.defaultSleepTime();
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    final sendText = find.text(S.current.send).last;
-    bool hasText = sendText.tryEvaluate();
-    tester.printToConsole('Has Text: $hasText');
+    if (commonTestCases.isKeyPresent('send_page_confirm_sending_bottom_sheet_key')) {
+      final state = tester.state<StandardSlideButtonState>(find.byType(StandardSlideButton));
+      final double effectiveMaxWidth = state.effectiveMaxWidth;
+      final double sliderWidth = state.sliderWidth;
+      final double threshold = effectiveMaxWidth - sliderWidth - 10;
 
-    if (hasText) {
-      await commonTestCases.tapItemByFinder(sendText, shouldPumpAndSettle: false);
+      final sliderFinder =
+          find.byKey(const ValueKey('standard_slide_button_widget_slider_container_key'));
+      expect(sliderFinder, findsOneWidget);
+
+      // Using the center of the container as the drag start.
+      final Offset dragStart = tester.getCenter(sliderFinder);
+
+      // Dragging by an offset sufficient to exceed the threshold.
+      await tester.dragFrom(dragStart, Offset(threshold + 20, 0));
+      await tester.pumpAndSettle();
+
+      tester.printToConsole('Final slider dragPosition: ${state.dragPosition}');
+
       // Loop to wait for the operation to commit transaction
       await _waitForCommitTransactionCompletion();
-
-      await tester.pump();
 
       await commonTestCases.defaultSleepTime(seconds: 4);
     } else {
       await commonTestCases.defaultSleepTime();
       await tester.pump();
-      onSendButtonOnConfirmSendingDialogPressed();
+      await onSendSliderOnConfirmSendingBottomSheetDragged();
     }
   }
 
@@ -313,39 +366,27 @@ class SendPageRobot {
     tester.printToConsole('Done Committing Transaction');
   }
 
-  Future<void> onCancelButtonOnConfirmSendingDialogPressed() async {
-    tester.printToConsole('Inside confirm sending dialog: For canceling');
-    await commonTestCases.defaultSleepTime(seconds: 4);
-
-    final cancelText = find.text(S.current.cancel);
-    bool hasText = cancelText.tryEvaluate();
-
-    if (hasText) {
-      await commonTestCases.tapItemByFinder(cancelText);
-
-      await commonTestCases.defaultSleepTime(seconds: 4);
-    }
-  }
-
-  //* ---- Add Contact Dialog On Send Successful Dialog -----
-  Future<void> onSentDialogPopUp() async {
+  //* ---- Add Contact BottomSheet On Send Success -----
+  Future<void> onAddContactBottomSheetPopUp() async {
     SendPage sendPage = tester.widget(find.byType(SendPage));
     final sendViewModel = sendPage.sendViewModel;
 
-    final newContactAddress = sendPage.newContactAddress ?? sendViewModel.newContactAddress();
-    if (newContactAddress != null) {
-      await _onAddContactButtonOnSentDialogPressed();
+    bool showContactSheet =
+        (sendPage.newContactAddress != null && sendViewModel.showAddressBookPopup);
+
+    if (showContactSheet) {
+      await _onYesButtonOnAddContactBottomSheetPressed();
     }
 
     await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> _onAddContactButtonOnSentDialogPressed() async {
-    await commonTestCases.tapItemByKey('send_page_sent_dialog_add_contact_button_key');
+  Future<void> _onYesButtonOnAddContactBottomSheetPressed() async {
+    await commonTestCases.tapItemByKey('send_page_add_contact_bottom_sheet_yes_button_key');
   }
 
   // ignore: unused_element
-  Future<void> _onIgnoreButtonOnSentDialogPressed() async {
-    await commonTestCases.tapItemByKey('send_page_sent_dialog_ignore_button_key');
+  Future<void> _onNoButtonOnAddContactBottomSheetPressed() async {
+    await commonTestCases.tapItemByKey('send_page_add_contact_bottom_sheet_no_button_key');
   }
 }
