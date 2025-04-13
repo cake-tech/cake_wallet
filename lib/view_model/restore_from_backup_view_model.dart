@@ -49,7 +49,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
         if (e.toString().contains("unknown_backup_version")) {
           state = FailureState('This is not a valid backup file, please make sure you selected the correct backup file');
         } else {
-          state = FailureState('Failed to restore backup, please try again');
+          state = FailureState(e.toString());
           ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s, silent: true));
         }
       }
