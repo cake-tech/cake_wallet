@@ -36,8 +36,10 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/wallet_sync_exporter_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
+import 'package:cake_wallet/view_model/dev/wallet_sync_exporter.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
@@ -1452,5 +1454,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => DevMoneroBackgroundSyncPage(getIt.get<DevMoneroBackgroundSync>()));
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
+  getIt.registerFactory(() => WalletSyncExporterPage(getIt.get<WalletSyncExporter>()));
+  getIt.registerFactory(() => WalletSyncExporter());
+  
   _isSetupFinished = true;
 }
