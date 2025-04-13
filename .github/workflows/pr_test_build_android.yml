@@ -1,6 +1,6 @@
 name: Cake Wallet Android
 
-on: [pull_request]
+on: [push]
 
 defaults:
   run:

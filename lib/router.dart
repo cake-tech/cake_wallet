@@ -38,6 +38,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/wallet_sync_exporter_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -845,6 +846,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devMoneroCallProfiler:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
+      );
+
+    case Routes.devWalletSyncExporter:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<WalletSyncExporterPage>(),
       );
 
     default:

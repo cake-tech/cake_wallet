@@ -28,6 +28,9 @@ class TronTransactionInfo extends TransactionInfo {
   final int? txFee;
   final TransactionDirection direction;
 
+  @override
+  int get confirmations => 0;
+
   factory TronTransactionInfo.fromJson(Map<String, dynamic> data) {
     return TronTransactionInfo(
       id: data['id'] as String,

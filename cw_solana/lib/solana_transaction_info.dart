@@ -26,6 +26,9 @@ class SolanaTransactionInfo extends TransactionInfo {
   final double txFee;
   final TransactionDirection direction;
 
+  @override
+  int get confirmations => 0;
+
   String? _fiatAmount;
 
   @override
