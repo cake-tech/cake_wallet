@@ -27,12 +27,16 @@ class AddressEditOrCreateStateFailure extends AddressEditOrCreateState {
 }
 
 abstract class WalletAddressEditOrCreateViewModelBase with Store {
-  WalletAddressEditOrCreateViewModelBase({required WalletBase wallet, WalletAddressListItem? item})
+  WalletAddressEditOrCreateViewModelBase(
+      {required WalletBase wallet, WalletAddressListItem? item, bool? fromHiddenAddresses})
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
         label = item?.name ?? '',
         _item = item,
-        _wallet = wallet;
+        _wallet = wallet,
+        _fromHiddenAddresses = fromHiddenAddresses ?? false;
+
+  final bool _fromHiddenAddresses;
 
   @observable
   AddressEditOrCreateState state;
@@ -70,7 +74,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     final wallet = _wallet;
 
     if (isElectrum) {
-      await bitcoin!.generateNewAddress(wallet, label);
+      await bitcoin!.generateNewAddress(wallet, label, _fromHiddenAddresses);
       await wallet.save();
     }
 

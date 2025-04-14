@@ -34,6 +34,7 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -46,12 +47,13 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/view_model/silent_payments_scanning_view_model.dart';
 
 import '../../themes/theme_base.dart';
 
@@ -71,12 +73,14 @@ abstract class DashboardViewModelBase with Store {
       required this.ordersStore,
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
-      required this.keyService})
+      required this.keyService,
+      required SilentPaymentsScanningViewModel silentPaymentsScanningViewModel})
       : hasTradeAction = true,
         hasSwapAction = true,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
+        _silentPaymentsScanningViewModel = silentPaymentsScanningViewModel,
         filterItems = {
           S.current.transactions: [
             FilterItem(
@@ -161,8 +165,8 @@ abstract class DashboardViewModelBase with Store {
             FilterItem(
                 value: () => tradeFilterStore.displaySwapTrade,
                 caption: ExchangeProviderDescription.swapTrade.title,
-                onChanged: () => tradeFilterStore
-                    .toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
           ]
         },
         subname = '',
@@ -272,41 +276,33 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
     _transactionDisposer = reaction(
-            (_) => appStore.wallet!.transactionHistory.transactions.length *
+        (_) =>
+            appStore.wallet!.transactionHistory.transactions.length *
             appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
-            _transactionDisposerCallback
-    );
-
-    if (hasSilentPayments) {
-      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-
-      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
-        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-      });
-    }
+        _transactionDisposerCallback);
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }
 
-  
+  final SilentPaymentsScanningViewModel _silentPaymentsScanningViewModel;
+
   bool _isTransactionDisposerCallbackRunning = false;
-  
+
   void _transactionDisposerCallback(int _) async {
     // Simple check to prevent the callback from being called multiple times in the same frame
     if (_isTransactionDisposerCallbackRunning) return;
     _isTransactionDisposerCallbackRunning = true;
     await Future.delayed(Duration.zero);
 
-
     try {
-      final currentAccountId = wallet.type == WalletType.monero 
+      final currentAccountId = wallet.type == WalletType.monero
           ? monero!.getCurrentAccount(wallet).id
-          : wallet.type == WalletType.wownero 
-              ? wow.wownero!.getCurrentAccount(wallet).id 
+          : wallet.type == WalletType.wownero
+              ? wow.wownero!.getCurrentAccount(wallet).id
               : null;
       final List<TransactionInfo> relevantTxs = [];
-      
+
       for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
         bool isRelevant = true;
         if (wallet.type == WalletType.monero) {
@@ -314,7 +310,7 @@ abstract class DashboardViewModelBase with Store {
         } else if (wallet.type == WalletType.wownero) {
           isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
         }
-        
+
         if (isRelevant) {
           relevantTxs.add(tx);
         }
@@ -323,11 +319,11 @@ abstract class DashboardViewModelBase with Store {
 
       transactions.clear();
       transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
-        transaction: tx,
-        balanceViewModel: balanceViewModel,
-        settingsStore: appStore.settingsStore,
-        key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-      )));
+            transaction: tx,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+          )));
     } finally {
       _isTransactionDisposerCallbackRunning = false;
     }
@@ -426,7 +422,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+      wallet;
 
   @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
@@ -475,7 +472,8 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") && !wallet.isHardwareWallet)
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") &&
+          !wallet.isHardwareWallet)
         "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
       if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
@@ -498,16 +496,21 @@ abstract class DashboardViewModelBase with Store {
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
 
-  @observable
-  bool silentPaymentsScanningActive = false;
+  @computed
+  bool get silentPaymentsAlwaysScanning =>
+      _silentPaymentsScanningViewModel.silentPaymentsAlwaysScan;
+
+  @computed
+  bool get silentPaymentsScanningActive =>
+      _silentPaymentsScanningViewModel.silentPaymentsScanningActive;
 
   @action
-  void setSilentPaymentsScanning(bool active) {
-    silentPaymentsScanningActive = active;
-
-    if (hasSilentPayments) {
-      bitcoin!.setScanningActive(wallet, active);
+  Future<void> toggleSilentPaymentsScanning(BuildContext context) async {
+    if (silentPaymentsAlwaysScanning && wallet.syncStatus is SyncedSyncStatus) {
+      return;
     }
+
+    await _silentPaymentsScanningViewModel.toggleSilentPaymentsScanning(context);
   }
 
   @computed
@@ -576,7 +579,8 @@ abstract class DashboardViewModelBase with Store {
       disableBackgroundSync();
       return;
     }
-    final resp = await FlutterDaemon().startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
+    final resp = await FlutterDaemon()
+        .startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
     printV("Background sync enabled: $resp");
     backgroundSyncEnabled = true;
   }
@@ -600,8 +604,7 @@ abstract class DashboardViewModelBase with Store {
       spread = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) spread = 0;
     return spread;
   }
 
@@ -614,8 +617,7 @@ abstract class DashboardViewModelBase with Store {
       blur = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) blur = 0;
     return blur;
   }
 
@@ -750,7 +752,9 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+              WalletAddresses>?
+          wallet) {
     if (wallet == null) {
       return;
     }
@@ -811,10 +815,10 @@ abstract class DashboardViewModelBase with Store {
     _transactionDisposer?.reaction.dispose();
 
     _transactionDisposer = reaction(
-            (_) => appStore.wallet!.transactionHistory.transactions.length *
+        (_) =>
+            appStore.wallet!.transactionHistory.transactions.length *
             appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
-            _transactionDisposerCallback
-    );
+        _transactionDisposerCallback);
   }
 
   @action

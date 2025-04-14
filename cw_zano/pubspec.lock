@@ -45,11 +45,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      ref: cake-update-v4
+      resolved-ref: ad10514281aeef811395bfd8c1f367ab64d37c47
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "3.3.0"
+    version: "4.2.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -502,11 +502,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
+      ref: cake-update-v4
+      resolved-ref: e99d7820e53a685cb4de7af995a493d6d1effd27
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "3.7.0"
+    version: "6.1.0"
   package_config:
     dependency: transitive
     description:

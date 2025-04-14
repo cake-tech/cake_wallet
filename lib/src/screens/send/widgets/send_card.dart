@@ -44,17 +44,16 @@ class SendCard extends StatefulWidget {
   final FocusNode? fiatAmountFocus;
   final ThemeBase currentTheme;
 
-
   @override
   SendCardState createState() => SendCardState(
-        output: output,
-        sendViewModel: sendViewModel,
-        initialPaymentRequest: initialPaymentRequest,
-        currentTheme: currentTheme
-        // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
-        // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
-        // cryptoAmountFocus: FocusNode(),
-        // fiatAmountFocus: FocusNode(),
+      output: output,
+      sendViewModel: sendViewModel,
+      initialPaymentRequest: initialPaymentRequest,
+      currentTheme: currentTheme
+      // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
+      // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
+      // cryptoAmountFocus: FocusNode(),
+      // fiatAmountFocus: FocusNode(),
       );
 }
 
@@ -348,32 +347,48 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text(
-                                      output.estimatedFee.toString() +
-                                          ' ' +
-                                          sendViewModel.currency.toString(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                    FutureBuilder<double>(
+                                        future: output.estimatedFee,
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            return Text(
+                                              snapshot.data.toString() +
+                                                  ' ' +
+                                                  sendViewModel.currency.toString(),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                            );
+                                          }
+
+                                          return CircularProgressIndicator();
+                                        }),
                                     Padding(
                                       padding: EdgeInsets.only(top: 5),
                                       child: sendViewModel.isFiatDisabled
                                           ? const SizedBox(height: 14)
-                                          : Text(
-                                              output.estimatedFeeFiatAmount +
-                                                  ' ' +
-                                                  sendViewModel.fiat.title,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                color: Theme.of(context)
-                                                    .extension<SendPageTheme>()!
-                                                    .textFieldHintColor,
-                                              ),
-                                            ),
+                                          : FutureBuilder<double>(
+                                              future: output.estimatedFeeFiatAmount,
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return Text(
+                                                    snapshot.data.toString() +
+                                                        ' ' +
+                                                        sendViewModel.fiat.title,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Theme.of(context)
+                                                          .extension<SendPageTheme>()!
+                                                          .textFieldHintColor,
+                                                    ),
+                                                  );
+                                                }
+
+                                                return CircularProgressIndicator();
+                                              }),
                                     ),
                                   ],
                                 ),
@@ -449,7 +464,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                               captionColor: Colors.white,
                               borderColor: currentTheme.type == ThemeType.bright
                                   ? Colors.white
-                                  : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                                  : Theme.of(context)
+                                      .extension<CakeTextTheme>()!
+                                      .secondaryTextColor,
                               iconColor: currentTheme.type == ThemeType.bright
                                   ? Colors.white
                                   : Theme.of(context).primaryColor,
@@ -589,12 +606,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   }
 
   Future<void> pickTransactionPriority(BuildContext context) async {
-    final items = priorityForWalletType(sendViewModel.walletType);
+    final items = priorityForWallet(sendViewModel.wallet);
     final selectedItem = items.indexOf(sendViewModel.feesViewModel.transactionPriority);
     final customItemIndex = sendViewModel.feesViewModel.getCustomPriorityIndex(items);
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
     final maxCustomFeeRate = sendViewModel.feesViewModel.maxCustomFeeRate?.toDouble();
-    double? customFeeRate = isBitcoinWallet ? sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
+    double? customFeeRate =
+        isBitcoinWallet ? sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
 
     await showPopUp<void>(
       context: context,
