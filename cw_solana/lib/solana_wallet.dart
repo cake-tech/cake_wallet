@@ -167,10 +167,10 @@ abstract class SolanaWalletBase
 
     try {
       final keypairBytes = Base58Decoder.decode(privateKey!);
-      return SolanaPrivateKey.fromSeed(keypairBytes);
+      return SolanaPrivateKey.fromBytes(keypairBytes);
     } catch (_) {
       final privateKeyBytes = HEX.decode(privateKey!);
-      return SolanaPrivateKey.fromBytes(privateKeyBytes);
+      return SolanaPrivateKey.fromSeed(privateKeyBytes);
     }
   }
 
