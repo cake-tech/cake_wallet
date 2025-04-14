@@ -388,18 +388,29 @@ class AddressExpansionTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildSegmentedAddress(
+                        AddressFormatter.buildSegmentedAddress(
                           address: address,
-                          evenTextStyle: addressTextStyle,
-                          oddTextStyle: itemSubTitleTextStyle,
+                          walletType: walletType,
+                          evenTextStyle: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            decoration: TextDecoration.none,
+                          ),
                         ),
                         if (stealthAddressText(stealthAddress) != null)
                           Padding(
                             padding: const EdgeInsets.only(top: 8.0),
-                            child: buildSegmentedAddress(
+                            child: AddressFormatter.buildSegmentedAddress(
                               address: stealthAddressText(stealthAddress)!,
-                              evenTextStyle: addressTextStyle,
-                              oddTextStyle: itemSubTitleTextStyle,
+                              walletType: walletType,
+                              evenTextStyle: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                  decoration: TextDecoration.none),
                             ),
                           ),
                       ],
