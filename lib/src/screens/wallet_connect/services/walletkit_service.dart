@@ -125,6 +125,7 @@ abstract class WalletKitServiceBase with Store {
   Future<void> init() async {
     // Await the initialization of walletKit
     debugPrint('Intializing walletKit');
+    debugPrint(secrets.walletConnectProjectId);
     if (!isInitialized) {
       try {
         await _walletKit.init();
@@ -358,12 +359,12 @@ abstract class WalletKitServiceBase with Store {
   @action
   void _onRelayClientError(ErrorEvent? args) {
     debugPrint('_onRelayClientError ${args?.error}');
-     _bottomSheetHandler.queueBottomSheet(
-        isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(
-          message: "WC RelayClient Error: ${args?.error}",
-        ),
-      );
+    //  _bottomSheetHandler.queueBottomSheet(
+    //     isModalDismissible: true,
+    //     widget: BottomSheetMessageDisplayWidget(
+    //       message: "WC RelayClient Error: ${args?.error}",
+    //     ),
+    //   );
   }
 
   @action
