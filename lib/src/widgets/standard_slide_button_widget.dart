@@ -42,8 +42,8 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
     return accessible
         ? PrimaryButton(
             text: widget.accessibleNavigationModeButtonText,
-            color: tileBackgroundColor,
-            textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            color: Theme.of(context).primaryColor,
+            textColor: Colors.white,
             onPressed: () => widget.onSlideComplete())
         : LayoutBuilder(builder: (context, constraints) {
             final double maxWidth = constraints.maxWidth;
