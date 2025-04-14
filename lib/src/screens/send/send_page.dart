@@ -98,7 +98,7 @@ class SendPage extends BasePage {
     return MergeSemantics(
       child: SizedBox(
         height: isMobileView ? 37 : 45,
-        width: isMobileView ? 47: 45,
+        width: isMobileView ? 47 : 45,
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
@@ -397,7 +397,6 @@ class SendPage extends BasePage {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
-
                               //Request dummy node to get the focus out of the text fields
                               FocusScope.of(context).requestFocus(FocusNode());
 
@@ -496,7 +495,7 @@ class SendPage extends BasePage {
       bitcoin!.updateFeeRates(sendViewModel.wallet);
     }
 
-    reaction((_) => sendViewModel.state, (ExecutionState state) {
+    reaction((_) => sendViewModel.state, (ExecutionState state) async {
       if (dialogContext != null && dialogContext?.mounted == true) {
         Navigator.of(dialogContext!).pop();
       }
@@ -506,7 +505,6 @@ class SendPage extends BasePage {
           loadingBottomSheetContext!.mounted) {
         Navigator.of(loadingBottomSheetContext!).pop();
       }
-
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -525,6 +523,13 @@ class SendPage extends BasePage {
       }
 
       if (state is IsExecutingState) {
+        // wait a bit to avoid showing the loading dialog if transaction is failed
+        await Future.delayed(const Duration(milliseconds: 300));
+        final currentState = sendViewModel.state;
+        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
+          return;
+        }
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             showModalBottomSheet<void>(
@@ -542,9 +547,9 @@ class SendPage extends BasePage {
       }
 
       if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (context.mounted) {
-            showModalBottomSheet<void>(
+            final result = await showModalBottomSheet<bool>(
               context: context,
               isDismissible: false,
               isScrollControlled: true,
@@ -553,6 +558,7 @@ class SendPage extends BasePage {
                   key: ValueKey('send_page_confirm_sending_dialog_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
+                  walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
@@ -565,18 +571,19 @@ class SendPage extends BasePage {
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
                   onSlideComplete: () async {
-                    Navigator.of(bottomSheetContext).pop();
+                    Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
                   change: sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: sendViewModel.ocpRequest != null,
                 );
               },
             );
+
+            if (result == null) sendViewModel.dismissTransaction();
           }
         });
       }
-
-
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -586,15 +593,19 @@ class SendPage extends BasePage {
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
 
-          if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
+          if (newContactAddress?.address != null &&
+              isRegularElectrumAddress(newContactAddress!.address)) {
             newContactAddress = null;
           }
+
+          bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
 
           await showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return newContactAddress != null && sendViewModel.showAddressBookPopup
+              return showContactSheet &&
+                      sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,
@@ -608,16 +619,20 @@ class SendPage extends BasePage {
                       rightButtonText: 'Yes',
                       actionLeftButton: () {
                         Navigator.of(bottomSheetContext).pop();
-                        Navigator.of(context)
-                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        }
                         RequestReviewHandler.requestReview();
                         newContactAddress = null;
                       },
                       actionRightButton: () {
                         Navigator.of(bottomSheetContext).pop();
                         RequestReviewHandler.requestReview();
-                        Navigator.of(context)
-                            .pushNamed(Routes.addressBookAddContact, arguments: newContactAddress);
+                        if (context.mounted) {
+                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                              arguments: newContactAddress);
+                        }
                         newContactAddress = null;
                       },
                     )
@@ -629,11 +644,16 @@ class SendPage extends BasePage {
                       actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
                       actionButton: () {
                         Navigator.of(bottomSheetContext).pop();
-                        Navigator.of(context)
-                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                        RequestReviewHandler.requestReview();
-                        newContactAddress = null;
-                      });
+                        Future.delayed(Duration.zero, () {
+                          if (context.mounted) {
+                            Navigator.of(context)
+                                .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                          }
+                          RequestReviewHandler.requestReview();
+                          newContactAddress = null;
+                        });
+                      },
+                    );
             },
           );
 
@@ -656,20 +676,25 @@ class SendPage extends BasePage {
 
       if (state is IsAwaitingDeviceResponseState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                dialogContext = context;
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).proceed_on_device,
-                    alertContent: S.of(context).proceed_on_device_description,
-                    buttonText: S.of(context).cancel,
-                    alertBarrierDismissible: false,
-                    buttonAction: () {
-                      sendViewModel.state = InitialExecutionState();
-                      Navigator.of(context).pop();
-                    });
-              });
+          if (!context.mounted) return;
+
+          showModalBottomSheet<void>(
+            context: context,
+            isDismissible: false,
+            builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+              currentTheme: currentTheme,
+              titleText: S.of(bottomSheetContext).proceed_on_device,
+              contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
+              contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              content: S.of(bottomSheetContext).proceed_on_device_description,
+              isTwoAction: false,
+              actionButtonText: S.of(context).cancel,
+              actionButton: () {
+                sendViewModel.state = InitialExecutionState();
+                Navigator.of(bottomSheetContext).pop();
+              },
+            ),
+          );
         });
       }
     });
@@ -759,5 +784,4 @@ class SendPage extends BasePage {
 
     return isValid;
   }
-
 }

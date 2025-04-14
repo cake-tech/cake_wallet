@@ -21,6 +21,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -102,8 +103,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
     _stateReaction ??= reaction((_) => _walletNewVM.state, (ExecutionState state) async {
       if (state is ExecutedSuccessfullyState) {
         if (widget.isChildWallet) {
-          Navigator.of(navigatorKey.currentContext ?? context)
-              .pushNamed(Routes.walletGroupExistingSeedDescriptionPage,
+          Navigator.of(navigatorKey.currentContext ?? context).pushNamed(
+              Routes.walletGroupExistingSeedDescriptionPage,
               arguments: _walletNewVM.seedPhraseWordsLength);
         } else {
           Navigator.of(navigatorKey.currentContext ?? context)
@@ -305,7 +306,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                       ),
                     ),
                   ),
-                  if (_walletNewVM.hasLanguageSelector) ...[
+                  if (_walletNewVM.showLanguageSelector) ...[
                     if (_walletNewVM.hasSeedType) ...[
                       Observer(
                         builder: (BuildContext build) => Padding(
@@ -317,7 +318,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               await showPopUp<void>(
                                 context: context,
                                 builder: (_) => Picker(
-                                  items: MoneroSeedType.all,
+                                  items: MoneroSeedType.all
+                                      .where((e) => // exclude bip39 in case of Wownero
+                                          widget._walletNewVM.type != WalletType.wownero ||
+                                          e.raw != MoneroSeedType.bip39.raw)
+                                      .toList(),
                                   selectedAtIndex: isPolyseed ? 1 : 0,
                                   onItemSelected: _setSeedType,
                                   isSeparated: false,
@@ -401,7 +406,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
       } else {
         await _walletNewVM.create(
             options: _walletNewVM.hasLanguageSelector
-                ? [_languageSelectorKey.currentState!.selected, isPolyseed]
+                ? [
+                    _languageSelectorKey.currentState?.selected ?? defaultSeedLanguage,
+                    widget._seedSettingsViewModel.moneroSeedType
+                  ]
                 : null);
       }
     } catch (e) {

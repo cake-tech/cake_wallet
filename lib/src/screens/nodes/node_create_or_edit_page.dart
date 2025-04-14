@@ -182,7 +182,9 @@ class NodeCreateOrEditPage extends BasePage {
 
                             await nodeCreateOrEditViewModel.save(
                                 editingNode: editingNode, saveAsCurrent: isSelected ?? false);
-                            Navigator.of(context).pop();
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
                           },
                           text: S.of(context).save,
                           color: Theme.of(context).primaryColor,
