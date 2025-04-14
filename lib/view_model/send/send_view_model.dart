@@ -223,7 +223,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String get balance {
     if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+    } else if (walletType == WalletType.litecoin &&
+        coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
@@ -414,8 +415,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     state = IsExecutingState();
 
     try {
-      final originalOCPRequest =
-          await _ocpService.getOpenCryptoPayInvoice(uri.toString());
+      final originalOCPRequest = await _ocpService.getOpenCryptoPayInvoice(uri.toString());
       final paymentUri = await _ocpService.getOpenCryptoPayAddress(
         originalOCPRequest,
         selectedCryptoCurrency,
@@ -427,8 +427,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       clearOutputs();
 
       outputs.first.address = paymentRequest.address;
-      outputs.first.parsedAddress = ParsedAddress(
-          addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
+      outputs.first.parsedAddress =
+          ParsedAddress(addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -441,15 +441,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @action
-  Future<PendingTransaction?> createTransaction(
-      {ExchangeProvider? provider}) async {
+  Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
       if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
 
-      pendingTransaction =
-          await wallet.createTransaction(_credentials(provider));
+      pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
       if (provider is ThorChainExchangeProvider) {
         final outputCount = pendingTransaction?.outputCount ?? 0;
@@ -463,8 +461,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (wallet.type == WalletType.bitcoin) {
-        final updatedOutputs =
-            bitcoin!.updateOutputs(pendingTransaction!, outputs);
+        final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
 
         if (outputs.length == updatedOutputs.length) {
           outputs.replaceRange(0, outputs.length, updatedOutputs);
@@ -525,8 +522,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
-      throw Exception(
-          "Pending transaction doesn't exist. It should not be happened.");
+      throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
     if (ocpRequest != null) {
@@ -564,8 +560,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (pendingTransaction!.shouldCommitUR()) {
         final urstr = await pendingTransaction!.commitUR();
-        final result = await Navigator.of(context)
-            .pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
+        final result =
+            await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: urstr);
         if (result == null) {
           state = FailureState("Canceled by user");
           return;
@@ -579,8 +575,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (pendingTransaction!.id.isNotEmpty) {
-        final descriptionKey =
-            '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
+        final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
                 id: descriptionKey,
@@ -629,10 +624,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         );
 
       case WalletType.monero:
-        return monero!.createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return monero!
+            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.wownero:
-        return wownero!.createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return wownero!
+            .createWowneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
 
       case WalletType.ethereum:
         return ethereum!.createEthereumTransactionCredentials(outputs,
@@ -643,7 +640,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return polygon!.createPolygonTransactionCredentials(outputs,
             priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.solana:
-        return solana!.createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
+        return solana!
+            .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.tron:
         return tron!.createTronTransactionCredentials(outputs, currency: selectedCryptoCurrency);
       case WalletType.zano:
@@ -677,8 +675,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   ContactRecord? newContactAddress() {
     final Set<String> contactAddresses =
-    Set.from(contactListViewModel.contacts.map((contact) => contact.address))
-      ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
+        Set.from(contactListViewModel.contacts.map((contact) => contact.address))
+          ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
 
     for (var output in outputs) {
       String address;
@@ -768,7 +766,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final parsedErrorMessageResult =
             EVMTransactionErrorFeesHandler.parseEthereumFeesErrorMessage(
           errorMessage,
-          _fiatConversationStore.prices[currency]!,
+          _fiatConversationStore.prices[currency] ?? 0.0,
         );
 
         if (parsedErrorMessageResult.error != null) {

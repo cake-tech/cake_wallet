@@ -207,15 +207,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate() &&
                               (!_showDisclaimer || _disclaimerChecked)) {
-                            final hasPotentialError = await widget.homeSettingsViewModel
+                            final isWhitelisted = await widget.homeSettingsViewModel
+                                .checkIfTokenIsWhitelisted(_contractAddressController.text);
+
+                            final hasPotentialError = !isWhitelisted && await widget.homeSettingsViewModel
                                 .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
                               _contractAddressController.text,
                             );
 
-                            final isWhitelisted = await widget.homeSettingsViewModel
-                                .checkIfTokenIsWhitelisted(_contractAddressController.text);
-
-                            bool isPotentialScam = hasPotentialError;
+                            bool isPotentialScam = hasPotentialError && !isWhitelisted;
                             final tokenSymbol = _tokenSymbolController.text.toUpperCase();
 
                             // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
@@ -258,7 +258,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               }
                             };
 
-                            if (hasPotentialError) {
+                            if (hasPotentialError && !isWhitelisted) {
                               showPopUp<void>(
                                 context: context,
                                 builder: (dialogContext) {

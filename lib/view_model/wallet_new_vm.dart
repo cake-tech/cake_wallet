@@ -161,7 +161,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return wownero!.createWowneroNewWalletCredentials(
           name: name,
           language: options!.first as String,
-          isPolyseed: options.last as bool,
+          isPolyseed: (options.last as MoneroSeedType).raw == 1,
           password: walletPassword,
           passphrase: passphrase,
         );
