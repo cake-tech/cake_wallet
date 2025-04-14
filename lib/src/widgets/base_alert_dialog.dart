@@ -13,6 +13,8 @@ class BaseAlertDialog extends StatelessWidget {
 
   String get contentText => '';
 
+  Widget? get contentTextWidget => null;
+
   String get leftActionButtonText => '';
 
   String get rightActionButtonText => '';
@@ -79,7 +81,8 @@ class BaseAlertDialog extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
+          contentTextWidget ??
+              Text(
             contentText,
             textAlign: TextAlign.center,
             style: TextStyle(

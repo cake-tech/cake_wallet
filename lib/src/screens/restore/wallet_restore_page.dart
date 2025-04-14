@@ -531,25 +531,42 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
   }
 
   bool _isValidSeed() {
-    final seedPhrase =
-        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
+    final seedPhrase = walletRestoreFromSeedFormKey
+        .currentState!.seedWidgetStateKey.currentState!.text;
     if (walletRestoreViewModel.isPolyseed(seedPhrase)) return true;
 
     final seedWords = seedPhrase.split(' ');
 
-    if (seedWords.length == 14 && walletRestoreViewModel.type == WalletType.wownero) return true;
-    if (seedWords.length == 26 && walletRestoreViewModel.type == WalletType.zano) return true;
+    if (seedWords.length == 14 &&
+        walletRestoreViewModel.type == WalletType.wownero) return true;
+    if (seedWords.length == 26 &&
+        walletRestoreViewModel.type == WalletType.zano) return true;
 
-    if ((walletRestoreViewModel.type == WalletType.monero ||
-            walletRestoreViewModel.type == WalletType.wownero ||
-            walletRestoreViewModel.type == WalletType.haven) &&
-        seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
-      return false;
+    if (seedWords.length == 12 &&
+        walletRestoreViewModel.type == WalletType.monero) {
+      return walletRestoreFromSeedFormKey
+          .currentState
+          ?.blockchainHeightKey
+          .currentState
+          ?.restoreHeightController
+          .text
+          .isNotEmpty == true;
+    }
+
+    if ([WalletType.monero, WalletType.wownero, WalletType.haven]
+            .contains(walletRestoreViewModel.type) &&
+        seedWords.length ==
+            WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
+      return true;
     }
 
     // bip39:
     final validBip39SeedLengths = [12, 18, 24];
-    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred];
+    final nonBip39WalletTypes = [
+      WalletType.wownero,
+      WalletType.haven,
+      WalletType.decred
+    ];
     // if it's a bip39 wallet and the length is not valid return false
     if (!nonBip39WalletTypes.contains(walletRestoreViewModel.type) &&
         !(validBip39SeedLengths.contains(seedWords.length))) {
@@ -562,8 +579,9 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
       return false;
     }
 
-    final words =
-        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.words.toSet();
+    final words = walletRestoreFromSeedFormKey
+        .currentState!.seedWidgetStateKey.currentState!.words
+        .toSet();
     return seedWords.toSet().difference(words).toSet().isEmpty;
   }
 

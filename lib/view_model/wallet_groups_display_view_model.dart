@@ -6,6 +6,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -127,12 +128,16 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
         bool isNonSeedWallet = wallet.isNonSeedWallet;
 
+        bool isNotMoneroBip39Wallet = wallet.type == WalletType.monero &&
+            wallet.derivationInfo?.derivationType != DerivationType.bip39;
+
         // Exclude if any of these conditions are true
         return isNonBIP39Wallet ||
             isNanoDerivationType ||
             isElectrumDerivationType ||
             isSameTypeAsSelectedWallet ||
-            isNonSeedWallet;
+            isNonSeedWallet ||
+            isNotMoneroBip39Wallet;
       });
 
       if (shouldExcludeGroup) continue;

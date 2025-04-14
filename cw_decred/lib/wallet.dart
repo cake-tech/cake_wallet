@@ -710,14 +710,18 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance, DecredTransact
   // walletBirthdayBlockHeight checks if the wallet birthday is set and returns
   // it. Returns -1 if not.
   Future<int> walletBirthdayBlockHeight() async {
-    final res = await _libwallet.birthState(walletInfo.name);
-    final decoded = json.decode(res);
-    // Having these values set indicates that sync has not reached the birthday
-    // yet, so no birthday is set.
-    if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
-      return -1;
+    try {
+      final res = await _libwallet.birthState(walletInfo.name);
+      final decoded = json.decode(res);
+      // Having these values set indicates that sync has not reached the birthday
+      // yet, so no birthday is set.
+      if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
+        return -1;
+      }
+      return decoded["height"] ?? 0;
+    } on FormatException catch (_) {
+      return 0;
     }
-    return decoded["height"] ?? 0;
   }
 
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {

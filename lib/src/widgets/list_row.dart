@@ -12,7 +12,8 @@ class ListRow extends StatelessWidget {
     this.padding,
     this.color,
     this.hintTextColor,
-    this.mainTextColor
+    this.mainTextColor,
+    this.textWidget
   });
 
   final String title;
@@ -24,6 +25,16 @@ class ListRow extends StatelessWidget {
   final Color? color;
   final Color? hintTextColor;
   final Color? mainTextColor;
+  final Widget? textWidget;
+
+  Widget _getTextWidget (BuildContext context) => textWidget ?? Text(
+    value,
+    style: TextStyle(
+      fontSize: valueFontSize,
+      fontWeight: FontWeight.w500,
+      color: mainTextColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -49,12 +60,7 @@ class ListRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
-                      child: Text(value,
-                          style: TextStyle(
-                              fontSize: valueFontSize,
-                              fontWeight: FontWeight.w500,
-                              color: mainTextColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
-                    ),
+                      child: _getTextWidget(context)),
                     image != null
                     ? Padding(
                       padding: EdgeInsets.only(left: 24),

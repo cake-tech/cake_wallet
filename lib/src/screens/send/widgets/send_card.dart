@@ -1,9 +1,12 @@
+import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -22,9 +25,6 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-
-import '../../../../themes/extensions/cake_text_theme.dart';
-import '../../../../themes/theme_base.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -181,11 +181,16 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   addressKey: ValueKey('send_page_address_textfield_key'),
                   focusNode: addressFocusNode,
                   controller: addressController,
-                  onURIScanned: (uri) {
-                    final paymentRequest = PaymentRequest.fromUri(uri);
-                    addressController.text = paymentRequest.address;
-                    cryptoAmountController.text = paymentRequest.amount;
-                    noteController.text = paymentRequest.note;
+                  onURIScanned: (uri) async {
+                    if (OpenCryptoPayService.isOpenCryptoPayQR(
+                        uri.toString())) {
+                      sendViewModel.createOpenCryptoPayTransaction(uri.toString());
+                    } else {
+                      final paymentRequest = PaymentRequest.fromUri(uri);
+                      addressController.text = paymentRequest.address;
+                      cryptoAmountController.text = paymentRequest.amount;
+                      noteController.text = paymentRequest.note;
+                    }
                   },
                   options: [
                     AddressTextFieldOption.paste,

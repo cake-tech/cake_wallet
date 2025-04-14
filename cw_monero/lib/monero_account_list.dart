@@ -45,18 +45,18 @@ abstract class MoneroAccountListBase with Store {
     }
   }
 
-  Map<int, List<Account>> _cachedAccounts = {};
+  static Map<int, List<Account>> cachedAccounts = {};
   
   List<Account> getAll() {
     final allAccounts = account_list.getAllAccount();
     final currentCount = allAccounts.length;
-    _cachedAccounts[account_list.wptr!.address] ??= [];
+    cachedAccounts[account_list.wptr!.address] ??= [];
     
-    if (_cachedAccounts[account_list.wptr!.address]!.length == currentCount) {
-      return _cachedAccounts[account_list.wptr!.address]!;
+    if (cachedAccounts[account_list.wptr!.address]!.length == currentCount) {
+      return cachedAccounts[account_list.wptr!.address]!;
     }
     
-    _cachedAccounts[account_list.wptr!.address] = allAccounts.map((accountRow) {
+    cachedAccounts[account_list.wptr!.address] = allAccounts.map((accountRow) {
         final balance = monero.SubaddressAccountRow_getUnlockedBalance(accountRow);
 
         return Account(
@@ -66,7 +66,7 @@ abstract class MoneroAccountListBase with Store {
         );
       }).toList();
     
-    return _cachedAccounts[account_list.wptr!.address]!;
+    return cachedAccounts[account_list.wptr!.address]!;
   }
 
   Future<void> addAccount({required String label}) async {

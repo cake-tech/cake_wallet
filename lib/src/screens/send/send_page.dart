@@ -547,9 +547,9 @@ class SendPage extends BasePage {
       }
 
       if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (context.mounted) {
-            showModalBottomSheet<void>(
+            final result = await showModalBottomSheet<bool>(
               context: context,
               isDismissible: false,
               isScrollControlled: true,
@@ -558,6 +558,7 @@ class SendPage extends BasePage {
                   key: ValueKey('send_page_confirm_sending_dialog_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
+                  walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
@@ -570,13 +571,16 @@ class SendPage extends BasePage {
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
                   onSlideComplete: () async {
-                    Navigator.of(bottomSheetContext).pop();
+                    Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
                   change: sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: sendViewModel.ocpRequest != null,
                 );
               },
             );
+
+            if (result == null) sendViewModel.dismissTransaction();
           }
         });
       }
@@ -600,7 +604,8 @@ class SendPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return showContactSheet
+              return showContactSheet &&
+                      sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,

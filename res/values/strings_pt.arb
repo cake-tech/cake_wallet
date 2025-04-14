@@ -688,7 +688,7 @@
   "seedtype_alert_title": "Alerta de tipo de seed",
   "seedtype_legacy": "Legado (25 palavras)",
   "seedtype_polyseed": "Polyseed (16 palavras)",
-  "seedtype_wownero": "Wowrone (14 palavras)",
+  "seedtype_wownero": "Wownero (14 palavras)",
   "select_backup_file": "Selecione o arquivo de backup",
   "select_buy_provider_notice": "Selecione um provedor de compra acima. Você pode pular esta tela definindo seu provedor de compra padrão nas configurações de aplicativos.",
   "select_destination": "Selecione o destino para o arquivo de backup.",

@@ -75,6 +75,9 @@ abstract class WalletListViewModelBase with Store {
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
+    if (walletItem.type == WalletType.haven) {
+      return;
+    }
     // bool switchingToSameWalletType = walletItem.type == _appStore.wallet?.type;
     // await _appStore.wallet?.close(shouldCleanup: !switchingToSameWalletType);
     final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
