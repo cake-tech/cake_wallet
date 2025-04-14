@@ -223,6 +223,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
         onSlideComplete: onSlideComplete,
         buttonText: 'Swipe to send',
         currentTheme: currentTheme,
+        accessibleNavigationModeButtonText: S.of(context).send,
       ),
     );
   }
@@ -248,24 +249,28 @@ class StandardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration:
-          BoxDecoration(borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(itemTitle, style: itemTitleTextStyle),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(itemValue, style: itemTitleTextStyle),
-              itemSubTitle == null
-                  ? Container()
-                  : Text(itemSubTitle!, style: itemSubTitleTextStyle),
-            ],
-          ),
-        ],
+    return Semantics(
+      container: true,
+      label: itemTitle,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration:
+            BoxDecoration(borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(itemTitle, style: itemTitleTextStyle),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(itemValue, style: itemTitleTextStyle),
+                itemSubTitle == null
+                    ? Container()
+                    : Text(itemSubTitle!, style: itemSubTitleTextStyle),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -357,54 +362,58 @@ class AddressExpansionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        color: tileBackgroundColor,
-      ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: isBatchSending ? 0 : 8),
-          child: ExpansionTile(
-            childrenPadding: isBatchSending ? const EdgeInsets.only(bottom: 8) : EdgeInsets.zero,
-            tilePadding: EdgeInsets.zero,
-            dense: true,
-            visualDensity: VisualDensity.compact,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: Text(isBatchSending ? name : contactType,
-                        style: itemTitleTextStyle, softWrap: true)),
-                Text(isBatchSending ? amount : name,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      decoration: TextDecoration.none,
-                    )),
-              ],
-            ),
-            children: [
-              Row(
+    return Semantics(
+      container: true,
+      label: name,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          color: tileBackgroundColor,
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14, vertical: isBatchSending ? 0 : 8),
+            child: ExpansionTile(
+              childrenPadding: isBatchSending ? const EdgeInsets.only(bottom: 8) : EdgeInsets.zero,
+              tilePadding: EdgeInsets.zero,
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: AddressFormatter.buildSegmentedAddress(
-                        address: address,
-                        walletType: walletType,
-                        evenTextStyle: TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                            decoration: TextDecoration.none)
-                    ),
-                  ),
+                      child: Text(isBatchSending ? name : contactType,
+                          style: itemTitleTextStyle, softWrap: true)),
+                  Text(isBatchSending ? amount : name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        decoration: TextDecoration.none,
+                      )),
                 ],
               ),
-            ],
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: AddressFormatter.buildSegmentedAddress(
+                          address: address,
+                          walletType: walletType,
+                          evenTextStyle: TextStyle(
+                              fontSize: 12,
+                              fontFamily: 'Lato',
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              decoration: TextDecoration.none)
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
