@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Belirteç sözleşmesi adresini ve bilgilerini saygın bir kaynak kullanarak onayladım. Kötü amaçlı veya yanlış bilgilerin eklenmesi para kaybına neden olabilir.",
   "add_token_warning": "Dolandırıcıların talimatına göre jetonları düzenlemeyin veya eklemeyin.\nBelirteç adreslerini her zaman saygın kaynaklarla onaylayın!",
   "add_value": "Değer ekle",
+  "added_message_for_ata_error": "Lütfen işleminizi tamamlamak için yeterli SOL bakiyesine sahip olduğunuzdan emin olun.",
   "address": "Adres",
   "address_book": "Adres Defteri",
   "address_book_menu": "Adres defteri",

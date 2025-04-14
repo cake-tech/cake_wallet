@@ -747,9 +747,7 @@ class SolanaWalletClient {
     } catch (e) {
       associatedRecipientAccount = null;
 
-      throw SolanaCreateAssociatedTokenAccountException(
-        'Error fetching recipient associated token account: ${e.toString()}',
-      );
+      throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
 
     if (associatedRecipientAccount == null) {

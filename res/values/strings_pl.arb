@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Potwierdziłem adres kontraktu tokena i informacje, korzystając z renomowanego źródła. Dodanie złośliwych lub niepoprawnych informacji może spowodować utratę środków.",
   "add_token_warning": "Nie edytuj ani nie dodawaj tokenów zgodnie z instrukcjami oszustów.\nZawsze potwierdzaj adresy tokenów z renomowanymi źródłami!",
   "add_value": "Dodaj wartość",
+  "added_message_for_ata_error": "Upewnij się, że masz wystarczającą saldo SOL, aby ukończyć transakcję.",
   "address": "Adres",
   "address_book": "Kontakty",
   "address_book_menu": "Kontakty",

@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Tôi đã xác nhận địa chỉ hợp đồng token và thông tin bằng nguồn đáng tin cậy. Thêm thông tin sai hoặc độc hại có thể dẫn đến mất tiền.",
   "add_token_warning": "Không chỉnh sửa hoặc thêm token theo yêu cầu của kẻ lừa đảo.\nLuôn xác nhận địa chỉ token từ các nguồn đáng tin cậy!",
   "add_value": "Thêm giá trị",
+  "added_message_for_ata_error": "Vui lòng đảm bảo bạn có đủ số dư SOL để hoàn thành giao dịch của mình.",
   "address": "Địa chỉ",
   "address_book": "Sổ địa chỉ",
   "address_book_menu": "Sổ địa chỉ",

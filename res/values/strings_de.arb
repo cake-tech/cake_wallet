@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Ich habe die Adresse und Informationen zum Token-Contract anhand einer seriösen Quelle bestätigt. Das Hinzufügen böswilliger oder falscher Informationen kann zu einem Verlust von Geldern führen.",
   "add_token_warning": "Bearbeiten oder fügen Sie Token nicht gemäß den Anweisungen von Betrügern hinzu.\nBestätigen Sie Token-Adressen immer mit seriösen Quellen!",
   "add_value": "Wert hinzufügen",
+  "added_message_for_ata_error": "Bitte stellen Sie sicher, dass Sie über genügend SOL -Balance verfügen, um Ihre Transaktion abzuschließen.",
   "address": "Adresse",
   "address_book": "Adressbuch",
   "address_book_menu": "Adressbuch",
