@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Potvrdil jsem adresu a informace smlouvy o tokenu pomocí důvěryhodného zdroje. Přidání škodlivých nebo nesprávných informací může vést ke ztrátě finančních prostředků.",
   "add_token_warning": "Neupravujte ani nepřidávejte tokeny podle pokynů podvodníků.\nVždy potvrďte adresy tokenů s renomovanými zdroji!",
   "add_value": "Přidat hodnotu",
+  "added_message_for_ata_error": "Laskavě se ujistěte, že máte dostatek rovnováhy SOL, abyste dokončili transakci.",
   "address": "Adresa",
   "address_book": "Adresář",
   "address_book_menu": "Adresář",

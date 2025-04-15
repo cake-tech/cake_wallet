@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "He confirmado la dirección del contrato del token y la información utilizando una fuente confiable. Agregar información maliciosa o incorrecta puede resultar en una pérdida de fondos.",
   "add_token_warning": "No edite ni agregue tokens según las instrucciones de los estafadores.\n¡Confirme siempre las direcciones de los tokens con fuentes acreditadas!",
   "add_value": "Añadir valor",
+  "added_message_for_ata_error": "Asegúrese de tener suficiente equilibrio SOL para completar su transacción.",
   "address": "Dirección",
   "address_book": "Libreta de direcciones",
   "address_book_menu": "Libreta de direcciones",

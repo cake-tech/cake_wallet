@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Ik heb het adres en de informatie van het tokencontract bevestigd met behulp van een betrouwbare bron. Het toevoegen van kwaadaardige of onjuiste informatie kan leiden tot verlies van geld.",
   "add_token_warning": "Bewerk of voeg geen tokens toe volgens de instructies van oplichters.\nBevestig tokenadressen altijd met betrouwbare bronnen!",
   "add_value": "Waarde toevoegen",
+  "added_message_for_ata_error": "Zorg ervoor dat u voldoende SOL -balans hebt om uw transactie te voltooien.",
   "address": "Adres",
   "address_book": "Adresboek",
   "address_book_menu": "Adresboek",

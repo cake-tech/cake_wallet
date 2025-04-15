@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Ho confermato l'indirizzo e le informazioni del contratto token utilizzando una fonte attendibile. L'aggiunta di informazioni dannose o errate può comportare una perdita di fondi.",
   "add_token_warning": "Non modificare o aggiungere token come indicato dai truffatori.\nConferma sempre gli indirizzi dei token con fonti attendibili!",
   "add_value": "Aggiungi valore",
+  "added_message_for_ata_error": "Si prega di assicurati di avere abbastanza equilibrio sol per completare la transazione.",
   "address": "Indirizzo",
   "address_book": "Rubrica indirizzi",
   "address_book_menu": "Rubrica indirizzi",

@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Confirmei o endereço e as informações do contrato de token usando uma fonte confiável. Adicionar informações maliciosas ou incorretas pode resultar em perda de fundos.",
   "add_token_warning": "Não edite ou adicione tokens de acordo com as instruções dos golpistas.\nSempre confirme os endereços de token com fontes confiáveis!",
   "add_value": "Adicionar valor",
+  "added_message_for_ata_error": "Por favor, certifique -se de ter um equilíbrio SOL suficiente para concluir sua transação.",
   "address": "Endereço",
   "address_book": "Livro de endereços",
   "address_book_menu": "Livro de endereços",
