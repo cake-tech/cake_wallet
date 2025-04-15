@@ -819,6 +819,7 @@
   "sync_status_connected": "СВЪРЗВАНЕ",
   "sync_status_connecting": "СВЪРЗВАНЕ",
   "sync_status_failed_connect": "НЕУСПЕШНО СВЪРЗВАНЕ",
+  "sync_status_new_block": "НОВ БЛОК: ${block}",
   "sync_status_not_connected": "НЯМА ВРЪЗКА",
   "sync_status_starting_scan": "Стартиране на сканиране (от ${height})",
   "sync_status_starting_sync": "ЗАПОЧВАНЕ НА СИНХРОНИЗАЦИЯ",

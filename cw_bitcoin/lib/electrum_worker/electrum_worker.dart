@@ -51,7 +51,7 @@ class ElectrumWorker {
   }
 
   void handleMessage(dynamic message) async {
-    printV("Worker: received message: $message");
+    // printV("Worker: received message: $message");
 
     try {
       Map<String, dynamic> messageJson;
@@ -144,37 +144,25 @@ class ElectrumWorker {
     _network = request.network;
     _walletType = request.walletType;
 
-    bool initialConnection = true;
+    bool isDoingInitialConnection = true;
     bool needsToConnect = false;
 
+    void onConnectionStatusChange(ConnectionStatus status) {
+      if (status == ConnectionStatus.connected && isDoingInitialConnection) {
+        // Set to true to set the client as connected via sendResponse only once after _electrumClient connection is awaited
+        needsToConnect = true;
+      } else {
+        _sendResponse(
+          ElectrumWorkerConnectionResponse(status: status, id: request.id),
+        );
+      }
+    }
+
     try {
-      _electrumClient = await ElectrumProvider.connect(
-        request.useSSL
-            ? ElectrumSSLService.connect(
-                request.uri,
-                onConnectionStatusChange: (status) {
-                  if (status == ConnectionStatus.connected && initialConnection) {
-                    needsToConnect = true;
-                  } else {
-                    _sendResponse(
-                      ElectrumWorkerConnectionResponse(status: status, id: request.id),
-                    );
-                  }
-                },
-              )
-            : ElectrumTCPService.connect(
-                request.uri,
-                onConnectionStatusChange: (status) {
-                  if (status == ConnectionStatus.connected && initialConnection) {
-                    needsToConnect = true;
-                  } else {
-                    _sendResponse(
-                      ElectrumWorkerConnectionResponse(status: status, id: request.id),
-                    );
-                  }
-                },
-              ),
-      );
+      final reqFn = (request.useSSL ? ElectrumSSLService.connect : ElectrumTCPService.connect);
+      final rpc = reqFn(request.uri, onConnectionStatusChange: onConnectionStatusChange);
+
+      _electrumClient = await ElectrumProvider.connect(rpc);
 
       if (needsToConnect) {
         final version = await _electrumClient!.request(
@@ -190,7 +178,9 @@ class ElectrumWorker {
           ),
         );
 
-        initialConnection = false;
+        // Set to false if already connected initially
+        isDoingInitialConnection = false;
+        // Set to false to not send the connection status again
         needsToConnect = false;
       }
     } catch (e) {
@@ -209,9 +199,34 @@ class ElectrumWorker {
     }
 
     stream.listen((event) {
+      final headerResponse = req.onResponse(event);
+
+      final newChainTip = headerResponse.height;
+      bool anyTxWasUpdated = false;
+
+      // Update the confirmations of the transactions based on the new chain tip height
+      request.transactions.values.forEach((tx) {
+        if (tx.height != null && tx.height! > 0 && newChainTip > tx.height!) {
+          final newConfirmationsValue = newChainTip - tx.height! + 1;
+
+          if (tx.confirmations != newConfirmationsValue) {
+            tx.confirmations = newConfirmationsValue;
+            tx.isPending = tx.confirmations == 0;
+            if (!anyTxWasUpdated) {
+            }
+            anyTxWasUpdated = true;
+          }
+        }
+      });
+
       _sendResponse(
         ElectrumWorkerHeadersSubscribeResponse(
-          result: req.onResponse(event),
+          result: ElectrumWorkerHeadersResponse(
+            headerResponse: headerResponse,
+            transactions: request.transactions,
+            walletType: request.walletType,
+            anyTxWasUpdated: anyTxWasUpdated,
+          ),
           id: request.id,
         ),
       );

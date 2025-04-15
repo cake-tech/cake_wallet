@@ -820,6 +820,7 @@
   "sync_status_connected": "CONNECTED",
   "sync_status_connecting": "CONNECTING",
   "sync_status_failed_connect": "DISCONNECTED",
+  "sync_status_new_block": "NEW BLOCK: ${block}",
   "sync_status_not_connected": "NOT CONNECTED",
   "sync_status_starting_scan": "STARTING SCAN (from ${height})",
   "sync_status_starting_sync": "STARTING SYNC",

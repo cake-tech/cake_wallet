@@ -821,6 +821,7 @@
   "sync_status_connected": "HANNU",
   "sync_status_connecting": "HADA",
   "sync_status_failed_connect": "BABU INTERNET",
+  "sync_status_new_block": "SABON TOSHE: ${block}",
   "sync_status_not_connected": "BABU INTERNET",
   "sync_status_starting_scan": "Farawa Scan (daga ${height})",
   "sync_status_starting_sync": "KWAFI",

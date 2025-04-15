@@ -150,7 +150,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
   @action
   Future<void> handleWorkerResponse(dynamic message) async {
-    printV('Main: received message: $message');
+    // printV('Main: received message: $message');
 
     Map<String, dynamic> messageJson;
     if (message is String) {
@@ -1242,23 +1242,15 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   }
 
   @action
-  Future<void> onHeadersResponse(ElectrumHeaderResponse response) async {
-    currentChainTip = response.height;
+  Future<void> onHeadersResponse(ElectrumWorkerHeadersResponse response) async {
+    currentChainTip = response.headerResponse.height;
 
-    bool anyTxWasUpdated = false;
-    transactionHistory.transactions.values.forEach((tx) {
-      if (tx.height != null && tx.height! > 0) {
-        final newConfirmationsValue = currentChainTip! - tx.height! + 1;
+    if (syncStatus is SyncedSyncStatus) {
+      syncStatus = SyncedNewBlockSyncStatus(currentChainTip!);
+    }
 
-        if (tx.confirmations != newConfirmationsValue) {
-          tx.confirmations = newConfirmationsValue;
-          tx.isPending = tx.confirmations == 0;
-          anyTxWasUpdated = true;
-        }
-      }
-    });
-
-    if (anyTxWasUpdated) {
+    if (response.anyTxWasUpdated) {
+      transactionHistory.addMany(response.transactions);
       await save();
     }
   }
@@ -1268,9 +1260,17 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     if (_chainTipListenerOn) return;
 
     if (wait == true) {
-      await waitSendWorker(ElectrumWorkerHeadersSubscribeRequest());
+      await waitSendWorker(ElectrumWorkerHeadersSubscribeRequest(
+        transactions: transactionHistory.transactions,
+        walletType: type,
+      ));
     } else {
-      workerSendPort!.send(ElectrumWorkerHeadersSubscribeRequest().toJson());
+      workerSendPort!.send(
+        ElectrumWorkerHeadersSubscribeRequest(
+          transactions: transactionHistory.transactions,
+          walletType: type,
+        ).toJson(),
+      );
     }
 
     _chainTipListenerOn = true;
@@ -1842,6 +1842,13 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
           connectToNode(node: this.node!);
         }
         _isTryingToConnect = false;
+      });
+    }
+
+    if (syncStatus is SyncedNewBlockSyncStatus) {
+      // Message is shown on the UI for 3 seconds, then reverted to synced
+      Timer(Duration(seconds: 3), () {
+        if (this.syncStatus is SyncedNewBlockSyncStatus) this.syncStatus = SyncedSyncStatus();
       });
     }
   }

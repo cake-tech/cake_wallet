@@ -730,7 +730,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
   @override
   @action
-  Future<void> onHeadersResponse(ElectrumHeaderResponse response) async {
+  Future<void> onHeadersResponse(ElectrumWorkerHeadersResponse response) async {
     super.onHeadersResponse(response);
 
     _setInitialScanHeight();

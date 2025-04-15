@@ -12,6 +12,10 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.silent_payments_scanned_tip(syncStatus.tip.toString());
   }
 
+  if (syncStatus is SyncedNewBlockSyncStatus) {
+    return S.current.sync_status_new_block(syncStatus.height.toString());
+  }
+
   if (syncStatus is SyncedSyncStatus) {
     return S.current.sync_status_syncronized;
   }

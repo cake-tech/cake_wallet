@@ -820,6 +820,7 @@
   "sync_status_connected": "TI DÁRAPỌ̀ MỌ́",
   "sync_status_connecting": "Ń DÁRAPỌ̀ MỌ́",
   "sync_status_failed_connect": "ÌKÀNPỌ̀ TI KÚ",
+  "sync_status_new_block": "Aworan Tuntun: ${block}",
   "sync_status_not_connected": "KÒ TI DÁRAPỌ̀ MỌ́ Ọ",
   "sync_status_starting_scan": "Ibẹrẹ ọlọjẹ (lati ${height})",
   "sync_status_starting_sync": "Ń BẸ̀RẸ̀ RẸ́",

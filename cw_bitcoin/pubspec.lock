@@ -80,7 +80,7 @@ packages:
     description:
       path: "."
       ref: cake-update-v15
-      resolved-ref: db0856e1f69f148c8cfc5e8861e1c777ce8f85db
+      resolved-ref: fca9a4bdfc9d71097167805f8a3be05aa95bdfd6
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "5.0.0"

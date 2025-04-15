@@ -41,12 +41,17 @@ class ProcessingSyncStatus extends SyncStatus {
 
   @override
   double progress() => 0.99;
-
 }
 
 class SyncedSyncStatus extends SyncStatus {
   @override
   double progress() => 1.0;
+}
+
+class SyncedNewBlockSyncStatus extends SyncedSyncStatus {
+  SyncedNewBlockSyncStatus(this.height);
+
+  final int height;
 }
 
 class SyncedTipSyncStatus extends SyncedSyncStatus {

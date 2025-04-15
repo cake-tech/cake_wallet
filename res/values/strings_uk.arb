@@ -820,6 +820,7 @@
   "sync_status_connected": "ПІДКЛЮЧЕНО",
   "sync_status_connecting": "ПІДКЛЮЧЕННЯ",
   "sync_status_failed_connect": "ВІДКЛЮЧЕНО",
+  "sync_status_new_block": "НОВИЙ БЛОК: ${block}",
   "sync_status_not_connected": "НЕ ПІДКЛЮЧЕННИЙ",
   "sync_status_starting_scan": "Початок сканування (від ${height})",
   "sync_status_starting_sync": "ПОЧАТОК СИНХРОНІЗАЦІЇ",
