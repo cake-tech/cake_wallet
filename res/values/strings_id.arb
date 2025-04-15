@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Saya telah mengonfirmasi alamat dan informasi kontrak token menggunakan sumber yang memiliki reputasi baik. Menambahkan informasi jahat atau salah dapat mengakibatkan hilangnya dana.",
   "add_token_warning": "Jangan mengedit atau menambahkan token seperti yang diinstruksikan oleh penipu.\nSelalu konfirmasikan alamat token dengan sumber tepercaya!",
   "add_value": "Tambahkan nilai",
+  "added_message_for_ata_error": "Mohon pastikan Anda memiliki saldo SOL yang cukup untuk menyelesaikan transaksi Anda.",
   "address": "Alamat",
   "address_book": "Buku Alamat",
   "address_book_menu": "Buku alamat",

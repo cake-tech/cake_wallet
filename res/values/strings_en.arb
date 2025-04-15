@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "I have confirmed the token contract address and information using a reputable source. Adding malicious or incorrect information can result in a loss of funds.",
   "add_token_warning": "Do not edit or add tokens as instructed by scammers.\nAlways confirm token addresses with reputable sources!",
   "add_value": "Add value",
+  "added_message_for_ata_error": "Kindly ensure you have enough SOL balance to complete your transaction.",
   "address": "Address",
   "address_book": "Address Book",
   "address_book_menu": "Address book",

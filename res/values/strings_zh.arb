@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "我已使用信誉良好的来源确认了代币合约地址和信息。 添加恶意或不正确的信息可能会导致资金损失。",
   "add_token_warning": "请勿按照诈骗者的指示编辑或添加令牌。\n始终通过信誉良好的来源确认代币地址！",
   "add_value": "增加价值",
+  "added_message_for_ata_error": "请确保您有足够的SOL余额来完成交易。",
   "address": "地址",
   "address_book": "地址簿",
   "address_book_menu": "地址簿",

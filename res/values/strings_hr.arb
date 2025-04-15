@@ -21,6 +21,7 @@
   "add_token_disclaimer_check": "Potvrdio sam adresu i informacije o ugovoru o tokenu koristeći ugledni izvor. Dodavanje zlonamjernih ili netočnih informacija može dovesti do gubitka sredstava.",
   "add_token_warning": "Nemojte uređivati niti dodavati tokene prema uputama prevaranata.\nUvijek potvrdite adrese tokena s uglednim izvorima!",
   "add_value": "Dodaj vrijednost",
+  "added_message_for_ata_error": "Ljubazno osigurajte da imate dovoljno salda SOL -a da dovršite svoju transakciju.",
   "address": "Adresa",
   "address_book": "Imenik",
   "address_book_menu": "Imenik",
