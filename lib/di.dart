@@ -1202,7 +1202,7 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactoryParam<PreSeedPage, int, void>((seedPhraseLength, _) => PreSeedPage());
+  getIt.registerFactory<PreSeedPage>(() => PreSeedPage());
 
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
           (content, _) => TransactionSuccessPage(content: content));
