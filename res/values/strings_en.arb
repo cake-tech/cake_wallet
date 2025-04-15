@@ -545,7 +545,7 @@
   "potential_scam": "Potential Scam",
   "powered_by": "Powered by ${title}",
   "pre_seed_button_text": "I understand. Show me my seed",
-  "pre_seed_description": "On the next page you will see a series of ${words} words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.",
+  "pre_seed_description": "On the next page you will see a series of words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.",
   "pre_seed_title": "IMPORTANT",
   "prepaid_cards": "Prepaid Cards",
   "prevent_screenshots": "Prevent screenshots and screen recording",

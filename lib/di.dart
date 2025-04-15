@@ -15,7 +15,6 @@ import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
@@ -1203,8 +1202,7 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactoryParam<PreSeedPage, int, void>(
-      (seedPhraseLength, _) => PreSeedPage(seedPhraseLength));
+  getIt.registerFactoryParam<PreSeedPage, int, void>((seedPhraseLength, _) => PreSeedPage());
 
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
           (content, _) => TransactionSuccessPage(content: content));

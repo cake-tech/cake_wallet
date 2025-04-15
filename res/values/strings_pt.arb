@@ -546,7 +546,7 @@
   "potential_scam": "Golpe potencial",
   "powered_by": "Troca realizada por ${title}",
   "pre_seed_button_text": "Compreendo. Me mostre minha semente",
-  "pre_seed_description": "Na próxima página, você verá uma série de ${words} palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.",
+  "pre_seed_description": "Na próxima página, você verá uma série de palavras. Esta é a sua semente única e privada e é a única maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É sua responsabilidade anotar e armazená -lo em um local seguro fora do aplicativo de carteira de bolo.",
   "pre_seed_title": "IMPORTANTE",
   "prepaid_cards": "Cartões pré-pagos",
   "prevent_screenshots": "Evite capturas de tela e gravação de tela",
