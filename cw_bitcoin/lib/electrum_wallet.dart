@@ -1225,20 +1225,12 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   }
 
   @action
-  Future<void> onScripthashesStatusResponse(Map<String, dynamic>? result) async {
-    if (result != null) {
-      for (final entry in result.entries) {
-        final address = entry.key;
-
-        final scripthash = walletAddresses.allAddresses
-            .firstWhereOrNull((element) => element.address == address)
-            ?.scriptHash;
-
-        if (scripthash != null) {
-          scripthashesWithStatus.add(scripthash);
-        }
-      }
+  Future<void> onScripthashesStatusResponse(ElectrumWorkerScripthashesResponse result) async {
+    if (result.status == null) {
+      return;
     }
+
+    scripthashesWithStatus.add(result.scripthash);
   }
 
   @action
@@ -1653,20 +1645,24 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   @action
   Future<void> subscribeForStatuses([bool? wait]) async {
     Map<String, String> scripthashByAddress = {};
+    Map<String, String> addressByScripthashes = {};
     walletAddresses.allAddresses.forEach((addressRecord) {
       scripthashByAddress[addressRecord.address] = addressRecord.scriptHash;
+      addressByScripthashes[addressRecord.scriptHash] = addressRecord.address;
     });
 
     if (wait == true) {
       await waitSendWorker(
         ElectrumWorkerScripthashesSubscribeRequest(
           scripthashByAddress: scripthashByAddress,
+          addressByScripthashes: addressByScripthashes,
         ),
       );
     } else {
       workerSendPort!.send(
         ElectrumWorkerScripthashesSubscribeRequest(
           scripthashByAddress: scripthashByAddress,
+          addressByScripthashes: addressByScripthashes,
         ).toJson(),
       );
     }

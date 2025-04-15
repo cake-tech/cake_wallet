@@ -3,11 +3,13 @@ part of 'methods.dart';
 class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerRequest {
   ElectrumWorkerScripthashesSubscribeRequest({
     required this.scripthashByAddress,
+    required this.addressByScripthashes,
     this.id,
     this.completed = false,
   });
 
-  final Map<String, dynamic> scripthashByAddress;
+  final Map<String, String> scripthashByAddress;
+  final Map<String, String> addressByScripthashes;
   final int? id;
   final bool completed;
 
@@ -17,7 +19,8 @@ class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerReques
   @override
   factory ElectrumWorkerScripthashesSubscribeRequest.fromJson(Map<dynamic, dynamic> json) {
     return ElectrumWorkerScripthashesSubscribeRequest(
-      scripthashByAddress: json['scripthashes'] as Map<String, String>,
+      scripthashByAddress: json['scripthashByAddress'] as Map<String, String>,
+      addressByScripthashes: json['addressByScripthashes'] as Map<String, String>,
       id: json['id'] as int?,
       completed: json['completed'] as bool? ?? false,
     );
@@ -29,7 +32,8 @@ class ElectrumWorkerScripthashesSubscribeRequest implements ElectrumWorkerReques
       'method': method,
       'id': id,
       'completed': completed,
-      'scripthashes': scripthashByAddress,
+      'scripthashByAddress': scripthashByAddress,
+      'addressByScripthashes': addressByScripthashes,
     };
   }
 }
@@ -44,8 +48,32 @@ class ElectrumWorkerScripthashesSubscribeError extends ElectrumWorkerErrorRespon
   final String method = ElectrumRequestMethods.scriptHashSubscribe.method;
 }
 
+class ElectrumWorkerScripthashesResponse {
+  ElectrumWorkerScripthashesResponse({
+    required this.address,
+    required this.scripthash,
+    this.status,
+  });
+
+  final String address;
+  final String scripthash;
+  final String? status;
+
+  Map<String, dynamic> toJson() {
+    return {'address': address, 'scripthash': scripthash, 'status': status};
+  }
+
+  static ElectrumWorkerScripthashesResponse fromJson(Map<String, dynamic> json) {
+    return ElectrumWorkerScripthashesResponse(
+      address: json['address'] as String,
+      scripthash: json['scripthash'] as String,
+      status: json['status'] as String?,
+    );
+  }
+}
+
 class ElectrumWorkerScripthashesSubscribeResponse
-    extends ElectrumWorkerResponse<Map<String, dynamic>?, Map<String, dynamic>?> {
+    extends ElectrumWorkerResponse<ElectrumWorkerScripthashesResponse, Map<String, dynamic>?> {
   ElectrumWorkerScripthashesSubscribeResponse({
     required super.result,
     super.error,
@@ -55,13 +83,13 @@ class ElectrumWorkerScripthashesSubscribeResponse
 
   @override
   Map<String, dynamic>? resultJson(result) {
-    return result;
+    return result.toJson();
   }
 
   @override
   factory ElectrumWorkerScripthashesSubscribeResponse.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerScripthashesSubscribeResponse(
-      result: json['result'] as Map<String, dynamic>?,
+      result: ElectrumWorkerScripthashesResponse.fromJson(json['result'] as Map<String, dynamic>),
       error: json['error'] as String?,
       id: json['id'] as int?,
       completed: json['completed'] as bool? ?? false,

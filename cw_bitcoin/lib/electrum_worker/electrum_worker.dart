@@ -212,8 +212,6 @@ class ElectrumWorker {
           if (tx.confirmations != newConfirmationsValue) {
             tx.confirmations = newConfirmationsValue;
             tx.isPending = tx.confirmations == 0;
-            if (!anyTxWasUpdated) {
-            }
             anyTxWasUpdated = true;
           }
         }
@@ -233,61 +231,93 @@ class ElectrumWorker {
     });
   }
 
+  Future<void> _handleBatchScriphashesSubscribe(
+    ElectrumWorkerScripthashesSubscribeRequest request, [
+    int chunkSize = 100,
+    List<String>? allScriptHashes,
+  ]) async {
+    final scripthashByAddress = request.scripthashByAddress;
+    allScriptHashes ??= scripthashByAddress.values.toList();
+
+    final chunks = allScriptHashes.sublist(
+      0,
+      chunkSize > allScriptHashes.length ? allScriptHashes.length : chunkSize,
+    );
+
+    final req = ElectrumBatchRequestScriptHashSubscribe(scriptHashes: chunks);
+    final batchStreams = await _electrumClient!.batchSubscribe(req);
+
+    if (batchStreams != null) {
+      int i = 0;
+
+      for (final stream in batchStreams) {
+        stream.subscription.listen((status) async {
+          final batch = req.onResponse(status, stream.params);
+          // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
+          // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
+          final result = batch.result;
+
+          final scriptHash = batch.paramForRequest!.first as String;
+          final address = request.addressByScripthashes[scriptHash]!;
+
+          if (result != null) {
+            _sendResponse(
+              ElectrumWorkerScripthashesSubscribeResponse(
+                result: ElectrumWorkerScripthashesResponse(
+                  address: address,
+                  scripthash: scriptHash,
+                  status: result,
+                ),
+                id: request.id,
+                completed: false,
+              ),
+            );
+          }
+
+          scripthashByAddress.remove(address);
+
+          await _electrumClient!.request(
+            ElectrumRequestScriptHashUnSubscribe(scriptHash: scriptHash),
+          );
+
+          i++;
+
+          if (i == chunkSize) {
+            _handleBatchScriphashesSubscribe(
+              request,
+              chunkSize,
+              scripthashByAddress.values.toList(),
+            );
+          }
+
+          // Got all batches, complete
+          if (i == chunks.length && scripthashByAddress.isEmpty) {
+            _sendResponse(
+              ElectrumWorkerScripthashesSubscribeResponse(
+                result: ElectrumWorkerScripthashesResponse(
+                  address: address,
+                  scripthash: scriptHash,
+                  status: null,
+                ),
+                id: request.id,
+                completed: true,
+              ),
+            );
+          }
+        }, onError: (Object e) {
+          // print(e);
+        });
+      }
+    } else {
+      _serverCapability!.supportsBatching = false;
+    }
+  }
+
   Future<void> _handleScriphashesSubscribe(
     ElectrumWorkerScripthashesSubscribeRequest request,
   ) async {
     if (_serverCapability!.supportsBatching) {
-      try {
-        final req = ElectrumBatchRequestScriptHashSubscribe(
-          scriptHashes: request.scripthashByAddress.values.toList() as List<String>,
-        );
-
-        final streams = await _electrumClient!.batchSubscribe(req);
-
-        if (streams != null) {
-          int i = 0;
-
-          await Future.wait(streams.map((stream) async {
-            stream.subscription.listen((status) {
-              final batch = req.onResponse(status, stream.params);
-              final result = batch.result;
-
-              final scriptHash = batch.paramForRequest!.first as String;
-              final address = request.scripthashByAddress.entries
-                  .firstWhere(
-                    (entry) => entry.value == scriptHash,
-                  )
-                  .key;
-
-              if (result != null) {
-                _sendResponse(
-                  ElectrumWorkerScripthashesSubscribeResponse(
-                    result: {address: result},
-                    id: request.id,
-                    completed: false,
-                  ),
-                );
-              }
-
-              i++;
-
-              if (i == request.scripthashByAddress.length) {
-                _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
-                  result: {address: null},
-                  id: request.id,
-                  completed: true,
-                ));
-              }
-            }, onError: () {
-              _serverCapability!.supportsBatching = false;
-            });
-          }));
-        } else {
-          _serverCapability!.supportsBatching = false;
-        }
-      } catch (_) {
-        _serverCapability!.supportsBatching = false;
-      }
+      _handleBatchScriphashesSubscribe(request);
     }
 
     if (_serverCapability!.supportsBatching == false) {
@@ -310,16 +340,25 @@ class ElectrumWorker {
         stream.listen((status) async {
           if (status != null) {
             _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
-              result: {address: req.onResponse(status)},
+              result: ElectrumWorkerScripthashesResponse(
+                address: address,
+                scripthash: scripthash,
+                status: req.onResponse(status),
+              ),
               id: request.id,
               completed: false,
             ));
           }
           i++;
 
+          // Got all statuses, complete
           if (i == request.scripthashByAddress.length) {
             _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
-              result: {address: null},
+              result: ElectrumWorkerScripthashesResponse(
+                address: address,
+                scripthash: scripthash,
+                status: null,
+              ),
               id: request.id,
               completed: true,
             ));
