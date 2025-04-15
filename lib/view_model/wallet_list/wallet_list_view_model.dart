@@ -216,7 +216,6 @@ abstract class WalletListViewModelBase with Store {
         await sortGroupByType();
         break;
       case FilterListOrderType.Custom:
-      default:
         await reorderAccordingToWalletList();
         break;
     }

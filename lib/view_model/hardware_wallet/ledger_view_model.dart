@@ -137,7 +137,9 @@ abstract class LedgerViewModelBase with Store {
             allowChangeWallet: true,
             isReconnect: true,
             onConnectDevice: (context, ledgerVM) async {
-              Navigator.of(context).pop();
+              if (context.mounted) {
+                Navigator.of(context).pop();
+              }
             },
           ),
         );
