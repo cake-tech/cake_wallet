@@ -38,6 +38,7 @@ import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
+import 'package:cake_wallet/src/screens/dev/logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -840,6 +841,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devSharedPreferences:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevSharedPreferencesPage>(),
+      );
+
+    case Routes.devLogs:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevLogsPage>(),
       );
 
     case Routes.devMoneroCallProfiler:

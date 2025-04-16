@@ -267,6 +267,8 @@ import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
+import 'package:cake_wallet/view_model/dev/logs_view_model.dart';
+import 'package:cake_wallet/src/screens/dev/logs_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -880,9 +882,8 @@ Future<void> setup({
           nanoAccountCreationViewModel:
               getIt.get<NanoAccountEditOrCreateViewModel>(param1: account)));
 
-  getIt.registerFactory(() {
-    return DisplaySettingsViewModel(getIt.get<SettingsStore>());
-  });
+  getIt.registerFactory(() =>
+      DisplaySettingsViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
@@ -890,22 +891,20 @@ Future<void> setup({
   getIt.registerFactory(
       () => MwebSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory(() {
-    return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
-  });
+  getIt.registerFactory(() =>
+      PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => TrocadorExchangeProvider());
 
   getIt.registerFactory(() => TrocadorProvidersViewModel(
       getIt.get<SettingsStore>(), getIt.get<TrocadorExchangeProvider>()));
 
-  getIt.registerFactory(() {
-    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
-        getIt.get<SendViewModel>());});
+  getIt.registerFactory(() =>
+      OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
+          getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(() {
-    return SecuritySettingsViewModel(getIt.get<SettingsStore>());
-  });
+  getIt.registerFactory(() =>
+      SecuritySettingsViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
@@ -1457,6 +1456,10 @@ Future<void> setup({
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
 
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
+  
+  getIt.registerFactory(() => LogsViewModel());
+  
+  getIt.registerFactory(() => DevLogsPage(getIt.get<LogsViewModel>()));
   
   _isSetupFinished = true;
 }
