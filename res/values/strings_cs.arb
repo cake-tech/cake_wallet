@@ -544,7 +544,7 @@
   "potential_scam": "Potenciální podvod",
   "powered_by": "Zajišťuje ${title}",
   "pre_seed_button_text": "Rozumím. Ukaž mi můj seed.",
-  "pre_seed_description": "Na následující stránce uvidíte sérii ${words} slov. Je to váš tzv. seed a je to JEDINÁ možnost, jak můžete později obnovit svou peněženku v případě ztráty nebo poruchy. Je VAŠÍ zodpovědností zapsat si ho a uložit si ho na bezpečném místě mimo aplikaci Cake Wallet.",
+  "pre_seed_description": "Na další stránce uvidíte řadu slov. Toto je vaše jedinečné a soukromé semeno a je to jediný způsob, jak obnovit peněženku v případě ztráty nebo poruchy. Je vaší odpovědností zapisovat jej a uložit jej na bezpečném místě mimo aplikaci Cake Wallet.",
   "pre_seed_title": "DŮLEŽITÉ",
   "prepaid_cards": "Předplacené karty",
   "prevent_screenshots": "Zabránit vytváření snímků obrazovky a nahrávání obrazovky",
