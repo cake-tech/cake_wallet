@@ -205,6 +205,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     );
   }
 
+  BuildContext? dialogContext;
   BuildContext? loadingBottomSheetContext;
 
   void _setEffects() {
@@ -213,7 +214,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     }
 
     _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
-        (ExecutionState state) {
+        (ExecutionState state) async {
+
+          if (dialogContext != null && dialogContext?.mounted == true) {
+            Navigator.of(dialogContext!).pop();
+          }
+
       if (state is! IsExecutingState &&
           loadingBottomSheetContext != null &&
           loadingBottomSheetContext!.mounted) {
@@ -237,6 +243,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       }
 
       if (state is IsExecutingState) {
+        // wait a bit to avoid showing the loading dialog if transaction is failed
+        await Future.delayed(const Duration(milliseconds: 300));
+        final currentState = widget.exchangeTradeViewModel.sendViewModel.state;
+        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
+          return;
+        }
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             showModalBottomSheet<void>(
