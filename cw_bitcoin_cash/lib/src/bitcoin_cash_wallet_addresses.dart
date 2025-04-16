@@ -35,19 +35,19 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
 
   @override
   Future<void> init() async {
-    for (final seedBytesType in hdWallets.keys) {
-      await generateInitialAddresses(
-        addressType: P2pkhAddressType.p2pkh,
-        seedBytesType: seedBytesType,
-        bitcoinDerivationInfo: BitcoinDerivationInfos.BCH,
-      );
-    }
+    // for (final seedBytesType in hdWallets.keys) {
+    //   await generateInitialAddresses(
+    //     addressType: P2pkhAddressType.p2pkh,
+    //     seedBytesType: seedBytesType,
+    //     bitcoinDerivationInfo: BitcoinDerivationInfos.BCH,
+    //   );
+    // }
     await super.init();
   }
 
   @override
   bool getShouldHideAddress(Bip32Path path, BitcoinAddressType addressType) {
-    if (seedTypeIsElectrum) {
+    if (walletSeedBytesType.isElectrum) {
       return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
     }
 

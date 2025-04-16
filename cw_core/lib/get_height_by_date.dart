@@ -317,10 +317,12 @@ DateTime getDateByBitcoinHeight(int height) {
 }
 
 int getLtcHeightByDate({required DateTime date}) {
+// <-
   // TODO: use the proxy layer to get the height with a binary search of blocked header heights
   return 0;
 }
 
+// <-
 // TODO: enhance all of this global const lists
 const wowDates = {
   "2023-12": 583048,

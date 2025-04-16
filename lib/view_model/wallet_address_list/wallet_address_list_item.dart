@@ -32,7 +32,7 @@ class WalletAddressListItem extends ListItem {
   final bool? isOneTimeReceiveAddress;
 
   @override
-  String toString() => name ?? address;
+  String toString() => name != null && name != "" ? name! : address;
 
   Function(String)? onDelete;
 }

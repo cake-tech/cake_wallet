@@ -67,22 +67,22 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> init() async {
     if (!super.isHardwareWallet) await initMwebAddresses();
 
-    for (final seedBytesType in hdWallets.keys) {
-      await generateInitialAddresses(
-        addressType: SegwitAddressType.p2wpkh,
-        seedBytesType: seedBytesType,
-        bitcoinDerivationInfo: seedBytesType.isElectrum
-            ? BitcoinDerivationInfos.ELECTRUM
-            : BitcoinDerivationInfos.LITECOIN,
-      );
+    // for (final seedBytesType in hdWallets.keys) {
+    //   await generateInitialAddresses(
+    //     addressType: SegwitAddressType.p2wpkh,
+    //     seedBytesType: seedBytesType,
+    //     bitcoinDerivationInfo: seedBytesType.isElectrum
+    //         ? BitcoinDerivationInfos.ELECTRUM
+    //         : BitcoinDerivationInfos.LITECOIN,
+    //   );
 
-      if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
-        await generateInitialMWEBAddresses(
-          addressType: SegwitAddressType.mweb,
-          seedBytesType: seedBytesType,
-        );
-      }
-    }
+    //   if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
+    //     await generateInitialMWEBAddresses(
+    //       addressType: SegwitAddressType.mweb,
+    //       seedBytesType: seedBytesType,
+    //     );
+    //   }
+    // }
 
     await super.init();
   }
@@ -253,6 +253,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       bool comesFromMweb = false;
 
       for (var i = 0; i < outputs.length; i++) {
+// <-
         // TODO: probably not the best way to tell if this is an mweb address
         // (but it doesn't contain the "mweb" text at this stage)
         if (outputs[i].address.toAddress(network).length > 110) {
@@ -280,7 +281,6 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
     if (mwebEnabled) {
       await ensureMwebAddressUpToIndexExists(1);
-      updateAddressesByType();
       return LitecoinMWEBAddressRecord(mwebAddrs[0], index: 0, network: network);
     }
 
@@ -391,19 +391,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     this.mwebAddresses.addAll(newMwebAddresses);
-    updateAddressesByType();
   }
 
-  @override
-  @action
-  void updateAddressesByType() {
-    receiveAddressesByType[SegwitAddressType.mweb] = mwebAddresses.toList();
-    super.updateAddressesByType();
-  }
+  // @override
+  // @action
+  // void updateAddressesByType() {
+  //   receiveAddressesMapped[SegwitAddressType.mweb] = mwebAddresses.toList();
+  //   super.updateAddressesByType();
+  // }
 
   @override
   bool getShouldHideAddress(Bip32Path path, BitcoinAddressType addressType) {
-    if (seedTypeIsElectrum) {
+    if (walletSeedBytesType.isElectrum) {
       return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
     }
 

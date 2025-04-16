@@ -503,6 +503,20 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (WalletType.bitcoin != wallet.type) {
+      for (var i = 0; i < addressList.length; i++) {
+        if (!(addressList[i] is WalletAddressListItem)) continue;
+        (addressList[i] as WalletAddressListItem).isHidden = wallet.walletAddresses.hiddenAddresses
+            .contains((addressList[i] as WalletAddressListItem).address);
+      }
+
+      for (var i = 0; i < addressList.length; i++) {
+        if (!(addressList[i] is WalletAddressListItem)) continue;
+        (addressList[i] as WalletAddressListItem).isManual = wallet.walletAddresses.manualAddresses
+            .contains((addressList[i] as WalletAddressListItem).address);
+      }
+    }
+
     if (wallet.type == WalletType.decred) {
       final addrInfos = decred!.getAddressInfos(wallet);
       addrInfos.forEach((info) {

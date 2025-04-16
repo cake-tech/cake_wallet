@@ -162,6 +162,7 @@ class CWBitcoin extends Bitcoin {
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isChange,
+            isHidden: addr.isHidden || addr.isChange,
           ),
         )
         .toList();
@@ -533,6 +534,7 @@ class CWBitcoin extends Bitcoin {
               txCount: addr.txCount,
               balance: addr.balance,
               isChange: addr.isChange,
+              isHidden: addr.isHidden || addr.isChange,
             ))
         .toList();
   }
@@ -549,6 +551,7 @@ class CWBitcoin extends Bitcoin {
               txCount: addr.txCount,
               balance: addr.balance,
               isChange: addr.isChange,
+              isHidden: addr.isHidden || addr.isChange,
             ))
         .toList();
   }
@@ -733,7 +736,7 @@ class CWBitcoin extends Bitcoin {
       }
     }
 
-    //
+    // <-
     // TODO: this could be improved:
     return inputAddressesContainMweb || outputAddressesContainMweb;
   }

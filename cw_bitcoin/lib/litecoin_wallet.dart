@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/litecoin_wallet_snapshot.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -443,6 +444,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
           await mwebUtxosBox.delete(utxo.outputId);
         }
       }
+// <-
       // TODO: remove transactions that are above the new restore height!
     }
 
@@ -759,10 +761,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
 
   @override
   @action
-  Future<void> updateAllUnspents([Set<String>? scripthashes, bool? wait]) async {
+  Future<ElectrumWorkerListUnspentResponse?> updateAllUnspents([
+    Set<String>? scripthashes,
+    bool? wait,
+  ]) async {
     if (!mwebEnabled) {
-      await super.updateAllUnspents(scripthashes, wait);
-      return;
+      return await super.updateAllUnspents(scripthashes, wait);
     }
 
     // add the mweb unspents to the list:
@@ -805,15 +809,21 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
     await super.updateAllUnspents();
     // add the mwebCoins:
     unspentCoins.addAll(mwebUnspentCoins);
+
+    return null;
   }
 
-  // @override
-  Future<void> updateBalance([Set<String>? scripthashes, bool? wait]) async {
-    await super.updateBalance(scripthashes, true);
+  @override
+  Future<ElectrumWorkerGetBalanceResponse?> updateBalance([
+    Set<String>? scripthashes,
+    bool? wait,
+  ]) async {
+    final updatedBalance = await super.updateBalance(scripthashes, true);
+
     final balance = this.balance[currency]!;
 
     if (!mwebEnabled) {
-      return;
+      return updatedBalance;
     }
 
     // update unspent balances:
@@ -894,6 +904,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
       secondConfirmed: confirmedMweb,
       secondUnconfirmed: unconfirmedMweb,
     );
+    return null;
   }
 
   @override
@@ -1206,6 +1217,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
 
     if (isMweb && !mwebEnabled) {
       throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+// <-
       // TODO: likely the change address is mweb and just not updated
     }
 
@@ -1325,7 +1337,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
           tx = PendingBitcoinTransaction(
             transaction,
             type,
-            sendWorker: waitSendWorker,
+            waitSendWorker: waitSendWorker,
             amount: estimatedTx.amount,
             fee: estimatedTx.fee,
             feeRate: data.feeRate.toString(),
@@ -1379,7 +1391,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
           tx = PendingBitcoinTransaction(
             transaction,
             type,
-            sendWorker: waitSendWorker,
+            waitSendWorker: waitSendWorker,
             amount: estimatedTx.amount,
             fee: estimatedTx.fee,
             feeRate: data.feeRate.toString(),
@@ -1473,6 +1485,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
         final utxo = unspentCoins
             .firstWhere((utxo) => utxo.hash == txInput.txId && utxo.vout == txInput.txIndex);
 
+// <-
         // TODO: detect actual hog-ex inputs
 
         if (!isHogEx) {

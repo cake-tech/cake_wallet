@@ -96,6 +96,7 @@ class UnspentCoinsListItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         AutoSizeText(
+                        // <-
                           '${address.substring(0, 5)}...${address.substring(address.length - 5)}', // ToDo: Maybe use address label
                           style: TextStyle(
                             color: addressColor,

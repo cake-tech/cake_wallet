@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_snapshot.dart';
@@ -111,6 +112,87 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
   Future<bool> get mempoolAPIEnabled async {
     bool isMempoolAPIEnabled = (await sharedPrefs.future).getBool("use_mempool_fee_api") ?? true;
     return isMempoolAPIEnabled;
+  }
+
+  @override
+  void initAddresses() async {
+    // if (didInitAddresses) return;
+
+    // If already loaded, no need to generate/discover all initial addresses
+    // so skip
+    // if (!walletAddresses.loadedFromNewSnapshot) {
+    for (final seedBytesType in hdWallets.keys) {
+      generateInitialAddresses(
+        addressType: SegwitAddressType.p2wpkh,
+        seedBytesType: seedBytesType,
+      );
+
+      if (!isHardwareWallet) {
+        generateInitialAddresses(
+          addressType: P2pkhAddressType.p2pkh,
+          seedBytesType: seedBytesType,
+        );
+
+        generateInitialAddresses(
+          addressType: P2shAddressType.p2wpkhInP2sh,
+          seedBytesType: seedBytesType,
+        );
+
+        generateInitialAddresses(
+          addressType: SegwitAddressType.p2tr,
+          seedBytesType: seedBytesType,
+        );
+
+        generateInitialAddresses(
+          addressType: SegwitAddressType.p2wsh,
+          seedBytesType: seedBytesType,
+        );
+      }
+    }
+    // }
+  }
+
+  @override
+  @action
+  void generateInitialAddresses({
+    required BitcoinAddressType addressType,
+    required SeedBytesType seedBytesType,
+    BitcoinDerivationInfo? bitcoinDerivationInfo,
+  }) {
+    // p2wpkh has always had the right derivations, skip if creating old derivations
+    if (seedBytesType.isOldDerivation && addressType == SegwitAddressType.p2wpkh) {
+      return;
+    }
+
+    final bitcoinDerivationInfo = BitcoinAddressUtils.getDerivationFromType(
+      addressType,
+      isElectrum: seedBytesType.isElectrum,
+    );
+
+    if (seedBytesType.isOldDerivation) {
+      for (final derivationInfo in [
+        bitcoinDerivationInfo,
+        BitcoinDerivationInfos.ELECTRUM,
+        BitcoinDerivationInfos.BIP84,
+      ]) {
+        if (derivationInfo.derivationPath.toString() ==
+            bitcoinDerivationInfo.derivationPath.toString()) {
+          continue;
+        }
+
+        super.generateInitialAddresses(
+          addressType: addressType,
+          seedBytesType: seedBytesType,
+          bitcoinDerivationInfo: derivationInfo,
+        );
+      }
+    } else {
+      super.generateInitialAddresses(
+        addressType: addressType,
+        seedBytesType: seedBytesType,
+        bitcoinDerivationInfo: bitcoinDerivationInfo,
+      );
+    }
   }
 
   static Future<BitcoinWallet> create({
@@ -236,15 +318,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
       return false;
     }
 
-    final version = await waitSendWorker(ElectrumWorkerGetVersionRequest());
+    final version = ElectrumWorkerGetVersionResponse.fromJson(
+      await waitSendWorker(ElectrumWorkerGetVersionRequest()),
+    ).result;
 
-    if (version is List<String> && version.isNotEmpty) {
-      final server = version[0];
-
-      if (server.toLowerCase().contains('electrs')) {
-        node!.isElectrs = true;
-      }
-    } else if (version is String && version.toLowerCase().contains('electrs')) {
+    if (version.toLowerCase().contains('electrs')) {
       node!.isElectrs = true;
     } else {
       node!.isElectrs = false;
@@ -267,11 +345,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
     if (node!.supportsSilentPayments == null) {
       try {
-        final workerResponse = (await waitSendWorker(ElectrumWorkerCheckTweaksRequest())) as String;
         final tweaksResponse = ElectrumWorkerCheckTweaksResponse.fromJson(
-          json.decode(workerResponse) as Map<String, dynamic>,
-        );
-        final supportsScanning = tweaksResponse.result == true;
+          await waitSendWorker(ElectrumWorkerCheckTweaksRequest()),
+        ).result;
+        final supportsScanning = tweaksResponse == true;
 
         if (supportsScanning) {
           node!.supportsSilentPayments = true;
@@ -359,13 +436,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
   @override
   Future<ElectrumTransactionBundle> getTransactionExpanded({required String hash}) async {
-    return await waitSendWorker(
-      ElectrumWorkerTxExpandedRequest(
-        txHash: hash,
-        currentChainTip: currentChainTip!,
-        mempoolAPIEnabled: await mempoolAPIEnabled,
+    return ElectrumWorkerTxExpandedResponse.fromJson(
+      await waitSendWorker(
+        ElectrumWorkerTxExpandedRequest(
+          txHash: hash,
+          currentChainTip: currentChainTip!,
+          mempoolAPIEnabled: await mempoolAPIEnabled,
+        ),
       ),
-    ) as ElectrumTransactionBundle;
+    ).result;
   }
 
   @override
@@ -437,7 +516,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
   @override
   @action
-  Future<void> updateAllUnspents([Set<String>? scripthashes, bool? wait]) async {
+  Future<ElectrumWorkerListUnspentResponse?> updateAllUnspents([
+    Set<String>? scripthashes,
+    bool? wait,
+  ]) async {
     scripthashes ??= this.walletAddresses.allScriptHashes;
     await super.updateAllUnspents(scripthashes, wait);
 
@@ -485,6 +567,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
     });
 
     await walletAddresses.updateAddressesInBox();
+    return null;
   }
 
   @override
@@ -1234,7 +1317,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
         return PendingBitcoinTransaction(
           transaction,
           type,
-          sendWorker: waitSendWorker,
+          waitSendWorker: waitSendWorker,
           amount: estimatedTx.amount,
           fee: estimatedTx.fee,
           feeRate: feeRateInt.toString(),
@@ -1304,7 +1387,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
       return PendingBitcoinTransaction(
         transaction,
         type,
-        sendWorker: waitSendWorker,
+        waitSendWorker: waitSendWorker,
         amount: estimatedTx.amount,
         fee: estimatedTx.fee,
         feeRate: feeRateInt.toString(),

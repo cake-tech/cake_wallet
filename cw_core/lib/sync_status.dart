@@ -112,6 +112,11 @@ class LostConnectionSyncStatus extends NotConnectedSyncStatus {
   String toString() => 'Reconnecting';
 }
 
+class DiscoveringAddressesSyncStatus extends NotConnectedSyncStatus {
+  @override
+  String toString() => 'Discovering addresses';
+}
+
 Map<String, dynamic> syncStatusToJson(SyncStatus? status) {
   if (status == null) {
     return {};

@@ -20,6 +20,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required super.network,
     required super.isHardwareWallet,
     super.initialAddresses,
+    super.initialDiscoveredAddresses,
+    super.initialReceiveAddressesMapped,
+    super.initialChangeAddressesMapped,
     this.loadedFromNewSnapshot = false,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     List<BitcoinReceivedSPAddressRecord>? initialReceivedSPAddresses,
@@ -37,7 +40,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   final bool loadedFromNewSnapshot;
 
   static const _OLD_SP_PATH = "m/352'/1'/0'/#'/0";
-  static const _OLD_DERIVATION_TYPES = [SeedBytesType.old_electrum, SeedBytesType.old_bip39];
 
   @override
   final walletAddressTypes = BITCOIN_ADDRESS_TYPES;
@@ -69,41 +71,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   Future<void> init() async {
-    // If already loaded, no need to generate/discover all initial addresses
-    // so skip
-    if (!loadedFromNewSnapshot) {
-      for (final seedBytesType in hdWallets.keys) {
-        await generateInitialAddresses(
-          addressType: SegwitAddressType.p2wpkh,
-          seedBytesType: seedBytesType,
-        );
-
-        if (!isHardwareWallet) {
-          await generateInitialAddresses(
-            addressType: P2pkhAddressType.p2pkh,
-            seedBytesType: seedBytesType,
-          );
-
-          await generateInitialAddresses(
-            addressType: P2shAddressType.p2wpkhInP2sh,
-            seedBytesType: seedBytesType,
-          );
-
-          await generateInitialAddresses(
-            addressType: SegwitAddressType.p2tr,
-            seedBytesType: seedBytesType,
-          );
-
-          await generateInitialAddresses(
-            addressType: SegwitAddressType.p2wsh,
-            seedBytesType: seedBytesType,
-          );
-        }
-      }
-    }
-
     if (silentPaymentAddresses.isEmpty) generateInitialSPAddresses();
-
     super.init();
   }
 
@@ -167,51 +135,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           isChange: true,
         ),
       ]);
-  }
-
-  @override
-  @action
-  Future<void> generateInitialAddresses({
-    required BitcoinAddressType addressType,
-    required SeedBytesType seedBytesType,
-    BitcoinDerivationInfo? bitcoinDerivationInfo,
-  }) async {
-    final isOldRestoration = _OLD_DERIVATION_TYPES.contains(seedBytesType);
-
-    // p2wpkh has always had the right derivations, skip if creating old derivations
-    if (isOldRestoration && addressType == SegwitAddressType.p2wpkh) {
-      return;
-    }
-
-    final bitcoinDerivationInfo = BitcoinAddressUtils.getDerivationFromType(
-      addressType,
-      isElectrum: seedBytesType.isElectrum,
-    );
-
-    if (isOldRestoration) {
-      for (final derivationInfo in [
-        BitcoinDerivationInfos.ELECTRUM,
-        BitcoinDerivationInfos.BIP84,
-        bitcoinDerivationInfo,
-      ]) {
-        if (derivationInfo.derivationPath.toString() ==
-            bitcoinDerivationInfo.derivationPath.toString()) {
-          continue;
-        }
-
-        await super.generateInitialAddresses(
-          addressType: addressType,
-          seedBytesType: seedBytesType,
-          bitcoinDerivationInfo: derivationInfo,
-        );
-      }
-    } else {
-      await super.generateInitialAddresses(
-        addressType: addressType,
-        seedBytesType: seedBytesType,
-        bitcoinDerivationInfo: bitcoinDerivationInfo,
-      );
-    }
   }
 
   @override
@@ -321,8 +244,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     }
 
     silentPaymentAddresses.add(address);
-    updateAddressesByType();
-    updateHiddenAddresses();
 
     return address;
   }
@@ -330,43 +251,43 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @override
   @action
   Future<void> updateAddressesInBox() async {
-    receiveAddressesByType.entries.forEach((e) {
-      final addressType = e.key;
-      final addresses = e.value;
+    // receiveAddressesMapped.entries.forEach((e) {
+    //   final addressType = e.key;
+    //   final addresses = e.value;
 
-      for (final addr in addresses) {
-        if (getIsReceive(addr)) {
-          allAddressesMap[addr.address] = addr.name;
+    //   for (final addr in addresses) {
+    //     if (getIsReceive(addr)) {
+    //       allAddressesMap[addr.address] = addr.name;
 
-          final isCurrentType = addr.type == addressPageType;
+    //       final isCurrentType = addr.type == addressPageType;
 
-          if (addressType == SilentPaymentsAddresType.p2sp) {
-            final addressString =
-                '${addr.address.substring(0, 9 + 5)}...${addr.address.substring(addr.address.length - 9, addr.address.length)}';
+    //       if (addressType == SilentPaymentsAddresType.p2sp) {
+    //         final addressString =
+    //             '${addr.address.substring(0, 9 + 5)}...${addr.address.substring(addr.address.length - 9, addr.address.length)}';
 
-            if (!isCurrentType) {
-              addressesMap[addr.address] = addr.name.isEmpty
-                  ? "Silent Payments" + ': $addressString'
-                  : "Silent Payments - " + addr.name + ': $addressString';
-            } else {
-              addressesMap[address] = 'Active - Silent Payments' + ': $addressString';
-            }
+    //         if (!isCurrentType) {
+    //           addressesMap[addr.address] = addr.name.isEmpty
+    //               ? "Silent Payments" + ': $addressString'
+    //               : "Silent Payments - " + addr.name + ': $addressString';
+    //         } else {
+    //           addressesMap[address] = 'Active - Silent Payments' + ': $addressString';
+    //         }
 
-            // Silent Payments address don't break the loop because all are used
-            // break;
-          } else {
-            if (!isCurrentType) {
-              addressesMap[addr.address] = '${addressType.value.toUpperCase()}: ${addr.address}';
-            } else {
-              addressesMap[address] = 'Active - ${addressType.value.toUpperCase()}: $address';
-            }
+    //         // Silent Payments address don't break the loop because all are used
+    //         // break;
+    //       } else {
+    //         if (!isCurrentType) {
+    //           addressesMap[addr.address] = '${addressType.value.toUpperCase()}: ${addr.address}';
+    //         } else {
+    //           addressesMap[address] = 'Active - ${addressType.value.toUpperCase()}: $address';
+    //         }
 
-            // Break the loop, already got the firt unused address
-            break;
-          }
-        }
-      }
-    });
+    //         // Break the loop, already got the firt unused address
+    //         break;
+    //       }
+    //     }
+    //   }
+    // });
 
     await saveAddressesInBox();
   }
@@ -393,24 +314,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     }
   }
 
-  @override
-  @action
-  void updateAddressesByType() {
-    receiveAddressesByType[SilentPaymentsAddresType.p2sp] = silentPaymentAddresses
-        .where((addressRecord) =>
-            addressRecord.type == SilentPaymentsAddresType.p2sp && !addressRecord.isChange)
-        .toList();
-
-    super.updateAddressesByType();
-  }
-
   @action
   void addSilentAddresses(Iterable<BitcoinSilentPaymentAddressRecord> addresses) {
     final addressesSet = this.silentPaymentAddresses.toSet();
     addressesSet.addAll(addresses);
     this.silentPaymentAddresses.clear();
     this.silentPaymentAddresses.addAll(addressesSet);
-    updateAddressesByType();
   }
 
   @action
@@ -419,7 +328,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     addressesSet.addAll(addresses);
     this.receivedSPAddresses.clear();
     this.receivedSPAddresses.addAll(addressesSet);
-    updateAddressesByType();
   }
 
   @action
@@ -433,8 +341,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     }
 
     silentPaymentAddresses.remove(addressRecord);
-    updateAddressesByType();
-    updateHiddenAddresses();
   }
 
   Map<String, int> getLabels(List<String> addresses) {
@@ -453,16 +359,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       }
     }
     return labels;
-  }
-
-  @override
-  @action
-  void updateHiddenAddresses() {
-    super.updateHiddenAddresses();
-
-    hiddenAddresses.addAll(silentPaymentAddresses
-        .where((addressRecord) => addressRecord.isHidden)
-        .map((addressRecord) => addressRecord.address));
   }
 
   List<String> getUsableSilentPaymentAddresses() {
@@ -546,9 +442,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required BasedUtxoNetwork network,
     required bool isHardwareWallet,
   }) {
-    final initialAddresses = (snp['allAddresses'] as List)
-        .map((record) => BitcoinAddressRecord.fromJSON(record as String))
-        .toList();
+    final electrumJson = ElectrumWalletAddressesBase.fromJson(
+      snp,
+      walletInfo,
+      hdWallets: hdWallets,
+      network: network,
+      isHardwareWallet: isHardwareWallet,
+    );
 
     final initialSilentAddresses = (snp['silentPaymentAddresses'] as List)
         .map(
@@ -566,7 +466,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       hdWallets: hdWallets,
       network: network,
       isHardwareWallet: isHardwareWallet,
-      initialAddresses: initialAddresses,
+      initialAddresses: electrumJson.allAddresses,
+      initialDiscoveredAddresses: electrumJson.discoveredAddresses,
+      initialReceiveAddressesMapped:
+          electrumJson.receiveAddressesMapped,
+      initialChangeAddressesMapped:
+          electrumJson.changeAddressesMapped,
       initialSilentAddresses: initialSilentAddresses,
       initialReceivedSPAddresses: initialReceivedSPAddresses,
       loadedFromNewSnapshot: snp['loadedFromNewSnapshot'] as bool? ?? false,

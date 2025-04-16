@@ -3,7 +3,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/seedbyte_types.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
@@ -22,9 +21,18 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     BitcoinAddressType? initialAddressPageType,
+    Map<BitcoinAddressType, Map<SeedBytesType, Map<String, List<BaseBitcoinAddressRecord>>>>
+        initialReceiveAddressesMapped = const {},
+    Map<BitcoinAddressType, Map<SeedBytesType, Map<String, List<BaseBitcoinAddressRecord>>>>
+        initialChangeAddressesMapped = const {},
+    Map<BitcoinAddressType, Map<SeedBytesType, Map<bool, bool>>> initialDiscoveredAddresses =
+        const {},
   })  : _allAddresses = ObservableList.of(initialAddresses ?? []),
         currentReceiveAddressIndexByType = initialRegularAddressIndex ?? {},
         currentChangeAddressIndexByType = initialChangeAddressIndex ?? {},
+        discoveredAddresses = initialDiscoveredAddresses,
+        receiveAddressesMapped = initialReceiveAddressesMapped,
+        changeAddressesMapped = initialChangeAddressesMapped,
         addressPageType = initialAddressPageType ??
             (walletInfo.addressPageType != null
                 ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
@@ -38,10 +46,20 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final walletAddressTypes = <BitcoinAddressType>[];
 
   final ObservableList<BitcoinAddressRecord> _allAddresses;
+
   @observable
-  Map<BitcoinAddressType, List<BaseBitcoinAddressRecord>> receiveAddressesByType = {};
+  // { BitcoinAddressType: { SeedBytesType: { isChange: true = discovered } } }
+  Map<BitcoinAddressType, Map<SeedBytesType, Map<bool, bool>>> discoveredAddresses;
+
   @observable
-  Map<BitcoinAddressType, List<BaseBitcoinAddressRecord>> changeAddressesByType = {};
+  // { BitcoinAddressType: { SeedBytesType: { derivationPath: [BaseBitcoinAddressRecord] } } }
+  Map<BitcoinAddressType, Map<SeedBytesType, Map<String, List<BaseBitcoinAddressRecord>>>>
+      receiveAddressesMapped;
+
+  @observable
+  // { BitcoinAddressType: { SeedBytesType: { derivationPath: [BaseBitcoinAddressRecord] } } }
+  Map<BitcoinAddressType, Map<SeedBytesType, Map<String, List<BaseBitcoinAddressRecord>>>>
+      changeAddressesMapped;
 
   final BasedUtxoNetwork network;
 
@@ -50,13 +68,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Bip32Slip10Secp256k1 get hdWallet =>
       hdWallets[SeedBytesType.bip39] ?? hdWallets[SeedBytesType.electrum]!;
 
-  SeedBytesType get walletSeedType => hdWallets.containsKey(SeedBytesType.bip39)
+  String get xpub => hdWallet.publicKey.toExtended;
+
+  SeedBytesType get walletSeedBytesType => hdWallets.containsKey(SeedBytesType.bip39)
       ? SeedBytesType.bip39
       : (hdWallets.containsKey(SeedBytesType.electrum)
           ? SeedBytesType.electrum
           : hdWallets.keys.first);
-
-  bool get seedTypeIsElectrum => walletSeedType.value == SeedBytesType.electrum.value;
 
   final bool isHardwareWallet;
 
@@ -67,19 +85,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   List<BitcoinAddressRecord> get allChangeAddresses =>
       _allAddresses.where((addr) => addr.isChange).toList();
 
+  BitcoinDerivationInfo get _defaultAddressPageDerivationInfo =>
+      BitcoinAddressUtils.getDerivationFromType(
+        addressPageType,
+        isElectrum: walletSeedBytesType.isElectrum,
+      );
+
   @computed
-  List<BaseBitcoinAddressRecord> get selectedReceiveAddresses =>
-      receiveAddressesByType[addressPageType] ?? [];
+  List<BaseBitcoinAddressRecord> get selectedReceiveAddresses {
+    return receiveAddressesMapped[addressPageType]?[walletSeedBytesType]
+            ?[_defaultAddressPageDerivationInfo.derivationPath.toString()] ??
+        [];
+  }
 
   @computed
   List<BaseBitcoinAddressRecord> get selectedChangeAddresses =>
-      changeAddressesByType[changeAddressType] ?? [];
-
-  List<BaseBitcoinAddressRecord> getAddressesByType(
-    BitcoinAddressType type, [
-    bool isChange = false,
-  ]) =>
-      (isChange ? changeAddressesByType[type] : receiveAddressesByType[type]) ?? [];
+      changeAddressesMapped[addressPageType]?[walletSeedBytesType]
+          ?[_defaultAddressPageDerivationInfo.derivationPath.toString()] ??
+      [];
 
   @computed
   List<BitcoinAddressRecord> get allAddresses => _allAddresses.toList();
@@ -172,7 +195,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         activeAddressIndex = addressRecord.index;
       }
     } catch (e) {
-      printV("ElectrumWalletAddressBase: set address ($addr): $e");
+      // printV("ElectrumWalletAddressBase: set address ($addr): $e");
     }
   }
 
@@ -197,8 +220,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> init() async {
-    updateAddressesByType();
-    updateHiddenAddresses();
     await updateAddressesInBox();
   }
 
@@ -218,7 +239,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final derivationInfo = BitcoinAddressUtils.getDerivationFromType(addressPageType);
     final address = BitcoinAddressRecord(
       getAddress(
-        derivationType: walletSeedType,
+        derivationType: walletSeedBytesType,
         isChange: false,
         index: newAddressIndex,
         addressType: addressPageType,
@@ -230,19 +251,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       type: addressPageType,
       network: network,
       derivationInfo: BitcoinAddressUtils.getDerivationFromType(addressPageType),
-      seedBytesType: walletSeedType,
+      seedBytesType: walletSeedBytesType,
     );
     return address;
   }
 
-  BitcoinBaseAddress generateAddress({
+  static BitcoinBaseAddress generateAddress({
     required SeedBytesType seedBytesType,
     required bool isChange,
     required int index,
     required BitcoinAddressType addressType,
     required BitcoinDerivationInfo derivationInfo,
+    required String xpriv,
+    required BasedUtxoNetwork network,
   }) {
-    final hdWallet = hdWallets[seedBytesType]!;
+    final hdWallet = Bip32Slip10Secp256k1.fromExtendedKey(
+      xpriv,
+      BitcoinAddressUtils.getKeyNetVersion(network),
+    );
 
     switch (addressType) {
       case P2pkhAddressType.p2pkh:
@@ -299,6 +325,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       index: index,
       addressType: addressType,
       derivationInfo: derivationInfo,
+      xpriv: hdWallets[derivationType]!.privateKey.toExtended,
+      network: network,
     ).toAddress(network);
   }
 
@@ -346,122 +374,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  void updateAddressesByType() {
-    walletAddressTypes.forEach((type) {
-      receiveAddressesByType[type] =
-          _allAddresses.where((addr) => _isAddressByType(addr, type) && !addr.isChange).toList();
-      changeAddressesByType[type] =
-          _allAddresses.where((addr) => _isAddressByType(addr, type) && addr.isChange).toList();
-    });
-  }
-
-  @action
-  Future<List<BitcoinAddressRecord>> discoverNewAddresses({
-    required SeedBytesType seedBytesType,
-    required bool isChange,
-    required BitcoinAddressType addressType,
-    required BitcoinDerivationInfo derivationInfo,
-    int? startIndex,
-  }) async {
-    final count = isChange
-        ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
-
-    startIndex ??=
-        ((isChange ? changeAddressesByType[addressType] : receiveAddressesByType[addressType]) ??
-                [])
-            .where(
-              (addr) =>
-                  (addr as BitcoinAddressRecord).seedBytesType == seedBytesType &&
-                  addr.derivationInfo.derivationPath.toString() ==
-                      derivationInfo.derivationPath.toString(),
-            )
-            .length;
-
-    final newAddresses = <BitcoinAddressRecord>[];
-
-    for (var i = startIndex; i < count + startIndex; i++) {
-      final address = BitcoinAddressRecord(
-        await getAddressAsync(
-          derivationType: seedBytesType,
-          isChange: isChange,
-          index: i,
-          addressType: addressType,
-          derivationInfo: derivationInfo,
-        ),
-        index: i,
-        isChange: isChange,
-        isHidden: getShouldHideAddress(derivationInfo.derivationPath, addressType) || isChange,
-        type: addressType,
-        network: network,
-        derivationInfo: derivationInfo,
-        seedBytesType: seedBytesType,
-      );
-
-      newAddresses.add(address);
-    }
-
-    addAddresses(newAddresses);
-    updateAddressesByType();
-    updateHiddenAddresses();
-
-    return newAddresses;
-  }
-
-  @action
-  Future<void> generateInitialAddresses({
-    required BitcoinAddressType addressType,
-    required SeedBytesType seedBytesType,
-    BitcoinDerivationInfo? bitcoinDerivationInfo,
-  }) async {
-    bitcoinDerivationInfo ??= BitcoinAddressUtils.getDerivationFromType(
-      addressType,
-      isElectrum: seedBytesType.isElectrum,
-    );
-
-    final existingReceiveAddresses =
-        (receiveAddressesByType[addressType] ?? <BaseBitcoinAddressRecord>[])
-            .where(
-              (addr) =>
-                  addr is BitcoinAddressRecord &&
-                  addr.seedBytesType == seedBytesType &&
-                  addr.derivationInfo.derivationPath.toString() ==
-                      bitcoinDerivationInfo!.derivationPath.toString(),
-            )
-            .toList();
-
-    if (existingReceiveAddresses.length < defaultReceiveAddressesCount) {
-      await discoverNewAddresses(
-        seedBytesType: seedBytesType,
-        isChange: false,
-        addressType: addressType,
-        derivationInfo: bitcoinDerivationInfo,
-        startIndex: existingReceiveAddresses.length,
-      );
-    }
-
-    final existingChangeAddresses = (changeAddressesByType[addressType] ?? <BitcoinAddressRecord>[])
-        .where(
-          (addr) =>
-              addr is BitcoinAddressRecord &&
-              addr.seedBytesType == seedBytesType &&
-              addr.derivationInfo.derivationPath.toString() ==
-                  bitcoinDerivationInfo!.derivationPath.toString(),
-        )
-        .toList();
-
-    if (existingChangeAddresses.length < defaultChangeAddressesCount) {
-      await discoverNewAddresses(
-        seedBytesType: seedBytesType,
-        isChange: true,
-        addressType: addressType,
-        derivationInfo: bitcoinDerivationInfo,
-        startIndex: existingChangeAddresses.length,
-      );
-    }
-  }
-
-  @action
   void updateAddresses(Iterable<BitcoinAddressRecord> newAddresses) {
     final replacedAddresses = newAddresses.toList();
     for (final address in newAddresses) {
@@ -474,8 +386,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
     if (replacedAddresses.isNotEmpty) {
       _allAddresses.addAll(replacedAddresses);
-    } else {
-      updateAddressesByType();
     }
   }
 
@@ -483,38 +393,82 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   void addAddresses(Iterable<BitcoinAddressRecord> addresses) {
     this._allAddresses.addAll(addresses);
 
-    updateHiddenAddresses();
-    updateAddressesByType();
-  }
+    final firstAddress = addresses.first;
+    final addressesMap = {
+      ...(firstAddress.isChange ? changeAddressesMapped : receiveAddressesMapped)
+    };
 
-  @action
-  void updateHiddenAddresses() {
-    hiddenAddresses.clear();
-    hiddenAddresses.addAll(_allAddresses
-        .where((addressRecord) => !getIsReceive(addressRecord))
-        .map((addressRecord) => addressRecord.address));
+    addressesMap.putIfAbsent(
+      firstAddress.type,
+      () => {
+        firstAddress.seedBytesType!: {
+          firstAddress.derivationInfo.derivationPath.toString(): addresses.toList(),
+        },
+      },
+    );
+    addressesMap[firstAddress.type]!.putIfAbsent(
+      firstAddress.seedBytesType!,
+      () => {
+        firstAddress.derivationInfo.derivationPath.toString(): addresses.toList(),
+      },
+    );
+    addressesMap[firstAddress.type]![firstAddress.seedBytesType]!.putIfAbsent(
+      firstAddress.derivationInfo.derivationPath.toString(),
+      () => addresses.toList(),
+    );
+
+    if (firstAddress.isChange) {
+      changeAddressesMapped = addressesMap;
+    } else {
+      receiveAddressesMapped = addressesMap;
+    }
   }
 
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {
     addressPageType = type;
-    updateAddressesByType();
     walletInfo.addressPageType = addressPageType.toString();
     await walletInfo.save();
   }
-
-  bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
 
   bool isUnusedReceiveAddress(BaseBitcoinAddressRecord addr) {
     return !addr.isChange && !getIsUsed(addr);
   }
 
-  Map<String, dynamic> toJson() => {
-        'allAddresses': _allAddresses.map((address) => address.toJSON()).toList(),
-        'addressPageType': addressPageType.toString(),
-        // 'receiveAddressIndexByType': receiveAddressIndexByType,
-        // 'changeAddressIndexByType': changeAddressIndexByType,
-      };
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{};
+    json['allAddresses'] = _allAddresses.map((address) => address.toJSON()).toList();
+    json['addressPageType'] = addressPageType.toString();
+    json['discoveredAddresses'] = discoveredAddresses.map((addressType, v) {
+      return MapEntry(addressType.value, v.map((seedBytesType, v) {
+        return MapEntry(seedBytesType.value, v.map((isChange, v) {
+          return MapEntry(isChange.toString(), v);
+        }));
+      }));
+    });
+
+    json['receiveAddressesMapped'] = receiveAddressesMapped.map((addressType, v) {
+      return MapEntry(addressType.value, v.map((seedBytesType, v) {
+        return MapEntry(seedBytesType.value, v.map((derivationPath, v) {
+          return MapEntry(
+            derivationPath.toString(),
+            v.map((address) => address.toJSON()).toList(),
+          );
+        }));
+      }));
+    });
+    json['changeAddressesMapped'] = receiveAddressesMapped.map((addressType, v) {
+      return MapEntry(addressType.value, v.map((seedBytesType, v) {
+        return MapEntry(seedBytesType.value, v.map((derivationPath, v) {
+          return MapEntry(
+            derivationPath.toString(),
+            v.map((address) => address.toJSON()).toList(),
+          );
+        }));
+      }));
+    });
+    return json;
+  }
 
   static Map<String, dynamic> fromSnapshot(Map<dynamic, dynamic> data) {
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
@@ -546,10 +500,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       'addressPageType': data['address_page_type'] as String?,
       'receiveAddressIndexByType': receiveAddressIndexByType,
       'changeAddressIndexByType': changeAddressIndexByType,
+      'discoveredAddresses': data['discoveredAddresses'] as Map<String, dynamic>? ?? {},
+      'receiveAddressesMapped': data['receiveAddressesMapped'] as Map<String, dynamic>? ?? {},
+      'changeAddressesMapped': data['changeAddressesMapped'] as Map<String, dynamic>? ?? {},
     };
   }
 
-  static ElectrumWalletAddressesBase fromJson(
+  static ElectrumWalletAddresses fromJson(
     Map<String, dynamic> json,
     WalletInfo walletInfo, {
     required Map<SeedBytesType, Bip32Slip10Secp256k1> hdWallets,
@@ -558,10 +515,66 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialAddresses,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     List<BitcoinReceivedSPAddressRecord>? initialReceivedSPAddresses,
+    Map<BitcoinAddressType, Map<SeedBytesType, Map<String, List<BaseBitcoinAddressRecord>>>>?
+        initialReceiveAddressesMapped,
+    Map<BitcoinAddressType, Map<SeedBytesType, Map<String, List<BaseBitcoinAddressRecord>>>>?
+        initialChangeAddressesMapped,
+    Map<BitcoinAddressType, Map<SeedBytesType, Map<bool, bool>>>? initialDiscoveredAddresses,
   }) {
     initialAddresses ??= (json['allAddresses'] as List)
         .map((record) => BitcoinAddressRecord.fromJSON(record as String))
         .toList();
+
+    initialReceiveAddressesMapped ??= (json['receiveAddressesMapped'] as Map).map(
+      (addressType, v) => MapEntry(
+        BitcoinAddressType.fromValue(addressType as String),
+        (v as Map).map(
+          (seedBytesType, v) => MapEntry(
+            SeedBytesType.fromValue(seedBytesType as String),
+            (v as Map).map(
+              (derivationPath, v) => MapEntry(
+                derivationPath as String,
+                (v as List)
+                    .map((addr) => BaseBitcoinAddressRecord.fromJSON(addr as String))
+                    .toList(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    initialChangeAddressesMapped ??= (json['changeAddressesMapped'] as Map).map(
+      (addressType, v) => MapEntry(
+        BitcoinAddressType.fromValue(addressType as String),
+        (v as Map).map(
+          (seedBytesType, v) => MapEntry(
+            SeedBytesType.fromValue(seedBytesType as String),
+            (v as Map).map(
+              (derivationPath, v) => MapEntry(
+                derivationPath as String,
+                (v as List)
+                    .map((addr) => BaseBitcoinAddressRecord.fromJSON(addr as String))
+                    .toList(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    initialDiscoveredAddresses ??= ((json['discoveredAddresses'] as Map?) ?? {}).map(
+      (addressType, v) => MapEntry(
+        BitcoinAddressType.fromValue(addressType as String),
+        (v as Map).map(
+          (seedBytesType, v) => MapEntry(
+            SeedBytesType.fromValue(seedBytesType as String),
+            (v as Map).map(
+              (isChange, v) => MapEntry(isChange == "true", v as bool),
+            ),
+          ),
+        ),
+      ),
+    );
 
     return ElectrumWalletAddresses(
       walletInfo,
@@ -569,6 +582,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       network: network,
       isHardwareWallet: isHardwareWallet,
       initialAddresses: initialAddresses,
+      initialDiscoveredAddresses: initialDiscoveredAddresses,
+      initialReceiveAddressesMapped: initialReceiveAddressesMapped,
+      initialChangeAddressesMapped: initialChangeAddressesMapped,
     );
   }
 
@@ -580,81 +596,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     return !getIsUsed(addr) && !addr.isChange && !addr.isHidden;
   }
 
-  Future<List<BitcoinAddressRecord>> updateAddressesByGapAfterUse(
-    List<BitcoinAddressRecord> addresses,
-  ) async {
-    final newAddresses = <BitcoinAddressRecord>[];
-    final discoveredAddresses =
-        <SeedBytesType, Map<BitcoinAddressType, Map<BitcoinDerivationType, List<bool>>>>{};
-
-    final usedAddresses =
-        addresses.isNotEmpty ? addresses : _allAddresses.where(getIsUsed).toList();
-
-    for (final usedAddress in usedAddresses) {
-      final isChange = usedAddress.isChange;
-
-      final alreadyDiscoveredSeedType = discoveredAddresses[usedAddress.seedBytesType!];
-      final alreadyDiscoveredAddressType = alreadyDiscoveredSeedType?[usedAddress.type];
-      final alreadyDiscoveredDerivationType =
-          alreadyDiscoveredAddressType?[usedAddress.derivationInfo.derivationType];
-      final isAlreadyDiscovered = alreadyDiscoveredDerivationType?.contains(isChange) ?? false;
-
-      if (isAlreadyDiscovered) {
-        continue;
-      }
-
-      final matchingAddressList = allAddresses.where(
-        (addr) =>
-            addr.seedBytesType! == usedAddress.seedBytesType! &&
-            addr.type == usedAddress.type &&
-            addr.derivationInfo.derivationType == usedAddress.derivationInfo.derivationType &&
-            addr.isChange == isChange,
-      );
-      final totalMatchingAddresses = matchingAddressList.length;
-
-      final matchingGapLimit =
-          (isChange ? defaultChangeAddressesCount : defaultReceiveAddressesCount);
-      final isAddressUsedAboveGap = usedAddress.index >= totalMatchingAddresses - matchingGapLimit;
-
-      if (isAddressUsedAboveGap) {
-        discoveredAddresses.putIfAbsent(usedAddress.seedBytesType!, () => {});
-        discoveredAddresses[usedAddress.seedBytesType!]!.putIfAbsent(usedAddress.type, () => {});
-        discoveredAddresses[usedAddress.seedBytesType!]![usedAddress.type]!
-            .putIfAbsent(usedAddress.derivationInfo.derivationType, () => []);
-        discoveredAddresses[usedAddress.seedBytesType!]![usedAddress.type]![
-                usedAddress.derivationInfo.derivationType]!
-            .add(isChange);
-
-        final theseAddresses = await discoverNewAddresses(
-          isChange: isChange,
-          seedBytesType: usedAddress.seedBytesType!,
-          addressType: usedAddress.type,
-          derivationInfo: usedAddress.derivationInfo,
-        );
-        newAddresses.addAll(theseAddresses);
-
-        final newMatchingAddressList = allAddresses.where(
-          (addr) =>
-              addr.seedBytesType == usedAddress.seedBytesType! &&
-              addr.type == usedAddress.type &&
-              addr.derivationInfo.derivationType == usedAddress.derivationInfo.derivationType &&
-              addr.isChange == isChange,
-        );
-        printV(
-            "discovered ${theseAddresses.length} new ${isChange ? "change" : "receive"} addresses");
-        printV(
-            "Of type ${usedAddress.type} and derivation type ${usedAddress.seedBytesType!}, new total: ${newMatchingAddressList.length}");
-      }
-    }
-
-    updateAddressesByType();
-    updateHiddenAddresses();
-
-    return newAddresses;
-  }
-
   bool getShouldHideAddress(Bip32Path path, BitcoinAddressType addressType) {
-    if (seedTypeIsElectrum) {
+    if (walletSeedBytesType.isElectrum) {
       return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
     }
 

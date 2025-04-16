@@ -243,10 +243,15 @@ class ElectrumWorker {
     final scripthashByAddress = request.scripthashByAddress;
     allScriptHashes ??= scripthashByAddress.values.toList();
 
-    final chunks = allScriptHashes.sublist(
-      0,
-      chunkSize > allScriptHashes.length ? allScriptHashes.length : chunkSize,
-    );
+    if (chunkSize > allScriptHashes.length) {
+      chunkSize = allScriptHashes.length;
+    }
+
+    final chunks = allScriptHashes.sublist(0, chunkSize);
+
+    // await _electrumClient!.batchRequest(
+    //   ElectrumBatchRequestScriptHashUnSubscribe(scriptHash: scriptHash),
+    // );
 
     final req = ElectrumBatchRequestScriptHashSubscribe(scriptHashes: chunks);
     final batchStreams = await _electrumClient!.batchSubscribe(req);
@@ -254,24 +259,29 @@ class ElectrumWorker {
     if (batchStreams != null) {
       int i = 0;
 
+      final responses = <ElectrumWorkerScripthashesResponse>[];
+
       for (final stream in batchStreams) {
         stream.subscription.listen((status) async {
           final batch = req.onResponse(status, stream.params);
           // https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
           // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
-          final result = batch.result;
+          final statusResult = batch.result;
 
           final scriptHash = batch.paramForRequest!.first as String;
           final address = request.addressByScripthashes[scriptHash]!;
 
-          if (result != null) {
+          if (statusResult != null) {
+            final response = ElectrumWorkerScripthashesResponse(
+              address: address,
+              scripthash: scriptHash,
+              status: statusResult,
+            );
+            responses.add(response);
+
             _sendResponse(
               ElectrumWorkerScripthashesSubscribeResponse(
-                result: ElectrumWorkerScripthashesResponse(
-                  address: address,
-                  scripthash: scriptHash,
-                  status: result,
-                ),
+                result: [response],
                 id: request.id,
                 completed: false,
               ),
@@ -296,13 +306,14 @@ class ElectrumWorker {
 
           // Got all batches, complete
           if (i == chunks.length && scripthashByAddress.isEmpty) {
+            responses.add(ElectrumWorkerScripthashesResponse(
+              address: "",
+              scripthash: "",
+              status: null,
+            ));
             _sendResponse(
               ElectrumWorkerScripthashesSubscribeResponse(
-                result: ElectrumWorkerScripthashesResponse(
-                  address: address,
-                  scripthash: scriptHash,
-                  status: null,
-                ),
+                result: responses,
                 id: request.id,
                 completed: true,
               ),
@@ -326,6 +337,8 @@ class ElectrumWorker {
 
     if (_serverCapability!.supportsBatching == false) {
       int i = 0;
+      final responses = <ElectrumWorkerScripthashesResponse>[];
+
       await Future.wait(request.scripthashByAddress.entries.map((entry) async {
         final address = entry.key;
         final scripthash = entry.value.toString();
@@ -343,12 +356,15 @@ class ElectrumWorker {
         // The status of the script hash is the hash of the tx history, or null if the string is empty because there are no transactions
         stream.listen((status) async {
           if (status != null) {
+            final response = ElectrumWorkerScripthashesResponse(
+              address: address,
+              scripthash: scripthash,
+              status: req.onResponse(status),
+            );
+            responses.add(response);
+
             _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
-              result: ElectrumWorkerScripthashesResponse(
-                address: address,
-                scripthash: scripthash,
-                status: req.onResponse(status),
-              ),
+              result: [response],
               id: request.id,
               completed: false,
             ));
@@ -357,12 +373,13 @@ class ElectrumWorker {
 
           // Got all statuses, complete
           if (i == request.scripthashByAddress.length) {
+            responses.add(ElectrumWorkerScripthashesResponse(
+              address: "",
+              scripthash: "",
+              status: null,
+            ));
             _sendResponse(ElectrumWorkerScripthashesSubscribeResponse(
-              result: ElectrumWorkerScripthashesResponse(
-                address: address,
-                scripthash: scripthash,
-                status: null,
-              ),
+              result: responses,
               id: request.id,
               completed: true,
             ));
@@ -1742,9 +1759,11 @@ class ElectrumWorker {
         ),
       );
     } catch (e) {
-      _sendError(ElectrumWorkerDiscoverAddressesErrorResponse(
-        error: e.toString(),
-      ));
+      _sendError(
+        ElectrumWorkerDiscoverAddressesErrorResponse(
+          error: e.toString(),
+        ),
+      );
     }
   }
 }

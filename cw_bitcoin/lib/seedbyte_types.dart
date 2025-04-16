@@ -28,6 +28,8 @@ class SeedBytesType implements Enumerate {
 
   bool get isElectrum => this == old_electrum || this == electrum;
 
+  bool get isOldDerivation => this == old_electrum || this == old_bip39;
+
   static SeedBytesType fromValue(String value) {
     switch (value) {
       case 'old_electrum':

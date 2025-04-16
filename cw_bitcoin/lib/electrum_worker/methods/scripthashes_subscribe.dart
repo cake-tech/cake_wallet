@@ -72,8 +72,8 @@ class ElectrumWorkerScripthashesResponse {
   }
 }
 
-class ElectrumWorkerScripthashesSubscribeResponse
-    extends ElectrumWorkerResponse<ElectrumWorkerScripthashesResponse, Map<String, dynamic>?> {
+class ElectrumWorkerScripthashesSubscribeResponse extends ElectrumWorkerResponse<
+    List<ElectrumWorkerScripthashesResponse>, List<Map<String, dynamic>>> {
   ElectrumWorkerScripthashesSubscribeResponse({
     required super.result,
     super.error,
@@ -82,14 +82,16 @@ class ElectrumWorkerScripthashesSubscribeResponse
   }) : super(method: ElectrumRequestMethods.scriptHashSubscribe.method);
 
   @override
-  Map<String, dynamic>? resultJson(result) {
-    return result.toJson();
+  List<Map<String, dynamic>> resultJson(result) {
+    return result.map((e) => e.toJson()).toList();
   }
 
   @override
   factory ElectrumWorkerScripthashesSubscribeResponse.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerScripthashesSubscribeResponse(
-      result: ElectrumWorkerScripthashesResponse.fromJson(json['result'] as Map<String, dynamic>),
+      result: (json['result'] as List<dynamic>)
+          .map((e) => ElectrumWorkerScripthashesResponse.fromJson(e as Map<String, dynamic>))
+          .toList(),
       error: json['error'] as String?,
       id: json['id'] as int?,
       completed: json['completed'] as bool? ?? false,

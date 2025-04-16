@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:grpc/grpc.dart';
@@ -17,7 +15,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
     this._tx,
     this.type, {
-    required this.sendWorker,
+    required this.waitSendWorker,
     required this.amount,
     required this.fee,
     required this.feeRate,
@@ -31,7 +29,9 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   final WalletType type;
   final BtcTransaction _tx;
-  Future<dynamic> Function(ElectrumWorkerRequest) sendWorker;
+
+  Future<T> Function<T extends Map<String, dynamic>>(ElectrumWorkerRequest) waitSendWorker;
+
   final int amount;
   final int fee;
   final String feeRate;
@@ -79,14 +79,13 @@ class PendingBitcoinTransaction with PendingTransaction {
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
   Future<void> _commit() async {
-    final result = await sendWorker(
+    final result = await waitSendWorker(
       ElectrumWorkerBroadcastRequest(transactionRaw: hex),
-    ) as String;
+    );
 
     String? error;
     try {
-      final resultJson = jsonDecode(result) as Map<String, dynamic>;
-      error = resultJson["error"] as String;
+      error = result["error"] as String;
     } catch (_) {}
 
     if (error != null) {

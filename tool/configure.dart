@@ -152,6 +152,7 @@ class ElectrumSubAddress {
     required this.txCount,
     required this.balance,
     required this.isChange,
+    required this.isHidden,
     required this.derivationPath,
   });
   final int id;
@@ -160,6 +161,7 @@ class ElectrumSubAddress {
   final int txCount;
   final int balance;
   final bool isChange;
+  final bool isHidden;
   final String derivationPath; 
 }
 

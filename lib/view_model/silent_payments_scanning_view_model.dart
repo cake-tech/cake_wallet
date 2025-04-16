@@ -107,9 +107,9 @@ abstract class SilentPaymentsScanningViewModelBase with Store {
     int? height,
     bool? pop,
   ]) async {
-    if (pop == true) {
-      Navigator.of(context).pop();
-    }
+    // if (pop == true) {
+    //   Navigator.of(context).pop();
+    // }
 
     if (height == null) {
       setSilentPaymentsScanning(true);
