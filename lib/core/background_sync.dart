@@ -103,7 +103,7 @@ class BackgroundSync {
 
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => !element.isHardware)
-        .where((element) => ![WalletType.haven].contains(element.type))
+        .where((element) => ![WalletType.haven, WalletType.decred].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name, isBackground: true);

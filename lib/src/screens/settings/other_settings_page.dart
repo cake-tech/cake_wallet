@@ -81,6 +81,12 @@ class OtherSettingsPage extends BasePage {
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devSharedPreferences),
                 ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devLogs),
+                ),
               Spacer(),
               SettingsVersionCell(
                   title: S.of(context).version(_otherSettingsViewModel.currentVersion)),
