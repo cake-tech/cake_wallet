@@ -25,7 +25,7 @@ class WalletManager {
     }
 
     walletGroups.removeWhere((g) => g.wallets.isEmpty);
-    _loadCustomGroupNames();
+    _applyStoredGroupNames();
   }
 
   String _resolveGroupKey(WalletInfo walletInfo) {
@@ -78,12 +78,35 @@ class WalletManager {
         .wallets;
   }
 
-  void _loadCustomGroupNames() {
-    for (var group in walletGroups) {
-      final key = 'wallet_group_name_${group.groupKey}';
-      final groupName = _sharedPreferences.getString(key);
-      if (groupName != null && group.wallets.length > 1) {
-        group.groupName = groupName;
+  void _applyStoredGroupNames() {
+    for (final group in walletGroups) {
+      // We attempt to derive a group name from any of the wallets that already has one.
+      final migratedName = group.wallets
+          .map((wallet) => wallet.walletGroupName?.trim() ?? '')
+          .firstWhere((name) => name.isNotEmpty, orElse: () => '');
+
+      // If none of the wallets have a name, we fall back to the SharedPreferences value.
+      String finalGroupName = migratedName;
+      if (finalGroupName.isEmpty) {
+        final prefsKey = 'wallet_group_name_${group.groupKey}';
+        final fallbackName = _sharedPreferences.getString(prefsKey)?.trim() ?? '';
+
+        if (fallbackName.isNotEmpty && group.wallets.length > 1) {
+          finalGroupName = fallbackName;
+        }
+      }
+
+      group.groupName = finalGroupName.isNotEmpty ? finalGroupName : null;
+
+      // We then migrate the group name into each wallet in this group that doesn't have it yet.
+      if (finalGroupName.isNotEmpty) {
+        for (final wallet in group.wallets) {
+          // We would only update it though if the wallet does not have it already
+          if ((wallet.walletGroupName?.trim() ?? '').isEmpty) {
+            wallet.walletGroupName = finalGroupName;
+            wallet.save();
+          }
+        }
       }
     }
   }
@@ -97,6 +120,11 @@ class WalletManager {
 
     final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
     group.setCustomName(name);
+
+    for (var walletInfo in group.wallets) {
+      walletInfo.walletGroupName = name;
+      walletInfo.save();
+    }
     _saveCustomGroupName(groupKey, name);
   }
 
