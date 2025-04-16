@@ -544,7 +544,7 @@
   "potential_scam": "Potencjalne oszustwo",
   "powered_by": "Obsługiwane przez ${title}",
   "pre_seed_button_text": "Rozumiem. Pokaż mi moją fraze seed",
-  "pre_seed_description": "Na następnej stronie zobaczysz serię ${words} słów. To jest Twoja unikalna i prywatna fraza seed i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii telefonu. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu (np. na kartce w sejfie).",
+  "pre_seed_description": "Na następnej stronie zobaczysz serię słów. To jest twoje wyjątkowe i prywatne ziarno i jest to jedyny sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją do portfela ciasta.",
   "pre_seed_title": "WAŻNE",
   "prepaid_cards": "Karty przedpłacone",
   "prevent_screenshots": "Zapobiegaj zrzutom ekranu i nagrywaniu ekranu",

@@ -542,7 +542,7 @@
   "potential_scam": "Lừa đảo tiềm năng",
   "powered_by": "Được cung cấp bởi ${title}",
   "pre_seed_button_text": "Tôi hiểu. Hiển thị hạt giống của tôi",
-  "pre_seed_description": "Trên trang tiếp theo, bạn sẽ thấy một chuỗi ${words} từ. Đây là hạt giống riêng tư và duy nhất của bạn và là CÁCH DUY NHẤT để khôi phục ví của bạn trong trường hợp mất hoặc hỏng hóc. Đây là TRÁCH NHIỆM của bạn để ghi lại và lưu trữ nó ở một nơi an toàn ngoài ứng dụng Cake Wallet.",
+  "pre_seed_description": "Trên trang tiếp theo, bạn sẽ thấy một loạt các từ. Đây là hạt giống độc đáo và riêng tư của bạn và đó là cách duy nhất để phục hồi ví của bạn trong trường hợp mất hoặc trục trặc. Bạn có trách nhiệm viết nó ra và lưu trữ nó ở một nơi an toàn bên ngoài ứng dụng ví Cake.",
   "pre_seed_title": "QUAN TRỌNG",
   "prepaid_cards": "Thẻ trả trước",
   "prevent_screenshots": "Ngăn chặn ảnh chụp màn hình và ghi hình màn hình",

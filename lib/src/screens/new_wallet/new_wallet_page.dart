@@ -104,11 +104,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
       if (state is ExecutedSuccessfullyState) {
         if (widget.isChildWallet) {
           Navigator.of(navigatorKey.currentContext ?? context).pushNamed(
-              Routes.walletGroupExistingSeedDescriptionPage,
-              arguments: _walletNewVM.seedPhraseWordsLength);
+              Routes.walletGroupExistingSeedDescriptionPage);
         } else {
-          Navigator.of(navigatorKey.currentContext ?? context)
-              .pushNamed(Routes.preSeedPage, arguments: _walletNewVM.seedPhraseWordsLength);
+          Navigator.of(navigatorKey.currentContext ?? context).pushNamed(Routes.preSeedPage);
         }
       }
 
