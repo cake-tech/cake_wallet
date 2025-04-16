@@ -149,7 +149,7 @@ class CWXelis extends Xelis {
     transaction as XelisTransactionInfo;
     if (transaction.assetIds[0] == xelis_sdk.xelisAsset) {
       if (wallet.isTestnet) {
-        return CryptoCurrency.txel;
+        return CryptoCurrency.xet;
       }
       return CryptoCurrency.xel;
     }

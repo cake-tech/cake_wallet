@@ -198,6 +198,34 @@ class XelisTransactionInfo extends TransactionInfo {
         assetSymbolsMap[xelis_sdk.xelisAsset] = meta.ticker;
         break;
 
+      case xelis_sdk.InvokeContractEntry():
+        direction = TransactionDirection.outgoing;
+
+        for (final entry in txType.deposits.entries) {
+          final asset = entry.key;
+          final amount = entry.value;
+
+          assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(amount);
+
+          final meta = await wallet.getAssetMetadata(asset: asset);
+          assetDecimals[asset] = meta.decimals;
+          assetSymbolsMap[asset] = meta.ticker;
+        }
+
+        fee = BigInt.from(txType.fee);
+        to = "SCID:\n${txType.contract}\n\nchunk_id ${txType.chunkId}";
+        break;
+
+      case xelis_sdk.DeployContractEntry():
+        direction = TransactionDirection.outgoing;
+
+        final meta = await wallet.getAssetMetadata(asset: xelis_sdk.xelisAsset);
+
+        assetAmounts[xelis_sdk.xelisAsset] = BigInt.zero;
+        assetDecimals[xelis_sdk.xelisAsset] = meta.decimals;
+        assetSymbolsMap[xelis_sdk.xelisAsset] = meta.ticker;
+        fee = BigInt.from(txType.fee);
+
       default:
         direction = TransactionDirection.outgoing;
         break;
@@ -208,7 +236,7 @@ class XelisTransactionInfo extends TransactionInfo {
     final decimals = assetIds.map((id) => assetDecimals[id] ?? 8).toList();
     final amounts = assetIds.map((id) => assetAmounts[id]!).toList();
 
-    final xelAmount = amounts[0] ?? BigInt.zero;
+    final xelAmount = amounts.isNotEmpty ? amounts[0] : BigInt.zero;
 
     return XelisTransactionInfo(
       id: entry.hash,

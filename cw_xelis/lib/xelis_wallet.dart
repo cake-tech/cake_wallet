@@ -72,8 +72,8 @@ abstract class XelisWalletBase
     super(walletInfo)
   {
     isTestnet = network == Network.testnet;
-    final curr = isTestnet ? CryptoCurrency.txel : CryptoCurrency.xel;
-    balance = ObservableMap.of({curr: XelisAssetBalance.zero(symbol: isTestnet ? "tXEL" : "XEL")});
+    final curr = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
+    balance = ObservableMap.of({curr: XelisAssetBalance.zero(symbol: isTestnet ? "XET" : "XEL")});
     walletAddresses = XelisWalletAddresses(walletInfo, _libWallet);
     transactionHistory = XelisTransactionHistory(
       walletInfo: walletInfo, 
@@ -173,12 +173,13 @@ abstract class XelisWalletBase
           case xelis_sdk.WalletEvent.historySynced:
             yield HistorySynced(data['data']['topoheight'] as int);
           case xelis_sdk.WalletEvent.newAsset:
+            final owner = data['data']['owner'];
             yield NewAsset(
               data['data']['asset'] as String,
               data['data']['decimals'] as int,
-              data['data']['max_supply'] as int,
+              data['data']['max_supply'] as int?,
               data['data']['name'] as String,
-              data['data']['owner'] as String?,
+              owner is Map ? jsonEncode(owner) : owner as String?,
               data['data']['ticker'] as String,
               data['data']['topoheight'] as int,
             );
@@ -263,6 +264,20 @@ abstract class XelisWalletBase
     connecting = false;
   }
 
+  bool isSupportedEntryType(xelis_sdk.TransactionEntry entry) {
+    switch (entry.txEntryType) {
+      case xelis_sdk.IncomingEntry():
+      case xelis_sdk.OutgoingEntry():
+      case xelis_sdk.BurnEntry():
+      case xelis_sdk.CoinbaseEntry():
+      case xelis_sdk.InvokeContractEntry():
+      case xelis_sdk.DeployContractEntry():
+        return true;
+      default:
+        return false;
+    }
+  }
+
   @override
   Future<void> rescan({required int height}) async {
     walletInfo.restoreHeight = height;
@@ -276,15 +291,15 @@ abstract class XelisWalletBase
   Future<void> _handleEvent(Event event) async {
     switch (event) {
       case NewTransaction():
+        if (!isSupportedEntryType(event.tx)) { break; }
         transactionHistory.addOne(
           await XelisTransactionInfo.fromTransactionEntry(event.tx, wallet: _libWallet),
         );
-        await updateBalance();
         break;
 
       case BalanceChanged():
         if (event.asset == xelis_sdk.xelisAsset) {
-          final curr = isTestnet ? CryptoCurrency.txel : CryptoCurrency.xel;
+          final curr = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
 
           balance[curr] = XelisAssetBalance(
             balance: event.balance,
@@ -293,7 +308,7 @@ abstract class XelisWalletBase
         } else {
           final curr = findTrackedAssetById(event.asset);
           
-          if (curr != null) {
+          if (curr != null && curr.enabled) {
             balance[curr] = XelisAssetBalance(
               balance: event.balance,
               decimals: curr.decimals,
@@ -414,6 +429,8 @@ abstract class XelisWalletBase
           .cast<XelisAsset?>()
           .firstWhere((e) => e?.id == assetId, orElse: () => null);
 
+      if (!(existing?.enabled ?? true)) { continue; }
+
       final metadata = await _libWallet.getAssetMetadata(asset: assetId);
 
       final merged = XelisAsset(
@@ -483,7 +500,7 @@ abstract class XelisWalletBase
 
   @override
   Future<void> updateBalance() async {
-    var curr = isTestnet ? CryptoCurrency.txel : CryptoCurrency.xel;
+    var curr = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
     balance[curr] = XelisAssetBalance(
       balance: (await _libWallet.getXelisBalanceRaw()).toInt(),
       decimals: 8
@@ -619,7 +636,7 @@ abstract class XelisWalletBase
       }
     }
 
-    var feeCurrency = isTestnet ? CryptoCurrency.txel : CryptoCurrency.xel;
+    var feeCurrency = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
     bool isSendingXelis = true;
     if (transactionCurrency != feeCurrency) {
       isSendingXelis = false;
@@ -703,6 +720,7 @@ abstract class XelisWalletBase
     final Map<String, XelisTransactionInfo> result = {};
 
     for (var entry in txList) {
+      if (!isSupportedEntryType(entry)) { continue; }
       result[entry.hash] = await XelisTransactionInfo.fromTransactionEntry(entry, wallet: _libWallet);
     }
 

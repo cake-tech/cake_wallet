@@ -113,7 +113,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.flip,
     CryptoCurrency.deuro,
     CryptoCurrency.xel,
-    CryptoCurrency.txel
+    CryptoCurrency.xet
   ];
 
   static const havenCurrencies = [
@@ -237,7 +237,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Digital Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png', decimals: 18);
 
   static const xel = CryptoCurrency(title: 'XEL', fullName: 'Xelis', raw: 99, name: 'xel', iconPath: 'assets/images/xelis_icon.png', decimals: 8);
-  static const txel = CryptoCurrency(title: 'tXEL', fullName: 'Testnet Xelis', raw: 100, name: 'txel', iconPath: 'assets/images/xelis_testnet_icon.png', decimals: 8);
+  static const xet = CryptoCurrency(title: 'XET', fullName: 'Testnet Xelis', raw: 100, name: 'xet', iconPath: 'assets/images/xelis_testnet_icon.png', decimals: 8);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {

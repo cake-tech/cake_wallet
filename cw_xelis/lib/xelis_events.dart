@@ -41,7 +41,7 @@ class HistorySynced extends Event {
 class NewAsset extends Event {
   final String asset;
   final int decimals;
-  final int max_supply;
+  final int? max_supply;
   final String name;
   final String? owner;
   final String ticker;

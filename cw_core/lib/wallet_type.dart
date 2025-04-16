@@ -256,7 +256,7 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.dcr;
     case WalletType.xelis:
       if (isTestnet) {
-        return CryptoCurrency.txel;
+        return CryptoCurrency.xet;
       }
       return CryptoCurrency.xel;
     case WalletType.none:
