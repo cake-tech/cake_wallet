@@ -107,20 +107,24 @@ abstract class AnonInvoicePageViewModelBase with Store {
         return;
       }
     }
-    final result = await anonPayApi.createInvoice(AnonPayRequest(
-      cryptoCurrency: cryptoCurrency,
-      address: address,
-      amount: amount.isEmpty ? null : amount,
-      description: description,
-      email: receipientEmail,
-      name: receipientName,
-      fiatEquivalent:
-          selectedCurrency is FiatCurrency ? (selectedCurrency as FiatCurrency).raw : null,
-    ));
+    try {
+      final result = await anonPayApi.createInvoice(AnonPayRequest(
+        cryptoCurrency: cryptoCurrency,
+        address: address,
+        amount: amount.isEmpty ? null : amount,
+        description: description,
+        email: receipientEmail,
+        name: receipientName,
+        fiatEquivalent:
+        selectedCurrency is FiatCurrency ? (selectedCurrency as FiatCurrency).raw : null,
+      ));
 
-    _anonpayInvoiceInfoSource.add(result);
+      _anonpayInvoiceInfoSource.add(result);
 
-    state = ExecutedSuccessfullyState(payload: result);
+      state = ExecutedSuccessfullyState(payload: result);
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
   }
 
   @action
@@ -156,12 +160,16 @@ abstract class AnonInvoicePageViewModelBase with Store {
   }
 
   Future<void> _fetchLimits() async {
-    final limit = await anonPayApi.fetchLimits(
-      cryptoCurrency: cryptoCurrency,
-      fiatCurrency: selectedCurrency is FiatCurrency ? selectedCurrency as FiatCurrency : null,
-    );
-    minimum = limit.min;
-    maximum = limit.max != null ? limit.max! / 4 : null;
+    try {
+      final limit = await anonPayApi.fetchLimits(
+        cryptoCurrency: cryptoCurrency,
+        fiatCurrency: selectedCurrency is FiatCurrency ? selectedCurrency as FiatCurrency : null,
+      );
+      minimum = limit.min;
+      maximum = limit.max != null ? limit.max! / 4 : null;
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
   }
 
   @computed
