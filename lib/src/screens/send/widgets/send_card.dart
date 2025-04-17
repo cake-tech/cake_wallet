@@ -1,16 +1,17 @@
+import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -18,16 +19,12 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-
-import '../../../../themes/extensions/cake_text_theme.dart';
-import '../../../../themes/theme_base.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -94,6 +91,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      sendViewModel.updateSendingBalance();
+    });
 
     /// if the current wallet doesn't match the one in the qr code
     if (initialPaymentRequest != null &&
@@ -182,14 +182,18 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   addressKey: ValueKey('send_page_address_textfield_key'),
                   focusNode: addressFocusNode,
                   controller: addressController,
-                  onURIScanned: (uri) {
-                    final paymentRequest = PaymentRequest.fromUri(uri);
-                    if (sendViewModel.usePayjoin) {
+                  onURIScanned: (uri) async {
+                    if (OpenCryptoPayService.isOpenCryptoPayQR(
+                        uri.toString())) {
+                      sendViewModel.createOpenCryptoPayTransaction(uri.toString());
+                    } else {
+                      final paymentRequest = PaymentRequest.fromUri(uri);
+                      if (sendViewModel.usePayjoin) {
                             sendViewModel.payjoinUri = paymentRequest.pjUri;
                           }
                           addressController.text = paymentRequest.address;
                           cryptoAmountController.text = paymentRequest.amount;
-                          noteController.text = paymentRequest.note;
+                          noteController.text = paymentRequest.note;}
                         },
                         options: [
                           AddressTextFieldOption.paste,
@@ -249,38 +253,47 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   currencyValueValidator: output.sendAll
                       ? sendViewModel.allAmountValidator
                       : sendViewModel.amountValidator,
-                  allAmountCallback: () async => output.setSendAll(sendViewModel.sendingBalance)),
+                  allAmountCallback: () async => output.setSendAll(await sendViewModel.sendingBalance)),
               Divider(
                   height: 1,
                   color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
               Observer(
-                builder: (_) => Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          S.of(context).available_balance + ':',
-                          style: TextStyle(
+                builder: (_) {
+                  // force rebuild on mobx
+                  final _ = sendViewModel.coinTypeToSpendFrom;
+                  return Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            S.of(context).available_balance + ':',
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
+                          ),
+                        ),
+                        FutureBuilder<String>(
+                          future: sendViewModel.sendingBalance,
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.data ?? sendViewModel.balance, // default to balance while loading
+                              style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color:
                                   Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
-                        ),
-                      ),
-                      Text(
-                        sendViewModel.sendingBalance,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
-                      )
-                    ],
-                  ),
-                ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
+                  );
+                },
               ),
               if (!sendViewModel.isFiatDisabled)
                 CurrencyAmountTextField(
@@ -514,9 +527,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       }
     });
 
-    reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) {
+    reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) async {
       if (output.sendAll) {
-        output.setSendAll(sendViewModel.sendingBalance);
+        output.setSendAll(await sendViewModel.sendingBalance);
       }
 
       output.setCryptoAmount(cryptoAmountController.text);

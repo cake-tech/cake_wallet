@@ -15,7 +15,6 @@ import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
 import 'package:cake_wallet/core/auth_service.dart';
-import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
@@ -35,6 +34,7 @@ import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_con
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -1216,8 +1216,7 @@ Future<void> setup({
     );
   });
 
-  getIt.registerFactoryParam<PreSeedPage, int, void>(
-      (seedPhraseLength, _) => PreSeedPage(seedPhraseLength));
+  getIt.registerFactory<PreSeedPage>(() => PreSeedPage());
 
   getIt.registerFactoryParam<TransactionSuccessPage, String, void>(
           (content, _) => TransactionSuccessPage(content: content));
@@ -1478,5 +1477,6 @@ Future<void> setup({
   getIt.registerFactory(() => SeedVerificationPage(getIt.get<WalletSeedViewModel>()));
 
   getIt.registerFactory(() => DevMoneroBackgroundSyncPage(getIt.get<DevMoneroBackgroundSync>()));
+  getIt.registerFactory(() => DevMoneroCallProfilerPage());
   _isSetupFinished = true;
 }

@@ -1,8 +1,6 @@
-Add background sync to Monero
-Add Decred Wallet
-Remove Haven Wallet
-Fix and Improve Solana Wallet
-Enhance Backup files
-Improve app usability and user experience
-User interface enhancements
+Monero 12-word seed support (Wallet Groups support as well)
+Integrate DFX's OpenCryptoPay
+Exchange flow enhancements
+Hardware Wallets flow enhancements
+Minor UI enhancements
 Bug fixes

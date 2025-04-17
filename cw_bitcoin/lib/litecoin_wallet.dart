@@ -329,7 +329,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       try {
         await subscribeForUpdates();
       } catch (e) {
-        printV("failed to subcribe for updates: $e");
+        printV("failed to subscribe for updates: $e");
       }
       updateFeeRates();
       _feeRatesTimer?.cancel();
@@ -601,7 +601,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     _utxoStream = responseStream.listen(
       (Utxo sUtxo) async {
-        // we're processing utxos, so our balance could still be innacurate:
+        // we're processing utxos, so our balance could still be inaccurate:
         if (mwebSyncStatus is! SyncronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
           mwebSyncStatus = SyncronizingSyncStatus();
           processingUtxos = true;

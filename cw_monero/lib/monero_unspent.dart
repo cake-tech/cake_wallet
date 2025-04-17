@@ -4,31 +4,47 @@ import 'package:cw_monero/api/coins_info.dart';
 import 'package:monero/monero.dart' as monero;
 
 class MoneroUnspent extends Unspent {
-  MoneroUnspent(
-      String address, String hash, String keyImage, int value, bool isFrozen, this.isUnlocked)
-      : super(address, hash, value, 0, keyImage) {
+  static Future<MoneroUnspent> fromUnspent(String address, String hash, String keyImage, int value, bool isFrozen, bool isUnlocked) async {
+    return MoneroUnspent(
+        address: address,
+        hash: hash,
+        keyImage: keyImage,
+        value: value,
+        isFrozen: isFrozen,
+        isUnlocked: isUnlocked);
   }
+
+  MoneroUnspent(
+      {required String address,
+      required String hash,
+      required String keyImage,
+      required int value,
+      required bool isFrozen,
+      required this.isUnlocked})
+      : super(address, hash, value, 0, keyImage) {
+    _frozen = isFrozen;
+  }
+
+  bool _frozen = false;
 
   @override
   set isFrozen(bool freeze) {
+    _frozen = freeze;
     printV("set isFrozen: $freeze ($keyImage): $freeze");
-    final coinId = getCoinByKeyImage(keyImage!);
-    if (coinId == null) throw Exception("Unable to find a coin for address $address");
-    if (freeze) {
-      freezeCoin(coinId);
-    } else {
-      thawCoin(coinId);
-    }
+    getCoinByKeyImage(keyImage!).then((coinId) async {
+      if (coinId == null) return;
+      if (freeze) {
+        await freezeCoin(coinId);
+        _frozen = true;
+      } else {
+        await thawCoin(coinId);
+        _frozen = false;
+      }
+    });
   }
 
   @override
-  bool get isFrozen {
-    printV("get isFrozen");
-    final coinId = getCoinByKeyImage(keyImage!);
-    if (coinId == null) throw Exception("Unable to find a coin for address $address");
-    final coin = getCoin(coinId);
-    return monero.CoinsInfo_frozen(coin);
-  }
+  bool get isFrozen => _frozen;
 
   final bool isUnlocked;
 }

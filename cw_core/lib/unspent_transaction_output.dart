@@ -21,4 +21,9 @@ class Unspent with UnspentComparable {
 
   bool get isP2wpkh =>
       address.startsWith('bc') || address.startsWith('tb') || address.startsWith('ltc');
+
+  @override
+  String toString() {
+    return 'Unspent(address: $address, hash: $hash, value: $value, vout: $vout, keyImage: $keyImage, isSending: $isSending, isFrozen: $isFrozen, isChange: $isChange, note: $note)';
+  }
 }

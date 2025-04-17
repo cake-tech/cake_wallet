@@ -47,20 +47,17 @@ class TransactionsPage extends StatelessWidget {
             Observer(builder: (_) {
               final status = dashboardViewModel.status;
               if (status is SyncingSyncStatus) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                  child: DashBoardRoundedCardWidget(
-                    key: ValueKey('transactions_page_syncing_alert_card_key'),
-                    onTap: () {
-                      try {
-                        final uri = Uri.parse(
-                            "https://docs.cakewallet.com/faq/funds-not-appearing");
-                        launchUrl(uri, mode: LaunchMode.externalApplication);
-                      } catch (_) {}
-                    },
-                    title: S.of(context).syncing_wallet_alert_title,
-                    subTitle: S.of(context).syncing_wallet_alert_content,
-                  ),
+                return DashBoardRoundedCardWidget(
+                  key: ValueKey('transactions_page_syncing_alert_card_key'),
+                  onTap: () {
+                    try {
+                      final uri = Uri.parse(
+                          "https://docs.cakewallet.com/faq/funds-not-appearing");
+                      launchUrl(uri, mode: LaunchMode.externalApplication);
+                    } catch (_) {}
+                  },
+                  title: S.of(context).syncing_wallet_alert_title,
+                  subTitle: S.of(context).syncing_wallet_alert_content,
                 );
               } else {
                 return Container();
@@ -74,7 +71,6 @@ class TransactionsPage extends StatelessWidget {
               child: Observer(
                 builder: (_) {
                   final items = dashboardViewModel.items;
-                  final amount = items.length + 1;
                   return items.isNotEmpty
                       ? ListView.builder(
                           key: ValueKey('transactions_page_list_view_builder_key'),

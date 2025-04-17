@@ -509,3 +509,5 @@ Future<String> _closeWallet(int hWallet) async {
   printV("Closing wallet: $str");
   return str;
 }
+
+Map<String, List<int>> debugCallLength() => zano.debugCallLength;
