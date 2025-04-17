@@ -4,4 +4,9 @@ class BitcoinWalletKeys {
   final String wif;
   final String privateKey;
   final String publicKey;
+
+  @override
+  String toString() {
+    return 'BitcoinWalletKeys(wif: $wif, privateKey: $privateKey, publicKey: $publicKey)';
+  }
 }

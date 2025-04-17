@@ -9,4 +9,9 @@ class ZanoWalletKeys {
   final String privateViewKey;
   final String publicSpendKey;
   final String privateSpendKey;
+
+  @override
+  String toString() {
+    return 'ZanoWalletKeys(publicViewKey: $publicViewKey, privateViewKey: $privateViewKey, publicSpendKey: $publicSpendKey, privateSpendKey: $privateSpendKey)';
+  }
 }

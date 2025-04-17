@@ -13,4 +13,9 @@ class MoneroWalletKeys {
   final String publicSpendKey;
   final String privateSpendKey;
   final String passphrase;
+
+  @override
+  String toString() {
+    return 'MoneroWalletKeys(primaryAddress: $primaryAddress, publicViewKey: $publicViewKey, privateViewKey: $privateViewKey, publicSpendKey: $publicSpendKey, privateSpendKey: $privateSpendKey, passphrase: $passphrase)';
+  }
 }
