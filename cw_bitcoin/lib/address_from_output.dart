@@ -8,7 +8,8 @@ String addressFromOutputScript(Script script, BasedUtxoNetwork network) {
   return '';
 }
 
-BitcoinBaseAddress addressFromScript(Script script, [BasedUtxoNetwork network = BitcoinNetwork.mainnet]) {
+BitcoinBaseAddress addressFromScript(Script script,
+    [BasedUtxoNetwork network = BitcoinNetwork.mainnet]) {
   final addressType = script.getAddressType();
   if (addressType == null) {
     throw ArgumentError("Invalid script");

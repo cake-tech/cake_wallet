@@ -187,7 +187,7 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
     required this.privateKey,
   });
 
-  static UtxoWithPrivateKey fromUtxo(UtxoWithAddress input, List<ECPrivateInfo> inputPrivateKeyInfos) {
+  factory UtxoWithPrivateKey.fromUtxo(UtxoWithAddress input, List<ECPrivateInfo> inputPrivateKeyInfos) {
 
     ECPrivateInfo? key;
 
