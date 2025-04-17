@@ -9,6 +9,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
@@ -65,6 +66,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.zano:
+      case WalletType.tari:
       case WalletType.none:
         availableModes = [WalletRestoreMode.seed];
         break;
@@ -178,6 +180,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.decred:
           return decred!.createDecredRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              password: password,
+          );
+        case WalletType.tari:
+          return tari!.createTariRestoreWalletFromSeedCredentials(
               name: name,
               mnemonic: seed,
               password: password,

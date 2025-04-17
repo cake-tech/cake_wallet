@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -70,6 +71,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return seedSettingsViewModel.nanoSeedType == NanoSeedType.bip39
             ? advancedPrivacySettingsViewModel.seedPhraseLength.value
             : 24;
+      case WalletType.tari:
       case WalletType.none:
         return 24;
       case WalletType.haven:
@@ -164,6 +166,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);
+      case WalletType.tari:
+        return tari!.createTariNewWalletCredentials(name: name);
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');

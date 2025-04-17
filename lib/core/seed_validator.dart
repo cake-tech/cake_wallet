@@ -6,6 +6,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -50,6 +51,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return zano!.getWordList(language);
       case WalletType.decred:
         return decred!.getDecredWordList();
+      case WalletType.tari:
+        return tari!.getTariWordList(language);
       case WalletType.none:
       case WalletType.haven:
         return [];

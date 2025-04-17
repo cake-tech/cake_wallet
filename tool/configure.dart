@@ -30,6 +30,7 @@ Future<void> main(List<String> args) async {
   final hasWownero = args.contains('${prefix}wownero');
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
+  final hasTari = args.contains('${prefix}tari');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -44,6 +45,7 @@ Future<void> main(List<String> args) async {
   await generateZano(hasZano);
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
+  await generateTari(hasTari);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -59,6 +61,7 @@ Future<void> main(List<String> args) async {
     hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
+    hasTari: hasTari,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -73,6 +76,7 @@ Future<void> main(List<String> args) async {
     hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
+    hasTari: hasTari,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1377,6 +1381,54 @@ abstract class Decred {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateTari(bool hasImplementation) async {
+  final outputFile = File(decredOutputPath);
+  const tariCommonHeaders = """
+import 'package:cw_core/crypto_amount_format.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const tariCWHeaders = """
+import 'package:cw_tari/tari_wallet.dart';
+import 'package:cw_tari/tari_wallet_service.dart';
+""";
+  const tariCwPart = "part 'cw_tari.dart';";
+  const tariContent = """
+
+abstract class Tari {
+  List<String> getTariWordList(String language);
+  WalletService createTariWalletService(Box<WalletInfo> walletInfoSource);
+  WalletCredentials createTariNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase});
+  WalletCredentials createTariRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
+
+  String getAddress(WalletBase wallet);
+
+  List<TransactionPriority> getTransactionPriorities();
+  double formatterTariAmountToDouble({required int amount});
+}
+""";
+
+  const tariEmptyDefinition = 'Tari? tari;\n';
+  const tariCWDefinition = 'Tari? tari = CWTari();\n';
+
+  final output = '$tariCommonHeaders\n' +
+      (hasImplementation ? '$tariCWHeaders\n' : '\n') +
+      (hasImplementation ? '$tariCwPart\n\n' : '\n') +
+      (hasImplementation ? tariCWDefinition : tariEmptyDefinition) +
+      '\n' +
+      tariContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1391,6 +1443,7 @@ Future<void> generatePubspec({
   required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
+  required bool hasTari,
 }) async {
   const cwCore = """
   cw_core:
@@ -1454,6 +1507,10 @@ Future<void> generatePubspec({
   const cwDecred = """
   cw_decred:
     path: ./cw_decred
+  """;
+  const cwTari = """
+  cw_tari:
+    path: ./cw_tari
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -1520,6 +1577,10 @@ Future<void> generatePubspec({
     output += '\n$cwZano';
   }
 
+  if (hasTari) {
+    output += '\n$cwTari';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1545,6 +1606,7 @@ Future<void> generateWalletTypes({
   required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
+  required bool hasTari,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1606,6 +1668,10 @@ Future<void> generateWalletTypes({
 
   if (hasWownero) {
     outputContent += '\tWalletType.wownero,\n';
+  }
+
+  if (hasWownero) {
+    outputContent += '\tWalletType.tari,\n';
   }
 
   outputContent += '];\n';

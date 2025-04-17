@@ -140,6 +140,7 @@ lib/tron/tron.dart
 lib/wownero/wownero.dart
 lib/zano/zano.dart
 lib/decred/decred.dart
+lib/tari/tari.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png

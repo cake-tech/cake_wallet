@@ -46,6 +46,9 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.decred:
       path = 'assets/decred_node_list.yml';
       break;
+    case WalletType.tari:
+      path = 'assets/tari_node_list.yml';
+      break;
     case WalletType.banano:
     case WalletType.none:
       path = '';

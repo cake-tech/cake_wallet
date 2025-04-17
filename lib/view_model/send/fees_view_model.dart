@@ -96,6 +96,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.banano:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.tari:
         return false;
     }
   }

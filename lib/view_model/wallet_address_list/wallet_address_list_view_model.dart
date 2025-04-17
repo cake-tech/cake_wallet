@@ -237,6 +237,36 @@ class DecredURI extends PaymentURI {
   }
 }
 
+class TariURI extends PaymentURI {
+  TariURI(
+      {required this.network, required super.amount, required super.address});
+
+  final String network;
+
+  // tari://nextnet/profile?alias=Aurora%20User%20%F0%9F%8F%81%F0%9F%9A%B2%F0%9F%8D%8C&tariAddress=349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb
+  // tari://nextnet/transactions/send?tariAddress=349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb&amount=5000000
+
+  @override
+  String toString() {
+    final queryParams = <String, String>{};
+    final pathParts = <String>[network];
+
+    if (amount.isNotEmpty) {
+      queryParams["amount"] = amount;
+      pathParts.addAll(["transactions","send"]);
+    } else {
+      queryParams["alias"] = "CakeWallet User";
+      pathParts.add("profile");
+    }
+
+    queryParams["tariAddress"] = address;
+
+    final uri = Uri(scheme: "tari", pathSegments: pathParts, queryParameters: queryParams);
+
+    return uri.toString();
+  }
+}
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -331,6 +361,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
          return ZanoURI(amount: amount, address: address.address);
       case WalletType.decred:
         return DecredURI(amount: amount, address: address.address);
+      case WalletType.tari:
+        return TariURI(amount: amount, address: address.address, network: 'nextnet'); // ToDo: Fix for mainnet
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

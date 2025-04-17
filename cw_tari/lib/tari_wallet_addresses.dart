@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
 
-part 'tari_addresses.g.dart';
+part 'tari_wallet_addresses.g.dart';
 
 class TariWalletAddresses = TariWalletAddressesBase with _$TariWalletAddresses;
 

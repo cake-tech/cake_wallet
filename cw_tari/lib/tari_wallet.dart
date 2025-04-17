@@ -10,36 +10,36 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_tari/tari_balance.dart';
+import 'package:cw_tari/tari_transaction_history.dart';
+import 'package:cw_tari/tari_transaction_info.dart';
 import 'package:cw_tari/tari_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
-import 'package:tari/tari.dart';
+import 'package:tari/tari.dart' as tari;
 
 part 'tari_wallet.g.dart';
 
-abstract class TariWallet = TariWalletBase with _$TariWallet;
+class TariWallet = TariWalletBase with _$TariWallet;
 
-abstract class TariWalletBase extends WalletBase<
-    TariBalance,
-    EVMChainTransactionHistory,
-    EVMChainTransactionInfo> with Store, WalletKeysFile {
+abstract class TariWalletBase
+    extends WalletBase<TariBalance, TariTransactionHistory, TariTransactionInfo>
+    with Store, WalletKeysFile {
   TariWalletBase({
     required WalletInfo walletInfo,
     required String password,
-    required TariWalletFfi walletFfi,
+    required tari.TariWallet walletFfi,
   })  : syncStatus = const NotConnectedSyncStatus(),
         walletAddresses = TariWalletAddresses(walletInfo),
         _password = password,
         _walletFfi = walletFfi,
         balance = ObservableMap<CryptoCurrency, TariBalance>.of({
-          CryptoCurrency.tari: TariBalance.fromFfi(walletFfi.getBalance()),
+          CryptoCurrency.tari:
+              TariBalance.fromTariBalanceInfo(walletFfi.getBalance()),
         }),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory =
-        setUpTransactionHistory(walletInfo, password);
   }
 
-  final TariWalletFfi _walletFfi;
+  final tari.TariWallet _walletFfi;
   final String _password;
 
   @override
@@ -108,9 +108,8 @@ abstract class TariWalletBase extends WalletBase<
     throw UnimplementedError();
   }
 
-
   @override
-  Future<Map<String, EVMChainTransactionInfo>> fetchTransactions() async {
+  Future<Map<String, TariTransactionInfo>> fetchTransactions() async {
     // ToDo
     throw UnimplementedError();
   }
@@ -144,7 +143,8 @@ abstract class TariWalletBase extends WalletBase<
 
   @override
   Future<void> updateBalance() async {
-    balance[CryptoCurrency.tari] = TariBalance.fromFfi(_walletFfi.getBalance());
+    balance[CryptoCurrency.tari] =
+        TariBalance.fromTariBalanceInfo(_walletFfi.getBalance());
   }
 
   @override

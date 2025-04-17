@@ -163,6 +163,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.tari: // ToDo (Konsti)
         //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
         //
         //   items.addAll([

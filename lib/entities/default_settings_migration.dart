@@ -46,6 +46,7 @@ const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
+const tariDefaultUri = ''; // ToDo
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -617,6 +618,8 @@ String _getDefaultNodeUri(WalletType type) {
       return zanoDefaultNodeUri;
     case WalletType.decred:
       return decredDefaultUri;
+    case WalletType.tari:
+      return tariDefaultUri;
     case WalletType.banano:
     case WalletType.none:
       return '';

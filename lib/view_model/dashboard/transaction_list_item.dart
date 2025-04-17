@@ -7,6 +7,7 @@ import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -222,6 +223,11 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.decred:
         amount = calculateFiatAmountRaw(
             cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.tari:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: tari!.formatterTariAmountToDouble(amount: transaction.amount),
             price: price);
         break;
       case WalletType.none:

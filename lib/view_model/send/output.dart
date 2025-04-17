@@ -122,6 +122,7 @@ abstract class OutputBase with Store {
           case WalletType.banano:
           case WalletType.solana:
           case WalletType.tron:
+          case WalletType.tari:
             break;
         }
 
@@ -302,6 +303,7 @@ abstract class OutputBase with Store {
       case WalletType.zano:
       case WalletType.nano:
       case WalletType.decred:
+      case WalletType.tari:
         maximumFractionDigits = 12;
         break;
       case WalletType.bitcoin:

@@ -1,5 +1,6 @@
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/monero_amount_format.dart';
+import 'package:tari/tari.dart' as tari;
 
 class TariBalance extends Balance {
   TariBalance({required this.fullBalance, required this.unlockedBalance})
@@ -9,18 +10,13 @@ class TariBalance extends Balance {
             moneroAmountToString(amount: unlockedBalance),
         super(unlockedBalance, fullBalance);
 
-  factory TariBalance.fromFfi((int, int, int, int) result) {
-    final availableBalance = result.$1;
-    final pendingIncoming = result.$2;
-    final pendingOutgoing = result.$3;
-    final timeLockedBalance = result.$4;
-
+  factory TariBalance.fromTariBalanceInfo(tari.TariBalanceInfo result) {
     return TariBalance(
-        fullBalance: availableBalance +
-            pendingIncoming +
-            pendingOutgoing +
-            timeLockedBalance,
-        unlockedBalance: availableBalance);
+        fullBalance: result.available +
+            result.pendingIncoming +
+            result.pendingOutgoing +
+            result.timeLocked,
+        unlockedBalance: result.available);
   }
 
   final int fullBalance;
