@@ -451,6 +451,7 @@
   "monero_dark_theme": "Chủ đề tối Monero",
   "monero_light_theme": "Chủ đề sáng Monero",
   "moonpay_alert_text": "Giá trị số tiền phải lớn hơn hoặc bằng ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Một lỗi đã xảy ra trong khi tìm nạp NFT. Vui lòng kiểm tra kết nối Internet của bạn.",
   "more_options": "Thêm tùy chọn",
   "multiple_addresses_detected": "Nhiều địa chỉ được phát hiện",
   "mweb_confirmed": "Xác nhận MWEB",

@@ -452,6 +452,7 @@
   "monero_dark_theme": "Monero Dark Jigo",
   "monero_light_theme": "Jigon Hasken Monero",
   "moonpay_alert_text": "Darajar adadin dole ne ya zama fiye ko daidai da ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Kuskuren ya faru yayin da ake kawo NFFTs. Da fatan za a duba haɗin intanet ɗinka.",
   "more_options": "Ƙarin Zaɓuɓɓuka",
   "multiple_addresses_detected": "An gano adiresoshin da aka gano",
   "mweb_confirmed": "Tabbatar da Mweb",

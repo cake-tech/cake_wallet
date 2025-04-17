@@ -452,6 +452,7 @@
   "monero_dark_theme": "Monero մութ տեսք",
   "monero_light_theme": "Monero պայծառ տեսք",
   "moonpay_alert_text": "Գումարի արժեքը պետք է լինի հավասար կամ ավելի քան ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "NFT- ները հանելիս սխալ է տեղի ունեցել: Սիրով ստուգեք ձեր ինտերնետային կապը:",
   "more_options": "Այլ տարբերակներ",
   "multiple_addresses_detected": "Հայտնաբերվել են բազմաթիվ հասցեներ",
   "mweb_confirmed": "Հաստատված MWEB",

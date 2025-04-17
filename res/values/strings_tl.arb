@@ -452,6 +452,7 @@
   "monero_dark_theme": "Monero Dark Theme",
   "monero_light_theme": "Monero Light Theme",
   "moonpay_alert_text": "Ang halaga ay dapat na higit pa o katumbas ng ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "May naganap na error habang kinukuha ang mga NFT. Mabuting suriin ang iyong koneksyon sa internet.",
   "more_options": "Higit pang mga Pagpipilian",
   "multiple_addresses_detected": "Maramihang mga address na napansin",
   "mweb_confirmed": "Nakumpirma na MWeb",

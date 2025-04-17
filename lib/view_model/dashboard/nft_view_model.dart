@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -120,7 +121,7 @@ abstract class NFTViewModelBase with Store {
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
-          message: 'An error occurred while fetching wallet NFTs. Kindly check your internet connection.',
+          message: S.current.moralis_error_message,
         ),
       );
     } finally {

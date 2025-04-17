@@ -453,6 +453,7 @@
   "monero_dark_theme": "Monero Tema Escuro",
   "monero_light_theme": "Monero Light Theme",
   "moonpay_alert_text": "O valor do montante deve ser maior ou igual a ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Ocorreu um erro ao buscar NFTs. Por favor, verifique sua conexão com a Internet.",
   "more_options": "Mais opções",
   "multiple_addresses_detected": "Vários endereços detectados",
   "mweb_confirmed": "MWEB confirmado",

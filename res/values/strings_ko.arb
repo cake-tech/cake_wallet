@@ -452,6 +452,7 @@
   "monero_dark_theme": "모네로 다크 테마",
   "monero_light_theme": "모네로 라이트 테마",
   "moonpay_alert_text": "금액은 다음보다 크거나 같아야합니다 ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "NFT를 가져 오는 동안 오류가 발생했습니다. 인터넷 연결을 친절하게 확인하십시오.",
   "more_options": "추가 옵션",
   "multiple_addresses_detected": "여러 주소가 감지되었습니다",
   "mweb_confirmed": "확인 mweb",

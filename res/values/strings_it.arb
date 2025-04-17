@@ -452,6 +452,7 @@
   "monero_dark_theme": "Tema scuro Monero",
   "monero_light_theme": "Tema chiaro Monero",
   "moonpay_alert_text": "Il valore dell'importo deve essere maggiore o uguale a ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Si è verificato un errore durante il recupero di NFT. Si prega di controllare la tua connessione Internet.",
   "more_options": "Altre opzioni",
   "multiple_addresses_detected": "Più indirizzi rilevati",
   "mweb_confirmed": "MWeb confermato",

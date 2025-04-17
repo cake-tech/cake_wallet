@@ -452,6 +452,7 @@
   "monero_dark_theme": "门罗币深色主题",
   "monero_light_theme": "门罗币浅色主题",
   "moonpay_alert_text": "金额的价值必须大于或等于 ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "获取NFT时发生错误。请检查您的互联网连接。",
   "more_options": "更多选项",
   "multiple_addresses_detected": "检测到的多个地址",
   "mweb_confirmed": "确认的MWEB",
