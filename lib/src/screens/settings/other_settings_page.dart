@@ -83,9 +83,9 @@ class OtherSettingsPage extends BasePage {
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
-                  title: '[dev] logs',
+                  title: '[dev] background sync logs',
                   handler: (BuildContext context) =>
-                      Navigator.of(context).pushNamed(Routes.devLogs),
+                      Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
                 ),
               Spacer(),
               SettingsVersionCell(

@@ -1,11 +1,10 @@
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:mobx/mobx.dart';
 
-part 'logs_view_model.g.dart';
+part 'background_sync_logs_view_model.g.dart';
+class BackgroundSyncLogsViewModel = BackgroundSyncLogsViewModelBase with _$BackgroundSyncLogsViewModel;
 
-class LogsViewModel = LogsViewModelBase with _$LogsViewModel;
-
-abstract class LogsViewModelBase with Store {
+abstract class BackgroundSyncLogsViewModelBase with Store {
   final FlutterDaemon _daemon = FlutterDaemon();
 
   @observable

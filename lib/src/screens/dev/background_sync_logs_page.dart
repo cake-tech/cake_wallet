@@ -1,19 +1,19 @@
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/view_model/dev/logs_view_model.dart';
+import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 
-class DevLogsPage extends BasePage {
-  final LogsViewModel viewModel;
+class DevBackgroundSyncLogsPage extends BasePage {
+  final BackgroundSyncLogsViewModel viewModel;
 
-  DevLogsPage(this.viewModel) {
+  DevBackgroundSyncLogsPage(this.viewModel) {
     viewModel.loadLogs();
   }
 
   @override
-  String? get title => "[dev] logs";
+  String? get title => "[dev] background sync logs";
 
   @override
   Widget? trailing(BuildContext context) {

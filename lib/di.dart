@@ -267,8 +267,8 @@ import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
-import 'package:cake_wallet/view_model/dev/logs_view_model.dart';
-import 'package:cake_wallet/src/screens/dev/logs_page.dart';
+import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
+import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -1457,9 +1457,9 @@ Future<void> setup({
 
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
   
-  getIt.registerFactory(() => LogsViewModel());
+  getIt.registerFactory(() => BackgroundSyncLogsViewModel());
   
-  getIt.registerFactory(() => DevLogsPage(getIt.get<LogsViewModel>()));
+  getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
   
   _isSetupFinished = true;
 }
