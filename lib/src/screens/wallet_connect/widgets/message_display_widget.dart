@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class BottomSheetMessageDisplayWidget extends StatelessWidget {
@@ -13,13 +14,30 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          isError ? S.current.error : S.current.successful,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.normal,
-            color: Colors.white,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              isError ? S.current.error : S.current.successful,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              ),
+            ),
+            IconButton(
+              color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
+              padding: const EdgeInsets.all(0.0),
+              visualDensity: VisualDensity.compact,
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              },
+              icon: const Icon(Icons.close_sharp),
+            ),
+          ],
         ),
         SizedBox(height: 8),
         Row(
@@ -30,12 +48,13 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Colors.white,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                 ),
               ),
             ),
           ],
         ),
+        SizedBox(height: 16),
       ],
     );
   }

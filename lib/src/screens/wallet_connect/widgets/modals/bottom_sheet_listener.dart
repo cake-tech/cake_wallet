@@ -1,15 +1,14 @@
+import 'package:cake_wallet/core/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../../core/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 
 class BottomSheetListener extends StatefulWidget {
   final BottomSheetService bottomSheetService;
   final Widget child;
 
   const BottomSheetListener({
-    required this.child,
     required this.bottomSheetService,
+    required this.child,
     super.key,
   });
 
@@ -18,7 +17,6 @@ class BottomSheetListener extends StatefulWidget {
 }
 
 class BottomSheetListenerState extends State<BottomSheetListener> {
-
   @override
   void initState() {
     super.initState();
@@ -41,21 +39,43 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
         isScrollControlled: true,
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
         builder: (context) {
-          return Container(
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 18, 18, 19),
-              borderRadius: BorderRadius.all(Radius.circular(16)),
+          if (item.closeAfter > 0) {
+            Future.delayed(Duration(seconds: item.closeAfter), () {
+              try {
+                if (!mounted) return;
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              } catch (e, s) {
+                debugPrint('[$runtimeType] close $e $s');
+              }
+            });
+          }
+          return Material(
+            color: Theme.of(context).colorScheme.background,
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 16,
+                left: 16,
+                right: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(child: item.widget),
+                ],
+              ),
             ),
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.all(16),
-            child: item.widget,
           );
         },
       );
+
       if (!item.completer.isCompleted) {
         item.completer.complete(value);
       }
-      widget.bottomSheetService.resetCurrentSheet();
+      widget.bottomSheetService.showNext();
     }
   }
 
