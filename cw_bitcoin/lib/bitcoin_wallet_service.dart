@@ -4,7 +4,6 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -155,9 +154,6 @@ class BitcoinWalletService extends WalletService<
     credentials.walletInfo?.network = network.value;
     credentials.walletInfo?.derivationInfo?.derivationPath =
         credentials.hwAccountData.derivationPath;
-
-    final payjoinBox = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
-
     final wallet = await BitcoinWallet(
       password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
@@ -165,7 +161,7 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        payjoinBox: payjoinBox,
+      payjoinBox: payjoinSessionSource,
     );
     await wallet.save();
     await wallet.init();

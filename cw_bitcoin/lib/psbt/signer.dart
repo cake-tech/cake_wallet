@@ -11,7 +11,6 @@ import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_bitcoin/src/utils/buffer_writer.dart';
 
 extension PsbtSigner on PsbtV2 {
-
   Uint8List extractUnsignedTX({bool getSegwit = true}) {
     final tx = BufferWriter()..writeUInt32(getGlobalTxVersion());
 
@@ -41,7 +40,9 @@ extension PsbtSigner on PsbtV2 {
     return tx.buffer();
   }
 
-  Future<void> signWithUTXO(List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer, [UTXOGetterCallBack? getTaprootPair]) async {
+  Future<void> signWithUTXO(
+      List<UtxoWithPrivateKey> utxos, UTXOSignerCallBack signer,
+      [UTXOGetterCallBack? getTaprootPair]) async {
     final raw = BytesUtils.toHexString(extractUnsignedTX(getSegwit: false));
     final tx = BtcTransaction.fromRaw(raw);
 
@@ -67,8 +68,11 @@ extension PsbtSigner on PsbtV2 {
     }
 
     for (var i = 0; i < tx.inputs.length; i++) {
-      final utxo = utxos.firstWhereOrNull((e) => e.utxo.txHash == tx.inputs[i].txId && e.utxo.vout == tx.inputs[i].txIndex); // ToDo: More robust verify
+      final utxo = utxos.firstWhereOrNull((e) =>
+          e.utxo.txHash == tx.inputs[i].txId &&
+          e.utxo.vout == tx.inputs[i].txIndex); // ToDo: More robust verify
       if (utxo == null) continue;
+
       /// We receive the owner's ScriptPubKey
       final script = _findLockingScript(utxo, false);
 
@@ -86,7 +90,10 @@ extension PsbtSigner on PsbtV2 {
       if (utxo.utxo.isP2tr()) {
         setInputTapKeySig(i, Uint8List.fromList(BytesUtils.fromHexString(sig)));
       } else {
-        setInputPartialSig(i, Uint8List.fromList(BytesUtils.fromHexString(utxo.public().toHex())), Uint8List.fromList(BytesUtils.fromHexString(sig)));
+        setInputPartialSig(
+            i,
+            Uint8List.fromList(BytesUtils.fromHexString(utxo.public().toHex())),
+            Uint8List.fromList(BytesUtils.fromHexString(sig)));
       }
     }
   }
@@ -165,11 +172,11 @@ extension PsbtSigner on PsbtV2 {
   }
 }
 
-typedef UTXOSignerCallBack = String Function(
-    List<int> trDigest, UtxoWithAddress utxo, ECPrivate privateKey, int sighash);
+typedef UTXOSignerCallBack = String Function(List<int> trDigest,
+    UtxoWithAddress utxo, ECPrivate privateKey, int sighash);
 
-typedef UTXOGetterCallBack = Future<
-    TaprootAmountScriptPair> Function(String txId, int vout);
+typedef UTXOGetterCallBack = Future<TaprootAmountScriptPair> Function(
+    String txId, int vout);
 
 class TaprootAmountScriptPair {
   final BigInt value;
@@ -187,8 +194,8 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
     required this.privateKey,
   });
 
-  factory UtxoWithPrivateKey.fromUtxo(UtxoWithAddress input, List<ECPrivateInfo> inputPrivateKeyInfos) {
-
+  factory UtxoWithPrivateKey.fromUtxo(
+      UtxoWithAddress input, List<ECPrivateInfo> inputPrivateKeyInfos) {
     ECPrivateInfo? key;
 
     if (inputPrivateKeyInfos.isEmpty) {
@@ -209,50 +216,48 @@ class UtxoWithPrivateKey extends UtxoWithAddress {
     }
 
     return UtxoWithPrivateKey(
-      utxo: input.utxo,
-      ownerDetails: input.ownerDetails,
-      privateKey: key.privkey
-    );
+        utxo: input.utxo,
+        ownerDetails: input.ownerDetails,
+        privateKey: key.privkey);
   }
 
-  static UtxoWithPrivateKey fromUnspent(BitcoinUnspent input, BitcoinWalletBase wallet) {
-    final address = RegexUtils.addressTypeFromStr(
-        input.address, BitcoinNetwork.mainnet);
+  factory UtxoWithPrivateKey.fromUnspent(
+      BitcoinUnspent input, BitcoinWalletBase wallet) {
+    final address =
+        RegexUtils.addressTypeFromStr(input.address, BitcoinNetwork.mainnet);
 
-    final newHd = input.bitcoinAddressRecord.isHidden
-        ? wallet.sideHd
-        : wallet.hd;
+    final newHd =
+        input.bitcoinAddressRecord.isHidden ? wallet.sideHd : wallet.hd;
 
     ECPrivate privkey;
     if (input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-      final unspentAddress = input
-          .bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+      final unspentAddress =
+          input.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
       privkey = wallet.walletAddresses.silentAddress!.b_spend.tweakAdd(
         BigintUtils.fromBytes(
           BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
         ),
       );
     } else {
-      privkey =
-          generateECPrivate(hd: newHd,
-              index: input.bitcoinAddressRecord.index,
-              network: BitcoinNetwork.mainnet);
+      privkey = generateECPrivate(
+          hd: newHd,
+          index: input.bitcoinAddressRecord.index,
+          network: BitcoinNetwork.mainnet);
     }
 
     return UtxoWithPrivateKey(
-          utxo: BitcoinUtxo(
-            txHash: input.hash,
-            value: BigInt.from(input.value),
-            vout: input.vout,
-            scriptType: input.bitcoinAddressRecord.type,
-            isSilentPayment: input
-                .bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
-          ),
-          ownerDetails: UtxoAddressDetails(
-            publicKey: privkey.getPublic().toHex(),
-            address: address,
-          ),
-          privateKey: privkey
-      );
+        utxo: BitcoinUtxo(
+          txHash: input.hash,
+          value: BigInt.from(input.value),
+          vout: input.vout,
+          scriptType: input.bitcoinAddressRecord.type,
+          isSilentPayment:
+              input.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord,
+        ),
+        ownerDetails: UtxoAddressDetails(
+          publicKey: privkey.getPublic().toHex(),
+          address: address,
+        ),
+        privateKey: privkey);
   }
 }
