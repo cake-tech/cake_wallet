@@ -544,7 +544,7 @@
   "potential_scam": "Potencijalna prijevara",
   "powered_by": "Omogućio ${title}",
   "pre_seed_button_text": "Razumijem. Prikaži mi moj pristupni izraz",
-  "pre_seed_description": "Na sljedećoj ćete stranici vidjeti niz ${words} riječi. Radi se o Vašem jedinstvenom i tajnom pristupnom izrazu koji je ujedno i JEDINI način na koji možete oporaviti svoj novčanik u slučaju gubitka ili kvara. VAŠA je odgovornost zapisati ga te pohraniti na sigurno mjesto izvan Cake Wallet aplikacije.",
+  "pre_seed_description": "Na sljedećoj stranici vidjet ćete niz riječi. Ovo je vaše jedinstveno i privatno sjeme i to je jedini način da povratite novčanik u slučaju gubitka ili neispravnosti. Vaša je odgovornost zapisati je i pohraniti na sigurno mjesto izvan aplikacije za novčanik.",
   "pre_seed_title": "VAŽNO",
   "prepaid_cards": "Unaprijed plaćene kartice",
   "prevent_screenshots": "Spriječite snimke zaslona i snimanje zaslona",

@@ -9,7 +9,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
-import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -140,7 +139,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
@@ -603,13 +601,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
     case Routes.preSeedPage:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as int));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<PreSeedPage>());
 
     case Routes.walletGroupExistingSeedDescriptionPage:
-      return MaterialPageRoute<void>(
-          builder: (_) => WalletGroupExistingSeedDescriptionPage(
-              seedPhraseWordsLength: settings.arguments as int));
+      return MaterialPageRoute<void>(builder: (_) => WalletGroupExistingSeedDescriptionPage());
 
     case Routes.transactionSuccessPage:
       return MaterialPageRoute<void>(
