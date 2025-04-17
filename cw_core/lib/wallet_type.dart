@@ -65,7 +65,10 @@ enum WalletType {
   zano,
 
   @HiveField(14)
-  decred
+  decred,
+
+  @HiveField(15)
+  tari
 }
 
 int serializeToInt(WalletType type) {
@@ -98,6 +101,8 @@ int serializeToInt(WalletType type) {
       return 12;
     case WalletType.decred:
       return 13;
+    case WalletType.tari:
+      return 14;
     case WalletType.none:
       return -1;
   }
@@ -132,6 +137,8 @@ WalletType deserializeFromInt(int raw) {
     case 12:
       return WalletType.zano;
     case 13:
+      return WalletType.decred;
+    case 14:
       return WalletType.decred;
     default:
       throw Exception(
@@ -169,6 +176,8 @@ String walletTypeToString(WalletType type) {
       return 'Zano';
     case WalletType.decred:
       return 'Decred';
+    case WalletType.tari:
+      return 'Tari';
     case WalletType.none:
       return '';
   }
@@ -204,6 +213,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Zano (ZANO)';
     case WalletType.decred:
       return 'Decred (DCR)';
+    case WalletType.tari:
+      return 'Tari (XTR)';
     case WalletType.none:
       return '';
   }
@@ -242,6 +253,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.zano;
     case WalletType.decred:
       return CryptoCurrency.dcr;
+    case WalletType.tari:
+      return CryptoCurrency.tari;
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
