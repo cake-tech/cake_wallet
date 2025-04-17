@@ -79,6 +79,8 @@ abstract class NFTViewModelBase with Store {
     }
 
     try {
+      if (isLoading) return;
+
       isLoading = true;
 
       final response = await http.get(
@@ -113,17 +115,16 @@ abstract class NFTViewModelBase with Store {
 
         nftAssetByWalletModels.addAll(result);
       }
-
-      isLoading = false;
     } catch (e) {
-      isLoading = false;
       log(e.toString());
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
-          message: e.toString(),
+          message: 'An error occurred while fetching wallet NFTs. Kindly check your internet connection.',
         ),
       );
+    } finally {
+      isLoading = false;
     }
   }
 
