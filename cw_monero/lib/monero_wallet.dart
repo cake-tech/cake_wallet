@@ -485,13 +485,22 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
     if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
       // NOTE: this is realistically only required on windows.
+      // That's why we await it only on that platform - other platforms actually understand
+      // the concept of a file properly...
       printV("closing wallet");
       final wmaddr = wmPtr.address;
       final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
-      await Isolate.run(() {
-        monero.WalletManager_closeWallet(
-            Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-      });
+      if (Platform.isWindows) {
+        await Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+        });
+      } else {
+        unawaited(Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+        }));
+      }
       openedWalletsByPath.remove("$currentWalletDirPath/$name");
       printV("wallet closed");
     }
@@ -501,32 +510,33 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           Directory(await pathForWalletDir(name: name, type: type));
       final newWalletDirPath =
           await pathForWalletDir(name: newWalletName, type: type);
-      await currentWalletDir.rename(newWalletDirPath);
-
-      // -- use new waller folder to rename files with old names still --
-      final renamedWalletPath = newWalletDirPath + '/$name';
-
-      final currentCacheFile = File(renamedWalletPath);
-      final currentKeysFile = File('$renamedWalletPath.keys');
-      final currentAddressListFile = File('$renamedWalletPath.address.txt');
-      final backgroundSyncFile = File('$renamedWalletPath.background');
-
-      final newWalletPath =
-          await pathForWallet(name: newWalletName, type: type);
+      
+      // Create new directory if it doesn't exist
+      await Directory(newWalletDirPath).create(recursive: true);
+      
+      // -- use new waller folder to copy files with old names still --
+      final currentWalletPath = currentWalletDir.path + '/$name';
+      
+      final currentCacheFile = File(currentWalletPath);
+      final currentKeysFile = File('$currentWalletPath.keys');
+      final currentAddressListFile = File('$currentWalletPath.address.txt');
+      final backgroundSyncFile = File('$currentWalletPath.background');
 
       if (currentCacheFile.existsSync()) {
-        await currentCacheFile.rename(newWalletPath);
+        await currentCacheFile.copy("${newWalletDirPath}/$newWalletName");
       }
       if (currentKeysFile.existsSync()) {
-        await currentKeysFile.rename('$newWalletPath.keys');
+        await currentKeysFile.copy("${newWalletDirPath}/$newWalletName.keys");
       }
       if (currentAddressListFile.existsSync()) {
-        await currentAddressListFile.rename('$newWalletPath.address.txt');
+        await currentAddressListFile.copy("${newWalletDirPath}/$newWalletName.address.txt");
       }
       if (backgroundSyncFile.existsSync()) {
-        await backgroundSyncFile.rename('$newWalletPath.background');
+        await backgroundSyncFile.copy("${newWalletDirPath}/$newWalletName.background");
       }
 
+      await currentWalletDir.delete(recursive: true);
+      
       await backupWalletFiles(newWalletName);
     } catch (e) {
       final currentWalletPath = await pathForWallet(name: name, type: type);

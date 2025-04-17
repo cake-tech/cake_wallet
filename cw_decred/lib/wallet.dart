@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -602,7 +603,25 @@ abstract class DecredWalletBase
       throw "wallet already exists at $newDirPath";
     }
 
-    await Directory(currentDirPath).rename(newDirPath);
+    final sourceDir = Directory(currentDirPath);
+    final targetDir = Directory(newDirPath);
+    
+    if (!targetDir.existsSync()) {
+      await targetDir.create(recursive: true);
+    }
+    
+    await for (final entity in sourceDir.list(recursive: true)) {
+      final relativePath = entity.path.substring(sourceDir.path.length);
+      final targetPath = p.join(targetDir.path, relativePath);
+      
+      if (entity is File) {
+        await entity.copy(targetPath);
+      } else if (entity is Directory) {
+        await Directory(targetPath).create(recursive: true);
+      }
+    }
+    
+    await sourceDir.delete(recursive: true);
   }
 
   @override
