@@ -147,7 +147,17 @@ int getUnlockedBalance({int accountIndex = 0}) =>
 
 int getCurrentHeight() => monero.Wallet_blockChainHeight(wptr!);
 
-int getNodeHeightSync() => monero.Wallet_daemonBlockChainHeight(wptr!);
+int cachedNodeHeight = 0;
+int getNodeHeightSync() {
+  printV("getNodeHeightSync: $cachedNodeHeight");
+  (() async {
+    final wptrAddress = wptr!.address;
+    cachedNodeHeight = await Isolate.run(() async {
+      return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
+    });
+  })();
+  return cachedNodeHeight;
+}
 
 bool isConnectedSync() => monero.Wallet_connected(wptr!) != 0;
 
@@ -203,7 +213,7 @@ Future<bool> setupNodeSync(
 }
 
 void startRefreshSync() {
-  monero.Wallet_refreshAsync(wptr!);
+  // monero.Wallet_refreshAsync(wptr!);
   monero.Wallet_startRefresh(wptr!);
 }
 
