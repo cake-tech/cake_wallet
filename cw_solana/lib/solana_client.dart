@@ -171,37 +171,85 @@ class SolanaWalletClient {
 
         if (programId == SystemProgramConst.programId) {
           // For native solana transactions
-          if (instruction.accounts.length < 2) continue;
-          final senderIndex = instruction.accounts[0];
-          final receiverIndex = instruction.accounts[1];
 
-          sender = message.accountKeys[senderIndex].address;
-          receiver = message.accountKeys[receiverIndex].address;
+          if (txResponse.version == TransactionType.legacy) {
+            // For legacy transfers, the fee payer (index 0) is the sender.
+            sender = message.accountKeys[0].address;
 
-          final feeForTx = fee / SolanaUtils.lamportsPerSol;
+            final senderPreBalance = meta.preBalances[0];
+            final senderPostBalance = meta.postBalances[0];
+            final feeForTx = fee / SolanaUtils.lamportsPerSol;
 
-          final preBalances = meta.preBalances;
-          final postBalances = meta.postBalances;
+            // The loss on the sender's account would include both the transfer amount and the fee.
+            // So we would subtract the fee to calculate the actual amount that was transferred (in lamports).
+            final transferLamports = (senderPreBalance - senderPostBalance) - BigInt.from(fee);
 
-          final amountInString =
-              (((preBalances[senderIndex] - postBalances[senderIndex]) / BigInt.from(1e9))
-                          .toDouble() -
-                      feeForTx)
-                  .toStringAsFixed(6);
+            // Next, we attempt to find the receiver by comparing the balance changes.
+            // (The index 0 is for the sender so we skip it.)
+            bool foundReceiver = false;
+            for (int i = 1; i < meta.preBalances.length; i++) {
+              // The increase in balance on the receiver account should correspond to the transfer amount we calculated earlieer.
+              final pre = meta.preBalances[i];
+              final post = meta.postBalances[i];
+              if ((post - pre) == transferLamports) {
+                receiver = message.accountKeys[i].address;
+                foundReceiver = true;
+                break;
+              }
+            }
 
-          final amount = double.parse(amountInString);
+            if (!foundReceiver) {
+              // Optionally (and rarely), if no account shows the exact expected change,
+              // we set the receiver address to unknown.
+              receiver = "unknown";
+            }
 
-          return SolanaTransactionModel(
-            isOutgoingTx: sender == walletAddress,
-            from: sender,
-            to: receiver,
-            id: signature,
-            amount: amount.abs(),
-            programId: SystemProgramConst.programId.address,
-            tokenSymbol: 'SOL',
-            blockTimeInInt: blockTime?.toInt() ?? 0,
-            fee: feeForTx,
-          );
+            final amount = transferLamports / BigInt.from(1e9);
+
+            return SolanaTransactionModel(
+              isOutgoingTx: sender == walletAddress,
+              from: sender,
+              to: receiver,
+              id: signature,
+              amount: amount.abs(),
+              programId: SystemProgramConst.programId.address,
+              tokenSymbol: 'SOL',
+              blockTimeInInt: blockTime?.toInt() ?? 0,
+              fee: feeForTx,
+            );
+          } else {
+            if (instruction.accounts.length < 2) continue;
+            final senderIndex = instruction.accounts[0];
+            final receiverIndex = instruction.accounts[1];
+
+            sender = message.accountKeys[senderIndex].address;
+            receiver = message.accountKeys[receiverIndex].address;
+
+            final feeForTx = fee / SolanaUtils.lamportsPerSol;
+
+            final preBalances = meta.preBalances;
+            final postBalances = meta.postBalances;
+
+            final amountInString =
+                (((preBalances[senderIndex] - postBalances[senderIndex]) / BigInt.from(1e9))
+                            .toDouble() -
+                        feeForTx)
+                    .toStringAsFixed(6);
+
+            final amount = double.parse(amountInString);
+
+            return SolanaTransactionModel(
+              isOutgoingTx: sender == walletAddress,
+              from: sender,
+              to: receiver,
+              id: signature,
+              amount: amount.abs(),
+              programId: SystemProgramConst.programId.address,
+              tokenSymbol: 'SOL',
+              blockTimeInInt: blockTime?.toInt() ?? 0,
+              fee: feeForTx,
+            );
+          }
         } else if (programId == SPLTokenProgramConst.tokenProgramId) {
           // For SPL Token transactions
           if (instruction.accounts.length < 2) continue;
