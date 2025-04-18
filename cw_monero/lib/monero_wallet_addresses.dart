@@ -130,8 +130,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     final transactions = _moneroTransactionHistory.transactions.values.toList();
 
     transactions.forEach((element) {
-      final accountIndex = element.accountIndex;
-      final addressIndex = element.addressIndex;
+      print('used address: ${element.confirmations}');
+      final accountIndex = element.additionalInfo['accountIndex'] as int? ?? 0;
+      final addressIndex = element.additionalInfo['addressIndex'] as int? ?? 0;
       usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: addressIndex));
     });
   }
