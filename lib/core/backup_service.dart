@@ -278,9 +278,18 @@ class $BackupService {
     return encrypted;
   }
 
+  static const List<String> _excludedPrefsKeys = [
+    PreferencesKey.currentPinLength,
+    PreferencesKey.showCameraConsent,
+    PreferencesKey.lastSeenAppVersion,
+    PreferencesKey.failedTotpTokenTrials,
+  ];
+
   Future<String> exportPreferencesJSON() async {
     final preferences = <String, dynamic>{};
     sharedPreferences.getKeys().forEach((key) => preferences[key] = sharedPreferences.get(key));
+
+    _excludedPrefsKeys.forEach((key) => preferences.remove(key));
 
     return json.encode(preferences);
   }
