@@ -164,27 +164,29 @@ class $BackupService {
 
     final data = json.decode(preferencesFile.readAsStringSync()) as Map<String, dynamic>;
 
-    for (var entry in data.entries) {
-      String key = entry.key;
-      dynamic value = entry.value;
+    try { // shouldn't throw an error but just in case, so it doesn't stop the backup restore
+      for (var entry in data.entries) {
+        String key = entry.key;
+        dynamic value = entry.value;
 
-      // Check the type of the value and save accordingly
-      if (value is String) {
-        await sharedPreferences.setString(key, value);
-      } else if (value is int) {
-        await sharedPreferences.setInt(key, value);
-      } else if (value is double) {
-        await sharedPreferences.setDouble(key, value);
-      } else if (value is bool) {
-        await sharedPreferences.setBool(key, value);
-      } else if (value is List<String>) {
-        await sharedPreferences.setStringList(key, value);
-      } else {
-        if (kDebugMode) {
-          printV('Skipping individual save for key "$key": Unsupported type (${value.runtimeType}). Value: $value');
+        // Check the type of the value and save accordingly
+        if (value is String) {
+          await sharedPreferences.setString(key, value);
+        } else if (value is int) {
+          await sharedPreferences.setInt(key, value);
+        } else if (value is double) {
+          await sharedPreferences.setDouble(key, value);
+        } else if (value is bool) {
+          await sharedPreferences.setBool(key, value);
+        } else if (value is List<String>) {
+          await sharedPreferences.setStringList(key, value);
+        } else {
+          if (kDebugMode) {
+            printV('Skipping individual save for key "$key": Unsupported type (${value.runtimeType}). Value: $value');
+          }
         }
       }
-    }
+    } catch (_) {}
 
     String currentWalletName = data[PreferencesKey.currentWalletName] as String;
     int currentWalletType = data[PreferencesKey.currentWalletType] as int;
