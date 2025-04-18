@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -276,10 +275,17 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
     _transactionDisposer = reaction(
-        (_) =>
-            appStore.wallet!.transactionHistory.transactions.length *
-            appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
-        _transactionDisposerCallback);
+      (_) => appStore.wallet!.transactionHistory.transactions.length,
+      _transactionDisposerCallback,
+    );
+
+    if (hasSilentPayments) {
+      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+
+      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
+        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
+      });
+    }
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
@@ -814,10 +820,7 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
 
-    _transactionDisposer = reaction(
-        (_) =>
-            appStore.wallet!.transactionHistory.transactions.length *
-            appStore.wallet!.transactionHistory.transactions.values.first.confirmations,
+    _transactionDisposer = reaction((_) => appStore.wallet!.transactionHistory.transactions.length,
         _transactionDisposerCallback);
   }
 

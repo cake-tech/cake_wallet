@@ -52,38 +52,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   bool get showLanguageSelector =>
       newWalletArguments?.mnemonic == null && hasLanguageSelector;
 
-  int get seedPhraseWordsLength {
-    switch (type) {
-      case WalletType.monero:
-      case WalletType.wownero:
-        return advancedPrivacySettingsViewModel.isPolySeed ? 16 : 25;
-      case WalletType.tron:
-      case WalletType.solana:
-      case WalletType.polygon:
-      case WalletType.ethereum:
-      case WalletType.bitcoinCash:
-        return advancedPrivacySettingsViewModel.seedPhraseLength.value;
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        return seedSettingsViewModel.bitcoinSeedType == BitcoinSeedType.bip39
-            ? advancedPrivacySettingsViewModel.seedPhraseLength.value
-            : 24;
-      case WalletType.nano:
-      case WalletType.banano:
-        return seedSettingsViewModel.nanoSeedType == NanoSeedType.bip39
-            ? advancedPrivacySettingsViewModel.seedPhraseLength.value
-            : 24;
-      case WalletType.none:
-        return 24;
-      case WalletType.haven:
-        return 25;
-      case WalletType.zano:
-        return 26;
-      case WalletType.decred:
-        return 15;
-    }
-  }
-
   bool get hasSeedType =>
       newWalletArguments?.mnemonic == null &&
       [WalletType.monero, WalletType.wownero].contains(type);

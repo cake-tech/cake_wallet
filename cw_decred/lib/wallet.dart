@@ -222,7 +222,7 @@ abstract class DecredWalletBase extends WalletBase<DecredBalance, DecredTransact
 
   Future<bool> checkSync() async {
     final syncStatusJSON = await _libwallet.syncStatus(walletInfo.name);
-    final decoded = json.decode(syncStatusJSON);
+    final decoded = json.decode(syncStatusJSON.isEmpty ? "{}" : syncStatusJSON);
 
     final syncStatusCode = decoded["syncstatuscode"] ?? 0;
     // final syncStatusStr = decoded["syncstatus"] ?? "";
