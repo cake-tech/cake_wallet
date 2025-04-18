@@ -38,6 +38,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   static const fourPinLength = 4;
   final _gridViewKey = GlobalKey();
   final _key = GlobalKey<ScaffoldState>();
+  late final FocusNode _focusNode;
 
   int pinLength;
   String pin;
@@ -54,7 +55,17 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     pin = '';
     title = S.current.enter_your_pin;
     _aspectRatio = 0;
-    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+    _focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+      _afterLayout(_);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void setTitle(String title) => setState(() => this.title = title);
@@ -120,8 +131,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     );
 
     return KeyboardListener(
-      focusNode: FocusNode(),
-      autofocus: true,
+      focusNode: _focusNode,
+      autofocus: false,
       onKeyEvent: (keyEvent) {
         if (keyEvent is KeyDownEvent) {
           if (keyEvent.logicalKey.keyLabel == "Backspace") {
@@ -144,8 +155,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color:
-                        Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
             Spacer(flex: 8),
             Container(
               width: 180,
@@ -162,7 +172,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                         shape: BoxShape.circle,
                         color: isFilled
                             ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-                            : Theme.of(context).extension<PinCodeTheme>()!.indicatorsColor
+                            : Theme.of(context)
+                                .extension<PinCodeTheme>()!
+                                .indicatorsColor
                                 .withOpacity(0.25),
                       ));
                 }),
@@ -225,7 +237,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         child: TextButton(
                                           onPressed: () => _pop(),
                                           style: TextButton.styleFrom(
-                                            backgroundColor: Theme.of(context).colorScheme.background,
+                                            backgroundColor:
+                                                Theme.of(context).colorScheme.background,
                                             shape: CircleBorder(),
                                           ),
                                           child: deleteIconImage,
@@ -250,7 +263,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         style: TextStyle(
                                             fontSize: 25.0,
                                             fontWeight: FontWeight.w600,
-                                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                                            color: Theme.of(context)
+                                                .extension<CakeTextTheme>()!
+                                                .titleColor)),
                                   ),
                                 );
                               }),
