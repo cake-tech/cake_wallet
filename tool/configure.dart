@@ -127,23 +127,6 @@ import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
-  SegwitAddressType.p2wpkh,
-  P2pkhAddressType.p2pkh,
-  SegwitAddressType.p2tr,
-  SegwitAddressType.p2wsh,
-  P2shAddressType.p2wpkhInP2sh,
-];
-
-const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
-  SegwitAddressType.p2wpkh,
-  SegwitAddressType.mweb,
-];
-
-const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
-  P2pkhAddressType.p2pkh,
-];
-
 class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
@@ -232,6 +215,7 @@ abstract class Bitcoin {
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
+  void resetActiveAddress(Object wallet);
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();
@@ -978,15 +962,12 @@ abstract class BitcoinCash {
   """;
 
   const bitcoinCashEmptyDefinition = 'BitcoinCash? bitcoinCash;\n';
-  const bitcoinCashCWDefinition =
-      'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
+  const bitcoinCashCWDefinition = 'BitcoinCash? bitcoinCash = CWBitcoinCash();\n';
 
   final output = '$bitcoinCashCommonHeaders\n' +
       (hasImplementation ? '$bitcoinCashCWHeaders\n' : '\n') +
       (hasImplementation ? '$bitcoinCashCwPart\n\n' : '\n') +
-      (hasImplementation
-          ? bitcoinCashCWDefinition
-          : bitcoinCashEmptyDefinition) +
+      (hasImplementation ? bitcoinCashCWDefinition : bitcoinCashEmptyDefinition) +
       '\n' +
       bitcoinCashContent;
 
@@ -1121,8 +1102,7 @@ abstract class NanoUtil {
   """;
 
   const nanoEmptyDefinition = 'Nano? nano;\nNanoUtil? nanoUtil;\n';
-  const nanoCWDefinition =
-      'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
+  const nanoCWDefinition = 'Nano? nano = CWNano();\nNanoUtil? nanoUtil = CWNanoUtil();\n';
 
   final output = '$nanoCommonHeaders\n' +
       (hasImplementation ? '$nanoCWHeaders\n' : '\n') +

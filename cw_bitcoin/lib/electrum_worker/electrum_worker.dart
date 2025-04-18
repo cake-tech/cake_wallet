@@ -1742,7 +1742,6 @@ class ElectrumWorker {
           ).toAddress(request.network),
           index: i,
           isChange: request.isChange,
-          isHidden: request.shouldHideAddress || request.isChange,
           type: request.addressType,
           network: request.network,
           derivationInfo: request.derivationInfo,

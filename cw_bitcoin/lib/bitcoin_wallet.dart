@@ -99,7 +99,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
     }
 
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateNewAddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
 
@@ -121,34 +121,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
     // If already loaded, no need to generate/discover all initial addresses
     // so skip
     // if (!walletAddresses.loadedFromNewSnapshot) {
-    for (final seedBytesType in hdWallets.keys) {
-      generateInitialAddresses(
-        addressType: SegwitAddressType.p2wpkh,
-        seedBytesType: seedBytesType,
-      );
+    for (final walletAddressType in walletAddresses.walletAddressTypes) {
+      if (isHardwareWallet && walletAddressType != SegwitAddressType.p2wpkh) continue;
 
-      if (!isHardwareWallet) {
+      for (final seedBytesType in hdWallets.keys) {
         generateInitialAddresses(
-          addressType: P2pkhAddressType.p2pkh,
-          seedBytesType: seedBytesType,
-        );
-
-        generateInitialAddresses(
-          addressType: P2shAddressType.p2wpkhInP2sh,
-          seedBytesType: seedBytesType,
-        );
-
-        generateInitialAddresses(
-          addressType: SegwitAddressType.p2tr,
-          seedBytesType: seedBytesType,
-        );
-
-        generateInitialAddresses(
-          addressType: SegwitAddressType.p2wsh,
+          addressType: walletAddressType,
           seedBytesType: seedBytesType,
         );
       }
     }
+
     // }
   }
 
@@ -517,7 +500,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
   @override
   @action
   Future<ElectrumWorkerListUnspentResponse?> updateAllUnspents([
-    Set<String>? scripthashes,
+    List<String>? scripthashes,
     bool? wait,
   ]) async {
     scripthashes ??= this.walletAddresses.allScriptHashes;

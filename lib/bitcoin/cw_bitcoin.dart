@@ -158,7 +158,7 @@ class CWBitcoin extends Bitcoin {
             id: addr.index,
             name: addr.name,
             address: addr.address,
-            derivationPath: addr.derivationPath,
+            derivationPath: addr.indexedDerivationPath,
             txCount: addr.txCount,
             balance: addr.balance,
             isChange: addr.isChange,
@@ -292,9 +292,14 @@ class CWBitcoin extends Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow() => ElectrumTransactionPriority.slow;
 
   @override
+  void resetActiveAddress(Object wallet) {
+    (wallet as ElectrumWallet).walletAddresses.resetActiveAddress();
+  }
+
+  @override
   Future<void> setAddressType(Object wallet, dynamic option) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.walletAddresses.setAddressType(option as BitcoinAddressType);
+    await bitcoinWallet.walletAddresses.setAddressPageType(option as BitcoinAddressType);
   }
 
   @override
@@ -530,7 +535,7 @@ class CWBitcoin extends Bitcoin {
               id: addr.index,
               name: addr.name,
               address: addr.address,
-              derivationPath: addr.derivationPath,
+              derivationPath: addr.indexedDerivationPath,
               txCount: addr.txCount,
               balance: addr.balance,
               isChange: addr.isChange,
@@ -547,7 +552,7 @@ class CWBitcoin extends Bitcoin {
               id: addr.index,
               name: addr.name,
               address: addr.address,
-              derivationPath: addr.derivationPath,
+              derivationPath: addr.indexedDerivationPath,
               txCount: addr.txCount,
               balance: addr.balance,
               isChange: addr.isChange,

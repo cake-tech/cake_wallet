@@ -318,7 +318,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   }
 
   Future<void> init() async {
-    await walletAddresses.init();
     await transactionHistory.init();
 
     _autoSaveTimer =
@@ -475,7 +474,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
         privkey = ECPrivate.fromBip32(
           bip32: hdWallets[addressRecord.seedBytesType]!.derive(
-            Bip32PathParser.parse(addressRecord.derivationPath),
+            Bip32PathParser.parse(addressRecord.indexedDerivationPath),
           ),
         );
       }
@@ -495,7 +494,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       }
 
       if (utx.bitcoinAddressRecord is BitcoinAddressRecord) {
-        final derivationPath = utx.bitcoinAddressRecord.derivationPath;
+        final derivationPath = utx.bitcoinAddressRecord.indexedDerivationPath;
         publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
       }
 
@@ -637,7 +636,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       isChange: true,
     ));
 
-    final changeDerivationPath = changeAddress.derivationPath.toString();
+    final changeDerivationPath = changeAddress.indexedDerivationPath.toString();
     utxoDetails.publicKeys[address.pubKeyHash()] =
         PublicKeyWithDerivationPath('', changeDerivationPath);
 
@@ -1113,7 +1112,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
   @action
   Future<ElectrumWorkerListUnspentResponse?> updateAllUnspents([
-    Set<String>? scripthashes,
+    List<String>? scripthashes,
     bool? wait,
   ]) async {
     scripthashes ??= walletAddresses.allScriptHashes;
@@ -1540,10 +1539,10 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       }
 
       // Identify all change outputs
-      final changeAddresses = walletAddresses.allChangeAddresses;
+      final changeAddresses = walletAddresses.allAddresses.where((element) => element.isChange);
       final List<BitcoinOutput> changeOutputs = outputs
-          .where((output) => changeAddresses
-              .any((element) => element.address == output.address.toAddress(network)))
+          .where((output) =>
+              changeAddresses.any((addr) => addr.address == output.address.toAddress(network)))
           .toList();
 
       int totalChangeAmount =
@@ -1931,20 +1930,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     try {
       final scripthashByAddress = await subscribeForStatuses(addresses, true);
 
-      walletAddresses.discoveredAddresses.putIfAbsent(
-        addresses.first.type,
-        () => {
-          addresses.first.seedBytesType!: {addresses.first.isChange: true}
-        },
-      );
-      walletAddresses.discoveredAddresses[addresses.first.type]!.putIfAbsent(
-        addresses.first.seedBytesType!,
-        () => {
-          addresses.first.isChange: true,
-        },
-      );
-      walletAddresses.discoveredAddresses[addresses.first.type]![addresses.first.seedBytesType!]!
-          .putIfAbsent(addresses.first.isChange, () => true);
+      walletAddresses.addAddresses(addresses);
 
       if (addresses.first.seedBytesType!.isOldDerivation && scripthashByAddress.length == 1) {
         // Wrong derivation address with no history, discard and do not add to wallet addresses
@@ -1969,12 +1955,14 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       isElectrum: seedBytesType.isElectrum,
     );
 
-    final existingReceiveAddresses = (walletAddresses.receiveAddressesMapped[addressType]
-            ?[seedBytesType]?[bitcoinDerivationInfo.derivationPath.toString()] ??
-        <BaseBitcoinAddressRecord>[]);
+    final existingReceiveAddresses = walletAddresses.addressesRecords.getRecords(
+      addressType: addressType,
+      seedBytesType: seedBytesType,
+      derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
+      isChange: false,
+    );
 
-    if (existingReceiveAddresses.length <
-        ElectrumWalletAddressesBase.defaultReceiveAddressesCount) {
+    if (existingReceiveAddresses.length < ElectrumWalletAddressesBase.INITIAL_RECEIVE_COUNT) {
       discoverNewAddresses(
         seedBytesType: seedBytesType,
         isChange: false,
@@ -1984,11 +1972,14 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       );
     }
 
-    final existingChangeAddresses = (walletAddresses.receiveAddressesMapped[addressType]
-            ?[seedBytesType]?[bitcoinDerivationInfo.derivationPath.toString()] ??
-        <BaseBitcoinAddressRecord>[]);
+    final existingChangeAddresses = walletAddresses.addressesRecords.getRecords(
+      addressType: addressType,
+      seedBytesType: seedBytesType,
+      derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
+      isChange: true,
+    );
 
-    if (existingChangeAddresses.length < ElectrumWalletAddressesBase.defaultChangeAddressesCount) {
+    if (existingChangeAddresses.length < ElectrumWalletAddressesBase.INITIAL_CHANGE_COUNT) {
       discoverNewAddresses(
         seedBytesType: seedBytesType,
         isChange: true,
@@ -2003,48 +1994,45 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     List<BitcoinAddressRecord> addresses,
   ) async {
     final newAddresses = <BitcoinAddressRecord>[];
-    final discoveredAddresses =
-        <SeedBytesType, Map<BitcoinAddressType, Map<BitcoinDerivationType, List<bool>>>>{};
+    final discoveredAddresses = BitcoinDiscoveredAddressesMap();
 
     final usedAddresses = addresses.isNotEmpty
         ? addresses
-        : walletAddresses.allAddresses.where(walletAddresses.getIsUsed).toList();
+        : walletAddresses.allAddresses.where((addr) => addr.getIsUsed()).toList();
 
     for (final usedAddress in usedAddresses) {
-      final isChange = usedAddress.isChange;
-
-      final alreadyDiscoveredSeedType = discoveredAddresses[usedAddress.seedBytesType!];
-      final alreadyDiscoveredAddressType = alreadyDiscoveredSeedType?[usedAddress.type];
-      final alreadyDiscoveredDerivationType =
-          alreadyDiscoveredAddressType?[usedAddress.derivationInfo.derivationType];
-      final isAlreadyDiscovered = alreadyDiscoveredDerivationType?.contains(isChange) ?? false;
+      final isAlreadyDiscovered = discoveredAddresses.getIsDiscovered(
+        addressType: usedAddress.type,
+        seedBytesType: usedAddress.seedBytesType!,
+        derivationPath: usedAddress.derivationInfo.derivationPath.toString(),
+        isChange: usedAddress.isChange,
+      );
 
       if (isAlreadyDiscovered) {
         continue;
       }
 
-      final matchingAddressList = walletAddresses.allAddresses.where(
-        (addr) =>
-            addr.seedBytesType! == usedAddress.seedBytesType! &&
-            addr.type == usedAddress.type &&
-            addr.derivationInfo.derivationType == usedAddress.derivationInfo.derivationType &&
-            addr.isChange == isChange,
+      final matchingAddressList = walletAddresses.addressesRecords.getRecords(
+        seedBytesType: usedAddress.seedBytesType!,
+        addressType: usedAddress.type,
+        derivationPath: usedAddress.derivationInfo.derivationPath.toString(),
+        isChange: usedAddress.isChange,
       );
       final totalMatchingAddresses = matchingAddressList.length;
 
-      final matchingGapLimit = (isChange
-          ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-          : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
+      final matchingGapLimit = usedAddress.isChange
+          ? ElectrumWalletAddressesBase.INITIAL_CHANGE_COUNT
+          : ElectrumWalletAddressesBase.INITIAL_RECEIVE_COUNT;
       final isAddressUsedAboveGap = usedAddress.index >= totalMatchingAddresses - matchingGapLimit;
 
       if (isAddressUsedAboveGap) {
-        discoveredAddresses.putIfAbsent(usedAddress.seedBytesType!, () => {});
-        discoveredAddresses[usedAddress.seedBytesType!]!.putIfAbsent(usedAddress.type, () => {});
-        discoveredAddresses[usedAddress.seedBytesType!]![usedAddress.type]!
-            .putIfAbsent(usedAddress.derivationInfo.derivationType, () => []);
-        discoveredAddresses[usedAddress.seedBytesType!]![usedAddress.type]![
-                usedAddress.derivationInfo.derivationType]!
-            .add(isChange);
+        // discoveredAddresses.addDiscovered(
+        //   addressType: addressType,
+        //   seedBytesType: seedBytesType,
+        //   derivationPath: derivationPath,
+        //   addressRecord: addressRecord,
+        //   discovered: discovered,
+        // );
 
         // final theseAddresses = discoverNewAddresses(
         //   isChange: isChange,
@@ -2080,31 +2068,36 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     required BitcoinDerivationInfo derivationInfo,
     int? startIndex,
   }) async {
-    if (walletAddresses.discoveredAddresses[addressType]?[seedBytesType]?[isChange] == true) {
+    final count = isChange
+        ? ElectrumWalletAddressesBase.INITIAL_CHANGE_COUNT
+        : ElectrumWalletAddressesBase.INITIAL_RECEIVE_COUNT;
+    final recordList = walletAddresses.addressesRecords.getRecords(
+      seedBytesType: seedBytesType,
+      addressType: addressType,
+      derivationPath: derivationInfo.derivationPath.toString(),
+      isChange: isChange,
+    );
+
+    startIndex ??= recordList.length;
+
+    final isDiscovered = walletAddresses.discoveredAddresses.getIsDiscovered(
+      addressType: addressType,
+      seedBytesType: seedBytesType,
+      derivationPath: derivationInfo.derivationPath.toString(),
+      isChange: isChange,
+    );
+
+    if (isDiscovered) {
       return;
     }
-
-    final count = isChange
-        ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
-
-    startIndex ??= ((isChange
-                    ? walletAddresses.changeAddressesMapped[addressType]
-                    : walletAddresses.receiveAddressesMapped[addressType])?[seedBytesType]
-                ?[derivationInfo.derivationPath.toString()] ??
-            [])
-        .length;
 
     workerSendPort!.send(
       ElectrumWorkerDiscoverAddressesRequest(
         id: _messageId,
         count: count,
+        walletType: type,
         startIndex: startIndex,
         seedBytesType: seedBytesType,
-        shouldHideAddress: walletAddresses.getShouldHideAddress(
-          derivationInfo.derivationPath,
-          addressType,
-        ),
         derivationInfo: derivationInfo,
         isChange: isChange,
         addressType: addressType,

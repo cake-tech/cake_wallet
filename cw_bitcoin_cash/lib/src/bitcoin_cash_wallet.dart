@@ -54,7 +54,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     }
 
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateNewAddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
 

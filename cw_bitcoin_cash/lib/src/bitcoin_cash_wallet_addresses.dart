@@ -17,42 +17,19 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     required super.hdWallets,
     required super.network,
     required super.isHardwareWallet,
-    super.initialAddresses,
+    super.initialAddressesRecords,
+    super.initialActiveAddressIndex,
     super.initialAddressPageType,
   }) : super(walletInfo);
 
   @override
-  final walletAddressTypes = BITCOIN_CASH_ADDRESS_TYPES;
-
-  static const BITCOIN_CASH_ADDRESS_TYPES = [P2pkhAddressType.p2pkh];
+  final walletAddressTypes = [P2pkhAddressType.p2pkh];
 
   @override
-  @observable
   BitcoinAddressType changeAddressType = P2pkhAddressType.p2pkh;
 
   @override
   BitcoinAddressType get addressPageType => P2pkhAddressType.p2pkh;
-
-  @override
-  Future<void> init() async {
-    // for (final seedBytesType in hdWallets.keys) {
-    //   await generateInitialAddresses(
-    //     addressType: P2pkhAddressType.p2pkh,
-    //     seedBytesType: seedBytesType,
-    //     bitcoinDerivationInfo: BitcoinDerivationInfos.BCH,
-    //   );
-    // }
-    await super.init();
-  }
-
-  @override
-  bool getShouldHideAddress(Bip32Path path, BitcoinAddressType addressType) {
-    if (walletSeedBytesType.isElectrum) {
-      return path.toString() != BitcoinDerivationInfos.ELECTRUM.derivationPath.toString();
-    }
-
-    return path.toString() != BitcoinDerivationPaths.BCH;
-  }
 
   static BitcoinCashWalletAddressesBase fromJson(
     Map<String, dynamic> json,
@@ -62,6 +39,14 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     required bool isHardwareWallet,
     List<BitcoinAddressRecord>? initialAddresses,
   }) {
+    final electrumJson = ElectrumWalletAddressesBase.fromJson(
+      json,
+      walletInfo,
+      hdWallets: hdWallets,
+      network: network,
+      isHardwareWallet: isHardwareWallet,
+    );
+
     initialAddresses ??= (json['allAddresses'] as List).map((addr) {
       try {
         BitcoinCashAddress(addr.address);
@@ -92,7 +77,9 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
       hdWallets: hdWallets,
       network: network,
       isHardwareWallet: isHardwareWallet,
-      initialAddresses: initialAddresses,
+      initialAddressesRecords: electrumJson.addressesRecords,
+      initialAddressPageType: electrumJson.addressPageType,
+      initialActiveAddressIndex: electrumJson.activeIndexByType,
     );
   }
 }

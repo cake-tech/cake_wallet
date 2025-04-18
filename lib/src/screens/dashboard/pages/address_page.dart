@@ -98,7 +98,7 @@ class AddressPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    addressListViewModel.resetActiveChangeAddress();
+    addressListViewModel.resetActiveAddress();
 
     _setEffects(context);
 
@@ -162,7 +162,8 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      if (dashboardViewModel.type == WalletType.bitcoin && bitcoin!.isBitcoinReceivePageOption(option)) {
+      if (dashboardViewModel.type == WalletType.bitcoin &&
+          bitcoin!.isBitcoinReceivePageOption(option)) {
         addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
         return;
       }

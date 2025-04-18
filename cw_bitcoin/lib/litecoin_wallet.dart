@@ -95,7 +95,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
     }
 
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateNewAddress = this.isEnabledAutoGenerateSubaddress;
     });
     reaction((_) => mwebSyncStatus, (status) async {
       if (mwebSyncStatus is FailedSyncStatus) {
@@ -762,7 +762,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
   @override
   @action
   Future<ElectrumWorkerListUnspentResponse?> updateAllUnspents([
-    Set<String>? scripthashes,
+    List<String>? scripthashes,
     bool? wait,
   ]) async {
     if (!mwebEnabled) {
@@ -961,7 +961,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
       ECPrivate? privkey;
 
       if (!isHardwareWallet) {
-        final path = Bip32PathParser.parse(utx.bitcoinAddressRecord.derivationPath);
+        final path = Bip32PathParser.parse(utx.bitcoinAddressRecord.indexedDerivationPath);
         privkey = ECPrivate.fromBip32(bip32: hdWallet.derive(path));
       }
 
@@ -979,7 +979,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
       }
 
       if (utx.bitcoinAddressRecord is BitcoinAddressRecord) {
-        final derivationPath = utx.bitcoinAddressRecord.derivationPath;
+        final derivationPath = utx.bitcoinAddressRecord.indexedDerivationPath;
         publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
       }
 
@@ -1128,7 +1128,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
     ));
 
     // Get Derivation path for change Address since it is needed in Litecoin and BitcoinCash hardware Wallets
-    final changeDerivationPath = changeAddress.derivationPath;
+    final changeDerivationPath = changeAddress.indexedDerivationPath;
     utxoDetails.publicKeys[address.pubKeyHash()] =
         PublicKeyWithDerivationPath('', changeDerivationPath);
 

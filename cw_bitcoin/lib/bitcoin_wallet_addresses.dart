@@ -19,10 +19,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required super.hdWallets,
     required super.network,
     required super.isHardwareWallet,
-    super.initialAddresses,
-    super.initialDiscoveredAddresses,
-    super.initialReceiveAddressesMapped,
-    super.initialChangeAddressesMapped,
+    super.initialAddressesRecords,
+    super.initialActiveAddressIndex,
+    super.initialAddressPageType,
     this.loadedFromNewSnapshot = false,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     List<BitcoinReceivedSPAddressRecord>? initialReceivedSPAddresses,
@@ -41,15 +40,14 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   static const _OLD_SP_PATH = "m/352'/1'/0'/#'/0";
 
+  // NOTE: ordered in priority: eg. p2wpkh always first, most used address, etc.
   @override
-  final walletAddressTypes = BITCOIN_ADDRESS_TYPES;
-
-  static const BITCOIN_ADDRESS_TYPES = [
+  final walletAddressTypes = [
     SegwitAddressType.p2wpkh,
-    P2pkhAddressType.p2pkh,
     SegwitAddressType.p2tr,
-    SegwitAddressType.p2wsh,
     P2shAddressType.p2wpkhInP2sh,
+    P2pkhAddressType.p2pkh,
+    SegwitAddressType.p2wsh,
   ];
 
   @observable
@@ -139,7 +137,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   @action
-  void resetActiveChangeAddress() {
+  void resetActiveAddress() {
     if (activeSilentAddress != null &&
         (activeSilentAddress!.isChange || activeSilentAddress!.isHidden)) {
       try {
@@ -154,7 +152,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       } catch (_) {}
     }
 
-    super.resetActiveChangeAddress();
+    super.resetActiveAddress();
   }
 
   @override
@@ -367,7 +365,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       (addressRecord) =>
           !addressRecord.isChange &&
           addressRecord.labelIndex == 0 &&
-          addressRecord.derivationPath != oldSpendPath.toString(),
+          addressRecord.indexedDerivationPath != oldSpendPath.toString(),
     );
 
     final list = [primaryAddress.address];
@@ -376,7 +374,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       (addressRecord) =>
           !addressRecord.isChange &&
           addressRecord.labelIndex == 0 &&
-          addressRecord.derivationPath == oldSpendPath.toString(),
+          addressRecord.indexedDerivationPath == oldSpendPath.toString(),
     );
 
     // Do it like this to keep in order,
@@ -466,12 +464,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       hdWallets: hdWallets,
       network: network,
       isHardwareWallet: isHardwareWallet,
-      initialAddresses: electrumJson.allAddresses,
-      initialDiscoveredAddresses: electrumJson.discoveredAddresses,
-      initialReceiveAddressesMapped:
-          electrumJson.receiveAddressesMapped,
-      initialChangeAddressesMapped:
-          electrumJson.changeAddressesMapped,
+      initialAddressesRecords: electrumJson.addressesRecords,
+      initialAddressPageType: electrumJson.addressPageType,
+      initialActiveAddressIndex: electrumJson.activeIndexByType,
       initialSilentAddresses: initialSilentAddresses,
       initialReceivedSPAddresses: initialReceivedSPAddresses,
       loadedFromNewSnapshot: snp['loadedFromNewSnapshot'] as bool? ?? false,

@@ -5,7 +5,7 @@ class ElectrumWorkerDiscoverAddressesRequest implements ElectrumWorkerRequest {
     required this.count,
     required this.startIndex,
     required this.seedBytesType,
-    required this.shouldHideAddress,
+    required this.walletType,
     required this.derivationInfo,
     required this.isChange,
     required this.addressType,
@@ -20,8 +20,8 @@ class ElectrumWorkerDiscoverAddressesRequest implements ElectrumWorkerRequest {
 
   final int count;
   final int startIndex;
-  final bool shouldHideAddress;
 
+  final WalletType walletType;
   final SeedBytesType seedBytesType;
   final BitcoinDerivationInfo derivationInfo;
   final bool isChange;
@@ -38,7 +38,7 @@ class ElectrumWorkerDiscoverAddressesRequest implements ElectrumWorkerRequest {
       id: json['id'] as int,
       count: json['count'] as int,
       startIndex: json['startIndex'] as int,
-      shouldHideAddress: json['shouldHideAddress'] as bool,
+      walletType: deserializeFromInt(json['walletType'] as int),
       seedBytesType: SeedBytesType.fromValue(json['seedBytesType'] as String),
       derivationInfo:
           BitcoinDerivationInfo.fromJSON(json['derivationInfo'] as Map<String, dynamic>),
@@ -57,7 +57,7 @@ class ElectrumWorkerDiscoverAddressesRequest implements ElectrumWorkerRequest {
       'completed': completed,
       'count': count,
       'startIndex': startIndex,
-      'shouldHideAddress': shouldHideAddress,
+      'walletType': serializeToInt(walletType),
       'seedBytesType': seedBytesType.value,
       'isChange': isChange,
       'addressType': addressType.value,

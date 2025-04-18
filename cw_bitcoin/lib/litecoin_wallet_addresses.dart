@@ -27,7 +27,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.network,
     required super.isHardwareWallet,
     required this.mwebEnabled,
-    super.initialAddresses,
+    super.initialAddressesRecords,
+    super.initialActiveAddressIndex,
+    super.initialAddressPageType,
     List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
   })  : mwebAddresses =
             ObservableList<LitecoinMWEBAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
@@ -41,9 +43,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }
 
   @override
-  final walletAddressTypes = LITECOIN_ADDRESS_TYPES;
-
-  static const LITECOIN_ADDRESS_TYPES = [SegwitAddressType.p2wpkh];
+  final walletAddressTypes = [SegwitAddressType.p2wpkh];
 
   final ObservableList<LitecoinMWEBAddressRecord> mwebAddresses;
 
@@ -96,7 +96,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         .where((addr) => addr.type == addressType && addr.seedBytesType == seedBytesType)
         .toList();
 
-    if (existingAddresses.length < ElectrumWalletAddressesBase.defaultReceiveAddressesCount) {
+    if (existingAddresses.length < ElectrumWalletAddressesBase.INITIAL_RECEIVE_COUNT) {
       await discoverNewMWEBAddresses(
         seedBytesType: seedBytesType,
         isChange: false,
@@ -110,8 +110,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required bool isChange,
   }) async {
     final count = isChange
-        ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-        : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
+        ? ElectrumWalletAddressesBase.INITIAL_CHANGE_COUNT
+        : ElectrumWalletAddressesBase.INITIAL_RECEIVE_COUNT;
 
     final startIndex = this.mwebAddresses.length;
 
@@ -325,7 +325,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
     final addresses = allAddresses.firstWhere(
-      (element) => element.type == SegwitAddressType.p2wpkh && !getIsUsed(element),
+      (addressRecord) =>
+          addressRecord.type == SegwitAddressType.p2wpkh && !addressRecord.getIsUsed(),
     );
     return addresses.address;
   }
@@ -335,7 +336,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.updateAddressesInBox();
 
     final lastP2wpkh =
-        allAddresses.where((addressRecord) => isUnusedReceiveAddress(addressRecord)).toList().last;
+        allAddresses.where((addressRecord) => addressRecord.isUnusedReceiveAddress()).toList().last;
     if (lastP2wpkh.address != address) {
       addressesMap[lastP2wpkh.address] = 'P2WPKH';
     } else {
@@ -343,7 +344,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     final lastMweb = mwebAddresses.firstWhere(
-      (addressRecord) => isUnusedReceiveAddress(addressRecord),
+      (addressRecord) => addressRecord.isUnusedReceiveAddress(),
     );
     if (lastMweb.address != address) {
       addressesMap[lastMweb.address] = 'MWEB';
@@ -445,9 +446,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required bool isHardwareWallet,
     required bool mwebEnabled,
   }) {
-    final initialAddresses = (snp['allAddresses'] as List)
-        .map((record) => BitcoinAddressRecord.fromJSON(record as String))
-        .toList();
+    final electrumJson = ElectrumWalletAddressesBase.fromJson(
+      snp,
+      walletInfo,
+      hdWallets: hdWallets,
+      network: network,
+      isHardwareWallet: isHardwareWallet,
+    );
 
     final initialMwebAddresses = (snp['mwebAddresses'] as List)
         .map(
@@ -460,7 +465,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       hdWallets: hdWallets,
       network: network,
       isHardwareWallet: isHardwareWallet,
-      initialAddresses: initialAddresses,
+      initialAddressesRecords: electrumJson.addressesRecords,
+      initialAddressPageType: electrumJson.addressPageType,
+      initialActiveAddressIndex: electrumJson.activeIndexByType,
       initialMwebAddresses: initialMwebAddresses,
       mwebEnabled: mwebEnabled,
     );

@@ -301,10 +301,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   WalletType get type => wallet.type;
 
   @action
-  void resetActiveChangeAddress() {
-    try {
-      wallet.walletAddresses.resetActiveChangeAddress();
-    } catch (_) {}
+  void resetActiveAddress() {
+    if (isElectrumWallet) {
+      bitcoin!.resetActiveAddress(wallet);
+    }
   }
 
   @computed
