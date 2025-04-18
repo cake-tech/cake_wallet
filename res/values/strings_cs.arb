@@ -452,6 +452,7 @@
   "monero_dark_theme": "Tmavé téma Monero",
   "monero_light_theme": "Světlé téma Monero",
   "moonpay_alert_text": "Částka musí být větší nebo rovna ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Při načítání NFT došlo k chybě. Laskavě zkontrolujte připojení k internetu.",
   "more_options": "Více možností",
   "multiple_addresses_detected": "Detekované více adres",
   "mweb_confirmed": "Potvrzený mweb",

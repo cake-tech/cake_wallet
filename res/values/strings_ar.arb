@@ -452,6 +452,7 @@
   "monero_dark_theme": "موضوع مونيرو الظلام",
   "monero_light_theme": " ضوء مونيرو",
   "moonpay_alert_text": "يجب أن تكون قيمة المبلغ أكبر من أو تساوي ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "حدث خطأ أثناء جلب NFTs. يرجى التحقق من اتصال الإنترنت الخاص بك.",
   "more_options": "المزيد من الخيارات",
   "multiple_addresses_detected": "عناوين متعددة تم اكتشافها",
   "mweb_confirmed": "أكد MWEB",

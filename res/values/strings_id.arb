@@ -452,6 +452,7 @@
   "monero_dark_theme": "Tema Gelap Monero",
   "monero_light_theme": "Tema Cahaya Monero",
   "moonpay_alert_text": "Nilai jumlah harus lebih atau sama dengan ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Terjadi kesalahan saat mengambil NFT. Mohon periksa koneksi internet Anda.",
   "more_options": "Opsi Lainnya",
   "multiple_addresses_detected": "Banyak alamat terdeteksi",
   "mweb_confirmed": "Mengkonfirmasi mWeb",

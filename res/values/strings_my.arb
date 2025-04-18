@@ -452,6 +452,7 @@
   "monero_dark_theme": "Monero Dark အပြင်အဆင်",
   "monero_light_theme": "Monero Light အပြင်အဆင်",
   "moonpay_alert_text": "ပမာဏ၏တန်ဖိုးသည် ${minAmount} ${fiatCurrency} နှင့် ပိုနေရမည်",
+  "moralis_error_message": "nfts ရယူနေစဉ်အမှားတစ်ခုဖြစ်ပွားခဲ့သည်။ သင်၏အင်တာနက်ဆက်သွယ်မှုကိုကြင်နာစွာစစ်ဆေးပါ။",
   "more_options": "နောက်ထပ် ရွေးချယ်စရာများ",
   "multiple_addresses_detected": "အများအပြားလိပ်စာများရှာဖွေတွေ့ရှိ",
   "mweb_confirmed": "အတည်ပြုလိုက် mweb",

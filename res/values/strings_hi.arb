@@ -452,6 +452,7 @@
   "monero_dark_theme": "मोनेरो डार्क थीम",
   "monero_light_theme": "मोनेरो लाइट थीम",
   "moonpay_alert_text": "राशि का मूल्य अधिक है या करने के लिए बराबर होना चाहिए ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "एनएफटी लाने के दौरान एक त्रुटि हुई। कृपया अपने इंटरनेट कनेक्शन की जाँच करें।",
   "more_options": "और विकल्प",
   "multiple_addresses_detected": "कई पते का पता चला",
   "mweb_confirmed": "MWEB की पुष्टि की",

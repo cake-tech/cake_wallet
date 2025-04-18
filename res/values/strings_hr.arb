@@ -452,6 +452,7 @@
   "monero_dark_theme": "Monero tamna tema",
   "monero_light_theme": "Monero lagana tema",
   "moonpay_alert_text": "Vrijednost iznosa mora biti veća ili jednaka ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Došlo je do pogreške tijekom dohvaćanja NFT -a. Ljubazno provjerite svoju internetsku vezu.",
   "more_options": "Više opcija",
   "multiple_addresses_detected": "Otkrivene više adresa",
   "mweb_confirmed": "Potvrđen MWeb",

@@ -71,7 +71,7 @@ void startAuthenticationStateChange(
                     buttonAction: () => Navigator.of(context).pop()),
               );
               await loadCurrentWallet();
-              getIt.get<BottomSheetService>().resetCurrentSheet();
+              getIt.get<BottomSheetService>().showNext();
               await navigatorKey.currentState!
                   .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
             },

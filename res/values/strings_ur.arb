@@ -452,6 +452,7 @@
   "monero_dark_theme": "مونیرو ڈارک تھیم",
   "monero_light_theme": "مونیرو لائٹ تھیم",
   "moonpay_alert_text": "رقم کی قدر ${minAmount} ${fiatCurrency} کے برابر یا زیادہ ہونی چاہیے۔",
+  "moralis_error_message": "این ایف ٹی ایس لانے کے دوران ایک خرابی پیش آگئی۔ برائے مہربانی اپنا انٹرنیٹ کنیکشن چیک کریں۔",
   "more_options": "مزید زرائے",
   "multiple_addresses_detected": "متعدد پتے کا پتہ چلا",
   "mweb_confirmed": "تصدیق شدہ MWEB",

@@ -452,6 +452,7 @@
   "monero_dark_theme": "Темна тема Monero",
   "monero_light_theme": "Легка тема Monero",
   "moonpay_alert_text": "Значення суми має бути більшим або дорівнювати ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Під час отримання NFTS сталася помилка. Будь ласка, перевірте своє підключення до Інтернету.",
   "more_options": "Більше параметрів",
   "multiple_addresses_detected": "Виявлено кілька адрес",
   "mweb_confirmed": "Підтвердив Mweb",

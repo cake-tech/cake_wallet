@@ -452,6 +452,7 @@
   "monero_dark_theme": "Тъмна тема Monero",
   "monero_light_theme": "Лека тема Monero",
   "moonpay_alert_text": "Сумата трябва да бъде най-малко ${minAmount} ${fiatCurrency}",
+  "moralis_error_message": "Възникна грешка при извличането на NFT. Моля, проверете вашата интернет връзка.",
   "more_options": "Още настройки",
   "multiple_addresses_detected": "Открити множество адреси",
   "mweb_confirmed": "Потвърден MWeb",
