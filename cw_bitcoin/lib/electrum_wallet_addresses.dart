@@ -144,27 +144,34 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return silentAddress.toString();
     }
 
-    String receiveAddress;
+    final typeMatchingAddresses = _addresses.where((addr) => !addr.isHidden && _isAddressPageTypeMatch(addr)).toList();
+    final typeMatchingReceiveAddresses = typeMatchingAddresses.where((addr) => !addr.isUsed).toList();
 
-    final typeMatchingReceiveAddresses =
-        receiveAddresses.where(_isAddressPageTypeMatch).where((addr) => !addr.isUsed);
-
-    if ((isEnabledAutoGenerateSubaddress && receiveAddresses.isEmpty) ||
-        typeMatchingReceiveAddresses.isEmpty) {
-      receiveAddress = generateNewAddress().address;
-    } else {
-      final previousAddressMatchesType =
-          previousAddressRecord != null && previousAddressRecord!.type == addressPageType;
-
-      if (previousAddressMatchesType &&
-          typeMatchingReceiveAddresses.first.address != addressesByReceiveType.first.address) {
-        receiveAddress = previousAddressRecord!.address;
-      } else {
-        receiveAddress = typeMatchingReceiveAddresses.first.address;
+    if (!isEnabledAutoGenerateSubaddress) {
+      if (previousAddressRecord != null &&
+          previousAddressRecord!.type == addressPageType) {
+        return previousAddressRecord!.address;
       }
+
+      if (typeMatchingAddresses.isNotEmpty) {
+        return typeMatchingAddresses.first.address;
+      }
+
+      return generateNewAddress().address;
     }
 
-    return receiveAddress;
+    if (typeMatchingAddresses.isEmpty || typeMatchingReceiveAddresses.isEmpty) {
+      return generateNewAddress().address;
+    }
+
+    final prev = previousAddressRecord;
+    if (prev != null &&
+        prev.type == addressPageType &&
+        typeMatchingReceiveAddresses.any((r) => r.address == prev.address)) {
+      return prev.address;
+    }
+
+    return typeMatchingReceiveAddresses.first.address;
   }
 
   @observable
