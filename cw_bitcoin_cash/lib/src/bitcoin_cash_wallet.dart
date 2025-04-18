@@ -30,7 +30,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     super.passphrase,
     BitcoinAddressType? addressPageType,
     super.initialBalance,
-    super.didInitialSync,
     Map<String, dynamic>? walletAddressesSnapshot,
   }) : super(
           network: BitcoinCashNetwork.mainnet,
@@ -160,7 +159,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       encryptionFileUtils: encryptionFileUtils,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: keysData.passphrase,
-      didInitialSync: snp?.didInitialSync,
       hdWallets: hdWallets,
     );
   }

@@ -21,7 +21,6 @@ class ElectrumWalletSnapshot {
     this.passphrase,
     this.derivationType,
     this.derivationPath,
-    this.didInitialSync,
   });
 
   final String name;
@@ -41,7 +40,6 @@ class ElectrumWalletSnapshot {
   ElectrumBalance balance;
   DerivationType? derivationType;
   String? derivationPath;
-  bool? didInitialSync;
 
   Map<String, dynamic>? walletAddressesSnapshot;
 
@@ -63,11 +61,6 @@ class ElectrumWalletSnapshot {
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
 
-    final derivationType = DerivationType
-        .values[(data['derivationTypeIndex'] as int?) ?? DerivationType.electrum.index];
-    // TODO: defaulting to electrum
-    final derivationPath = data['derivationPath'] as String? ?? ELECTRUM_PATH;
-
     final walletAddressesSnapshot = data['walletAddresses'] as Map<String, dynamic>? ??
         ElectrumWalletAddressesBase.fromSnapshot(data);
 
@@ -79,8 +72,6 @@ class ElectrumWalletSnapshot {
       mnemonic: mnemonic,
       xpub: xpub,
       balance: balance,
-      derivationType: derivationType,
-      derivationPath: derivationPath,
       unspentCoins: (data['unspent_coins'] as List?)
               ?.map((e) => BitcoinUnspent.fromJSON(
                     null,
@@ -90,7 +81,6 @@ class ElectrumWalletSnapshot {
                   ))
               .toList() ??
           [],
-      didInitialSync: data['didInitialSync'] as bool?,
       walletAddressesSnapshot: walletAddressesSnapshot,
     );
   }

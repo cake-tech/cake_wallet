@@ -51,6 +51,8 @@ part 'litecoin_wallet.g.dart';
 class LitecoinWallet = LitecoinWalletBase with _$LitecoinWallet;
 
 abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses> with Store {
+  static const String SIGN_MESSAGE_PREFIX = '\x18Litecoin Signed Message:\n';
+
   @observable
   bool _alwaysScan;
 
@@ -66,7 +68,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
     super.initialBalance,
     int? initialMwebHeight,
     bool? alwaysScan,
-    super.didInitialSync,
     Map<String, dynamic>? walletAddressesSnapshot,
   })  : _alwaysScan = alwaysScan ?? false,
         super(
@@ -239,7 +240,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
       passphrase: keysData.passphrase,
       encryptionFileUtils: encryptionFileUtils,
       alwaysScan: snp?.alwaysScan,
-      didInitialSync: snp?.didInitialSync,
       hdWallets: hdWallets,
     );
   }
@@ -1652,14 +1652,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
 
   List<int> _magicPrefix(List<int> message, List<int> messagePrefix) {
     final encodeLength = IntUtils.encodeVarint(message.length);
-
     return [...messagePrefix, ...encodeLength, ...message];
   }
 
-  List<int> signLitecoinMessage(List<int> message,
-      {required ECDSAPrivateKey privateKey, required Bip32PrivateKey bipPrive}) {
-    String messagePrefix = '\x19Litecoin Signed Message:\n';
-    final messageHash = QuickCrypto.sha256Hash(magicMessage(message, messagePrefix));
+  List<int> signLitecoinMessage(
+    List<int> message, {
+    required ECDSAPrivateKey privateKey,
+    required Bip32PrivateKey bipPrive,
+  }) {
+    final messageHash = QuickCrypto.sha256Hash(magicMessage(message, SIGN_MESSAGE_PREFIX));
     final signingKey = EcdsaSigningKey(privateKey);
     ECDSASignature ecdsaSign =
         signingKey.signDigestDeterminstic(digest: messageHash, hashFunc: () => SHA256());
@@ -1717,8 +1718,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
           "litecoin signature must be 64 bytes without recover-id or 65 bytes with recover-id");
     }
 
-    String messagePrefix = '\x19Litecoin Signed Message:\n';
-    final messageHash = QuickCrypto.sha256Hash(magicMessage(utf8.encode(message), messagePrefix));
+    final messageHash =
+        QuickCrypto.sha256Hash(magicMessage(utf8.encode(message), SIGN_MESSAGE_PREFIX));
 
     List<int> correctSignature =
         sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_worker/server_capability.dart';
 import 'package:cw_core/get_height_by_date.dart';
@@ -1653,6 +1654,7 @@ class ElectrumWorker {
 
                   final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
                     receivingOutputAddress,
+                    network: scanData.network,
                     labelIndex: labelIndex ?? 0,
                     labelHex: labelValue,
                     isChange: labelIndex == 0,
@@ -1730,25 +1732,20 @@ class ElectrumWorker {
       final newAddresses = <BitcoinAddressRecord>[];
 
       for (var i = request.startIndex; i < request.count + request.startIndex; i++) {
-        final address = BitcoinAddressRecord(
-          ElectrumWalletAddressesBase.generateAddress(
-            seedBytesType: request.seedBytesType,
-            isChange: request.isChange,
-            index: i,
-            addressType: request.addressType,
-            derivationInfo: request.derivationInfo,
-            xpriv: request.xpriv,
-            network: request.network,
-          ).toAddress(request.network),
-          index: i,
+        final addressRecord = ElectrumWalletAddressesBase.generateAddressRecord(
           isChange: request.isChange,
-          type: request.addressType,
-          network: request.network,
+          index: i,
+          addressType: request.addressType,
           derivationInfo: request.derivationInfo,
+          hdWallet: Bip32Slip10Secp256k1.fromExtendedKey(
+            request.xpriv,
+            BitcoinAddressUtils.getKeyNetVersion(request.network),
+          ),
           seedBytesType: request.seedBytesType,
+          network: request.network,
         );
 
-        newAddresses.add(address);
+        newAddresses.add(addressRecord);
       }
 
       _sendResponse(

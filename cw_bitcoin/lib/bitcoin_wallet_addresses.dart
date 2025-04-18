@@ -94,6 +94,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           [
             BitcoinSilentPaymentAddressRecord(
               oldSilentPaymentWallet.toString(),
+              network: network,
               labelIndex: 0,
               name: "",
               type: SilentPaymentsAddresType.p2sp,
@@ -103,6 +104,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
             ),
             BitcoinSilentPaymentAddressRecord(
               oldSilentPaymentWallet.toLabeledSilentPaymentAddress(0).toString(),
+              network: network,
               name: "",
               labelIndex: 0,
               labelHex: BytesUtils.toHexString(oldSilentPaymentWallet.generateLabel(0)),
@@ -119,6 +121,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       silentPaymentAddresses.addAll([
         BitcoinSilentPaymentAddressRecord(
           silentPaymentWallet!.toString(),
+          network: network,
           labelIndex: 0,
           name: "",
           type: SilentPaymentsAddresType.p2sp,
@@ -126,6 +129,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
         ),
         BitcoinSilentPaymentAddressRecord(
           silentPaymentWallet!.toLabeledSilentPaymentAddress(0).toString(),
+          network: network,
           name: "",
           labelIndex: 0,
           labelHex: BytesUtils.toHexString(silentPaymentWallet!.generateLabel(0)),
@@ -221,6 +225,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
       address = BitcoinSilentPaymentAddressRecord(
         oldSilentPaymentWallet.toLabeledSilentPaymentAddress(nextSPLabelIndex).toString(),
+        network: network,
         labelIndex: nextSPLabelIndex,
         derivationPath: oldSpendPath.toString(),
         name: label,
@@ -232,6 +237,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     } else {
       address = BitcoinSilentPaymentAddressRecord(
         silentPaymentWallet!.toLabeledSilentPaymentAddress(nextSPLabelIndex).toString(),
+        network: network,
         labelIndex: nextSPLabelIndex,
         name: label,
         labelHex: BytesUtils.toHexString(silentPaymentWallet!.generateLabel(nextSPLabelIndex)),

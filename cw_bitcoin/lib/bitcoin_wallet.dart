@@ -69,7 +69,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
     super.passphrase,
     bool? alwaysScan,
     super.initialUnspentCoins,
-    super.didInitialSync,
     Map<String, dynamic>? walletAddressesSnapshot,
   })  : _alwaysScan = alwaysScan ?? false,
         super(
@@ -149,6 +148,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
     final bitcoinDerivationInfo = BitcoinAddressUtils.getDerivationFromType(
       addressType,
+      network: network,
       isElectrum: seedBytesType.isElectrum,
     );
 
@@ -276,7 +276,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
       networkParam: network,
       alwaysScan: snp?.alwaysScan,
       initialUnspentCoins: snp?.unspentCoins,
-      didInitialSync: snp?.didInitialSync,
       walletAddressesSnapshot: snp?.walletAddressesSnapshot,
       hdWallets: hdWallets,
     );

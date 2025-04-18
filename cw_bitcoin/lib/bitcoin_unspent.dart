@@ -24,11 +24,7 @@ class BitcoinUnspent extends Unspent {
   ]) {
     return BitcoinUnspent(
       address ??
-          BaseBitcoinAddressRecord.fromJSON(
-            json['address_record'] as String,
-            derivationInfo,
-            network,
-          ),
+          BaseBitcoinAddressRecord.fromJSON(json['address_record'] as String, derivationInfo),
       json['tx_hash'] as String,
       int.parse(json['value'].toString()),
       int.parse(json['tx_pos'].toString()),
