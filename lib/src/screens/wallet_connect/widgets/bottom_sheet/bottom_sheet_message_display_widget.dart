@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class BottomSheetMessageDisplayWidget extends StatelessWidget {
@@ -18,7 +19,7 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.normal,
-            color: Colors.white,
+            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
           ),
         ),
         SizedBox(height: 8),
@@ -30,7 +31,7 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Colors.white,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                 ),
               ),
             ),
