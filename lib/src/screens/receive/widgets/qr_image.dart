@@ -28,6 +28,7 @@ class QrImage extends StatelessWidget {
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
       padding: const EdgeInsets.all(8.0),
+      embeddedImage: const AssetImage('assets/images/app_logo.png'),
     );
   }
 }
