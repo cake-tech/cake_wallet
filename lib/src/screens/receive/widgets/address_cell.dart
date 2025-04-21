@@ -1,7 +1,11 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -14,6 +18,8 @@ class AddressCell extends StatelessWidget {
       required this.isPrimary,
       required this.backgroundColor,
       required this.textColor,
+      required this.walletType,
+      required this.currentTheme,
       this.onTap,
       this.onEdit,
       this.onHide,
@@ -30,6 +36,8 @@ class AddressCell extends StatelessWidget {
     required bool isCurrent,
     required Color backgroundColor,
     required Color textColor,
+    required WalletType walletType,
+    required ThemeBase currentTheme,
     Function(String)? onTap,
     bool hasBalance = false,
     bool hasReceived = false,
@@ -45,6 +53,8 @@ class AddressCell extends StatelessWidget {
           isPrimary: item.isPrimary,
           backgroundColor: backgroundColor,
           textColor: textColor,
+          walletType: walletType,
+          currentTheme: currentTheme,
           onTap: onTap,
           onEdit: onEdit,
           onHide: onHide,
@@ -62,6 +72,8 @@ class AddressCell extends StatelessWidget {
   final bool isPrimary;
   final Color backgroundColor;
   final Color textColor;
+  final WalletType walletType;
+  final ThemeBase currentTheme;
   final Function(String)? onTap;
   final Function()? onEdit;
   final Function()? onHide;
@@ -72,21 +84,6 @@ class AddressCell extends StatelessWidget {
   final bool isChange;
   final bool hasBalance;
   final bool hasReceived;
-
-  static const int addressPreviewLength = 8;
-
-  String get formattedAddress {
-    final formatIfCashAddr = address.replaceAll('bitcoincash:', '');
-
-    if (formatIfCashAddr.length <= (name.isNotEmpty ? 16 : 43)) {
-      return formatIfCashAddr;
-    } else {
-      return formatIfCashAddr.substring(0, addressPreviewLength) +
-          '...' +
-          formatIfCashAddr.substring(
-              formatIfCashAddr.length - addressPreviewLength, formatIfCashAddr.length);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,16 +136,14 @@ class AddressCell extends StatelessWidget {
                           ],
                         ),
                         Flexible(
-                          child: AutoSizeText(
-                            responsiveLayoutUtil.shouldRenderTabletUI ? address : formattedAddress,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: isChange ? 10 : 14,
-                              color: textColor,
-                            ),
-                          ),
-                        ),
+                          child: AddressFormatter.buildSegmentedAddress(
+                              address: address,
+                              walletType: walletType,
+                              shouldTruncate: name.isNotEmpty || address.length > 43 ,
+                              evenTextStyle: TextStyle(
+                                  fontSize: isChange ? 10 : 14,
+                                  color: textColor
+                              ))),
                       ],
                     ),
                     if (hasBalance || hasReceived)

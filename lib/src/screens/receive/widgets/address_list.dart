@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -9,6 +7,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/address_cell.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
@@ -20,16 +19,17 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 class AddressList extends StatefulWidget {
   const AddressList({
     super.key,
     required this.addressListViewModel,
+    required this.currentTheme,
     this.onSelect,
   });
 
   final WalletAddressListViewModel addressListViewModel;
+  final ThemeBase currentTheme;
   final Function(String)? onSelect;
 
   @override
@@ -161,6 +161,8 @@ class _AddressListState extends State<AddressList> {
               return AddressCell.fromItem(
                 item,
                 isCurrent: isCurrent,
+                currentTheme: widget.currentTheme,
+                walletType: widget.addressListViewModel.type,
                 hasBalance: widget.addressListViewModel.isBalanceAvailable,
                 hasReceived: widget.addressListViewModel.isReceivedAvailable,
                 // hasReceived:

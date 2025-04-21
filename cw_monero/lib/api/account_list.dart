@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/monero_account_list.dart';
 import 'package:monero/monero.dart' as monero;
 
 monero.wallet? wptr = null;
@@ -7,13 +10,13 @@ bool get isViewOnly => int.tryParse(monero.Wallet_secretSpendKey(wptr!)) == 0;
 int _wlptrForW = 0;
 monero.WalletListener? _wlptr = null;
 
-monero.WalletListener getWlptr() {
+monero.WalletListener? getWlptr() {
+  if (wptr == null) return null;
   if (wptr!.address == _wlptrForW) return _wlptr!;
   _wlptrForW = wptr!.address;
   _wlptr = monero.MONERO_cw_getWalletListener(wptr!);
   return _wlptr!;
 }
-
 
 monero.SubaddressAccount? subaddressAccount;
 
@@ -50,8 +53,9 @@ void addAccountSync({required String label}) {
 }
 
 void setLabelForAccountSync({required int accountIndex, required String label}) {
-  // TODO(mrcyjanek): this may be wrong function?
-  monero.Wallet_setSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: 0, label: label);
+  monero.SubaddressAccount_setLabel(subaddressAccount!, accountIndex: accountIndex, label: label);
+  MoneroAccountListBase.cachedAccounts[wptr!.address] = [];
+  refreshAccounts();
 }
 
 void _addAccount(String label) => addAccountSync(label: label);
@@ -65,10 +69,10 @@ void _setLabelForAccount(Map<String, dynamic> args) {
 
 Future<void> addAccount({required String label}) async {
   _addAccount(label);
-  await store();
+  unawaited(store());
 }
 
 Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
     _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
-    await store();
+    unawaited(store());
 }

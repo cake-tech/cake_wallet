@@ -144,7 +144,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ),
               );
             }),
-            if (widget.privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled)
+            if (widget
+                    .privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled &&
+                !widget.isChildWallet)
               Observer(builder: (_) {
                 return SettingsChoicesCell(
                   ChoicesListItem<MoneroSeedType>(

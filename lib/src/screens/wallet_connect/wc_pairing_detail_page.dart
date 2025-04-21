@@ -101,7 +101,7 @@ class WCCDetailsWidget extends BasePage {
                 child: CircleAvatar(
                   backgroundImage: (pairing.peerMetadata!.icons.isNotEmpty
                           ? NetworkImage(pairing.peerMetadata!.icons[0])
-                          : const AssetImage('assets/images/default_icon.png'))
+                          : const AssetImage('assets/images/app_logo.png'))
                       as ImageProvider<Object>,
                 ),
               ),

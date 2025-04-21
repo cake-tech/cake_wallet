@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -33,7 +35,11 @@ class WalletManager {
     }
 
     // Fallback to old logic
-    return walletInfo.parentAddress ?? walletInfo.address;
+    final address = walletInfo.parentAddress ?? walletInfo.address;
+    if (address.isEmpty) {
+      return Random().nextInt(100000).toString();
+    }
+    return address;
   }
 
   WalletGroup _getOrCreateGroup(String groupKey) {

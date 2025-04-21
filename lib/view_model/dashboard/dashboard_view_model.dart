@@ -161,8 +161,8 @@ abstract class DashboardViewModelBase with Store {
             FilterItem(
                 value: () => tradeFilterStore.displaySwapTrade,
                 caption: ExchangeProviderDescription.swapTrade.title,
-                onChanged: () => tradeFilterStore
-                    .toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+                onChanged: () =>
+                    tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
           ]
         },
         subname = '',
@@ -271,32 +271,9 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-
     _transactionDisposer = reaction(
-            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
-            (List<TransactionInfo> txs) {
-
-          transactions.clear();
-
-          transactions.addAll(
-            txs.where((tx) {
-              if (wallet.type == WalletType.monero) {
-                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
-              }
-              if (wallet.type == WalletType.wownero) {
-                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
-              }
-              return true;
-            }).map(
-                  (tx) => TransactionListItem(
-                transaction: tx,
-                balanceViewModel: balanceViewModel,
-                settingsStore: appStore.settingsStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-              ),
-            ),
-          );
-        }
+      (_) => appStore.wallet!.transactionHistory.transactions.length,
+      _transactionDisposerCallback,
     );
 
     if (hasSilentPayments) {
@@ -309,6 +286,48 @@ abstract class DashboardViewModelBase with Store {
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
+  }
+
+  bool _isTransactionDisposerCallbackRunning = false;
+
+  void _transactionDisposerCallback(int _) async {
+    // Simple check to prevent the callback from being called multiple times in the same frame
+    if (_isTransactionDisposerCallbackRunning) return;
+    _isTransactionDisposerCallbackRunning = true;
+    await Future.delayed(Duration.zero);
+
+    try {
+      final currentAccountId = wallet.type == WalletType.monero
+          ? monero!.getCurrentAccount(wallet).id
+          : wallet.type == WalletType.wownero
+              ? wow.wownero!.getCurrentAccount(wallet).id
+              : null;
+      final List<TransactionInfo> relevantTxs = [];
+
+      for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
+        bool isRelevant = true;
+        if (wallet.type == WalletType.monero) {
+          isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
+        } else if (wallet.type == WalletType.wownero) {
+          isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
+        }
+
+        if (isRelevant) {
+          relevantTxs.add(tx);
+        }
+      }
+      // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
+
+      transactions.clear();
+      transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
+            transaction: tx,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore,
+            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+          )));
+    } finally {
+      _isTransactionDisposerCallbackRunning = false;
+    }
   }
 
   void _checkMweb() {
@@ -453,7 +472,8 @@ abstract class DashboardViewModelBase with Store {
       // to not cause work duplication, this will do the job as well, it will be slightly less precise
       // about what happened - but still enough.
       // if (keys['privateSpendKey'] == List.generate(64, (index) => "0").join("")) "Private spend key is 0",
-      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") && !wallet.isHardwareWallet)
+      if (keys['privateViewKey'] == List.generate(64, (index) => "0").join("") &&
+          !wallet.isHardwareWallet)
         "private view key is 0",
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
       if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
@@ -554,7 +574,8 @@ abstract class DashboardViewModelBase with Store {
       disableBackgroundSync();
       return;
     }
-    final resp = await FlutterDaemon().startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
+    final resp = await FlutterDaemon()
+        .startBackgroundSync(settingsStore.currentSyncMode.frequency.inMinutes);
     printV("Background sync enabled: $resp");
     backgroundSyncEnabled = true;
   }
@@ -578,8 +599,7 @@ abstract class DashboardViewModelBase with Store {
       spread = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      spread = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) spread = 0;
     return spread;
   }
 
@@ -592,8 +612,7 @@ abstract class DashboardViewModelBase with Store {
       blur = 0;
     else if (settingsStore.currentTheme.type == ThemeType.dark)
       blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled)
-      blur = 0;
+    else if (settingsStore.currentTheme.type == ThemeType.oled) blur = 0;
     return blur;
   }
 
@@ -789,32 +808,8 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
 
-    _transactionDisposer = reaction(
-            (_) => appStore.wallet!.transactionHistory.transactions.values.toList(),
-            (List<TransactionInfo> txs) {
-
-          transactions.clear();
-
-          transactions.addAll(
-            txs.where((tx) {
-              if (wallet.type == WalletType.monero) {
-                return monero!.getTransactionInfoAccountId(tx) == monero!.getCurrentAccount(wallet).id;
-              }
-              if (wallet.type == WalletType.wownero) {
-                return wow.wownero!.getTransactionInfoAccountId(tx) == wow.wownero!.getCurrentAccount(wallet).id;
-              }
-              return true;
-            }).map(
-                  (tx) => TransactionListItem(
-                transaction: tx,
-                balanceViewModel: balanceViewModel,
-                settingsStore: appStore.settingsStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-              ),
-            ),
-          );
-        }
-    );
+    _transactionDisposer = reaction((_) => appStore.wallet!.transactionHistory.transactions.length,
+        _transactionDisposerCallback);
   }
 
   @action

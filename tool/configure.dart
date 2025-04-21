@@ -410,7 +410,7 @@ abstract class Monero {
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
-  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, required String? passphrase, String? password});
+WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
   Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
@@ -429,6 +429,7 @@ abstract class Monero {
   void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
   void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
+  Map<String, List<int>> debugCallLength();
 }
 
 abstract class MoneroSubaddressList {
@@ -614,6 +615,7 @@ abstract class Wownero {
   WalletService createWowneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
   Map<String, String> pendingTransactionInfo(Object transaction);
   String getLegacySeed(Object wallet, String langName);
+  Map<String, List<int>> debugCallLength();
 }
 
 abstract class WowneroSubaddressList {
@@ -1257,6 +1259,7 @@ import 'package:cw_zano/model/zano_transaction_info.dart';
 import 'package:cw_zano/zano_formatter.dart';
 import 'package:cw_zano/zano_wallet.dart';
 import 'package:cw_zano/zano_wallet_service.dart';
+import 'package:cw_zano/zano_wallet_api.dart' as api;
 import 'package:cw_zano/zano_utils.dart';
 """;
   const zanoCwPart = "part 'cw_zano.dart';";
@@ -1283,6 +1286,7 @@ abstract class Zano {
   Future<CryptoCurrency?> getZanoAsset(WalletBase wallet, String contractAddress);
   String getAddress(WalletBase wallet);
   bool validateAddress(String address);
+  Map<String, List<int>> debugCallLength();
 }
 """;
   const zanoEmptyDefinition = 'Zano? zano;\n';

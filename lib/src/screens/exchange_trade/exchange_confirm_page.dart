@@ -118,7 +118,7 @@ class ExchangeConfirmPage extends BasePage {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             (trade.provider.image?.isNotEmpty ?? false)
-                                ? Image.asset(trade.provider.image, height: 50)
+                                ? ImageUtil.getImageFromPath(imagePath: trade.provider.image, height: 50, width: 50)
                                 : const SizedBox(),
                             if (!trade.provider.horizontalLogo)
                               Padding(

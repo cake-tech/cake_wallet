@@ -169,6 +169,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       if (monero_wallet.getCurrentHeight() <= 1) {
         monero_wallet.setRefreshFromBlockHeight(
             height: walletInfo.restoreHeight);
+        setupBackgroundSync(password, wptr!);
       }
     }
 
@@ -570,6 +571,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
     monero_wallet.setRefreshFromBlockHeight(height: height);
+    setupBackgroundSync(password, wptr!);
     monero_wallet.rescanBlockchainAsync();
     await startSync();
     _askForUpdateBalance();
@@ -585,12 +587,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       unspentCoins.clear();
 
-      final coinCount = countOfCoins();
+      final coinCount = await countOfCoins();
       for (var i = 0; i < coinCount; i++) {
-        final coin = getCoin(i);
+        final coin = await getCoin(i);
         final coinSpent = monero.CoinsInfo_spent(coin);
         if (coinSpent == false && monero.CoinsInfo_subaddrAccount(coin) == walletAddresses.account!.id) {
-          final unspent = MoneroUnspent(
+          final unspent = await MoneroUnspent.fromUnspent(
             monero.CoinsInfo_address(coin),
             monero.CoinsInfo_hash(coin),
             monero.CoinsInfo_keyImage(coin),
@@ -600,7 +602,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history.getTransaction(unspent.hash).isSpend == true;
+            final tx = await transaction_history.getTransaction(unspent.hash);
+            unspent.isChange = tx.isSpend == true;
           }
           unspentCoins.add(unspent);
         }
@@ -692,14 +695,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
-    transaction_history.refreshTransactions();
-    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
+    await transaction_history.refreshTransactions();
+    final resp = (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, MoneroTransactionInfo>>(
             <String, MoneroTransactionInfo>{},
             (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
       acc[tx.id] = tx;
       return acc;
     });
+    return resp;
   }
 
   Future<void> updateTransactions() async {
@@ -710,8 +714,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
-      transactionHistory.clear();
-      transactionHistory.addMany(transactions);
+
+      final currentIds = transactionHistory.transactions.keys.toSet();
+      final newIds = transactions.keys.toSet();
+      
+      // Remove transactions that no longer exist
+      currentIds.difference(newIds).forEach((id) => 
+          transactionHistory.transactions.remove(id));
+      
+      // Add or update transactions
+      transactions.forEach((key, tx) => 
+          transactionHistory.transactions[key] = tx);
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
@@ -778,6 +791,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     monero_wallet.setRecoveringFromSeed(isRecovery: true);
     monero_wallet.setRefreshFromBlockHeight(height: height);
+    setupBackgroundSync(password, wptr!);
   }
 
   int _getHeightDistance(DateTime date) {
