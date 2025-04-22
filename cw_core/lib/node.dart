@@ -106,6 +106,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.decred:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
+      case WalletType.tari: // ToDo: Maybe connect to node
       case WalletType.none:
         throw Exception('Unexpected type ${type.toString()} for Node uri');
     }
@@ -170,6 +171,8 @@ class Node extends HiveObject with Keyable {
           return requestZanoNode();
         case WalletType.decred:
           return requestDecredNode();
+        case WalletType.tari:
+          return requestTariNode();
         case WalletType.none:
           return false;
       }
@@ -361,6 +364,21 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestDecredNode() async {
   if (uri.host == "default-spv-nodes") {
+    // Just show default port as ok. The wallet will connect to a list of known
+    // nodes automatically.
+    return true;
+  }
+  try {
+    final socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
+      socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestTariNode() async {
+  if (uri.host == "default-tari-seed-nodes") {
     // Just show default port as ok. The wallet will connect to a list of known
     // nodes automatically.
     return true;

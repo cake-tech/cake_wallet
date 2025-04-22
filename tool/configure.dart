@@ -11,6 +11,7 @@ const tronOutputPath = 'lib/tron/tron.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
+const tariOutputPath = 'lib/tari/tari.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -1386,7 +1387,7 @@ abstract class Decred {
 }
 
 Future<void> generateTari(bool hasImplementation) async {
-  final outputFile = File(decredOutputPath);
+  final outputFile = File(tariOutputPath);
   const tariCommonHeaders = """
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -1674,7 +1675,7 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.wownero,\n';
   }
 
-  if (hasWownero) {
+  if (hasTari) {
     outputContent += '\tWalletType.tari,\n';
   }
 

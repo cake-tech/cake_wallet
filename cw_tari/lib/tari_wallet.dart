@@ -13,6 +13,7 @@ import 'package:cw_tari/tari_balance.dart';
 import 'package:cw_tari/tari_transaction_history.dart';
 import 'package:cw_tari/tari_transaction_info.dart';
 import 'package:cw_tari/tari_wallet_addresses.dart';
+import 'package:cw_tari/transaction_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'package:tari/tari.dart' as tari;
 
@@ -37,6 +38,7 @@ abstract class TariWalletBase
         }),
         super(walletInfo) {
     this.walletInfo = walletInfo;
+    transactionHistory = TariTransactionHistory();
   }
 
   final tari.TariWallet _walletFfi;
@@ -54,6 +56,8 @@ abstract class TariWalletBase
   late ObservableMap<CryptoCurrency, TariBalance> balance;
 
   Future<void> init() async {
+    walletInfo.address = _walletFfi.getEmojiID().emojiId;
+
     await walletAddresses.init();
     await transactionHistory.init();
 
@@ -94,7 +98,9 @@ abstract class TariWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
-      // ToDo
+      _walletFfi.startRecovery((_, int status, int val1, int val2) {
+        print('recoveryCallback called $status $val1 $val2');
+      });
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -104,6 +110,9 @@ abstract class TariWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    final tariCredentials = credentials as TariTransactionCredentials;
+    
+    // _walletFfi.sendTx(destination, amount, feePerGram, message, isOneSided)
     // ToDo
     throw UnimplementedError();
   }
@@ -129,7 +138,7 @@ abstract class TariWalletBase
   }
 
   @override
-  String? get seed => _walletFfi.getMnemonic();
+  String get seed => _walletFfi.getMnemonic();
 
   @override
   String? get privateKey => null;

@@ -5,9 +5,8 @@ class CWTari extends Tari {
     return []; // ToDo
   }
 
-  WalletService createTariWalletService(Box<WalletInfo> walletInfoSource) {
-    return TariWalletService(walletInfoSource);
-  }
+  WalletService createTariWalletService(Box<WalletInfo> walletInfoSource) =>
+      TariWalletService(walletInfoSource);
 
   WalletCredentials createTariNewWalletCredentials(
           {required String name,

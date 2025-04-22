@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -11,6 +10,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_tari/callback.dart';
 import 'package:cw_tari/tari_wallet.dart';
 import 'package:hive/hive.dart';
+import 'package:tari/ffi.dart' as tariffi;
 import 'package:tari/tari.dart' as tari;
 
 class TariNewWalletCredentials extends WalletCredentials {
@@ -73,7 +73,7 @@ class TariWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      final connection = tari.getTorConnection();
+      final connection = tariffi.FFITariTransportConfig();
       final config = tari.getWalletConfig(
         path: path,
         transport: connection,
@@ -125,7 +125,7 @@ class TariWalletService extends WalletService<
   Future<TariWallet> openWallet(String name, String password) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
-      final connection = tari.getTorConnection();
+      final connection = tariffi.FFITariTransportConfig();
       final config = tari.getWalletConfig(
         path: path,
         transport: connection,
@@ -225,7 +225,7 @@ class TariWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      final connection = tari.getTorConnection();
+      final connection = tariffi.FFITariTransportConfig();
       final config = tari.getWalletConfig(
         path: path,
         transport: connection,
@@ -234,7 +234,6 @@ class TariWalletService extends WalletService<
         commsConfig: config,
         passphrase: credentials.password!,
         mnemonic: credentials.mnemonic,
-        seedPassphrase: credentials.passphrase ?? "",
         logPath: "$path/logs/wallet.log",
         callbackReceivedTransaction: CallbackPlaceholders.callbackReceivedTransaction,
         callbackReceivedTransactionReply: CallbackPlaceholders.callbackReceivedTransactionReply,

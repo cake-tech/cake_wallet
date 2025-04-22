@@ -16,6 +16,8 @@ class AddressFormatter {
     final isMWEB = address.startsWith('ltcmweb');
     final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;
 
+    if (walletType == WalletType.tari) return Text(address, style: evenTextStyle,);
+
     if (shouldTruncate) {
       return _buildTruncatedAddress(
         address: cleanAddress,

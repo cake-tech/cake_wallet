@@ -139,7 +139,7 @@ WalletType deserializeFromInt(int raw) {
     case 13:
       return WalletType.decred;
     case 14:
-      return WalletType.decred;
+      return WalletType.tari;
     default:
       throw Exception(
           'Unexpected token: $raw for WalletType deserializeFromInt');
