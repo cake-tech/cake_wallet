@@ -548,7 +548,7 @@ abstract class DashboardViewModelBase with Store {
       return;
     }
     PermissionStatus permissionStatus = await Permission.notification.status;
-    if (permissionStatus == PermissionStatus.denied) {
+    if (permissionStatus != PermissionStatus.granted) {
       final resp = await Permission.notification.request();
       if (resp == PermissionStatus.denied) {
         throw Exception("Notification permission denied");
