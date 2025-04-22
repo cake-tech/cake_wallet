@@ -66,13 +66,6 @@ class TransactionsPage extends StatelessWidget {
               dashboardViewModel: dashboardViewModel,
               key: ValueKey('transactions_page_header_row_key'),
             ),
-            Center(
-                child: CircularProgressIndicator(
-              backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
-              ),
-            )),
             Expanded(
               child: Observer(
                 builder: (_) {

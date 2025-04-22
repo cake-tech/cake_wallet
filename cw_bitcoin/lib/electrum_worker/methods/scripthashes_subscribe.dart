@@ -65,8 +65,8 @@ class ElectrumWorkerScripthashesResponse {
 
   static ElectrumWorkerScripthashesResponse fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerScripthashesResponse(
-      address: json['address'] as String,
-      scripthash: json['scripthash'] as String,
+      address: json['address'] as String? ?? '',
+      scripthash: json['scripthash'] as String? ?? '',
       status: json['status'] as String?,
     );
   }
@@ -89,9 +89,17 @@ class ElectrumWorkerScripthashesSubscribeResponse extends ElectrumWorkerResponse
   @override
   factory ElectrumWorkerScripthashesSubscribeResponse.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerScripthashesSubscribeResponse(
-      result: (json['result'] as List<dynamic>)
-          .map((e) => ElectrumWorkerScripthashesResponse.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      result: (json['result'] as List<dynamic>).map((e) {
+        if (e is String) {
+          return ElectrumWorkerScripthashesResponse.fromJson(
+            jsonDecode(e) as Map<String, dynamic>,
+          );
+        }
+
+        return ElectrumWorkerScripthashesResponse.fromJson(
+          e as Map<String, dynamic>,
+        );
+      }).toList(),
       error: json['error'] as String?,
       id: json['id'] as int?,
       completed: json['completed'] as bool? ?? false,

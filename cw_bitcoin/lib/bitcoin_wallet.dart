@@ -114,68 +114,92 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
   }
 
   @override
-  void initAddresses() async {
-    // if (didInitAddresses) return;
+  Future<bool?> initAddresses([bool? sync]) async {
+    var isDiscovered = await super.initAddresses(sync);
+    bool? discovered;
 
-    // If already loaded, no need to generate/discover all initial addresses
-    // so skip
-    // if (!walletAddresses.loadedFromNewSnapshot) {
-    for (final walletAddressType in walletAddresses.walletAddressTypes) {
-      if (isHardwareWallet && walletAddressType != SegwitAddressType.p2wpkh) continue;
+    // NOTE: will initiate by priority from the first walletAddressTypes
+    // then proceeds to following ones after got fully discovered response from worker response
+    if (isDiscovered != false) {
+      for (final addressType in walletAddresses.walletAddressTypes) {
+        if (isHardwareWallet && addressType != SegwitAddressType.p2wpkh) continue;
 
-      for (final seedBytesType in hdWallets.keys) {
-        generateInitialAddresses(
-          addressType: walletAddressType,
-          seedBytesType: seedBytesType,
-        );
-      }
-    }
+        for (final seedBytesType in hdWallets.keys) {
+          // p2wpkh has always had the right derivations, skip if creating old derivations
+          if (seedBytesType.isOldDerivation && addressType == SegwitAddressType.p2wpkh) {
+            continue;
+          }
 
-    // }
-  }
+          final bitcoinDerivationInfo = BitcoinAddressUtils.getDerivationFromType(
+            addressType,
+            network: network,
+            isElectrum: seedBytesType.isElectrum,
+          );
 
-  @override
-  @action
-  void generateInitialAddresses({
-    required BitcoinAddressType addressType,
-    required SeedBytesType seedBytesType,
-    BitcoinDerivationInfo? bitcoinDerivationInfo,
-  }) {
-    // p2wpkh has always had the right derivations, skip if creating old derivations
-    if (seedBytesType.isOldDerivation && addressType == SegwitAddressType.p2wpkh) {
-      return;
-    }
+          bool alreadyDidDerivation = false;
 
-    final bitcoinDerivationInfo = BitcoinAddressUtils.getDerivationFromType(
-      addressType,
-      network: network,
-      isElectrum: seedBytesType.isElectrum,
-    );
+          for (final derivationInfo in [
+            bitcoinDerivationInfo,
+            BitcoinDerivationInfos.BIP84,
+            BitcoinDerivationInfos.ELECTRUM,
+          ]) {
+            final derivationPath = derivationInfo.derivationPath.toString();
 
-    if (seedBytesType.isOldDerivation) {
-      for (final derivationInfo in [
-        bitcoinDerivationInfo,
-        BitcoinDerivationInfos.ELECTRUM,
-        BitcoinDerivationInfos.BIP84,
-      ]) {
-        if (derivationInfo.derivationPath.toString() ==
-            bitcoinDerivationInfo.derivationPath.toString()) {
-          continue;
+            if (alreadyDidDerivation &&
+                derivationPath == bitcoinDerivationInfo.derivationPath.toString()) {
+              continue;
+            }
+
+            alreadyDidDerivation = true;
+
+            for (final isChange in [true, false]) {
+              isDiscovered = walletAddresses.discoveredAddressesRecord.getIsDiscovered(
+                addressType: addressType,
+                seedBytesType: seedBytesType,
+                derivationPath: derivationPath,
+                isChange: isChange,
+              );
+
+              if (isDiscovered == false) {
+                break;
+              } else if (sync == true)
+                subscribeForStatuses(
+                  walletAddresses.addressesRecords
+                      .getRecords(
+                        addressType: addressType,
+                        seedBytesType: seedBytesType,
+                        derivationPath: derivationPath,
+                        isChange: isChange,
+                      )
+                      .whereType<BitcoinAddressRecord>()
+                      .toList(),
+                );
+            }
+
+            if (isDiscovered == false) {
+              discovered = await generateInitialAddresses(
+                addressType: addressType,
+                seedBytesType: seedBytesType,
+                bitcoinDerivationInfo: derivationInfo,
+              );
+              break;
+            }
+          }
+
+          if (isDiscovered == false) break;
         }
 
-        super.generateInitialAddresses(
-          addressType: addressType,
-          seedBytesType: seedBytesType,
-          bitcoinDerivationInfo: derivationInfo,
-        );
+        if (isDiscovered == false) break;
       }
-    } else {
-      super.generateInitialAddresses(
-        addressType: addressType,
-        seedBytesType: seedBytesType,
-        bitcoinDerivationInfo: bitcoinDerivationInfo,
-      );
     }
+
+    if (isDiscovered == true && sync == false)
+      initAddresses(true);
+    else if (isDiscovered == true)
+      syncStatus = SyncedSyncStatus();
+    else if (isDiscovered == false && discovered == false) initAddresses(sync);
+
+    return isDiscovered;
   }
 
   static Future<BitcoinWallet> create({
