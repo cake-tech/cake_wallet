@@ -1629,6 +1629,7 @@ abstract class SecureStorage {
   Future<void> delete({required String key});
   // Legacy
   Future<String?> readNoIOptions({required String key});
+  Future<Map<String, String>> readAll();
  }""";
   const defaultSecureStorage = """
 class DefaultSecureStorage extends SecureStorage {
@@ -1667,6 +1668,11 @@ class DefaultSecureStorage extends SecureStorage {
       iOptions: useNoIOptions ? IOSOptions() : null,
     );
   }
+
+  @override
+  Future<Map<String, String>> readAll() async {
+    return await _secureStorage.readAll();
+  }
  }""";
   const fakeSecureStorage = """
 class FakeSecureStorage extends SecureStorage {
@@ -1678,6 +1684,8 @@ class FakeSecureStorage extends SecureStorage {
   Future<void> delete({required String key}) async {}
   @override
   Future<String?> readNoIOptions({required String key}) async => null;
+  @override
+  Future<Map<String, String>> readAll() async => {};
  }""";
   final outputFile = File(secureStoragePath);
   final header = hasFlutterSecureStorage

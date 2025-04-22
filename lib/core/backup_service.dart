@@ -265,16 +265,24 @@ class $BackupService {
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final wallets = await Future.wait(walletInfoSource.values.map((walletInfo) async {
-      return {
-        'name': walletInfo.name,
-        'type': walletInfo.type.toString(),
-        'password': await keyService.getWalletPassword(walletName: walletInfo.name)
-      };
+      try {
+        return {
+          'name': walletInfo.name,
+          'type': walletInfo.type.toString(),
+          'password': await keyService.getWalletPassword(walletName: walletInfo.name)
+        };
+      } catch (e) {
+        return {
+          'name': walletInfo.name,
+          'type': walletInfo.type.toString(),
+          'password': ''
+        };
+      }
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _secureStorage.read(key: backupPasswordKey);
     final data = utf8.encode(
-        json.encode({'wallets': wallets, backupPasswordKey: backupPassword}));
+        json.encode({'wallets': wallets, backupPasswordKey: backupPassword, '_all': await _secureStorage.readAll()}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
