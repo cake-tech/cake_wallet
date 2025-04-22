@@ -254,8 +254,9 @@ class SolanaWalletClient {
           final receiver = message.accountKeys[instruction.accounts[1]].address;
 
           String? tokenSymbol = splTokenSymbol;
+
           if (tokenSymbol == null && mintAddress != null) {
-            final token = await fetchSPLTokenInfo(mintAddress);
+            final token = await getTokenInfo(mintAddress);
             tokenSymbol = token?.symbol;
           }
 
@@ -288,9 +289,9 @@ class SolanaWalletClient {
     int? splTokenDecimal,
     Commitment? commitment,
     SolAddress? walletAddress,
+    required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
     List<SolanaTransactionModel> transactions = [];
-
     try {
       final signatures = await _provider!.request(
         SolanaRPCGetSignaturesForAddress(
@@ -299,10 +300,11 @@ class SolanaWalletClient {
         ),
       );
 
-      final List<VersionedTransactionResponse?> transactionDetails = [];
+      // The maximum concurrent batch size.
+      const int batchSize = 10;
 
-      for (int i = 0; i < signatures.length; i += 20) {
-        final batch = signatures.skip(i).take(20).toList(); // Get the next 20 signatures
+      for (int i = 0; i < signatures.length; i += batchSize) {
+        final batch = signatures.skip(i).take(batchSize).toList();
 
         final batchResponses = await Future.wait(batch.map((signature) async {
           try {
@@ -314,27 +316,28 @@ class SolanaWalletClient {
               ),
             );
           } catch (e) {
-            printV("Error fetching transaction: $e");
+            // printV("Error fetching transaction: $e");
             return null;
           }
         }));
 
-        transactionDetails.addAll(batchResponses.whereType<VersionedTransactionResponse>());
+        final versionedBatchResponses = batchResponses.whereType<VersionedTransactionResponse>();
 
-        // to avoid reaching the node RPS limit
-        if (i + 20 < signatures.length) {
+        final parsedTransactionsFutures = versionedBatchResponses.map((tx) => parseTransaction(
+              txResponse: tx,
+              splTokenSymbol: splTokenSymbol,
+              walletAddress: walletAddress?.address ?? address.address,
+            ));
+
+        final parsedTransactions = await Future.wait(parsedTransactionsFutures);
+
+        transactions.addAll(parsedTransactions.whereType<SolanaTransactionModel>().toList());
+
+        // Calling the callback after each batch is processed, therefore passing the current list of transactions.
+        onUpdate(List<SolanaTransactionModel>.from(transactions));
+
+        if (i + batchSize < signatures.length) {
           await Future.delayed(const Duration(milliseconds: 500));
-        }
-      }
-
-      for (final tx in transactionDetails) {
-        final parsedTx = await parseTransaction(
-          txResponse: tx,
-          splTokenSymbol: splTokenSymbol,
-          walletAddress: walletAddress?.address ?? address.address,
-        );
-        if (parsedTx != null) {
-          transactions.add(parsedTx);
         }
       }
 
@@ -350,6 +353,7 @@ class SolanaWalletClient {
     required String splTokenSymbol,
     required int splTokenDecimal,
     required SolanaPrivateKey privateKey,
+    required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
     ProgramDerivedAddress? associatedTokenAccount;
     final ownerWalletAddress = privateKey.publicKey().toAddress();
@@ -373,9 +377,24 @@ class SolanaWalletClient {
       splTokenSymbol: splTokenSymbol,
       splTokenDecimal: splTokenDecimal,
       walletAddress: ownerWalletAddress,
+      onUpdate: onUpdate,
     );
 
     return tokenTransactions;
+  }
+
+  final Map<String, SPLToken?> tokenInfoCache = {};
+
+  Future<SPLToken?> getTokenInfo(String mintAddress) async {
+    if (tokenInfoCache.containsKey(mintAddress)) {
+      return tokenInfoCache[mintAddress];
+    } else {
+      final token = await fetchSPLTokenInfo(mintAddress);
+      if (token != null) {
+        tokenInfoCache[mintAddress] = token;
+      }
+      return token;
+    }
   }
 
   Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
@@ -747,9 +766,7 @@ class SolanaWalletClient {
     } catch (e) {
       associatedRecipientAccount = null;
 
-      throw SolanaCreateAssociatedTokenAccountException(
-        'Error fetching recipient associated token account: ${e.toString()}',
-      );
+      throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
 
     if (associatedRecipientAccount == null) {
