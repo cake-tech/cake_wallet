@@ -279,14 +279,6 @@ abstract class DashboardViewModelBase with Store {
       _transactionDisposerCallback,
     );
 
-    if (hasSilentPayments) {
-      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-
-      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
-        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-      });
-    }
-
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }

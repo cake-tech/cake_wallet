@@ -44,10 +44,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @override
   final walletAddressTypes = [
     SegwitAddressType.p2wpkh,
-    SegwitAddressType.p2tr,
-    P2shAddressType.p2wpkhInP2sh,
-    P2pkhAddressType.p2pkh,
-    SegwitAddressType.p2wsh,
+    // SegwitAddressType.p2tr,
+    // P2shAddressType.p2wpkhInP2sh,
+    // P2pkhAddressType.p2pkh,
+    // SegwitAddressType.p2wsh,
   ];
 
   @observable

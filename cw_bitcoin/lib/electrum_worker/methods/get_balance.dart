@@ -7,7 +7,7 @@ class ElectrumWorkerGetBalanceRequest implements ElectrumWorkerRequest {
     this.completed = false,
   });
 
-  final Set<String> scripthashes;
+  final List<String> scripthashes;
   final int? id;
   final bool completed;
 
@@ -17,7 +17,7 @@ class ElectrumWorkerGetBalanceRequest implements ElectrumWorkerRequest {
   @override
   factory ElectrumWorkerGetBalanceRequest.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerGetBalanceRequest(
-      scripthashes: (json['scripthashes'] as List<String>).toSet(),
+      scripthashes: json['scripthashes'] as List<String>,
       id: json['id'] as int?,
       completed: json['completed'] as bool? ?? false,
     );

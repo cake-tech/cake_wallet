@@ -347,7 +347,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     String label = '',
   }) {
     final address = generateAddress(
-      isChange: false,
+      isChange: isChange,
       index: index,
       addressType: addressType,
       derivationInfo: derivationInfo,
@@ -357,7 +357,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final addressRecord = BitcoinAddressRecord(
       address,
       index: index,
-      isChange: false,
+      isChange: isChange,
       name: label,
       type: addressType,
       network: network,
@@ -459,15 +459,31 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  void addAddresses(Iterable<BitcoinAddressRecord> addresses) {
+  void addAddresses(List<BitcoinAddressRecord> addresses) {
     final firstAddress = addresses.first;
 
-    addressesRecords.addAddress(
+    addressesRecords.addAddresses(
       addressType: firstAddress.type,
       seedBytesType: firstAddress.seedBytesType!,
       derivationPath: firstAddress.derivationInfo.derivationPath.toString(),
-      addressRecord: firstAddress,
+      isChange: firstAddress.isChange,
+      addressRecords: addresses,
     );
+    print("addressesRecords.allRecords().length");
+    print(firstAddress.type);
+    print(firstAddress.seedBytesType!);
+    print(firstAddress.derivationInfo.derivationPath.toString());
+    print(firstAddress.isChange);
+
+    print(addressesRecords
+        .getRecords(
+          addressType: firstAddress.type,
+          seedBytesType: firstAddress.seedBytesType!,
+          derivationPath: firstAddress.derivationInfo.derivationPath.toString(),
+          isChange: firstAddress.isChange,
+        )
+        .length);
+
     updateAllAddresses();
   }
 
@@ -569,35 +585,34 @@ class ItemsRecordMap<T extends Map<SeedBytesType, ItemsByDerivationPath<dynamic>
 }
 
 class BitcoinAddressRecordMap extends ItemsRecordMap<AddressRecordsBySeedType> {
-  void addAddress({
+  void addAddresses({
     required BitcoinAddressType addressType,
     required SeedBytesType seedBytesType,
     required String derivationPath,
-    required BaseBitcoinAddressRecord addressRecord,
+    required bool isChange,
+    required List<BaseBitcoinAddressRecord> addressRecords,
   }) {
     _data.putIfAbsent(
       addressType,
       () => {
         seedBytesType: {
-          derivationPath: {addressRecord.isChange: []},
+          derivationPath: {isChange: []},
         },
       },
     );
     _data[addressType]!.putIfAbsent(
       seedBytesType,
       () => {
-        derivationPath: {addressRecord.isChange: []},
+        derivationPath: {isChange: []},
       },
     );
     _data[addressType]![seedBytesType]!.putIfAbsent(
       derivationPath,
-      () => {addressRecord.isChange: []},
+      () => {isChange: []},
     );
-    _data[addressType]![seedBytesType]![derivationPath]!
-        .putIfAbsent(addressRecord.isChange, () => []);
+    _data[addressType]![seedBytesType]![derivationPath]!.putIfAbsent(isChange, () => []);
 
-    _data[addressType]![seedBytesType]![derivationPath]![addressRecord.isChange]!
-        .add(addressRecord);
+    _data[addressType]![seedBytesType]![derivationPath]![isChange]!.addAll(addressRecords);
   }
 
   List<BaseBitcoinAddressRecord> allRecords() {

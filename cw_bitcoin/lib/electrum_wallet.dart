@@ -76,7 +76,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
         _password = password,
         isEnabledAutoGenerateSubaddress = true,
         unspentCoins = ElectrumUnspentCoins.of(initialUnspentCoins ?? []),
-        scripthashesListening = [],
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of({
           currency: initialBalance ??
               ElectrumBalance(
@@ -300,9 +299,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   int feeRate(TransactionPriority priority) => feeRates![priority];
 
   @observable
-  List<String> scripthashesListening;
-
-  @observable
   // NOTE: https://electrumx.readthedocs.io/en/latest/protocol-basics.html#status
   List<String> scripthashesWithStatus = [];
 
@@ -337,20 +333,19 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       // // INFO: FIRST (always): Call subscribe for headers, wait for completion to update currentChainTip (needed for other methods)
       // await subscribeForHeaders(true);
 
-      // final responses = await subscribeForStatuses(null, true);
-      // scripthashesListening.addAll(responses.map((e) => e.scripthash));
+      // final responses = await subscribeForStatuses(addresses, true);
 
       // final addressesWithHistory = walletAddresses.allAddresses
       //     .where((e) => scripthashesWithStatus.contains(e.scriptHash))
       //     .toList();
 
       // // INFO: SECOND: Start loading transaction histories for every address, this will help discover addresses until the unused gap limit has been reached, which will help finding the full balance and unspents next
-      // await updateTransactions(addressesWithHistory, !_didInitialSync);
+      // await updateTransactions(addressesWithHistory);
 
       // // INFO: THIRD: Get the full wallet's balance with all addresses considered
-      // await updateBalance(scripthashesWithStatus.toSet(), true);
+      // await updateBalance(scripthashesWithStatus, true);
 
-      // await updateAllUnspents(scripthashesWithStatus.toSet(), true);
+      // await updateAllUnspents(scripthashesWithStatus, true);
 
       // syncStatus = SyncedSyncStatus();
 
@@ -360,6 +355,20 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       //     Timer.periodic(const Duration(seconds: 5), (timer) async => await updateFeeRates());
 
       // await save();
+    } catch (e, stacktrace) {
+      printV(stacktrace);
+      printV("startSync $e");
+      syncStatus = FailedSyncStatus();
+    }
+  }
+
+  Future<void> syncAddresses(List<BitcoinAddressRecord> addresses) async {
+    try {
+      updateTransactions(addresses);
+      updateBalance(scripthashesWithStatus);
+      updateAllUnspents(scripthashesWithStatus);
+
+      await save();
     } catch (e, stacktrace) {
       printV(stacktrace);
       printV("startSync $e");
@@ -1708,10 +1717,10 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
   @action
   Future<ElectrumWorkerGetBalanceResponse?> updateBalance([
-    Set<String>? scripthashes,
+    List<String>? scripthashes,
     bool? wait,
   ]) async {
-    scripthashes ??= walletAddresses.allScriptHashes.toSet();
+    scripthashes ??= walletAddresses.allScriptHashes;
 
     if (wait == true) {
       return ElectrumWorkerGetBalanceResponse.fromJson(
@@ -1846,7 +1855,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
     if (syncStatus is ConnectingSyncStatus || isDisconnectedStatus) {
       // Needs to re-subscribe to all scripthashes when reconnected
-      scripthashesListening = [];
       _chainTipListenerOn = false;
     }
 
@@ -1928,7 +1936,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     try {
       final scripthashByAddress = await subscribeForStatuses(addresses, true);
 
-      walletAddresses.addAddresses(addresses);
+      print("addresses: ${addresses.first.address}");
 
       if (addresses.first.seedBytesType!.isOldDerivation && scripthashByAddress.length == 1) {
         // Wrong derivation address with no history, discard and do not add to wallet addresses
@@ -1938,7 +1946,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       }
 
       walletAddresses.addAddresses(addresses);
-      await save();
+      await syncAddresses(addresses);
     } catch (_) {}
   }
 
@@ -2009,9 +2017,22 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
     startIndex ??= recordList.length;
 
-    final needsToDiscover = recordList.sublist(recordList.length - count).any(
-          (record) => record.getIsUsed(),
-        );
+    late bool needsToDiscover;
+    print(addressType);
+    print(seedBytesType);
+    print(derivationInfo.derivationPath.toString());
+    print(isChange);
+    print([addressType, recordList.length]);
+
+    if (recordList.length < count) {
+      needsToDiscover = true;
+    } else if (recordList.length == count) {
+      needsToDiscover = recordList.any((record) => !record.getIsUsed());
+    } else {
+      needsToDiscover = recordList.sublist(recordList.length - count).any(
+            (record) => record.getIsUsed(),
+          );
+    }
 
     if (!needsToDiscover) {
       return;

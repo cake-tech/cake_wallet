@@ -815,7 +815,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
 
   @override
   Future<ElectrumWorkerGetBalanceResponse?> updateBalance([
-    Set<String>? scripthashes,
+    List<String>? scripthashes,
     bool? wait,
   ]) async {
     final updatedBalance = await super.updateBalance(scripthashes, true);
