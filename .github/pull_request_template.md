@@ -11,3 +11,4 @@ Please include a summary of the changes and which issue is fixed / feature is ad
 - [ ] Format code
 - [ ] Look for code duplication
 - [ ] Clear naming for variables and methods
+- [ ] Manual tests in accessibility mode (TalkBack on Android) passed 
