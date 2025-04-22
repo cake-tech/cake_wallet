@@ -344,8 +344,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<SweepingWalletPage>());
 
     case Routes.dashboard:
-      return CupertinoPageRoute<void>(
-          settings: settings, builder: (_) => getIt.get<DashboardPage>());
+      return PageRouteBuilder(
+        pageBuilder: (_, __, ___) => getIt.get<DashboardPage>(),
+        transitionDuration: const Duration(milliseconds: 600),
+        transitionsBuilder: (_, anim, __, child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(
+              parent: anim,
+              curve: Curves.easeInOut,
+            ),
+            child: child,
+          );
+        },
+      );
 
     case Routes.send:
       final args = settings.arguments as Map<String, dynamic>?;

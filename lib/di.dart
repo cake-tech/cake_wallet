@@ -642,7 +642,7 @@ Future<void> setup({
     return web3WalletService;
   });
 
-  getIt.registerLazySingleton(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
+  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory(() => BalancePage(
       nftViewModel: getIt.get<NFTViewModel>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),

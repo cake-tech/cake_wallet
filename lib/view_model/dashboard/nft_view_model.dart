@@ -23,11 +23,7 @@ abstract class NFTViewModelBase with Store {
       : isLoading = false,
         isImportNFTLoading = false,
         nftAssetByWalletModels = ObservableList(),
-        solanaNftAssetModels = ObservableList() {
-    getNFTAssetByWallet();
-
-    reaction((_) => appStore.wallet, (_) => getNFTAssetByWallet());
-  }
+        solanaNftAssetModels = ObservableList();
 
   final AppStore appStore;
   final BottomSheetService bottomSheetService;
