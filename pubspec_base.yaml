@@ -131,6 +131,10 @@ dependencies:
     git:
       url: https://github.com/Foundation-Devices/tor/
       ref: d01450765029a4af436be1f6bf1a2d4400dea222
+  socks5:
+    git:
+      url: https://github.com/v0l/socks5
+      ref: f8d357432d456e2b912e1e9d15ad24a0a817b00f
 
 dev_dependencies:
   flutter_test:
