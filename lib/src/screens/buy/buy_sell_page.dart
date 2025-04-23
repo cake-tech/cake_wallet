@@ -490,11 +490,19 @@ class BuySellPage extends BasePage {
           return DesktopExchangeCardsSection(
             firstExchangeCard: fiatExchangeCard,
             secondExchangeCard: cryptoExchangeCard,
+            onBuyTap: () => null,
+            onSellTap: () =>
+                buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+            isBuySellOption: true,
           );
         } else {
           return DesktopExchangeCardsSection(
             firstExchangeCard: cryptoExchangeCard,
             secondExchangeCard: fiatExchangeCard,
+            onBuyTap: () =>
+                !buySellViewModel.isBuyAction ? buySellViewModel.changeBuySellAction() : null,
+            onSellTap: () => null,
+            isBuySellOption: true,
           );
         }
       },

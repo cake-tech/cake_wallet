@@ -162,7 +162,8 @@ class $BackupService {
 
     final data = json.decode(preferencesFile.readAsStringSync()) as Map<String, dynamic>;
 
-    try { // shouldn't throw an error but just in case, so it doesn't stop the backup restore
+    try {
+      // shouldn't throw an error but just in case, so it doesn't stop the backup restore
       for (var entry in data.entries) {
         String key = entry.key;
         dynamic value = entry.value;
@@ -180,7 +181,8 @@ class $BackupService {
           await sharedPreferences.setStringList(key, value);
         } else {
           if (kDebugMode) {
-            printV('Skipping individual save for key "$key": Unsupported type (${value.runtimeType}). Value: $value');
+            printV(
+                'Skipping individual save for key "$key": Unsupported type (${value.runtimeType}). Value: $value');
           }
         }
       }
@@ -263,15 +265,23 @@ class $BackupService {
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final wallets = await Future.wait(walletInfoSource.values.map((walletInfo) async {
-      return {
-        'name': walletInfo.name,
-        'type': walletInfo.type.toString(),
-        'password': await keyService.getWalletPassword(walletName: walletInfo.name)
-      };
+      try {
+        return {
+          'name': walletInfo.name,
+          'type': walletInfo.type.toString(),
+          'password': await keyService.getWalletPassword(walletName: walletInfo.name)
+        };
+      } catch (e) {
+        return {'name': walletInfo.name, 'type': walletInfo.type.toString(), 'password': ''};
+      }
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _secureStorage.read(key: backupPasswordKey);
-    final data = utf8.encode(json.encode({'wallets': wallets, backupPasswordKey: backupPassword}));
+    final data = utf8.encode(json.encode({
+      'wallets': wallets,
+      backupPasswordKey: backupPassword,
+      '_all': await _secureStorage.readAll()
+    }));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
