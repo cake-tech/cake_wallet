@@ -119,7 +119,6 @@ class RBFDetailsPage extends BasePage {
     }
 
     reaction((_) => transactionDetailsViewModel.sendViewModel.state, (ExecutionState state) {
-
       if (state is! IsExecutingState &&
           loadingBottomSheetContext != null &&
           loadingBottomSheetContext!.mounted) {
@@ -191,14 +190,20 @@ class RBFDetailsPage extends BasePage {
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
                   walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                  titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  titleIconPath:
+                      transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: transactionDetailsViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  amountValue:
+                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: transactionDetailsViewModel
+                      .sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
-                  feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  feeRate: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeRate,
+                  feeValue:
+                      transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: transactionDetailsViewModel
+                      .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: transactionDetailsViewModel.sendViewModel.outputs,
                   onSlideComplete: () async {
                     Navigator.of(bottomSheetContext).pop();

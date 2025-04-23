@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/seedbyte_types.dart';
 import 'package:cw_core/wallet_info.dart';
 
@@ -11,7 +12,7 @@ class BaseBitcoinAddressRecord {
     required this.index,
     bool isChange = false,
     int txCount = 0,
-    int balance = 0,
+    ElectrumBalance? balance,
     String name = '',
     bool isUsed = false,
     required this.type,
@@ -20,7 +21,7 @@ class BaseBitcoinAddressRecord {
     bool? isHidden,
     String? derivationPath,
   })  : _txCount = txCount,
-        _balance = balance,
+        balance = balance ?? ElectrumBalance.zero(),
         _name = name,
         _isUsed = isUsed,
         isHidden = isHidden ?? isChange,
@@ -38,7 +39,7 @@ class BaseBitcoinAddressRecord {
   bool get isChange => _isChange;
   final int index;
   int _txCount;
-  int _balance;
+  ElectrumBalance balance;
   String _name;
   bool _isUsed;
 
@@ -48,11 +49,7 @@ class BaseBitcoinAddressRecord {
 
   String get name => _name;
 
-  int get balance => _balance;
-
   set txCount(int value) => _txCount = value;
-
-  set balance(int value) => _balance = value;
 
   bool get isUsed => _isUsed;
 
@@ -78,12 +75,12 @@ class BaseBitcoinAddressRecord {
   }
 
   bool getIsUsed() {
-    return isUsed || txCount != 0 || balance != 0;
+    return isUsed || txCount != 0 || balance.hasBalance();
   }
 
   // An address not yet used for receiving funds
   bool getIsStillReceiveable(bool autoGenerateAddresses) =>
-      !autoGenerateAddresses || (!getIsUsed() && !isHidden);
+      !autoGenerateAddresses || (!getIsUsed() && (isChange || !isHidden));
 
   String toJSON() => json.encode({
         'address': address,
@@ -94,7 +91,7 @@ class BaseBitcoinAddressRecord {
         'isUsed': isUsed,
         'txCount': txCount,
         'name': name,
-        'balance': balance,
+        'balance': balance.toJSON(),
         'type': type.toString(),
         'runtimeType': runtimeType.toString(),
         'seedBytesType': seedBytesType?.value,
@@ -115,6 +112,10 @@ class BaseBitcoinAddressRecord {
                 : SeedBytesType.old_electrum)
         : SeedBytesType.fromValue(seedBytesTypeSnp.toString());
 
+    final balance = decoded['balance'] is String
+        ? ElectrumBalance.fromJSON(decoded['balance'] as String)
+        : ElectrumBalance.zero();
+
     return BaseBitcoinAddressRecord(
       decoded['address'] as String,
       network: BasedUtxoNetwork.fromName(decoded['network'] as String),
@@ -125,7 +126,7 @@ class BaseBitcoinAddressRecord {
       isUsed: decoded['isUsed'] as bool? ?? false,
       txCount: decoded['txCount'] as int? ?? 0,
       name: decoded['name'] as String? ?? '',
-      balance: decoded['balance'] as int? ?? 0,
+      balance: balance,
       derivationPath: decoded['derivationPath'] as String? ?? '',
       type: decoded['type'] != null && decoded['type'] != ''
           ? BitcoinAddressType.values
@@ -140,7 +141,6 @@ class BaseBitcoinAddressRecord {
   ]) {
     final decoded = json.decode(jsonSource) as Map;
     final base = buildFromJSON(jsonSource, derivationInfo);
-    final network = base.network;
 
     if (decoded['runtimeType'] == 'BitcoinAddressRecord') {
       return BitcoinAddressRecord.fromJSON(jsonSource, base, derivationInfo);
@@ -173,7 +173,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
     super.isHidden,
     required super.isChange,
     super.txCount = 0,
-    super.balance = 0,
+    super.balance,
     super.name = '',
     super.isUsed = false,
     required super.type,
@@ -279,6 +279,10 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
 }
 
 class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
+  static BitcoinDerivationInfo DEFAULT_DERIVATION_INFO =
+      BitcoinDerivationInfos.SILENT_PAYMENTS_SPEND;
+  static String DEFAULT_DERIVATION_PATH = DEFAULT_DERIVATION_INFO.derivationPath.toString();
+
   String _derivationPath;
 
   @override
@@ -295,7 +299,7 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     required super.network,
     String? derivationPath,
     super.txCount = 0,
-    super.balance = 0,
+    super.balance,
     super.name = '',
     super.isUsed = false,
     super.type = SilentPaymentsAddresType.p2sp,
@@ -303,10 +307,14 @@ class BitcoinSilentPaymentAddressRecord extends BaseBitcoinAddressRecord {
     super.seedBytesType,
     super.isHidden,
     this.labelHex,
-  })  : _derivationPath = derivationPath ?? BitcoinDerivationPaths.SILENT_PAYMENTS_SPEND,
+  })  : _derivationPath = derivationPath ?? DEFAULT_DERIVATION_PATH,
         super(index: labelIndex) {
     if (labelIndex != 0 && labelHex == null) {
       throw ArgumentError('label must be provided for silent address index != 1');
+    }
+
+    if (_derivationPath != DEFAULT_DERIVATION_PATH) {
+      isHidden = true;
     }
 
     if (labelIndex != 0 && derivationPath == null) {
@@ -359,7 +367,7 @@ class BitcoinReceivedSPAddressRecord extends BitcoinSilentPaymentAddressRecord {
     required super.labelIndex,
     required super.network,
     super.txCount = 0,
-    super.balance = 0,
+    super.balance,
     super.name = '',
     super.isUsed = false,
     required this.tweak,
@@ -434,7 +442,7 @@ class LitecoinMWEBAddressRecord extends BaseBitcoinAddressRecord {
     super.isHidden,
     super.isChange = false,
     super.txCount = 0,
-    super.balance = 0,
+    super.balance,
     super.name = '',
     super.isUsed = false,
   }) : super(type: SegwitAddressType.mweb) {

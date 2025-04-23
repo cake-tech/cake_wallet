@@ -14,6 +14,8 @@ part 'bitcoin_wallet_addresses.g.dart';
 class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAddresses;
 
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
+  static const _OLD_SP_PATH = "m/352'/1'/0'/#'/0";
+
   BitcoinWalletAddressesBase(
     WalletInfo walletInfo, {
     required super.hdWallets,
@@ -22,7 +24,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialAddressesRecords,
     super.initialActiveAddressIndex,
     super.initialAddressPageType,
-    this.loadedFromNewSnapshot = false,
     List<BitcoinSilentPaymentAddressRecord>? initialSilentAddresses,
     List<BitcoinReceivedSPAddressRecord>? initialReceivedSPAddresses,
   })  : silentPaymentAddresses = ObservableList<BitcoinSilentPaymentAddressRecord>.of(
@@ -36,10 +37,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     silentPaymentWallets = [silentPaymentWallet!];
   }
 
-  final bool loadedFromNewSnapshot;
-
-  static const _OLD_SP_PATH = "m/352'/1'/0'/#'/0";
-
   // NOTE: ordered in priority: eg. p2wpkh always first, most used address, etc.
   @override
   final walletAddressTypes = [
@@ -49,6 +46,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     P2pkhAddressType.p2pkh,
     SegwitAddressType.p2wsh,
   ];
+
+  List<BaseBitcoinAddressRecord> get otherAddresses => silentPaymentAddresses;
 
   @observable
   SilentPaymentOwner? silentPaymentWallet;
@@ -77,7 +76,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   Future<void> generateInitialSPAddresses() async {
     final addAddresses = silentPaymentAddresses.isEmpty;
 
-    // Only initiate these old addresses if restoring a wallet and possibly wants the older cake derivation path
+    // NOTE: Only initiate these old addresses if restoring a wallet and possibly wants the older cake derivation path
     if (walletInfo.isRecovery || silentPaymentAddresses.length > 2) {
       final oldScanPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "1"));
       final oldSpendPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "0"));
@@ -255,43 +254,27 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @override
   @action
   Future<void> updateAddressesInBox() async {
-    // receiveAddressesMapped.entries.forEach((e) {
-    //   final addressType = e.key;
-    //   final addresses = e.value;
+    await super.updateAddressesInBox();
 
-    //   for (final addr in addresses) {
-    //     if (getIsReceive(addr)) {
-    //       allAddressesMap[addr.address] = addr.name;
+    final addr = activeSilentAddress ??
+        silentPaymentAddresses.firstWhereOrNull(
+          (addressRecord) => !addressRecord.isHidden && !addressRecord.isChange,
+        );
 
-    //       final isCurrentType = addr.type == addressPageType;
+    if (addr != null) {
+      final addressString =
+          '${addr.address.substring(0, 9 + 5)}...${addr.address.substring(addr.address.length - 9, addr.address.length)}';
 
-    //       if (addressType == SilentPaymentsAddresType.p2sp) {
-    //         final addressString =
-    //             '${addr.address.substring(0, 9 + 5)}...${addr.address.substring(addr.address.length - 9, addr.address.length)}';
+      final isCurrentType = addressPageType == SilentPaymentsAddresType.p2sp;
 
-    //         if (!isCurrentType) {
-    //           addressesMap[addr.address] = addr.name.isEmpty
-    //               ? "Silent Payments" + ': $addressString'
-    //               : "Silent Payments - " + addr.name + ': $addressString';
-    //         } else {
-    //           addressesMap[address] = 'Active - Silent Payments' + ': $addressString';
-    //         }
-
-    //         // Silent Payments address don't break the loop because all are used
-    //         // break;
-    //       } else {
-    //         if (!isCurrentType) {
-    //           addressesMap[addr.address] = '${addressType.value.toUpperCase()}: ${addr.address}';
-    //         } else {
-    //           addressesMap[address] = 'Active - ${addressType.value.toUpperCase()}: $address';
-    //         }
-
-    //         // Break the loop, already got the firt unused address
-    //         break;
-    //       }
-    //     }
-    //   }
-    // });
+      if (!isCurrentType) {
+        addressesMap[addr.address] = addr.name.isEmpty
+            ? "Silent Payments" + ': $addressString'
+            : "Silent Payments - " + addr.name + ': $addressString';
+      } else {
+        addressesMap[addr.address] = 'Active - Silent Payments' + ': $addressString';
+      }
+    }
 
     await saveAddressesInBox();
   }
@@ -332,6 +315,16 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     addressesSet.addAll(addresses);
     this.receivedSPAddresses.clear();
     this.receivedSPAddresses.addAll(addressesSet);
+
+    for (final receivedSPAddress in receivedSPAddresses) {
+      for (final addressRecord in silentPaymentAddresses) {
+        if (receivedSPAddress.spAddress == addressRecord.address) {
+          addressRecord.balance.confirmed += receivedSPAddress.balance.confirmed;
+          addressRecord.txCount += 1;
+          break;
+        }
+      }
+    }
   }
 
   @action
@@ -403,7 +396,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
         silentPaymentAddresses.map((address) => address.toJSON()).toList();
     json['receivedSPAddresses'] = receivedSPAddresses.map((address) => address.toJSON()).toList();
     json['silentAddressIndex'] = silentAddressIndex.toString();
-    json['loadedFromNewSnapshot'] = true;
     return json;
   }
 
@@ -475,7 +467,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       initialActiveAddressIndex: electrumJson.activeIndexByType,
       initialSilentAddresses: initialSilentAddresses,
       initialReceivedSPAddresses: initialReceivedSPAddresses,
-      loadedFromNewSnapshot: snp['loadedFromNewSnapshot'] as bool? ?? false,
     );
   }
 }

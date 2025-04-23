@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -44,7 +45,12 @@ class TransactionDetailsPage extends BasePage {
               if (item is StandartListItem) {
                 Widget? addressTextWidget;
 
-                if (item.title.toLowerCase() == 'recipient addresses' ||
+                final isContactAddress = item.value !=
+                    AddressResolver.extractAddressByType(
+                      raw: item.value,
+                      type: transactionDetailsViewModel.wallet.currency,
+                    );
+                if (!isContactAddress && item.title.toLowerCase() == 'recipient addresses' ||
                     item.title.toLowerCase() == 'source address') {
                   addressTextWidget = getFormattedAddress(
                     context: context,
@@ -96,8 +102,10 @@ class TransactionDetailsPage extends BasePage {
                 child: SelectButton(
                   text: S.of(context).bump_fee,
                   onTap: () async {
-                    Navigator.of(context).pushNamed(Routes.bumpFeePage,
-                        arguments: [transactionDetailsViewModel.transactionInfo, transactionDetailsViewModel.rawTransaction]);
+                    Navigator.of(context).pushNamed(Routes.bumpFeePage, arguments: [
+                      transactionDetailsViewModel.transactionInfo,
+                      transactionDetailsViewModel.rawTransaction
+                    ]);
                   },
                 ),
               );
@@ -124,17 +132,9 @@ class TransactionDetailsPage extends BasePage {
     final bool hasDoubleNewline = value.contains('\n\n');
 
     if (hasDoubleNewline) {
-      final blocks = value
-          .split('\n\n')
-          .map((b) => b.trim())
-          .where((b) => b.isNotEmpty)
-          .toList();
+      final blocks = value.split('\n\n').map((b) => b.trim()).where((b) => b.isNotEmpty).toList();
       for (final block in blocks) {
-        final lines = block
-            .split('\n')
-            .map((l) => l.trim())
-            .where((l) => l.isNotEmpty)
-            .toList();
+        final lines = block.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
         if (lines.length > 1) {
           children.add(Text(lines.first, style: textStyle));
           for (int i = 1; i < lines.length; i++) {
@@ -158,11 +158,7 @@ class TransactionDetailsPage extends BasePage {
         children.add(SizedBox(height: 8));
       }
     } else {
-      final lines = value
-          .split('\n')
-          .map((l) => l.trim())
-          .where((l) => l.isNotEmpty)
-          .toList();
+      final lines = value.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
       bool firstLineIsContactName = (lines.length > 1 && lines.first.length < 20);
       int startIndex = 0;
       if (firstLineIsContactName) {

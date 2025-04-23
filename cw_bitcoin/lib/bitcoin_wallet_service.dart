@@ -158,7 +158,7 @@ class BitcoinWalletService extends WalletService<
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      networkParam: network,
+      network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       hdWallets: hdWallets,
     );

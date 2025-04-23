@@ -311,9 +311,8 @@ class CakePayBuyCardDetailPage extends BasePage {
       } catch (_) {
         await cakePayPurchaseViewModel.cakePayService.logout();
       }
-
-   }
-   cakePayPurchaseViewModel.isPurchasing = false;
+    }
+    cakePayPurchaseViewModel.isPurchasing = false;
   }
 
   void _showHowToUseCard(
@@ -390,10 +389,13 @@ class CakePayBuyCardDetailPage extends BasePage {
           currency: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency,
           amount: S.of(popupContext).send_amount,
           amountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-          fiatAmountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+          fiatAmountValue:
+              cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
           fee: S.of(popupContext).send_fee,
+          feeRate: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeRate,
           feeValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-          feeFiatAmount: cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+          feeFiatAmount:
+              cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
           outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
           onSlideComplete: () async {
             Navigator.of(popupContext).pop();

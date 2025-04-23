@@ -16,6 +16,20 @@ class ElectrumBalance extends Balance {
           secondAdditional: secondUnconfirmed,
         );
 
+  factory ElectrumBalance.zero() {
+    return ElectrumBalance(
+      confirmed: 0,
+      unconfirmed: 0,
+      frozen: 0,
+      secondConfirmed: 0,
+      secondUnconfirmed: 0,
+    );
+  }
+
+  bool hasBalance() {
+    return confirmed > 0 || unconfirmed > 0 || frozen > 0;
+  }
+
   static ElectrumBalance? fromJSON(String? jsonSource) {
     if (jsonSource == null) {
       return null;
@@ -61,8 +75,8 @@ class ElectrumBalance extends Balance {
       BitcoinAmountUtils.bitcoinAmountToString(amount: secondUnconfirmed);
 
   @override
-  String get formattedFullAvailableBalance =>
-      BitcoinAmountUtils.bitcoinAmountToString(amount: (confirmed + unconfirmed) + secondConfirmed - frozen);
+  String get formattedFullAvailableBalance => BitcoinAmountUtils.bitcoinAmountToString(
+      amount: (confirmed + unconfirmed) + secondConfirmed - frozen);
 
   String toJSON() => json.encode({
         'confirmed': confirmed,

@@ -271,7 +271,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
   BasedUtxoNetwork network;
 
-  // TODO: networks enum
+  // TODO: change from isTestnet boolean to a networks enum (regtest, signet, etc)
   @override
   bool isTestnet;
 
@@ -306,11 +306,11 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
 
   void Function(FlutterErrorDetails)? _onError;
   Timer? _autoSaveTimer;
-  Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
 
-  Future<bool?> initAddresses([bool? sync]) async {
+  Future<InitAddressesData> initAddresses([bool? sync]) async {
     bool? isDiscovered = null;
+    bool? discovered;
 
     // NOTE: will initiate by priority from the first walletAddressTypes
     // then proceeds to following ones after got fully discovered response from worker response
@@ -334,10 +334,22 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
         if (isDiscovered == false) {
           break;
         }
+        // else if (sync == true)
+        //   subscribeForStatuses(
+        //     walletAddresses.addressesRecords
+        //         .getRecords(
+        //           addressType: addressType,
+        //           seedBytesType: seedBytesType,
+        //           derivationPath: derivationPath,
+        //           isChange: isChange,
+        //         )
+        //         .whereType<BitcoinAddressRecord>()
+        //         .toList(),
+        //   );
       }
 
       if (isDiscovered == false) {
-        await generateInitialAddresses(
+        discovered = await generateInitialAddresses(
           addressType: addressType,
           seedBytesType: walletAddresses.walletSeedBytesType,
           bitcoinDerivationInfo: bitcoinDerivationInfo,
@@ -346,10 +358,20 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       }
     }
 
-    return isDiscovered;
+    // if (isDiscovered == true && sync == false)
+    //   initAddresses(true);
+    // else if (isDiscovered == false && discovered == false) initAddresses(sync);
+
+    if (isDiscovered == true) syncStatus = SyncedSyncStatus();
+
+    return InitAddressesData(
+      isDiscovered: isDiscovered,
+      discovered: discovered,
+    );
   }
 
   Future<void> init() async {
+    await walletAddresses.init();
     await transactionHistory.init();
 
     _autoSaveTimer =
@@ -363,13 +385,9 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       syncStatus = SynchronizingSyncStatus();
 
       await subscribeForHeaders(true);
-
-      await initAddresses(false);
-
       await updateFeeRates();
 
-      _updateFeeRateTimer ??=
-          Timer.periodic(const Duration(seconds: 5), (timer) async => await updateFeeRates());
+      await initAddresses(false);
 
       await save();
     } catch (e, stacktrace) {
@@ -437,7 +455,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     }
   }
 
-  // TODO: dynamic
   int get dustAmount => 546;
 
   bool isBelowDust(int amount) => amount <= dustAmount;
@@ -930,7 +947,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     }
   }
 
-  // TODO: LedgerElectrumWallet
   void setLedgerConnection(ledger.LedgerConnection connection) => throw UnimplementedError();
 
   Future<BtcTransaction> buildHardwareWalletTransaction({
@@ -1031,6 +1047,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
           address = fakePublicKey.toP2wshAddress();
           break;
         case SegwitAddressType.p2tr:
+        case SilentPaymentsAddresType.p2sp:
           address = fakePublicKey.toTaprootAddress();
           break;
         case SegwitAddressType.mweb:
@@ -1115,7 +1132,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       _receivePort?.close();
     } catch (_) {}
     _autoSaveTimer?.cancel();
-    _updateFeeRateTimer?.cancel();
   }
 
   @action
@@ -1124,6 +1140,10 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     bool? wait,
   ]) async {
     scripthashes ??= walletAddresses.allScriptHashes;
+
+    if (scripthashes.isEmpty) {
+      return null;
+    }
 
     if (wait == true) {
       return ElectrumWorkerListUnspentResponse.fromJson(
@@ -1163,8 +1183,8 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     final updatedUnspentCoins = <BitcoinUnspent>[];
 
     await Future.wait(unspents.entries.map((entry) async {
-      final unspent = entry.value;
       final scriptHash = entry.key;
+      final unspent = entry.value;
 
       final addressRecord = walletAddresses.allAddresses.firstWhereOrNull(
         (element) => element.scriptHash == scriptHash,
@@ -1174,12 +1194,19 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
         return null;
       }
 
+      if (unspent.isEmpty) {
+        unspentCoins.removeWhere((coin) =>
+            coin.bitcoinAddressRecord is BitcoinAddressRecord &&
+            (coin.bitcoinAddressRecord as BitcoinAddressRecord).scriptHash == scriptHash);
+        return null;
+      }
+
       await Future.wait(unspent.map((unspent) async {
         final coin = BitcoinUnspent.fromJSON(addressRecord, unspent.toJson());
         coin.isChange = addressRecord.isChange;
-// <-
-        // TODO: \/
-        final tx = await fetchTransactionInfo(hash: coin.hash);
+
+        final tx = await getExistingTransaction(hash: coin.hash);
+
         if (tx != null) {
           coin.confirmations = tx.confirmations;
         }
@@ -1194,7 +1221,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     await refreshUnspentCoinsInfo();
   }
 
-  // TODO: move to ElectrumUnspents
   @action
   Future<void> addCoinInfo(BitcoinUnspent coin) async {
     // Check if the coin is already in the unspentCoinsInfo for the wallet
@@ -1328,9 +1354,11 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   }
 
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
+    if (tx.confirmations > 0) return null;
+
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash);
-      _updateInputsAndOutputs(tx, bundle);
+      tx.updateInputsAndOutputs(bundle, network);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
     } catch (e) {
@@ -1631,6 +1659,12 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     ).result;
   }
 
+  Future<ElectrumTransactionInfo?> getExistingTransaction({required String hash}) async {
+    var tx = transactionHistory.transactions.values.firstWhereOrNull((tx) => tx.txHash == hash);
+    tx ??= await fetchTransactionInfo(hash: hash);
+    return tx;
+  }
+
   Future<ElectrumTransactionInfo?> fetchTransactionInfo({required String hash, int? height}) async {
     try {
       return ElectrumTransactionInfo.fromElectrumBundle(
@@ -1694,6 +1728,10 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       addressByScripthashes[addressRecord.scriptHash] = addressRecord.address;
     });
 
+    if (scripthashByAddress.isEmpty || addressByScripthashes.isEmpty) {
+      return null;
+    }
+
     if (wait == true)
       return ElectrumWorkerScripthashesSubscribeResponse.fromJson(
         await waitSendWorker(
@@ -1715,16 +1753,40 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   }
 
   @action
-  void onBalanceResponse(ElectrumBalance balanceResult) {
+  void onBalanceResponse(ElectrumGetBalanceResponse balanceResults) {
     var totalFrozen = 0;
-    var totalConfirmed = balanceResult.confirmed;
-    var totalUnconfirmed = balanceResult.unconfirmed;
+    var totalConfirmed = 0;
+    var totalUnconfirmed = 0;
 
     unspentCoins.forInfo(unspentCoinsInfo.values).forEach((unspentCoinInfo) {
       if (unspentCoinInfo.isFrozen) {
         totalFrozen += unspentCoinInfo.value;
       }
     });
+
+    for (int i = 0; i < balanceResults.balances.length; i++) {
+      final scripthash = balanceResults.scripthashes[i];
+      final addressRecord = walletAddresses.allAddresses.firstWhereOrNull(
+        (element) => element.scriptHash == scripthash,
+      );
+
+      if (addressRecord != null) {
+        final balance = balanceResults.balances[i];
+        addressRecord.balance = balance;
+      }
+    }
+
+    for (final addressRecord in [
+      ...walletAddresses.allAddresses,
+      ...walletAddresses.otherAddresses
+    ]) {
+      final balance = addressRecord.balance;
+
+      if (balance.hasBalance()) {
+        totalConfirmed += balance.confirmed;
+        totalUnconfirmed += balance.unconfirmed;
+      }
+    }
 
     balance[currency] = ElectrumBalance(
       confirmed: totalConfirmed,
@@ -1739,6 +1801,10 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     bool? wait,
   ]) async {
     scripthashes ??= walletAddresses.allScriptHashes;
+
+    if (scripthashes.isEmpty) {
+      return null;
+    }
 
     if (wait == true) {
       return ElectrumWorkerGetBalanceResponse.fromJson(
@@ -1897,55 +1963,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     }
   }
 
-  void _updateInputsAndOutputs(ElectrumTransactionInfo tx, ElectrumTransactionBundle bundle) {
-    tx.inputAddresses = tx.inputAddresses?.where((address) => address.isNotEmpty).toList();
-
-    if (tx.inputAddresses == null ||
-        tx.inputAddresses!.isEmpty ||
-        tx.outputAddresses == null ||
-        tx.outputAddresses!.isEmpty) {
-      List<String> inputAddresses = [];
-      List<String> outputAddresses = [];
-
-      for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-        final input = bundle.originalTransaction.inputs[i];
-        final inputTransaction = bundle.ins[i];
-        final vout = input.txIndex;
-        final outTransaction = inputTransaction.outputs[vout];
-        final address =
-            BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network);
-
-        if (address.isNotEmpty) inputAddresses.add(address);
-      }
-
-      for (int i = 0; i < bundle.originalTransaction.outputs.length; i++) {
-        final out = bundle.originalTransaction.outputs[i];
-        final address = BitcoinAddressUtils.addressFromOutputScript(out.scriptPubKey, network);
-
-        if (address.isNotEmpty) outputAddresses.add(address);
-
-        // Check if the script contains OP_RETURN
-        final script = out.scriptPubKey.script;
-        if (script.contains('OP_RETURN')) {
-          final index = script.indexOf('OP_RETURN');
-          if (index + 1 <= script.length) {
-            try {
-              final opReturnData = script[index + 1].toString();
-              final decodedString = StringUtils.decode(BytesUtils.fromHexString(opReturnData));
-              outputAddresses.add('OP_RETURN:$decodedString');
-            } catch (_) {
-              outputAddresses.add('OP_RETURN:');
-            }
-          }
-        }
-      }
-      tx.inputAddresses = inputAddresses;
-      tx.outputAddresses = outputAddresses;
-
-      transactionHistory.addOne(tx);
-    }
-  }
-
   @action
   Future<void> _onAddressesDiscovered(List<BitcoinAddressRecord> addresses) async {
     final scripthashByAddress = await subscribeForStatuses(addresses, true);
@@ -2017,70 +2034,40 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       isElectrum: seedBytesType.isElectrum,
     );
 
-    final existingReceiveAddresses = walletAddresses.addressesRecords.getRecords(
-      addressType: addressType,
-      seedBytesType: seedBytesType,
-      derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
-      isChange: false,
-    );
-    final discoveredExistingReceiveAddresses =
-        walletAddresses.discoveredAddressesRecord.getIsDiscovered(
-      addressType: addressType,
-      seedBytesType: seedBytesType,
-      derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
-      isChange: false,
-    );
-
-    if (!discoveredExistingReceiveAddresses &&
-        existingReceiveAddresses.length < ElectrumWalletAddressesBase.INITIAL_RECEIVE_COUNT) {
-      discoverNewAddresses(
+    for (final isChange in [true, false]) {
+      final existingAddresses = walletAddresses.addressesRecords.getRecords(
         addressType: addressType,
         seedBytesType: seedBytesType,
-        derivationInfo: bitcoinDerivationInfo,
-        isChange: false,
-        startIndex: existingReceiveAddresses.length,
+        derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
+        isChange: isChange,
       );
-      discovered = true;
-    } else {
+      final discoveredExistingAddresses = walletAddresses.discoveredAddressesRecord.getIsDiscovered(
+        addressType: addressType,
+        seedBytesType: seedBytesType,
+        derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
+        isChange: isChange,
+      );
+
+      final gapCount = isChange
+          ? ElectrumWalletAddressesBase.INITIAL_CHANGE_COUNT
+          : ElectrumWalletAddressesBase.INITIAL_RECEIVE_COUNT;
+
+      if (!discoveredExistingAddresses && existingAddresses.length < gapCount) {
+        discoverNewAddresses(
+          addressType: addressType,
+          seedBytesType: seedBytesType,
+          derivationInfo: bitcoinDerivationInfo,
+          isChange: isChange,
+          startIndex: existingAddresses.length,
+        );
+        discovered = true;
+      }
+
       walletAddresses.discoveredAddressesRecord.addDiscovered(
         addressType: addressType,
         seedBytesType: seedBytesType,
         derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
-        isChange: false,
-        discovered: true,
-      );
-    }
-
-    final existingChangeAddresses = walletAddresses.addressesRecords.getRecords(
-      addressType: addressType,
-      seedBytesType: seedBytesType,
-      derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
-      isChange: true,
-    );
-    final discoveredExistingChangeAddresses =
-        walletAddresses.discoveredAddressesRecord.getIsDiscovered(
-      addressType: addressType,
-      seedBytesType: seedBytesType,
-      derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
-      isChange: true,
-    );
-
-    if (!discoveredExistingChangeAddresses &&
-        existingChangeAddresses.length < ElectrumWalletAddressesBase.INITIAL_CHANGE_COUNT) {
-      discoverNewAddresses(
-        addressType: addressType,
-        seedBytesType: seedBytesType,
-        derivationInfo: bitcoinDerivationInfo,
-        isChange: true,
-        startIndex: existingChangeAddresses.length,
-      );
-      discovered = true;
-    } else {
-      walletAddresses.discoveredAddressesRecord.addDiscovered(
-        addressType: addressType,
-        seedBytesType: seedBytesType,
-        derivationPath: bitcoinDerivationInfo.derivationPath.toString(),
-        isChange: true,
+        isChange: isChange,
         discovered: true,
       );
     }
@@ -2119,8 +2106,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       needsToDiscover = recordList.sublist(recordList.length - countToDiscover).any(
         (record) {
           return scripthashStatuses?.any(
-                (scripthashStatus) =>
-                    scripthashStatus.scripthash == (record as BitcoinAddressRecord).scriptHash,
+                (scripthashStatus) => scripthashStatus.scripthash == record.scriptHash,
               ) ??
               record.getIsUsed();
         },
@@ -2145,6 +2131,12 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
         network: network,
       ).toJson(),
     );
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    final amountInt = int.parse(amount);
+    return BitcoinAmountUtils.bitcoinAmountToString(amount: amountInt);
   }
 }
 
@@ -2253,5 +2245,15 @@ class CreateTxData {
     required this.outputs,
     required this.sendAll,
     required this.memo,
+  });
+}
+
+class InitAddressesData {
+  bool? isDiscovered;
+  bool? discovered;
+
+  InitAddressesData({
+    required this.isDiscovered,
+    required this.discovered,
   });
 }

@@ -450,12 +450,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
 
     // reset coin balances and txCount to 0:
     unspentCoins.forEach((coin) {
-      coin.bitcoinAddressRecord.balance = 0;
+      coin.bitcoinAddressRecord.balance = ElectrumBalance.zero();
       coin.bitcoinAddressRecord.txCount = 0;
     });
 
     for (var addressRecord in walletAddresses.mwebAddresses) {
-      addressRecord.balance = 0;
+      addressRecord.balance = ElectrumBalance.zero();
       addressRecord.txCount = 0;
     }
 
@@ -520,7 +520,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
 
       // update the txCount:
       addressRecord.txCount++;
-      addressRecord.balance += utxo.value.toInt();
+      addressRecord.balance.confirmed += utxo.value.toInt();
       addressRecord.setAsUsed();
     }
 
@@ -676,7 +676,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
       if (!inputAddresses.contains(utxo.address)) {
         addressRecord.txCount++;
       }
-      addressRecord.balance -= utxo.value.toInt();
+      addressRecord.balance.confirmed -= utxo.value.toInt();
       amount += utxo.value.toInt();
       inputAddresses.add(utxo.address);
       input.add(hex.decode(outputId));
@@ -855,7 +855,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
     } catch (_) {}
 
     for (var addressRecord in walletAddresses.mwebAddresses) {
-      addressRecord.balance = 0;
+      addressRecord.balance = ElectrumBalance.zero();
       addressRecord.txCount = 0;
     }
 
@@ -873,7 +873,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
         coin.isFrozen = coinInfo.isFrozen;
         coin.isSending = coinInfo.isSending;
         coin.note = coinInfo.note;
-        coin.bitcoinAddressRecord.balance += coinInfo.value;
+        coin.bitcoinAddressRecord.balance.confirmed += coinInfo.value;
       } else {
         super.addCoinInfo(coin);
       }
@@ -1537,7 +1537,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses
             if (!addresses.contains(utxo.address)) {
               addresses.add(utxo.address);
             }
-            addressRecord.balance -= utxo.value.toInt();
+            addressRecord.balance.confirmed -= utxo.value.toInt();
           });
           transaction.inputAddresses?.addAll(addresses);
           printV("isPegIn: $isPegIn, isPegOut: $isPegOut");

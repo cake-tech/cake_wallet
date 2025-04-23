@@ -24,6 +24,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
@@ -44,6 +45,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.amountValue,
     required this.fiatAmountValue,
     required this.fee,
+    this.feeRate,
     required this.feeValue,
     required this.feeFiatAmount,
     required this.outputs,
@@ -119,6 +121,16 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             itemSubTitleTextStyle: itemSubTitleTextStyle,
             tileBackgroundColor: tileBackgroundColor,
           ),
+          if (feeRate != null && feeRate!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            StandardTile(
+              itemTitle: S.current.send_estimated_fee,
+              itemValue: "$feeRate sat/byte",
+              itemTitleTextStyle: itemTitleTextStyle,
+              itemSubTitleTextStyle: itemSubTitleTextStyle,
+              tileBackgroundColor: tileBackgroundColor,
+            ),
+          ],
           const SizedBox(height: 8),
           Column(
             children: [
@@ -237,7 +249,7 @@ class StandardTile extends StatelessWidget {
     required this.itemValue,
     required this.itemTitleTextStyle,
     this.itemSubTitle,
-    required this.itemSubTitleTextStyle,
+    this.itemSubTitleTextStyle,
     required this.tileBackgroundColor,
   });
 
@@ -245,7 +257,7 @@ class StandardTile extends StatelessWidget {
   final String itemValue;
   final TextStyle itemTitleTextStyle;
   final String? itemSubTitle;
-  final TextStyle itemSubTitleTextStyle;
+  final TextStyle? itemSubTitleTextStyle;
   final Color tileBackgroundColor;
 
   @override
@@ -267,7 +279,7 @@ class StandardTile extends StatelessWidget {
                 Text(itemValue, style: itemTitleTextStyle),
                 itemSubTitle == null
                     ? Container()
-                    : Text(itemSubTitle!, style: itemSubTitleTextStyle),
+                    : Text(itemSubTitle!, style: itemSubTitleTextStyle!),
               ],
             ),
           ],
@@ -388,31 +400,21 @@ class AddressExpansionTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AddressFormatter.buildSegmentedAddress(
-                          address: address,
-                          walletType: walletType,
-                          evenTextStyle: TextStyle(
-                            fontSize: 12,
+                        Text(
+                          isBatchSending ? name : contactType,
+                          style: itemTitleTextStyle,
+                          softWrap: true,
+                        ),
+                        Text(
+                          isBatchSending ? amount : name,
+                          style: TextStyle(
+                            fontSize: 14,
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w600,
                             color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                             decoration: TextDecoration.none,
                           ),
                         ),
-                        if (stealthAddressText(stealthAddress) != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: AddressFormatter.buildSegmentedAddress(
-                              address: stealthAddressText(stealthAddress)!,
-                              walletType: walletType,
-                              evenTextStyle: TextStyle(
-                                  fontSize: 12,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                  decoration: TextDecoration.none),
-                            ),
-                          ),
                       ],
                     ),
                   ),
@@ -422,15 +424,38 @@ class AddressExpansionTile extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: AddressFormatter.buildSegmentedAddress(
-                          address: address,
-                          walletType: walletType,
-                          evenTextStyle: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                              decoration: TextDecoration.none)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (stealthAddress != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                "Stealth Address:",
+                                style: itemSubTitleTextStyle,
+                              ),
+                            ),
+                          AddressFormatter.buildSegmentedAddress(
+                            address: address,
+                            walletType: walletType,
+                            evenTextStyle: itemSubTitleTextStyle,
+                          ),
+                          if (stealthAddress != null) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                "Generated Address:",
+                                style: itemSubTitleTextStyle,
+                              ),
+                            ),
+                            AddressFormatter.buildSegmentedAddress(
+                              address: stealthAddress!,
+                              walletType: walletType,
+                              evenTextStyle: itemSubTitleTextStyle,
+                            ),
+                          ]
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -441,12 +466,4 @@ class AddressExpansionTile extends StatelessWidget {
       ),
     );
   }
-}
-
-String? stealthAddressText(String? stealthAddress) {
-  if (stealthAddress == null) {
-    return null;
-  }
-
-  return stealthAddress.isNotEmpty ? "-> $stealthAddress" : null;
 }

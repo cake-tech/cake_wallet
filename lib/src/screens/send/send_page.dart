@@ -567,6 +567,7 @@ class SendPage extends BasePage {
                   fee: isEVMCompatibleChain(sendViewModel.walletType)
                       ? S.of(bottomSheetContext).send_estimated_fee
                       : S.of(bottomSheetContext).send_fee,
+                  feeRate: sendViewModel.pendingTransaction!.feeRate,
                   feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
@@ -604,8 +605,7 @@ class SendPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return showContactSheet &&
-                      sendViewModel.ocpRequest == null
+              return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,

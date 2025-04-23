@@ -22,6 +22,7 @@ class SyncIndicator extends StatelessWidget {
       final syncIndicatorWidth = 237.0;
       final status = dashboardViewModel.status;
       final statusText = syncStatusTitle(status);
+      final isScanning = status is SyncingSyncStatus;
       final progress = status.progress();
       final indicatorOffset = progress * syncIndicatorWidth;
       final indicatorWidth = progress < 1
@@ -64,7 +65,17 @@ class SyncIndicator extends StatelessWidget {
                       SyncIndicatorIcon(isSynced: status is SyncedSyncStatus),
                       Padding(
                         padding: EdgeInsets.only(left: 6),
-                        child: RollingText(statusText),
+                        child: isScanning
+                            ? Text(
+                                statusText,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
+                                ),
+                              )
+                            : RollingText(statusText),
                       )
                     ],
                   ),

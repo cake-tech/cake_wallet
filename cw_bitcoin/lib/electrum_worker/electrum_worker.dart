@@ -145,6 +145,56 @@ class ElectrumWorker {
     }
   }
 
+  Future<DateResult> _getTxDate(
+    String txid,
+    int currentChainTip, {
+    int? confirmations,
+    DateTime? date,
+  }) async {
+    int? time;
+    int? height;
+    bool? isDateValidated;
+
+    final mempoolApi = ApiProvider.fromMempool(
+      _network!,
+      baseUrl: "https://mempool.cakewallet.com/api/v1",
+    );
+
+    try {
+      final txVerbose = await mempoolApi.getTransaction<MempoolTransaction>(txid);
+
+      final status = txVerbose.status;
+      height = status.blockHeight;
+
+      if (height != null) {
+        final blockHash = await mempoolApi.getBlockHeight(height);
+        final block = await mempoolApi.getBlock(blockHash);
+
+        time = int.parse(block['timestamp'].toString());
+
+        if (date != null) {
+          final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
+          isDateValidated = newDate == date;
+        }
+      }
+    } catch (_) {}
+
+    if (confirmations == null && height != null) {
+      final tip = currentChainTip;
+      if (tip > 0 && height > 0) {
+        // Add one because the block itself is the first confirmation
+        confirmations = tip - height + 1;
+      }
+    }
+
+    return DateResult(
+      time: time,
+      height: height,
+      isDateValidated: isDateValidated,
+      confirmations: confirmations,
+    );
+  }
+
   Future<void> _handleConnect(ElectrumWorkerConnectionRequest request) async {
     _network = request.network;
     _walletType = request.walletType;
@@ -219,6 +269,9 @@ class ElectrumWorker {
             tx.isPending = tx.confirmations == 0;
             anyTxWasUpdated = true;
           }
+        } else {
+          tx.height = newChainTip;
+          tx.confirmations = 0;
         }
       });
 
@@ -477,10 +530,11 @@ class ElectrumWorker {
         final txInfo = ElectrumTransactionInfo.fromElectrumBundle(
           txBundle,
           request.walletType,
-          request.network,
+          _network!,
           addresses: addresses.toSet(),
           height: transactionIdsForHeights[hash],
         );
+        txInfo.updateInputsAndOutputs(txBundle, _network!);
 
         request.addresses.forEach(
           (addr) {
@@ -600,7 +654,7 @@ class ElectrumWorker {
           final txInfo = ElectrumTransactionInfo.fromElectrumBundle(
             txBundle,
             request.walletType,
-            request.network,
+            _network!,
             addresses: addresses.toSet(),
             height: transactionIdsForHeights[hash],
           );
@@ -758,9 +812,8 @@ class ElectrumWorker {
           );
         } else if (request.mempoolAPIEnabled) {
           try {
-            date = await getTxDate(
+            date = await _getTxDate(
               hash,
-              _network!,
               request.chainTip,
               confirmations: storedTx?.confirmations,
               date: storedTx?.date,
@@ -788,7 +841,7 @@ class ElectrumWorker {
             isDateValidated: date?.isDateValidated,
           ),
           request.walletType,
-          request.network,
+          _network!,
           addresses: addresses.toSet(),
           height: transactionsByIds[hash]?.height,
         );
@@ -940,9 +993,8 @@ class ElectrumWorker {
               );
             } else if (request.mempoolAPIEnabled) {
               try {
-                date = await getTxDate(
+                date = await _getTxDate(
                   hash,
-                  _network!,
                   request.chainTip,
                   confirmations: storedTx?.confirmations,
                   date: storedTx?.date,
@@ -973,7 +1025,7 @@ class ElectrumWorker {
                 isDateValidated: date?.isDateValidated,
               ),
               request.walletType,
-              request.network,
+              _network!,
               addresses: addresses.toSet(),
               height: transactionsByIds[hash]?.height,
             );
@@ -1023,37 +1075,6 @@ class ElectrumWorker {
     }));
   }
 
-  // Future<void> _handleListUnspents(ElectrumWorkerGetBalanceRequest request) async {
-  //   final balanceFutures = <Future<Map<String, dynamic>>>[];
-
-  //   for (final scripthash in request.scripthashes) {
-  //     final balanceFuture = _electrumClient!.request(
-  //       ElectrumGetScriptHashBalance(scriptHash: scripthash),
-  //     );
-  //     balanceFutures.add(balanceFuture);
-  //   }
-
-  //   var totalConfirmed = 0;
-  //   var totalUnconfirmed = 0;
-
-  //   final balances = await Future.wait(balanceFutures);
-
-  //   for (final balance in balances) {
-  //     final confirmed = balance['confirmed'] as int? ?? 0;
-  //     final unconfirmed = balance['unconfirmed'] as int? ?? 0;
-  //     totalConfirmed += confirmed;
-  //     totalUnconfirmed += unconfirmed;
-  //   }
-
-  //   _sendResponse(ElectrumWorkerGetBalanceResponse(
-  //     result: ElectrumBalance(
-  //       confirmed: totalConfirmed,
-  //       unconfirmed: totalUnconfirmed,
-  //       frozen: 0,
-  //     ),
-  //   ));
-  // }
-
   Future<void> _handleGetBalance(ElectrumWorkerGetBalanceRequest request) async {
     final scripthashes = request.scripthashes.where((s) => s.isNotEmpty).toList();
     final balanceResults = <Map<String, dynamic>>[];
@@ -1078,22 +1099,26 @@ class ElectrumWorker {
       }));
     }
 
-    var totalConfirmed = 0;
-    var totalUnconfirmed = 0;
+    final balances = <ElectrumBalance>[];
 
     for (final balance in balanceResults) {
       final confirmed = balance['confirmed'] as int? ?? 0;
       final unconfirmed = balance['unconfirmed'] as int? ?? 0;
-      totalConfirmed += confirmed;
-      totalUnconfirmed += unconfirmed;
+
+      balances.add(
+        ElectrumBalance(
+          confirmed: confirmed,
+          unconfirmed: unconfirmed,
+          frozen: 0,
+        ),
+      );
     }
 
     _sendResponse(
       ElectrumWorkerGetBalanceResponse(
-        result: ElectrumBalance(
-          confirmed: totalConfirmed,
-          unconfirmed: totalUnconfirmed,
-          frozen: 0,
+        result: ElectrumGetBalanceResponse(
+          balances: balances,
+          scripthashes: scripthashes,
         ),
         id: request.id,
       ),
@@ -1114,9 +1139,7 @@ class ElectrumWorker {
           )
           .timeout(const Duration(seconds: 3));
 
-      if (scriptHashUnspents.isNotEmpty) {
-        unspents[scriptHash] = scriptHashUnspents;
-      }
+      unspents[scriptHash] = scriptHashUnspents;
     });
 
     _sendResponse(ElectrumWorkerListUnspentResponse(utxos: unspents, id: request.id));
@@ -1337,9 +1360,8 @@ class ElectrumWorker {
     if (getTime && _walletType == WalletType.bitcoin) {
       if (mempoolAPIEnabled) {
         try {
-          dates = await getTxDate(
+          dates = await _getTxDate(
             hash,
-            _network!,
             currentChainTip,
             confirmations: confirmations,
             date: date,
@@ -1418,7 +1440,7 @@ class ElectrumWorker {
         int halfHour = recommendedFees.medium.satoshis;
         int fastest = recommendedFees.high.satoshis;
 
-        // Bitcoin only: adjust fee rates to avoid equal fee values
+        // Adjust fee rates to avoid equal fee values
         // elevated fee should be higher than normal fee
         if (hour == halfHour) {
           halfHour++;
@@ -1566,6 +1588,7 @@ class ElectrumWorker {
       final syncingStatus = scanData.isSingleScan
           ? SyncingSyncStatus(1, 0)
           : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
+
       _sendResponse(ElectrumWorkerTweaksSubscribeResponse(
         result: TweaksSyncResponse(
           height: syncHeight,
@@ -1608,11 +1631,7 @@ class ElectrumWorker {
             }
 
             // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
-            final txDate = await getTxDate(
-              txid,
-              scanData.network,
-              scanData.chainTip,
-            );
+            final txDate = await _getTxDate(txid, scanData.chainTip);
 
             final txInfo = ElectrumTransactionInfo(
               WalletType.bitcoin,
@@ -1651,6 +1670,8 @@ class ElectrumWorker {
                   );
 
                   final labelIndex = labelValue != null ? scanData.labels[label] : 0;
+                  final balance = ElectrumBalance.zero();
+                  balance.confirmed = amount;
 
                   final receivedAddressRecord = BitcoinReceivedSPAddressRecord(
                     receivingOutputAddress,
@@ -1661,7 +1682,7 @@ class ElectrumWorker {
                     isUsed: true,
                     tweak: t_k,
                     txCount: 1,
-                    balance: amount,
+                    balance: balance,
                     spAddress: matchingSPWallet.toAddress(scanData.network),
                   );
 
@@ -1739,10 +1760,10 @@ class ElectrumWorker {
           derivationInfo: request.derivationInfo,
           hdWallet: Bip32Slip10Secp256k1.fromExtendedKey(
             request.xpriv,
-            BitcoinAddressUtils.getKeyNetVersion(request.network),
+            BitcoinAddressUtils.getKeyNetVersion(_network!),
           ),
           seedBytesType: request.seedBytesType,
-          network: request.network,
+          network: _network!,
         );
 
         newAddresses.add(addressRecord);
@@ -1783,57 +1804,6 @@ class DateResult {
     this.isDateValidated,
     this.confirmations,
   });
-}
-
-Future<DateResult> getTxDate(
-  String txid,
-  BasedUtxoNetwork network,
-  int currentChainTip, {
-  int? confirmations,
-  DateTime? date,
-}) async {
-  int? time;
-  int? height;
-  bool? isDateValidated;
-
-  final mempoolApi = ApiProvider.fromMempool(
-    network,
-    baseUrl: "https://mempool.cakewallet.com/api/v1",
-  );
-
-  try {
-    final txVerbose = await mempoolApi.getTransaction<MempoolTransaction>(txid);
-
-    final status = txVerbose.status;
-    height = status.blockHeight;
-
-    if (height != null) {
-      final blockHash = await mempoolApi.getBlockHeight(height);
-      final block = await mempoolApi.getBlock(blockHash);
-
-      time = int.parse(block['timestamp'].toString());
-
-      if (date != null) {
-        final newDate = DateTime.fromMillisecondsSinceEpoch(time * 1000);
-        isDateValidated = newDate == date;
-      }
-    }
-  } catch (_) {}
-
-  if (confirmations == null && height != null) {
-    final tip = currentChainTip;
-    if (tip > 0 && height > 0) {
-      // Add one because the block itself is the first confirmation
-      confirmations = tip - height + 1;
-    }
-  }
-
-  return DateResult(
-    time: time,
-    height: height,
-    isDateValidated: isDateValidated,
-    confirmations: confirmations,
-  );
 }
 
 class TxToFetch {

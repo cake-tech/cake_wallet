@@ -47,10 +47,10 @@ abstract class BitcoinCashWalletAddressesBase extends ElectrumWalletAddresses wi
     );
 
     return BitcoinCashWalletAddresses(
-      walletInfo,
-      hdWallets: hdWallets,
-      network: network,
-      isHardwareWallet: isHardwareWallet,
+      electrumJson.walletInfo,
+      hdWallets: electrumJson.hdWallets,
+      network: electrumJson.network,
+      isHardwareWallet: electrumJson.isHardwareWallet,
       initialAddressesRecords: electrumJson.addressesRecords,
       initialAddressPageType: electrumJson.addressPageType,
       initialActiveAddressIndex: electrumJson.activeIndexByType,

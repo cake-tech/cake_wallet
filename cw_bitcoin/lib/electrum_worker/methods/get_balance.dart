@@ -44,8 +44,44 @@ class ElectrumWorkerGetBalanceError extends ElectrumWorkerErrorResponse {
   final String method = ElectrumRequestMethods.getBalance.method;
 }
 
+class ElectrumGetBalanceResponse {
+  ElectrumGetBalanceResponse({
+    required this.balances,
+    required this.scripthashes,
+  });
+
+  final List<ElectrumBalance> balances;
+  final List<String> scripthashes;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'balances': balances
+          .map((e) => {
+                'confirmed': e.confirmed,
+                'unconfirmed': e.unconfirmed,
+                'frozen': e.frozen,
+              })
+          .toList(),
+      'scripthashes': scripthashes,
+    };
+  }
+
+  factory ElectrumGetBalanceResponse.fromJson(Map<String, dynamic> json) {
+    return ElectrumGetBalanceResponse(
+      balances: (json['balances'] as List)
+          .map((e) => ElectrumBalance(
+                confirmed: e['confirmed'] as int,
+                unconfirmed: e['unconfirmed'] as int,
+                frozen: e['frozen'] as int,
+              ))
+          .toList(),
+      scripthashes: (json['scripthashes'] as List).cast<String>(),
+    );
+  }
+}
+
 class ElectrumWorkerGetBalanceResponse
-    extends ElectrumWorkerResponse<ElectrumBalance, Map<String, int>?> {
+    extends ElectrumWorkerResponse<ElectrumGetBalanceResponse, Map<String, dynamic>> {
   ElectrumWorkerGetBalanceResponse({
     required super.result,
     super.error,
@@ -54,18 +90,14 @@ class ElectrumWorkerGetBalanceResponse
   }) : super(method: ElectrumRequestMethods.getBalance.method);
 
   @override
-  Map<String, int>? resultJson(result) {
-    return {"confirmed": result.confirmed, "unconfirmed": result.unconfirmed};
+  Map<String, dynamic> resultJson(result) {
+    return result.toJson();
   }
 
   @override
   factory ElectrumWorkerGetBalanceResponse.fromJson(Map<String, dynamic> json) {
     return ElectrumWorkerGetBalanceResponse(
-      result: ElectrumBalance(
-        confirmed: json['result']['confirmed'] as int,
-        unconfirmed: json['result']['unconfirmed'] as int,
-        frozen: 0,
-      ),
+      result: ElectrumGetBalanceResponse.fromJson(json['result'] as Map<String, dynamic>),
       error: json['error'] as String?,
       id: json['id'] as int?,
       completed: json['completed'] as bool? ?? false,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -182,6 +183,56 @@ class ElectrumTransactionInfo extends TransactionInfo {
     );
   }
 
+  void updateInputsAndOutputs(ElectrumTransactionBundle bundle, BasedUtxoNetwork network) {
+    inputAddresses = inputAddresses?.where((address) => address.isNotEmpty).toList();
+
+    if (inputAddresses == null ||
+        inputAddresses!.isEmpty ||
+        outputAddresses == null ||
+        outputAddresses!.isEmpty) {
+      final tempInputAddresses = <String>[];
+      final tempOutputAddresses = <String>[];
+
+      if (bundle.ins.length == bundle.originalTransaction.inputs.length) {
+        for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+          final input = bundle.originalTransaction.inputs[i];
+          final inputTransaction = bundle.ins[i];
+          final vout = input.txIndex;
+          final outTransaction = inputTransaction.outputs[vout];
+          final address =
+              BitcoinAddressUtils.addressFromOutputScript(outTransaction.scriptPubKey, network);
+
+          if (address.isNotEmpty) tempInputAddresses.add(address);
+        }
+      }
+
+      for (int i = 0; i < bundle.originalTransaction.outputs.length; i++) {
+        final out = bundle.originalTransaction.outputs[i];
+        final address = BitcoinAddressUtils.addressFromOutputScript(out.scriptPubKey, network);
+
+        if (address.isNotEmpty) tempOutputAddresses.add(address);
+
+        // Check if the script contains OP_RETURN
+        final script = out.scriptPubKey.script;
+        if (script.contains('OP_RETURN')) {
+          final index = script.indexOf('OP_RETURN');
+          if (index + 1 <= script.length) {
+            try {
+              final opReturnData = script[index + 1].toString();
+              final decodedString = StringUtils.decode(BytesUtils.fromHexString(opReturnData));
+              tempOutputAddresses.add('OP_RETURN:$decodedString');
+            } catch (_) {
+              tempOutputAddresses.add('OP_RETURN:');
+            }
+          }
+        }
+      }
+
+      inputAddresses = tempInputAddresses;
+      outputAddresses = tempOutputAddresses;
+    }
+  }
+
   factory ElectrumTransactionInfo.fromElectrumBundle(
     ElectrumTransactionBundle bundle,
     WalletType type,
@@ -254,9 +305,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     final weSent = ourSentAmounts.length > 0;
     final weReceived = ourReceivedAmounts.length > 0;
+    final weReceivedAll = ourReceivedAmounts.length == bundle.originalTransaction.outputs.length;
 
-    if (ourReceivedAmounts.length == bundle.originalTransaction.outputs.length) {
-      // All outputs in this tx were received
+    if (weReceivedAll) {
       direction = TransactionDirection.incoming;
       amount = ourTotalReceivedAmount;
     } else if (weSent && weReceived && ourTotalSentAmount > ourTotalReceivedAmount) {
@@ -277,7 +328,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
     }
 
     final fee = totalInputsAmount - totalOutsAmount;
-    amount = amount - fee;
 
     return ElectrumTransactionInfo(
       type,

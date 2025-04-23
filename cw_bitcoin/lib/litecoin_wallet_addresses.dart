@@ -67,24 +67,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   Future<void> init() async {
     if (!super.isHardwareWallet) await initMwebAddresses();
 
-    // for (final seedBytesType in hdWallets.keys) {
-    //   await generateInitialAddresses(
-    //     addressType: SegwitAddressType.p2wpkh,
-    //     seedBytesType: seedBytesType,
-    //     bitcoinDerivationInfo: seedBytesType.isElectrum
-    //         ? BitcoinDerivationInfos.ELECTRUM
-    //         : BitcoinDerivationInfos.LITECOIN,
-    //   );
-
-    //   if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
-    //     await generateInitialMWEBAddresses(
-    //       addressType: SegwitAddressType.mweb,
-    //       seedBytesType: seedBytesType,
-    //     );
-    //   }
-    // }
-
-    await super.init();
+    super.init();
   }
 
   @action
