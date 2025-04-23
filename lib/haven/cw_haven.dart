@@ -21,24 +21,11 @@ class HavenWalletService extends WalletService {
 
   @override
   Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: WalletType.haven);
-
-    final file = Directory(path);
-    final isExist = file.existsSync();
-
-    if (isExist) {
-      await file.delete(recursive: true);
-    }
-
-    final walletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
-    await walletInfoSource.delete(walletInfo.key);
+    throw UnimplementedError();
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> create(
-      WalletCredentials credentials,
-      {bool? isTestnet}) {
+  Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) {
     throw UnimplementedError();
   }
 
@@ -48,8 +35,7 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(
-      String name, String password) {
+  Future<WalletBase> openWallet(String name, String password) {
     throw UnimplementedError();
   }
 
@@ -59,20 +45,17 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromHardwareWallet(WalletCredentials credentials) {
+  Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) {
     throw UnimplementedError();
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) {
+  Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) {
     throw UnimplementedError();
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) {
+  Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) {
     throw UnimplementedError();
   }
 }
