@@ -192,11 +192,20 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         printV("closing wallet");
         final wmaddr = wmPtr.ffiAddress();
         final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
-        await Isolate.run(() {
-          monero.WalletManager_closeWallet(
-              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-        });
         openedWalletsByPath.remove("$currentWalletDirPath/$name");
+        if (Platform.isWindows) {
+          await Isolate.run(() {
+            monero.WalletManager_closeWallet(
+                Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+            monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+          });
+        } else {
+          unawaited(Isolate.run(() {
+            monero.WalletManager_closeWallet(
+                Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+            monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+          }));
+        }
         currentWallet = null;
         printV("wallet closed");
       }
@@ -492,18 +501,20 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       printV("closing wallet");
       final wmaddr = wmPtr.ffiAddress();
       final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
+      openedWalletsByPath.remove("$currentWalletDirPath/$name");
       if (Platform.isWindows) {
         await Isolate.run(() {
           monero.WalletManager_closeWallet(
               Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
         });
       } else {
         unawaited(Isolate.run(() {
           monero.WalletManager_closeWallet(
               Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
         }));
       }
-      openedWalletsByPath.remove("$currentWalletDirPath/$name");
       printV("wallet closed");
     }
     try {

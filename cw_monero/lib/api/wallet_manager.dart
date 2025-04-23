@@ -361,7 +361,7 @@ Future<void> loadWallet(
     /// 0: Software Wallet
     /// 1: Ledger
     /// 2: Trezor
-    late final deviceType;
+    var deviceType = 0;
 
     if (Platform.isAndroid || Platform.isIOS) {
       deviceType = wmPtr.queryWalletDevice( 
@@ -372,7 +372,13 @@ Future<void> loadWallet(
       final status = wmPtr.errorString();
       if (status != "") {
         printV("loadWallet:"+status);
-        throw WalletOpeningException(message: status);
+        // This is most likely closeWallet call leaking error. This is fine.
+        if (status.contains("failed to save file")) {
+          printV("loadWallet: error leaked: $status");
+          deviceType = 0;
+        } else {
+          throw WalletOpeningException(message: status);
+        }
       }
     } else {
       deviceType = 0;

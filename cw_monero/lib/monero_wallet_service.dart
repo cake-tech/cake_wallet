@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:collection/collection.dart';
 import 'package:cw_core/get_height_by_date.dart';
@@ -21,6 +23,7 @@ import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:monero/src/monero.dart' as m;
+import 'package:monero/monero.dart' as monero;
 import 'package:polyseed/polyseed.dart';
 
 enum MoneroSeedType { polyseed, legacy, bip39 }
@@ -218,8 +221,22 @@ class MoneroWalletService extends WalletService<
       // NOTE: this is realistically only required on windows.
       printV("closing wallet");
       final w = openedWalletsByPath["$path/$wallet"]!;
-      monero_wallet_manager.wmPtr.closeWallet(w, false);
+      final wmaddr = wmPtr.ffiAddress();
+      final waddr = w.ffiAddress();
       openedWalletsByPath.remove("$path/$wallet");
+      if (Platform.isWindows) {
+        await Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+        });
+      } else {
+        unawaited(Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+        }));
+      }
       printV("wallet closed");
     }
 
