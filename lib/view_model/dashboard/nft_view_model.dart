@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
@@ -117,7 +117,7 @@ abstract class NFTViewModelBase with Store {
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
-          message: S.current.moralis_error_message,
+          message: S.current.moralis_nft_error,
         ),
       );
     } finally {

@@ -1,5 +1,5 @@
-import 'package:cake_wallet/core/wallet_connect/models/bottom_sheet_queue_item_model.dart';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 import 'package:flutter/material.dart';
 
 class BottomSheetListener extends StatefulWidget {
@@ -64,6 +64,22 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
+                        padding: const EdgeInsets.all(0.0),
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () {
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        },
+                        icon: const Icon(Icons.close_sharp),
+                      ),
+                    ],
+                  ),
                   Flexible(child: item.widget),
                 ],
               ),

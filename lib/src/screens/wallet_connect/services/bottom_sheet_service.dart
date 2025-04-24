@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
-import 'package:cake_wallet/core/wallet_connect/models/bottom_sheet_queue_item_model.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 import 'package:flutter/material.dart';
+
+enum WCBottomSheetResult { reject, one, all }
 
 abstract class BottomSheetService {
   abstract final ValueNotifier<BottomSheetQueueItemModel?> currentSheet;
@@ -36,12 +38,15 @@ class BottomSheetServiceImpl implements BottomSheetService {
       isModalDismissible: isModalDismissible,
     );
 
+    // If the current sheet it null, set it to the queue item
     if (currentSheet.value == null) {
       currentSheet.value = queueItem;
     } else {
+      // Otherwise, add it to the queue
       queue.add(queueItem);
     }
 
+    // Return the future
     return await completer.future;
   }
 
