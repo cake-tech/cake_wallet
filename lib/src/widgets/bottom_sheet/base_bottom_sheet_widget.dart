@@ -33,7 +33,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (titleIconPath != null)
-              Image.asset(titleIconPath!, height: 24, width: 24)
+              Image.asset(titleIconPath!, height: 24, width: 24, excludeFromSemantics: true)
             else
               Container(),
             const SizedBox(width: 6),

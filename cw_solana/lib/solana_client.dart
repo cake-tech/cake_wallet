@@ -171,37 +171,85 @@ class SolanaWalletClient {
 
         if (programId == SystemProgramConst.programId) {
           // For native solana transactions
-          if (instruction.accounts.length < 2) continue;
-          final senderIndex = instruction.accounts[0];
-          final receiverIndex = instruction.accounts[1];
 
-          sender = message.accountKeys[senderIndex].address;
-          receiver = message.accountKeys[receiverIndex].address;
+          if (txResponse.version == TransactionType.legacy) {
+            // For legacy transfers, the fee payer (index 0) is the sender.
+            sender = message.accountKeys[0].address;
 
-          final feeForTx = fee / SolanaUtils.lamportsPerSol;
+            final senderPreBalance = meta.preBalances[0];
+            final senderPostBalance = meta.postBalances[0];
+            final feeForTx = fee / SolanaUtils.lamportsPerSol;
 
-          final preBalances = meta.preBalances;
-          final postBalances = meta.postBalances;
+            // The loss on the sender's account would include both the transfer amount and the fee.
+            // So we would subtract the fee to calculate the actual amount that was transferred (in lamports).
+            final transferLamports = (senderPreBalance - senderPostBalance) - BigInt.from(fee);
 
-          final amountInString =
-              (((preBalances[senderIndex] - postBalances[senderIndex]) / BigInt.from(1e9))
-                          .toDouble() -
-                      feeForTx)
-                  .toStringAsFixed(6);
+            // Next, we attempt to find the receiver by comparing the balance changes.
+            // (The index 0 is for the sender so we skip it.)
+            bool foundReceiver = false;
+            for (int i = 1; i < meta.preBalances.length; i++) {
+              // The increase in balance on the receiver account should correspond to the transfer amount we calculated earlieer.
+              final pre = meta.preBalances[i];
+              final post = meta.postBalances[i];
+              if ((post - pre) == transferLamports) {
+                receiver = message.accountKeys[i].address;
+                foundReceiver = true;
+                break;
+              }
+            }
 
-          final amount = double.parse(amountInString);
+            if (!foundReceiver) {
+              // Optionally (and rarely), if no account shows the exact expected change,
+              // we set the receiver address to unknown.
+              receiver = "unknown";
+            }
 
-          return SolanaTransactionModel(
-            isOutgoingTx: sender == walletAddress,
-            from: sender,
-            to: receiver,
-            id: signature,
-            amount: amount.abs(),
-            programId: SystemProgramConst.programId.address,
-            tokenSymbol: 'SOL',
-            blockTimeInInt: blockTime?.toInt() ?? 0,
-            fee: feeForTx,
-          );
+            final amount = transferLamports / BigInt.from(1e9);
+
+            return SolanaTransactionModel(
+              isOutgoingTx: sender == walletAddress,
+              from: sender,
+              to: receiver,
+              id: signature,
+              amount: amount.abs(),
+              programId: SystemProgramConst.programId.address,
+              tokenSymbol: 'SOL',
+              blockTimeInInt: blockTime?.toInt() ?? 0,
+              fee: feeForTx,
+            );
+          } else {
+            if (instruction.accounts.length < 2) continue;
+            final senderIndex = instruction.accounts[0];
+            final receiverIndex = instruction.accounts[1];
+
+            sender = message.accountKeys[senderIndex].address;
+            receiver = message.accountKeys[receiverIndex].address;
+
+            final feeForTx = fee / SolanaUtils.lamportsPerSol;
+
+            final preBalances = meta.preBalances;
+            final postBalances = meta.postBalances;
+
+            final amountInString =
+                (((preBalances[senderIndex] - postBalances[senderIndex]) / BigInt.from(1e9))
+                            .toDouble() -
+                        feeForTx)
+                    .toStringAsFixed(6);
+
+            final amount = double.parse(amountInString);
+
+            return SolanaTransactionModel(
+              isOutgoingTx: sender == walletAddress,
+              from: sender,
+              to: receiver,
+              id: signature,
+              amount: amount.abs(),
+              programId: SystemProgramConst.programId.address,
+              tokenSymbol: 'SOL',
+              blockTimeInInt: blockTime?.toInt() ?? 0,
+              fee: feeForTx,
+            );
+          }
         } else if (programId == SPLTokenProgramConst.tokenProgramId) {
           // For SPL Token transactions
           if (instruction.accounts.length < 2) continue;
@@ -254,8 +302,9 @@ class SolanaWalletClient {
           final receiver = message.accountKeys[instruction.accounts[1]].address;
 
           String? tokenSymbol = splTokenSymbol;
+
           if (tokenSymbol == null && mintAddress != null) {
-            final token = await fetchSPLTokenInfo(mintAddress);
+            final token = await getTokenInfo(mintAddress);
             tokenSymbol = token?.symbol;
           }
 
@@ -288,9 +337,9 @@ class SolanaWalletClient {
     int? splTokenDecimal,
     Commitment? commitment,
     SolAddress? walletAddress,
+    required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
     List<SolanaTransactionModel> transactions = [];
-
     try {
       final signatures = await _provider!.request(
         SolanaRPCGetSignaturesForAddress(
@@ -299,10 +348,11 @@ class SolanaWalletClient {
         ),
       );
 
-      final List<VersionedTransactionResponse?> transactionDetails = [];
+      // The maximum concurrent batch size.
+      const int batchSize = 10;
 
-      for (int i = 0; i < signatures.length; i += 20) {
-        final batch = signatures.skip(i).take(20).toList(); // Get the next 20 signatures
+      for (int i = 0; i < signatures.length; i += batchSize) {
+        final batch = signatures.skip(i).take(batchSize).toList();
 
         final batchResponses = await Future.wait(batch.map((signature) async {
           try {
@@ -314,27 +364,28 @@ class SolanaWalletClient {
               ),
             );
           } catch (e) {
-            printV("Error fetching transaction: $e");
+            // printV("Error fetching transaction: $e");
             return null;
           }
         }));
 
-        transactionDetails.addAll(batchResponses.whereType<VersionedTransactionResponse>());
+        final versionedBatchResponses = batchResponses.whereType<VersionedTransactionResponse>();
 
-        // to avoid reaching the node RPS limit
-        if (i + 20 < signatures.length) {
+        final parsedTransactionsFutures = versionedBatchResponses.map((tx) => parseTransaction(
+              txResponse: tx,
+              splTokenSymbol: splTokenSymbol,
+              walletAddress: walletAddress?.address ?? address.address,
+            ));
+
+        final parsedTransactions = await Future.wait(parsedTransactionsFutures);
+
+        transactions.addAll(parsedTransactions.whereType<SolanaTransactionModel>().toList());
+
+        // Calling the callback after each batch is processed, therefore passing the current list of transactions.
+        onUpdate(List<SolanaTransactionModel>.from(transactions));
+
+        if (i + batchSize < signatures.length) {
           await Future.delayed(const Duration(milliseconds: 500));
-        }
-      }
-
-      for (final tx in transactionDetails) {
-        final parsedTx = await parseTransaction(
-          txResponse: tx,
-          splTokenSymbol: splTokenSymbol,
-          walletAddress: walletAddress?.address ?? address.address,
-        );
-        if (parsedTx != null) {
-          transactions.add(parsedTx);
         }
       }
 
@@ -350,6 +401,7 @@ class SolanaWalletClient {
     required String splTokenSymbol,
     required int splTokenDecimal,
     required SolanaPrivateKey privateKey,
+    required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
     ProgramDerivedAddress? associatedTokenAccount;
     final ownerWalletAddress = privateKey.publicKey().toAddress();
@@ -373,9 +425,24 @@ class SolanaWalletClient {
       splTokenSymbol: splTokenSymbol,
       splTokenDecimal: splTokenDecimal,
       walletAddress: ownerWalletAddress,
+      onUpdate: onUpdate,
     );
 
     return tokenTransactions;
+  }
+
+  final Map<String, SPLToken?> tokenInfoCache = {};
+
+  Future<SPLToken?> getTokenInfo(String mintAddress) async {
+    if (tokenInfoCache.containsKey(mintAddress)) {
+      return tokenInfoCache[mintAddress];
+    } else {
+      final token = await fetchSPLTokenInfo(mintAddress);
+      if (token != null) {
+        tokenInfoCache[mintAddress] = token;
+      }
+      return token;
+    }
   }
 
   Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
@@ -747,9 +814,7 @@ class SolanaWalletClient {
     } catch (e) {
       associatedRecipientAccount = null;
 
-      throw SolanaCreateAssociatedTokenAccountException(
-        'Error fetching recipient associated token account: ${e.toString()}',
-      );
+      throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
 
     if (associatedRecipientAccount == null) {

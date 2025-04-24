@@ -62,6 +62,11 @@ String getSeed() {
     }
     return cakepolyseed;
   }
+
+  final bip39 = monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed.bip39");
+
+  if(bip39.isNotEmpty) return bip39;
+
   final legacy = getSeedLegacy(null);
   return legacy;
 }

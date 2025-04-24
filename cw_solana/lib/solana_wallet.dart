@@ -167,10 +167,10 @@ abstract class SolanaWalletBase
 
     try {
       final keypairBytes = Base58Decoder.decode(privateKey!);
-      return SolanaPrivateKey.fromSeed(keypairBytes);
+      return SolanaPrivateKey.fromBytes(keypairBytes);
     } catch (_) {
       final privateKeyBytes = HEX.decode(privateKey!);
-      return SolanaPrivateKey.fromBytes(privateKeyBytes);
+      return SolanaPrivateKey.fromSeed(privateKeyBytes);
     }
   }
 
@@ -292,9 +292,14 @@ abstract class SolanaWalletBase
   @override
   Future<Map<String, SolanaTransactionInfo>> fetchTransactions() async => {};
 
+  void updateTransactions(List<SolanaTransactionModel> updatedTx) {
+    _addTransactionsToTransactionHistory(updatedTx);
+  }
+
   /// Fetches the native SOL transactions linked to the wallet Public Key
   Future<void> _updateNativeSOLTransactions() async {
-    final transactions = await _client.fetchTransactions(_solanaPublicKey.toAddress());
+    final transactions =
+        await _client.fetchTransactions(_solanaPublicKey.toAddress(), onUpdate: updateTransactions);
 
     await _addTransactionsToTransactionHistory(transactions);
   }
@@ -313,6 +318,7 @@ abstract class SolanaWalletBase
           splTokenSymbol: token.symbol,
           splTokenDecimal: token.decimal,
           privateKey: _solanaPrivateKey,
+          onUpdate: updateTransactions,
         );
 
         // splTokenTransactions.addAll(tokenTxs);

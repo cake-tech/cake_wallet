@@ -11,7 +11,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +36,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
   static const List<CryptoCurrency> _notSupportedCrypto = [];
   static const List<FiatCurrency> _notSupportedFiat = [];
+  static Map<String, dynamic> _onrampMetadata = {};
 
   final SettingsStore _settingsStore;
 
@@ -59,11 +59,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
-    final params = {
-      'fiatCurrency': fiatCurrency,
-      'type': isBuyAction ? 'buy' : 'sell',
-      'isRecurringPayment': 'false'
-    };
+
+    final params = {'type': isBuyAction ? 'buy' : 'sell'};
 
     final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$fiatCurrency', params);
 
@@ -136,16 +133,14 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
-    final normalizedCryptoCurrency = _getNormalizeCryptoCurrency(cryptoCurrency);
+    final normalizedCryptoCurrency =
+        cryptoCurrency.title + _getNormalizeNetwork(cryptoCurrency).toUpperCase();
 
     final params = {
       'amount': amount.toString(),
       if (paymentMethod != null) 'paymentMethod': paymentMethod,
       'clientName': 'CakeWallet',
-      'type': actionType,
-      'walletAddress': walletAddress,
-      'isRecurringPayment': 'false',
-      'input': 'source',
+      if (actionType == 'sell') 'type': actionType,
     };
 
     log('Onramper: Fetching $actionType quote: ${isBuyAction ? normalizedCryptoCurrency : fiatCurrency.name} -> ${isBuyAction ? fiatCurrency.name : normalizedCryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
@@ -165,7 +160,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
         List<Quote> validQuotes = [];
 
-        final onrampMetadata = await getOnrampMetadata();
+        if (_onrampMetadata.isEmpty) _onrampMetadata = await getOnrampMetadata();
 
         for (var item in data) {
 
@@ -174,12 +169,12 @@ class OnRamperBuyProvider extends BuyProvider {
           final paymentMethod = (item as Map<String, dynamic>)['paymentMethod'] as String;
 
           final rampId = item['ramp'] as String?;
-          final rampMetaData = onrampMetadata[rampId] as Map<String, dynamic>?;
+          final rampMetaData = _onrampMetadata[rampId] as Map<String, dynamic>?;
 
           if (rampMetaData == null) continue;
 
           final quote = Quote.fromOnramperJson(
-              item, isBuyAction, onrampMetadata, _getPaymentTypeByString(paymentMethod));
+              item, isBuyAction, _onrampMetadata, _getPaymentTypeByString(paymentMethod));
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
@@ -206,7 +201,6 @@ class OnRamperBuyProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     final actionType = isBuyAction ? 'buy' : 'sell';
-    final prefix = actionType == 'sell' ? actionType + '_' : '';
 
     final primaryColor = getColorStr(Theme.of(context).primaryColor);
     final secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
@@ -220,18 +214,20 @@ class OnRamperBuyProvider extends BuyProvider {
       cardColor = getColorStr(Colors.white);
     }
 
-    final defaultCrypto = _getNormalizeCryptoCurrency(quote.cryptoCurrency);
+    final defaultCrypto =
+        quote.cryptoCurrency.title + _getNormalizeNetwork(quote.cryptoCurrency).toLowerCase();
 
     final paymentMethod = normalizePaymentMethod(quote.paymentType);
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
-      'mode': actionType,
-      '${prefix}defaultFiat': quote.fiatCurrency.name,
-      '${prefix}defaultCrypto': defaultCrypto,
-      '${prefix}defaultAmount': amount.toString(),
-      if (paymentMethod != null) '${prefix}defaultPaymentMethod': paymentMethod,
-      'onlyOnramps': quote.rampId,
+      'txnType': actionType,
+      'txnFiat': quote.fiatCurrency.name,
+      'txnCrypto': defaultCrypto,
+      'txnAmount': amount.toString(),
+      'skipTransactionScreen': "true",
+      if (paymentMethod != null) 'txnPaymentMethod': paymentMethod,
+      'txnOnramp': quote.rampId,
       'networkWallets': '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress',
       'supportSwap': "false",
       'primaryColor': primaryColor,
@@ -245,7 +241,7 @@ class OnRamperBuyProvider extends BuyProvider {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      throw Exception('Could not launch URL');
+      throw Exception('Could not launch URL ${uri.toString()}');
     }
   }
 
@@ -257,31 +253,29 @@ class OnRamperBuyProvider extends BuyProvider {
 
   String _tagToNetwork(String tag) {
     switch (tag) {
-      case 'OMNI':
-      case 'BSC':
-        return tag;
       case 'POL':
         return 'POLYGON';
+      case 'ETH':
+        return 'ETHEREUM';
+      case 'TRX':
+        return 'TRON';
+      case 'SOL':
+        return 'SOLANA';
       case 'ZEC':
         return 'ZCASH';
-    default:
-        try {
-          return CryptoCurrency.fromString(tag).fullName!;
-        } catch (_) {
-          return tag;
-        }
+      default:
+        return tag;
     }
   }
 
-  String _getNormalizeCryptoCurrency(Currency currency) {
-    if (currency is CryptoCurrency) {
-      if (!mainCurrency.contains(currency)) {
-        final network = currency.tag == null ? currency.fullName : _tagToNetwork(currency.tag!);
-        return '${currency.title}_${network?.replaceAll(' ', '')}'.toUpperCase();
-      }
-      return currency.title.toUpperCase();
-    }
-    return currency.name.toUpperCase();
+  String _getNormalizeNetwork(CryptoCurrency currency) {
+    if (mainCurrency.contains(currency)) return '';
+
+    if (currency == CryptoCurrency.eos) return '_EOSIO';
+
+    if (currency.tag != null) return '_' + _tagToNetwork(currency.tag!);
+
+    return '_' + (currency.fullName?.replaceAll(' ', '') ?? currency.title);
   }
 
   String? normalizePaymentMethod(PaymentType paymentType) {

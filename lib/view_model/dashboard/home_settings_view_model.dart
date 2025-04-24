@@ -221,7 +221,8 @@ abstract class HomeSettingsViewModelBase with Store {
     }
 
     // check if the contractAddress is in the defaultTokenAddresses
-    bool isInWhitelist = defaultTokenAddresses.any((element) => element == contractAddress);
+    bool isInWhitelist = defaultTokenAddresses
+        .any((element) => element.toLowerCase() == contractAddress.toLowerCase());
     return isInWhitelist;
   }
 
