@@ -1452,7 +1452,6 @@ Future<void> setup({
     () => WalletConnectConnectionsView(walletKitService: getIt.get<WalletKitService>()),
   );
 
-  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
