@@ -1,10 +1,10 @@
-class ConnectionModel {
+class WCConnectionModel {
   final String? title;
   final String? text;
   final List<String>? elements;
   final Map<String, void Function()>? elementActions;
 
-  ConnectionModel({
+  WCConnectionModel({
     this.title,
     this.text,
     this.elements,
@@ -13,6 +13,6 @@ class ConnectionModel {
 
   @override
   String toString() {
-    return 'WalletConnectRequestModel(title: $title, text: $text, elements: $elements, elementActions: $elementActions)';
+    return 'WCConnectionModel(title: $title, text: $text, elements: $elements, elementActions: $elementActions)';
   }
 }

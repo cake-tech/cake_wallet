@@ -890,6 +890,7 @@ class SolanaWalletClient {
   }) async {
     /// Sign the transaction with the owner's private key.
     final ownerSignature = ownerPrivateKey.sign(transaction.serializeMessage());
+    
     transaction.addSignature(ownerPrivateKey.publicKey().toAddress(), ownerSignature);
 
     /// Serialize the transaction.
