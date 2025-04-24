@@ -1,7 +1,8 @@
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
+
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -49,9 +50,9 @@ abstract class AppStoreBase with Store {
     this.wallet!.setExceptionHandler(ExceptionHandler.onError);
 
     if (isWalletConnectCompatibleChain(wallet.type)) {
-      await getIt.get<Web3WalletService>().onDispose();
-      getIt.get<Web3WalletService>().create();
-      await getIt.get<Web3WalletService>().init();
+      await getIt.get<WalletKitService>().onDispose();
+      getIt.get<WalletKitService>().create();
+      await getIt.get<WalletKitService>().init();
     }
     getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
     getIt
