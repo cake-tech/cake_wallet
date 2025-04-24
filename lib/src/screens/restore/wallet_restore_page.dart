@@ -9,8 +9,10 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/add_passphrase_bottom_sheet
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
@@ -53,7 +55,6 @@ class WalletRestorePage extends BasePage {
   // DerivationType derivationType = DerivationType.unknown;
   // String? derivationPath = null;
   DerivationInfo? derivationInfo;
-
 
   @override
   Function(BuildContext)? get popWidget => (context) => seedSettingsViewModel.setPassphrase(null);
@@ -121,6 +122,29 @@ class WalletRestorePage extends BasePage {
                       Observer(
                         builder: (context) {
                           return LoadingPrimaryButton(
+                            key: ValueKey('wallet_restore_advanced_settings_button_key'),
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(
+                                Routes.advancedPrivacySettings,
+                                arguments: {
+                                  'isFromRestore': true,
+                                  'type': walletRestoreViewModel.type,
+                                  'useTestnet': walletRestoreViewModel.useTestnet,
+                                  'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
+                                },
+                              );
+                            },
+                            text: S.of(context).advanced_settings,
+                            color: Theme.of(context).cardColor,
+                            textColor:
+                                Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                          );
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      Observer(
+                        builder: (context) {
+                          return LoadingPrimaryButton(
                             key: ValueKey('wallet_restore_seed_or_key_restore_button_key'),
                             onPressed: () async {
                               if (walletRestoreViewModel.hasPassphrase) {
@@ -153,31 +177,16 @@ class WalletRestorePage extends BasePage {
                             text: walletRestoreViewModel.hasPassphrase
                                 ? S.of(context).add_passphrase
                                 : S.of(context).restore_recover,
-                            color: Theme.of(context)
-                                .extension<WalletListTheme>()!
-                                .createNewWalletButtonBackgroundColor,
-                            textColor: Theme.of(context)
-                                .extension<WalletListTheme>()!
-                                .restoreWalletButtonTextColor,
+                            color: Theme.of(context).primaryColor,
+                            textColor: currentTheme.type == ThemeType.dark
+                                ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
+                                : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                             isLoading: walletRestoreViewModel.state is IsExecutingState,
                             isDisabled: !walletRestoreViewModel.isButtonEnabled,
                           );
                         },
                       ),
-                      const SizedBox(height: 25),
-                      GestureDetector(
-                        key: ValueKey('wallet_restore_advanced_settings_button_key'),
-                        onTap: () {
-                          Navigator.of(context)
-                              .pushNamed(Routes.advancedPrivacySettings, arguments: {
-                            'isFromRestore': true,
-                            'type': walletRestoreViewModel.type,
-                            'useTestnet': walletRestoreViewModel.useTestnet,
-                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
-                          });
-                        },
-                        child: Text(S.of(context).advanced_settings),
-                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 )
@@ -225,9 +234,10 @@ class WalletRestorePage extends BasePage {
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
         credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
         if (walletRestoreViewModel.type != WalletType.decred) {
-          credentials['address'] = walletRestoreFromKeysFormKey.currentState!.addressController.text;
+          credentials['address'] =
+              walletRestoreFromKeysFormKey.currentState!.addressController.text;
           credentials['spendKey'] =
-             walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
+              walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
           credentials['height'] =
               walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
         }
@@ -388,8 +398,8 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
     final initialIndex = walletRestoreViewModel.mode == WalletRestoreMode.seed
         ? 0
         : _hasKeysTab
-        ? 1
-        : 0;
+            ? 1
+            : 0;
 
     _tabController = TabController(length: tabCount, vsync: this, initialIndex: initialIndex);
 
@@ -482,7 +492,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
               padding: EdgeInsets.zero,
               tabs: [
                 Tab(text: S.of(context).widgets_seed),
-                if (_hasKeysTab)  Tab(text: S.of(context).keys),
+                if (_hasKeysTab) Tab(text: S.of(context).keys),
               ],
             ),
           ),
@@ -580,42 +590,30 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
   }
 
   bool _isValidSeed() {
-    final seedPhrase = walletRestoreFromSeedFormKey
-        .currentState!.seedWidgetStateKey.currentState!.text;
+    final seedPhrase =
+        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
     if (walletRestoreViewModel.isPolyseed(seedPhrase)) return true;
 
     final seedWords = seedPhrase.split(' ');
 
-    if (seedWords.length == 14 &&
-        walletRestoreViewModel.type == WalletType.wownero) return true;
-    if (seedWords.length == 26 &&
-        walletRestoreViewModel.type == WalletType.zano) return true;
+    if (seedWords.length == 14 && walletRestoreViewModel.type == WalletType.wownero) return true;
+    if (seedWords.length == 26 && walletRestoreViewModel.type == WalletType.zano) return true;
 
-    if (seedWords.length == 12 &&
-        walletRestoreViewModel.type == WalletType.monero) {
-      return walletRestoreFromSeedFormKey
-          .currentState
-          ?.blockchainHeightKey
-          .currentState
-          ?.restoreHeightController
-          .text
-          .isNotEmpty == true;
+    if (seedWords.length == 12 && walletRestoreViewModel.type == WalletType.monero) {
+      return walletRestoreFromSeedFormKey.currentState?.blockchainHeightKey.currentState
+              ?.restoreHeightController.text.isNotEmpty ==
+          true;
     }
 
     if ([WalletType.monero, WalletType.wownero, WalletType.haven]
             .contains(walletRestoreViewModel.type) &&
-        seedWords.length ==
-            WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
+        seedWords.length == WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
       return true;
     }
 
     // bip39:
     final validBip39SeedLengths = [12, 18, 24];
-    final nonBip39WalletTypes = [
-      WalletType.wownero,
-      WalletType.haven,
-      WalletType.decred
-    ];
+    final nonBip39WalletTypes = [WalletType.wownero, WalletType.haven, WalletType.decred];
     // if it's a bip39 wallet and the length is not valid return false
     if (!nonBip39WalletTypes.contains(walletRestoreViewModel.type) &&
         !(validBip39SeedLengths.contains(seedWords.length))) {
@@ -623,14 +621,12 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
     }
 
     if ((walletRestoreViewModel.type == WalletType.decred) &&
-        seedWords.length !=
-            WalletRestoreViewModelBase.decredSeedMnemonicLength) {
+        seedWords.length != WalletRestoreViewModelBase.decredSeedMnemonicLength) {
       return false;
     }
 
-    final words = walletRestoreFromSeedFormKey
-        .currentState!.seedWidgetStateKey.currentState!.words
-        .toSet();
+    final words =
+        walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.words.toSet();
     return seedWords.toSet().difference(words).toSet().isEmpty;
   }
 

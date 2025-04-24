@@ -40,8 +40,8 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
     super.dispose();
   }
 
-  bool obscurePassphrase = false;
-  bool obscureConfirmPassphrase = false;
+  bool obscurePassphrase = true;
+  bool obscureConfirmPassphrase = true;
 
   @override
   Widget build(BuildContext context) {
