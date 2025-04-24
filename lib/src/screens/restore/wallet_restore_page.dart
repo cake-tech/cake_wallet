@@ -5,8 +5,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/add_passphrase_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -104,10 +106,53 @@ class WalletRestorePage extends BasePage {
                     children: [
                       Observer(
                         builder: (context) {
+                          return walletRestoreViewModel.mode == WalletRestoreMode.seed
+                              ? StandardCheckbox(
+                                  value: walletRestoreViewModel.hasPassphrase,
+                                  caption: S.of(context).wallet_has_passphrase,
+                                  onChanged: (value) {
+                                    walletRestoreViewModel.hasPassphrase = value;
+                                  },
+                                )
+                              : SizedBox.shrink();
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      Observer(
+                        builder: (context) {
                           return LoadingPrimaryButton(
                             key: ValueKey('wallet_restore_seed_or_key_restore_button_key'),
-                            onPressed: () async => await _confirmForm(context),
-                            text: S.of(context).restore_recover,
+                            onPressed: () async {
+                              if (walletRestoreViewModel.hasPassphrase) {
+                                await showModalBottomSheet<void>(
+                                  context: context,
+                                  isDismissible: false,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext bottomSheetContext) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
+                                      ),
+                                      child: AddPassphraseBottomSheet(
+                                        currentTheme: currentTheme,
+                                        titleText: S.of(context).add_passphrase,
+                                        onRestoreButtonPressed: (passphrase) async {
+                                          await _onPassphraseBottomSheetRestoreButtonPressed(
+                                            passphrase,
+                                            context,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                );
+                              } else {
+                                await _confirmForm(context);
+                              }
+                            },
+                            text: walletRestoreViewModel.hasPassphrase
+                                ? S.of(context).add_passphrase
+                                : S.of(context).restore_recover,
                             color: Theme.of(context)
                                 .extension<WalletListTheme>()!
                                 .createNewWalletButtonBackgroundColor,
@@ -142,6 +187,14 @@ class WalletRestorePage extends BasePage {
         ),
       ),
     );
+  }
+
+  Future<void> _onPassphraseBottomSheetRestoreButtonPressed(
+    String passphrase,
+    BuildContext context,
+  ) async {
+    walletRestoreViewModel.seedSettingsViewModel.setPassphrase(passphrase);
+    await _confirmForm(context);
   }
 
   Map<String, dynamic> _credentials() {
