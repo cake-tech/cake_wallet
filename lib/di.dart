@@ -20,9 +20,6 @@ import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
-import 'package:cake_wallet/core/wallet_connect/wallet_connect_key_service.dart';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
@@ -33,10 +30,14 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -639,11 +640,15 @@ Future<void> setup({
 
   getIt.registerLazySingleton<WalletConnectKeyService>(() => KeyServiceImpl());
 
-  getIt.registerLazySingleton<Web3WalletService>(() {
-    final Web3WalletService web3WalletService = Web3WalletService(getIt.get<BottomSheetService>(),
-        getIt.get<WalletConnectKeyService>(), appStore, getIt.get<SharedPreferences>());
-    web3WalletService.create();
-    return web3WalletService;
+  getIt.registerLazySingleton<WalletKitService>(() {
+    final WalletKitService walletKitService = WalletKitService(
+      getIt.get<BottomSheetService>(),
+      getIt.get<WalletConnectKeyService>(),
+      appStore,
+      getIt.get<SharedPreferences>(),
+    );
+    walletKitService.create();
+    return walletKitService;
   });
 
   getIt.registerFactory(() => BalancePage(
@@ -1118,8 +1123,9 @@ Future<void> setup({
         return zano!.createZanoWalletService(_walletInfoSource);
       case WalletType.decred:
         return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
-      case WalletType.none:
       case WalletType.haven:
+        return HavenWalletService(_walletInfoSource);
+      case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }
   });
@@ -1442,7 +1448,8 @@ Future<void> setup({
   });
 
   getIt.registerFactory(
-      () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
+    () => WalletConnectConnectionsView(walletKitService: getIt.get<WalletKitService>()),
+  );
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));

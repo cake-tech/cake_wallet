@@ -97,6 +97,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
   void _showSavingDataAlert() {
     showDialog<void>(
       context: context,
+      useRootNavigator: false,
       builder: (BuildContext context) {
         return AlertWithNoAction(
           alertContent: 'Updating, please wait…',

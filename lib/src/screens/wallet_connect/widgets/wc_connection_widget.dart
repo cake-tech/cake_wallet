@@ -1,17 +1,17 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../core/wallet_connect/models/connection_model.dart';
-import 'connection_item_widget.dart';
+import 'wc_connection_item_widget.dart';
 
-class ConnectionWidget extends StatelessWidget {
-  const ConnectionWidget({required this.title, required this.info, super.key});
+class WCConnectionWidget extends StatelessWidget {
+  const WCConnectionWidget({required this.title, required this.info, super.key});
 
   final String title;
-  final List<ConnectionModel> info;
+  final List<WCConnectionModel> info;
 
   @override
   Widget build(BuildContext context) {
+    
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColorLight,
@@ -23,7 +23,7 @@ class ConnectionWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context) .colorScheme.background,
               borderRadius: BorderRadius.circular(8),
             ),
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -32,12 +32,12 @@ class ConnectionWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).appBarTheme.titleTextStyle!.color!
               ),
             ),
           ),
           const SizedBox(height: 8),
-          ...info.map((e) => ConnectionItemWidget(model: e)),
+          ...info.map((e) => WCConnectionItemWidget(model: e)),
         ],
       ),
     );
