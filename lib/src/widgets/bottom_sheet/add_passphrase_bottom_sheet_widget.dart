@@ -2,8 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -122,9 +120,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(horizontal: 12),
                 filled: true,
-                fillColor: widget.currentTheme.type == ThemeType.dark
-                    ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
-                    : Theme.of(context).cardColor,
+                fillColor: Theme.of(context).cardColor,
                 hintText: S.of(context).required_passphrase,
                 suffixIcon: GestureDetector(
                   onTap: () {
@@ -152,9 +148,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(horizontal: 12),
                 filled: true,
-                fillColor: widget.currentTheme.type == ThemeType.dark
-                    ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
-                    : Theme.of(context).cardColor,
+                fillColor: Theme.of(context).cardColor,
                 hintText: S.of(context).confirm_passphrase,
                 suffixIcon: GestureDetector(
                   onTap: () {
@@ -196,12 +190,8 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                           Navigator.pop(context);
                         },
                         text: S.of(context).cancel,
-                        color: widget.currentTheme.type == ThemeType.dark
-                            ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
-                            : Theme.of(context).cardColor,
-                        textColor: widget.currentTheme.type == ThemeType.dark
-                            ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                            : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                        color: Theme.of(context).cardColor,
+                        textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                       ),
                     ),
                   ),
@@ -216,9 +206,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                         },
                         text: S.of(context).restore,
                         color: Theme.of(context).primaryColor,
-                        textColor: widget.currentTheme.type == ThemeType.dark
-                            ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                            : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                        textColor: Colors.white,
                       ),
                     ),
                   ),

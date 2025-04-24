@@ -119,27 +119,22 @@ class WalletRestorePage extends BasePage {
                         },
                       ),
                       SizedBox(height: 16),
-                      Observer(
-                        builder: (context) {
-                          return LoadingPrimaryButton(
-                            key: ValueKey('wallet_restore_advanced_settings_button_key'),
-                            onPressed: () {
-                              Navigator.of(context).pushNamed(
-                                Routes.advancedPrivacySettings,
-                                arguments: {
-                                  'isFromRestore': true,
-                                  'type': walletRestoreViewModel.type,
-                                  'useTestnet': walletRestoreViewModel.useTestnet,
-                                  'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
-                                },
-                              );
+                      PrimaryButton(
+                        key: ValueKey('wallet_restore_advanced_settings_button_key'),
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(
+                            Routes.advancedPrivacySettings,
+                            arguments: {
+                              'isFromRestore': true,
+                              'type': walletRestoreViewModel.type,
+                              'useTestnet': walletRestoreViewModel.useTestnet,
+                              'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
                             },
-                            text: S.of(context).advanced_settings,
-                            color: Theme.of(context).cardColor,
-                            textColor:
-                                Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                           );
                         },
+                        text: S.of(context).advanced_settings,
+                        color: Theme.of(context).cardColor,
+                        textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                       ),
                       SizedBox(height: 8),
                       Observer(
@@ -178,9 +173,7 @@ class WalletRestorePage extends BasePage {
                                 ? S.of(context).add_passphrase
                                 : S.of(context).restore_recover,
                             color: Theme.of(context).primaryColor,
-                            textColor: currentTheme.type == ThemeType.dark
-                                ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                            textColor: Colors.white,
                             isLoading: walletRestoreViewModel.state is IsExecutingState,
                             isDisabled: !walletRestoreViewModel.isButtonEnabled,
                           );
