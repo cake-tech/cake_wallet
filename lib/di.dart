@@ -33,11 +33,13 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
+import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
@@ -266,6 +268,8 @@ import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
+import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
+import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -883,9 +887,8 @@ Future<void> setup({
           nanoAccountCreationViewModel:
               getIt.get<NanoAccountEditOrCreateViewModel>(param1: account)));
 
-  getIt.registerFactory(() {
-    return DisplaySettingsViewModel(getIt.get<SettingsStore>());
-  });
+  getIt.registerFactory(() =>
+      DisplaySettingsViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
@@ -893,28 +896,28 @@ Future<void> setup({
   getIt.registerFactory(
       () => MwebSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory(() {
-    return PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
-  });
+  getIt.registerFactory(() =>
+      PrivacySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => TrocadorExchangeProvider());
 
   getIt.registerFactory(() => TrocadorProvidersViewModel(
       getIt.get<SettingsStore>(), getIt.get<TrocadorExchangeProvider>()));
 
-  getIt.registerFactory(() {
-    return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
-        getIt.get<SendViewModel>());});
+  getIt.registerFactory(() =>
+      OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!,
+          getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(() {
-    return SecuritySettingsViewModel(getIt.get<SettingsStore>());
-  });
+  getIt.registerFactory(() =>
+      SecuritySettingsViewModel(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory<SeedSettingsViewModel>(() => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
 
   getIt.registerFactory(() => DevMoneroBackgroundSync(getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory(() => DevSharedPreferences());
 
   getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
       WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
@@ -1456,6 +1459,14 @@ Future<void> setup({
   getIt.registerFactory(() => SeedVerificationPage(getIt.get<WalletSeedViewModel>()));
 
   getIt.registerFactory(() => DevMoneroBackgroundSyncPage(getIt.get<DevMoneroBackgroundSync>()));
+
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
+
+  getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
+  
+  getIt.registerFactory(() => BackgroundSyncLogsViewModel());
+  
+  getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
+  
   _isSetupFinished = true;
 }

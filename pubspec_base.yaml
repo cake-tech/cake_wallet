@@ -93,8 +93,8 @@ dependencies:
   eth_sig_util: ^0.0.9
   ens_dart:
     git:
-      url: https://github.com/cake-tech/ens_dart.git
-      ref: main
+      url: https://github.com/MrCyjaneK/ens_dart.git
+      ref: 9fa09b9db69b8645d5d50a844652aa570451d101
   fluttertoast: 8.2.12
 #  tor:
 #    git:
@@ -103,7 +103,10 @@ dependencies:
   socks5_proxy: ^1.0.4
   flutter_svg: ^2.0.9
   polyseed: ^0.0.7
-  nostr_tools: ^1.0.9
+  nostr_tools:
+    git:
+      url: https://github.com/MrCyjaneK/nostr_tools.git
+      ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
@@ -121,7 +124,8 @@ dependencies:
   flutter_daemon:
     git:
       url: https://github.com/MrCyjaneK/flutter_daemon
-      ref: 5c369e0e69e6f459357b9802bc694a221397298a
+      ref: 6d5270d64b5dd588fce12fd0a0c7314c37e6cff1
+  flutter_local_notifications: ^19.0.0
 
 dev_dependencies:
   flutter_test:
