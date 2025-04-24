@@ -147,7 +147,6 @@ class PendingBitcoinTransaction with PendingTransaction {
         amount: amount,
         direction: TransactionDirection.outgoing,
         date: DateTime.now(),
-        isPending: true,
         isReplaced: false,
         confirmations: 0,
         inputAddresses: _tx.inputs.map((input) => input.txId).toList(),

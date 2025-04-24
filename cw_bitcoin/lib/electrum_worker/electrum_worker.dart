@@ -261,18 +261,20 @@ class ElectrumWorker {
 
       // Update the confirmations of the transactions based on the new chain tip height
       request.transactions.values.forEach((tx) {
-        if (tx.height != null && tx.height! > 0 && newChainTip > tx.height!) {
-          final newConfirmationsValue = newChainTip - tx.height! + 1;
-
-          if (tx.confirmations != newConfirmationsValue) {
-            tx.confirmations = newConfirmationsValue;
-            tx.isPending = tx.confirmations == 0;
-            anyTxWasUpdated = true;
-          }
-        } else {
-          tx.height = newChainTip;
-          tx.confirmations = 0;
+        final newConfirmationsValue = newChainTip - tx.height! + 1;
+        if (newChainTip == tx.height && newConfirmationsValue == tx.confirmations) {
+          return;
         }
+
+        if (tx.height == null || tx.height! > 0) {
+          tx.height = newChainTip;
+        }
+
+        if (tx.confirmations != newConfirmationsValue) {
+          tx.confirmations = newConfirmationsValue;
+        }
+
+        anyTxWasUpdated = true;
       });
 
       _sendResponse(
@@ -754,7 +756,6 @@ class ElectrumWorker {
 
             // the tx's block itself is the first confirmation so add 1
             tx.confirmations = request.chainTip - height + 1;
-            tx.isPending = tx.confirmations == 0;
           }
         } catch (_) {}
 
@@ -940,7 +941,6 @@ class ElectrumWorker {
 
             // the tx's block itself is the first confirmation so add 1
             tx.confirmations = request.chainTip - height + 1;
-            tx.isPending = tx.confirmations == 0;
           }
         } catch (_) {}
 
@@ -1640,7 +1640,6 @@ class ElectrumWorker {
               amount: 0,
               fee: 0,
               direction: TransactionDirection.incoming,
-              isPending: false,
               isReplaced: false,
               date: DateTime.fromMillisecondsSinceEpoch(
                 (txDate.time == null ? DateTime.now().millisecondsSinceEpoch : txDate.time!) * 1000,

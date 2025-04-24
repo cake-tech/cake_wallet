@@ -72,7 +72,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     ElectrumBalance? initialBalance,
     List<BitcoinUnspent>? initialUnspentCoins,
   })  : _xpub = xpub,
-        syncStatus = NotConnectedSyncStatus(),
+        _syncStatus = NotConnectedSyncStatus(),
         _password = password,
         isEnabledAutoGenerateSubaddress = true,
         unspentCoins = ElectrumUnspentCoins.of(initialUnspentCoins ?? []),
@@ -249,9 +249,18 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   @observable
   late ObservableMap<CryptoCurrency, ElectrumBalance> balance;
 
-  @override
   @observable
-  SyncStatus syncStatus;
+  SyncStatus _syncStatus;
+
+  @override
+  @computed
+  SyncStatus get syncStatus => _syncStatus;
+
+  @override
+  @action
+  set syncStatus(SyncStatus value) {
+    _syncStatus = value;
+  }
 
   final String? _xpub;
   String get xpub => _xpub ?? hdWallet.publicKey.toExtended;
@@ -362,7 +371,8 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     //   initAddresses(true);
     // else if (isDiscovered == false && discovered == false) initAddresses(sync);
 
-    if (isDiscovered == true) syncStatus = SyncedSyncStatus();
+    if (isDiscovered == true && syncStatus is SynchronizingSyncStatus)
+      syncStatus = SyncedSyncStatus();
 
     return InitAddressesData(
       isDiscovered: isDiscovered,

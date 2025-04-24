@@ -97,6 +97,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
   }
 
   @override
+  set syncStatus(SyncStatus newValue) {
+    if (newValue is SyncedSyncStatus &&
+        (syncStatus is SyncingSyncStatus || syncStatus is AttemptingScanSyncStatus)) {
+      return;
+    }
+
+    super.syncStatus = newValue;
+  }
+
+  @override
   bool get hasRescan => true;
 
   @override

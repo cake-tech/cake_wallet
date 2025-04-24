@@ -59,7 +59,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
     List<String>? inputAddresses,
     List<String>? outputAddresses,
     required TransactionDirection direction,
-    required bool isPending,
     bool isReplaced = false,
     required DateTime date,
     int? time,
@@ -80,13 +79,15 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.direction = direction;
     this.date = date;
     this.time = time;
-    this.isPending = isPending;
     this.isReplaced = isReplaced;
     this.confirmations = confirmations;
     this.isDateValidated = isDateValidated;
     this.to = to;
     this.additionalInfo = additionalInfo ?? {};
   }
+
+  @override
+  bool get isPending => confirmations == 0;
 
   factory ElectrumTransactionInfo.fromElectrumVerbose(Map<String, Object> obj, WalletType type,
       {required List<BitcoinAddressRecord> addresses, required int height}) {
@@ -172,7 +173,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
       type,
       id: id,
       height: height,
-      isPending: false,
       isReplaced: false,
       fee: fee,
       direction: direction,
@@ -333,7 +333,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
       type,
       id: bundle.originalTransaction.txId(),
       height: height,
-      isPending: bundle.confirmations == 0,
       isReplaced: false,
       inputAddresses: inputAddresses,
       outputAddresses: outputAddresses,
@@ -361,7 +360,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
       fee: data['fee'] as int,
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-      isPending: data['isPending'] as bool,
       isReplaced: data['isReplaced'] as bool? ?? false,
       confirmations: data['confirmations'] as int,
       inputAddresses:
@@ -408,7 +406,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
       fee: info.fee,
       direction: direction,
       date: date,
-      isPending: isPending,
       isReplaced: isReplaced ?? false,
       inputAddresses: inputAddresses,
       outputAddresses: outputAddresses,
@@ -426,7 +423,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['direction'] = direction.index;
     m['date'] = date.millisecondsSinceEpoch;
     m['time'] = time;
-    m['isPending'] = isPending;
     m['isReplaced'] = isReplaced;
     m['confirmations'] = confirmations;
     m['fee'] = fee;

@@ -68,7 +68,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @override
   Future<void> init() async {
-    if (silentPaymentAddresses.isEmpty) generateInitialSPAddresses();
+    generateInitialSPAddresses();
     super.init();
   }
 
@@ -77,7 +77,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     final addAddresses = silentPaymentAddresses.isEmpty;
 
     // NOTE: Only initiate these old addresses if restoring a wallet and possibly wants the older cake derivation path
-    if (walletInfo.isRecovery || silentPaymentAddresses.length > 2) {
+    if (walletInfo.isRecovery && silentPaymentWallets.length == 1) {
       final oldScanPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "1"));
       final oldSpendPath = Bip32PathParser.parse(_OLD_SP_PATH.replaceFirst("#", "0"));
 
@@ -355,6 +355,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
         labels[silentPaymentTweak] = silentAddressRecord.labelIndex;
       }
     }
+
     return labels;
   }
 
