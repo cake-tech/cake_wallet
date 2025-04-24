@@ -46,7 +46,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
             PrimaryButton(
               onPressed: () {
                 if (Navigator.canPop(context)) {
-                  Navigator.of(context).pop(WCBottomSheetResult.one);
+                  Navigator.of(context).pop(WCBottomSheetResult.all);
                 }
               },
               text: S.current.sign_all,

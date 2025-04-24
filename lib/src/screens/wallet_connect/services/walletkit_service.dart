@@ -287,12 +287,6 @@ abstract class WalletKitServiceBase with Store {
             ),
             sessionProperties: args.params.sessionProperties,
           );
-          // MethodsUtils.handleRedirect(
-          //   response.session!.topic,
-          //   response.session!.peer.metadata.redirect,
-          //   '',
-          //   true,
-          // );
         } on ReownSignError catch (error) {
           MethodsUtils.handleRedirect(
             '',
