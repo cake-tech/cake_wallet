@@ -23,7 +23,6 @@ class AddressCell extends StatelessWidget {
     this.onEdit,
     this.onHide,
     this.isHidden = false,
-    this.onDelete,
     this.txCount,
     this.balance,
     this.isChange = false,
@@ -44,7 +43,6 @@ class AddressCell extends StatelessWidget {
     Function()? onEdit,
     Function()? onHide,
     bool isHidden = false,
-    Function()? onDelete,
   }) =>
       AddressCell(
         address: item.address,
@@ -60,7 +58,6 @@ class AddressCell extends StatelessWidget {
         onEdit: onEdit,
         onHide: onHide,
         isHidden: isHidden,
-        onDelete: onDelete,
         txCount: item.txCount,
         balance: item.balance,
         isChange: item.isChange,
@@ -81,7 +78,6 @@ class AddressCell extends StatelessWidget {
   final Function()? onEdit;
   final Function()? onHide;
   final bool isHidden;
-  final Function()? onDelete;
   final int? txCount;
   final String? balance;
   final bool isChange;
@@ -218,7 +214,7 @@ class AddressCell extends StatelessWidget {
 
   ActionPane _actionPaneEnd(BuildContext context) => ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: onDelete != null ? 0.4 : 0.3,
+        extentRatio: 0.3,
         children: [
           SlidableAction(
             onPressed: (_) => onHide?.call(),
@@ -232,7 +228,7 @@ class AddressCell extends StatelessWidget {
 
   ActionPane _actionPaneStart(BuildContext context) => ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: onDelete != null ? 0.4 : 0.3,
+        extentRatio: 0.3,
         children: [
           SlidableAction(
             onPressed: (_) => onEdit?.call(),
@@ -241,14 +237,6 @@ class AddressCell extends StatelessWidget {
             icon: Icons.edit,
             label: S.of(context).edit,
           ),
-          if (onDelete != null)
-            SlidableAction(
-              onPressed: (_) => onDelete!.call(),
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-              label: S.of(context).delete,
-            ),
         ],
       );
 }

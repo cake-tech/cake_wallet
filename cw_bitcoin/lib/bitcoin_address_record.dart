@@ -75,12 +75,12 @@ class BaseBitcoinAddressRecord {
   }
 
   bool getIsUsed() {
-    return isUsed || txCount != 0 || balance.hasBalance();
+    return isUsed || txCount > 0 || balance.hasBalance();
   }
 
   // An address not yet used for receiving funds
   bool getIsStillReceiveable(bool autoGenerateAddresses) =>
-      !autoGenerateAddresses || (!getIsUsed() && (isChange || !isHidden));
+      autoGenerateAddresses ? (!getIsUsed() && (isChange || !isHidden)) : !isHidden;
 
   String toJSON() => json.encode({
         'address': address,

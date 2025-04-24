@@ -821,6 +821,7 @@
   "sync_status_connecting": "PŘIPOJOVÁNÍ",
   "sync_status_failed_connect": "ODPOJENO",
   "sync_status_new_block": "NOVÝ BLOK: ${block}",
+  "sync_status_new_payment": "Nalezena platba!",
   "sync_status_not_connected": "NEPŘIPOJENO",
   "sync_status_starting_scan": "Počáteční skenování (z ${height})",
   "sync_status_starting_sync": "SPOUŠTĚNÍ SYNCHRONIZACE",

@@ -256,6 +256,9 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   @computed
   SyncStatus get syncStatus => _syncStatus;
 
+  @observable
+  bool syncStatusLock = false;
+
   @override
   @action
   set syncStatus(SyncStatus value) {
@@ -393,6 +396,8 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   Future<void> startSync() async {
     try {
       syncStatus = SynchronizingSyncStatus();
+
+      unspentCoins.removeWhere((utxo) => utxo.bitcoinAddressRecord is BitcoinAddressRecord);
 
       await subscribeForHeaders(true);
       await updateFeeRates();
@@ -1768,11 +1773,12 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     var totalConfirmed = 0;
     var totalUnconfirmed = 0;
 
-    unspentCoins.forInfo(unspentCoinsInfo.values).forEach((unspentCoinInfo) {
-      if (unspentCoinInfo.isFrozen) {
-        totalFrozen += unspentCoinInfo.value;
-      }
-    });
+    if (unspentCoins.isNotEmpty)
+      unspentCoins.forInfo(unspentCoinsInfo.values).forEach((unspentCoinInfo) {
+        if (unspentCoinInfo.isFrozen) {
+          totalFrozen += unspentCoinInfo.value;
+        }
+      });
 
     for (int i = 0; i < balanceResults.balances.length; i++) {
       final scripthash = balanceResults.scripthashes[i];
@@ -1969,6 +1975,17 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       // Message is shown on the UI for 3 seconds, then reverted to synced
       Timer(Duration(seconds: 3), () {
         if (this.syncStatus is SyncedNewBlockSyncStatus) this.syncStatus = SyncedSyncStatus();
+      });
+    }
+
+    if (syncStatus is SyncedNewPaymentSyncStatus) {
+      syncStatusLock = true;
+
+      // Message is shown on the UI for 3 seconds, then reverted to synced
+      Timer(Duration(seconds: 2), () {
+        if (this.syncStatus is SyncedNewPaymentSyncStatus) {
+          this.syncStatusLock = false;
+        }
       });
     }
   }

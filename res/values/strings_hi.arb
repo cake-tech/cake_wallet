@@ -823,6 +823,7 @@
   "sync_status_connecting": "कनेक्ट",
   "sync_status_failed_connect": "डिस्कनेक्ट किया गया",
   "sync_status_new_block": "नया ब्लॉक: ${block}",
+  "sync_status_new_payment": "भुगतान मिला!",
   "sync_status_not_connected": "जुड़े नहीं हैं",
   "sync_status_starting_scan": "स्कैन शुरू करना (${height} से)",
   "sync_status_starting_sync": "सिताज़ा करना",

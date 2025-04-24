@@ -821,6 +821,7 @@
   "sync_status_connecting": "กำลังเชื่อมต่อ",
   "sync_status_failed_connect": "การเชื่อมต่อล้มเหลว",
   "sync_status_new_block": "บล็อกใหม่: ${block}",
+  "sync_status_new_payment": "พบการชำระเงิน!",
   "sync_status_not_connected": "ไม่ได้เชื่อมต่อ",
   "sync_status_starting_scan": "การสแกนเริ่มต้น (จาก ${height})",
   "sync_status_starting_sync": "กำลังเริ่มซิงโครไนซ์",

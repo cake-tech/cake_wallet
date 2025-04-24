@@ -819,6 +819,7 @@
   "sync_status_connecting": "ՄԻԱՑՎՈՒՄ Է",
   "sync_status_failed_connect": "ՉՄԻԱՑԱՎ",
   "sync_status_new_block": "Նոր բլոկ. ${block}",
+  "sync_status_new_payment": "Վճարը գտնվեց:",
   "sync_status_not_connected": "ՄԻԱՑՎԱԾ ՉԷ",
   "sync_status_starting_scan": "Սկսած սկան (${height})",
   "sync_status_starting_sync": "ՀԱՄԱԺԱՄԵՑՈՒՄԸ ՍԿՍՎՈՒՄ Է",

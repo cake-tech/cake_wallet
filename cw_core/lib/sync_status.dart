@@ -34,6 +34,10 @@ class SyncingSyncStatus extends SyncStatus {
   }
 }
 
+class SyncedNewPaymentSyncStatus extends SyncingSyncStatus {
+  SyncedNewPaymentSyncStatus(super.blocksLeft, super.ptc);
+}
+
 class ProcessingSyncStatus extends SyncStatus {
   final String? message;
 

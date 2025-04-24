@@ -821,6 +821,7 @@
   "sync_status_connecting": "连接中",
   "sync_status_failed_connect": "断线",
   "sync_status_new_block": "新块：${block}",
+  "sync_status_new_payment": "付款发现！",
   "sync_status_not_connected": "未连接",
   "sync_status_starting_scan": "启动扫描（来自 ${height}）",
   "sync_status_starting_sync": "开始同步",

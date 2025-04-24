@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_snapshot.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_worker/electrum_worker.dart';
 import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
@@ -98,8 +99,20 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
   @override
   set syncStatus(SyncStatus newValue) {
-    if (newValue is SyncedSyncStatus &&
-        (syncStatus is SyncingSyncStatus || syncStatus is AttemptingScanSyncStatus)) {
+    if (syncStatusLock) {
+      if (newValue is SyncedSyncStatus && syncStatus is SyncedNewPaymentSyncStatus)
+        Timer(Duration(seconds: 2), () {
+          syncStatusLock = false;
+          syncStatus = SyncedSyncStatus();
+        });
+
+      return;
+    }
+
+    if (newValue is! SyncedNewPaymentSyncStatus &&
+        newValue is SyncedSyncStatus &&
+        ((syncStatus is SyncingSyncStatus && (syncStatus as SyncingSyncStatus).blocksLeft > 1) ||
+            syncStatus is AttemptingScanSyncStatus)) {
       return;
     }
 
@@ -633,9 +646,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
   @action
   void _updateSilentAddressRecord(BitcoinUnspent unspent) {
-    walletAddresses.addReceivedSPAddresses(
-      [unspent.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord],
-    );
+    if (unspent.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord)
+      walletAddresses.addReceivedSPAddresses(
+        [unspent.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord],
+      );
   }
 
   @override
@@ -661,7 +675,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
   @action
   Future<void> onTweaksSyncResponse(TweaksSyncResponse result) async {
+    final newSyncStatus = result.syncStatus;
+
     if (result.transactions?.isNotEmpty == true) {
+      if (newSyncStatus != null && newSyncStatus is SyncingSyncStatus) {
+        syncStatus = SyncedNewPaymentSyncStatus(newSyncStatus.blocksLeft, newSyncStatus.ptc);
+      }
+
       walletAddresses.silentPaymentAddresses.forEach((addressRecord) {
         addressRecord.txCount = 0;
         addressRecord.balance = ElectrumBalance.zero();
@@ -676,6 +696,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
         final data = map.value;
         final tx = data.txInfo;
         final unspents = data.unspents;
+
+        final txDate = await ElectrumWorker.getTxDate(txid, network, currentChainTip!);
+        if (txDate.time != null) tx.date = DateTime.fromMillisecondsSinceEpoch(txDate.time! * 1000);
 
         if (unspents.isNotEmpty) {
           final existingTxInfo = transactionHistory.transactions[txid];
@@ -714,7 +737,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
             transactionHistory.addOne(existingTxInfo);
           } else {
             // else: First time seeing this TX after scanning
-            unspentCoins.forEach(_updateSilentAddressRecord);
+            unspents.forEach(_updateSilentAddressRecord);
+            unspentCoins.addAll(unspents);
+            unspentCoins.forEach(updateCoin);
 
             transactionHistory.addOne(tx);
           }
@@ -731,11 +756,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
           await save();
         }
       }
-    }
-
-    final newSyncStatus = result.syncStatus;
-
-    if (newSyncStatus != null) {
+    } else if (newSyncStatus != null) {
       if (newSyncStatus is UnsupportedSyncStatus) {
         nodeSupportsSilentPayments = false;
       }
@@ -780,7 +801,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
 
     syncStatus = AttemptingScanSyncStatus();
 
-    workerSendPort!.send(
+    sendWorker(
       ElectrumWorkerTweaksSubscribeRequest(
         scanData: ScanData(
           silentPaymentsWallets: wallets,
@@ -797,7 +818,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
           shouldSwitchNodes:
               !(await getNodeSupportsSilentPayments()) && allowedToSwitchNodesForScanning,
         ),
-      ).toJson(),
+      ),
     );
   }
 
@@ -920,15 +941,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
       ECPrivate? privkey;
       bool? isSilentPayment = false;
 
-      if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
-        privkey = (utx.bitcoinAddressRecord as BitcoinReceivedSPAddressRecord).getSpendKey(
+      final bitcoinAddressRecord = utx.bitcoinAddressRecord;
+      if (bitcoinAddressRecord is BitcoinReceivedSPAddressRecord) {
+        privkey = bitcoinAddressRecord.getSpendKey(
           walletAddresses.silentPaymentWallets,
           network,
         );
+
         spendsSilentPayment = true;
         isSilentPayment = true;
       } else if (!isHardwareWallet) {
-        final addressRecord = (utx.bitcoinAddressRecord as BitcoinAddressRecord);
+        final addressRecord = (bitcoinAddressRecord as BitcoinAddressRecord);
 
         privkey = ECPrivate.fromBip32(
           bip32: hdWallets[addressRecord.seedBytesType]!.derive(
@@ -941,11 +964,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
       String pubKeyHex;
 
       if (privkey != null) {
-        inputPrivKeyInfos.add(ECPrivateInfo(
-          privkey,
-          address.type == SegwitAddressType.p2tr,
-          tweak: !isSilentPayment,
-        ));
+        inputPrivKeyInfos.add(
+          ECPrivateInfo(
+            privkey,
+            address.type == SegwitAddressType.p2tr,
+            tweak: !isSilentPayment,
+          ),
+        );
 
         pubKeyHex = privkey.getPublic().toHex();
       } else {

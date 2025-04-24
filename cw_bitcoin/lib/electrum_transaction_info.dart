@@ -16,6 +16,7 @@ class ElectrumTransactionBundle {
     required this.confirmations,
     this.time,
     this.isDateValidated,
+    this.height,
   });
 
   final BtcTransaction originalTransaction;
@@ -23,6 +24,7 @@ class ElectrumTransactionBundle {
   final int? time;
   final bool? isDateValidated;
   final int confirmations;
+  final int? height;
 
   Map<String, dynamic> toJson() {
     return {
@@ -30,6 +32,7 @@ class ElectrumTransactionBundle {
       'ins': ins.map((e) => e.toHex()).toList(),
       'confirmations': confirmations,
       'time': time,
+      'height': height,
     };
   }
 
@@ -40,6 +43,7 @@ class ElectrumTransactionBundle {
       confirmations: data['confirmations'] as int,
       time: data['time'] as int?,
       isDateValidated: data['isDateValidated'] as bool?,
+      height: data['height'] as int?,
     );
   }
 }

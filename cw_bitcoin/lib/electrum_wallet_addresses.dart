@@ -201,7 +201,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return null;
     }
 
-    _nextReceiveAddress = receiveAddresses.first;
+    _nextReceiveAddress = receiveAddresses.firstWhereOrNull(
+          (addressRecord) => addressRecord.getIsStillReceiveable(isEnabledAutoGenerateNewAddress),
+        ) ??
+        receiveAddresses.first;
+
     return _nextReceiveAddress;
   }
 
@@ -285,12 +289,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   void resetActiveAddress() {
     try {
-      final activeReceiveAddresses = selectedReceiveAddresses;
-
-      activeBitcoinAddress = activeReceiveAddresses.firstWhereOrNull(
+      activeBitcoinAddress = selectedReceiveAddresses.firstWhereOrNull(
             (addressRecord) => addressRecord.index == activeIndexByType[addressPageType],
           ) ??
-          activeReceiveAddresses.first;
+          selectedReceiveAddresses.first;
     } catch (_) {}
   }
 

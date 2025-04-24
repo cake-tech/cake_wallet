@@ -821,6 +821,7 @@
   "sync_status_connecting": "BAĞLANILIYOR",
   "sync_status_failed_connect": "BAĞLANTI KESİLDİ",
   "sync_status_new_block": "YENI BLOK: ${block}",
+  "sync_status_new_payment": "Ödeme Bulundu!",
   "sync_status_not_connected": "BAĞLI DEĞİL",
   "sync_status_starting_scan": "Başlangıç ​​taraması (${height})",
   "sync_status_starting_sync": "SENKRONİZE BAŞLATILIYOR",

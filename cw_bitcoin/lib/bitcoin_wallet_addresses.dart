@@ -233,6 +233,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
         isChange: false,
         isHidden: true,
       );
+
+      hiddenAddresses.add(address.address);
     } else {
       address = BitcoinSilentPaymentAddressRecord(
         silentPaymentWallet!.toLabeledSilentPaymentAddress(nextSPLabelIndex).toString(),

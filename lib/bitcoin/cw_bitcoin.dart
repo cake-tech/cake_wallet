@@ -125,7 +125,9 @@ class CWBitcoin extends Bitcoin {
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
   }) {
     final bitcoinFeeRate =
-        priority == ElectrumTransactionPriority.custom && feeRate != null ? feeRate : null;
+        priority.title == ElectrumTransactionPriority.custom.title && feeRate != null
+            ? feeRate
+            : null;
     return BitcoinTransactionCredentials(
       outputs
           .map((out) => OutputInfo(

@@ -824,6 +824,7 @@
   "sync_status_connecting": "MENGHUBUNGKAN",
   "sync_status_failed_connect": "GAGAL TERHUBUNG",
   "sync_status_new_block": "BLOK BARU: ${block}",
+  "sync_status_new_payment": "Pembayaran ditemukan!",
   "sync_status_not_connected": "TIDAK TERHUBUNG",
   "sync_status_starting_scan": "Mulai pemindaian (dari ${height})",
   "sync_status_starting_sync": "MULAI SINKRONISASI",
