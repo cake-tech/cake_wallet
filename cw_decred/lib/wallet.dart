@@ -611,11 +611,11 @@ abstract class DecredWalletBase
     }
     
     await for (final entity in sourceDir.list(recursive: true)) {
-      final relativePath = entity.path.substring(sourceDir.path.length);
+      final relativePath = entity.path.substring(sourceDir.path.length+1);
       final targetPath = p.join(targetDir.path, relativePath);
       
       if (entity is File) {
-        await entity.copy(targetPath);
+        await entity.rename(targetPath);
       } else if (entity is Directory) {
         await Directory(targetPath).create(recursive: true);
       }
