@@ -7,6 +7,7 @@ class AlertCloseButton extends StatelessWidget {
     this.image,
     this.bottom,
     this.onTap,
+    this.isPositioned = true,
     super.key,
   });
 
@@ -14,6 +15,7 @@ class AlertCloseButton extends StatelessWidget {
 
   final Image? image;
   final double? bottom;
+  final bool isPositioned;
 
   final closeButton = Image.asset(
     'assets/images/close.png',
@@ -22,24 +24,18 @@ class AlertCloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: bottom ?? 60,
-      child: GestureDetector(
+    final button = GestureDetector(
         onTap: onTap ?? () => Navigator.of(context).pop(),
         child: Semantics(
-          label: S.of(context).close,
-          button: true,
-          enabled: true,
-          child: Container(
-            height: 42,
-            width: 42,
-            decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: Center(
-              child: image ?? closeButton,
-            ),
-          ),
-        ),
-      ),
-    );
+            label: S.of(context).close,
+            button: true,
+            enabled: true,
+            child: Container(
+                height: 42,
+                width: 42,
+                decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                child: Center(child: image ?? closeButton))));
+
+    return isPositioned ? Positioned(bottom: bottom ?? 60, child: button) : button;
   }
 }
