@@ -39,8 +39,6 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
   }
 
   bool obscurePassphrase = true;
-  bool obscureConfirmPassphrase = true;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -144,7 +142,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
             TextFormField(
               key: ValueKey('add_passphrase_bottom_sheet_widget_confirm_passphrase_textfield_key'),
               controller: confirmPassphraseController,
-              obscureText: obscureConfirmPassphrase,
+              obscureText: obscurePassphrase,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(horizontal: 12),
                 filled: true,
