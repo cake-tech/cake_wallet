@@ -23,11 +23,7 @@ abstract class NFTViewModelBase with Store {
       : isLoading = false,
         isImportNFTLoading = false,
         nftAssetByWalletModels = ObservableList(),
-        solanaNftAssetModels = ObservableList() {
-    getNFTAssetByWallet();
-
-    reaction((_) => appStore.wallet, (_) => getNFTAssetByWallet());
-  }
+        solanaNftAssetModels = ObservableList();
 
   final AppStore appStore;
   final BottomSheetService bottomSheetService;
@@ -80,6 +76,8 @@ abstract class NFTViewModelBase with Store {
     }
 
     try {
+      if (isLoading) return;
+
       isLoading = true;
 
       final response = await http.get(
@@ -114,10 +112,7 @@ abstract class NFTViewModelBase with Store {
 
         nftAssetByWalletModels.addAll(result);
       }
-
-      isLoading = false;
     } catch (e) {
-      isLoading = false;
       log(e.toString());
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
@@ -125,6 +120,8 @@ abstract class NFTViewModelBase with Store {
           message: S.current.moralis_nft_error,
         ),
       );
+    } finally {
+      isLoading = false;
     }
   }
 
