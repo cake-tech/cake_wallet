@@ -260,7 +260,6 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
   bool syncStatusLock = false;
 
   @override
-  @action
   set syncStatus(SyncStatus value) {
     _syncStatus = value;
   }

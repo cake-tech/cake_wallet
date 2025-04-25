@@ -479,10 +479,10 @@ packages:
     description:
       path: "."
       ref: cake-update-v4
-      resolved-ref: e99d7820e53a685cb4de7af995a493d6d1effd27
+      resolved-ref: "084fb7bf13ec42d74f26ac08c883ce07c10fca7e"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "6.1.0"
+    version: "6.2.0"
   package_config:
     dependency: transitive
     description:
