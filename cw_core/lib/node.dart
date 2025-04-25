@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
+import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'dart:convert';
@@ -303,13 +304,9 @@ class Node extends HiveObject with Keyable {
   // you try to communicate with it
   Future<bool> requestElectrumServer() async {
     try {
-      final Socket socket;
-      if (useSSL == true) {
-        socket = await SecureSocket.connect(uri.host, uri.port,
-            timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
-      } else {
-        socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
-      }
+      final ProxySocket socket;
+      socket = await ProxyWrapper().getSocksSocket(useSSL ?? false, uri.host, uri.port);
+
 
       socket.destroy();
       return true;

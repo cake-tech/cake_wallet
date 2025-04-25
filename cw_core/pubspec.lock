@@ -641,6 +641,15 @@ packages:
       url: "https://github.com/cake-tech/socks_dart.git"
     source: git
     version: "1.0.4"
+  socks_socket:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: e6232c53c1595469931ababa878759a067c02e94
+      resolved-ref: e6232c53c1595469931ababa878759a067c02e94
+      url: "https://github.com/sneurlax/socks_socket"
+    source: git
+    version: "1.1.1"
   source_gen:
     dependency: transitive
     description:
@@ -717,7 +726,7 @@ packages:
     dependency: transitive
     description:
       name: timing
-      sha256: "62ee18aca144e4a9f29d212f5a4c6a053be252b895ab14b5821996cff4ed90fe"
+      sha256: "70a3b636575d4163c477e6de42f247a23b315ae20e86442bebe32d3cabf61c32"
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"

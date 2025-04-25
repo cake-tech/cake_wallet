@@ -54,6 +54,10 @@ dependencies:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-litecoin
+  socks_socket:
+    git:
+      url: https://github.com/sneurlax/socks_socket
+      ref: e6232c53c1595469931ababa878759a067c02e94
 
 dev_dependencies:
   flutter_test:

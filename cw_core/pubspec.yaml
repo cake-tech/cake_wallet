@@ -39,6 +39,10 @@ dependencies:
 #      url: https://github.com/cake-tech/tor.git
 #      ref: main
   tor: any
+  socks_socket:
+    git:
+      url: https://github.com/sneurlax/socks_socket
+      ref: e6232c53c1595469931ababa878759a067c02e94
 
 dev_dependencies:
   flutter_test:
