@@ -9,8 +9,7 @@ class MainActions {
 
   final bool Function(DashboardViewModel viewModel)? isEnabled;
   final bool Function(DashboardViewModel viewModel)? canShow;
-  final Future<void> Function(
-      BuildContext context, DashboardViewModel viewModel) onTap;
+  final Future<void> Function(BuildContext context, DashboardViewModel viewModel) onTap;
 
   MainActions._({
     required this.name,
@@ -32,7 +31,12 @@ class MainActions {
     name: (context) => S.of(context).wallets,
     image: 'assets/images/wallet_new.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      Navigator.pushNamed(context, Routes.walletList);
+      Navigator.pushNamed(
+        context,
+        Routes.walletList,
+        arguments: (BuildContext context) =>
+            Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
+      );
     },
   );
 
@@ -64,7 +68,6 @@ class MainActions {
       Navigator.pushNamed(context, Routes.send);
     },
   );
-
 
   static MainActions tradeAction = MainActions._(
     name: (context) => S.of(context).exchange,

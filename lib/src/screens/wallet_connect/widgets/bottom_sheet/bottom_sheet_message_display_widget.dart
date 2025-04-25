@@ -14,13 +14,30 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          isError ? S.current.error : S.current.successful,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.normal,
-            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              isError ? S.current.error : S.current.successful,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              ),
+            ),
+            IconButton(
+              color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
+              padding: const EdgeInsets.all(0.0),
+              visualDensity: VisualDensity.compact,
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              },
+              icon: const Icon(Icons.close_sharp),
+            ),
+          ],
         ),
         SizedBox(height: 8),
         Row(
@@ -37,6 +54,7 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
             ),
           ],
         ),
+        SizedBox(height: 16),
       ],
     );
   }
