@@ -69,10 +69,11 @@ class RobinhoodBuyProvider extends BuyProvider {
     final uri = Uri.https(_apiBaseUrl, '$_assetsPath', {'applicationId': _applicationId});
 
     try {
-      final response = await http.get(uri, headers: {'accept': 'application/json'});
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'accept': 'application/json'});
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        final responseData = jsonDecode(responseString) as Map<String, dynamic>;
         final pairs = responseData['cryptoCurrencyPairs'] as List<dynamic>;
 
         final supportedAssets = <CryptoCurrency>[];
