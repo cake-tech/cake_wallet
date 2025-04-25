@@ -5,14 +5,14 @@ import 'package:cake_wallet/core/open_crypto_pay/exceptions.dart';
 import 'package:cake_wallet/core/open_crypto_pay/lnurl.dart';
 import 'package:cake_wallet/core/open_crypto_pay/models.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class OpenCryptoPayService {
   static bool isOpenCryptoPayQR(String value) =>
       value.toLowerCase().contains("lightning=lnurl") ||
       value.toLowerCase().startsWith("lnurl");
 
-  final Client _httpClient = Client();
+  final _httpClient = ProxyWrapper().getHttpClient();
 
   Future<String> commitOpenCryptoPayRequest(
     String txHex, {
@@ -31,22 +31,23 @@ class OpenCryptoPayService {
     queryParams['tx'] = txId;
 
     final response =
-        await _httpClient.get(Uri.https(uri.authority, uri.path, queryParams));
+        await ProxyWrapper().get(clearnetUri: Uri.https(uri.authority, uri.path, queryParams));
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 200) {
-      final body = jsonDecode(response.body) as Map;
+      final body = jsonDecode(responseString) as Map;
 
       if (body.keys.contains("txId")) return body["txId"] as String;
       throw OpenCryptoPayException(body.toString());
     }
     throw OpenCryptoPayException(
-        "Unexpected status code ${response.statusCode} ${response.body}");
+        "Unexpected status code ${response.statusCode} ${response}");
   }
 
   Future<void> cancelOpenCryptoPayRequest(OpenCryptoPayRequest request) async {
     final uri = Uri.parse(request.callbackUrl.replaceAll("/cb/", "/cancel/"));
 
-    await _httpClient.delete(uri);
+    await _httpClient.delete(uri.host, uri.port, uri.path);
   }
 
   Future<OpenCryptoPayRequest> getOpenCryptoPayInvoice(String lnUrl) async {
@@ -73,10 +74,11 @@ class OpenCryptoPayService {
 
   Future<(_OpenCryptoPayQuote, Map<String, List<OpenCryptoPayQuoteAsset>>)>
       _getOpenCryptoPayParams(Uri uri) async {
-    final response = await _httpClient.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body) as Map;
+      final responseBody = jsonDecode(responseString) as Map;
 
       for (final key in ['callback', 'transferAmounts', 'quote']) {
         if (!responseBody.keys.contains(key)) {
@@ -106,7 +108,7 @@ class OpenCryptoPayService {
       return (quote, methods);
     } else {
       throw OpenCryptoPayException(
-          'Failed to get Open CryptoPay Request. Status: ${response.statusCode} ${response.body}');
+          'Failed to get Open CryptoPay Request. Status: ${response.statusCode} ${responseString}');
     }
   }
 
@@ -119,11 +121,11 @@ class OpenCryptoPayService {
     queryParams['asset'] = asset.title;
     queryParams['method'] = _getMethod(asset);
 
-    final response =
-        await _httpClient.get(Uri.https(uri.authority, uri.path, queryParams));
+    final response = await ProxyWrapper().get(clearnetUri: Uri.https(uri.authority, uri.path, queryParams));
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body) as Map;
+      final responseBody = jsonDecode(responseString) as Map;
 
       for (final key in ['expiryDate', 'uri']) {
         if (!responseBody.keys.contains(key)) {
@@ -145,7 +147,7 @@ class OpenCryptoPayService {
           queryParameters: newQueryParameters);
     } else {
       throw OpenCryptoPayException(
-          'Failed to create Open CryptoPay Request. Status: ${response.statusCode} ${response.body}');
+          'Failed to create Open CryptoPay Request. Status: ${response.statusCode} ${responseString}');
     }
   }
 
