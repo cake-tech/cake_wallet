@@ -1,13 +1,19 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:socks5_proxy/socks_client.dart';
+import 'package:socks_socket/socks_socket.dart';
 import 'package:tor/tor.dart';
 import 'package:http/io_client.dart' as ioc;
 
-
-
 class ProxyWrapper {
   ProxyWrapper();
+
+  Future<ProxySocket> getSocksSocket(bool sslEnabled, String host, int port, {Duration? connectionTimeout}) async {
+    return ProxySocket.connect(sslEnabled, ProxyAddress(host: host, port: port), connectionTimeout: connectionTimeout);
+  }
 
   ioc.IOClient getHttpIOClient() {
     final httpClient = ProxyWrapper().getHttpClient();
