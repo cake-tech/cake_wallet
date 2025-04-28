@@ -619,13 +619,35 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
         value: coin.value,
         vout: coin.vout,
         isChange: coin.isChange,
-        isSilentPayment: coin.address is BitcoinReceivedSPAddressRecord,
+        isSilentPayment: coin.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord,
       );
 
       await unspentCoinsInfo.add(newInfo);
-    } else if (coin.address is BitcoinReceivedSPAddressRecord) {
+    } else if (coin.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord) {
       existingCoinInfo.isSilentPayment = true;
       await unspentCoinsInfo.add(existingCoinInfo);
+    }
+  }
+
+  @override
+  @action
+  void updateCoin(BitcoinUnspent coin) {
+    final coinInfoList = unspentCoinsInfo.values.where(
+      (element) =>
+          element.walletId.contains(id) &&
+          element.hash.contains(coin.hash) &&
+          element.vout == coin.vout,
+    );
+
+    if (coinInfoList.isNotEmpty) {
+      final coinInfo = coinInfoList.first;
+
+      coin.isFrozen = coinInfo.isFrozen;
+      coin.isSending = coinInfo.isSending;
+      coin.note = coinInfo.note;
+      coinInfo.isSilentPayment = coin.bitcoinAddressRecord is BitcoinReceivedSPAddressRecord;
+    } else {
+      addCoinInfo(coin);
     }
   }
 
@@ -728,10 +750,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
               newUnspents.forEach(_updateSilentAddressRecord);
 
               unspentCoins.addAll(newUnspents);
-              unspentCoins.forEach(updateCoin);
-
-              await refreshUnspentCoinsInfo();
             }
+
+            unspentCoins.forEach(updateCoin);
+            await refreshUnspentCoinsInfo();
 
             // Updates existing TX
             transactionHistory.addOne(existingTxInfo);
