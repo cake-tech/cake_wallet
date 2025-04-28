@@ -81,14 +81,16 @@ class LinkViewModel {
   }
 
   Future<void> _errorToast(String message, {double fontSize = 16}) async {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.SNACKBAR,
-      backgroundColor: Colors.black,
-      textColor: Colors.white,
-      fontSize: fontSize,
-    );
+    try {
+      await Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: fontSize,
+      );
+    } catch (_) {}
   }
 
   Future<void> handleLink() async {
