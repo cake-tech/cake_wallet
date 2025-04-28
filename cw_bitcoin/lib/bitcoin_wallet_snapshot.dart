@@ -15,6 +15,8 @@ class BitcoinWalletSnapshot extends ElectrumWalletSnapshot {
     required super.xpub,
     required super.balance,
     required this.alwaysScan,
+    required this.silentPaymentsIntroDisplay,
+    required this.silentPaymentsCardDisplay,
     required super.unspentCoins,
     required super.walletAddressesSnapshot,
     super.passphrase,
@@ -23,6 +25,8 @@ class BitcoinWalletSnapshot extends ElectrumWalletSnapshot {
   }) : super();
 
   bool alwaysScan;
+  bool silentPaymentsIntroDisplay;
+  bool silentPaymentsCardDisplay;
 
   static Future<BitcoinWalletSnapshot> load(
     EncryptionFileUtils encryptionFileUtils,
@@ -45,6 +49,8 @@ class BitcoinWalletSnapshot extends ElectrumWalletSnapshot {
     );
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;
+    final silentPaymentsIntroDisplay = data['silentPaymentsIntroDisplay'] as bool? ?? true;
+    final silentPaymentsCardDisplay = data['silentPaymentsCardDisplay'] as bool? ?? true;
 
     final walletAddressesSnapshot = data['walletAddresses'] as Map<String, dynamic>? ??
         BitcoinWalletAddressesBase.fromSnapshot(data);
@@ -61,6 +67,8 @@ class BitcoinWalletSnapshot extends ElectrumWalletSnapshot {
       derivationPath: electrumWalletSnapshot.derivationPath,
       unspentCoins: electrumWalletSnapshot.unspentCoins,
       alwaysScan: alwaysScan,
+      silentPaymentsIntroDisplay: silentPaymentsIntroDisplay,
+      silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       walletAddressesSnapshot: walletAddressesSnapshot,
     );
   }

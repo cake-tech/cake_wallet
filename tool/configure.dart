@@ -295,6 +295,10 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  bool getSilentPaymentsIntroDisplay(Object wallet);
+  void setSilentPaymentsIntroDisplay(Object wallet, bool val);
+  bool getSilentPaymentsCardDisplay(Object wallet);
+  void setSilentPaymentsCardDisplay(Object wallet, bool val);
 }
   """;
 

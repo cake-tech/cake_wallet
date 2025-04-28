@@ -770,4 +770,26 @@ class CWBitcoin extends Bitcoin {
       return null;
     }
   }
+
+  bool getSilentPaymentsIntroDisplay(Object wallet) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    return bitcoinWallet.silentPaymentsIntroDisplay;
+  }
+
+  void setSilentPaymentsIntroDisplay(Object wallet, bool val) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    bitcoinWallet.silentPaymentsIntroDisplay = val;
+    bitcoinWallet.save();
+  }
+
+  bool getSilentPaymentsCardDisplay(Object wallet) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    return bitcoinWallet.silentPaymentsCardDisplay;
+  }
+
+  void setSilentPaymentsCardDisplay(Object wallet, bool val) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    bitcoinWallet.silentPaymentsCardDisplay = val;
+    bitcoinWallet.save();
+  }
 }

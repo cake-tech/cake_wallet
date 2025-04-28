@@ -37,6 +37,12 @@ class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> with Store {
   @observable
+  bool silentPaymentsIntroDisplay;
+
+  @observable
+  bool silentPaymentsCardDisplay;
+
+  @observable
   bool nodeSupportsSilentPayments = false;
 
   @observable
@@ -70,8 +76,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
     super.passphrase,
     super.initialUnspentCoins,
     bool? alwaysScan,
+    bool? silentPaymentsIntroDisplay,
+    bool? silentPaymentsCardDisplay,
     Map<String, dynamic>? walletAddressesSnapshot,
   })  : _alwaysScan = alwaysScan ?? false,
+        silentPaymentsIntroDisplay = silentPaymentsIntroDisplay ?? true,
+        silentPaymentsCardDisplay = silentPaymentsCardDisplay ?? true,
         super(
           currency: network == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
         ) {
@@ -324,6 +334,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
       encryptionFileUtils: encryptionFileUtils,
       network: network,
       alwaysScan: snp?.alwaysScan,
+      silentPaymentsIntroDisplay: snp?.silentPaymentsIntroDisplay,
+      silentPaymentsCardDisplay: snp?.silentPaymentsCardDisplay,
       initialUnspentCoins: snp?.unspentCoins,
       walletAddressesSnapshot: snp?.walletAddressesSnapshot,
       hdWallets: hdWallets,
@@ -1482,6 +1494,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet<BitcoinWalletAddresses> 
   String toJSON() {
     final json = jsonDecode(super.toJSON());
     json['alwaysScan'] = _alwaysScan;
+    json['silentPaymentsIntroDisplay'] = silentPaymentsIntroDisplay;
+    json['silentPaymentsCardDisplay'] = silentPaymentsCardDisplay;
     return jsonEncode(json);
   }
 }

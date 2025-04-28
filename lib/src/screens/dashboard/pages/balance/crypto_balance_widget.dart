@@ -208,6 +208,44 @@ class CryptoBalanceWidget extends StatelessWidget {
                             "\n\nPlease restart your wallet and if it doesn't help contact our support.",
                       ))
                 ],
+                if (dashboardViewModel.showSilentPaymentsEnable) ...[
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: InfoCard(
+                      title: S.of(context).silent_payments,
+                      description: S.of(context).silent_payments_description,
+                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
+                      rightButtonTitle: S.of(context).enable,
+                      icon: Icon(
+                        Icons.lock,
+                        color:
+                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                        size: 50,
+                      ),
+                      leftButtonAction: () => _dismissSilentPayments(context),
+                      rightButtonAction: () => _enableSilentPayments(context),
+                      hintWidget: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin#silent-payments"),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          S.of(context).learn_more,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            height: 1,
+                          ),
+                          softWrap: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 if (dashboardViewModel.showSilentPaymentsCard) ...[
                   SizedBox(height: 16),
                   Padding(
@@ -353,7 +391,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
-                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
+                      rightButtonAction: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
                     ),
                   ),
                 ],
@@ -394,5 +433,23 @@ class CryptoBalanceWidget extends StatelessWidget {
               },
             ));
     dashboardViewModel.dismissMweb();
+  }
+
+  Future<void> _enableSilentPayments(BuildContext context) async {
+    dashboardViewModel.setSilentPaymentsEnabled();
+  }
+
+  Future<void> _dismissSilentPayments(BuildContext context) async {
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+              alertTitle: S.of(context).alert_notice,
+              alertContent: S.of(context).silent_payments_enable_later,
+              buttonText: S.of(context).understand,
+              buttonAction: () {
+                Navigator.of(context).pop();
+              },
+            ));
+    dashboardViewModel.dismissSilentPayments();
   }
 }

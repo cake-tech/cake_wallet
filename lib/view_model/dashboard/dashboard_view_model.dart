@@ -489,8 +489,43 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
 
+  @observable
+  bool? silentPaymentsEnabled;
+
   @computed
-  bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+  bool get showSilentPaymentsEnable =>
+      hasSilentPayments &&
+      silentPaymentsEnabled == null &&
+      bitcoin!.getSilentPaymentsIntroDisplay(wallet) &&
+      bitcoin!.getSilentPaymentsCardDisplay(wallet);
+
+  @computed
+  bool get showSilentPaymentsCard =>
+      hasSilentPayments &&
+      !showSilentPaymentsEnable &&
+      bitcoin!.getSilentPaymentsCardDisplay(wallet);
+
+  @action
+  void setSilentPaymentsEnabled() {
+    if (!hasSilentPayments) {
+      return;
+    }
+
+    silentPaymentsEnabled = true;
+    bitcoin!.setSilentPaymentsIntroDisplay(wallet, false);
+    bitcoin!.setSilentPaymentsCardDisplay(wallet, true);
+  }
+
+  @action
+  void dismissSilentPayments() {
+    if (!hasSilentPayments) {
+      return;
+    }
+
+    silentPaymentsEnabled = false;
+    bitcoin!.setSilentPaymentsIntroDisplay(wallet, false);
+    bitcoin!.setSilentPaymentsCardDisplay(wallet, false);
+  }
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
