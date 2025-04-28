@@ -149,15 +149,15 @@ class ElectrumTransactionInfo extends TransactionInfo {
     final weSent = ourSentAmounts.length > 0;
     final weReceived = ourReceivedAmounts.length > 0;
 
+    // All outputs in this tx were received
     if (ourReceivedAmounts.length == vout.length) {
-      // All outputs in this tx were received
       direction = TransactionDirection.incoming;
       amount = ourTotalReceivedAmount;
     } else if (weSent && weReceived && ourTotalSentAmount > ourTotalReceivedAmount) {
       // We sent and received in the same transaction
-      // The amount sent is greater than the amount received (change)
+      // The amount sent is greater than the amount received (which is change)
       direction = TransactionDirection.outgoing;
-      amount = ourTotalSentAmount - ourTotalReceivedAmount;
+      amount = totalOutsAmount - ourTotalReceivedAmount;
     } else {
       direction = TransactionDirection.outgoing;
 
