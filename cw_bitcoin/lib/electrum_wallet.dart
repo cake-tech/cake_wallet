@@ -326,7 +326,9 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
     // NOTE: will initiate by priority from the first walletAddressTypes
     // then proceeds to following ones after got fully discovered response from worker response
     for (final addressType in walletAddresses.walletAddressTypes) {
-      if (isHardwareWallet && addressType != SegwitAddressType.p2wpkh) continue;
+      if (currency == CryptoCurrency.btc &&
+          isHardwareWallet &&
+          addressType != SegwitAddressType.p2wpkh) continue;
 
       final bitcoinDerivationInfo = BitcoinAddressUtils.getDerivationFromType(
         addressType,
@@ -342,21 +344,7 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
           isChange: isChange,
         );
 
-        if (isDiscovered == false) {
-          break;
-        }
-        // else if (sync == true)
-        //   subscribeForStatuses(
-        //     walletAddresses.addressesRecords
-        //         .getRecords(
-        //           addressType: addressType,
-        //           seedBytesType: seedBytesType,
-        //           derivationPath: derivationPath,
-        //           isChange: isChange,
-        //         )
-        //         .whereType<BitcoinAddressRecord>()
-        //         .toList(),
-        //   );
+        if (isDiscovered == false) break;
       }
 
       if (isDiscovered == false) {
@@ -369,9 +357,75 @@ abstract class ElectrumWalletBase<T extends ElectrumWalletAddresses>
       }
     }
 
-    // if (isDiscovered == true && sync == false)
-    //   initAddresses(true);
-    // else if (isDiscovered == false && discovered == false) initAddresses(sync);
+    if (currency != CryptoCurrency.btc) {
+      for (final addressType in walletAddresses.walletAddressTypes) {
+        for (final seedBytesType in hdWallets.keys) {
+          final bitcoinDerivationInfo = BitcoinAddressUtils.getDerivationFromType(
+            addressType,
+            network: network,
+            isElectrum: seedBytesType.isElectrum,
+          );
+
+          bool alreadyDidDerivation = false;
+
+          for (final derivationInfo in [
+            bitcoinDerivationInfo,
+            BitcoinDerivationInfos.BIP84,
+            BitcoinDerivationInfos.ELECTRUM,
+          ]) {
+            final derivationPath = derivationInfo.derivationPath.toString();
+
+            if (alreadyDidDerivation &&
+                derivationPath == bitcoinDerivationInfo.derivationPath.toString()) {
+              continue;
+            }
+
+            alreadyDidDerivation = true;
+
+            for (final isChange in [true, false]) {
+              isDiscovered = walletAddresses.discoveredAddressesRecord.getIsDiscovered(
+                addressType: addressType,
+                seedBytesType: seedBytesType,
+                derivationPath: derivationPath,
+                isChange: isChange,
+              );
+
+              if (isDiscovered == false) {
+                break;
+              } else if (sync == true)
+                subscribeForStatuses(
+                  walletAddresses.addressesRecords
+                      .getRecords(
+                        addressType: addressType,
+                        seedBytesType: seedBytesType,
+                        derivationPath: derivationPath,
+                        isChange: isChange,
+                      )
+                      .whereType<BitcoinAddressRecord>()
+                      .toList(),
+                );
+            }
+
+            if (isDiscovered == false) {
+              discovered = await generateInitialAddresses(
+                addressType: addressType,
+                seedBytesType: seedBytesType,
+                bitcoinDerivationInfo: derivationInfo,
+              );
+              break;
+            }
+          }
+
+          if (isDiscovered == false) break;
+        }
+
+        if (isDiscovered == false) break;
+      }
+
+      if (isDiscovered == true && sync == false)
+        initAddresses(true);
+      else if (isDiscovered == false && discovered == false) initAddresses(sync);
+    }
 
     if (isDiscovered == true && syncStatus is SynchronizingSyncStatus)
       syncStatus = SyncedSyncStatus();
