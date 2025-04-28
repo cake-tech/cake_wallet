@@ -1588,6 +1588,8 @@ class ElectrumWorker {
 
       final tweakHeight = response.block;
 
+      if (initialSyncHeight < tweakHeight) initialSyncHeight = tweakHeight;
+
       // Continuous status UI update, send how many blocks left to scan
       final syncingStatus = scanData.isSingleScan
           ? SyncingSyncStatus(1, 0)
