@@ -73,7 +73,7 @@
   "awaiting_payment_confirmation": "Warten auf Zahlungsbestätigung",
   "background_sync": "Hintergrundsynchronisation",
   "background_sync_mode": "Hintergrundsynchronisierungsmodus",
-  "background_sync_on_battery_low": "Bei niedrigem Akku Synchronisieren",
+  "background_sync_on_battery_low": "Bei niedrigem Akkustand synchronisieren",
   "background_sync_on_charging": "Nur beim Laden synchronisieren",
   "background_sync_on_device_idle": "Nur dann synchronisieren, wenn das Gerät nicht verwendet wird",
   "background_sync_on_unmetered_network": "Erfordere ein ungetaktetes Netzwerk",
