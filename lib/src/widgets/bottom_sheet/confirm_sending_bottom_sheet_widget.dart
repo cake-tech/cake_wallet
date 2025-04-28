@@ -24,6 +24,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final String amountValue;
   final String fiatAmountValue;
   final String fee;
+  final String? feeRate;
   final String feeValue;
   final String feeFiatAmount;
   final List<Output> outputs;
@@ -44,6 +45,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.amountValue,
     required this.fiatAmountValue,
     required this.fee,
+    this.feeRate,
     required this.feeValue,
     required this.feeFiatAmount,
     required this.outputs,
@@ -80,8 +82,8 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     final tileBackgroundColor = currentTheme.type == ThemeType.light
         ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
         : currentTheme.type == ThemeType.oled
-        ? Colors.black.withOpacity(0.5)
-        : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+            ? Colors.black.withOpacity(0.5)
+            : Theme.of(context).extension<FilterTheme>()!.buttonColor;
 
     Widget content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),
@@ -119,6 +121,16 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
             itemSubTitleTextStyle: itemSubTitleTextStyle,
             tileBackgroundColor: tileBackgroundColor,
           ),
+          if (feeRate != null && feeRate!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            StandardTile(
+              itemTitle: S.current.send_estimated_fee,
+              itemValue: "$feeRate sat/byte",
+              itemTitleTextStyle: itemTitleTextStyle,
+              itemSubTitleTextStyle: itemSubTitleTextStyle,
+              tileBackgroundColor: tileBackgroundColor,
+            ),
+          ],
           const SizedBox(height: 8),
           Column(
             children: [
@@ -148,6 +160,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                           itemTitleTextStyle: itemTitleTextStyle,
                           itemSubTitleTextStyle: itemSubTitleTextStyle,
                           tileBackgroundColor: tileBackgroundColor,
+                          stealthAddress: item.stealthAddress,
                         )
                       : AddressTile(
                           itemTitle: S.of(context).address,
@@ -236,7 +249,7 @@ class StandardTile extends StatelessWidget {
     required this.itemValue,
     required this.itemTitleTextStyle,
     this.itemSubTitle,
-    required this.itemSubTitleTextStyle,
+    this.itemSubTitleTextStyle,
     required this.tileBackgroundColor,
   });
 
@@ -244,7 +257,7 @@ class StandardTile extends StatelessWidget {
   final String itemValue;
   final TextStyle itemTitleTextStyle;
   final String? itemSubTitle;
-  final TextStyle itemSubTitleTextStyle;
+  final TextStyle? itemSubTitleTextStyle;
   final Color tileBackgroundColor;
 
   @override
@@ -266,7 +279,7 @@ class StandardTile extends StatelessWidget {
                 Text(itemValue, style: itemTitleTextStyle),
                 itemSubTitle == null
                     ? Container()
-                    : Text(itemSubTitle!, style: itemSubTitleTextStyle),
+                    : Text(itemSubTitle!, style: itemSubTitleTextStyle!),
               ],
             ),
           ],
@@ -319,15 +332,14 @@ class AddressTile extends StatelessWidget {
             ],
           ),
           AddressFormatter.buildSegmentedAddress(
-            address: address,
-            walletType: walletType,
-            evenTextStyle: TextStyle(
-                fontSize: 12,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                decoration: TextDecoration.none)
-          ),
+              address: address,
+              walletType: walletType,
+              evenTextStyle: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  decoration: TextDecoration.none)),
         ],
       ),
     );
@@ -347,6 +359,7 @@ class AddressExpansionTile extends StatelessWidget {
     required this.itemSubTitleTextStyle,
     required this.tileBackgroundColor,
     required this.walletType,
+    this.stealthAddress,
   });
 
   final String contactType;
@@ -359,6 +372,7 @@ class AddressExpansionTile extends StatelessWidget {
   final TextStyle itemSubTitleTextStyle;
   final Color tileBackgroundColor;
   final WalletType walletType;
+  final String? stealthAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -383,31 +397,64 @@ class AddressExpansionTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                      child: Text(isBatchSending ? name : contactType,
-                          style: itemTitleTextStyle, softWrap: true)),
-                  Text(isBatchSending ? amount : name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        decoration: TextDecoration.none,
-                      )),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isBatchSending ? name : contactType,
+                          style: itemTitleTextStyle,
+                          softWrap: true,
+                        ),
+                        Text(
+                          isBatchSending ? amount : name,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               children: [
                 Row(
                   children: [
                     Expanded(
-                      child: AddressFormatter.buildSegmentedAddress(
-                          address: address,
-                          walletType: walletType,
-                          evenTextStyle: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                              decoration: TextDecoration.none)
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (stealthAddress != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                "${S.of(context).stealth_address} (Silent Payment):",
+                                style: itemSubTitleTextStyle,
+                              ),
+                            ),
+                          AddressFormatter.buildSegmentedAddress(
+                            address: address,
+                            walletType: walletType,
+                            evenTextStyle: itemSubTitleTextStyle,
+                          ),
+                          if (stealthAddress != null) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                "${S.of(context).generated_address} (P2TR):",
+                                style: itemSubTitleTextStyle,
+                              ),
+                            ),
+                            AddressFormatter.buildSegmentedAddress(
+                              address: stealthAddress!,
+                              walletType: walletType,
+                              evenTextStyle: itemSubTitleTextStyle,
+                            ),
+                          ]
+                        ],
                       ),
                     ),
                   ],

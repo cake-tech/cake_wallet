@@ -33,6 +33,7 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -45,13 +46,14 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/view_model/silent_payments_scanning_view_model.dart';
 
 import '../../themes/theme_base.dart';
 
@@ -71,12 +73,14 @@ abstract class DashboardViewModelBase with Store {
       required this.ordersStore,
       required this.anonpayTransactionsStore,
       required this.sharedPreferences,
-      required this.keyService})
+      required this.keyService,
+      required SilentPaymentsScanningViewModel silentPaymentsScanningViewModel})
       : hasTradeAction = true,
         hasSwapAction = true,
         isShowFirstYatIntroduction = false,
         isShowSecondYatIntroduction = false,
         isShowThirdYatIntroduction = false,
+        _silentPaymentsScanningViewModel = silentPaymentsScanningViewModel,
         filterItems = {
           S.current.transactions: [
             FilterItem(
@@ -276,17 +280,11 @@ abstract class DashboardViewModelBase with Store {
       _transactionDisposerCallback,
     );
 
-    if (hasSilentPayments) {
-      silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-
-      reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
-        silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
-      });
-    }
-
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
   }
+
+  final SilentPaymentsScanningViewModel _silentPaymentsScanningViewModel;
 
   bool _isTransactionDisposerCallbackRunning = false;
 
@@ -423,7 +421,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+      wallet;
 
   @computed
   bool get isTestnet => wallet.type == WalletType.bitcoin && bitcoin!.isTestnet(wallet);
@@ -490,22 +489,62 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
 
+  @observable
+  bool? silentPaymentsEnabled;
+
   @computed
-  bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
+  bool get showSilentPaymentsEnable =>
+      hasSilentPayments &&
+      silentPaymentsEnabled == null &&
+      bitcoin!.getSilentPaymentsIntroDisplay(wallet) &&
+      bitcoin!.getSilentPaymentsCardDisplay(wallet);
+
+  @computed
+  bool get showSilentPaymentsCard =>
+      hasSilentPayments &&
+      !showSilentPaymentsEnable &&
+      bitcoin!.getSilentPaymentsCardDisplay(wallet);
+
+  @action
+  void setSilentPaymentsEnabled() {
+    if (!hasSilentPayments) {
+      return;
+    }
+
+    silentPaymentsEnabled = true;
+    bitcoin!.setSilentPaymentsIntroDisplay(wallet, false);
+    bitcoin!.setSilentPaymentsCardDisplay(wallet, true);
+  }
+
+  @action
+  void dismissSilentPayments() {
+    if (!hasSilentPayments) {
+      return;
+    }
+
+    silentPaymentsEnabled = false;
+    bitcoin!.setSilentPaymentsIntroDisplay(wallet, false);
+    bitcoin!.setSilentPaymentsCardDisplay(wallet, false);
+  }
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
 
-  @observable
-  bool silentPaymentsScanningActive = false;
+  @computed
+  bool get silentPaymentsAlwaysScanning =>
+      _silentPaymentsScanningViewModel.silentPaymentsAlwaysScan;
+
+  @computed
+  bool get silentPaymentsScanningActive =>
+      _silentPaymentsScanningViewModel.silentPaymentsScanningActive;
 
   @action
-  void setSilentPaymentsScanning(bool active) {
-    silentPaymentsScanningActive = active;
-
-    if (hasSilentPayments) {
-      bitcoin!.setScanningActive(wallet, active);
+  Future<void> toggleSilentPaymentsScanning(BuildContext context) async {
+    if (silentPaymentsAlwaysScanning && wallet.syncStatus is SyncedSyncStatus) {
+      return;
     }
+
+    await _silentPaymentsScanningViewModel.toggleSilentPaymentsScanning(context);
   }
 
   @computed
@@ -831,7 +870,9 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onWalletChange(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+              WalletAddresses>?
+          wallet) {
     if (wallet == null) {
       return;
     }

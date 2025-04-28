@@ -4,6 +4,7 @@ class WalletAddressListItem extends ListItem {
   WalletAddressListItem({
     required this.address,
     required this.isPrimary,
+    this.derivationPath = "",
     this.id,
     this.name,
     this.txCount,
@@ -13,19 +14,25 @@ class WalletAddressListItem extends ListItem {
     this.isOneTimeReceiveAddress = false,
     this.isHidden = false,
     this.isManual = false,
+    this.canBeDeleted = false,
+    this.onDelete,
   }) : super();
 
   final int? id;
   final bool isPrimary;
   final String address;
+  final String derivationPath;
   final String? name;
   final int? txCount;
   final String? balance;
   final bool isChange;
   bool isHidden;
   bool isManual;
+  final bool canBeDeleted;
   final bool? isOneTimeReceiveAddress;
 
   @override
-  String toString() => name ?? address;
+  String toString() => name != null && name != "" ? name! : address;
+
+  Function(String)? onDelete;
 }

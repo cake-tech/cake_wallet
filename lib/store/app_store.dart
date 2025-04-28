@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -30,7 +31,8 @@ abstract class AppStoreBase with Store {
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>?
+      wallet;
 
   WalletListStore walletList;
 
@@ -40,7 +42,8 @@ abstract class AppStoreBase with Store {
 
   @action
   Future<void> changeCurrentWallet(
-      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet) async {
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo, WalletAddresses>
+          wallet) async {
     bool changingToSameWalletType = this.wallet?.type == wallet.type;
     this.wallet?.close(shouldCleanup: !changingToSameWalletType);
     this.wallet = wallet;

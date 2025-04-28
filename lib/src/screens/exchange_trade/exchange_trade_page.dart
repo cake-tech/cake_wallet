@@ -214,10 +214,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
     _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) async {
-
-          if (dialogContext != null && dialogContext?.mounted == true) {
-            Navigator.of(dialogContext!).pop();
-          }
+      if (dialogContext != null && dialogContext?.mounted == true) {
+        Navigator.of(dialogContext!).pop();
+      }
 
       if (state is! IsExecutingState &&
           loadingBottomSheetContext != null &&
@@ -289,6 +288,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   fee: isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
                       ? S.of(bottomSheetContext).send_estimated_fee
                       : S.of(bottomSheetContext).send_fee,
+                  feeRate: widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeRate,
                   feeValue:
                       widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel

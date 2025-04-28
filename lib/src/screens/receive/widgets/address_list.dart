@@ -131,8 +131,12 @@ class _AddressListState extends State<AddressList> {
               showTrailingButton: widget.addressListViewModel.showAddManualAddresses,
               showSearchButton: true,
               onSearchCallback: updateItems,
-              trailingButtonTap: () =>
-                  Navigator.of(context).pushNamed(Routes.newSubaddress).then((value) {
+              trailingButtonTap: () => Navigator.of(context).pushNamed(
+                    Routes.newSubaddress,
+                    arguments: {
+                      'fromHiddenAddresses': showHiddenAddresses,
+                    },
+                  ).then((value) {
                     updateItems(); // refresh the new address
                   }),
               trailingIcon: Icon(
@@ -180,9 +184,12 @@ class _AddressListState extends State<AddressList> {
                   widget.addressListViewModel.setAddress(item);
                 },
                 onEdit: editable
-                    ? () => Navigator.of(context)
-                            .pushNamed(Routes.newSubaddress, arguments: item)
-                            .then((value) {
+                    ? () => Navigator.of(context).pushNamed(
+                          Routes.newSubaddress,
+                          arguments: {
+                            'item': item,
+                          },
+                        ).then((value) {
                           updateItems(); // refresh the new address
                         })
                     : null,

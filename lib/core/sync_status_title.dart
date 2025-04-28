@@ -2,6 +2,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/sync_status.dart';
 
 String syncStatusTitle(SyncStatus syncStatus) {
+  if (syncStatus is SyncedNewPaymentSyncStatus) {
+    return S.current.sync_status_new_payment;
+  }
+
   if (syncStatus is SyncingSyncStatus) {
     return syncStatus.blocksLeft == 1
         ? S.current.block_remaining
@@ -10,6 +14,10 @@ String syncStatusTitle(SyncStatus syncStatus) {
 
   if (syncStatus is SyncedTipSyncStatus) {
     return S.current.silent_payments_scanned_tip(syncStatus.tip.toString());
+  }
+
+  if (syncStatus is SyncedNewBlockSyncStatus) {
+    return S.current.sync_status_new_block(syncStatus.height.toString());
   }
 
   if (syncStatus is SyncedSyncStatus) {
@@ -51,7 +59,7 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_timed_out;
   }
 
-  if (syncStatus is SyncronizingSyncStatus) {
+  if (syncStatus is SynchronizingSyncStatus) {
     return S.current.sync_status_syncronizing;
   }
 

@@ -33,8 +33,8 @@ part 'wallet.g.dart';
 
 class DecredWallet = DecredWalletBase with _$DecredWallet;
 
-abstract class DecredWalletBase
-    extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo> with Store {
+abstract class DecredWalletBase extends WalletBase<DecredBalance, DecredTransactionHistory,
+    DecredTransactionInfo, DecredWalletAddresses> with Store {
   DecredWalletBase(WalletInfo walletInfo, String password, Box<UnspentCoinsInfo> unspentCoinsInfo,
       Libwallet libwallet, Function() closeLibwallet)
       : _password = password,
@@ -442,7 +442,7 @@ abstract class DecredWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority, [int? amount]) async {
     if (priority is DecredTransactionPriority) {
       final P2PKHOutputSize =
           36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize

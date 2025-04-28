@@ -152,8 +152,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
     // return false;
 
-    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
-    // return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
+    //   return false;
 
     return true;
   }
@@ -579,15 +579,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction!.id.isNotEmpty) {
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
-            ? await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey,
-                recipientAddress: address,
-                transactionNote: note,
-              ))
-            : await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey,
-                transactionNote: note,
-              ));
+            ? await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  recipientAddress: address,
+                  transactionNote: note,
+                ),
+              )
+            : await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  transactionNote: note,
+                ),
+              );
       }
       final sharedPreferences = await SharedPreferences.getInstance();
       await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name), DateTime.now().add(Duration(minutes: 1)).toIso8601String());

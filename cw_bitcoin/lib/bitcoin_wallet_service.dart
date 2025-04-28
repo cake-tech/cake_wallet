@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -14,18 +14,20 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:collection/collection.dart';
-import 'package:bip39/bip39.dart' as bip39;
 
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
+  BitcoinWalletService(
+    this.walletInfoSource,
+    this.unspentCoinsInfoSource,
+    this.isDirect,
+  );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  final bool alwaysScan;
   final bool isDirect;
 
   @override
@@ -37,7 +39,7 @@ class BitcoinWalletService extends WalletService<
     credentials.walletInfo?.network = network.value;
 
     final String mnemonic;
-    switch ( credentials.walletInfo?.derivationInfo?.derivationType) {
+    switch (credentials.walletInfo?.derivationInfo?.derivationType) {
       case DerivationType.bip39:
         final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
@@ -59,7 +61,6 @@ class BitcoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
-    await wallet.save();
     await wallet.init();
 
     return wallet;
@@ -79,7 +80,6 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -92,7 +92,6 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -107,8 +106,9 @@ class BitcoinWalletService extends WalletService<
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-          (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -126,7 +126,6 @@ class BitcoinWalletService extends WalletService<
       name: currentName,
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      alwaysScan: alwaysScan,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -148,13 +147,20 @@ class BitcoinWalletService extends WalletService<
     credentials.walletInfo?.derivationInfo?.derivationPath =
         credentials.hwAccountData.derivationPath;
 
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: credentials.walletInfo!,
+      network: network,
+      xpub: credentials.hwAccountData.xpub,
+    );
+
     final wallet = await BitcoinWallet(
       password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      networkParam: network,
+      network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      hdWallets: hdWallets,
     );
     await wallet.save();
     await wallet.init();
@@ -169,10 +175,6 @@ class BitcoinWalletService extends WalletService<
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
-      throw BitcoinMnemonicIsIncorrectException();
-    }
-
     final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
     credentials.walletInfo?.network = network.value;
 
@@ -185,7 +187,6 @@ class BitcoinWalletService extends WalletService<
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    await wallet.save();
     await wallet.init();
     return wallet;
   }

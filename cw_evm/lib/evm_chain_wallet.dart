@@ -58,9 +58,11 @@ const Map<String, String> methodSignatureToType = {
 
 abstract class EVMChainWallet = EVMChainWalletBase with _$EVMChainWallet;
 
-abstract class EVMChainWalletBase
-    extends WalletBase<EVMChainERC20Balance, EVMChainTransactionHistory, EVMChainTransactionInfo>
-    with Store, WalletKeysFile {
+abstract class EVMChainWalletBase extends WalletBase<
+    EVMChainERC20Balance,
+    EVMChainTransactionHistory,
+    EVMChainTransactionInfo,
+    EVMChainWalletAddresses> with Store, WalletKeysFile {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
     required EVMChainClient client,
@@ -122,7 +124,7 @@ abstract class EVMChainWalletBase
   Timer? _transactionsUpdateTimer;
 
   @override
-  WalletAddresses walletAddresses;
+  EVMChainWalletAddresses walletAddresses;
 
   @override
   @observable
@@ -217,7 +219,7 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async {
     {
       try {
         if (priority is EVMChainTransactionPriority) {

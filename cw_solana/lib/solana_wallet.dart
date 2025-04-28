@@ -38,9 +38,8 @@ part 'solana_wallet.g.dart';
 
 class SolanaWallet = SolanaWalletBase with _$SolanaWallet;
 
-abstract class SolanaWalletBase
-    extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo>
-    with Store, WalletKeysFile {
+abstract class SolanaWalletBase extends WalletBase<SolanaBalance, SolanaTransactionHistory,
+    SolanaTransactionInfo, SolanaWalletAddresses> with Store, WalletKeysFile {
   SolanaWalletBase({
     required WalletInfo walletInfo,
     String? mnemonic,
@@ -87,7 +86,7 @@ abstract class SolanaWalletBase
   late final Box<SPLToken> splTokensBox;
 
   @override
-  WalletAddresses walletAddresses;
+  SolanaWalletAddresses walletAddresses;
 
   @override
   @observable
@@ -175,7 +174,7 @@ abstract class SolanaWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async => 0;
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
@@ -611,7 +610,7 @@ abstract class SolanaWalletBase
     );
   }
 
-  SolanaRPC? get solanaProvider => _client.getSolanaProvider;
+  SolanaProvider? get solanaProvider => _client.getSolanaProvider;
 
   @override
   String get password => _password;

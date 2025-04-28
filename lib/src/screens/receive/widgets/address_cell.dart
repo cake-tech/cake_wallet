@@ -1,9 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,25 +9,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class AddressCell extends StatelessWidget {
-  AddressCell(
-      {required this.address,
-      required this.name,
-      required this.isCurrent,
-      required this.isPrimary,
-      required this.backgroundColor,
-      required this.textColor,
-      required this.walletType,
-      required this.currentTheme,
-      this.onTap,
-      this.onEdit,
-      this.onHide,
-      this.isHidden = false,
-      this.onDelete,
-      this.txCount,
-      this.balance,
-      this.isChange = false,
-      this.hasBalance = false,
-      this.hasReceived = false});
+  AddressCell({
+    required this.address,
+    required this.name,
+    required this.isCurrent,
+    required this.isPrimary,
+    required this.backgroundColor,
+    required this.textColor,
+    required this.walletType,
+    required this.currentTheme,
+    required this.derivationPath,
+    this.onTap,
+    this.onEdit,
+    this.onHide,
+    this.isHidden = false,
+    this.txCount,
+    this.balance,
+    this.isChange = false,
+    this.hasBalance = false,
+    this.hasReceived = false,
+  });
 
   factory AddressCell.fromItem(
     WalletAddressListItem item, {
@@ -44,29 +43,30 @@ class AddressCell extends StatelessWidget {
     Function()? onEdit,
     Function()? onHide,
     bool isHidden = false,
-    Function()? onDelete,
   }) =>
       AddressCell(
-          address: item.address,
-          name: item.name ?? '',
-          isCurrent: isCurrent,
-          isPrimary: item.isPrimary,
-          backgroundColor: backgroundColor,
-          textColor: textColor,
-          walletType: walletType,
-          currentTheme: currentTheme,
-          onTap: onTap,
-          onEdit: onEdit,
-          onHide: onHide,
-          isHidden: isHidden,
-          onDelete: onDelete,
-          txCount: item.txCount,
-          balance: item.balance,
-          isChange: item.isChange,
-          hasBalance: hasBalance,
-          hasReceived: hasReceived,);
+        address: item.address,
+        derivationPath: item.derivationPath,
+        name: item.name ?? '',
+        isCurrent: isCurrent,
+        isPrimary: item.isPrimary,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        walletType: walletType,
+        currentTheme: currentTheme,
+        onTap: onTap,
+        onEdit: onEdit,
+        onHide: onHide,
+        isHidden: isHidden,
+        txCount: item.txCount,
+        balance: item.balance,
+        isChange: item.isChange,
+        hasBalance: hasBalance,
+        hasReceived: hasReceived,
+      );
 
   final String address;
+  final String derivationPath;
   final String name;
   final bool isCurrent;
   final bool isPrimary;
@@ -78,7 +78,6 @@ class AddressCell extends StatelessWidget {
   final Function()? onEdit;
   final Function()? onHide;
   final bool isHidden;
-  final Function()? onDelete;
   final int? txCount;
   final String? balance;
   final bool isChange;
@@ -99,7 +98,9 @@ class AddressCell extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: name.isNotEmpty ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                      mainAxisAlignment: name.isNotEmpty
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Row(
@@ -136,16 +137,34 @@ class AddressCell extends StatelessWidget {
                           ],
                         ),
                         Flexible(
-                          child: AddressFormatter.buildSegmentedAddress(
-                              address: address,
-                              walletType: walletType,
-                              shouldTruncate: name.isNotEmpty || address.length > 43 ,
-                              evenTextStyle: TextStyle(
-                                  fontSize: isChange ? 10 : 14,
-                                  color: textColor
-                              ))),
+                            child: AddressFormatter.buildSegmentedAddress(
+                                address: address,
+                                walletType: walletType,
+                                shouldTruncate: name.isNotEmpty || address.length > 43,
+                                evenTextStyle:
+                                    TextStyle(fontSize: isChange ? 10 : 14, color: textColor))),
                       ],
                     ),
+                    if (derivationPath.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: AutoSizeText(
+                                derivationPath,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: isChange ? 10 : 14,
+                                  color: textColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     if (hasBalance || hasReceived)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),
@@ -195,7 +214,7 @@ class AddressCell extends StatelessWidget {
 
   ActionPane _actionPaneEnd(BuildContext context) => ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: onDelete != null ? 0.4 : 0.3,
+        extentRatio: 0.3,
         children: [
           SlidableAction(
             onPressed: (_) => onHide?.call(),
@@ -209,7 +228,7 @@ class AddressCell extends StatelessWidget {
 
   ActionPane _actionPaneStart(BuildContext context) => ActionPane(
         motion: const ScrollMotion(),
-        extentRatio: onDelete != null ? 0.4 : 0.3,
+        extentRatio: 0.3,
         children: [
           SlidableAction(
             onPressed: (_) => onEdit?.call(),
@@ -218,14 +237,6 @@ class AddressCell extends StatelessWidget {
             icon: Icons.edit,
             label: S.of(context).edit,
           ),
-          if (onDelete != null)
-            SlidableAction(
-              onPressed: (_) => onDelete!.call(),
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              icon: Icons.delete,
-              label: S.of(context).delete,
-            ),
         ],
       );
 }

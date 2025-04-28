@@ -21,18 +21,18 @@ packages:
     dependency: transitive
     description:
       name: args
-      sha256: bf9f5caeea8d8fe6721a9c358dd8a5c1947b27f1cfaa18b39c301273594919e6
+      sha256: d0481093c50b1da8910eb0bb301626d4d8eb7284aa739614d2b394ee09e3ea04
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "2.7.0"
   asn1lib:
     dependency: transitive
     description:
       name: asn1lib
-      sha256: "4bae5ae63e6d6dd17c4aac8086f3dec26c0236f6a0f03416c6c19d830c367cf5"
+      sha256: "1c296cd268f486cabcc3930e9b93a8133169305f18d722916e675959a88f6d2c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.8"
+    version: "1.5.9"
   async:
     dependency: transitive
     description:
@@ -76,23 +76,23 @@ packages:
     source: git
     version: "1.0.1"
   bitcoin_base:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v9
-      resolved-ref: "86969a14e337383e14965f5fb45a72a63e5009bc"
+      ref: cake-update-v15
+      resolved-ref: "29160733cbc4ef2c7b8c8fe9ed0297c9bffecfe2"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
-    version: "4.7.0"
+    version: "6.1.0"
   blockchain_utils:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      ref: cake-update-v4
+      resolved-ref: "437dadd0bd9bf73ec6a551299577799341f6486a"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "3.3.0"
+    version: "4.3.0"
   bluez:
     dependency: transitive
     description:
@@ -129,18 +129,18 @@ packages:
     dependency: transitive
     description:
       name: build_config
-      sha256: bf80fcfb46a29945b423bd9aad884590fb1dc69b330a4d4700cac476af1708d1
+      sha256: "4ae2de3e1e67ea270081eaee972e1bd8f027d459f249e0f1186730784c2e7e33"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.2"
   build_daemon:
     dependency: transitive
     description:
       name: build_daemon
-      sha256: "79b2aef6ac2ed00046867ed354c88778c9c0f029df8a20fe10b5436826721ef9"
+      sha256: "8e928697a82be082206edb0b9c99c5a4ad6bc31c9e9b8b2f291ae65cd4a25daa"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.2"
+    version: "4.0.4"
   build_resolvers:
     dependency: "direct dev"
     description:
@@ -177,10 +177,10 @@ packages:
     dependency: transitive
     description:
       name: built_value
-      sha256: "8b158ab94ec6913e480dc3f752418348b5ae099eb75868b5f4775f0572999c61"
+      sha256: ea90e81dc4a25a043d9bee692d20ed6d1c4a1662a28c03a96417446c093ed6b4
       url: "https://pub.dev"
     source: hosted
-    version: "8.9.4"
+    version: "8.9.5"
   cake_backup:
     dependency: transitive
     description:
@@ -423,10 +423,10 @@ packages:
     dependency: transitive
     description:
       name: googleapis_auth
-      sha256: befd71383a955535060acde8792e7efc11d2fccd03dd1d3ec434e85b68775938
+      sha256: b81fe352cc4a330b3710d2b7ad258d9bcef6f909bb759b306bf42973a7d046db
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.0"
+    version: "2.0.0"
   graphs:
     dependency: transitive
     description:
@@ -439,10 +439,10 @@ packages:
     dependency: "direct main"
     description:
       name: grpc
-      sha256: "5b99b7a420937d4361ece68b798c9af8e04b5bc128a7859f2a4be87427694813"
+      sha256: "30e1edae6846b163a64f6d8716e3443980fe1f7d2d1f086f011d24ea186f2582"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.1"
+    version: "4.0.4"
   hex:
     dependency: transitive
     description:
@@ -495,10 +495,10 @@ packages:
     dependency: transitive
     description:
       name: http_parser
-      sha256: "2aa08ce0341cc9b354a498388e30986515406668dbcc4f7c950c3e715496693b"
+      sha256: "178d74305e7866013777bab2c3d8726205dc5a4dd935297175b19a23a2e66571"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.2"
+    version: "4.1.2"
   intl:
     dependency: "direct main"
     description:
@@ -568,10 +568,10 @@ packages:
     dependency: "direct main"
     description:
       name: ledger_flutter_plus
-      sha256: "1c03f3c4a9754b5f0170a9eb9552ec54fa86e985f8ee71a255ee2c5629b53d31"
+      sha256: "0cedc79f5a608782240c130f42bc1ae536be68b8a07fc3d711f8b26e0d8d728b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.1"
+    version: "1.5.2"
   ledger_litecoin:
     dependency: "direct main"
     description:
@@ -657,19 +657,19 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
+      ref: cake-update-v4
+      resolved-ref: e99d7820e53a685cb4de7af995a493d6d1effd27
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "3.7.0"
+    version: "6.1.0"
   package_config:
     dependency: transitive
     description:
       name: package_config
-      sha256: "92d4488434b520a62570293fbd33bb556c7d49230791c1b4bbd973baf6d2dc67"
+      sha256: f096c55ebb7deb7e384101542bfba8c52696c1b56fca2eb62827989ef2353bbc
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.2.0"
   path:
     dependency: transitive
     description:
@@ -690,10 +690,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "4adf4fd5423ec60a29506c76581bc05854c55e3a0b72d35bb28d661c9686edf2"
+      sha256: "0ca7359dad67fd7063cb2892ab0c0737b2daafd807cf1acecd62374c8fae6c12"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.15"
+    version: "2.2.16"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -778,26 +778,26 @@ packages:
     dependency: transitive
     description:
       name: provider
-      sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
+      sha256: "489024f942069c2920c844ee18bb3d467c69e48955a4f32d1677f71be103e310"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.2"
+    version: "6.1.4"
   pub_semver:
     dependency: transitive
     description:
       name: pub_semver
-      sha256: "7b3cfbf654f3edd0c6298ecd5be782ce997ddf0e00531b9464b55245185bbbbd"
+      sha256: "5bfcf68ca79ef689f8990d1160781b4bad40a3bd5e5218ad4076ddb7f4081585"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.5"
+    version: "2.2.0"
   pubspec_parse:
     dependency: transitive
     description:
       name: pubspec_parse
-      sha256: "81876843eb50dc2e1e5b151792c9a985c5ed2536914115ed04e9c8528f6647b0"
+      sha256: "0560ba233314abbed0a48a2956f7f022cce7c3e1e73df540277da7544cad4082"
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.5.0"
   quiver:
     dependency: transitive
     description:
@@ -826,18 +826,18 @@ packages:
     dependency: "direct main"
     description:
       name: shared_preferences
-      sha256: "846849e3e9b68f3ef4b60c60cf4b3e02e9321bc7f4d8c4692cf87ffa82fc8a3a"
+      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.2"
+    version: "2.5.3"
   shared_preferences_android:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: a768fc8ede5f0c8e6150476e14f38e2417c0864ca36bb4582be8e21925a03c22
+      sha256: c2c8c46297b5d6a80bed7741ec1f2759742c77d272f1a1698176ae828f8e1a18
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.6"
+    version: "2.4.9"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -882,10 +882,10 @@ packages:
     dependency: transitive
     description:
       name: shelf
-      sha256: ad29c505aee705f41a4d8963641f91ac4cee3c8fad5947e033390a7bd8180fa4
+      sha256: e7dd780a7ffb623c57850b33f43309312fc863fb6aa3d276a754bb299839ef12
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.1"
+    version: "1.4.2"
   shelf_web_socket:
     dependency: transitive
     description:
@@ -935,8 +935,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v4.0.0"
-      resolved-ref: "2554cb8bd3ee1d026bc63e76a30d1226960c7cb4"
+      ref: cake-update-v4
+      resolved-ref: f3c172a7dc5155f5e745e4630b05f197e098a5cd
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
@@ -1016,10 +1016,10 @@ packages:
     dependency: transitive
     description:
       name: universal_ble
-      sha256: "1fad089150a29db82b3b7d60327e18c5ad6b3a5bb509defc1c690b0a76b9c098"
+      sha256: "377fc1dc3e1bbc306a4f6756f163d65c22950be40adb03b38de89c1f059ac700"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.0"
+    version: "0.16.0"
   universal_platform:
     dependency: transitive
     description:
@@ -1072,18 +1072,18 @@ packages:
     dependency: transitive
     description:
       name: web_socket
-      sha256: "3c12d96c0c9a4eec095246debcea7b86c0324f22df69893d538fcc6f1b8cce83"
+      sha256: bfe6f435f6ec49cb6c01da1e275ae4228719e59a6b067048c51e72d9d63bcc4b
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.6"
+    version: "1.0.0"
   web_socket_channel:
     dependency: transitive
     description:
       name: web_socket_channel
-      sha256: "0b8e2457400d8a859b7b2030786835a28a8e80836ef64402abef392ff4f1d0e5"
+      sha256: d645757fb0f4773d602444000a8131ff5d48c9e47adfe9772652dd1a4f2d45c8
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "3.0.3"
   xdg_directories:
     dependency: transitive
     description:
@@ -1117,5 +1117,5 @@ packages:
     source: hosted
     version: "2.2.2"
 sdks:
-  dart: ">=3.5.0 <4.0.0"
-  flutter: ">=3.24.0"
+  dart: ">=3.6.0 <4.0.0"
+  flutter: ">=3.27.0"

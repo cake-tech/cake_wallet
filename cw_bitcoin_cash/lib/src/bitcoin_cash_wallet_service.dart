@@ -43,7 +43,6 @@ class BitcoinCashWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       passphrase: credentials.passphrase,
     );
-    await wallet.save();
     await wallet.init();
 
     return wallet;
@@ -86,8 +85,9 @@ class BitcoinCashWalletService extends WalletService<
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -142,8 +142,7 @@ class BitcoinCashWalletService extends WalletService<
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        passphrase: credentials.passphrase
-    );
+        passphrase: credentials.passphrase);
     await wallet.save();
     await wallet.init();
     return wallet;

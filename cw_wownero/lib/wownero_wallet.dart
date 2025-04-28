@@ -48,11 +48,12 @@ const MIN_RESTORE_HEIGHT = 1000;
 
 class WowneroWallet = WowneroWalletBase with _$WowneroWallet;
 
-abstract class WowneroWalletBase
-    extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
-    with Store {
+abstract class WowneroWalletBase extends WalletBase<WowneroBalance, WowneroTransactionHistory,
+    WowneroTransactionInfo, WowneroWalletAddresses> with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
+      {required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -136,8 +137,8 @@ abstract class WowneroWalletBase
       passphrase: wownero_wallet.getPassphrase());
 
   int? get restoreHeight =>
-      transactionHistory.transactions.values.firstOrNull?.height ?? wownero.Wallet_getRefreshFromBlockHeight(wptr!);
-
+      transactionHistory.transactions.values.firstOrNull?.height ??
+      wownero.Wallet_getRefreshFromBlockHeight(wptr!);
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -271,7 +272,7 @@ abstract class WowneroWalletBase
       final int totalAmount =
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0));
 
-      final estimatedFee = calculateEstimatedFee(_credentials.priority, totalAmount);
+      final estimatedFee = await calculateEstimatedFee(_credentials.priority);
       if (unlockedBalance < totalAmount) {
         throw WowneroTransactionCreationException(
             'You do not have enough WOW to send this amount.');
@@ -307,7 +308,7 @@ abstract class WowneroWalletBase
             'You do not have enough unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
-      final estimatedFee = calculateEstimatedFee(_credentials.priority, formattedAmount);
+      final estimatedFee = await calculateEstimatedFee(_credentials.priority);
       if (!spendAllCoins &&
           ((formattedAmount != null && allInputsAmount < (formattedAmount + estimatedFee)) ||
               formattedAmount == null)) {
@@ -326,7 +327,7 @@ abstract class WowneroWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {
@@ -599,8 +600,7 @@ abstract class WowneroWalletBase
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
   Future<List<WowneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async =>
-      (await transaction_history
-          .getAllTransactions())
+      (await transaction_history.getAllTransactions())
           .map(
             (row) => WowneroTransactionInfo(
               row.hash,

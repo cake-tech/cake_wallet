@@ -40,9 +40,8 @@ part 'zano_wallet.g.dart';
 
 class ZanoWallet = ZanoWalletBase with _$ZanoWallet;
 
-abstract class ZanoWalletBase
-    extends WalletBase<ZanoBalance, ZanoTransactionHistory, ZanoTransactionInfo>
-    with Store, ZanoWalletApi {
+abstract class ZanoWalletBase extends WalletBase<ZanoBalance, ZanoTransactionHistory,
+    ZanoTransactionInfo, ZanoWalletAddresses> with Store, ZanoWalletApi {
   static const int _autoSaveIntervalSeconds = 30;
   static const int _pollIntervalMilliseconds = 5000;
   static const int _maxLoadAssetsRetries = 5;
@@ -121,7 +120,7 @@ abstract class ZanoWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, [int? amount = null]) =>
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async =>
       getCurrentTxFee(priority);
 
   @override
@@ -235,7 +234,7 @@ abstract class ZanoWalletBase
     final hasMultiDestination = outputs.length > 1;
     final unlockedBalanceZano = balance[CryptoCurrency.zano]?.unlocked ?? BigInt.zero;
     final unlockedBalanceCurrency = balance[credentials.currency]?.unlocked ?? BigInt.zero;
-    final fee = BigInt.from(calculateEstimatedFee(credentials.priority));
+    final fee = BigInt.from(await calculateEstimatedFee(credentials.priority));
     late BigInt totalAmount;
     void checkForEnoughBalances() {
       if (isZano) {

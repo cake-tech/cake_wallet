@@ -14,7 +14,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
 abstract class WalletBase<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
-    TransactionType extends TransactionInfo> {
+    TransactionType extends TransactionInfo, AddressesType extends WalletAddresses> {
   WalletBase(this.walletInfo);
 
   static String idFor(String name, WalletType type) =>
@@ -23,6 +23,9 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   WalletInfo walletInfo;
 
   WalletType get type => walletInfo.type;
+
+  bool get isElectrumBased =>
+      type == WalletType.bitcoin || type == WalletType.litecoin || type == WalletType.bitcoinCash;
 
   CryptoCurrency get currency => currencyForWalletType(type, isTestnet: isTestnet);
 
@@ -52,7 +55,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Object get keys;
 
-  WalletAddresses get walletAddresses;
+  AddressesType get walletAddresses;
 
   late HistoryType transactionHistory;
 
@@ -81,7 +84,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
-  int calculateEstimatedFee(TransactionPriority priority, int? amount);
+  Future<int> calculateEstimatedFee(TransactionPriority priority);
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,

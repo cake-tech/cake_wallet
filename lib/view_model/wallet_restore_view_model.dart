@@ -71,7 +71,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
     walletCreationService.changeWalletType(type: type);
     if (restoredWallet != null) {
-      if(restoredWallet!.restoreMode == WalletRestoreMode.seed) {
+      if (restoredWallet!.restoreMode == WalletRestoreMode.seed) {
         seedSettingsViewModel.setPassphrase(restoredWallet!.passphrase);
       }
     }
@@ -105,7 +105,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       switch (type) {
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password, passphrase: passphrase??'');
+            name: name,
+            height: height,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase ?? '',
+          );
         case WalletType.bitcoin:
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
@@ -113,8 +118,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
-            derivationType: derivationInfo!.derivationType!,
-            derivationPath: derivationInfo.derivationPath!,
           );
         case WalletType.ethereum:
           return ethereum!.createEthereumRestoreWalletFromSeedCredentials(
@@ -165,7 +168,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password,
-            passphrase: passphrase??'',
+            passphrase: passphrase ?? '',
             height: height,
           );
         case WalletType.zano:
@@ -173,14 +176,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             height: height,
-            passphrase: passphrase??'',
+            passphrase: passphrase ?? '',
             mnemonic: seed,
           );
         case WalletType.decred:
           return decred!.createDecredRestoreWalletFromSeedCredentials(
-              name: name,
-              mnemonic: seed,
-              password: password,
+            name: name,
+            mnemonic: seed,
+            password: password,
           );
         case WalletType.none:
         case WalletType.haven:
@@ -268,15 +271,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     var node = appStore.settingsStore.getCurrentNode(walletType);
 
     switch (walletType) {
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        String? mnemonic = credentials['seed'] as String?;
-        String? passphrase = credentials['passphrase'] as String?;
-        return bitcoin!.getDerivationsFromMnemonic(
-          mnemonic: mnemonic!,
-          node: node,
-          passphrase: passphrase,
-        );
       case WalletType.nano:
         String? mnemonic = credentials['seed'] as String?;
         String? seedKey = credentials['private_key'] as String?;

@@ -246,6 +246,11 @@ Future<int> getHavenCurrentHeight() async {
 
 // Data taken from https://timechaincalendar.com/
 const bitcoinDates = {
+  "2025-01": 877270,
+  "2024-12": 872708,
+  "2024-11": 868345,
+  "2024-10": 863584,
+  "2024-09": 859317,
   "2024-08": 854889,
   "2024-07": 850182,
   "2024-06": 846005,
@@ -312,10 +317,12 @@ DateTime getDateByBitcoinHeight(int height) {
 }
 
 int getLtcHeightByDate({required DateTime date}) {
+// <-
   // TODO: use the proxy layer to get the height with a binary search of blocked header heights
   return 0;
 }
 
+// <-
 // TODO: enhance all of this global const lists
 const wowDates = {
   "2023-12": 583048,

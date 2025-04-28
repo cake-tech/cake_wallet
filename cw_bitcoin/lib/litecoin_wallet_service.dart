@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
@@ -14,7 +14,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:collection/collection.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:path_provider/path_provider.dart';
 
 class LitecoinWalletService extends WalletService<
@@ -23,11 +22,13 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromWIFCredentials,
     BitcoinRestoreWalletFromHardware> {
   LitecoinWalletService(
-      this.walletInfoSource, this.unspentCoinsInfoSource, this.alwaysScan, this.isDirect);
+    this.walletInfoSource,
+    this.unspentCoinsInfoSource,
+    this.isDirect,
+  );
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  final bool alwaysScan;
   final bool isDirect;
 
   @override
@@ -35,17 +36,19 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
-    final String mnemonic;
-    switch (credentials.walletInfo?.derivationInfo?.derivationType) {
-      case DerivationType.bip39:
-        final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+    String? mnemonic = credentials.mnemonic;
+    if (mnemonic == null) {
+      switch (credentials.walletInfo?.derivationInfo?.derivationType) {
+        case DerivationType.bip39:
+          final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
-        mnemonic = credentials.mnemonic ?? await MnemonicBip39.generate(strength: strength);
-        break;
-      case DerivationType.electrum:
-      default:
-        mnemonic = await generateElectrumMnemonic();
-        break;
+          mnemonic = await MnemonicBip39.generate(strength: strength);
+          break;
+        case DerivationType.electrum:
+        default:
+          mnemonic = await generateElectrumMnemonic();
+          break;
+      }
     }
 
     final wallet = await LitecoinWalletBase.create(
@@ -56,7 +59,6 @@ class LitecoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    await wallet.save();
     await wallet.init();
 
     return wallet;
@@ -68,7 +70,6 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
 
@@ -78,7 +79,6 @@ class LitecoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -91,7 +91,6 @@ class LitecoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -127,8 +126,9 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -146,7 +146,6 @@ class LitecoinWalletService extends WalletService<
       name: currentName,
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      alwaysScan: alwaysScan,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -168,14 +167,20 @@ class LitecoinWalletService extends WalletService<
     credentials.walletInfo?.derivationInfo?.derivationPath =
         credentials.hwAccountData.derivationPath;
 
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: credentials.walletInfo!,
+      network: network,
+      xpub: credentials.hwAccountData.xpub,
+    );
+
     final wallet = await LitecoinWallet(
       password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      hdWallets: hdWallets,
     );
-    await wallet.save();
     await wallet.init();
     return wallet;
   }
@@ -188,10 +193,6 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
-      throw LitecoinMnemonicIsIncorrectException();
-    }
-
     final wallet = await LitecoinWalletBase.create(
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -200,7 +201,6 @@ class LitecoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    await wallet.save();
     await wallet.init();
     return wallet;
   }

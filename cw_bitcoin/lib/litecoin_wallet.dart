@@ -6,6 +6,9 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
+import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/litecoin_wallet_snapshot.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -13,18 +16,12 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
-import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -33,9 +30,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -55,74 +50,60 @@ part 'litecoin_wallet.g.dart';
 
 class LitecoinWallet = LitecoinWalletBase with _$LitecoinWallet;
 
-abstract class LitecoinWalletBase extends ElectrumWallet with Store {
+abstract class LitecoinWalletBase extends ElectrumWallet<LitecoinWalletAddresses> with Store {
+  static const String SIGN_MESSAGE_PREFIX = '\x18Litecoin Signed Message:\n';
+
+  @observable
+  bool _alwaysScan;
+
   LitecoinWalletBase({
-    required String password,
-    required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required EncryptionFileUtils encryptionFileUtils,
-    Uint8List? seedBytes,
-    String? mnemonic,
-    String? xpub,
+    required super.password,
+    required super.walletInfo,
+    required super.unspentCoinsInfo,
+    required super.encryptionFileUtils,
+    required super.hdWallets,
+    super.mnemonic,
+    super.xpub,
     String? passphrase,
-    String? addressPageType,
-    List<BitcoinAddressRecord>? initialAddresses,
-    List<BitcoinAddressRecord>? initialMwebAddresses,
-    ElectrumBalance? initialBalance,
-    Map<String, int>? initialRegularAddressIndex,
-    Map<String, int>? initialChangeAddressIndex,
+    super.initialBalance,
     int? initialMwebHeight,
     bool? alwaysScan,
-  }) : super(
-          mnemonic: mnemonic,
-          password: password,
-          passphrase: passphrase,
-          xpub: xpub,
-          walletInfo: walletInfo,
-          unspentCoinsInfo: unspentCoinsInfo,
+    Map<String, dynamic>? walletAddressesSnapshot,
+  })  : _alwaysScan = alwaysScan ?? false,
+        super(
           network: LitecoinNetwork.mainnet,
-          initialAddresses: initialAddresses,
-          initialBalance: initialBalance,
-          seedBytes: seedBytes,
-          encryptionFileUtils: encryptionFileUtils,
           currency: CryptoCurrency.ltc,
-          alwaysScan: alwaysScan,
         ) {
-    if (seedBytes != null) {
-      mwebHd =
-          Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
-      mwebEnabled = alwaysScan ?? false;
+    mwebEnabled = _alwaysScan;
+
+    if (walletAddressesSnapshot != null) {
+      walletAddresses = LitecoinWalletAddressesBase.fromJson(
+        walletAddressesSnapshot,
+        walletInfo,
+        network: network,
+        isHardwareWallet: isHardwareWallet,
+        hdWallets: hdWallets,
+        mwebEnabled: mwebEnabled,
+      );
     } else {
-      mwebHd = null;
-      mwebEnabled = false;
+      walletAddresses = LitecoinWalletAddresses(
+        walletInfo,
+        network: network,
+        mwebEnabled: mwebEnabled,
+        isHardwareWallet: walletInfo.isHardwareWallet,
+        hdWallets: hdWallets,
+      );
     }
-    walletAddresses = LitecoinWalletAddresses(
-      walletInfo,
-      initialAddresses: initialAddresses,
-      initialRegularAddressIndex: initialRegularAddressIndex,
-      initialChangeAddressIndex: initialChangeAddressIndex,
-      initialMwebAddresses: initialMwebAddresses,
-      mainHd: hd,
-      sideHd: accountHD.childKey(Bip32KeyIndex(1)),
-      network: network,
-      mwebHd: mwebHd,
-      mwebEnabled: mwebEnabled,
-      isHardwareWallet: walletInfo.isHardwareWallet,
-    );
+
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateNewAddress = this.isEnabledAutoGenerateSubaddress;
     });
     reaction((_) => mwebSyncStatus, (status) async {
       if (mwebSyncStatus is FailedSyncStatus) {
-        // we failed to connect to mweb, check if we are connected to the litecoin node:
-        late int nodeHeight;
-        try {
-          nodeHeight = await electrumClient.getCurrentBlockChainTip() ?? 0;
-        } catch (_) {
-          nodeHeight = 0;
-        }
+        // we failed to connect to mweb, check if we are connected to the litecoin node:		        await CwMweb.stop();
+        await Future.delayed(const Duration(seconds: 5));
 
-        if (nodeHeight == 0) {
+        if ((currentChainTip ?? 0) == 0) {
           // we aren't connected to the litecoin node, so the current electrum_wallet reactions will take care of this case for us
         } else {
           // we're connected to the litecoin node, but we failed to connect to mweb, try again after a few seconds:
@@ -132,8 +113,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
       } else if (mwebSyncStatus is SyncingSyncStatus) {
         syncStatus = mwebSyncStatus;
-      } else if (mwebSyncStatus is SyncronizingSyncStatus) {
-        if (syncStatus is! SyncronizingSyncStatus) {
+      } else if (mwebSyncStatus is SynchronizingSyncStatus) {
+        if (syncStatus is! SynchronizingSyncStatus) {
           syncStatus = mwebSyncStatus;
         }
       } else if (mwebSyncStatus is SyncedSyncStatus) {
@@ -143,7 +124,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     });
   }
-  late final Bip32Slip10Secp256k1? mwebHd;
+
+  @override
+  LitecoinNetwork get network => LitecoinNetwork.mainnet;
+
+  Bip32Slip10Secp256k1? get mwebHd => walletAddresses.mwebHd;
+
   late final Box<MwebUtxo> mwebUtxosBox;
   Timer? _syncTimer;
   Timer? _feeRatesTimer;
@@ -161,47 +147,35 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
   List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
 
-  static Future<LitecoinWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required EncryptionFileUtils encryptionFileUtils,
-      String? passphrase,
-      String? addressPageType,
-      List<BitcoinAddressRecord>? initialAddresses,
-      List<BitcoinAddressRecord>? initialMwebAddresses,
-      ElectrumBalance? initialBalance,
-      Map<String, int>? initialRegularAddressIndex,
-      Map<String, int>? initialChangeAddressIndex}) async {
-    late Uint8List seedBytes;
+  static Future<LitecoinWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    String? passphrase,
+    List<BitcoinAddressRecord>? initialAddresses,
+    List<LitecoinMWEBAddressRecord>? initialMwebAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+  }) async {
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: walletInfo,
+      network: LitecoinNetwork.mainnet,
+      mnemonic: mnemonic,
+      passphrase: passphrase,
+    );
 
-    switch (walletInfo.derivationInfo?.derivationType) {
-      case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(
-          mnemonic,
-          passphrase: passphrase ?? "",
-        );
-        break;
-      case DerivationType.electrum:
-      default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-        break;
-    }
     return LitecoinWallet(
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: initialAddresses,
-      initialMwebAddresses: initialMwebAddresses,
       initialBalance: initialBalance,
       encryptionFileUtils: encryptionFileUtils,
       passphrase: passphrase,
-      seedBytes: seedBytes,
-      initialRegularAddressIndex: initialRegularAddressIndex,
-      initialChangeAddressIndex: initialChangeAddressIndex,
-      addressPageType: addressPageType,
+      hdWallets: hdWallets,
     );
   }
 
@@ -210,18 +184,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
-    required bool alwaysScan,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
 
-    ElectrumWalletSnapshot? snp = null;
+    LitecoinWalletSnapshot? snp = null;
 
     try {
-      snp = await ElectrumWalletSnapshot.load(
+      snp = await LitecoinWalletSnapshot.load(
         encryptionFileUtils,
         name,
-        walletInfo.type,
+        walletInfo,
         password,
         LitecoinNetwork.mainnet,
       );
@@ -246,27 +219,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo ??= DerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? ELECTRUM_PATH;
     walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
-    Uint8List? seedBytes = null;
-    final mnemonic = keysData.mnemonic;
-    final passphrase = keysData.passphrase;
-
-    if (mnemonic != null) {
-      switch (walletInfo.derivationInfo?.derivationType) {
-        case DerivationType.bip39:
-          seedBytes = await bip39.mnemonicToSeed(
-            mnemonic,
-            passphrase: passphrase ?? "",
-          );
-          break;
-        case DerivationType.electrum:
-        default:
-          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
-          break;
-      }
-    }
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: walletInfo,
+      network: LitecoinNetwork.mainnet,
+      mnemonic: keysData.mnemonic,
+      passphrase: keysData.passphrase,
+      xpub: keysData.xPub,
+    );
 
     return LitecoinWallet(
       mnemonic: keysData.mnemonic,
@@ -274,16 +236,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp?.addresses,
-      initialMwebAddresses: snp?.mwebAddresses,
       initialBalance: snp?.balance,
-      seedBytes: seedBytes,
-      passphrase: passphrase,
+      passphrase: keysData.passphrase,
       encryptionFileUtils: encryptionFileUtils,
-      initialRegularAddressIndex: snp?.regularAddressIndex,
-      initialChangeAddressIndex: snp?.changeAddressIndex,
-      addressPageType: snp?.addressPageType,
       alwaysScan: snp?.alwaysScan,
+      hdWallets: hdWallets,
     );
   }
 
@@ -291,7 +248,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     printV("waitForMwebAddresses() called!");
     // ensure that we have the full 1000 mweb addresses generated before continuing:
     // should no longer be needed, but leaving here just in case
-    await (walletAddresses as LitecoinWalletAddresses).ensureMwebAddressUpToIndexExists(1020);
+    await walletAddresses.ensureMwebAddressUpToIndexExists(1020);
   }
 
   @action
@@ -309,25 +266,27 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<void> startSync() async {
     printV("startSync() called!");
     printV("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
+
+    await super.startSync();
+
     if (!mwebEnabled) {
       try {
         // in case we're switching from a litecoin wallet that had mweb enabled
         CwMweb.stop();
       } catch (_) {}
-      super.startSync();
       return;
     }
 
-    if (mwebSyncStatus is SyncronizingSyncStatus) {
+    if (mwebSyncStatus is SynchronizingSyncStatus) {
       return;
     }
 
     printV("STARTING SYNC - MWEB ENABLED: $mwebEnabled");
     _syncTimer?.cancel();
     try {
-      mwebSyncStatus = SyncronizingSyncStatus();
+      mwebSyncStatus = SynchronizingSyncStatus();
       try {
-        await subscribeForUpdates();
+        await subscribeForStatuses();
       } catch (e) {
         printV("failed to subscribe for updates: $e");
       }
@@ -355,8 +314,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return;
       }
 
-      final nodeHeight =
-          await electrumClient.getCurrentBlockChainTip() ?? 0; // current block height of our node
+      final nodeHeight = await currentChainTip ?? 0;
 
       if (nodeHeight == 0) {
         // we aren't connected to the ltc node yet
@@ -399,14 +357,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               if (tx.confirmations == confirmations) continue;
 
               // if an outgoing tx is now confirmed, delete the utxo from the box (delete the unspent coin):
-              if (confirmations >= 2 &&
-                  tx.direction == TransactionDirection.outgoing &&
-                  tx.unspents != null) {
-                for (var coin in tx.unspents!) {
-                  final utxo = mwebUtxosBox.get(coin.address);
-                  if (utxo != null) {
-                    printV("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                    await mwebUtxosBox.delete(coin.address);
+              if (confirmations >= 2 && tx.direction == TransactionDirection.outgoing) {
+                for (var coin in unspentCoins) {
+                  if (tx.inputAddresses?.contains(coin.address) ?? false) {
+                    final utxo = mwebUtxosBox.get(coin.address);
+                    if (utxo != null) {
+                      printV("deleting utxo ${coin.address} @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+                      await mwebUtxosBox.delete(coin.address);
+                    }
                   }
                 }
               }
@@ -451,7 +409,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   Future<void> initMwebUtxosBox() async {
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
@@ -473,13 +430,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @action
   @override
-  Future<void> rescan({
-    required int height,
-    int? chainTip,
-    ScanData? scanData,
-    bool? doSingleScan,
-    bool? usingElectrs,
-  }) async {
+  Future<void> rescan({required int height}) async {
     _syncTimer?.cancel();
     await walletInfo.updateRestoreHeight(height);
 
@@ -493,18 +444,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           await mwebUtxosBox.delete(utxo.outputId);
         }
       }
+// <-
       // TODO: remove transactions that are above the new restore height!
     }
 
     // reset coin balances and txCount to 0:
     unspentCoins.forEach((coin) {
-      if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-        coin.bitcoinAddressRecord.balance = 0;
+      coin.bitcoinAddressRecord.balance = ElectrumBalance.zero();
       coin.bitcoinAddressRecord.txCount = 0;
     });
 
-    for (var addressRecord in walletAddresses.allAddresses) {
-      addressRecord.balance = 0;
+    for (var addressRecord in walletAddresses.mwebAddresses) {
+      addressRecord.balance = ElectrumBalance.zero();
       addressRecord.txCount = 0;
     }
 
@@ -537,7 +488,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         amount: utxo.value.toInt(),
         fee: 0,
         direction: TransactionDirection.incoming,
-        isPending: utxo.height == 0,
         date: date,
         confirmations: confirmations,
         inputAddresses: [],
@@ -560,7 +510,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
 
     if (isNew) {
-      final addressRecord = walletAddresses.allAddresses
+      final addressRecord = walletAddresses.mwebAddresses
           .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
       if (addressRecord == null) {
         printV("we don't have this address in the wallet! ${utxo.address}");
@@ -569,7 +519,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       // update the txCount:
       addressRecord.txCount++;
-      addressRecord.balance += utxo.value.toInt();
+      addressRecord.balance.confirmed += utxo.value.toInt();
       addressRecord.setAsUsed();
     }
 
@@ -585,6 +535,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   Future<void> processMwebUtxos() async {
     printV("processMwebUtxos() called!");
+
     if (!mwebEnabled) {
       return;
     }
@@ -602,8 +553,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _utxoStream = responseStream.listen(
       (Utxo sUtxo) async {
         // we're processing utxos, so our balance could still be inaccurate:
-        if (mwebSyncStatus is! SyncronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
-          mwebSyncStatus = SyncronizingSyncStatus();
+        if (mwebSyncStatus is! SynchronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
+          mwebSyncStatus = SynchronizingSyncStatus();
           processingUtxos = true;
           _processingTimer?.cancel();
           _processingTimer = Timer.periodic(const Duration(seconds: 2), (timer) async {
@@ -636,7 +587,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         await updateUnspent();
         await updateBalance();
 
-        final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+        final mwebAddrs = walletAddresses.mwebAddrs;
 
         // don't process utxos with addresses that are not in the mwebAddrs list:
         if (utxo.address.isNotEmpty && !mwebAddrs.contains(utxo.address)) {
@@ -657,7 +608,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   Future<void> deleteSpentUtxos() async {
     printV("deleteSpentUtxos() called!");
-    final chainHeight = await electrumClient.getCurrentBlockChainTip();
+    final chainHeight = currentChainTip;
     final status = await CwMweb.status(StatusRequest());
     if (chainHeight == null || status.blockHeaderHeight != chainHeight) return;
     if (status.mwebUtxosHeight != chainHeight) return; // we aren't synced
@@ -707,7 +658,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (spent.isEmpty) return;
 
     final status = await CwMweb.status(StatusRequest());
-    final height = await electrumClient.getCurrentBlockChainTip();
+    final height = await currentChainTip;
     if (height == null || status.blockHeaderHeight != height) return;
     if (status.mwebUtxosHeight != height) return; // we aren't synced
     int amount = 0;
@@ -719,12 +670,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final utxo = mwebUtxosBox.get(outputId);
       await mwebUtxosBox.delete(outputId);
       if (utxo == null) continue;
-      final addressRecord = walletAddresses.allAddresses
+      final addressRecord = walletAddresses.mwebAddresses
           .firstWhere((addressRecord) => addressRecord.address == utxo.address);
       if (!inputAddresses.contains(utxo.address)) {
         addressRecord.txCount++;
       }
-      addressRecord.balance -= utxo.value.toInt();
+      addressRecord.balance.confirmed -= utxo.value.toInt();
       amount += utxo.value.toInt();
       inputAddresses.add(utxo.address);
       input.add(hex.decode(outputId));
@@ -740,7 +691,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       amount: amount,
       fee: 0,
       direction: TransactionDirection.outgoing,
-      isPending: false,
       date: DateTime.fromMillisecondsSinceEpoch(status.blockTime * 1000),
       confirmations: 1,
       inputAddresses: inputAddresses.toList(),
@@ -809,16 +759,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   @action
-  Future<void> updateAllUnspents() async {
+  Future<ElectrumWorkerListUnspentResponse?> updateAllUnspents([
+    List<String>? scripthashes,
+    bool? wait,
+  ]) async {
     if (!mwebEnabled) {
-      await super.updateAllUnspents();
-      return;
+      return await super.updateAllUnspents(scripthashes, wait);
     }
 
     // add the mweb unspents to the list:
     List<BitcoinUnspent> mwebUnspentCoins = [];
     // update mweb unspents:
-    final mwebAddrs = (walletAddresses as LitecoinWalletAddresses).mwebAddrs;
+    final mwebAddrs = walletAddresses.mwebAddrs;
     mwebUtxosBox.keys.forEach((dynamic oId) {
       final String outputId = oId as String;
       final utxo = mwebUtxosBox.get(outputId);
@@ -829,7 +781,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         // not sure if a bug or a special case but we definitely ignore these
         return;
       }
-      final addressRecord = walletAddresses.allAddresses
+      final addressRecord = walletAddresses.mwebAddresses
           .firstWhereOrNull((addressRecord) => addressRecord.address == utxo.address);
 
       if (addressRecord == null) {
@@ -841,6 +793,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         outputId,
         utxo.value.toInt(),
         mwebAddrs.indexOf(utxo.address),
+        utxo.height,
       );
       if (unspent.vout == 0) {
         unspent.isChange = true;
@@ -849,18 +802,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     });
 
     // copy coin control attributes to mwebCoins:
-    await updateCoins(mwebUnspentCoins);
+    // await updateCoins(mwebUnspentCoins);
     // get regular ltc unspents (this resets unspentCoins):
     await super.updateAllUnspents();
     // add the mwebCoins:
     unspentCoins.addAll(mwebUnspentCoins);
+
+    return null;
   }
 
   @override
-  Future<ElectrumBalance> fetchBalances() async {
-    final balance = await super.fetchBalances();
+  Future<ElectrumWorkerGetBalanceResponse?> updateBalance([
+    List<String>? scripthashes,
+    bool? wait,
+  ]) async {
+    final updatedBalance = await super.updateBalance(scripthashes, true);
+
+    final balance = this.balance[currency]!;
+
     if (!mwebEnabled) {
-      return balance;
+      return updatedBalance;
     }
 
     // update unspent balances:
@@ -891,8 +852,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       });
     } catch (_) {}
 
-    for (var addressRecord in walletAddresses.allAddresses) {
-      addressRecord.balance = 0;
+    for (var addressRecord in walletAddresses.mwebAddresses) {
+      addressRecord.balance = ElectrumBalance.zero();
       addressRecord.txCount = 0;
     }
 
@@ -910,8 +871,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         coin.isFrozen = coinInfo.isFrozen;
         coin.isSending = coinInfo.isSending;
         coin.note = coinInfo.note;
-        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-          coin.bitcoinAddressRecord.balance += coinInfo.value;
+        coin.bitcoinAddressRecord.balance.confirmed += coinInfo.value;
       } else {
         super.addCoinInfo(coin);
       }
@@ -920,12 +880,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // update the txCount for each address using the tx history, since we can't rely on mwebd
     // to have an accurate count, we should just keep it in sync with what we know from the tx history:
     for (final tx in transactionHistory.transactions.values) {
+      // if (tx.isPending) continue;
       if (tx.inputAddresses == null || tx.outputAddresses == null) {
         continue;
       }
       final txAddresses = tx.inputAddresses! + tx.outputAddresses!;
       for (final address in txAddresses) {
-        final addressRecord = walletAddresses.allAddresses
+        final addressRecord = walletAddresses.mwebAddresses
             .firstWhereOrNull((addressRecord) => addressRecord.address == address);
         if (addressRecord == null) {
           continue;
@@ -934,50 +895,327 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    return ElectrumBalance(
+    this.balance[currency] = ElectrumBalance(
       confirmed: confirmed,
       unconfirmed: unconfirmed,
       frozen: balance.frozen,
       secondConfirmed: confirmedMweb,
       secondUnconfirmed: unconfirmedMweb,
     );
+    return null;
   }
 
   @override
-  int feeRate(TransactionPriority priority) {
-    if (priority is LitecoinTransactionPriority) {
-      switch (priority) {
-        case LitecoinTransactionPriority.slow:
-          return 1;
-        case LitecoinTransactionPriority.medium:
-          return 2;
-        case LitecoinTransactionPriority.fast:
-          return 3;
+  ElectrumTxCreateUtxoDetails createUTXOS({
+    required bool sendAll,
+    int credentialsAmount = 0,
+    int? inputsCount,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) {
+    List<UtxoWithAddress> utxos = [];
+    List<Outpoint> vinOutpoints = [];
+    List<ECPrivateInfo> inputPrivKeyInfos = [];
+    final publicKeys = <String, PublicKeyWithDerivationPath>{};
+    int allInputsAmount = 0;
+    bool spendsUnconfirmedTX = false;
+
+    int leftAmount = credentialsAmount;
+    var availableInputs = unspentCoins.where((utx) {
+      final unspentCoinInfo = unspentCoinsInfo.values.firstWhereOrNull(
+        (element) => element.walletId == id && element == utx,
+      );
+
+      if (!utx.isSending || utx.isFrozen) {
+        return false;
+      }
+      if (unspentCoinInfo != null) {
+        if (!unspentCoinInfo.isSending || unspentCoinInfo.isFrozen) {
+          return false;
+        }
+      }
+
+      switch (coinTypeToSpendFrom) {
+        case UnspentCoinType.mweb:
+          return utx.bitcoinAddressRecord.type == SegwitAddressType.mweb;
+        case UnspentCoinType.nonMweb:
+          return utx.bitcoinAddressRecord.type != SegwitAddressType.mweb;
+        case UnspentCoinType.any:
+          return true;
+      }
+    }).toList();
+    final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
+
+    // sort the unconfirmed coins so that mweb coins are first:
+    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddressType.mweb ? -1 : 1);
+
+    for (int i = 0; i < availableInputs.length; i++) {
+      final utx = availableInputs[i];
+      if (!spendsUnconfirmedTX) spendsUnconfirmedTX = utx.confirmations == 0;
+
+      allInputsAmount += utx.value;
+      leftAmount = leftAmount - utx.value;
+
+      final address = RegexUtils.addressTypeFromStr(utx.address, network);
+      ECPrivate? privkey;
+
+      if (!isHardwareWallet) {
+        final path = Bip32PathParser.parse(utx.bitcoinAddressRecord.indexedDerivationPath);
+        privkey = ECPrivate.fromBip32(bip32: hdWallet.derive(path));
+      }
+
+      vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
+      String pubKeyHex;
+
+      if (privkey != null) {
+        inputPrivKeyInfos.add(ECPrivateInfo(privkey, false));
+        pubKeyHex = privkey.getPublic().toHex();
+      } else {
+        pubKeyHex = walletAddresses.hdWallet
+            .childKey(Bip32KeyIndex(utx.bitcoinAddressRecord.index))
+            .publicKey
+            .toHex();
+      }
+
+      if (utx.bitcoinAddressRecord is BitcoinAddressRecord) {
+        final derivationPath = utx.bitcoinAddressRecord.indexedDerivationPath;
+        publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
+      }
+
+      utxos.add(
+        UtxoWithAddress(
+          utxo: BitcoinUtxo(
+            txHash: utx.hash,
+            value: BigInt.from(utx.value),
+            vout: utx.vout,
+            scriptType: BitcoinAddressUtils.getScriptType(address),
+          ),
+          ownerDetails: UtxoAddressDetails(
+            publicKey: pubKeyHex,
+            address: address,
+          ),
+        ),
+      );
+
+      // sendAll continues for all inputs
+      if (!sendAll) {
+        bool amountIsAcquired = leftAmount <= 0;
+        if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
+          break;
+        }
       }
     }
 
-    return 0;
+    if (utxos.isEmpty) {
+      throw BitcoinTransactionNoInputsException();
+    }
+
+    return ElectrumTxCreateUtxoDetails(
+      availableInputs: availableInputs,
+      unconfirmedCoins: unconfirmedCoins,
+      utxos: utxos,
+      vinOutpoints: vinOutpoints,
+      inputPrivKeyInfos: inputPrivKeyInfos,
+      publicKeys: publicKeys,
+      allInputsAmount: allInputsAmount,
+      spendsUnconfirmedTX: spendsUnconfirmedTX,
+    );
   }
 
-  @override
-  Future<int> calcFee({
+  Future<ElectrumEstimatedTx> estimateSendAllTxMweb(
+    List<BitcoinOutput> outputs,
+    int feeRate, {
+    String? memo,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) async {
+    final utxoDetails = createUTXOS(sendAll: true, coinTypeToSpendFrom: coinTypeToSpendFrom);
+
+    int fee = await calcFeeMweb(
+      utxos: utxoDetails.utxos,
+      outputs: outputs,
+      memo: memo,
+      feeRate: feeRate,
+    );
+
+    if (fee == 0) {
+      throw BitcoinTransactionNoFeeException();
+    }
+
+    // Here, when sending all, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount left for change
+    int amount = utxoDetails.allInputsAmount - fee;
+
+    if (amount <= 0) {
+      throw BitcoinTransactionWrongBalanceException(amount: utxoDetails.allInputsAmount + fee);
+    }
+
+    // Attempting to send less than the dust limit
+    if (isBelowDust(amount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
+    if (outputs.length == 1) {
+      outputs[0] = BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+    }
+
+    return ElectrumEstimatedTx(
+      utxos: utxoDetails.utxos,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      publicKeys: utxoDetails.publicKeys,
+      fee: fee,
+      amount: amount,
+      isSendAll: true,
+      hasChange: false,
+      memo: memo,
+      spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+    );
+  }
+
+  Future<ElectrumEstimatedTx> estimateTxForAmountMweb(
+    int credentialsAmount,
+    List<BitcoinOutput> outputs,
+    int feeRate, {
+    int? inputsCount,
+    String? memo,
+    bool? useUnconfirmed,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) async {
+    // Attempting to send less than the dust limit
+    if (isBelowDust(credentialsAmount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
+    final utxoDetails = createUTXOS(
+      sendAll: false,
+      credentialsAmount: credentialsAmount,
+      inputsCount: inputsCount,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
+
+    final spendingAllCoins = utxoDetails.availableInputs.length == utxoDetails.utxos.length;
+    final spendingAllConfirmedCoins = !utxoDetails.spendsUnconfirmedTX &&
+        utxoDetails.utxos.length ==
+            utxoDetails.availableInputs.length - utxoDetails.unconfirmedCoins.length;
+
+    // How much is being spent - how much is being sent
+    int amountLeftForChangeAndFee = utxoDetails.allInputsAmount - credentialsAmount;
+
+    if (amountLeftForChangeAndFee <= 0) {
+      if (!spendingAllCoins) {
+        return estimateTxForAmountMweb(
+          credentialsAmount,
+          outputs,
+          feeRate,
+          inputsCount: utxoDetails.utxos.length + 1,
+          memo: memo,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      }
+
+      throw BitcoinTransactionWrongBalanceException();
+    }
+
+    final changeAddress = await walletAddresses.getChangeAddress(
+      inputs: utxoDetails.availableInputs,
+      outputs: outputs,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
+    final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
+    outputs.add(BitcoinOutput(
+      address: address,
+      value: BigInt.from(amountLeftForChangeAndFee),
+      isChange: true,
+    ));
+
+    // Get Derivation path for change Address since it is needed in Litecoin and BitcoinCash hardware Wallets
+    final changeDerivationPath = changeAddress.indexedDerivationPath;
+    utxoDetails.publicKeys[address.pubKeyHash()] =
+        PublicKeyWithDerivationPath('', changeDerivationPath);
+
+    int fee = await calcFeeMweb(
+      utxos: utxoDetails.utxos,
+      outputs: outputs,
+      memo: memo,
+      feeRate: feeRate,
+    );
+
+    if (fee == 0) {
+      throw BitcoinTransactionNoFeeException();
+    }
+
+    int amount = credentialsAmount;
+    final lastOutput = outputs.last;
+    final amountLeftForChange = amountLeftForChangeAndFee - fee;
+
+    if (isBelowDust(amountLeftForChange)) {
+      // If has change that is lower than dust, will end up with tx rejected by network rules
+      // so remove the change amount
+      outputs.removeLast();
+      outputs.removeLast();
+
+      if (amountLeftForChange < 0) {
+        if (!spendingAllCoins) {
+          return estimateTxForAmountMweb(
+            credentialsAmount,
+            outputs,
+            feeRate,
+            inputsCount: utxoDetails.utxos.length + 1,
+            memo: memo,
+            useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
+            coinTypeToSpendFrom: coinTypeToSpendFrom,
+          );
+        } else {
+          throw BitcoinTransactionWrongBalanceException();
+        }
+      }
+
+      return ElectrumEstimatedTx(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: false,
+        isSendAll: spendingAllCoins,
+        memo: memo,
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+      );
+    } else {
+      // Here, lastOutput already is change, return the amount left without the fee to the user's address.
+      outputs[outputs.length - 1] = BitcoinOutput(
+        address: lastOutput.address,
+        value: BigInt.from(amountLeftForChange),
+        isChange: true,
+      );
+
+      return ElectrumEstimatedTx(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: true,
+        isSendAll: spendingAllCoins,
+        memo: memo,
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+      );
+    }
+  }
+
+  Future<int> calcFeeMweb({
     required List<UtxoWithAddress> utxos,
     required List<BitcoinBaseOutput> outputs,
-    required BasedUtxoNetwork network,
     String? memo,
     required int feeRate,
-    List<ECPrivateInfo>? inputPrivKeyInfos,
-    List<Outpoint>? vinOutpoints,
   }) async {
-    bool spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddresType.mweb);
+    bool spendsMweb = utxos.any((utxo) => utxo.utxo.scriptType == SegwitAddressType.mweb);
     bool paysToMweb = outputs
-        .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddresType.mweb);
+        .any((output) => output.toOutput.scriptPubKey.getAddressType() == SegwitAddressType.mweb);
 
     bool isRegular = !spendsMweb && !paysToMweb;
     bool isMweb = spendsMweb || paysToMweb;
 
     if (isMweb && !mwebEnabled) {
       throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+// <-
       // TODO: likely the change address is mweb and just not updated
     }
 
@@ -985,18 +1223,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return await super.calcFee(
         utxos: utxos,
         outputs: outputs,
-        network: network,
         memo: memo,
         feeRate: feeRate,
-        inputPrivKeyInfos: inputPrivKeyInfos,
-        vinOutpoints: vinOutpoints,
       );
     }
 
     if (outputs.length == 1 && outputs[0].toOutput.amount == BigInt.zero) {
       outputs = [
         BitcoinScriptOutput(
-            script: outputs[0].toOutput.scriptPubKey, value: utxos.sumOfUtxosValue())
+          script: outputs[0].toOutput.scriptPubKey,
+          value: utxos.sumOfUtxosValue(),
+        )
       ];
     }
 
@@ -1042,14 +1279,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     var feeIncrease = posOutputSum - expectedPegin;
     if (expectedPegin > 0 && fee == BigInt.zero) {
       feeIncrease += await super.calcFee(
-              utxos: posUtxos,
-              outputs: tx.outputs
-                  .map((output) =>
-                      BitcoinScriptOutput(script: output.scriptPubKey, value: output.amount))
-                  .toList(),
-              network: network,
-              memo: memo,
-              feeRate: feeRate) +
+            utxos: posUtxos,
+            outputs: tx.outputs
+                .map((output) =>
+                    BitcoinScriptOutput(script: output.scriptPubKey, value: output.amount))
+                .toList(),
+            memo: memo,
+            feeRate: feeRate,
+          ) +
           feeRate * 41;
     }
     return fee.toInt() + feeIncrease;
@@ -1057,13 +1294,127 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    final transactionCredentials = credentials as BitcoinTransactionCredentials;
+
     try {
-      var tx = await super.createTransaction(credentials) as PendingBitcoinTransaction;
+      late PendingBitcoinTransaction tx;
+
+      try {
+        final data = getCreateTxDataFromCredentials(credentials);
+        final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
+
+        ElectrumEstimatedTx estimatedTx;
+        if (data.sendAll) {
+          estimatedTx = await estimateSendAllTxMweb(
+            data.outputs,
+            data.feeRate,
+            memo: data.memo,
+            coinTypeToSpendFrom: coinTypeToSpendFrom,
+          );
+        } else {
+          estimatedTx = await estimateTxForAmountMweb(
+            data.amount,
+            data.outputs,
+            data.feeRate,
+            memo: data.memo,
+            coinTypeToSpendFrom: coinTypeToSpendFrom,
+          );
+        }
+
+        if (walletInfo.isHardwareWallet) {
+          final transaction = await buildHardwareWalletTransaction(
+            utxos: estimatedTx.utxos,
+            outputs: data.outputs,
+            publicKeys: estimatedTx.publicKeys,
+            fee: BigInt.from(estimatedTx.fee),
+            memo: estimatedTx.memo,
+            outputOrdering: BitcoinOrdering.none,
+            enableRBF: true,
+          );
+
+          tx = PendingBitcoinTransaction(
+            transaction,
+            type,
+            waitSendWorker: waitSendWorker,
+            amount: estimatedTx.amount,
+            fee: estimatedTx.fee,
+            feeRate: data.feeRate.toString(),
+            hasChange: estimatedTx.hasChange,
+            isSendAll: estimatedTx.isSendAll,
+          )..addListener((transaction) async {
+              transactionHistory.addOne(transaction);
+              await updateBalance();
+              await updateAllUnspents();
+            });
+        } else {
+          final txb = BitcoinTransactionBuilder(
+            utxos: estimatedTx.utxos,
+            outputs: data.outputs,
+            fee: BigInt.from(estimatedTx.fee),
+            network: network,
+            memo: estimatedTx.memo,
+            outputOrdering: BitcoinOrdering.none,
+            enableRBF: !estimatedTx.spendsUnconfirmedTX,
+          );
+
+          final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
+            String error = "Cannot find private key.";
+
+            ECPrivateInfo? key;
+
+            if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+              error += "\nNo private keys generated.";
+            } else {
+              error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
+
+              key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
+                final elemPubkey = element.privkey.getPublic().toHex();
+                if (elemPubkey == publicKey) {
+                  return true;
+                } else {
+                  error += "\nExpected: $publicKey";
+                  error += "\nPubkey: $elemPubkey";
+                  return false;
+                }
+              });
+            }
+
+            if (key == null) {
+              throw Exception(error);
+            }
+
+            return key.privkey.signInput(txDigest, sigHash: sighash);
+          });
+
+          tx = PendingBitcoinTransaction(
+            transaction,
+            type,
+            waitSendWorker: waitSendWorker,
+            amount: estimatedTx.amount,
+            fee: estimatedTx.fee,
+            feeRate: data.feeRate.toString(),
+            hasChange: estimatedTx.hasChange,
+            isSendAll: estimatedTx.isSendAll,
+            utxos: estimatedTx.utxos,
+          )..addListener((transaction) async {
+              transactionHistory.addOne(transaction);
+
+              unspentCoins
+                  .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
+
+              await updateBalance();
+              await updateAllUnspents();
+            });
+        }
+      } catch (e) {
+        throw e;
+      }
+
       tx.isMweb = mwebEnabled;
 
       if (!mwebEnabled) {
         tx.changeAddressOverride =
-            (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
+            (await walletAddresses.getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
                 .address;
         return tx;
       }
@@ -1076,9 +1427,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000,
       ));
       final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
-
-      // check if the transaction doesn't contain any mweb inputs or outputs:
-      final transactionCredentials = credentials as BitcoinTransactionCredentials;
 
       bool hasMwebInput = false;
       bool hasMwebOutput = false;
@@ -1106,7 +1454,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       // check if mweb inputs are used:
       for (final utxo in tx.utxos) {
-        if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
+        if (utxo.utxo.scriptType == SegwitAddressType.mweb) {
           hasMwebInput = true;
         }
       }
@@ -1116,13 +1464,16 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       bool isPegOut = hasMwebInput && hasRegularOutput;
       bool isRegular = !hasMwebInput && !hasMwebOutput;
       bool shouldNotUseMwebChange = isPegIn || isRegular || !hasMwebInput;
-      tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
-              .getChangeAddress(coinTypeToSpendFrom: shouldNotUseMwebChange ? UnspentCoinType.nonMweb : UnspentCoinType.any))
+      tx.changeAddressOverride = (await walletAddresses.getChangeAddress(
+              coinTypeToSpendFrom:
+                  shouldNotUseMwebChange ? UnspentCoinType.nonMweb : UnspentCoinType.any))
           .address;
       if (isRegular) {
         tx.isMweb = false;
         return tx;
       }
+
+      final status = await CwMweb.status(StatusRequest());
 
       // check if any of the inputs of this transaction are hog-ex:
       // this list is only non-mweb inputs:
@@ -1132,6 +1483,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         final utxo = unspentCoins
             .firstWhere((utxo) => utxo.hash == txInput.txId && utxo.vout == txInput.txIndex);
 
+// <-
         // TODO: detect actual hog-ex inputs
 
         if (!isHogEx) {
@@ -1139,6 +1491,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         }
 
         int confirmations = utxo.confirmations ?? 0;
+        if (confirmations == 0 && utxo.height != null) {
+          confirmations = status.mwebUtxosHeight - utxo.height!;
+        }
+
         if (confirmations < 6) {
           throw Exception(
               "A transaction input has less than 6 confirmations, please try again later.");
@@ -1150,12 +1506,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
               witnesses: tx2.inputs.asMap().entries.map((e) {
             final utxo = unspentCoins
                 .firstWhere((utxo) => utxo.hash == e.value.txId && utxo.vout == e.value.txIndex);
-            final key = generateECPrivate(
-                hd: utxo.bitcoinAddressRecord.isHidden
-                    ? walletAddresses.sideHd
-                    : walletAddresses.mainHd,
-                index: utxo.bitcoinAddressRecord.index,
-                network: network);
+            final key = ECPrivate.fromBip32(
+                bip32: hdWallet.derive((utxo.bitcoinAddressRecord as BitcoinAddressRecord)
+                    .derivationInfo
+                    .derivationPath));
             final digest = tx2.getTransactionSegwitDigit(
               txInIndex: e.key,
               script: key.getPublic().toP2pkhAddress().toScriptPubKey(),
@@ -1181,7 +1535,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             if (!addresses.contains(utxo.address)) {
               addresses.add(utxo.address);
             }
-            addressRecord.balance -= utxo.value.toInt();
+            addressRecord.balance.confirmed -= utxo.value.toInt();
           });
           transaction.inputAddresses?.addAll(addresses);
           printV("isPegIn: $isPegIn, isPegOut: $isPegOut");
@@ -1199,6 +1553,31 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         throw Exception("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
+    }
+  }
+
+  @action
+  Future<void> refreshUnspentCoinsInfo() async {
+    try {
+      final List<dynamic> keys = [];
+      final currentWalletUnspentCoins =
+          unspentCoinsInfo.values.where((record) => record.walletId == id);
+
+      for (final element in currentWalletUnspentCoins) {
+        if (RegexUtils.addressTypeFromStr(element.address, network) is MwebAddress) continue;
+
+        final existUnspentCoins = unspentCoins.where((coin) => element == coin);
+
+        if (existUnspentCoins.isEmpty) {
+          keys.add(element.key);
+        }
+      }
+
+      if (keys.isNotEmpty) {
+        await unspentCoinsInfo.deleteAll(keys);
+      }
+    } catch (e) {
+      printV("refreshUnspentCoinsInfo $e");
     }
   }
 
@@ -1223,14 +1602,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   Future<void> setMwebEnabled(bool enabled) async {
     if (mwebEnabled == enabled &&
-        alwaysScan == enabled &&
-        (walletAddresses as LitecoinWalletAddresses).mwebEnabled == enabled) {
+        _alwaysScan == enabled &&
+        walletAddresses.mwebEnabled == enabled) {
       return;
     }
 
-    alwaysScan = enabled;
+    _alwaysScan = enabled;
     mwebEnabled = enabled;
-    (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
+    walletAddresses.mwebEnabled = enabled;
     await save();
     try {
       await stopSync();
@@ -1245,10 +1624,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    final index = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-        : null;
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
+    Bip32Slip10Secp256k1 HD = hdWallet;
+
+    final record = walletAddresses.allAddresses.firstWhere((element) => element.address == address);
+
+    if (record.isChange) {
+      HD = HD.childKey(Bip32KeyIndex(1));
+    } else {
+      HD = HD.childKey(Bip32KeyIndex(0));
+    }
+
+    HD = HD.childKey(Bip32KeyIndex(record.index));
     final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
 
     final privateKey = ECDSAPrivateKey.fromBytes(
@@ -1264,14 +1650,15 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   List<int> _magicPrefix(List<int> message, List<int> messagePrefix) {
     final encodeLength = IntUtils.encodeVarint(message.length);
-
     return [...messagePrefix, ...encodeLength, ...message];
   }
 
-  List<int> signLitecoinMessage(List<int> message,
-      {required ECDSAPrivateKey privateKey, required Bip32PrivateKey bipPrive}) {
-    String messagePrefix = '\x19Litecoin Signed Message:\n';
-    final messageHash = QuickCrypto.sha256Hash(magicMessage(message, messagePrefix));
+  List<int> signLitecoinMessage(
+    List<int> message, {
+    required ECDSAPrivateKey privateKey,
+    required Bip32PrivateKey bipPrive,
+  }) {
+    final messageHash = QuickCrypto.sha256Hash(magicMessage(message, SIGN_MESSAGE_PREFIX));
     final signingKey = EcdsaSigningKey(privateKey);
     ECDSASignature ecdsaSign =
         signingKey.signDigestDeterminstic(digest: messageHash, hashFunc: () => SHA256());
@@ -1329,8 +1716,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           "litecoin signature must be 64 bytes without recover-id or 65 bytes with recover-id");
     }
 
-    String messagePrefix = '\x19Litecoin Signed Message:\n';
-    final messageHash = QuickCrypto.sha256Hash(magicMessage(utf8.encode(message), messagePrefix));
+    final messageHash =
+        QuickCrypto.sha256Hash(magicMessage(utf8.encode(message), SIGN_MESSAGE_PREFIX));
 
     List<int> correctSignature =
         sigDecodedBytes.length == 65 ? sigDecodedBytes.sublist(1) : List.from(sigDecodedBytes);
@@ -1380,7 +1767,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
     required BigInt fee,
-    required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
@@ -1390,7 +1776,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }) async {
     final readyInputs = <LedgerTransaction>[];
     for (final utxo in utxos) {
-      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final rawTx =
+          (await getTransactionExpanded(hash: utxo.utxo.txHash)).originalTransaction.toHex();
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
       readyInputs.add(LedgerTransaction(
@@ -1422,5 +1809,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         useTrustedInputForSegwit: true);
 
     return BtcTransaction.fromRaw(rawHex);
+  }
+
+  @override
+  String toJSON() {
+    final json = jsonDecode(super.toJSON());
+    json['alwaysScan'] = _alwaysScan;
+    return jsonEncode(json);
   }
 }

@@ -46,7 +46,10 @@ class DecredTransactionPriority extends TransactionPriority {
     return label;
   }
 
-  String labelWithRate(int rate) => '${toString()} ($rate ${units}/byte)';
+  @override
+  TransactionPriorityLabel getLabelWithRate(int rate, int? customRate) {
+    return TransactionPriorityLabel(priority: this, rateValue: rate);
+  }
 }
 
 class FeeCache {

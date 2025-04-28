@@ -14,6 +14,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_wallet.dart';
+import 'package:cw_tron/tron_wallet_addresses.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
 import 'package:hive/hive.dart';
 
@@ -163,8 +164,9 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
+  Future<
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo,
+          TronWalletAddresses>> restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

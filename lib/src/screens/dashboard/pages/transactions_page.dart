@@ -2,6 +2,8 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/trade_row.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -49,8 +51,7 @@ class TransactionsPage extends StatelessWidget {
                   key: ValueKey('transactions_page_syncing_alert_card_key'),
                   onTap: () {
                     try {
-                      final uri = Uri.parse(
-                          "https://docs.cakewallet.com/faq/funds-not-appearing");
+                      final uri = Uri.parse("https://docs.cakewallet.com/faq/funds-not-appearing");
                       launchUrl(uri, mode: LaunchMode.externalApplication);
                     } catch (_) {}
                   },
@@ -74,8 +75,7 @@ class TransactionsPage extends StatelessWidget {
                           key: ValueKey('transactions_page_list_view_builder_key'),
                           itemCount: items.length + 1,
                           itemBuilder: (context, index) {
-
-                            if(index == items.length) return SizedBox(height: 150);
+                            if (index == items.length) return SizedBox(height: 150);
 
                             final item = items[index];
 
@@ -157,8 +157,8 @@ class TransactionsPage extends StatelessWidget {
                                   createdAtFormattedDate: trade.createdAt != null
                                       ? DateFormat('HH:mm').format(trade.createdAt!)
                                       : null,
-                                  formattedAmount: item.tradeFormattedAmount, 
-                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount
+                                  formattedAmount: item.tradeFormattedAmount,
+                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount,
                                 ),
                               );
                             }

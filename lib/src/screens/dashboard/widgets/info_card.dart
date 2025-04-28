@@ -7,7 +7,8 @@ class InfoCard extends StatelessWidget {
   final String rightButtonTitle;
   final String title;
   final String description;
-  final String image;
+  final String? image;
+  final Icon? icon;
 
   final Function() leftButtonAction;
   final Function() rightButtonAction;
@@ -22,7 +23,8 @@ class InfoCard extends StatelessWidget {
     required this.rightButtonTitle,
     required this.leftButtonAction,
     required this.rightButtonAction,
-    required this.image,
+    this.image,
+    this.icon,
     this.hintWidget,
   }) : super(key: key);
 
@@ -72,17 +74,18 @@ class InfoCard extends StatelessWidget {
         ],
       ),
       onTap: () => {},
-      icon: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: CakeImageWidget(
-          imageUrl: image,
-          height: 40,
-          width: 40,
-        ),
-      ),
+      icon: icon ??
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: CakeImageWidget(
+              imageUrl: image!,
+              height: 40,
+              width: 40,
+            ),
+          ),
     );
   }
 }

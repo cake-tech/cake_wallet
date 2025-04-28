@@ -49,8 +49,8 @@ const MIN_RESTORE_HEIGHT = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
-abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
-    MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+abstract class MoneroWalletBase extends WalletBase<MoneroBalance, MoneroTransactionHistory,
+    MoneroTransactionInfo, MoneroWalletAddresses> with Store {
   MoneroWalletBase(
       {required WalletInfo walletInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
@@ -439,7 +439,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {
