@@ -104,7 +104,7 @@ class LoadingPrimaryButton extends StatelessWidget {
                   ),
                 )),
             child: isLoading
-                ? CupertinoActivityIndicator(animating: true)
+                ? CupertinoActivityIndicator(animating: true, color: textColor)
                 : Text(text,
                     style: TextStyle(
                         fontSize: 15.0,

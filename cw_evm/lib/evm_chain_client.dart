@@ -190,7 +190,7 @@ abstract class EVMChainClient {
     _sendTransaction = () async => await sendTransaction(signedTransaction);
 
     return PendingEVMChainTransaction(
-      signedTransaction: signedTransaction,
+      signedTransaction: prepareSignedTransactionForSending(signedTransaction),
       amount: amount.toString(),
       fee: gasFee,
       sendTransaction: _sendTransaction,

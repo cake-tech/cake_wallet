@@ -11,10 +11,26 @@ import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 
-class NFTListingPage extends StatelessWidget {
+class NFTListingPage extends StatefulWidget {
   final NFTViewModel nftViewModel;
 
   const NFTListingPage({super.key, required this.nftViewModel});
+
+  @override
+  State<NFTListingPage> createState() => _NFTListingPageState();
+}
+
+class _NFTListingPageState extends State<NFTListingPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    fetchNFTsForWallet();
+  }
+
+  Future<void> fetchNFTsForWallet() async {
+    await widget.nftViewModel.getNFTAssetByWallet();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +52,11 @@ class NFTListingPage extends StatelessWidget {
                 onPressed: () => Navigator.pushNamed(
                   context,
                   Routes.importNFTPage,
-                  arguments: nftViewModel,
+                  arguments: widget.nftViewModel,
                 ),
               ),
             ),
-            if (nftViewModel.isLoading)
+            if (widget.nftViewModel.isLoading)
               Expanded(
                 child: Center(
                   child: CircularProgressIndicator(
@@ -53,7 +69,7 @@ class NFTListingPage extends StatelessWidget {
               )
             else
               Expanded(
-                child: NFTListWidget(nftViewModel: nftViewModel),
+                child: NFTListWidget(nftViewModel: widget.nftViewModel),
               ),
           ],
         );

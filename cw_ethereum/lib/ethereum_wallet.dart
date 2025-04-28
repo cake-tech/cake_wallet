@@ -76,8 +76,12 @@ class EthereumWallet extends EVMChainWallet {
     await erc20TokensBox.deleteFromDisk();
 
     // Add all the previous tokens with configs to the new box
-    evmChainErc20TokensBox.addAll(allValues);
+    await evmChainErc20TokensBox.addAll(allValues);
   }
+
+  @override
+  List<String> get getDefaultTokenContractAddresses =>
+      DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
 
   @override
   EVMChainTransactionInfo getTransactionInfo(
@@ -115,6 +119,7 @@ class EthereumWallet extends EVMChainWallet {
       enabled: token.enabled,
       tag: token.tag ?? "ETH",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
   }
 
