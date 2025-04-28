@@ -431,7 +431,7 @@ class AddressExpansionTile extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),
                               child: Text(
-                                "Stealth Address:",
+                                "${S.of(context).stealth_address} (Silent Payment):",
                                 style: itemSubTitleTextStyle,
                               ),
                             ),
@@ -444,7 +444,7 @@ class AddressExpansionTile extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8.0),
                               child: Text(
-                                "Generated Address:",
+                                "${S.of(context).generated_address} (P2TR):",
                                 style: itemSubTitleTextStyle,
                               ),
                             ),

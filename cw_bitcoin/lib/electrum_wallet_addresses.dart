@@ -460,7 +460,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       if (address != null) {
         if (isCurrentType) {
-          addressesMap[address.address] = 'Active - ' + addressPageType.toString() + ': $address';
+          addressesMap[address.address] =
+              'Active - ' + addressPageType.toString() + ': ${address.address}';
         } else {
           addressesMap[address.address] = '${addressType.value.toUpperCase()}: ${address.address}';
         }
