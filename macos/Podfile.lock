@@ -1,7 +1,6 @@
 PODS:
   - connectivity_plus (0.0.1):
     - FlutterMacOS
-    - ReachabilitySwift
   - cw_mweb (0.0.1):
     - FlutterMacOS
   - device_info_plus (0.0.1):
@@ -15,6 +14,8 @@ PODS:
     - OrderedSet (~> 6.0.3)
   - flutter_local_authentication (1.2.0):
     - FlutterMacOS
+  - flutter_local_notifications (0.0.1):
+    - FlutterMacOS
   - flutter_secure_storage_macos (6.1.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
@@ -26,7 +27,6 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - ReachabilitySwift (5.2.4)
   - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
@@ -50,6 +50,7 @@ DEPENDENCIES:
   - fast_scanner (from `Flutter/ephemeral/.symlinks/plugins/fast_scanner/macos`)
   - flutter_inappwebview_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos`)
   - flutter_local_authentication (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_authentication/macos`)
+  - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - in_app_review (from `Flutter/ephemeral/.symlinks/plugins/in_app_review/macos`)
@@ -65,7 +66,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - OrderedSet
-    - ReachabilitySwift
 
 EXTERNAL SOURCES:
   connectivity_plus:
@@ -82,6 +82,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos
   flutter_local_authentication:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_authentication/macos
+  flutter_local_notifications:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   flutter_secure_storage_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos
   FlutterMacOS:
@@ -106,20 +108,20 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos
 
 SPEC CHECKSUMS:
-  connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
+  connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
   cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
   fast_scanner: d31bae07e2653403a69dac99fb710c1722b16a97
   flutter_inappwebview_macos: bdf207b8f4ebd58e86ae06cd96b147de99a67c9b
   flutter_local_authentication: 85674893931e1c9cfa7c9e4f5973cb8c56b018b0
+  flutter_local_notifications: 4ccab5b7a22835214a6672e3f9c5e8ae207dab36
   flutter_secure_storage_macos: d56e2d218c1130b262bef8b4a7d64f88d7f9c9ea
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   in_app_review: a6a031b9acd03c7d103e341aa334adf2c493fb93
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   share_plus: 1fa619de8392a4398bfaf176d441853922614e89
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sp_scanner: 269d96e0ec3173e69156be7239b95182be3b8303

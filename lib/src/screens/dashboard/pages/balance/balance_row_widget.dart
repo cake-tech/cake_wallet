@@ -87,10 +87,7 @@ class BalanceRowWidget extends StatelessWidget {
             // ],
           ),
           child: TextButton(
-            onPressed: () => Fluttertoast.showToast(
-              msg: S.current.show_balance_toast,
-              backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
-            ),
+            onPressed: _showToast,
             onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
             style: TextButton.styleFrom(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -366,10 +363,7 @@ class BalanceRowWidget extends StatelessWidget {
               // ],
             ),
             child: TextButton(
-              onPressed: () => Fluttertoast.showToast(
-                msg: S.current.show_balance_toast,
-                backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
-              ),
+              onPressed: _showToast,
               onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
               style: TextButton.styleFrom(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -708,5 +702,14 @@ class BalanceRowWidget extends StatelessWidget {
 
   void _showBalanceDescription(BuildContext context, String content) {
     showPopUp<void>(context: context, builder: (_) => InformationPage(information: content));
+  }
+
+  void _showToast() async {
+    try {
+      await Fluttertoast.showToast(
+        msg: S.current.show_balance_toast,
+        backgroundColor: Color.fromRGBO(0, 0, 0, 0.85),
+      );
+    } catch (_) {}
   }
 }

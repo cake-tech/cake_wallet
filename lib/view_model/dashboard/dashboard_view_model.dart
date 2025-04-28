@@ -541,7 +541,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  late bool backgroundSyncNotificationsEnabled = sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
+  late bool backgroundSyncNotificationsEnabled =
+      sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
 
   @action
   Future<void> setBackgroundSyncNotificationsEnabled(bool value) async {
@@ -561,7 +562,6 @@ abstract class DashboardViewModelBase with Store {
     await sharedPreferences.setBool(PreferencesKey.backgroundSyncNotificationsEnabled, value);
   }
 
-
   bool get hasBgsyncNetworkConstraints => Platform.isAndroid;
   bool get hasBgsyncBatteryNotLowConstraints => Platform.isAndroid;
   bool get hasBgsyncChargingConstraints => Platform.isAndroid;
@@ -578,12 +578,14 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   bool backgroundSyncDeviceIdle = false;
-  
+
   Future<void> _loadConstraints() async {
-    backgroundSyncNetworkUnmetered = await FlutterDaemon().getNetworkType();
-    backgroundSyncBatteryNotLow = await FlutterDaemon().getBatteryNotLow();
-    backgroundSyncCharging = await FlutterDaemon().getRequiresCharging();
-    backgroundSyncDeviceIdle = await FlutterDaemon().getDeviceIdle();
+    if (Platform.isAndroid) {
+      backgroundSyncNetworkUnmetered = await FlutterDaemon().getNetworkType();
+      backgroundSyncBatteryNotLow = await FlutterDaemon().getBatteryNotLow();
+      backgroundSyncCharging = await FlutterDaemon().getRequiresCharging();
+      backgroundSyncDeviceIdle = await FlutterDaemon().getDeviceIdle();
+    }
   }
 
   @action
@@ -621,7 +623,7 @@ abstract class DashboardViewModelBase with Store {
       await enableBackgroundSync();
     }
   }
-  
+
   bool get hasBatteryOptimization => Platform.isAndroid;
 
   @observable
