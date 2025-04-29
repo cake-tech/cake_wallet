@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_zano/zano_wallet_api.dart';
 import 'package:decimal/decimal.dart';
 import 'package:decimal/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -57,7 +56,9 @@ class ZanoFormatter {
   static int parseAmount(String amount, [int decimalPoint = defaultDecimalPoint]) {
     final resultBigInt = (Decimal.parse(amount) * Decimal.fromBigInt(BigInt.from(10).pow(decimalPoint))).toBigInt();
     if (!resultBigInt.isValidInt) {
-      Fluttertoast.showToast(msg: 'Cannot transfer $amount. Maximum is ${intAmountToString(resultBigInt.toInt(), decimalPoint)}.');
+      try {
+        Fluttertoast.showToast(msg: 'Cannot transfer $amount. Maximum is ${intAmountToString(resultBigInt.toInt(), decimalPoint)}.');
+      } catch (_) {}
     }
     return resultBigInt.toInt();
   }

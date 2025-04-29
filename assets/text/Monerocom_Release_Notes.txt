@@ -1,6 +1,4 @@
-Monero 12-word seed support (Wallet Groups support as well)
-Integrate DFX's OpenCryptoPay
-Exchange flow enhancements
-Hardware Wallets flow enhancements
-Minor UI enhancements
+Background sync improvements
+Payment notifications
+UI/UX improvements
 Bug fixes

@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -538,7 +537,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  late bool backgroundSyncNotificationsEnabled = sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
+  late bool backgroundSyncNotificationsEnabled =
+      sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
 
   @action
   Future<void> setBackgroundSyncNotificationsEnabled(bool value) async {
@@ -558,7 +558,6 @@ abstract class DashboardViewModelBase with Store {
     await sharedPreferences.setBool(PreferencesKey.backgroundSyncNotificationsEnabled, value);
   }
 
-
   bool get hasBgsyncNetworkConstraints => Platform.isAndroid;
   bool get hasBgsyncBatteryNotLowConstraints => Platform.isAndroid;
   bool get hasBgsyncChargingConstraints => Platform.isAndroid;
@@ -575,12 +574,14 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   bool backgroundSyncDeviceIdle = false;
-  
+
   Future<void> _loadConstraints() async {
-    backgroundSyncNetworkUnmetered = await FlutterDaemon().getNetworkType();
-    backgroundSyncBatteryNotLow = await FlutterDaemon().getBatteryNotLow();
-    backgroundSyncCharging = await FlutterDaemon().getRequiresCharging();
-    backgroundSyncDeviceIdle = await FlutterDaemon().getDeviceIdle();
+    if (Platform.isAndroid) {
+      backgroundSyncNetworkUnmetered = await FlutterDaemon().getNetworkType();
+      backgroundSyncBatteryNotLow = await FlutterDaemon().getBatteryNotLow();
+      backgroundSyncCharging = await FlutterDaemon().getRequiresCharging();
+      backgroundSyncDeviceIdle = await FlutterDaemon().getDeviceIdle();
+    }
   }
 
   @action
@@ -618,7 +619,7 @@ abstract class DashboardViewModelBase with Store {
       await enableBackgroundSync();
     }
   }
-  
+
   bool get hasBatteryOptimization => Platform.isAndroid;
 
   @observable
