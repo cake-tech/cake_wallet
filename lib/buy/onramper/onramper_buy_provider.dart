@@ -40,6 +40,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
   final SettingsStore _settingsStore;
 
+  PaymentType? recommendedPaymentType;
+
   String get _apiKey => secrets.onramperApiKey;
 
   @override
@@ -71,9 +73,14 @@ class OnRamperBuyProvider extends BuyProvider {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final List<dynamic> message = data['message'] as List<dynamic>;
-        return message
+
+        final allAvailablePaymentMethods = message
             .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
             .toList();
+
+        recommendedPaymentType = allAvailablePaymentMethods.first.paymentMethodType;
+
+        return allAvailablePaymentMethods;
       } else {
         printV('Failed to fetch available payment types');
         return [];
@@ -126,10 +133,8 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     String? paymentMethod;
 
-    if (paymentType != null && paymentType != PaymentType.all) {
-      paymentMethod = normalizePaymentMethod(paymentType);
-      if (paymentMethod == null) paymentMethod = paymentType.name;
-    }
+    if (paymentType == PaymentType.all && recommendedPaymentType != null) paymentMethod = normalizePaymentMethod(recommendedPaymentType!);
+    else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
@@ -322,6 +327,8 @@ class OnRamperBuyProvider extends BuyProvider {
         return 'dana';
       case PaymentType.ideal:
         return 'ideal';
+      case PaymentType.pixPay:
+        return 'pix';
       default:
         return null;
     }
@@ -371,6 +378,8 @@ class OnRamperBuyProvider extends BuyProvider {
         return PaymentType.dana;
       case 'ideal':
         return PaymentType.ideal;
+      case 'pix':
+        return PaymentType.pixPay;
       default:
         return PaymentType.all;
     }

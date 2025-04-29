@@ -34,6 +34,7 @@ enum PaymentType {
   yellowCardBankTransfer,
   fiatBalance,
   bancontact,
+  pixPay,
 }
 
 extension PaymentTypeTitle on PaymentType {
@@ -101,6 +102,8 @@ extension PaymentTypeTitle on PaymentType {
         return 'Fiat Balance';
       case PaymentType.bancontact:
         return 'Bancontact';
+      case PaymentType.pixPay:
+        return 'PIX Pay';
       default:
         return null;
     }
@@ -289,6 +292,8 @@ class PaymentMethod extends SelectableOption {
         return PaymentType.sepaOpenBankingPayment;
       case 'bancontact':
         return PaymentType.bancontact;
+      case 'pix':
+        return PaymentType.pixPay;
       default:
         return PaymentType.all;
     }
