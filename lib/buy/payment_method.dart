@@ -35,6 +35,7 @@ enum PaymentType {
   fiatBalance,
   bancontact,
   pixPay,
+  unknown,
 }
 
 extension PaymentTypeTitle on PaymentType {
@@ -161,12 +162,14 @@ class PaymentMethod extends SelectableOption {
     required this.customTitle,
     required this.customIconPath,
     this.customDescription,
+    this.customPaymentMethodType,
   }) : super(title: paymentMethodType.title ?? customTitle);
 
   final PaymentType paymentMethodType;
   final String customTitle;
   final String customIconPath;
   final String? customDescription;
+  final String? customPaymentMethodType;
   bool isSelected = false;
 
   @override
@@ -191,7 +194,8 @@ class PaymentMethod extends SelectableOption {
   factory PaymentMethod.fromOnramperJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['paymentTypeId'] as String?);
     return PaymentMethod(
-        paymentMethodType: type,
+        paymentMethodType: type ?? PaymentType.unknown,
+        customPaymentMethodType: json['paymentTypeId'] as String?,
         customTitle: json['name'] as String? ?? 'Unknown',
         customIconPath: json['icon'] as String? ?? 'assets/images/card.png',
         customDescription: json['description'] as String?);
@@ -215,7 +219,7 @@ class PaymentMethod extends SelectableOption {
     final type = PaymentMethod.getPaymentTypeId(json['paymentMethod'] as String?);
     final logos = json['logos'] as Map<String, dynamic>;
     return PaymentMethod(
-        paymentMethodType: type,
+        paymentMethodType: type ?? PaymentType.unknown,
         customTitle: json['name'] as String? ?? 'Unknown',
         customIconPath: logos['dark'] as String? ?? 'assets/images/card.png',
         customDescription: json['description'] as String?);
@@ -224,13 +228,13 @@ class PaymentMethod extends SelectableOption {
   factory PaymentMethod.fromKryptonimJson(Map<String, dynamic> json) {
     final type = PaymentMethod.getPaymentTypeId(json['payment_method'] as String?);
     return PaymentMethod(
-      paymentMethodType: type,
+      paymentMethodType: type ?? PaymentType.unknown,
       customTitle: json['payment_method'] as String? ?? 'Unknown',
       customIconPath: 'assets/images/card.png',
     );
   }
 
-  static PaymentType getPaymentTypeId(String? type) {
+  static PaymentType? getPaymentTypeId(String? type) {
     switch (type?.toLowerCase()) {
       case 'banktransfer':
       case 'bank':
@@ -295,7 +299,7 @@ class PaymentMethod extends SelectableOption {
       case 'pix':
         return PaymentType.pixPay;
       default:
-        return PaymentType.all;
+        return null;
     }
   }
 }

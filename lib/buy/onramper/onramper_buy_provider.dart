@@ -130,10 +130,12 @@ class OnRamperBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     String? paymentMethod;
 
     if (paymentType == PaymentType.all && recommendedPaymentType != null) paymentMethod = normalizePaymentMethod(recommendedPaymentType!);
+    else if (paymentType == PaymentType.unknown) paymentMethod = customPaymentMethodType;
     else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
 
     final actionType = isBuyAction ? 'buy' : 'sell';
@@ -179,7 +181,7 @@ class OnRamperBuyProvider extends BuyProvider {
           if (rampMetaData == null) continue;
 
           final quote = Quote.fromOnramperJson(
-              item, isBuyAction, _onrampMetadata, _getPaymentTypeByString(paymentMethod));
+              item, isBuyAction, _onrampMetadata, _getPaymentTypeByString(paymentMethod), customPaymentMethodType);
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
@@ -222,7 +224,7 @@ class OnRamperBuyProvider extends BuyProvider {
     final defaultCrypto =
         quote.cryptoCurrency.title + _getNormalizeNetwork(quote.cryptoCurrency).toLowerCase();
 
-    final paymentMethod = normalizePaymentMethod(quote.paymentType);
+    final paymentMethod = quote.paymentType == PaymentType.unknown ? quote.customPaymentMethodType : normalizePaymentMethod(quote.paymentType);
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
@@ -381,7 +383,7 @@ class OnRamperBuyProvider extends BuyProvider {
       case 'pix':
         return PaymentType.pixPay;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 
