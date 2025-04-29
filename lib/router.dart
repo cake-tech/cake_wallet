@@ -4,7 +4,6 @@ import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
@@ -37,6 +36,8 @@ import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
+import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -106,6 +107,7 @@ import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/ur/animated_ur_page.dart';
 import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
@@ -777,7 +779,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.walletConnectConnectionsListing:
       return MaterialPageRoute<void>(
           builder: (_) => WalletConnectConnectionsView(
-                web3walletService: getIt.get<Web3WalletService>(),
+                walletKitService: getIt.get<WalletKitService>(),
                 launchUri: settings.arguments as Uri?,
               ));
 
@@ -835,6 +837,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devMoneroBackgroundSync:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroBackgroundSyncPage>(),
+      );
+    case Routes.devSharedPreferences:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevSharedPreferencesPage>(),
+      );
+
+    case Routes.devBackgroundSyncLogs:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevBackgroundSyncLogsPage>(),
       );
 
     case Routes.devMoneroCallProfiler:
