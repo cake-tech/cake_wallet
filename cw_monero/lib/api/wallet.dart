@@ -5,9 +5,6 @@ import 'dart:isolate';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
-import 'package:cw_monero/api/wallet_manager.dart';
-import 'package:flutter/foundation.dart';
-import 'package:monero/src/monero.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 import 'package:polyseed/polyseed.dart';
@@ -16,6 +13,7 @@ bool debugMonero = false;
 
 int getSyncingHeight() {
   // final height = monero.MONERO_cw_WalletListener_height(getWlptr());
+  if (currentWallet == null) return 0;
   final h2 = currentWallet!.blockChainHeight();
   // printV("height: $height / $h2");
   return h2;

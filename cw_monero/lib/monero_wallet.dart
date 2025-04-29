@@ -85,7 +85,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
                 monero_wallet.getUnlockedBalance(accountIndex: account.id))
       });
       _updateSubAddress(isEnabledAutoGenerateSubaddress, account: account);
-      _askForUpdateTransactionHistory();
+      unawaited(updateTransactions());
     });
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
@@ -600,7 +600,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await startSync();
     _askForUpdateBalance();
     walletAddresses.accountList.update();
-    await _askForUpdateTransactionHistory();
+    await updateTransactions();
     await save();
     await walletInfo.save();
   }
@@ -727,6 +727,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       acc[tx.id] = tx;
       return acc;
     });
+    // This is needed to update the transaction history when new transaction is made.
+    unawaited(updateTransactions());
     return resp;
   }
 
@@ -854,9 +856,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  Future<void> _askForUpdateTransactionHistory() async =>
-      await updateTransactions();
-
   int _getUnlockedBalance() => monero_wallet.getUnlockedBalance(
       accountIndex: walletAddresses.account!.id);
 
@@ -875,13 +874,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     printV("onNewBlock: $height, $blocksLeft, $ptc");
     try {
       if (walletInfo.isRecovery) {
-        await _askForUpdateTransactionHistory();
+        await updateTransactions();
         _askForUpdateBalance();
         walletAddresses.accountList.update();
       }
 
       if (blocksLeft < 100) {
-        await _askForUpdateTransactionHistory();
+        await updateTransactions();
         _askForUpdateBalance();
         walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
@@ -904,7 +903,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   void _onNewTransaction() async {
     try {
-      await _askForUpdateTransactionHistory();
+      await updateTransactions();
       _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
