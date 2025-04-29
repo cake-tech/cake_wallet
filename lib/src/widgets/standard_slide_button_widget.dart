@@ -44,73 +44,85 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
             ? Colors.black.withOpacity(0.5)
             : Theme.of(context).extension<FilterTheme>()!.buttonColor;
 
-    return accessible
-        ? PrimaryButton(
-            text: widget.accessibleNavigationModeButtonText,
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: () => widget.onSlideComplete())
-        : LayoutBuilder(builder: (context, constraints) {
-            final double maxWidth = constraints.maxWidth;
-            const double sideMargin = 4.0;
-            final double effectiveMaxWidth = maxWidth - 2 * sideMargin;
-            const double sliderWidth = 42.0;
+    if (accessible) {
+      return PrimaryButton(
+        text: widget.accessibleNavigationModeButtonText,
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: widget.onSlideComplete,
+      );
+    }
 
-            return Container(
-              height: widget.height,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
-              child: Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  Center(
-                      child: Text(widget.buttonText,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor))),
-                  Positioned(
-                    left: sideMargin + _dragPosition,
-                    child: GestureDetector(
-                      key: ValueKey('standard_slide_button_widget_slider_key'),
-                      onHorizontalDragUpdate: (details) {
-                        setState(() {
-                          _dragPosition += details.delta.dx;
-                          if (_dragPosition < 0) _dragPosition = 0;
-                          if (_dragPosition > effectiveMaxWidth - sliderWidth) {
-                            _dragPosition = effectiveMaxWidth - sliderWidth;
-                          }
-                        });
-                      },
-                      onHorizontalDragEnd: (details) {
-                        if (_dragPosition >= effectiveMaxWidth - sliderWidth - 10) {
-                          widget.onSlideComplete();
-                        } else {
-                          setState(() => _dragPosition = 0);
-                        }
-                      },
-                      child: Container(
-                        key: ValueKey('standard_slide_button_widget_slider_container_key'),
-                        width: sliderWidth,
-                        height: widget.height - 8,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                            key: ValueKey('standard_slide_button_widget_slider_icon_key'),
-                            Icons.arrow_forward,
-                            color: widget.currentTheme.type == ThemeType.bright
-                                ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
-                                : Theme.of(context).extension<FilterTheme>()!.buttonColor),
-                      ),
-                    ),
-                  )
-                ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        sideMargin = 4.0;
+        effectiveMaxWidth = maxWidth - 2 * sideMargin;
+        sliderWidth = 42.0;
+
+        return Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: tileBackgroundColor,
+          ),
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Center(
+                child: Text(
+                  widget.buttonText,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
+                ),
               ),
-            );
-          });
+              Positioned(
+                left: sideMargin + _dragPosition,
+                child: GestureDetector(
+                  key: ValueKey('standard_slide_button_widget_slider_key'),
+                  onHorizontalDragUpdate: (details) {
+                    setState(() {
+                      _dragPosition += details.delta.dx;
+                      if (_dragPosition < 0) _dragPosition = 0;
+                      if (_dragPosition > effectiveMaxWidth - sliderWidth) {
+                        _dragPosition = effectiveMaxWidth - sliderWidth;
+                      }
+                    });
+                  },
+                  onHorizontalDragEnd: (details) {
+                    if (_dragPosition >= effectiveMaxWidth - sliderWidth - 10) {
+                      widget.onSlideComplete();
+                    } else {
+                      setState(() => _dragPosition = 0);
+                    }
+                  },
+                  child: Container(
+                    key: ValueKey('standard_slide_button_widget_slider_container_key'),
+                    width: sliderWidth,
+                    height: widget.height - 8,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      key: ValueKey('standard_slide_button_widget_slider_icon_key'),
+                      Icons.arrow_forward,
+                      color: widget.currentTheme.type == ThemeType.bright
+                          ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
+                          : Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

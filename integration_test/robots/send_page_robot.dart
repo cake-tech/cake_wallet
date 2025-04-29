@@ -231,7 +231,7 @@ class SendPageRobot {
       } catch (e) {
         tester.printToConsole('Auth failed, retrying');
         await tester.pump();
-        _handleAuthPage();
+        await _handleAuthPage();
       }
     }
     await tester.pump();
@@ -309,8 +309,7 @@ class SendPageRobot {
       final double sliderWidth = state.sliderWidth;
       final double threshold = effectiveMaxWidth - sliderWidth - 10;
 
-      final sliderFinder =
-          find.byKey(const ValueKey('standard_slide_button_widget_slider_container_key'));
+      final sliderFinder = find.byKey(const ValueKey('standard_slide_button_widget_slider_key'));
       expect(sliderFinder, findsOneWidget);
 
       // Using the center of the container as the drag start.
