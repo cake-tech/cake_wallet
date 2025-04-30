@@ -165,9 +165,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final prev = previousAddressRecord;
-    if (prev != null &&
-        prev.type == addressPageType &&
-        typeMatchingReceiveAddresses.any((r) => r.address == prev.address)) {
+    if (prev != null && prev.type == addressPageType && !prev.isUsed) {
       return prev.address;
     }
 
