@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -17,5 +18,6 @@ Future<void> loadCurrentWallet({String? password}) async {
   final type = deserializeFromInt(typeRaw);
   final walletLoadingService = getIt.get<WalletLoadingService>();
   final wallet = await walletLoadingService.load(type, name, password: password);
+  await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
   await appStore.changeCurrentWallet(wallet);
 }
