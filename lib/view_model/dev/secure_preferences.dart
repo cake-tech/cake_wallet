@@ -37,6 +37,7 @@ abstract class DevSecurePreferencesBase with Store {
     if (!values.containsKey(key)) {
       return null;
     }
+    if (!key.startsWith("MONERO_WALLET_")) return values[key]!;
     try {
       final decodedPassword = decodeWalletPassword(password: values[key]!);
       return values[key]! + "\n\nDecoded: $decodedPassword";
