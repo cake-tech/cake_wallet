@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'dart:ui';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:mobx/mobx.dart';
@@ -26,23 +25,20 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
-void showInformation(
-    ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
+void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
   final trade = exchangeTradeViewModel.trade;
   final walletName = exchangeTradeViewModel.wallet.name;
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_trade_result_confirm(trade.amount, trade.from.toString(), walletName) +
-        exchangeTradeViewModel.extraInfo
-      : S.current.exchange_result_description(
-          trade.amount, trade.from.toString()) +
-        exchangeTradeViewModel.extraInfo;
+          exchangeTradeViewModel.extraInfo
+      : S.current.exchange_result_description(trade.amount, trade.from.toString()) +
+          exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
       context: context,
-      builder: (_) => InformationPage(
-        key: ValueKey('information_page_dialog_key'),
-        information: information));
+      builder: (_) =>
+          InformationPage(key: ValueKey('information_page_dialog_key'), information: information));
 }
 
 class ExchangeTradePage extends BasePage {
@@ -52,9 +48,6 @@ class ExchangeTradePage extends BasePage {
 
   @override
   String get title => S.current.swap;
-
-  @override
-  bool get gradientBackground => true;
 
   @override
   bool get gradientAll => true;
@@ -141,7 +134,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
     return Container(
       child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(top: 10, bottom: 16),
+        contentPadding: EdgeInsets.only(bottom: 16),
         content: Observer(builder: (_) {
           final trade = widget.exchangeTradeViewModel.trade;
 
@@ -198,7 +191,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty,
                         isLoading: sendingState is IsExecutingState,
                         onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
-                        text:S.current.send_from_cake_wallet,
+                        text: S.current.send_from_cake_wallet,
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                       )
@@ -211,6 +204,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     );
   }
 
+  BuildContext? dialogContext;
   BuildContext? loadingBottomSheetContext;
 
   void _setEffects() {
@@ -219,13 +213,17 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     }
 
     _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
-        (ExecutionState state) {
+        (ExecutionState state) async {
 
-          if (state is! IsExecutingState &&
-              loadingBottomSheetContext != null &&
-              loadingBottomSheetContext!.mounted) {
-            Navigator.of(loadingBottomSheetContext!).pop();
+          if (dialogContext != null && dialogContext?.mounted == true) {
+            Navigator.of(dialogContext!).pop();
           }
+
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -244,6 +242,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       }
 
       if (state is IsExecutingState) {
+        // wait a bit to avoid showing the loading dialog if transaction is failed
+        await Future.delayed(const Duration(milliseconds: 300));
+        final currentState = widget.exchangeTradeViewModel.sendViewModel.state;
+        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
+          return;
+        }
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             showModalBottomSheet<void>(
@@ -271,17 +276,23 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                   currentTheme: widget.currentTheme,
+                  walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                   titleText: S.of(bottomSheetContext).confirm_transaction,
-                  titleIconPath: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  titleIconPath:
+                      widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  amountValue: widget
+                      .exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue: widget
+                      .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
                       ? S.of(bottomSheetContext).send_estimated_fee
                       : S.of(bottomSheetContext).send_fee,
-                  feeValue: widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  feeValue:
+                      widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
+                      .pendingTransactionFeeFiatAmountFormatted,
                   outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
                   onSlideComplete: () async {
                     Navigator.of(bottomSheetContext).pop();
@@ -300,7 +311,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             return;
           }
 
-
           await showModalBottomSheet<void>(
             context: context,
             isScrollControlled: true,
@@ -313,18 +323,18 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
                   actionButton: () {
                     Navigator.of(bottomSheetContext).pop();
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      Routes.dashboard,
-                      (route) => false,
-                    );
+                    if (context.mounted) {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        Routes.dashboard,
+                        (route) => false,
+                      );
+                    }
                     RequestReviewHandler.requestReview();
                   });
             },
           );
-
         });
       }
-
     });
 
     _effectsInstalled = true;

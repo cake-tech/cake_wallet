@@ -1,5 +1,4 @@
-Add background sync to Monero
-Enhance Backup files
-Improve app usability and user experience
-User interface enhancements
+Background sync improvements
+Payment notifications
+UI/UX improvements
 Bug fixes

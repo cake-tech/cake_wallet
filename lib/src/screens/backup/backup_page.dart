@@ -3,10 +3,9 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/share_util.dart';
@@ -76,7 +75,9 @@ class BackupPage extends BasePage {
                   Navigator.of(context).pushNamed(Routes.editBackupPassword),
               text: S.of(context).change_password,
               color: Theme.of(context).cardColor,
-              textColor: Colors.white,
+              textColor: Theme.of(context)
+                  .extension<CakeTextTheme>()!
+                  .buttonTextColor,
             ),
             SizedBox(height: 10),
             Observer(
@@ -139,6 +140,7 @@ class BackupPage extends BasePage {
                 await backupViewModelBase.saveToDownload(
                     backup.name, backup.file);
                 Navigator.of(dialogContext).pop();
+                await showBar<void>(context, S.of(context).file_saved);
               },
               actionLeftButton: () async {
                 Navigator.of(dialogContext).pop();

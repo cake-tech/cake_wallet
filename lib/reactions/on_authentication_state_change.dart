@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
@@ -8,6 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -71,7 +71,7 @@ void startAuthenticationStateChange(
                     buttonAction: () => Navigator.of(context).pop()),
               );
               await loadCurrentWallet();
-              getIt.get<BottomSheetService>().resetCurrentSheet();
+              getIt.get<BottomSheetService>().showNext();
               await navigatorKey.currentState!
                   .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
             },

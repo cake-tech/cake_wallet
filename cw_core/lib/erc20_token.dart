@@ -17,9 +17,11 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
   @HiveField(4, defaultValue: true)
   bool _enabled;
   @HiveField(5)
-  final String? iconPath;
+  String? iconPath;
   @HiveField(6)
   final String? tag;
+  @HiveField(7, defaultValue: false)
+  bool isPotentialScam;
 
   bool get enabled => _enabled;
 
@@ -33,14 +35,17 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
     bool enabled = true,
     this.iconPath,
     this.tag,
+    this.isPotentialScam = false,
   })  : _enabled = enabled,
         super(
-            name: symbol.toLowerCase(),
-            title: symbol.toUpperCase(),
-            fullName: name,
-            tag: tag,
-            iconPath: iconPath,
-            decimals: decimal);
+          name: symbol.toLowerCase(),
+          title: symbol.toUpperCase(),
+          fullName: name,
+          tag: tag,
+          iconPath: iconPath,
+          decimals: decimal,
+          isPotentialScam: isPotentialScam,
+        );
 
   Erc20Token.copyWith(Erc20Token other, String? icon, String? tag)
       : this.name = other.name,
@@ -50,6 +55,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
         this._enabled = other.enabled,
         this.tag = tag,
         this.iconPath = icon,
+        this.isPotentialScam = other.isPotentialScam,
         super(
           name: other.name,
           title: other.symbol.toUpperCase(),
@@ -57,6 +63,7 @@ class Erc20Token extends CryptoCurrency with HiveObjectMixin {
           tag: tag,
           iconPath: icon,
           decimals: other.decimal,
+          isPotentialScam: other.isPotentialScam,
         );
 
   static const typeId = ERC20_TOKEN_TYPE_ID;

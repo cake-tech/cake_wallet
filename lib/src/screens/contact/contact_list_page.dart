@@ -12,9 +12,11 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
+import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -235,7 +237,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
           return;
         }
 
-        final isCopied = await showNameAndAddressDialog(context, contact.name, contact.address);
+        final isCopied = await DialogService.showNameAndAddressDialog(context, contact);
 
         if (isCopied) {
           await Clipboard.setData(ClipboardData(text: contact.address));
@@ -279,21 +281,6 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
     return image != null
         ? Image.asset(image, height: 24, width: 24)
         : const SizedBox(height: 24, width: 24);
-  }
-
-  Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
-    return await showPopUp<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                  alertTitle: name,
-                  alertContent: address,
-                  rightButtonText: S.of(context).copy,
-                  leftButtonText: S.of(context).cancel,
-                  actionRightButton: () => Navigator.of(context).pop(true),
-                  actionLeftButton: () => Navigator.of(context).pop(false));
-            }) ??
-        false;
   }
 }
 
@@ -357,7 +344,7 @@ class _ContactListBodyState extends State<ContactListBody> {
                 }
 
                 final isCopied =
-                    await showNameAndAddressDialog(context, contact.name, contact.address);
+                    await DialogService.showNameAndAddressDialog(context, contact);
 
                 if (isCopied) {
                   await Clipboard.setData(ClipboardData(text: contact.address));
@@ -434,7 +421,7 @@ class _ContactListBodyState extends State<ContactListBody> {
           ),
           SlidableAction(
             onPressed: (_) async {
-              final isDelete = await showAlertDialog(context);
+              final isDelete = await DialogService.showAlertDialog(context);
 
               if (isDelete) {
                 await widget.contactListViewModel.delete(contact);
@@ -494,33 +481,49 @@ class _ContactListBodyState extends State<ContactListBody> {
     );
   }
 
-  Future<bool> showAlertDialog(BuildContext context) async {
+}
+
+class DialogService {
+  static Future<bool> showAlertDialog(BuildContext context) async {
     return await showPopUp<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                  alertTitle: S.of(context).address_remove_contact,
-                  alertContent: S.of(context).address_remove_content,
-                  rightButtonText: S.of(context).remove,
-                  leftButtonText: S.of(context).cancel,
-                  actionRightButton: () => Navigator.of(context).pop(true),
-                  actionLeftButton: () => Navigator.of(context).pop(false));
-            }) ??
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).address_remove_contact,
+              alertContent: S.of(context).address_remove_content,
+              rightButtonText: S.of(context).remove,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.of(context).pop(true),
+              actionLeftButton: () => Navigator.of(context).pop(false));
+        }) ??
         false;
   }
 
-  Future<bool> showNameAndAddressDialog(BuildContext context, String name, String address) async {
+  static Future<bool> showNameAndAddressDialog(BuildContext context,ContactBase contact) async {
     return await showPopUp<bool>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                  alertTitle: name,
-                  alertContent: address,
-                  rightButtonText: S.of(context).copy,
-                  leftButtonText: S.of(context).cancel,
-                  actionRightButton: () => Navigator.of(context).pop(true),
-                  actionLeftButton: () => Navigator.of(context).pop(false));
-            }) ??
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithTwoActions(
+              alertTitle: contact.name,
+              alertContent: contact.address,
+              alertContentTextWidget: AddressFormatter.buildSegmentedAddress(
+                address: contact.address,
+                textAlign: TextAlign.center,
+                walletType: cryptoCurrencyToWalletType(contact.type),
+                evenTextStyle: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                  fontFamily: 'Lato',
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+              rightButtonText: S.of(context).copy,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.of(context).pop(true),
+              actionLeftButton: () => Navigator.of(context).pop(false));
+        }) ??
         false;
   }
 }
+

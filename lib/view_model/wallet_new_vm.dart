@@ -49,39 +49,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   bool get hasLanguageSelector =>
       [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
 
-  int get seedPhraseWordsLength {
-    switch (type) {
-      case WalletType.monero:
-      case WalletType.wownero:
-        return advancedPrivacySettingsViewModel.isPolySeed ? 16 : 25;
-      case WalletType.tron:
-      case WalletType.solana:
-      case WalletType.polygon:
-      case WalletType.ethereum:
-      case WalletType.bitcoinCash:
-        return advancedPrivacySettingsViewModel.seedPhraseLength.value;
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-        return seedSettingsViewModel.bitcoinSeedType == BitcoinSeedType.bip39
-            ? advancedPrivacySettingsViewModel.seedPhraseLength.value
-            : 24;
-      case WalletType.nano:
-      case WalletType.banano:
-        return seedSettingsViewModel.nanoSeedType == NanoSeedType.bip39
-            ? advancedPrivacySettingsViewModel.seedPhraseLength.value
-            : 24;
-      case WalletType.none:
-        return 24;
-      case WalletType.haven:
-        return 25;
-      case WalletType.zano:
-        return 26;
-      case WalletType.decred:
-        return 15;
-    }
-  }
+  bool get showLanguageSelector =>
+      newWalletArguments?.mnemonic == null && hasLanguageSelector;
 
-  bool get hasSeedType => [WalletType.monero, WalletType.wownero].contains(type);
+  bool get hasSeedType =>
+      newWalletArguments?.mnemonic == null &&
+      [WalletType.monero, WalletType.wownero].contains(type);
 
   @override
   WalletCredentials getCredentials(dynamic _options) {
@@ -92,11 +65,15 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
     switch (type) {
       case WalletType.monero:
         return monero!.createMoneroNewWalletCredentials(
-            name: name,
-            language: options!.first as String,
-            password: walletPassword,
-            passphrase: passphrase,
-            isPolyseed: options.last as bool);
+          name: name,
+          language: options!.first as String,
+          password: walletPassword,
+          passphrase: passphrase,
+          seedType: newWalletArguments!.mnemonic != null
+              ? MoneroSeedType.bip39.raw
+              : (options.last as MoneroSeedType).raw,
+          mnemonic: newWalletArguments!.mnemonic,
+        );
       case WalletType.bitcoin:
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(
@@ -152,7 +129,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return wownero!.createWowneroNewWalletCredentials(
           name: name,
           language: options!.first as String,
-          isPolyseed: options.last as bool,
+          isPolyseed: (options.last as MoneroSeedType).raw == 1,
           password: walletPassword,
           passphrase: passphrase,
         );
