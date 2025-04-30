@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +55,8 @@ abstract class StartTorViewModelBase with Store {
     }
     await ensureTorStarted(context: null);
     didStartTor = true;
+    final appStore = getIt.get<AppStore>();
+    appStore.wallet?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 
