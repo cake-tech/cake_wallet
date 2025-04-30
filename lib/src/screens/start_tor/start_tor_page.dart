@@ -27,22 +27,18 @@ class StartTorPage extends BasePage {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Observer(
-            builder: (_) {
-              return Column(
-                children: [
-                  SizedBox(width: double.maxFinite),
-                  if (startTorViewModel.isLoading) ...[
-                    CircularProgressIndicator(),
-                    SizedBox(height: 20),
-                    _buildWaitingText(context),
-                  ],
-                  if (startTorViewModel.showOptions) ...[
-                    _buildOptionsButtons(context),
-                  ],
+          Column(
+            children: [
+              SizedBox(width: double.maxFinite),
+              if (startTorViewModel.isLoading) ...[
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                _buildWaitingText(context),
                 ],
-              );
-            },
+              if (startTorViewModel.showOptions) ...[
+                _buildOptionsButtons(context),
+              ],
+            ],
           ),
         ],
       ),
