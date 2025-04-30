@@ -76,7 +76,7 @@
   "background_sync_on_battery_low": "Synchronize on low battery",
   "background_sync_on_charging": "Synchronize only when charging",
   "background_sync_on_device_idle": "Synchronize only when device is not being used",
-  "background_sync_on_unmetered_network": "Require unmetred network",
+  "background_sync_on_unmetered_network": "Require unmetered network",
   "backup": "Backup",
   "backup_file": "Backup file",
   "backup_password": "Backup password",
