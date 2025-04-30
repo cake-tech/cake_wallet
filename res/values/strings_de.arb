@@ -276,7 +276,7 @@
   "enable_mempool_api": "Mempool-API für genaue Gebühren und Daten",
   "enable_replace_by_fee": "Aktivieren Sie Ersatz für Fee",
   "enable_silent_payments_scanning": "Scannen Sie nach Silent Payments ihrer Adresse",
-  "enabled": "Ermöglicht",
+  "enabled": "Aktiviert",
   "enter_amount": "Betrag eingeben",
   "enter_backup_password": "Sicherungskennwort hier eingeben",
   "enter_code": "Code eingeben",
