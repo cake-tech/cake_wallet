@@ -292,23 +292,25 @@ class App extends StatefulWidget {
 class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        final appStore = getIt.get<AppStore>();
-        final authService = getIt.get<AuthService>();
-        final linkViewModel = getIt.get<LinkViewModel>();
-        final statusBarColor = Colors.transparent;
-        final authenticationStore = getIt.get<AuthenticationStore>();
-        final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-            ? Routes.welcome
-            : Routes.login;
-        final currentTheme = appStore.themeStore.currentTheme;
-        final statusBarBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
-        final statusBarIconBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
-        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-            statusBarColor: statusBarColor,
-            statusBarBrightness: statusBarBrightness,
-            statusBarIconBrightness: statusBarIconBrightness));
+    return Observer(builder: (BuildContext context) {
+      final appStore = getIt.get<AppStore>();
+      final authService = getIt.get<AuthService>();
+      final linkViewModel = getIt.get<LinkViewModel>();
+      final settingsStore = appStore.settingsStore;
+      final statusBarColor = Colors.transparent;
+      final authenticationStore = getIt.get<AuthenticationStore>();
+      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
+          ? Routes.welcome
+          : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
+      final currentTheme = appStore.themeStore.currentTheme;
+      final statusBarBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      final statusBarIconBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: statusBarColor,
+          statusBarBrightness: statusBarBrightness,
+          statusBarIconBrightness: statusBarIconBrightness));
 
         return Root(
           key: widget.key ?? rootKey,
