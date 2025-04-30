@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class BaseThemeV2 {
   static final ThemeData darkTheme = ThemeData(
     colorScheme: ColorScheme(
-      brightness: dark,
+      brightness: Brightness.dark,
       primary: Color(0x91A7FF),
       onPrimary: Color(0x002860),
       primaryContainer: Color(0x004C9E),
