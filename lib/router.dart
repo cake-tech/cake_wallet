@@ -99,6 +99,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
+import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
@@ -914,6 +915,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devSecurePreferences:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevSecurePreferencesPage>(),
+      );
+    
+    case Routes.startTor:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<StartTorPage>(),
       );
 
     default:

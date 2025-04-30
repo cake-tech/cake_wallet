@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:socks5_proxy/socks_client.dart';
-import 'package:socks_socket/socks_socket.dart';
 import 'package:tor/tor.dart';
 import 'package:http/io_client.dart' as ioc;
 
