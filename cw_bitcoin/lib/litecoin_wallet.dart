@@ -1062,8 +1062,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     try {
       var creds;
       if (!mwebEnabled) {
-        creds = (credentials as BitcoinTransactionCredentials);
-        creds.coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+        BitcoinTransactionCredentials btcCreds = (credentials as BitcoinTransactionCredentials);
+        // sets unspent coin type to nonMweb:
+        creds = BitcoinTransactionCredentials(
+          btcCreds.outputs,
+          priority: btcCreds.priority,
+          feeRate: btcCreds.feeRate,
+          coinTypeToSpendFrom: UnspentCoinType.nonMweb,
+        );
       } else {
         creds = credentials;
       }
