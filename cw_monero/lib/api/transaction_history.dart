@@ -57,7 +57,7 @@ Future<List<Transaction>> getAllTransactions() async {
   
   await txHistoryMutex.acquire();
   txhistory ??= currentWallet!.history();
-  final startAddress = txhistory!.ffiAddress();
+  final startAddress = txhistory!.ffiAddress() * currentWallet!.ffiAddress();
   int size = countOfTransactions();
   final list = <Transaction>[];
   for (int index = 0; index < size; index++) {
@@ -65,7 +65,7 @@ Future<List<Transaction>> getAllTransactions() async {
       // Give main thread a chance to do other things.
       await Future.delayed(Duration.zero);
     }
-    if (txhistory!.ffiAddress() != startAddress) {
+    if (txhistory!.ffiAddress() * currentWallet!.ffiAddress() != startAddress) {
       printV("Loop broken because txhistory!.address * wptr!.address != startAddress");
       break;
     }
