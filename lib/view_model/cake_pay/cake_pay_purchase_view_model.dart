@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_payment_credantials.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_payment_credantials.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/wallet_type.dart';

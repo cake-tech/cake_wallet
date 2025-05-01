@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_payment_credantials.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_payment_credantials.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';

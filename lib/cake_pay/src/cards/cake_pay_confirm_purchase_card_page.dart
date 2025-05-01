@@ -1,12 +1,12 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/image_placeholder.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/link_extractor.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';

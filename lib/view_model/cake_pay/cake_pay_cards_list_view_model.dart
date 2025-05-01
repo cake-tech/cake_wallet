@@ -1,6 +1,6 @@
-import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';

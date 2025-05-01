@@ -1,4 +1,4 @@
-import 'cake_pay_card.dart';
+import 'models/cake_pay_card.dart';
 
 abstract class CakePayUserVerificationState {}
 

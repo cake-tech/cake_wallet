@@ -1,11 +1,11 @@
-import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/card_item.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/card_menu.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/card_item.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/card_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';

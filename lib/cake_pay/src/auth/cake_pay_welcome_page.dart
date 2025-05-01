@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/email_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';

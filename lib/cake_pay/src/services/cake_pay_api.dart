@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:http/http.dart' as http;
