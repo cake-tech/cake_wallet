@@ -217,17 +217,14 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
-      final authenticatingClient = ProxyWrapper().getHttpClient();
-      authenticatingClient.badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => true);
+      final client = ProxyWrapper().getHttpIOClient();
 
       final jsonBody = json.encode(body);
 
-      final response = await ProxyWrapper().post(
-        clearnetUri: rpcUri,
+      final response = await client.post(
+        rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
-        allowMitmMoneroBypassSSLCheck: true,
       );
       // Check if we received a 401 Unauthorized response
       if (response.statusCode == 401) {
@@ -240,7 +237,7 @@ class Node extends HiveObject with Keyable {
         return !(response['offline'] as bool);
       }
 
-      final responseString = await response.transform(utf8.decoder).join();
+      final responseString = await response.body;
 
       if ((responseString.contains("400 Bad Request") // Some other generic error
               ||
@@ -459,11 +456,12 @@ class DaemonRpc {
 
   /// Perform a JSON-RPC call with Digest Authentication.
   Future<Map<String, dynamic>> call(String method, Map<String, dynamic> params) async {
+    final client = ProxyWrapper().getHttpIOClient();
     final DigestAuth digestAuth = DigestAuth(username, password);
 
     // Initial request to get the `WWW-Authenticate` header.
-    final initialResponse = await ProxyWrapper().post(
-      clearnetUri: Uri.parse(rpcUrl),
+    final initialResponse = await client.post(
+      Uri.parse(rpcUrl),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -475,26 +473,25 @@ class DaemonRpc {
       }),
     );
 
-    final authHeader = initialResponse.headers.value('www-authenticate');
-    final responseString = await initialResponse.transform(utf8.decoder).join();
-
-    if (initialResponse.statusCode != 401 || authHeader == null) {
-      throw Exception('Unexpected response: $responseString');
+    if (initialResponse.statusCode != 401 ||
+        !initialResponse.headers.containsKey('www-authenticate')) {
+      throw Exception('Unexpected response: ${initialResponse.body}');
     }
 
     // Extract Digest details from `WWW-Authenticate` header.
-    digestAuth.initFromAuthorizationHeader(authHeader);
+    final String authInfo = initialResponse.headers['www-authenticate']!;
+    digestAuth.initFromAuthorizationHeader(authInfo);
 
     // Create Authorization header for the second request.
     String uri = Uri.parse(rpcUrl).path;
-    String newAuthHeader = digestAuth.getAuthString('POST', uri);
+    String authHeader = digestAuth.getAuthString('POST', uri);
 
     // Make the authenticated request.
-    final authenticatedResponse = await ProxyWrapper().post(
-      clearnetUri: Uri.parse(rpcUrl),
+    final authenticatedResponse = await client.post(
+      Uri.parse(rpcUrl),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': newAuthHeader,
+        'Authorization': authHeader,
       },
       body: jsonEncode({
         'jsonrpc': '2.0',
@@ -505,12 +502,11 @@ class DaemonRpc {
     );
 
     if (authenticatedResponse.statusCode != 200) {
-      final responseString = await authenticatedResponse.transform(utf8.decoder).join();
-      throw Exception('RPC call failed: $responseString');
+      throw Exception('RPC call failed: ${authenticatedResponse.body}');
     }
 
-    final responseString2 = await authenticatedResponse.transform(utf8.decoder).join();
-    final result = jsonDecode(responseString2) as Map<String, dynamic>;
+    final Map<String, dynamic> result =
+        jsonDecode(authenticatedResponse.body) as Map<String, dynamic>;
     if (result['error'] != null) {
       throw Exception('RPC Error: ${result['error']}');
     }
