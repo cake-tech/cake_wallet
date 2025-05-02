@@ -937,6 +937,7 @@
   "use_card_info_two": "Các khoản tiền được chuyển đổi thành USD khi chúng được giữ trong tài khoản trả trước, không phải trong các loại tiền kỹ thuật số.",
   "use_ssl": "Sử dụng SSL",
   "use_suggested": "Sử dụng đề xuất",
+  "use_tari_emoji_address": "Sử dụng địa chỉ biểu tượng cảm xúc Tari",
   "use_testnet": "Sử dụng Testnet",
   "value": "Giá trị",
   "value_type": "Loại giá trị",

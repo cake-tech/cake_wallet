@@ -940,6 +940,7 @@
   "use_card_info_two": "Sredstva se pretvaraju u USD kada se drže na prepaid računu, a ne u digitalnim valutama.",
   "use_ssl": "Koristi SSL",
   "use_suggested": "Koristite predloženo",
+  "use_tari_emoji_address": "Koristite Tari Emoji adresu",
   "use_testnet": "Koristite TestNet",
   "value": "Vrijednost",
   "value_type": "Tipa vrijednosti",

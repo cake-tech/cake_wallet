@@ -941,6 +941,7 @@
   "use_card_info_two": "Funds are converted to USD when they're held in the prepaid account, not in digital currencies.",
   "use_ssl": "Use SSL",
   "use_suggested": "Use Suggested",
+  "use_tari_emoji_address": "Use Tari Emoji Address",
   "use_testnet": "Use Testnet",
   "value": "Value",
   "value_type": "Value Type",

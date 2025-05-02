@@ -8,11 +8,14 @@ part 'tari_wallet_addresses.g.dart';
 class TariWalletAddresses = TariWalletAddressesBase with _$TariWalletAddresses;
 
 abstract class TariWalletAddressesBase extends WalletAddresses with Store {
-  TariWalletAddressesBase(super.walletInfo) : address = '';
+  TariWalletAddressesBase(super.walletInfo) : address = '', emojiAddress = '';
 
   @override
   @observable
   String address;
+
+  @observable
+  String emojiAddress;
 
   @override
   String get primaryAddress => address;

@@ -73,7 +73,7 @@ class TariWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      final connection = tariffi.FFITariTransportConfig();
+      final connection = tariffi.FFITariTransportConfig.tcp("/ip4/127.0.0.1/tcp/9051");
       final config = tari.getWalletConfig(
         path: path,
         transport: connection,
@@ -82,6 +82,8 @@ class TariWalletService extends WalletService<
         commsConfig: config,
         passphrase: credentials.password!,
         logPath: "$path/logs/wallet.log",
+        logLevel: 4,
+        dnsSeeds: "seeds.nextnet.tari.com",
         callbackReceivedTransaction: CallbackPlaceholders.callbackReceivedTransaction,
         callbackReceivedTransactionReply: CallbackPlaceholders.callbackReceivedTransactionReply,
         callbackReceivedFinalizedTransaction: CallbackPlaceholders.callbackReceivedFinalizedTransaction,
@@ -112,7 +114,7 @@ class TariWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      printV('MoneroWalletsManager Error: ${e.toString()}');
+      printV('TariWalletsManager Error: ${e.toString()}');
       rethrow;
     }
   }
@@ -130,10 +132,16 @@ class TariWalletService extends WalletService<
         path: path,
         transport: connection,
       );
+
+      await File("$path/logs/wallet.log").delete();
+
       final tariWallet = tari.createWallet(
         commsConfig: config,
         passphrase: password,
         logPath: "$path/logs/wallet.log",
+        logLevel: 4,
+        dnsSeeds: "seeds.nextnet.tari.com",
+        dnsSeedNameServers: '1.1.1.1:853',
         callbackReceivedTransaction: CallbackPlaceholders.callbackReceivedTransaction,
         callbackReceivedTransactionReply: CallbackPlaceholders.callbackReceivedTransactionReply,
         callbackReceivedFinalizedTransaction: CallbackPlaceholders.callbackReceivedFinalizedTransaction,
@@ -235,6 +243,8 @@ class TariWalletService extends WalletService<
         passphrase: credentials.password!,
         mnemonic: credentials.mnemonic,
         logPath: "$path/logs/wallet.log",
+        logLevel: 4,
+        dnsSeeds: "seeds.nextnet.tari.com",
         callbackReceivedTransaction: CallbackPlaceholders.callbackReceivedTransaction,
         callbackReceivedTransactionReply: CallbackPlaceholders.callbackReceivedTransactionReply,
         callbackReceivedFinalizedTransaction: CallbackPlaceholders.callbackReceivedFinalizedTransaction,
@@ -263,7 +273,7 @@ class TariWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      printV('MoneroWalletsManager Error: $e');
+      printV('TariWalletsManager Error: $e');
       rethrow;
     }
   }

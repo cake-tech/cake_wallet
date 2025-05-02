@@ -1400,6 +1400,7 @@ import 'package:hive/hive.dart';
   const tariCWHeaders = """
 import 'package:cw_tari/tari_wallet.dart';
 import 'package:cw_tari/tari_wallet_service.dart';
+import 'package:cw_tari/wordlist.dart';
 """;
   const tariCwPart = "part 'cw_tari.dart';";
   const tariContent = """
@@ -1410,10 +1411,12 @@ abstract class Tari {
   WalletCredentials createTariNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase});
   WalletCredentials createTariRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
 
-  String getAddress(WalletBase wallet);
+  String getAddress(WalletBase wallet, bool useEmojiAddress);
 
   List<TransactionPriority> getTransactionPriorities();
   double formatterTariAmountToDouble({required int amount});
+  
+  void dev_printLogs(WalletBase wallet);
 }
 """;
 

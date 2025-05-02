@@ -940,6 +940,7 @@
   "use_card_info_two": "Paralar, dijital para birimlerinde değil, ön ödemeli hesapta tutulduğunda USD'ye dönüştürülür.",
   "use_ssl": "SSL kullan",
   "use_suggested": "Önerileni Kullan",
+  "use_tari_emoji_address": "Tari emoji adresini kullanın",
   "use_testnet": "TestNet kullanın",
   "value": "Değer",
   "value_type": "Değer türü",

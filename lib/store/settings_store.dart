@@ -129,6 +129,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
+      required this.useTariEmojiAddress,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -836,6 +837,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   String mwebNodeUri;
 
+  @observable
+  bool useTariEmojiAddress;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1022,6 +1026,8 @@ abstract class SettingsStoreBase with Store {
     final mwebNodeUri = sharedPreferences.getString(PreferencesKey.mwebNodeUri) ??
         "ltc-electrum.cakewallet.com:9333";
 
+    final useTariEmojiAddress = sharedPreferences.getBool(PreferencesKey.useTariEmojiAddress) ?? true;
+
     // If no value
     if (pinLength == null || pinLength == 0) {
       pinLength = defaultPinLength;
@@ -1041,6 +1047,7 @@ abstract class SettingsStoreBase with Store {
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
+    final tariNodeId = sharedPreferences.getInt(PreferencesKey.currentTariNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
@@ -1067,6 +1074,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == nanoDefaultPowNodeUri);
     final solanaNode = nodeSource.get(solanaNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
+    final tariNode = nodeSource.get(tariNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == tariDefaultUri);
     final tronNode = nodeSource.get(tronNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
     final wowneroNode = nodeSource.get(wowneroNodeId) ??
@@ -1141,6 +1150,10 @@ abstract class SettingsStoreBase with Store {
 
     if (solanaNode != null) {
       nodes[WalletType.solana] = solanaNode;
+    }
+
+    if (tariNode != null) {
+      nodes[WalletType.tari] = tariNode;
     }
 
     if (tronNode != null) {
@@ -1318,6 +1331,7 @@ abstract class SettingsStoreBase with Store {
       mwebCardDisplay: mwebCardDisplay,
       mwebEnabled: mwebEnabled,
       mwebNodeUri: mwebNodeUri,
+      useTariEmojiAddress: useTariEmojiAddress,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
@@ -1513,6 +1527,7 @@ abstract class SettingsStoreBase with Store {
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
+    final tariNodeId = sharedPreferences.getInt(PreferencesKey.currentTariNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
@@ -1526,6 +1541,7 @@ abstract class SettingsStoreBase with Store {
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
+    final tariNode = nodeSource.get(tariNodeId);
     final tronNode = nodeSource.get(tronNodeId);
     final wowneroNode = nodeSource.get(wowneroNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
@@ -1565,6 +1581,10 @@ abstract class SettingsStoreBase with Store {
 
     if (solanaNode != null) {
       nodes[WalletType.solana] = solanaNode;
+    }
+
+    if (tariNode != null) {
+      nodes[WalletType.tari] = tariNode;
     }
 
     if (tronNode != null) {
@@ -1713,6 +1733,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.solana:
         await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
+        break;
+      case WalletType.tari:
+        await _sharedPreferences.setInt(PreferencesKey.currentTariNodeIdKey, node.key as int);
         break;
       case WalletType.tron:
         await _sharedPreferences.setInt(PreferencesKey.currentTronNodeIdKey, node.key as int);

@@ -17,6 +17,7 @@ class PreferencesKey {
   static const currentCakePayCountry = 'current_cake_pay_country';
   static const currentBitcoinCashNodeIdKey = 'current_node_id_bch';
   static const currentSolanaNodeIdKey = 'current_node_id_sol';
+  static const currentTariNodeIdKey = 'current_node_id_xtr';
   static const currentTronNodeIdKey = 'current_node_id_trx';
   static const currentWowneroNodeIdKey = 'current_node_id_wow';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
@@ -58,6 +59,7 @@ class PreferencesKey {
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
   static const mwebAlwaysScan = 'mwebAlwaysScan';
   static const mwebNodeUri = 'mwebNodeUri';
+  static const useTariEmojiAddress = 'useTariEmojiAddress';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
   static const shouldShowRepWarning = 'should_show_rep_warning';

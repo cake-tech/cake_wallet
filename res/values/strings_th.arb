@@ -940,6 +940,7 @@
   "use_card_info_two": "เงินจะถูกแปลงค่าเป็นดอลลาร์สหรัฐเมื่อถือไว้ในบัญชีสำรองเงิน ไม่ใช่สกุลเงินดิจิตอล",
   "use_ssl": "ใช้ SSL",
   "use_suggested": "ใช้ที่แนะนำ",
+  "use_tari_emoji_address": "ใช้ที่อยู่ Tari Emoji",
   "use_testnet": "ใช้ testnet",
   "value": "ค่า",
   "value_type": "ประเภทค่า",

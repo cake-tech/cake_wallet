@@ -941,6 +941,7 @@
   "use_card_info_two": "Los fondos se convierten a USD cuando se mantienen en la cuenta prepaga, no en monedas digitales.",
   "use_ssl": "Utiliza SSL",
   "use_suggested": "Usar sugerido",
+  "use_tari_emoji_address": "Use la dirección de emoji de Tari",
   "use_testnet": "Usar TestNet",
   "value": "Valor",
   "value_type": "Tipo de valor",

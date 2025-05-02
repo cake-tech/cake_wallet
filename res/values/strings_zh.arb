@@ -940,6 +940,7 @@
   "use_card_info_two": "预付账户中的资金转换为美元，不是数字货币。",
   "use_ssl": "使用SSL",
   "use_suggested": "使用建议",
+  "use_tari_emoji_address": "使用Tari Emoji地址",
   "use_testnet": "使用TestNet",
   "value": "价值",
   "value_type": "值类型",

@@ -940,6 +940,7 @@
   "use_card_info_two": "Les fonds sont convertis en USD lorsqu'ils sont détenus sur le compte prépayé, et non en devises numériques.",
   "use_ssl": "Utiliser SSL",
   "use_suggested": "Suivre la suggestion",
+  "use_tari_emoji_address": "Utiliser l'adresse emoji tari",
   "use_testnet": "Utiliser TestNet",
   "value": "Valeur",
   "value_type": "Type de valeur",

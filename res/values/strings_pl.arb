@@ -940,6 +940,7 @@
   "use_card_info_two": "Środki są przeliczane na USD, gdy są przechowywane na koncie przedpłaconym, a nie w walutach cyfrowych.",
   "use_ssl": "Użyj SSL",
   "use_suggested": "Użyj sugerowane",
+  "use_tari_emoji_address": "Użyj adresu emoji tari",
   "use_testnet": "Użyj testne",
   "value": "Wartość",
   "value_type": "Typ wartości",

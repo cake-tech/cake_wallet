@@ -8,10 +8,10 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arro
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
+import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -76,6 +76,20 @@ class OtherSettingsPage extends BasePage {
                   title: '[dev] xmr call profiler',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
+                ),
+              if (_otherSettingsViewModel.walletType == WalletType.tari)
+                SettingsSwitcherCell(
+                  title: "${S.of(context).use_tari_emoji_address} 🤮",
+                  value: _otherSettingsViewModel.useTariEmojiAddress,
+                  onValueChange: (_, bool value) {
+                    _otherSettingsViewModel.setUseTariEmojiAddress(value);
+                  },
+                ),
+              if (_otherSettingsViewModel.walletType == WalletType.tari)
+                SettingsCellWithArrow(
+                  title: '[dev] tari print log ',
+                  handler: (BuildContext context) =>
+                      tari!.dev_printLogs(_otherSettingsViewModel.wallet),
                 ),
               Spacer(),
               SettingsVersionCell(

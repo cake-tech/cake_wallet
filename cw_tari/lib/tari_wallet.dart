@@ -1,20 +1,26 @@
 import 'dart:async';
+import 'dart:developer';
+import 'dart:io';
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
+import 'package:cw_tari/pending_tari_transaction.dart';
 import 'package:cw_tari/tari_balance.dart';
 import 'package:cw_tari/tari_transaction_history.dart';
 import 'package:cw_tari/tari_transaction_info.dart';
 import 'package:cw_tari/tari_wallet_addresses.dart';
 import 'package:cw_tari/transaction_credentials.dart';
 import 'package:mobx/mobx.dart';
+import 'package:tari/ffi.dart';
 import 'package:tari/tari.dart' as tari;
 
 part 'tari_wallet.g.dart';
@@ -56,18 +62,20 @@ abstract class TariWalletBase
   late ObservableMap<CryptoCurrency, TariBalance> balance;
 
   Future<void> init() async {
-    walletInfo.address = _walletFfi.getEmojiID().emojiId;
+    final address = _walletFfi.getEmojiID();
+    walletInfo.address = address.base58;
 
     await walletAddresses.init();
     await transactionHistory.init();
+
+    (walletAddresses as TariWalletAddresses).emojiAddress = address.emojiId;
 
     await save();
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    return 0; // ToDo
-  }
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) =>
+      _walletFfi.estimateFee(amount ?? 1_000_000, null);
 
   @override
   Future<void> changePassword(String password) =>
@@ -80,17 +88,7 @@ abstract class TariWalletBase
 
   @action
   @override
-  Future<void> connectToNode({required Node node}) async {
-    try {
-      syncStatus = ConnectingSyncStatus();
-
-      // ToDo
-
-      syncStatus = ConnectedSyncStatus();
-    } catch (e) {
-      syncStatus = FailedSyncStatus();
-    }
-  }
+  Future<void> connectToNode({required Node node}) async {}
 
   @action
   @override
@@ -98,8 +96,21 @@ abstract class TariWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
-      _walletFfi.startRecovery((_, int status, int val1, int val2) {
+      _walletFfi.setBaseNode();
+      _walletFfi.startRecovery((_, int status, int val1, int val2) async {
         print('recoveryCallback called $status $val1 $val2');
+
+        if (status == 0) {
+          syncStatus = ConnectingSyncStatus();
+        } else if (status == 1) {
+          syncStatus = ConnectedSyncStatus();
+        } else if (status == 6 || status == 5) {
+          syncStatus = FailedSyncStatus();
+          final currentWalletPath =
+              await pathForWallet(name: walletInfo.name, type: type);
+          log(currentWalletPath);
+          log(File("$currentWalletPath/logs/wallet.log").readAsStringSync());
+        }
       });
 
       syncStatus = SyncedSyncStatus();
@@ -111,16 +122,58 @@ abstract class TariWalletBase
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final tariCredentials = credentials as TariTransactionCredentials;
-    
-    // _walletFfi.sendTx(destination, amount, feePerGram, message, isOneSided)
-    // ToDo
-    throw UnimplementedError();
+    final fee = BigInt.from(tariCredentials.feeRate ?? 10);
+    BigInt amount = BigInt.zero;
+
+    Function sendTransaction = () {};
+    for (final output in tariCredentials.outputs) {
+      FFITariWalletAddress destination;
+      if (output.address.startsWith("🌈")) { // ToDo change to Mainnet
+        destination = FFITariWalletAddress.fromEmojiId(output.address);
+      } else {
+        destination = FFITariWalletAddress.fromBase58(output.address);
+      }
+      amount = BigInt.parse(output.cryptoAmount ?? '0');
+      sendTransaction = () => _walletFfi.sendTx(
+            destination,
+            amount,
+            fee,
+            output.note ?? "",
+            true,
+          );
+    }
+
+    return PendingTariTransaction(
+      sendTransaction: sendTransaction,
+      fee: fee,
+      amount: amount,
+      exponent: 6,
+    );
   }
 
   @override
   Future<Map<String, TariTransactionInfo>> fetchTransactions() async {
-    // ToDo
-    throw UnimplementedError();
+    final transactions = _walletFfi.getCompletedTxs();
+    final Map<String, TariTransactionInfo> result = {};
+
+    for (final tx in transactions) {
+      result[tx.getId()] = TariTransactionInfo(
+        tx.getId(),
+        0,
+        tx.isOutbound()
+            ? TransactionDirection.outgoing
+            : TransactionDirection.incoming,
+        DateTime.fromMillisecondsSinceEpoch(tx.getTimestamp().toInt()),
+        false,
+        tx.getAmount().toInt(),
+        0,
+        0,
+        tx.getFee().toInt(),
+        tx.getConfirmationCount().toInt(),
+      );
+    }
+
+    return result;
   }
 
   @override
@@ -194,6 +247,12 @@ abstract class TariWalletBase
   Future<bool> verifyMessage(String message, String signature,
       {String? address}) async {
     throw UnimplementedError();
+  }
+
+  Future<void> dev_printLogs() async {
+    final currentWalletPath =
+        await pathForWallet(name: walletInfo.name, type: type);
+    log(File("$currentWalletPath/logs/wallet.log").readAsStringSync());
   }
 
   @override

@@ -941,6 +941,7 @@
   "use_card_info_two": "デジタル通貨ではなく、プリペイドアカウントで保持されている場合、資金は米ドルに変換されます。",
   "use_ssl": "SSLを使用する",
   "use_suggested": "推奨を使用",
+  "use_tari_emoji_address": "タリ絵文字アドレスを使用してください",
   "use_testnet": "テストネットを使用します",
   "value": "価値",
   "value_type": "値タイプ",

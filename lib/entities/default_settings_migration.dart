@@ -45,8 +45,8 @@ const newCakeWalletBitcoinUri = 'btc-electrum.cakewallet.com:50002';
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
-const decredDefaultUri = "default-spv-nodes";
-const tariDefaultUri = ''; // ToDo
+const decredDefaultUri = 'default-spv-nodes';
+const tariDefaultUri = 'seeds.nextnet.tari.com'; // ToDo
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -512,6 +512,15 @@ Future<void> defaultSettingsMigration(
             enabled: true,
           );
 			    break;
+        case 50:
+          await addWalletNodeList(nodes: nodes, type: WalletType.tari);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.tari,
+            currentNodePreferenceKey: PreferencesKey.currentTariNodeIdKey,
+          );
+          break;
         default:
           break;
       }
@@ -1051,6 +1060,7 @@ Future<void> checkCurrentNodes(
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
+  final currentTariNodeId = sharedPreferences.getInt(PreferencesKey.currentTariNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
   final currentZanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
@@ -1076,6 +1086,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
   final currentSolanaNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
+  final currentTariNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentTariNodeId);
   final currentTronNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentTronNodeId);
   final currentWowneroNodeServer =
@@ -1153,6 +1165,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: solanaDefaultNodeUri, type: WalletType.solana);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);
+  }
+
+  if (currentTariNodeServer == null) {
+    final node = Node(uri: tariDefaultUri, type: WalletType.tari);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentTariNodeIdKey, node.key as int);
   }
 
   if (currentTronNodeServer == null) {

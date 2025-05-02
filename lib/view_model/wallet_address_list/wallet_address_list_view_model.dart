@@ -16,6 +16,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/utils/list_item.dart';
@@ -239,9 +240,10 @@ class DecredURI extends PaymentURI {
 
 class TariURI extends PaymentURI {
   TariURI(
-      {required this.network, required super.amount, required super.address});
+      {required this.network, required this.base58Address, required super.amount, required super.address});
 
   final String network;
+  final String base58Address;
 
   // tari://nextnet/profile?alias=Aurora%20User%20%F0%9F%8F%81%F0%9F%9A%B2%F0%9F%8D%8C&tariAddress=349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb
   // tari://nextnet/transactions/send?tariAddress=349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb&amount=5000000
@@ -259,7 +261,7 @@ class TariURI extends PaymentURI {
       pathParts.add("profile");
     }
 
-    queryParams["tariAddress"] = address;
+    queryParams["tariAddress"] = base58Address;
 
     final uri = Uri(scheme: "tari", pathSegments: pathParts, queryParameters: queryParams);
 
@@ -362,7 +364,15 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.decred:
         return DecredURI(amount: amount, address: address.address);
       case WalletType.tari:
-        return TariURI(amount: amount, address: address.address, network: 'nextnet'); // ToDo: Fix for mainnet
+        final emojiAddress = tari!.getAddress(wallet, true);
+        return TariURI(
+          amount: amount,
+          address: _settingsStore.useTariEmojiAddress
+              ? emojiAddress
+              : address.address,
+          base58Address: address.address,
+          network: 'nextnet', // ToDo: Fix for mainnet
+        );
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

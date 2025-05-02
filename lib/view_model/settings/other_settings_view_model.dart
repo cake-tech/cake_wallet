@@ -39,6 +39,8 @@ abstract class OtherSettingsViewModelBase with Store {
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
       TransactionInfo> _wallet;
 
+  WalletBase get wallet => _wallet;
+
   @observable
   String currentVersion;
 
@@ -62,8 +64,8 @@ abstract class OtherSettingsViewModelBase with Store {
 
   @computed
   bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
-      _wallet.type == WalletType.solana ||
-      _wallet.type == WalletType.tron);
+      [WalletType.solana, WalletType.tron, WalletType.tari]
+          .contains(_wallet.type));
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -106,6 +108,12 @@ abstract class OtherSettingsViewModelBase with Store {
   @computed
   double get customBitcoinFeeRate =>
       _settingsStore.customBitcoinFeeRate.toDouble();
+
+  @computed
+  bool get useTariEmojiAddress => _settingsStore.useTariEmojiAddress;
+
+  @action
+  bool setUseTariEmojiAddress(bool value) => _settingsStore.useTariEmojiAddress = value;
 
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);

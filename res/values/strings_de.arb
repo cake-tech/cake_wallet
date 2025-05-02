@@ -942,6 +942,7 @@
   "use_card_info_two": "Guthaben werden auf dem Prepaid-Konto in USD umgerechnet, nicht in digitale Währung.",
   "use_ssl": "SSL verwenden",
   "use_suggested": "Vorgeschlagen verwenden",
+  "use_tari_emoji_address": "Verwenden Sie Tari Emoji -Adresse",
   "use_testnet": "TESTNET verwenden",
   "value": "Wert",
   "value_type": "Werttyp",

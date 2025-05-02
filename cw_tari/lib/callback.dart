@@ -165,7 +165,7 @@ class CallbackPlaceholders {
 
   // Placeholder for callback_connectivity_status
   static void callbackConnectivityStatus(Pointer<Void> context, int status) {
-    print('callbackConnectivityStatus called');
+    print('callbackConnectivityStatus called status: $status');
   }
 
   static NativeCallable<Void Function(Pointer<Void>, Uint64)>

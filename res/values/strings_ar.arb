@@ -940,6 +940,7 @@
   "use_card_info_two": "يتم تحويل الأموال إلى الدولار الأمريكي عند الاحتفاظ بها في الحساب المدفوع مسبقًا ، وليس بالعملات الرقمية.",
   "use_ssl": "استخدم SSL",
   "use_suggested": "استخدام المقترح",
+  "use_tari_emoji_address": "استخدم عنوان Tari Emoji",
   "use_testnet": "استخدم testnet",
   "value": "قيمة",
   "value_type": "نوع القيمة",

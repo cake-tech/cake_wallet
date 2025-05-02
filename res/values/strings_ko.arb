@@ -940,6 +940,7 @@
   "use_card_info_two": "디지털 화폐가 아닌 선불 계정에 보유하면 자금이 USD로 변환됩니다.",
   "use_ssl": "SSL 사용",
   "use_suggested": "추천 사용",
+  "use_tari_emoji_address": "타리 이모티콘 주소를 사용하십시오",
   "use_testnet": "TestNet을 사용하십시오",
   "value": "값",
   "value_type": "가치 유형",
