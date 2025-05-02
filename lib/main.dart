@@ -13,6 +13,7 @@ import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/swap_manager.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
@@ -281,6 +282,13 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with SingleTickerProviderStateMixin {
+
+  @override
+  void dispose() {
+    getIt.get<SwapManager>().dispose();
+    super.dispose();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {

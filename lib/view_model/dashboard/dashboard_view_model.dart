@@ -10,9 +10,11 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
+import 'package:cake_wallet/entities/swap_manager.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -62,6 +64,8 @@ class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 abstract class DashboardViewModelBase with Store {
   DashboardViewModelBase(
       {required this.balanceViewModel,
+      required this.exchangeViewModel,
+      required this.swapManager,
       required this.appStore,
       required this.tradesStore,
       required this.tradeFilterStore,
@@ -263,11 +267,19 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
+    final exchangeProviders = {
+      for (var provider in exchangeViewModel.providerList) provider.description: provider,
+    };
+
+    swapManager.start(wallet, exchangeProviders);
+
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
+      swapManager.stop();
+      swapManager.start(wallet!, exchangeProviders);
     });
 
     _transactionDisposer?.reaction.dispose();
@@ -738,6 +750,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   BalanceViewModel balanceViewModel;
+
+  ExchangeViewModel exchangeViewModel;
+
+  SwapManager swapManager;
 
   AppStore appStore;
 

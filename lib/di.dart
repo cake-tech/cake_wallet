@@ -29,6 +29,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/swap_manager.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
@@ -497,8 +498,30 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
+  getIt.registerFactory(
+    () => ExchangeViewModel(
+      getIt.get<AppStore>(),
+      _tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>(),
+      getIt.get<FeesViewModel>(),
+    ),
+  );
+
+  getIt.registerSingleton(
+    SwapManager(
+      tradesStore: getIt.get<TradesStore>(),
+      settingsStore: getIt.get<SettingsStore>(),
+    ),
+  );
+
   getIt.registerFactory(() => DashboardViewModel(
       balanceViewModel: getIt.get<BalanceViewModel>(),
+      exchangeViewModel: getIt.get<ExchangeViewModel>(),
+      swapManager: getIt.get<SwapManager>(),
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
       tradeFilterStore: getIt.get<TradeFilterStore>(),
@@ -1039,19 +1062,6 @@ Future<void> setup({
   ));
 
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
-
-  getIt.registerFactory(
-    () => ExchangeViewModel(
-      getIt.get<AppStore>(),
-      _tradesSource,
-      getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore,
-      getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>(),
-      getIt.get<FeesViewModel>(),
-    ),
-  );
 
   getIt.registerFactory<FeesViewModel>(
     () => FeesViewModel(
