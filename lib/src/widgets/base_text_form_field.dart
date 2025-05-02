@@ -15,6 +15,8 @@ class BaseTextFormField extends StatelessWidget {
       this.textColor,
       this.hintColor,
       this.borderColor,
+      this.fillColor,
+      this.filled,
       this.prefix,
       this.prefixIcon,
       this.suffix,
@@ -44,6 +46,8 @@ class BaseTextFormField extends StatelessWidget {
   final Color? textColor;
   final Color? hintColor;
   final Color? borderColor;
+  final Color? fillColor;
+  bool? filled;
   final Widget? prefix;
   final Widget? prefixIcon;
   final Widget? suffix;
@@ -89,6 +93,8 @@ class BaseTextFormField extends StatelessWidget {
           prefixIcon: prefixIcon,
           suffix: suffix,
           suffixIcon: suffixIcon,
+          fillColor: fillColor,
+          filled: filled,
           hintStyle: placeholderTextStyle ??
               TextStyle(
                   color: hintColor ?? Theme.of(context).hintColor,

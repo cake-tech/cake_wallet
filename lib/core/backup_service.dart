@@ -251,6 +251,22 @@ class $BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    for (var key in (keychainJSON['_all'] as Map<String, dynamic>).keys) {
+      try {
+        if (!key.startsWith('MONERO_WALLET_')) continue;
+        final decodedPassword = decodeWalletPassword(password: keychainJSON['_all'][key].toString());
+        final walletName = key.split('_WALLET_')[1];
+        final walletType = key.split('_WALLET_')[0].toLowerCase();
+        await importWalletKeychainInfo({
+          'name': walletName,
+          'type': "WalletType.$walletType",
+          'password': decodedPassword,
+        });
+      } catch (e) {
+        printV('Error importing wallet ($key) password: $e');
+      }
+    }
+
     keychainDumpFile.deleteSync();
   }
 

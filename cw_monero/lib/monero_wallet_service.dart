@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:collection/collection.dart';
 import 'package:cw_core/get_height_by_date.dart';
@@ -20,6 +22,7 @@ import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import 'package:monero/src/monero.dart' as m;
 import 'package:monero/monero.dart' as monero;
 import 'package:polyseed/polyseed.dart';
 
@@ -139,7 +142,7 @@ class MoneroWalletService extends WalletService<
             overrideHeight: heightOverride, passphrase: credentials.passphrase);
       }
 
-      await monero_wallet_manager.createWallet(
+      monero_wallet_manager.createWallet(
           path: path,
           password: credentials.password!,
           language: credentials.language,
@@ -179,7 +182,7 @@ class MoneroWalletService extends WalletService<
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
       await monero_wallet_manager
-          .openWalletAsync({'path': path, 'password': password});
+          .openWallet(path: path, password: password);
       final walletInfo = walletInfoSource.values
           .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
       final wallet = MoneroWallet(
@@ -217,13 +220,23 @@ class MoneroWalletService extends WalletService<
     if (openedWalletsByPath["$path/$wallet"] != null) {
       // NOTE: this is realistically only required on windows.
       printV("closing wallet");
-      final wmaddr = wmPtr.address;
-      final waddr = openedWalletsByPath["$path/$wallet"]!.address;
-      // await Isolate.run(() {
-      monero.WalletManager_closeWallet(
-          Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), false);
-      // });
+      final w = openedWalletsByPath["$path/$wallet"]!;
+      final wmaddr = wmPtr.ffiAddress();
+      final waddr = w.ffiAddress();
       openedWalletsByPath.remove("$path/$wallet");
+      if (Platform.isWindows) {
+        await Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+        });
+      } else {
+        unawaited(Isolate.run(() {
+          monero.WalletManager_closeWallet(
+              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
+          monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+        }));
+      }
       printV("wallet closed");
     }
 
@@ -263,7 +276,7 @@ class MoneroWalletService extends WalletService<
       {bool? isTestnet}) async {
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
-      await monero_wallet_manager.restoreFromKeys(
+      monero_wallet_manager.restoreWalletFromKeys(
           path: path,
           password: credentials.password!,
           language: credentials.language,
@@ -293,9 +306,13 @@ class MoneroWalletService extends WalletService<
       final password = credentials.password;
       final height = credentials.height;
 
-      if (wptr == null) monero_wallet_manager.createWalletPointer();
+      if (currentWallet == null) {
+        final tmpWptr = monero_wallet_manager.createWalletPointer();
+        enableLedgerExchange(tmpWptr, credentials.ledgerConnection);
+      } else {
+        enableLedgerExchange(currentWallet!, credentials.ledgerConnection);
+      }
 
-      enableLedgerExchange(wptr!, credentials.ledgerConnection);
       await monero_wallet_manager.restoreWalletFromHardwareWallet(
           path: path,
           password: password!,
@@ -352,7 +369,7 @@ class MoneroWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      monero_wallet_manager.restoreFromSeed(
+      monero_wallet_manager.restoreWalletFromSeedSync(
           path: path,
           password: credentials.password!,
           passphrase: credentials.passphrase,
@@ -393,7 +410,7 @@ class MoneroWalletService extends WalletService<
     walletInfo.isRecovery = true;
     walletInfo.restoreHeight = height;
 
-    monero_wallet_manager.restoreFromSeed(
+    monero_wallet_manager.restoreWalletFromSeedSync(
       path: path,
       password: password,
       passphrase: '',
@@ -401,12 +418,12 @@ class MoneroWalletService extends WalletService<
       restoreHeight: height,
     );
 
-    monero.Wallet_setCacheAttribute(wptr!,
+    currentWallet!.setCacheAttribute(
         key: "cakewallet.seed.bip39", value: mnemonic);
-    monero.Wallet_setCacheAttribute(wptr!,
+    currentWallet!.setCacheAttribute(
         key: "cakewallet.passphrase", value: passphrase ?? '');
 
-    monero.Wallet_store(wptr!);
+    currentWallet!.store();
 
     final wallet = MoneroWallet(
       walletInfo: walletInfo,
@@ -472,7 +489,7 @@ class MoneroWalletService extends WalletService<
     walletInfo.isRecovery = true;
     walletInfo.restoreHeight = height;
 
-    await monero_wallet_manager.restoreFromSpendKey(
+    monero_wallet_manager.restoreWalletFromSpendKeySync(
         path: path,
         password: password,
         seed: seed,
@@ -481,8 +498,8 @@ class MoneroWalletService extends WalletService<
         spendKey: spendKey);
 
 
-    monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
-    monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase??'');
+    currentWallet!.setCacheAttribute(key: "cakewallet.seed", value: seed);
+    currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase??'');
 
     final wallet = MoneroWallet(
       walletInfo: walletInfo,
@@ -529,7 +546,7 @@ class MoneroWalletService extends WalletService<
       if (walletFilesExist(path)) await repairOldAndroidWallet(name);
 
       await monero_wallet_manager
-          .openWalletAsync({'path': path, 'password': password});
+          .openWallet(path: path, password: password);
       final walletInfo = walletInfoSource.values
           .firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
       final wallet = MoneroWallet(

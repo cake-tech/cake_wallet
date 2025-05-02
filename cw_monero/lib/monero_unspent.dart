@@ -1,7 +1,7 @@
 import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/coins_info.dart';
-import 'package:monero/monero.dart' as monero;
+import 'package:monero/src/monero.dart';
 
 class MoneroUnspent extends Unspent {
   static Future<MoneroUnspent> fromUnspent(String address, String hash, String keyImage, int value, bool isFrozen, bool isUnlocked) async {

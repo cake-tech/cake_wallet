@@ -20,7 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
-  static const _coolDownDurationInDays = 7;
+  static const _coolDownDurationInDays =
+      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode) ? 0 : 7;
   static File? _file;
 
   static Future<void> _saveException(String? error, StackTrace? stackTrace,
