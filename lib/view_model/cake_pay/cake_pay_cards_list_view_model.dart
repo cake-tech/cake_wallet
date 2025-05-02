@@ -1,3 +1,4 @@
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
@@ -16,8 +17,8 @@ abstract class CakePayCardsListViewModelBase with Store {
   CakePayCardsListViewModelBase({
     required this.cakePayService,
     required this.settingsStore,
-  })  : cardState = CakePayCardsStateNoCards(),
-        cakePayVendors = [],
+  })  : cakePayVendors = [],
+        userCards = [],
         availableCountries = [],
         page = 1,
         displayPrepaidCards = true,
@@ -27,6 +28,7 @@ abstract class CakePayCardsListViewModelBase with Store {
         scrollOffsetFromTop = 0.0,
         vendorsState = InitialCakePayVendorLoadingState(),
         createCardState = CakePayCreateCardState(),
+        userCardState = UserCakePayCardsStateInitial(),
         searchString = '',
         CakePayVendorList = <CakePayVendor>[] {
     initialization();
@@ -42,6 +44,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   void initialization() async {
     await getCountries();
     getVendors();
+    getUserCards();
   }
 
   final CakePayService cakePayService;
@@ -82,13 +85,16 @@ abstract class CakePayCardsListViewModelBase with Store {
   late bool _initialDisplayCustomValueCards;
 
   @observable
+  List<CakePayCard> userCards;
+
+  @observable
   double scrollOffsetFromTop;
 
   @observable
   CakePayCreateCardState createCardState;
 
   @observable
-  CakePayCardsState cardState;
+  UserCakePayCardsState userCardState;
 
   @observable
   CakePayVendorState vendorsState;
@@ -136,6 +142,106 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();
+  }
+
+  Future<void> getUserCards() async {
+    //Dummy user cards // TODO: fetch from API
+    userCardState = UserCakePayCardsStateFetching();
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      userCards = [
+        CakePayCard(
+          id: 1,
+          name: 'eBay',
+          country: 'USA',
+          denominationsUsd: [
+            '10',
+            '20',
+            '50',
+          ],
+          denominations: [
+            '10',
+            '20',
+            '50',
+          ],
+          fiatCurrency: FiatCurrency.usd,
+        ),
+        CakePayCard(
+          id: 2,
+          name: 'Amazon',
+          country: 'USA',
+          denominationsUsd: [
+            '10',
+            '20',
+            '50',
+          ],
+          denominations: [
+            '10',
+            '20',
+            '50',
+          ],
+          fiatCurrency: FiatCurrency.usd,
+        ),
+        CakePayCard(
+          id: 2,
+          name: 'Costco',
+          country: 'USA',
+          denominationsUsd: [
+            '10',
+            '20',
+            '50',
+          ],
+          denominations: [
+            '10',
+            '20',
+            '50',
+          ],
+          fiatCurrency: FiatCurrency.usd,
+        ),
+        CakePayCard(
+          id: 2,
+          name: 'Target',
+          country: 'USA',
+          denominationsUsd: [
+            '10',
+            '20',
+            '50',
+          ],
+          denominations: [
+            '10',
+            '20',
+            '50',
+          ],
+          fiatCurrency: FiatCurrency.usd,
+        ),
+        CakePayCard(
+          id: 2,
+          name: 'Walmart',
+          country: 'USA',
+          denominationsUsd: [
+            '10',
+            '20',
+            '50',
+          ],
+          denominations: [
+            '10',
+            '20',
+            '50',
+          ],
+          fiatCurrency: FiatCurrency.usd,
+        ),
+      ];
+
+      userCardState = UserCakePayCardsStateSuccess();
+      if (userCards.isEmpty) {
+        userCardState = UserCakePayCardsStateNoCards();
+      }
+    }
+    catch (e) {
+      userCardState = UserCakePayCardsStateFailure(
+        error: e.toString(),
+      );
+    }
   }
 
   @action

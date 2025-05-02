@@ -1,12 +1,11 @@
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_search_bar_widget.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/card_item.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/card_menu.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -16,7 +15,6 @@ import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
@@ -25,22 +23,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class CakePayCardsPage extends BasePage {
-  CakePayCardsPage(this._cardsListViewModel) : searchFocusNode = FocusNode() {
-    _searchController.addListener(() {
-      if (_searchController.text != _cardsListViewModel.searchString) {
-        _searchDebounce.run(() {
-          _cardsListViewModel.resetLoadingNextPageState();
-          _cardsListViewModel.getVendors(text: _searchController.text);
-        });
-      }
-    });
-  }
+  CakePayCardsPage(this._cardsListViewModel);
 
-  final FocusNode searchFocusNode;
   final CakePayCardsListViewModel _cardsListViewModel;
-
-  final _searchDebounce = Debounce(Duration(milliseconds: 500));
-  final _searchController = TextEditingController();
 
   @override
   bool get gradientBackground => true;
@@ -83,151 +68,52 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
     if (_cardsListViewModel.settingsStore.selectedCakePayCountry == null) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((_) => _cardsListViewModel.shouldShowCountryPicker, (bool shouldShowCountryPicker) async {
-        if (shouldShowCountryPicker) {
-          _cardsListViewModel.storeInitialFilterStates();
-          await showCountryPicker(context, _cardsListViewModel);
-          if (_cardsListViewModel.hasFiltersChanged) {
-            _cardsListViewModel.resetLoadingNextPageState();
-            _cardsListViewModel.getVendors();
-          }
-
-          _cardsListViewModel.settingsStore.selectedCakePayCountry =
-              _cardsListViewModel.selectedCountry;
-
-        }
-      });
-    });
-    }
-
-    final filterButton = Semantics(
-      label: S.of(context).filter_by,
-      child: GestureDetector(
-          onTap: () async {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        reaction((_) => _cardsListViewModel.shouldShowCountryPicker,
+            (bool shouldShowCountryPicker) async {
+          if (shouldShowCountryPicker) {
             _cardsListViewModel.storeInitialFilterStates();
-            await showFilterWidget(context);
+            await showCountryPicker(context, _cardsListViewModel);
             if (_cardsListViewModel.hasFiltersChanged) {
               _cardsListViewModel.resetLoadingNextPageState();
               _cardsListViewModel.getVendors();
             }
-          },
-          child: Container(
-              width: 32,
-              padding: EdgeInsets.only(top: 7, bottom: 7),
-              decoration: BoxDecoration(
-                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                border: Border.all(
-                  color: Colors.transparent,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Image.asset(
-                'assets/images/filter_icon.png',
-                color: Theme.of(context).extension<FilterTheme>()!.iconColor,
-              ))),
-    );
-    final _countryPicker = Semantics(
-      label: S.of(context).filter_by,
-      child: GestureDetector(
-        onTap: () async {
-          _cardsListViewModel.storeInitialFilterStates();
-          await showCountryPicker(context, _cardsListViewModel);
-          if (_cardsListViewModel.hasFiltersChanged) {
-            _cardsListViewModel.resetLoadingNextPageState();
-            _cardsListViewModel.getVendors();
+
+            _cardsListViewModel.settingsStore.selectedCakePayCountry =
+                _cardsListViewModel.selectedCountry;
           }
-        },
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-            border: Border.all(color: Colors.transparent),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Image.asset(
-                  _cardsListViewModel.selectedCountry.iconPath,
-                  width: 24,
-                  height: 24,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 24,
-                    height: 24,
-                  ),
-                ),
-                SizedBox(width: 6),
-                Text(
-                  _cardsListViewModel.selectedCountry.countryCode,
-                  style: TextStyle(
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+        });
+      });
+    }
 
     return Padding(
-        padding: const EdgeInsets.all(14.0),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Column(children: [
-          Container(
-              padding: EdgeInsets.only(left: 2, right: 22),
-              height: 32,
-              child: Row(children: [
-                Expanded(
-                    child: _SearchWidget(
-                  controller: _searchController,
-                  focusNode: searchFocusNode,
-                )),
-                SizedBox(width: 5),
-                filterButton,
-                SizedBox(width: 5),
-                _countryPicker
-              ])),
-          SizedBox(height: 8),
           Expanded(child: CakePayCardsPageBody(cardsListViewModel: _cardsListViewModel))
         ]));
   }
-
-  Future<void> showFilterWidget(BuildContext context) async {
-    return showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return FilterWidget(filterItems: _cardsListViewModel.createFilterItems);
-      },
-    );
-  }
 }
 
-
-Future<void> showCountryPicker(BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
+Future<void> showCountryPicker(
+    BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
   await showPopUp<void>(
       context: context,
       builder: (_) => Picker(
-        title: S.of(context).select_your_country,
+          title: S.of(context).select_your_country,
           items: cardsListViewModel.availableCountries,
           images: cardsListViewModel.availableCountries
               .map((e) => Image.asset(
-            e.iconPath,
-            errorBuilder: (context, error, stackTrace) => Container(
-              width: 58,
-              height: 58,
-            ),
-          ))
+                    e.iconPath,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 58,
+                      height: 58,
+                    ),
+                  ))
               .toList(),
-          selectedAtIndex: cardsListViewModel.availableCountries
-              .indexOf(cardsListViewModel.selectedCountry),
-          onItemSelected: (Country country) =>
-              cardsListViewModel.setSelectedCountry(country),
+          selectedAtIndex:
+              cardsListViewModel.availableCountries.indexOf(cardsListViewModel.selectedCountry),
+          onItemSelected: (Country country) => cardsListViewModel.setSelectedCountry(country),
           isSeparated: false,
           hintText: S.of(context).search,
           matchingCriteria: (Country country, String searchText) =>
@@ -235,168 +121,79 @@ Future<void> showCountryPicker(BuildContext context, CakePayCardsListViewModel c
 }
 
 class CakePayCardsPageBody extends StatefulWidget {
-  const CakePayCardsPageBody({
-    Key? key,
-    required this.cardsListViewModel,
-  }) : super(key: key);
+  CakePayCardsPageBody({required this.cardsListViewModel});
 
   final CakePayCardsListViewModel cardsListViewModel;
 
   @override
-  _CakePayCardsPageBodyState createState() => _CakePayCardsPageBodyState();
+  _CakePayCardsPageBodyState createState() => _CakePayCardsPageBodyState(cardsListViewModel);
 }
 
-class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
-  double get backgroundHeight => MediaQuery.of(context).size.height * 0.75;
+class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody>
+    with SingleTickerProviderStateMixin {
+  _CakePayCardsPageBodyState(this._cardsListViewModel);
+
+  final CakePayCardsListViewModel _cardsListViewModel;
+  late TabController _tabController;
+
   double thumbHeight = 72;
 
-  bool get isAlwaysShowScrollThumb => merchantsList.isEmpty ? false : merchantsList.length > 3;
-
-  List<CakePayVendor> get merchantsList => widget.cardsListViewModel.cakePayVendors;
-
-  final _scrollController = ScrollController();
+  double get backgroundHeight => MediaQuery.of(context).size.height * 0.75;
 
   @override
   void initState() {
-    _scrollController.addListener(() {
-      final scrollOffsetFromTop = _scrollController.hasClients
-          ? (_scrollController.offset /
-              _scrollController.position.maxScrollExtent *
-              (backgroundHeight - thumbHeight))
-          : 0.0;
-      widget.cardsListViewModel.setScrollOffsetFromTop(scrollOffsetFromTop);
-
-      double threshold = 200.0;
-      bool isNearBottom =
-          _scrollController.offset >= _scrollController.position.maxScrollExtent - threshold;
-      if (isNearBottom && !_scrollController.position.outOfRange) {
-        widget.cardsListViewModel.fetchNextPage();
-      }
-    });
+    _tabController = TabController(length: 2, vsync: this);
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(builder: (_) {
-      final vendorsState = widget.cardsListViewModel.vendorsState;
-      if (vendorsState is CakePayVendorLoadedState) {
-        bool isLoadingMore = widget.cardsListViewModel.isLoadingNextPage;
-        final vendors = widget.cardsListViewModel.cakePayVendors;
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
-        if (vendors.isEmpty) {
-          return Center(child: Text(S.of(context).no_cards_found));
-        }
-        return Stack(children: [
-          GridView.builder(
-            controller: _scrollController,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 2 : 1,
-              childAspectRatio: 5,
-              crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
-              mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            splashFactory: NoSplash.splashFactory,
+            indicatorSize: TabBarIndicatorSize.label,
+            labelStyle: TextStyle(
+              fontSize: 18,
+              fontFamily: 'Lato',
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).appBarTheme.titleTextStyle!.color,
             ),
-            padding: EdgeInsets.only(left: 2, right: 22),
-            itemCount: vendors.length + (isLoadingMore ? 1 : 0),
-            itemBuilder: (_, index) {
-              if (index >= vendors.length) {
-                return _VendorLoadedIndicator();
-              }
-              final vendor = vendors[index];
-              return CardItem(
-                logoUrl: vendor.card?.cardImageUrl,
-                onTap: () {
-                  Navigator.of(context).pushNamed(Routes.cakePayBuyCardPage, arguments: [vendor]);
-                },
-                title: vendor.name,
-                subTitle: vendor.card?.description ?? '',
-                backgroundColor:
-                    Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                discount: 0.0,
-              );
-            },
+            unselectedLabelStyle: TextStyle(
+                fontSize: 18,
+                fontFamily: 'Lato',
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).appBarTheme.titleTextStyle!.color?.withOpacity(0.5)),
+            labelColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
+            indicatorColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
+            indicatorPadding: EdgeInsets.zero,
+            labelPadding: EdgeInsets.only(right: 24),
+            tabAlignment: TabAlignment.start,
+            dividerColor: Colors.transparent,
+            padding: EdgeInsets.zero,
+            tabs: const [
+              Tab(text: 'My Cards'),
+              Tab(text: 'Shop'),
+            ],
           ),
-          isAlwaysShowScrollThumb
-              ? CakeScrollbar(
-                  backgroundHeight: backgroundHeight,
-                  thumbHeight: thumbHeight,
-                  rightOffset: 1,
-                  width: 3,
-                  backgroundColor:
-                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.05),
-                  thumbColor:
-                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.5),
-                  fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
-                )
-              : Offstage()
-        ]);
-      }
-      return _VendorLoadedIndicator();
-    });
-  }
-}
-
-class _VendorLoadedIndicator extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: CircularProgressIndicator(
-        backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-        valueColor: AlwaysStoppedAnimation<Color>(
-            Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
-      ),
-    );
-  }
-}
-
-class _SearchWidget extends StatelessWidget {
-  const _SearchWidget({
-    Key? key,
-    required this.controller,
-    required this.focusNode,
-  }) : super(key: key);
-  final TextEditingController controller;
-  final FocusNode focusNode;
-
-  @override
-  Widget build(BuildContext context) {
-    final searchIcon = ExcludeSemantics(
-        child: Icon( Icons.search,
-          color: Theme.of(context).extension<FilterTheme>()!.iconColor,
-          //size: 24
         ),
-    );
-
-    return TextField(
-      focusNode: focusNode,
-      style: TextStyle(color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-      controller: controller,
-      decoration: InputDecoration(
-          filled: true,
-          contentPadding: EdgeInsets.only(
-            top: 8,
-            left: 8,
-          ),
-          fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-          hintText: S.of(context).search,
-          hintStyle: TextStyle(
-            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-          ),
-          alignLabelWithHint: true,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          suffixIcon: searchIcon,
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.transparent,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
-            borderRadius: BorderRadius.circular(10),
-          )),
+        Expanded(
+          child: TabBarView(controller: _tabController, children: [
+            _MyCardsTab(cardsListViewModel: _cardsListViewModel),
+            _ShopTab(cardsListViewModel: _cardsListViewModel),
+          ]),
+        ),
+      ],
     );
   }
 }
@@ -423,4 +220,238 @@ class _TrailingIcon extends StatelessWidget {
           ),
         ));
   }
+}
+
+class _MyCardsTab extends StatefulWidget {
+  const _MyCardsTab({required this.cardsListViewModel});
+
+  final CakePayCardsListViewModel cardsListViewModel;
+
+  @override
+  State<_MyCardsTab> createState() => _MyCardsTabState();
+}
+
+class _MyCardsTabState extends State<_MyCardsTab> {
+  static const double _thumbHeight = 72;
+
+  late final ScrollController _scroll;
+  double _thumbOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll = ScrollController()
+      ..addListener(() {
+        if (!_scroll.hasClients) return;
+        final max = _scroll.position.maxScrollExtent;
+        final bg = MediaQuery.of(context).size.height * 0.75;
+        setState(() {
+          _thumbOffset = max == 0 ? 0 : _scroll.offset / max * (bg - _thumbHeight);
+        });
+      });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(builder: (_) {
+      final viewModel = widget.cardsListViewModel;
+      final cards = viewModel.userCards;
+
+      if (viewModel.userCardState is UserCakePayCardsStateFetching) return const _Loading();
+
+      if (cards.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
+
+      final showThumb = cards.length > 3;
+      final bgHeight = MediaQuery.of(context).size.height * 0.75;
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2, 8, 0, 8),
+            child: CakePaySearchBar(
+              cardsListViewModel: viewModel,
+              showCountryPicker: false,
+            ),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                GridView.builder(
+                  controller: _scroll,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 2 : 1,
+                    childAspectRatio: 5,
+                    crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+                    mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+                  ),
+                  padding: const EdgeInsets.only(left: 2, right: 22),
+                  itemCount: cards.length,
+                  itemBuilder: (_, i) {
+                    final c = cards[i];
+                    return CardItem(
+                      logoUrl: c.cardImageUrl,
+                      title: c.name,
+                      subTitle: c.description ?? '',
+                      discount: 0,
+                      backgroundColor:
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                      titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      subtitleColor:
+                          Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      onTap: () {}, // open card details if needed
+                    );
+                  },
+                ),
+                if (showThumb)
+                  CakeScrollbar(
+                    backgroundHeight: bgHeight,
+                    thumbHeight: _thumbHeight,
+                    fromTop: _thumbOffset,
+                    rightOffset: 1,
+                    width: 3,
+                    backgroundColor:
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
+                    thumbColor:
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _ShopTab extends StatefulWidget {
+  const _ShopTab({required this.cardsListViewModel});
+
+  final CakePayCardsListViewModel cardsListViewModel;
+
+  @override
+  State<_ShopTab> createState() => _ShopTabState();
+}
+
+class _ShopTabState extends State<_ShopTab> {
+  static const double _thumbHeight = 72;
+
+  late final ScrollController _scroll;
+  double _thumbOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll = ScrollController()
+      ..addListener(() {
+        if (!_scroll.hasClients) return;
+
+        final max = _scroll.position.maxScrollExtent;
+        final bg = MediaQuery.of(context).size.height * 0.75;
+        setState(() {
+          _thumbOffset = max == 0 ? 0 : _scroll.offset / max * (bg - _thumbHeight);
+        });
+
+        final threshold = 200.0;
+        if (_scroll.offset >= max - threshold && !_scroll.position.outOfRange) {
+          widget.cardsListViewModel.fetchNextPage();
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(builder: (_) {
+      final viewModel = widget.cardsListViewModel;
+      final vendors = viewModel.cakePayVendors;
+
+      if (viewModel.vendorsState is! CakePayVendorLoadedState) return const _Loading();
+      if (vendors.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
+
+      final loadingMore = viewModel.isLoadingNextPage;
+      final showThumb = vendors.length > 3;
+      final bgHeight = MediaQuery.of(context).size.height * 0.75;
+
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2, 8, 22, 8),
+            child: CakePaySearchBar(
+              cardsListViewModel: viewModel,
+            ),
+          ),
+          Expanded(
+            child: Stack(
+              children: [
+                GridView.builder(
+                  controller: _scroll,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 2 : 1,
+                    childAspectRatio: 5,
+                    crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+                    mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+                  ),
+                  padding: const EdgeInsets.only(left: 2, right: 22),
+                  itemCount: vendors.length + (loadingMore ? 1 : 0),
+                  itemBuilder: (_, i) {
+                    if (i >= vendors.length) return const _Loading();
+                    final v = vendors[i];
+                    return CardItem(
+                      logoUrl: v.card?.cardImageUrl,
+                      title: v.name,
+                      subTitle: v.card?.description ?? '',
+                      discount: 0,
+                      backgroundColor:
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                      titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                      subtitleColor:
+                          Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      onTap: () =>
+                          Navigator.pushNamed(context, Routes.cakePayBuyCardPage, arguments: [v]),
+                    );
+                  },
+                ),
+                if (showThumb)
+                  CakeScrollbar(
+                    backgroundHeight: bgHeight,
+                    thumbHeight: _thumbHeight,
+                    fromTop: _thumbOffset,
+                    rightOffset: 1,
+                    width: 3,
+                    backgroundColor:
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
+                    thumbColor:
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _Loading extends StatelessWidget {
+  const _Loading();
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: CircularProgressIndicator(
+          backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
+          ),
+        ),
+      );
 }
