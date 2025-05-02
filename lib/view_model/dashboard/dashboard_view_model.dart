@@ -271,10 +271,19 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    _transactionDisposer = reaction(
-      (_) => appStore.wallet!.transactionHistory.transactions.length,
-      _transactionDisposerCallback,
-    );
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -891,8 +900,19 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
 
-    _transactionDisposer = reaction((_) => appStore.wallet!.transactionHistory.transactions.length,
-        _transactionDisposerCallback);
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
   }
 
   @action
