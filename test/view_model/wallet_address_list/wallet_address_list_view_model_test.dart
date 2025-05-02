@@ -6,7 +6,7 @@ void main() {
 
     group("TariURI", () {
       test("uri with amont", () {
-        final uri = TariURI(network: "nextnet", amount: "5000000", address: "349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb");
+        final uri = TariURI(network: "nextnet", amount: "5000000", base58Address: "349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb", address: '349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb');
 
         expect(uri.toString(), "tari://nextnet/transactions/send?tariAddress=349jdYen2RMBGeWm1SyUBzEsfqSJ9NGGiZXAsWUK3TQQbdeQ3wJJnjRwi1EzUqxdAhNQ4YcRmFFDLvtXxx8kBgBboXb&amount=5000000");
       });
