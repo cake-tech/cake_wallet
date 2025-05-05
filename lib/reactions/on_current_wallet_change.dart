@@ -61,6 +61,8 @@ void startCurrentWalletChangeReaction(
         return;
       }
 
+      await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
+
       final node = settingsStore.getCurrentNode(wallet.type);
 
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
