@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'image_placeholder.dart';
 
 class CardItem extends StatelessWidget {
@@ -12,7 +11,6 @@ class CardItem extends StatelessWidget {
     this.hideBorder = true,
     this.discount = 0.0,
     this.isAmount = false,
-    this.discountBackground,
     this.onTap,
     this.logoUrl,
   });
@@ -27,7 +25,6 @@ class CardItem extends StatelessWidget {
   final Color backgroundColor;
   final Color titleColor;
   final Color subtitleColor;
-  final AssetImage? discountBackground;
 
   @override
   Widget build(BuildContext context) {

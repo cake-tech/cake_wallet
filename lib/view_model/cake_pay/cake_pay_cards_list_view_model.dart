@@ -149,88 +149,11 @@ abstract class CakePayCardsListViewModelBase with Store {
     userCardState = UserCakePayCardsStateFetching();
     try {
       await Future.delayed(const Duration(seconds: 2));
-      userCards = [
-        CakePayCard(
-          id: 1,
-          name: 'eBay',
-          country: 'USA',
-          denominationsUsd: [
-            '10',
-            '20',
-            '50',
-          ],
-          denominations: [
-            '10',
-            '20',
-            '50',
-          ],
-          fiatCurrency: FiatCurrency.usd,
-        ),
-        CakePayCard(
-          id: 2,
-          name: 'Amazon',
-          country: 'USA',
-          denominationsUsd: [
-            '10',
-            '20',
-            '50',
-          ],
-          denominations: [
-            '10',
-            '20',
-            '50',
-          ],
-          fiatCurrency: FiatCurrency.usd,
-        ),
-        CakePayCard(
-          id: 2,
-          name: 'Costco',
-          country: 'USA',
-          denominationsUsd: [
-            '10',
-            '20',
-            '50',
-          ],
-          denominations: [
-            '10',
-            '20',
-            '50',
-          ],
-          fiatCurrency: FiatCurrency.usd,
-        ),
-        CakePayCard(
-          id: 2,
-          name: 'Target',
-          country: 'USA',
-          denominationsUsd: [
-            '10',
-            '20',
-            '50',
-          ],
-          denominations: [
-            '10',
-            '20',
-            '50',
-          ],
-          fiatCurrency: FiatCurrency.usd,
-        ),
-        CakePayCard(
-          id: 2,
-          name: 'Walmart',
-          country: 'USA',
-          denominationsUsd: [
-            '10',
-            '20',
-            '50',
-          ],
-          denominations: [
-            '10',
-            '20',
-            '50',
-          ],
-          fiatCurrency: FiatCurrency.usd,
-        ),
-      ];
+      final vendorsCard = cakePayVendors
+          .where((vendor) => vendor.card != null)
+          .map((vendor) => vendor.card!)
+          .toList();
+      userCards = vendorsCard.sublist(0,5);
 
       userCardState = UserCakePayCardsStateSuccess();
       if (userCards.isEmpty) {
