@@ -32,28 +32,36 @@ class WalletLoadingService {
 
   Future<void> renameWallet(WalletType type, String name, String newName,
       {String? password}) async {
-    final walletService = walletServiceFactory.call(type);
-    final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+    try {
+      final walletService = walletServiceFactory.call(type);
+      final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
 
-    // Save the current wallet's password to the new wallet name's key
-    await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
-    // Delete previous wallet name from keyService to keep only new wallet's name
-    // otherwise keeps duplicate (old and new names)
-    await keyService.deleteWalletPassword(walletName: name);
+      // Save the current wallet's password to the new wallet name's key
+      await keyService.saveWalletPassword(walletName: newName, password: walletPassword);
 
-    await walletService.rename(name, walletPassword, newName);
+      await walletService.rename(name, walletPassword, newName);
+      // Delete previous wallet name from keyService to keep only new wallet's name
+      // otherwise keeps duplicate (old and new names)
+      await keyService.deleteWalletPassword(walletName: name);
 
-    // set shared preferences flag based on previous wallet name
-    if (type == WalletType.monero) {
-      final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(name);
-      final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
-      final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
-      await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
+      // set shared preferences flag based on previous wallet name
+      if (type == WalletType.monero) {
+        final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(name);
+        final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
+        final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
+        await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
+      }
+    } catch (error, stack) {
+      await ExceptionHandler.resetLastPopupDate();
+      await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
     }
   }
 
-  Future<WalletBase> load(WalletType type, String name, {String? password}) async {
+  Future<WalletBase> load(WalletType type, String name, {String? password, bool isBackground = false}) async {
     try {
+      if (!isBackground) {
+        await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(name), DateTime.now().toIso8601String());
+      }
       final walletService = walletServiceFactory.call(type);
       final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
       final wallet = await walletService.openWallet(name, walletPassword);

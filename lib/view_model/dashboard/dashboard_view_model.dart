@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -54,6 +53,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../themes/theme_base.dart';
@@ -184,7 +184,7 @@ abstract class DashboardViewModelBase with Store {
     isShowThirdYatIntroduction = false;
     unawaited(isBackgroundSyncEnabled());
     unawaited(isBatteryOptimizationEnabled());
-
+    unawaited(_loadConstraints());
     final _wallet = wallet;
 
     if (_wallet.type == WalletType.monero) {
@@ -275,10 +275,19 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    _transactionDisposer = reaction(
-      (_) => appStore.wallet!.transactionHistory.transactions.length,
-      _transactionDisposerCallback,
-    );
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -563,6 +572,90 @@ abstract class DashboardViewModelBase with Store {
     return resp;
   }
 
+  @observable
+  late bool backgroundSyncNotificationsEnabled =
+      sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
+
+  @action
+  Future<void> setBackgroundSyncNotificationsEnabled(bool value) async {
+    if (!value) {
+      backgroundSyncNotificationsEnabled = false;
+      sharedPreferences.setBool(PreferencesKey.backgroundSyncNotificationsEnabled, false);
+      return;
+    }
+    PermissionStatus permissionStatus = await Permission.notification.status;
+    if (permissionStatus != PermissionStatus.granted) {
+      final resp = await Permission.notification.request();
+      if (resp == PermissionStatus.denied) {
+        throw Exception("Notification permission denied");
+      }
+    }
+    backgroundSyncNotificationsEnabled = value;
+    await sharedPreferences.setBool(PreferencesKey.backgroundSyncNotificationsEnabled, value);
+  }
+
+  bool get hasBgsyncNetworkConstraints => Platform.isAndroid;
+  bool get hasBgsyncBatteryNotLowConstraints => Platform.isAndroid;
+  bool get hasBgsyncChargingConstraints => Platform.isAndroid;
+  bool get hasBgsyncDeviceIdleConstraints => Platform.isAndroid;
+
+  @observable
+  bool backgroundSyncNetworkUnmetered = false;
+
+  @observable
+  bool backgroundSyncBatteryNotLow = false;
+
+  @observable
+  bool backgroundSyncCharging = false;
+
+  @observable
+  bool backgroundSyncDeviceIdle = false;
+
+  Future<void> _loadConstraints() async {
+    if (Platform.isAndroid) {
+      backgroundSyncNetworkUnmetered = await FlutterDaemon().getNetworkType();
+      backgroundSyncBatteryNotLow = await FlutterDaemon().getBatteryNotLow();
+      backgroundSyncCharging = await FlutterDaemon().getRequiresCharging();
+      backgroundSyncDeviceIdle = await FlutterDaemon().getDeviceIdle();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncNetworkUnmetered(bool value) async {
+    backgroundSyncNetworkUnmetered = value;
+    await FlutterDaemon().setNetworkType(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncBatteryNotLow(bool value) async {
+    backgroundSyncBatteryNotLow = value;
+    await FlutterDaemon().setBatteryNotLow(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncCharging(bool value) async {
+    backgroundSyncCharging = value;
+    await FlutterDaemon().setRequiresCharging(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncDeviceIdle(bool value) async {
+    backgroundSyncDeviceIdle = value;
+    await FlutterDaemon().setDeviceIdle(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
+  }
+
   bool get hasBatteryOptimization => Platform.isAndroid;
 
   @observable
@@ -836,8 +929,19 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
 
-    _transactionDisposer = reaction((_) => appStore.wallet!.transactionHistory.transactions.length,
-        _transactionDisposerCallback);
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
   }
 
   @action

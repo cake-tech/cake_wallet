@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
@@ -22,11 +23,7 @@ abstract class NFTViewModelBase with Store {
       : isLoading = false,
         isImportNFTLoading = false,
         nftAssetByWalletModels = ObservableList(),
-        solanaNftAssetModels = ObservableList() {
-    getNFTAssetByWallet();
-
-    reaction((_) => appStore.wallet, (_) => getNFTAssetByWallet());
-  }
+        solanaNftAssetModels = ObservableList();
 
   final AppStore appStore;
   final BottomSheetService bottomSheetService;
@@ -79,6 +76,8 @@ abstract class NFTViewModelBase with Store {
     }
 
     try {
+      if (isLoading) return;
+
       isLoading = true;
 
       final response = await http.get(
@@ -113,17 +112,16 @@ abstract class NFTViewModelBase with Store {
 
         nftAssetByWalletModels.addAll(result);
       }
-
-      isLoading = false;
     } catch (e) {
-      isLoading = false;
       log(e.toString());
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
-          message: e.toString(),
+          message: S.current.moralis_nft_error,
         ),
       );
+    } finally {
+      isLoading = false;
     }
   }
 

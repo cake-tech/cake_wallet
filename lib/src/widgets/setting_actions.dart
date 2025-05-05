@@ -73,7 +73,11 @@ class SettingActions {
     image: 'assets/images/wallet_menu.png',
     onTap: (BuildContext context) {
       Navigator.pop(context);
-      Navigator.of(context).pushNamed(Routes.walletList);
+      Navigator.of(context).pushNamed(
+        Routes.walletList,
+        arguments: (BuildContext context) =>
+            Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
+      );
     },
   );
 
