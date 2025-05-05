@@ -57,7 +57,11 @@ abstract class ContactViewModelBase with Store {
       state = IsExecutingState();
       final now = DateTime.now();
 
-      if (doesContactNameExist(name)) {
+      final nameExists = _contact == null
+          ? doesContactNameExist(name)
+          : doesContactNameExist(name) && _contact.original.name != name;
+
+      if (nameExists) {
         state = FailureState(S.current.contact_name_exists);
         return;
       }
