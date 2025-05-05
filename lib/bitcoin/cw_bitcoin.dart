@@ -739,7 +739,7 @@ class CWBitcoin extends Bitcoin {
   @override
   void resumePayjoinSessions(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.resumeSessions();
+    (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
   }
 
   @override
