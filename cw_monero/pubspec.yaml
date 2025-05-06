@@ -2,11 +2,10 @@ name: cw_monero
 description: A new flutter plugin project.
 version: 0.0.1
 publish_to: none
-author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
+  sdk: ^3.5.0
   flutter: ">=1.20.0"
 
 dependencies:

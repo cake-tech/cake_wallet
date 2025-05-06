@@ -2,73 +2,41 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
 import 'package:monero/src/wallet2.dart';
 
 LedgerConnection? gLedger;
 
-Timer? _ledgerExchangeTimer;
-Timer? _ledgerKeepAlive;
+typedef LedgerCallback = Void Function(Pointer<UnsignedChar>, Int);
+NativeCallable<LedgerCallback>? callable;
 
 void enableLedgerExchange(Wallet2Wallet wallet, LedgerConnection connection) {
-  _ledgerExchangeTimer?.cancel();
-  _ledgerExchangeTimer = Timer.periodic(Duration(milliseconds: 1), (_) async {
-    final ledgerRequestLength = wallet.getSendToDeviceLength();
-    final ledgerRequest = wallet.getSendToDevice()
-        .cast<Uint8>()
-        .asTypedList(ledgerRequestLength);
-    if (ledgerRequestLength > 0) {
-      _ledgerKeepAlive?.cancel();
+  void callback(Pointer<UnsignedChar> request, int requestLength) async {
+    final ledgerRequest = request.cast<Uint8>().asTypedList(requestLength);
+    malloc.free(request);
 
-      final Pointer<Uint8> emptyPointer = malloc<Uint8>(0);
-      wallet.setDeviceSendData(
-          emptyPointer.cast<UnsignedChar>(), 0);
-      malloc.free(emptyPointer);
+    _logLedgerCommand(ledgerRequest, false);
+    final response = await exchange(connection, ledgerRequest);
+    _logLedgerCommand(response, true);
 
-      _logLedgerCommand(ledgerRequest, false);
-      final response = await exchange(connection, ledgerRequest);
-      _logLedgerCommand(response, true);
-
-      if (ListEquality().equals(response, [0x55, 0x15])) {
-        await connection.disconnect();
-        //   // TODO: Show POPUP pls unlock your device
-        // await Future.delayed(Duration(seconds: 15));
-      //   response = await exchange(connection, ledgerRequest);
-      }
-
-      final Pointer<Uint8> result = malloc<Uint8>(response.length);
-      for (var i = 0; i < response.length; i++) {
-        result.asTypedList(response.length)[i] = response[i];
-      }
-
-      wallet.setDeviceReceivedData(
-          result.cast<UnsignedChar>(), response.length);
-      malloc.free(result);
-      keepAlive(connection);
+    final Pointer<Uint8> result = malloc<Uint8>(response.length);
+    for (var i = 0; i < response.length; i++) {
+      result.asTypedList(response.length)[i] = response[i];
     }
-  });
-}
 
-void keepAlive(LedgerConnection connection) {
-  if (connection.connectionType == ConnectionType.ble) {
-    _ledgerKeepAlive = Timer.periodic(Duration(seconds: 10), (_) async {
-      UniversalBle.setNotifiable(
-        connection.device.id,
-        connection.device.deviceInfo.serviceId,
-        connection.device.deviceInfo.notifyCharacteristicKey,
-        BleInputProperty.notification,
-      ).onError((_, __) async {});
-    });
+    wallet.setDeviceReceivedData(
+         result.cast<UnsignedChar>(), response.length);
   }
+
+  callable = NativeCallable<LedgerCallback>.listener(callback);
 }
 
 void disableLedgerExchange() {
-  _ledgerExchangeTimer?.cancel();
-  _ledgerKeepAlive?.cancel();
+  callable?.close();
   gLedger?.disconnect();
   gLedger = null;
 }
@@ -134,8 +102,6 @@ const _ledgerMoneroCommands = {
 void _logLedgerCommand(Uint8List command, [bool isResponse = true]) {
   String toHexString(Uint8List data) =>
       data.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
-
-
 
   if (isResponse) {
     printV("< ${toHexString(command)}");
