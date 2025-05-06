@@ -202,6 +202,7 @@
   "copy": "Copia",
   "copy_address": "Copia Indirizzo",
   "copy_id": "Copia ID",
+  "copy_payjoin_url": "Copia Payjoin url",
   "copyWalletConnectLink": "Copia il collegamento WalletConnect dalla dApp e incollalo qui",
   "corrupted_seed_notice": "I file per questo portafoglio sono corrotti e non è possibile aprirli. Visualizza la frase del seme, salvala e ripristina il portafoglio.\n\nSe il valore è vuoto, non è stato possibile recuperare correttamente il seme.",
   "countries": "Paesi",

@@ -1,4 +1,6 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
@@ -179,7 +181,25 @@ class QRWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            )
+            ),
+            if (addressListViewModel.payjoinEndpoint.isNotEmpty) ...[
+              Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: PrimaryImageButton(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(
+                        text: addressListViewModel.payjoinEndpoint));
+                    showBar<void>(context, S.of(context).copied_to_clipboard);
+                  },
+                  image: Image.asset('assets/images/payjoin.png', width: 25,),
+                  text: S.of(context).copy_payjoin_url,
+                  color: Theme.of(context).cardColor,
+                  textColor: Theme.of(context)
+                      .extension<CakeTextTheme>()!
+                      .buttonTextColor,
+                ),
+              ),
+            ],
           ],
         ),
       ),

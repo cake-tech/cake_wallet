@@ -202,6 +202,7 @@
   "copy": "Kopírovat",
   "copy_address": "Zkopírovat adresu",
   "copy_id": "Kopírovat ID",
+  "copy_payjoin_url": "Kopírovat Payjoin URL",
   "copyWalletConnectLink": "Zkopírujte odkaz WalletConnect z dApp a vložte jej sem",
   "corrupted_seed_notice": "Soubory pro tuto peněženku jsou poškozeny a nemohou být otevřeny. Podívejte se prosím na osivo, uložte ji a obnovte peněženku.\n\nPokud je hodnota prázdná, pak semeno nebylo možné správně obnovit.",
   "countries": "Země",

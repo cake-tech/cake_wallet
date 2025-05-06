@@ -202,6 +202,7 @@
   "copy": "Kopieren",
   "copy_address": "Adresse kopieren",
   "copy_id": "ID kopieren",
+  "copy_payjoin_url": "Payjoin URL kopieren",
   "copyWalletConnectLink": "Kopieren Sie den WalletConnect-Link von dApp und fügen Sie ihn hier ein",
   "corrupted_seed_notice": "Die Dateien für diese Wallet sind beschädigt und können nicht geöffnet werden. Bitte sehen Sie sich die Seeds an, speichern Sie sie und stellen Sie die Wallet wieder her.\n\nWenn der Wert leer ist, konnte der Seed nicht korrekt wiederhergestellt werden.",
   "countries": "Länder",

@@ -306,6 +306,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
 
   @computed
+  String get payjoinEndpoint => wallet.type == WalletType.bitcoin
+      ? bitcoin!.getPayjoinEndpoint(wallet)
+      : "";
+
+  @computed
   PaymentURI get uri {
     switch (wallet.type) {
       case WalletType.monero:
@@ -313,8 +318,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        final pjEndpoint = bitcoin!.getPayjoinEndpoint(wallet);
-        return BitcoinURI(amount: amount, address: address.address, pjUri: pjEndpoint);
+        return BitcoinURI(
+            amount: amount,
+            address: address.address,
+            pjUri: payjoinEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
