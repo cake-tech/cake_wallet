@@ -96,7 +96,6 @@ abstract class TariWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
-      _walletFfi.setBaseNode();
       _walletFfi.startRecovery((_, int status, int val1, int val2) async {
         print('recoveryCallback called $status $val1 $val2');
 
@@ -252,7 +251,11 @@ abstract class TariWalletBase
   Future<void> dev_printLogs() async {
     final currentWalletPath =
         await pathForWallet(name: walletInfo.name, type: type);
-    log(File("$currentWalletPath/logs/wallet.log").readAsStringSync());
+    Directory("$currentWalletPath/logs").listSync().forEach((e) => log(e.path));
+    final stat = await File("$currentWalletPath/logs/wallet.log").stat();
+    log(stat.size.toString());
+    File("$currentWalletPath/logs/wallet.0.log").readAsString().then((e) => log(e));
+
   }
 
   @override

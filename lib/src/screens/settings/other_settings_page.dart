@@ -79,7 +79,7 @@ class OtherSettingsPage extends BasePage {
                 ),
               if (_otherSettingsViewModel.walletType == WalletType.tari)
                 SettingsSwitcherCell(
-                  title: "${S.of(context).use_tari_emoji_address} 🤮",
+                  title: S.of(context).use_tari_emoji_address,
                   value: _otherSettingsViewModel.useTariEmojiAddress,
                   onValueChange: (_, bool value) {
                     _otherSettingsViewModel.setUseTariEmojiAddress(value);

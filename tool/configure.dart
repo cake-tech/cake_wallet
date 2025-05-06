@@ -1399,6 +1399,7 @@ import 'package:hive/hive.dart';
 """;
   const tariCWHeaders = """
 import 'package:cw_tari/tari_wallet.dart';
+import 'package:cw_tari/tari_wallet_addresses.dart';
 import 'package:cw_tari/tari_wallet_service.dart';
 import 'package:cw_tari/wordlist.dart';
 """;

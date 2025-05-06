@@ -83,7 +83,7 @@ class TariWalletService extends WalletService<
         passphrase: credentials.password!,
         logPath: "$path/logs/wallet.log",
         logLevel: 4,
-        dnsSeeds: "seeds.nextnet.tari.com",
+        dnsSeeds: "seeds.tari.com",
         callbackReceivedTransaction: CallbackPlaceholders.callbackReceivedTransaction,
         callbackReceivedTransactionReply: CallbackPlaceholders.callbackReceivedTransactionReply,
         callbackReceivedFinalizedTransaction: CallbackPlaceholders.callbackReceivedFinalizedTransaction,
@@ -133,14 +133,14 @@ class TariWalletService extends WalletService<
         transport: connection,
       );
 
-      await File("$path/logs/wallet.log").delete();
+      await Directory("$path/logs").delete(recursive: true);
 
       final tariWallet = tari.createWallet(
         commsConfig: config,
         passphrase: password,
         logPath: "$path/logs/wallet.log",
         logLevel: 4,
-        dnsSeeds: "seeds.nextnet.tari.com",
+        dnsSeeds: "seeds.tari.com",
         dnsSeedNameServers: '1.1.1.1:853',
         callbackReceivedTransaction: CallbackPlaceholders.callbackReceivedTransaction,
         callbackReceivedTransactionReply: CallbackPlaceholders.callbackReceivedTransactionReply,
@@ -244,7 +244,7 @@ class TariWalletService extends WalletService<
         mnemonic: credentials.mnemonic,
         logPath: "$path/logs/wallet.log",
         logLevel: 4,
-        dnsSeeds: "seeds.nextnet.tari.com",
+        dnsSeeds: "seeds.tari.com",
         callbackReceivedTransaction: CallbackPlaceholders.callbackReceivedTransaction,
         callbackReceivedTransactionReply: CallbackPlaceholders.callbackReceivedTransactionReply,
         callbackReceivedFinalizedTransaction: CallbackPlaceholders.callbackReceivedFinalizedTransaction,
