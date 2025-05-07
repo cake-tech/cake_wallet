@@ -89,7 +89,6 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -97,6 +96,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
+import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
@@ -799,9 +799,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.torPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
-
     case Routes.signPage:
       return MaterialPageRoute<void>(
         builder: (_) => SignPage(
@@ -857,6 +854,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devSecurePreferences:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevSecurePreferencesPage>(),
+      );
+    
+    case Routes.startTor:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<StartTorPage>(),
       );
 
     default:

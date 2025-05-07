@@ -13,6 +13,8 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -45,10 +47,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -979,6 +980,25 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get syncAll => settingsStore.currentSyncAll;
 
+  @computed
+  bool get builtinTor => settingsStore.currentBuiltinTor;
+
+  @action
+  void setBuiltinTor(bool value, BuildContext context) {
+    settingsStore.currentBuiltinTor = value;
+    if (value) {
+      unawaited(ensureTorStarted(context: context).then((_) async {
+        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
+        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+      }));
+    } else {
+      unawaited(ensureTorStopped(context: context).then((_) async {
+        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
+        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+      }));
+    }
+  }
+  
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
@@ -1034,21 +1054,21 @@ abstract class DashboardViewModelBase with Store {
           {'key': secrets.fiatApiKey},
         );
 
-        final res = await http.get(uri);
-
+        final res = await ProxyWrapper().get(clearnetUri: uri);
+        final responseString = await res.transform(utf8.decoder).join();
         if (res.statusCode < 200 || res.statusCode >= 300) {
-          throw res.body;
+          throw responseString;
         }
 
         final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
 
-        final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+        final hash = await Cryptography.instance.sha256().hash(utf8.encode(responseString));
         final currentSha = bytesToHex(hash.bytes);
 
         final hasUpdates = oldSha != currentSha;
 
         return ServicesResponse.fromJson(
-          json.decode(res.body) as Map<String, dynamic>,
+          json.decode(responseString) as Map<String, dynamic>,
           hasUpdates,
           currentSha,
         );
