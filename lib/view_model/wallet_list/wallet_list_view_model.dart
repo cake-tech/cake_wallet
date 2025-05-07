@@ -229,6 +229,7 @@ abstract class WalletListViewModelBase with Store {
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
       isHardware: info.isHardwareWallet,
+      hashId: info.hashedWalletIdentifier ?? '',
     );
   }
 }

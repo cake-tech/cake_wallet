@@ -134,7 +134,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                   ),
                 ),
                 title: Text(
-                  item.name,
+                  '${item.name} ${item.hashId}',
                   maxLines: 2,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 18,

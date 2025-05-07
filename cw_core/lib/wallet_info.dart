@@ -1,9 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:path/path.dart' as p;
 
 part 'wallet_info.g.dart';
 
@@ -81,7 +86,7 @@ class WalletInfo extends HiveObject {
     this.derivationInfo,
     this.hardwareWalletType,
     this.parentAddress,
-    this.hashedWalletIdentifier,
+    this._hashedWalletIdentifier,
     this.isNonSeedWallet,
   ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
@@ -195,7 +200,7 @@ class WalletInfo extends HiveObject {
 
   @HiveField(22)
   String? parentAddress;
-  
+
   @HiveField(23)
   List<String>? hiddenAddresses;
 
@@ -203,7 +208,40 @@ class WalletInfo extends HiveObject {
   List<String>? manualAddresses;
 
   @HiveField(25)
-  String? hashedWalletIdentifier;
+  String? _hashedWalletIdentifier;
+
+  String? get hashedWalletIdentifier => _hashedWalletIdentifier;
+
+  set hashedWalletIdentifier(String? value) {
+    final oldValue = _hashedWalletIdentifier;
+    _logHashedIdentifierChange(oldValue, value, StackTrace.current);
+    _hashedWalletIdentifier = value;
+  }
+
+  Future<void> _logHashedIdentifierChange(
+    String? oldValue,
+    String? newValue,
+    StackTrace trace,
+  ) async {
+    try {
+      final customTrace = CustomTrace(trace);
+      final timestamp = DateTime.now().toIso8601String();
+      final location =
+          '${customTrace.fileName}#${customTrace.lineNumber}:${customTrace.columnNumber}';
+      final caller = customTrace.callerFunctionName;
+      final logLine =
+          '[$timestamp] $location ($caller) WalletType: (${type.name}) Name: ($name) ParentAddress: ($parentAddress) '
+          'isNonSeedWallet: ($isNonSeedWallet) isRecovery: ($isRecovery) Address: ($address) \n'
+          'hashedWalletIdentifier: "$oldValue" → "$newValue"\n\n ${trace.toString()}\n\n\n';
+
+      final dir = await getAppDir();
+      final file = File(p.join(dir.path, 'hashed_identifier_changes.log'));
+
+      await file.writeAsString(logLine, mode: FileMode.append, flush: true);
+    } catch (e) {
+      if (kDebugMode) print('Failed to log hash change: $e');
+    }
+  }
 
   @HiveField(26, defaultValue: false)
   bool isNonSeedWallet;
