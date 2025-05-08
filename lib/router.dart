@@ -38,7 +38,6 @@ import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/hash_change_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/lsof.dart';
-import 'package:cake_wallet/src/screens/dev/hash_change_log.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/print_verbose_logs_page.dart';
@@ -925,7 +924,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
     
     case Routes.devHashChangeLogs:
-      return MaterialPageRoute<void>(builder: (_) => HashChangeLogViewerPage());
+      return MaterialPageRoute<void>(builder: (_) => HashChangeLogsPage());
 
     case Routes.devPrintVerbose:
       return MaterialPageRoute<void>(builder: (_) => PrintVerboseLogsPage());
