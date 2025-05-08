@@ -212,6 +212,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
   printV("lsof ( after): ${await LsofViewModelBase.fetchLsof()}",separateMultiline: true);
 
+  printV("WalletInfoSource length (initializeAppConfigs): ${walletInfoSource.length}");
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
