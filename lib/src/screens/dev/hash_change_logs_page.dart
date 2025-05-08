@@ -53,7 +53,7 @@ class HashChangeLogsPage extends BasePage {
           }
           return SingleChildScrollView(
             padding: EdgeInsets.all(16),
-            child: Text(
+            child: SelectableText(
               text,
               style: TextStyle(fontFamily: 'monospace', fontSize: 14),
             ),
