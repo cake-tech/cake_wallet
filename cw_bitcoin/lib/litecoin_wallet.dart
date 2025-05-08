@@ -845,6 +845,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       if (unspent.vout == 0) {
         unspent.isChange = true;
       }
+
+      // printV("unspent: $unspent ${unspent.vout} ${utxo.value}");
       mwebUnspentCoins.add(unspent);
     });
 
@@ -1058,13 +1060,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
-      var tx = await super.createTransaction(credentials) as PendingBitcoinTransaction;
-      tx.isMweb = mwebEnabled;
+      var creds;
+      if (!mwebEnabled) {
+        BitcoinTransactionCredentials btcCreds = (credentials as BitcoinTransactionCredentials);
+        // sets unspent coin type to nonMweb:
+        creds = BitcoinTransactionCredentials(
+          btcCreds.outputs,
+          priority: btcCreds.priority,
+          feeRate: btcCreds.feeRate,
+          coinTypeToSpendFrom: UnspentCoinType.nonMweb,
+        );
+      } else {
+        creds = credentials;
+      }
+      var tx = await super.createTransaction(creds as Object) as PendingBitcoinTransaction;
+      tx.useMwebToSubmit = mwebEnabled;
 
       if (!mwebEnabled) {
-        tx.changeAddressOverride =
-            (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
-                .address;
+        tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
+                .getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
+            .address;
         return tx;
       }
       await waitForMwebAddresses();
@@ -1088,17 +1103,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         final address = output.address.toLowerCase();
         final extractedAddress = output.extractedAddress?.toLowerCase();
 
-        if (address.contains("mweb")) {
+        if (address.startsWith("ltcmweb")) {
           hasMwebOutput = true;
         }
-        if (!address.contains("mweb")) {
+        if (!address.startsWith("ltcmweb")) {
           hasRegularOutput = true;
         }
         if (extractedAddress != null && extractedAddress.isNotEmpty) {
-          if (extractedAddress.contains("mweb")) {
+          if (extractedAddress.startsWith("ltcmweb")) {
             hasMwebOutput = true;
           }
-          if (!extractedAddress.contains("mweb")) {
+          if (!extractedAddress.startsWith("ltcmweb")) {
             hasRegularOutput = true;
           }
         }
@@ -1117,10 +1132,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       bool isRegular = !hasMwebInput && !hasMwebOutput;
       bool shouldNotUseMwebChange = isPegIn || isRegular || !hasMwebInput;
       tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
-              .getChangeAddress(coinTypeToSpendFrom: shouldNotUseMwebChange ? UnspentCoinType.nonMweb : UnspentCoinType.any))
+              .getChangeAddress(
+                  coinTypeToSpendFrom:
+                      shouldNotUseMwebChange ? UnspentCoinType.nonMweb : UnspentCoinType.any))
           .address;
       if (isRegular) {
-        tx.isMweb = false;
+        tx.useMwebToSubmit = false;
         return tx;
       }
 
