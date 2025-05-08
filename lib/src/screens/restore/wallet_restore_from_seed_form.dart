@@ -215,7 +215,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                           items: _getItems(),
                           selectedAtIndex: isPolyseed
                               ? 1
-                              : seedTypeController.value.text.contains("14") && widget.type == WalletType.wownero
+                              : (seedTypeController.value.text.contains("14") && widget.type == WalletType.wownero) || isBip39
                                   ? 2
                                   : 0,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -325,9 +325,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       '${language.replaceAll("POLYSEED_", "")} (Seed language)';
 
   void _changeSeedType(MoneroSeedType item) {
-    _setSeedType(item);
-    _changeLanguage('English');
     widget.seedSettingsViewModel.setMoneroSeedType(item);
+    _setSeedType(item);
+    _changeLanguage('English', isPolyseed || isBip39);
   }
 
   void _setSeedType(MoneroSeedType item) {
