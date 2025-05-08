@@ -28,6 +28,7 @@ import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
@@ -74,6 +75,12 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
       return true;
     };
+    final date = DateTime.now().toIso8601String().replaceAll(':', '-');
+    final dir = '${(await getAppDir()).path}/print_v';
+    if (!Directory(dir).existsSync()) {
+      Directory(dir).createSync(recursive: true);
+    }
+    printVLogFilePath = FeatureFlag.hasDevOptions ? '$dir/$date.log' : null;
     await FlutterDaemon().unmarkBackgroundSync();
     await initializeAppAtRoot();
 
@@ -199,6 +206,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  printV("WalletInfoSource length (initializeAppConfigs): ${walletInfoSource.length}");
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
@@ -428,6 +436,12 @@ Future<void> backgroundSync() async {
     WidgetsFlutterBinding.ensureInitialized();
     printV("- DartPluginRegistrant.ensureInitialized()");
     DartPluginRegistrant.ensureInitialized();
+    final date = DateTime.now().toIso8601String().replaceAll(':', '-');
+    final dir = '${(await getAppDir()).path}/print_v';
+    if (!Directory(dir).existsSync()) {
+      Directory(dir).createSync(recursive: true);
+    }
+    printVLogFilePath = FeatureFlag.hasDevOptions ? '$dir/$date.log' : null;
     printV("- FlutterDaemon.markBackgroundSync()");
     final val = await FlutterDaemon().markBackgroundSync();
     if (val) {

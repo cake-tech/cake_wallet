@@ -85,6 +85,7 @@ class WalletLoadingService {
 
       // try opening another wallet that is not corrupted to give user access to the app
       final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+      printV("WalletInfoSource length (wallet loading service): ${walletInfoSource.length}");
       WalletBase? wallet;
       for (var walletInfo in walletInfoSource.values) {
         try {
