@@ -214,6 +214,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
 
     if (bestRateQuote != null) {
+      if (bestRateQuote!.fiatCurrency != fiatCurrency) {
+        cryptoAmount = '';
+        return;
+      }
       _cryptoNumberFormat.maximumFractionDigits = cryptoCurrency.decimals;
       cryptoAmount = _cryptoNumberFormat
           .format(enteredAmount / bestRateQuote!.rate)
@@ -245,6 +249,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }
 
     if (bestRateQuote != null) {
+      if (bestRateQuote!.cryptoCurrency != cryptoCurrency) {
+        fiatAmount = '';
+        return;
+      }
       fiatAmount = _cryptoNumberFormat
           .format(enteredAmount * bestRateQuote!.rate)
           .toString()
@@ -308,7 +316,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     }).toList();
 
     final updatedQuoteOptions = List<SelectableItem>.from([
-      OptionTitle(title: 'Recommended'),
+      if (sortedRecommendedQuotes.isNotEmpty) OptionTitle(title: 'Recommended'),
       ...sortedRecommendedQuotes,
       if (sortedQuotes.isNotEmpty) OptionTitle(title: 'All Providers'),
       ...sortedQuotes,
@@ -352,13 +360,20 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   Future<void> _getAvailablePaymentTypes() async {
     paymentMethodState = PaymentMethodLoading();
     selectedPaymentMethod = null;
-    final result = await Future.wait(providerList.map((element) => element
+    final resultNative = await Future.wait(providerList.map((element) => element
         .getAvailablePaymentTypes(fiatCurrency.title, cryptoCurrency, isBuyAction)
         .timeout(
           Duration(seconds: 10),
           onTimeout: () => [],
         )));
-
+  
+    final resultSepa = await Future.wait(providerList.map((element) => element  
+        .getAvailablePaymentTypes(FiatCurrency.eur.title, cryptoCurrency, isBuyAction)
+        .timeout(
+          Duration(seconds: 10),
+          onTimeout: () => [],
+        )));
+    final result = [...resultNative, ...resultSepa];
     final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
     for (var methods in result) {
       for (var method in methods) {
@@ -376,12 +391,26 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       paymentMethodState = PaymentMethodFailed();
     }
   }
+  static const currenciesWithSepa = [
+    // 'ALL', // Albanian lek
+    FiatCurrency.bgn, // Bulgarian lev
+    FiatCurrency.czk, // Czech koruna
+    FiatCurrency.dkk, // Danish krone
+    FiatCurrency.huf, // Hungarian forint
+    FiatCurrency.isk, // Icelandic króna
+    FiatCurrency.chf, // Liechtenstein/Swiss franc
+    FiatCurrency.nok, // Norwegian krone
+    FiatCurrency.pln, // Polish złoty
+    FiatCurrency.ron, // Romanian leu
+    FiatCurrency.sek, // Swedish krona
+    FiatCurrency.gbp, // British pound sterling
+  ];
 
   @action
   Future<void> calculateBestRate() async {
     buySellQuotState = BuySellQuotLoading();
 
-    final List<BuyProvider> validProviders = providerList.where((provider) {
+    final List<BuyProvider> validProvidersNative = providerList.where((provider) {
       if (isBuyAction) {
         return provider.supportedCryptoList.any((pair) =>
         pair.from == cryptoCurrency && pair.to == fiatCurrency);
@@ -391,12 +420,25 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
       }
     }).toList();
 
-    if (validProviders.isEmpty) {
+    final List<BuyProvider> validProvidersSepa = providerList.where((provider) {
+      if (currenciesWithSepa.contains(fiatCurrency)) {
+        if (isBuyAction) {
+          return provider.supportedCryptoList.any((pair) =>
+          pair.from == cryptoCurrency && pair.to == FiatCurrency.eur);
+        } else {
+          return provider.supportedFiatList.any((pair) =>
+          pair.from == FiatCurrency.eur && pair.to == cryptoCurrency);
+        }
+      }
+      return false;
+    }).toList();
+
+    if (validProvidersNative.isEmpty && validProvidersSepa.isEmpty) {
       buySellQuotState = BuySellQuotFailed();
       return;
     }
 
-    final result = await Future.wait<List<Quote>?>(validProviders.map((element) => element
+    final resultNative = await Future.wait<List<Quote>?>(validProvidersNative.map((element) => element
         .fetchQuote(
           cryptoCurrency: cryptoCurrency,
           fiatCurrency: fiatCurrency,
@@ -410,35 +452,65 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           onTimeout: () => null,
         )));
 
+    final resultSepa = await Future.wait<List<Quote>?>(validProvidersSepa.map((element) => element
+        .fetchQuote(
+          cryptoCurrency: cryptoCurrency,
+          fiatCurrency: FiatCurrency.eur,
+          amount: amount,
+          paymentType: selectedPaymentMethod?.paymentMethodType,
+          isBuyAction: isBuyAction,
+          walletAddress: wallet.walletAddresses.address,
+        )
+        .timeout(
+          Duration(seconds: 10),
+          onTimeout: () => null,
+        )));
+
     sortedRecommendedQuotes.clear();
     sortedQuotes.clear();
 
-    final validQuotes = result
+    final validQuotesNative = resultNative
         .where((element) => element != null && element.isNotEmpty)
         .expand((element) => element!)
         .toList();
 
-    if (validQuotes.isEmpty) {
+    final validQuotesSepa = resultSepa
+        .where((element) => element != null && element.isNotEmpty)
+        .expand((element) => element!)
+        .toList();
+
+    if (validQuotesNative.isEmpty && validQuotesSepa.isEmpty) {
       buySellQuotState = BuySellQuotFailed();
       return;
     }
 
-    validQuotes.sort((a, b) => a.rate.compareTo(b.rate));
+    validQuotesNative.sort((a, b) => a.rate.compareTo(b.rate));
+    validQuotesSepa.sort((a, b) => a.rate.compareTo(b.rate));
 
     final Set<String> addedProviders = {};
-    final List<Quote> uniqueProviderQuotes = validQuotes.where((element) {
+
+    final List<Quote> uniqueProviderQuotesNative = validQuotesNative.where((element) {
       if (addedProviders.contains(element.provider.title)) return false;
       addedProviders.add(element.provider.title);
       return true;
     }).toList();
 
-    final List<Quote> successRateQuotes = validQuotes.where((element) =>
+    final List<Quote> uniqueProviderQuotesSepa = validQuotesSepa.where((element) {
+      if (addedProviders.contains(element.provider.title)) return false;
+      addedProviders.add(element.provider.title);
+      return true;
+    }).toList();
+
+
+    final List<Quote> successRateQuotes = [...validQuotesNative, ...validQuotesSepa].where((element) =>
     element.provider is OnRamperBuyProvider &&
         element.recommendations.contains(ProviderRecommendation.successRate)
     ).toList();
 
+    final List<Quote> uniqueProviderQuotes = [];
+
     for (final quote in successRateQuotes) {
-      if (!uniqueProviderQuotes.contains(quote)) {
+      if (![...uniqueProviderQuotesNative, ...uniqueProviderQuotesSepa].contains(quote)) {
         uniqueProviderQuotes.add(quote);
       }
     }
@@ -446,7 +518,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     sortedRecommendedQuotes.addAll(uniqueProviderQuotes);
 
     sortedQuotes = ObservableList.of(
-        validQuotes.where((element) => !uniqueProviderQuotes.contains(element)).toList());
+        [...validQuotesNative, ...validQuotesSepa].where((element) => !uniqueProviderQuotes.contains(element)).toList());
 
     if (sortedRecommendedQuotes.isNotEmpty) {
       sortedRecommendedQuotes.first
@@ -462,6 +534,10 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
       selectedQuote = sortedRecommendedQuotes.first;
       sortedRecommendedQuotes.first.setIsSelected = true;
+    } else if (sortedQuotes.isNotEmpty) {
+      sortedQuotes.first.setIsSelected = true;
+      bestRateQuote = sortedQuotes.first;
+      selectedQuote = sortedQuotes.first;
     }
 
     buySellQuotState = BuySellQuotLoaded();
