@@ -549,6 +549,7 @@
   "paste": "Incolla",
   "pause_wallet_creation": "La possibilità di creare Wallet Haven è attualmente sospesa.",
   "payjoin_details": "Payjoin dettagli",
+  "payjoin_enabled": "Payjoin abilitato",
   "payjoin_request_awaiting_tx": "In attesa di transazione",
   "payjoin_request_in_progress": "In corso",
   "payment_id": "ID Pagamento: ",

@@ -548,6 +548,7 @@
   "paste": "Yapıştır",
   "pause_wallet_creation": "Haven Cüzdanı oluşturma yeteneği şu anda duraklatıldı.",
   "payjoin_details": "Payjoin detaylar",
+  "payjoin_enabled": "Payjoin etkinleştirilmiş",
   "payjoin_request_awaiting_tx": "İşlem bekliyor",
   "payjoin_request_in_progress": "Devam etmekte",
   "payment_id": "Ödeme ID'si: ",

@@ -548,6 +548,7 @@
   "paste": "पेस्ट करें",
   "pause_wallet_creation": "हेवन वॉलेट बनाने की क्षमता फिलहाल रुकी हुई है।",
   "payjoin_details": "Payjoin विवरण",
+  "payjoin_enabled": "Payjoin सक्षम",
   "payjoin_request_awaiting_tx": "लेन -देन का इंतजार",
   "payjoin_request_in_progress": "प्रगति पर है",
   "payment_id": "भुगतान ID: ",

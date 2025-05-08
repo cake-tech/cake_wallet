@@ -550,6 +550,7 @@
   "paste": "Colar",
   "pause_wallet_creation": "A capacidade de criar a Haven Wallet está atualmente pausada.",
   "payjoin_details": "Payjoin detalhes",
+  "payjoin_enabled": "Payjoin habilitado",
   "payjoin_request_awaiting_tx": "Aguardando transação",
   "payjoin_request_in_progress": "Em andamento",
   "payment_id": "ID de pagamento: ",

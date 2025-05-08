@@ -548,6 +548,7 @@
   "paste": "لصق",
   "pause_wallet_creation": ".ﺎﻴًﻟﺎﺣ ﺎﺘًﻗﺆﻣ ﺔﻔﻗﻮﺘﻣ Haven Wallet ءﺎﺸﻧﺇ ﻰﻠﻋ ﺓﺭﺪﻘﻟﺍ",
   "payjoin_details": "Payjoin تفاصيل",
+  "payjoin_enabled": "Payjoin تمكين",
   "payjoin_request_awaiting_tx": "في انتظار المعاملة",
   "payjoin_request_in_progress": "في تَقَدم",
   "payment_id": "معرف الدفع:",

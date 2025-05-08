@@ -546,6 +546,7 @@
   "paste": "Dán",
   "pause_wallet_creation": "Khả năng tạo ví Haven hiện đang bị tạm dừng.",
   "payjoin_details": "Payjoin chi tiết",
+  "payjoin_enabled": "Payjoin Bật",
   "payjoin_request_awaiting_tx": "Đang chờ giao dịch",
   "payjoin_request_in_progress": "Trong tiến trình",
   "payment_id": "ID thanh toán: ",

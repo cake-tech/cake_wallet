@@ -548,6 +548,7 @@
   "paste": "Wklej",
   "pause_wallet_creation": "Możliwość utworzenia Portfela Haven jest obecnie wstrzymana.",
   "payjoin_details": "Szczegóły Payjoin",
+  "payjoin_enabled": "Payjoin włączony",
   "payjoin_request_awaiting_tx": "Oczekiwanie na transakcję",
   "payjoin_request_in_progress": "W toku",
   "payment_id": "ID Płatności: ",

@@ -548,6 +548,7 @@
   "paste": "Einfügen",
   "pause_wallet_creation": "Die Möglichkeit, Haven Wallet zu erstellen, ist derzeit pausiert.",
   "payjoin_details": "Payjoin Details",
+  "payjoin_enabled": "Payjoin aktiv",
   "payjoin_request_awaiting_tx": "Warten auf die Transaktion",
   "payjoin_request_in_progress": "Im Gange",
   "payment_id": "Zahlungs-ID: ",

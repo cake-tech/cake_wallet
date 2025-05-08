@@ -549,6 +549,7 @@
   "paste": "ペースト",
   "pause_wallet_creation": "Haven Wallet を作成する機能は現在一時停止されています。",
   "payjoin_details": "Payjoin 詳細",
+  "payjoin_enabled": "Payjoin enabled",
   "payjoin_request_awaiting_tx": "トランザクションを待っています",
   "payjoin_request_in_progress": "進行中",
   "payment_id": "支払いID: ",

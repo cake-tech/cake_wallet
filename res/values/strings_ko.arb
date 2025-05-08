@@ -549,6 +549,7 @@
   "paste": "붙여넣기",
   "pause_wallet_creation": "현재 Haven 지갑 생성 기능이 일시 중지되었습니다.",
   "payjoin_details": "Payjoin 세부 정보",
+  "payjoin_enabled": "Payjoin enabled",
   "payjoin_request_awaiting_tx": "거래를 기다리고 있습니다",
   "payjoin_request_in_progress": "진행 중",
   "payment_id": "결제 ID: ",

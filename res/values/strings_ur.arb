@@ -550,6 +550,7 @@
   "paste": "چسپاں کریں۔",
   "pause_wallet_creation": "Haven Wallet ۔ﮯﮨ ﻑﻮﻗﻮﻣ ﻝﺎﺤﻟﺍ ﯽﻓ ﺖﯿﻠﮨﺍ ﯽﮐ ﮯﻧﺎﻨﺑ",
   "payjoin_details": "Payjoin تفصیلات",
+  "payjoin_enabled": "Payjoin فعال",
   "payjoin_request_awaiting_tx": "لین دین کے منتظر",
   "payjoin_request_in_progress": "پیشرفت میں",
   "payment_id": "ادائیگی کی شناخت:",

@@ -548,6 +548,7 @@
   "paste": "I-paste",
   "pause_wallet_creation": "Kasalukuyang naka-pause ang kakayahang gumawa ng Haven Wallet.",
   "payjoin_details": "Mga detalye ng Payjoin",
+  "payjoin_enabled": "Payjoin pinagana",
   "payjoin_request_awaiting_tx": "Naghihintay ng transaksyon",
   "payjoin_request_in_progress": "Sa pag -unlad",
   "payment_id": "Payment ID: ",

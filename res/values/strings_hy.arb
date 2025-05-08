@@ -547,6 +547,7 @@
   "paste": "Տեղադրել",
   "pause_wallet_creation": "Հնարավորություն ստեղծել Haven Դրամապանակ ընթացիկ դադարեցված է",
   "payjoin_details": "Payjoin Մանրամասն",
+  "payjoin_enabled": "Payjoin միացված",
   "payjoin_request_awaiting_tx": "Սպասում է գործարքին",
   "payjoin_request_in_progress": "Ընթացքի մեջ",
   "payment_id": "Վճարման հերթական համար",

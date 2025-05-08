@@ -93,26 +93,53 @@ class QRWidget extends StatelessWidget {
                           child: Hero(
                             tag: Key(heroTag ?? addressUri.toString()),
                             child: Center(
-                              child: AspectRatio(
-                                aspectRatio: 1.0,
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 3,
-                                      color: Theme.of(context)
-                                          .extension<DashboardPageTheme>()!
-                                          .textColor,
-                                    ),
-                                  ),
-                                  child: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          width: 3,
-                                          color: Colors.white,
+                              child: Container(
+                                padding: EdgeInsets.zero,
+                                decoration: BoxDecoration(
+                                  border: Border(top: BorderSide.none),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                  color: Colors.white,
+                                ),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(3),
+                                      child: AspectRatio(
+                                        aspectRatio: 1.0,
+                                        child: QrImage(
+                                          data: addressUri.toString(),
                                         ),
                                       ),
-                                      child: QrImage(data: addressUri.toString())),
+                                    ),
+                                    if (addressListViewModel
+                                        .payjoinEndpoint.isNotEmpty) ...[
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              top: 4,
+                                              bottom: 4,
+                                              right: 4,
+                                            ),
+                                            child: Image.asset(
+                                              'assets/images/payjoin.png',
+                                              width: 20,
+                                            ),
+                                          ),
+                                          Text(
+                                            S.of(context).payjoin_enabled,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ]
+                                  ],
                                 ),
                               ),
                             ),

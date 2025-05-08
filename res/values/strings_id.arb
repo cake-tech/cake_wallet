@@ -550,6 +550,7 @@
   "paste": "Tempel",
   "pause_wallet_creation": "Kemampuan untuk membuat Haven Wallet saat ini dijeda.",
   "payjoin_details": "Payjoin detail",
+  "payjoin_enabled": "Payjoin diaktifkan",
   "payjoin_request_awaiting_tx": "Menunggu transaksi",
   "payjoin_request_in_progress": "Sedang berlangsung",
   "payment_id": "ID Pembayaran: ",

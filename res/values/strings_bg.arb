@@ -548,6 +548,7 @@
   "paste": "Поставяне",
   "pause_wallet_creation": "Възможността за създаване на Haven Wallet в момента е на пауза.",
   "payjoin_details": "Payjoin подробности",
+  "payjoin_enabled": "Payjoin enabled",
   "payjoin_request_awaiting_tx": "В очакване на транзакция",
   "payjoin_request_in_progress": "В ход",
   "payment_id": "Payment ID: ",
