@@ -307,9 +307,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!context.mounted) {
-            return;
-          }
+          if (!mounted) return;
 
           await showModalBottomSheet<void>(
             context: context,
@@ -323,7 +321,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
                   actionButton: () {
                     Navigator.of(bottomSheetContext).pop();
-                    if (context.mounted) {
+                    if (mounted) {
                       Navigator.of(context).pushNamedAndRemoveUntil(
                         Routes.dashboard,
                         (route) => false,
