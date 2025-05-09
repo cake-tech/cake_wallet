@@ -151,7 +151,8 @@ class TransactionsPage extends StatelessWidget {
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.tradeDetails, arguments: trade),
-                                  provider: trade.provider,
+                                    swapState: trade.state,
+                                    provider: trade.provider,
                                   from: trade.from,
                                   to: trade.to,
                                   createdAtFormattedDate: trade.createdAt != null
