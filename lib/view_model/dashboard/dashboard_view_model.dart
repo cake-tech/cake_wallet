@@ -13,11 +13,11 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
@@ -29,9 +29,12 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -70,6 +73,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
+      required this.payjoinTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = true,
@@ -408,9 +412,16 @@ abstract class DashboardViewModelBase with Store {
       ordersStore.orders.where((item) => item.order.walletId == wallet.id).toList();
 
   @computed
-  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
-      .where((item) => item.transaction.walletId == wallet.id)
-      .toList();
+  List<AnonpayTransactionListItem> get anonpayTransactions =>
+      anonpayTransactionsStore.transactions
+          .where((item) => item.transaction.walletId == wallet.id)
+          .toList();
+
+  @computed
+  List<PayjoinTransactionListItem> get payjoinTransactions =>
+      payjoinTransactionsStore.transactions
+          .where((item) => item.session.walletId == wallet.id)
+          .toList();
 
   @computed
   double get price => balanceViewModel.price;
@@ -423,10 +434,26 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(
-        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
+    _items.addAll(transactionFilterStore
+        .filtered(transactions: [...transactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
+
+    if (payjoinTransactions.isNotEmpty) {
+      final _payjoinTransactions = payjoinTransactions;
+      _items.forEach((e) {
+        if (e is TransactionListItem &&
+            _payjoinTransactions
+                .any((t) => t.session.txId == e.transaction.id)) {
+          _payjoinTransactions
+              .firstWhere((t) => t.session.txId == e.transaction.id)
+              .transaction = e.transaction;
+        }
+      });
+      _items.addAll(_payjoinTransactions);
+      _items.removeWhere((e) => (e is TransactionListItem &&
+          _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)));
+    }
 
     return formattedItemsList(_items);
   }
@@ -754,6 +781,8 @@ abstract class DashboardViewModelBase with Store {
   AnonpayTransactionsStore anonpayTransactionsStore;
 
   TransactionFilterStore transactionFilterStore;
+
+  PayjoinTransactionsStore payjoinTransactionsStore;
 
   Map<String, List<FilterItem>> filterItems;
 

@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'dart:core';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
@@ -72,17 +73,21 @@ class HavenURI extends PaymentURI {
 }
 
 class BitcoinURI extends PaymentURI {
-  BitcoinURI({required super.amount, required super.address});
+  BitcoinURI({required super.amount, required super.address, this.pjUri = ''});
+
+  final String pjUri;
 
   @override
   String toString() {
-    var base = 'bitcoin:$address';
+    final qp = <String, String>{};
 
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
+    if (amount.isNotEmpty) qp['amount'] = amount.replaceAll(',', '.');
+    if (pjUri.isNotEmpty) {
+      qp['pjos'] = '0';
+      qp['pj'] = pjUri;
     }
 
-    return base;
+    return Uri(scheme: 'bitcoin', path: address, queryParameters: qp).toString();
   }
 }
 
@@ -301,6 +306,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
 
   @computed
+  String get payjoinEndpoint => wallet.type == WalletType.bitcoin
+      ? bitcoin!.getPayjoinEndpoint(wallet)
+      : "";
+
+  @computed
   PaymentURI get uri {
     switch (wallet.type) {
       case WalletType.monero:
@@ -308,7 +318,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        return BitcoinURI(amount: amount, address: address.address);
+        return BitcoinURI(
+            amount: amount,
+            address: address.address,
+            pjUri: payjoinEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
