@@ -113,6 +113,7 @@ class KryptonimBuyProvider extends BuyProvider {
     required bool isBuyAction,
     required String walletAddress,
     PaymentType? paymentType,
+    String? customPaymentMethodType,
     String? countryCode,
   }) async {
     log('Kryptonim: Fetching quote: ${isBuyAction ? cryptoCurrency : fiatCurrency} -> ${isBuyAction ? fiatCurrency : cryptoCurrency}, amount: $amount');
@@ -149,7 +150,7 @@ class KryptonimBuyProvider extends BuyProvider {
 
     final selectedPaymentType =
         PaymentMethod.getPaymentTypeId(selectedPaymentMethod['payment_method'] as String?);
-    final quote = Quote.fromKryptonimJson(selectedPaymentMethod, isBuyAction, selectedPaymentType);
+    final quote = Quote.fromKryptonimJson(selectedPaymentMethod, isBuyAction, selectedPaymentType ?? PaymentType.unknown);
 
     quote.setFiatCurrency = fiatCurrency;
     quote.setCryptoCurrency = cryptoCurrency;

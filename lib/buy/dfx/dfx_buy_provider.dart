@@ -231,6 +231,7 @@ class DFXBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     /// if buying with any currency other than eur or chf then DFX is not supported
 
@@ -373,7 +374,7 @@ class DFXBuyProvider extends BuyProvider {
       case 'Instant':
         return PaymentType.sepa;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 
