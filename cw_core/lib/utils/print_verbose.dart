@@ -1,9 +1,20 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 
+String? printVLogFilePath;
+
 void printV(dynamic content) {
   CustomTrace programInfo = CustomTrace(StackTrace.current);
-  print("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content");
+  final logMsg = "${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content";
+  if (printVLogFilePath != null) {
+    try {
+      File(printVLogFilePath!).writeAsStringSync("$logMsg\n", mode: FileMode.append);
+    } catch (e) {
+      print("Unable to write to log file (printV): $e");
+    }
+  }
+  print(logMsg);
 }
 
 // https://stackoverflow.com/a/59386101

@@ -93,6 +93,18 @@ class OtherSettingsPage extends BasePage {
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
                 ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] hash change log',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devHashChangeLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] print verbose',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devPrintVerbose),
+                ),
               Spacer(),
               SettingsVersionCell(
                   title: S.of(context).version(_otherSettingsViewModel.currentVersion)),
