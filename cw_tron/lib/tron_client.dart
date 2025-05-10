@@ -428,7 +428,7 @@ class TronClient {
     if (!request.isSuccess) {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
       throw Exception(
-        'An error occured while creating the transfer request. Please try again.',
+        'An error occurred while creating the transfer request. Please try again.',
       );
     }
 
