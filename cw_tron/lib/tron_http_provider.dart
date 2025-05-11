@@ -1,18 +1,16 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:on_chain/tron/tron.dart';
 import '.secrets.g.dart' as secrets;
 
 class TronHTTPProvider implements TronServiceProvider {
   TronHTTPProvider(
       {required this.url,
-      http.Client? client,
-      this.defaultRequestTimeout = const Duration(seconds: 30)})
-      : client = client ?? http.Client();
+      this.defaultRequestTimeout = const Duration(seconds: 30)});
   @override
   final String url;
-  final http.Client client;
+  late final client = ProxyWrapper().getHttpIOClient();
   final Duration defaultRequestTimeout;
 
   @override

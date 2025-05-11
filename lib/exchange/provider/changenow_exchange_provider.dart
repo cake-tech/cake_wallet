@@ -13,11 +13,11 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/distribution_info.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart';
-
+import 'package:cw_core/utils/proxy_wrapper.dart';
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider({required SettingsStore settingsStore})
       : _settingsStore = settingsStore,
@@ -73,10 +73,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'flow': _getFlow(isFixedRateMode)
     };
     final uri = Uri.https(apiAuthority, rangePath, params);
-    final response = await get(uri, headers: headers);
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
       throw Exception('${error}\n$message');
@@ -85,7 +86,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     return Limits(
         min: responseJSON['minAmount'] as double?, max: responseJSON['maxAmount'] as double?);
   }
@@ -118,8 +119,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         params['fromAmount'] = amount.toString();
 
       final uri = Uri.https(apiAuthority, estimatedAmountPath, params);
-      final response = await get(uri, headers: headers);
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+      final responseString = await response.transform(utf8.decoder).join();
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['fromAmount'].toString());
       final toAmount = double.parse(responseJSON['toAmount'].toString());
       final rateId = responseJSON['rateId'] as String? ?? '';
@@ -177,10 +179,15 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     final uri = Uri.https(apiAuthority, createTradePath);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
       throw Exception('${error}\n$message');
@@ -189,7 +196,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['payinAddress'] as String;
     final refundAddress = responseJSON['refundAddress'] as String;
@@ -220,12 +227,13 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final headers = {apiHeaderKey: apiKey};
     final params = <String, String>{'id': id};
     final uri = Uri.https(apiAuthority, findTradeByIdPath, params);
-    final response = await get(uri, headers: headers);
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
       throw TradeNotFoundException(id, provider: description, description: error);
@@ -234,7 +242,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final fromCurrency = responseJSON['fromCurrency'] as String;
     final from = CryptoCurrency.fromString(fromCurrency);
     final toCurrency = responseJSON['toCurrency'] as String;
