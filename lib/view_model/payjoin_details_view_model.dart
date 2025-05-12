@@ -28,10 +28,9 @@ abstract class PayjoinDetailsViewModelBase with Store {
   })  : items = ObservableList<StandartListItem>(),
         payjoinSession = payjoinSessionSource.get(payjoinSessionId)! {
     listener = payjoinSessionSource.watch().listen((e) {
-      if (e.key == payjoinSessionId) _updateSessionDetail();
+      if (e.key == payjoinSessionId) _updateItems();
     });
     _updateItems();
-    _updateSessionDetail();
   }
 
   final Box<PayjoinSession> payjoinSessionSource;
@@ -49,20 +48,6 @@ abstract class PayjoinDetailsViewModelBase with Store {
   Timer? timer;
 
   @action
-  Future<void> _updateSessionDetail() async {
-    try {
-      payjoinSession = payjoinSessionSource.get(payjoinSessionId)!;
-
-      if (payjoinSession.status == 'success') {
-        // bitcoin!.tx
-      }
-
-      _updateItems();
-    } catch (e) {
-      printV(e.toString());
-    }
-  }
-
   void _updateItems() {
     final dateFormat = DateFormatter.withCurrentLocal();
     items.clear();

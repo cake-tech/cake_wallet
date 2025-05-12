@@ -60,9 +60,6 @@ import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
 import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
-import 'package:cake_wallet/tron/tron.dart';
-import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -364,7 +361,7 @@ Future<void> setup({
       TradesStore(tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
-  getIt.registerSingleton<PayjoinTransactionsStore>(
+  getIt.registerFactory(() =>
       PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));

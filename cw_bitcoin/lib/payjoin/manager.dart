@@ -41,14 +41,14 @@ class PayjoinManager {
     final spawnedSessions = allSessions.map((session) {
       if (session.isSenderSession) {
         printV("Resuming Payjoin Sender Session ${session.pjUri!}");
-        return spawnSender(
+        return _spawnSender(
           sender: Sender.fromJson(session.sender!),
           pjUri: session.pjUri!,
         );
       }
       final receiver = Receiver.fromJson(session.receiver!);
       printV("Resuming Payjoin Receiver Session ${receiver.id()}");
-      return spawnReceiver(receiver: receiver);
+      return _spawnReceiver(receiver: receiver);
     });
 
     printV("Resumed ${spawnedSessions.length} Payjoin Sessions");
@@ -81,10 +81,10 @@ class PayjoinManager {
     await _payjoinStorage.insertSenderSession(
         sender, pjUri, _wallet.id, amount);
 
-    return spawnSender(isTestnet: isTestnet, sender: sender, pjUri: pjUri);
+    return _spawnSender(isTestnet: isTestnet, sender: sender, pjUri: pjUri);
   }
 
-  Future<void> spawnSender({
+  Future<void> _spawnSender({
     required Sender sender,
     required String pjUri,
     bool isTestnet = false,
@@ -171,10 +171,10 @@ class PayjoinManager {
     bool isTestnet = false,
   }) async {
     await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
-    return spawnReceiver(isTestnet: isTestnet, receiver: receiver);
+    return _spawnReceiver(isTestnet: isTestnet, receiver: receiver);
   }
 
-  Future<void> spawnReceiver({
+  Future<void> _spawnReceiver({
     required Receiver receiver,
     bool isTestnet = false,
   }) async {
