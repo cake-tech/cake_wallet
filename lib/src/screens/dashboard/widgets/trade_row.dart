@@ -117,6 +117,7 @@ class TradeRow extends StatelessWidget {
       case TradeState.completed:
       case TradeState.finished:
       case TradeState.success:
+      case TradeState.settled:
         return PaletteDark.brightGreen;
       case TradeState.failed:
       case TradeState.expired:

@@ -29,7 +29,6 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/entities/swap_manager.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
@@ -273,6 +272,7 @@ import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 final getIt = GetIt.instance;
 
@@ -512,26 +512,26 @@ Future<void> setup({
   );
 
   getIt.registerSingleton(
-    SwapManager(
+    TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
       settingsStore: getIt.get<SettingsStore>(),
+      trades: _tradesSource
     ),
   );
 
   getIt.registerFactory(() => DashboardViewModel(
-      balanceViewModel: getIt.get<BalanceViewModel>(),
-      exchangeViewModel: getIt.get<ExchangeViewModel>(),
-      swapManager: getIt.get<SwapManager>(),
-      appStore: getIt.get<AppStore>(),
-      tradesStore: getIt.get<TradesStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
-      settingsStore: settingsStore,
-      yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+    tradeMonitor: getIt.get<TradeMonitor>(),
+    balanceViewModel: getIt.get<BalanceViewModel>(),
+    appStore: getIt.get<AppStore>(),
+    tradesStore: getIt.get<TradesStore>(),
+    tradeFilterStore: getIt.get<TradeFilterStore>(),
+    transactionFilterStore: getIt.get<TransactionFilterStore>(),
+    settingsStore: settingsStore,
+    yatStore: getIt.get<YatStore>(),
+    ordersStore: getIt.get<OrdersStore>(),
+    anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+    sharedPreferences: getIt.get<SharedPreferences>(),
+    keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(

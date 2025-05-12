@@ -10,11 +10,9 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
-import 'package:cake_wallet/entities/swap_manager.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -56,6 +54,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../themes/theme_base.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -64,8 +63,7 @@ class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 abstract class DashboardViewModelBase with Store {
   DashboardViewModelBase(
       {required this.balanceViewModel,
-      required this.exchangeViewModel,
-      required this.swapManager,
+      required this.tradeMonitor,
       required this.appStore,
       required this.tradesStore,
       required this.tradeFilterStore,
@@ -267,19 +265,11 @@ abstract class DashboardViewModelBase with Store {
     //   subname = nano!.getCurrentAccount(_wallet).label;
     // }
 
-    final exchangeProviders = {
-      for (var provider in exchangeViewModel.providerList) provider.description: provider,
-    };
-
-    swapManager.start(wallet, exchangeProviders);
-
     reaction((_) => appStore.wallet, (wallet) {
       _onWalletChange(wallet);
       _checkMweb();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
-      swapManager.stop();
-      swapManager.start(wallet!, exchangeProviders);
     });
 
     _transactionDisposer?.reaction.dispose();
@@ -291,7 +281,8 @@ abstract class DashboardViewModelBase with Store {
       int confirmations = 1;
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
-          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+          confirmations =
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
         } catch (_) {}
       }
       return length * confirmations;
@@ -307,6 +298,10 @@ abstract class DashboardViewModelBase with Store {
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
+
+    reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
+
+    tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
@@ -751,9 +746,7 @@ abstract class DashboardViewModelBase with Store {
 
   BalanceViewModel balanceViewModel;
 
-  ExchangeViewModel exchangeViewModel;
-
-  SwapManager swapManager;
+  TradeMonitor tradeMonitor;
 
   AppStore appStore;
 
@@ -924,7 +917,8 @@ abstract class DashboardViewModelBase with Store {
       int confirmations = 1;
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
-          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+          confirmations =
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
         } catch (_) {}
       }
       return length * confirmations;
