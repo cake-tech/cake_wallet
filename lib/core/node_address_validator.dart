@@ -19,7 +19,7 @@ class NodePathValidator extends TextValidator {
 }
 
 // NodeAddressValidatorDecredBlankException allows decred to send a blank ip
-// address which effectively clears the current set persistant peer.
+// address which effectively clears the current set persistent peer.
 class NodeAddressValidatorDecredBlankException extends TextValidator {
   NodeAddressValidatorDecredBlankException()
       : super(
