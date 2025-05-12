@@ -849,7 +849,7 @@ Future<void> setup({
     if (wallet.type == WalletType.monero ||
         wallet.type == WalletType.wownero ||
         wallet.type == WalletType.haven) {
-      return MoneroAccountListViewModel(wallet);
+      return MoneroAccountListViewModel(wallet,getIt.get<SettingsStore>());
     }
     throw Exception(
         'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');

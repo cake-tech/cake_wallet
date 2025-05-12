@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -12,7 +14,9 @@ class MoneroAccountListViewModel = MoneroAccountListViewModelBase
     with _$MoneroAccountListViewModel;
 
 abstract class MoneroAccountListViewModelBase with Store {
-  MoneroAccountListViewModelBase(this._wallet) : scrollOffsetFromTop = 0;
+  MoneroAccountListViewModelBase(this._wallet,this.settingsStore) : scrollOffsetFromTop = 0;
+
+  final SettingsStore settingsStore;
 
   @observable
   double scrollOffsetFromTop;
@@ -26,13 +30,14 @@ abstract class MoneroAccountListViewModelBase with Store {
 
   @computed
   List<AccountListItem> get accounts {
+    final hideBalance = settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance;
     if (_wallet.type == WalletType.monero) {
       return monero
         !.getAccountList(_wallet)
         .accounts.map((acc) => AccountListItem(
             label: acc.label,
             id: acc.id,
-            balance: acc.balance,
+            balance: hideBalance ? '●●●●●●' : acc.balance,
             isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
         .toList();
     }
@@ -43,7 +48,7 @@ abstract class MoneroAccountListViewModelBase with Store {
         .accounts.map((acc) => AccountListItem(
             label: acc.label,
             id: acc.id,
-            balance: acc.balance,
+            balance: hideBalance ? '●●●●●●' : acc.balance,
             isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
         .toList();
     }
