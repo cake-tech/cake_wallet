@@ -33,6 +33,7 @@ class OnRamperBuyProvider extends BuyProvider {
   static const quotes = '/quotes';
   static const paymentTypes = '/payment-types';
   static const supported = '/supported';
+  static const defaultsAll = '/defaults/all';
 
   static const List<CryptoCurrency> _notSupportedCrypto = [];
   static const List<FiatCurrency> _notSupportedFiat = [];
@@ -40,7 +41,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
   final SettingsStore _settingsStore;
 
-  PaymentType? recommendedPaymentType;
+  String? recommendedPaymentType;
 
   String get _apiKey => secrets.onramperApiKey;
 
@@ -58,6 +59,34 @@ class OnRamperBuyProvider extends BuyProvider {
 
   @override
   bool get isAggregator => true;
+
+  Future<String?> getRecommendedPaymentType(bool isBuyAction) async {
+
+    final params = {'type': isBuyAction ? 'buy' : 'sell'};
+
+    final url = Uri.https(_baseApiUrl, '$supported$defaultsAll', params);
+
+    try {
+      final response =
+      await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final recommended = data['message']['recommended'] as Map<String, dynamic>;
+
+        final recommendedPaymentType = recommended['paymentMethod'] as String?;
+
+        return recommendedPaymentType ;
+      } else {
+        final responseBody =
+        jsonDecode(response.body) as Map<String, dynamic>;
+        printV('Failed to fetch available payment types: ${responseBody['message']}');
+      }
+    } catch (e) {
+      printV('Failed to fetch available payment types: $e');
+    }
+    return null;
+  }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
@@ -84,7 +113,7 @@ class OnRamperBuyProvider extends BuyProvider {
             .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
             .toList();
 
-        recommendedPaymentType = allAvailablePaymentMethods.first.paymentMethodType;
+        recommendedPaymentType = await getRecommendedPaymentType(isBuyAction);
 
         return allAvailablePaymentMethods;
       } else {
@@ -142,7 +171,7 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     String? paymentMethod;
 
-    if (paymentType == PaymentType.all && recommendedPaymentType != null) paymentMethod = normalizePaymentMethod(recommendedPaymentType!);
+    if (paymentType == PaymentType.all && recommendedPaymentType != null) paymentMethod = recommendedPaymentType!;
     else if (paymentType == PaymentType.unknown) paymentMethod = customPaymentMethodType;
     else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
 
