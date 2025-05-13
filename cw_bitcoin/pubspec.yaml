@@ -58,6 +58,10 @@ dependencies:
     git:
       url: https://github.com/sneurlax/socks_socket
       ref: e6232c53c1595469931ababa878759a067c02e94
+  ur:
+    git:
+      url: https://github.com/bukata-sa/bc-ur-dart
+      ref: 5738f70d0ec3d50977ac3dd01fed62939600238b
 
 dev_dependencies:
   flutter_test:

@@ -177,6 +177,7 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      payjoinBox: payjoinSessionSource,
     );
 
     await wallet.save();
