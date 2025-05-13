@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
@@ -11,6 +14,9 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_mweb/cw_mweb.dart';
 import 'package:cw_mweb/mwebd.pb.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_encoder.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
@@ -182,6 +188,11 @@ class PendingBitcoinTransaction with PendingTransaction {
       
   @override
   Future<String?> commitUR() {
-    return Future.value("test");
+    var sourceBytes = Uint8List.fromList(utf8.encode(hex));
+    var cborEncoder = CBOREncoder();
+    cborEncoder.encodeBytes(sourceBytes);
+    var ur = UR("psbt", cborEncoder.getBytes());
+    var encoded = UREncoder.encode(ur);
+    return Future.value(encoded);
   }
 }
