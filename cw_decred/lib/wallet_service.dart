@@ -138,6 +138,7 @@ class DecredWalletService extends WalletService<
       // Clear the path so this does not trigger again.
       walletInfo.dirPath = "";
       walletInfo.path = "";
+      await walletInfo.save();
     }
 
     final config = {
