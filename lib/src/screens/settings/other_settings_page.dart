@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/setting_priority_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
 import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';

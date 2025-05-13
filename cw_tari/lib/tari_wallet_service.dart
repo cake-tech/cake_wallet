@@ -73,7 +73,7 @@ class TariWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      final connection = tariffi.FFITariTransportConfig.tcp("/ip4/127.0.0.1/tcp/9051");
+      final connection = tariffi.FFITariTransportConfig.tcp("/ip4/0.0.0.0/tcp/9051");
       final config = tari.getWalletConfig(
         path: path,
         transport: connection,
@@ -127,7 +127,7 @@ class TariWalletService extends WalletService<
   Future<TariWallet> openWallet(String name, String password) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
-      final connection = tariffi.FFITariTransportConfig();
+      final connection = tariffi.FFITariTransportConfig.tcp("/ip4/0.0.0.0/tcp/9051");
       final config = tari.getWalletConfig(
         path: path,
         transport: connection,
@@ -233,7 +233,7 @@ class TariWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: credentials.name, type: getType());
 
-      final connection = tariffi.FFITariTransportConfig();
+      final connection = tariffi.FFITariTransportConfig.tcp("/ip4/0.0.0.0/tcp/9051");
       final config = tari.getWalletConfig(
         path: path,
         transport: connection,

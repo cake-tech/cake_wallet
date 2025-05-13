@@ -251,11 +251,9 @@ abstract class TariWalletBase
   Future<void> dev_printLogs() async {
     final currentWalletPath =
         await pathForWallet(name: walletInfo.name, type: type);
-    Directory("$currentWalletPath/logs").listSync().forEach((e) => log(e.path));
-    final stat = await File("$currentWalletPath/logs/wallet.log").stat();
-    log(stat.size.toString());
-    File("$currentWalletPath/logs/wallet.0.log").readAsString().then((e) => log(e));
-
+    final files = Directory("$currentWalletPath/logs").listSync();
+    files.forEach((e) => log(e.path));
+    File(files.last.path).readAsString().then((e) => log(e));
   }
 
   @override
