@@ -195,14 +195,15 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   Widget _restoreFromKeysFormFields() {
     // Decred can only restore a view only wallet with an account pubkey. Other
     // fields are not used.
-    if (widget.walletRestoreViewModel.type == WalletType.decred) {
+    if (widget.walletRestoreViewModel.onlyViewKeyRestore) {
       return Column(
         children: [
           BaseTextFormField(
             controller: viewKeyController,
             hintText: S.of(context).view_key_public,
             maxLines: null,
-        )],
+          ),
+        ],
       );
     }
 
@@ -250,13 +251,14 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             maxLines: null,
           ),
         ),
-        BlockchainHeightWidget(
-          key: blockchainHeightKey,
-          hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
-          onHeightChange: (_) => null,
-          onHeightOrDateEntered: widget.onHeightOrDateEntered,
-          walletType: widget.walletRestoreViewModel.type,
-        ),
+        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+          BlockchainHeightWidget(
+            key: blockchainHeightKey,
+            hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
+            onHeightChange: (_) => null,
+            onHeightOrDateEntered: widget.onHeightOrDateEntered,
+            walletType: widget.walletRestoreViewModel.type,
+          ),
       ],
     );
   }
