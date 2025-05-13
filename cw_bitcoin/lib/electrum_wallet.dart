@@ -282,11 +282,26 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  BitcoinWalletKeys get keys => BitcoinWalletKeys(
-        wif: WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer),
-        privateKey: hd.privateKey.toHex(),
-        publicKey: hd.publicKey.toHex(),
-      );
+  BitcoinWalletKeys get keys {
+    String? wif;
+    String? privateKey;
+    String? publicKey;
+    try {
+      wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
+    } catch (_) {}
+    try {
+      privateKey = hd.privateKey.toHex();
+    } catch (_) {}
+    try {
+      publicKey = hd.publicKey.toHex();
+    } catch (_) {}
+    return BitcoinWalletKeys(
+      wif: wif ?? '',
+      privateKey: privateKey ?? '',
+      publicKey: publicKey ?? '',
+      xpub: xpub,
+    );
+  }
 
   String _password;
   List<BitcoinUnspent> unspentCoins;
