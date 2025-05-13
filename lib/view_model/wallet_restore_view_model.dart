@@ -32,17 +32,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type, this.restoredWallet})
-      : hasSeedLanguageSelector =
-            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
-        hasBlockchainHeightLanguageSelector =
-            type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
-        hasRestoreFromPrivateKey = type == WalletType.ethereum ||
-            type == WalletType.polygon ||
-            type == WalletType.nano ||
-            type == WalletType.banano ||
-            type == WalletType.solana ||
-            type == WalletType.tron,
-        isButtonEnabled = false,
+      : isButtonEnabled = false,
         hasPassphrase = false,
         mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
@@ -60,9 +50,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.decred:
+      case WalletType.bitcoin:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
-      case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.zano:
@@ -82,9 +72,34 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   static const decredSeedMnemonicLength = 15;
 
   late List<WalletRestoreMode> availableModes;
-  final bool hasSeedLanguageSelector;
-  final bool hasBlockchainHeightLanguageSelector;
-  final bool hasRestoreFromPrivateKey;
+  late final bool hasSeedLanguageSelector = [
+    WalletType.monero,
+    WalletType.haven,
+    WalletType.wownero
+  ].contains(type);
+
+  late final bool hasBlockchainHeightSelector = [
+    WalletType.monero,
+    WalletType.haven,
+    WalletType.wownero
+  ].contains(type);
+  
+  late final bool hasRestoreFromPrivateKey = [
+    WalletType.ethereum,
+    WalletType.polygon,
+    WalletType.nano,
+    WalletType.banano,
+    WalletType.solana,
+    WalletType.tron
+  ].contains(type);
+
+  late final bool onlyViewKeyRestore = [
+    WalletType.bitcoin,
+    WalletType.litecoin,
+    WalletType.bitcoinCash,
+    WalletType.decred
+  ].contains(type);
+
   final RestoredWallet? restoredWallet;
 
   @observable
@@ -198,6 +213,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       final address = options['address'] as String?;
 
       switch (type) {
+        case WalletType.bitcoin:
+          return bitcoin!.createBitcoinWalletFromKeys(
+            name: name,
+            password: password,
+            xpub: viewKey!,
+          );
+
         case WalletType.monero:
           return monero!.createMoneroRestoreWalletFromKeysCredentials(
             name: name,
@@ -276,8 +298,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.litecoin:
         String? mnemonic = credentials['seed'] as String?;
         String? passphrase = credentials['passphrase'] as String?;
+        if (mnemonic == null) break;
         return bitcoin!.getDerivationsFromMnemonic(
-          mnemonic: mnemonic!,
+          mnemonic: mnemonic,
           node: node,
           passphrase: passphrase,
         );
