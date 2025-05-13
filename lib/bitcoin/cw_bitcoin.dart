@@ -19,6 +19,14 @@ class CWBitcoin extends Bitcoin {
       );
 
   @override
+  WalletCredentials createBitcoinWalletFromKeys({
+    required String name,
+    required String password,
+    required String xpub,
+  }) =>
+      BitcoinWalletFromKeysCredentials(name: name, password: password, xpub: xpub);
+
+  @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
           {required String name,
           required String password,
@@ -62,11 +70,7 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     final keys = bitcoinWallet.keys;
 
-    return <String, String>{
-      'wif': keys.wif,
-      'privateKey': keys.privateKey,
-      'publicKey': keys.publicKey
-    };
+    return bitcoinWallet.keys.toJson();
   }
 
   @override
