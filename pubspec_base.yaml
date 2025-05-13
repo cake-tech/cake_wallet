@@ -126,6 +126,10 @@ dependencies:
       url: https://github.com/MrCyjaneK/flutter_daemon
       ref: 6d5270d64b5dd588fce12fd0a0c7314c37e6cff1
   flutter_local_notifications: ^19.0.0
+  ur:
+    git:
+      url: https://github.com/bukata-sa/bc-ur-dart
+      ref: 5738f70d0ec3d50977ac3dd01fed62939600238b
 
 dev_dependencies:
   flutter_test:
