@@ -165,6 +165,6 @@ class PendingBitcoinTransaction with PendingTransaction {
       
   @override
   Future<String?> commitUR() {
-    throw UnimplementedError();
+    return Future.value("test");
   }
 }

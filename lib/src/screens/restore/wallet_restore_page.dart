@@ -199,7 +199,7 @@ class WalletRestorePage extends BasePage {
       credentials['seed'] =
           walletRestoreFromSeedFormKey.currentState!.seedWidgetStateKey.currentState!.text;
 
-      if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+      if (walletRestoreViewModel.hasBlockchainHeightSelector) {
         credentials['height'] =
             walletRestoreFromSeedFormKey.currentState!.blockchainHeightKey.currentState?.height ??
                 -1;
@@ -219,7 +219,7 @@ class WalletRestorePage extends BasePage {
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
         credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
-        if (walletRestoreViewModel.type != WalletType.decred) {
+        if (!walletRestoreViewModel.onlyViewKeyRestore) {
           credentials['address'] =
               walletRestoreFromKeysFormKey.currentState!.addressController.text;
           credentials['spendKey'] =
@@ -519,7 +519,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
         }
       },
       onViewKeyEntered: (bool entered) {
-        if (walletRestoreViewModel.type == WalletType.decred) {
+        if (widget.walletRestoreViewModel.onlyViewKeyRestore) {
           walletRestoreViewModel.isButtonEnabled = entered;
         }
       },
@@ -536,7 +536,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
       key: widget.walletRestoreFromSeedFormKey,
       restoredWallet: walletRestoreViewModel.restoredWallet,
       seedSettingsViewModel: widget.seedSettingsViewModel,
-      displayBlockHeightSelector: widget.walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
+      displayBlockHeightSelector: widget.walletRestoreViewModel.hasBlockchainHeightSelector,
       displayLanguageSelector: widget.walletRestoreViewModel.hasSeedLanguageSelector,
       type: widget.walletRestoreViewModel.type,
       blockHeightFocusNode: widget.blockHeightFocusNode,
@@ -563,7 +563,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
   }
 
   void _validateOnChange({bool isPolyseed = false}) {
-    if (!isPolyseed && walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+    if (!isPolyseed && walletRestoreViewModel.hasBlockchainHeightSelector) {
       final hasHeight = walletRestoreFromSeedFormKey
           .currentState?.blockchainHeightKey.currentState?.restoreHeightController.text.isNotEmpty;
 
