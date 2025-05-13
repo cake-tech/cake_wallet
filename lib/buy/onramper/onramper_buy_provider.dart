@@ -11,7 +11,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -61,9 +60,15 @@ class OnRamperBuyProvider extends BuyProvider {
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
 
-    final params = {'type': isBuyAction ? 'buy' : 'sell'};
+    final normalizedCryptoCurrency =
+        cryptoCurrency.title + _getNormalizeNetwork(cryptoCurrency);
 
-    final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$fiatCurrency', params);
+    final sourceCurrency = (isBuyAction ? fiatCurrency : normalizedCryptoCurrency).toLowerCase();
+    final destinationCurrency = (isBuyAction ? normalizedCryptoCurrency : fiatCurrency).toLowerCase();
+
+    final params = {'type': isBuyAction ? 'buy' : 'sell', 'destination' : destinationCurrency};
+
+    final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$sourceCurrency', params);
 
     try {
       final response =
@@ -76,7 +81,9 @@ class OnRamperBuyProvider extends BuyProvider {
             .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
             .toList();
       } else {
-        printV('Failed to fetch available payment types');
+        final responseBody =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        printV('Failed to fetch available payment types: ${responseBody['message']}');
         return [];
       }
     } catch (e) {
@@ -242,7 +249,7 @@ class OnRamperBuyProvider extends BuyProvider {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      throw Exception('Could not launch URL');
+      throw Exception('Could not launch URL ${uri.toString()}');
     }
   }
 
@@ -276,7 +283,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
     if (currency.tag != null) return '_' + _tagToNetwork(currency.tag!);
 
-    return '_' + (currency.fullName?.replaceAll(' ', '') ?? currency.title);;
+    return '_' + (currency.fullName?.replaceAll(' ', '') ?? currency.title);
   }
 
   String? normalizePaymentMethod(PaymentType paymentType) {

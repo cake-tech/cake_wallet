@@ -17,6 +17,8 @@ PODS:
     - OrderedSet (~> 6.0.3)
   - flutter_local_authentication (1.2.0):
     - FlutterMacOS
+  - flutter_local_notifications (0.0.1):
+    - FlutterMacOS
   - flutter_secure_storage_macos (6.1.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
@@ -28,7 +30,6 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - ReachabilitySwift (5.2.4)
   - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
@@ -53,6 +54,7 @@ DEPENDENCIES:
   - fast_scanner (from `Flutter/ephemeral/.symlinks/plugins/fast_scanner/macos`)
   - flutter_inappwebview_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos`)
   - flutter_local_authentication (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_authentication/macos`)
+  - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - in_app_review (from `Flutter/ephemeral/.symlinks/plugins/in_app_review/macos`)
@@ -68,7 +70,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - OrderedSet
-    - ReachabilitySwift
 
 EXTERNAL SOURCES:
   connectivity_plus:
@@ -87,6 +88,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_inappwebview_macos/macos
   flutter_local_authentication:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_authentication/macos
+  flutter_local_notifications:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   flutter_secure_storage_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos
   FlutterMacOS:
@@ -111,21 +114,20 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos
 
 SPEC CHECKSUMS:
-  connectivity_plus: e74b9f74717d2d99d45751750e266e55912baeb5
-  cw_decred: 246ada7e0020a6b29e769f7a26653fcfc0ad752f
-  cw_mweb: 4746a3b5cc5bd4afe6fadd2481c4f7b239e391d0
-  device_info_plus: b0fafc687fb901e2af612763340f1b0d4352f8e5
-  devicelocale: 456a07c045d3113938aa4983065bd8526e2af792
-  fast_scanner: a4ead8e56f185cd565e25250fdb97fa669ea1d2e
-  flutter_inappwebview_macos: c2d68649f9f8f1831bfcd98d73fd6256366d9d1d
-  flutter_local_authentication: 2f9a2682f498abcc12d7e9729b5007a947170fdc
-  flutter_secure_storage_macos: 3dacac420d84c4d0dc5e868194ee43c8664ec797
+  connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
+  cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
+  device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
+  devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
+  fast_scanner: d31bae07e2653403a69dac99fb710c1722b16a97
+  flutter_inappwebview_macos: bdf207b8f4ebd58e86ae06cd96b147de99a67c9b
+  flutter_local_authentication: 85674893931e1c9cfa7c9e4f5973cb8c56b018b0
+  flutter_local_notifications: 4ccab5b7a22835214a6672e3f9c5e8ae207dab36
+  flutter_secure_storage_macos: d56e2d218c1130b262bef8b4a7d64f88d7f9c9ea
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   in_app_review: 0599bccaed5e02f6bed2b0d30d16f86b63ed8638
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: f0052d280d17aa382b932f399edf32507174e870
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
-  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   sp_scanner: d9316427b628dd86d6e9e3c5d42ed6b4b410157c

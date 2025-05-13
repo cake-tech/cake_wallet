@@ -47,10 +47,10 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   String get title => 'SwapTrade';
 
   @override
-  bool get isAvailable => true;
+  bool get isAvailable => false;
 
   @override
-  bool get isEnabled => true;
+  bool get isEnabled => false;
 
   @override
   bool get supportsFixedRate => false;
@@ -59,7 +59,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
   @override
-  Future<bool> checkIsAvailable() async => true;
+  Future<bool> checkIsAvailable() async => false;
 
   @override
   Future<Limits> fetchLimits({

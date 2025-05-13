@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -14,6 +16,7 @@ import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -52,6 +55,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
 
@@ -587,7 +591,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
                 transactionNote: note,
               ));
       }
-
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name), DateTime.now().add(Duration(minutes: 1)).toIso8601String());
+      unawaited(wallet.fetchTransactions());
       state = TransactionCommitted();
     } catch (e) {
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
@@ -613,6 +619,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          payjoinUri: _settingsStore.usePayjoin ? payjoinUri : null,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
@@ -849,4 +856,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return false;
   }
+
+  @computed
+  bool get usePayjoin => _settingsStore.usePayjoin;
+
+  @observable
+  String? payjoinUri;
 }

@@ -251,7 +251,7 @@ abstract class OutputBase with Store {
       sendAll = false;
     }
 
-    cryptoAmount = amount;
+    cryptoAmount = amount.replaceAll(',', '.');
     _updateFiatAmount();
   }
 

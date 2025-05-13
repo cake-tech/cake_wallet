@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -14,11 +13,11 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
@@ -30,9 +29,12 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -51,6 +53,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../themes/theme_base.dart';
@@ -70,6 +73,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
+      required this.payjoinTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = true,
@@ -180,7 +184,7 @@ abstract class DashboardViewModelBase with Store {
     isShowThirdYatIntroduction = false;
     unawaited(isBackgroundSyncEnabled());
     unawaited(isBatteryOptimizationEnabled());
-
+    unawaited(_loadConstraints());
     final _wallet = wallet;
 
     if (_wallet.type == WalletType.monero) {
@@ -271,10 +275,19 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    _transactionDisposer = reaction(
-      (_) => appStore.wallet!.transactionHistory.transactions.length,
-      _transactionDisposerCallback,
-    );
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -399,9 +412,16 @@ abstract class DashboardViewModelBase with Store {
       ordersStore.orders.where((item) => item.order.walletId == wallet.id).toList();
 
   @computed
-  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
-      .where((item) => item.transaction.walletId == wallet.id)
-      .toList();
+  List<AnonpayTransactionListItem> get anonpayTransactions =>
+      anonpayTransactionsStore.transactions
+          .where((item) => item.transaction.walletId == wallet.id)
+          .toList();
+
+  @computed
+  List<PayjoinTransactionListItem> get payjoinTransactions =>
+      payjoinTransactionsStore.transactions
+          .where((item) => item.session.walletId == wallet.id)
+          .toList();
 
   @computed
   double get price => balanceViewModel.price;
@@ -414,10 +434,26 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(
-        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
+    _items.addAll(transactionFilterStore
+        .filtered(transactions: [...transactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
+
+    if (payjoinTransactions.isNotEmpty) {
+      final _payjoinTransactions = payjoinTransactions;
+      _items.forEach((e) {
+        if (e is TransactionListItem &&
+            _payjoinTransactions
+                .any((t) => t.session.txId == e.transaction.id)) {
+          _payjoinTransactions
+              .firstWhere((t) => t.session.txId == e.transaction.id)
+              .transaction = e.transaction;
+        }
+      });
+      _items.addAll(_payjoinTransactions);
+      _items.removeWhere((e) => (e is TransactionListItem &&
+          _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)));
+    }
 
     return formattedItemsList(_items);
   }
@@ -534,6 +570,90 @@ abstract class DashboardViewModelBase with Store {
     final resp = await FlutterDaemon().getBackgroundSyncStatus();
     backgroundSyncEnabled = resp;
     return resp;
+  }
+
+  @observable
+  late bool backgroundSyncNotificationsEnabled =
+      sharedPreferences.getBool(PreferencesKey.backgroundSyncNotificationsEnabled) ?? false;
+
+  @action
+  Future<void> setBackgroundSyncNotificationsEnabled(bool value) async {
+    if (!value) {
+      backgroundSyncNotificationsEnabled = false;
+      sharedPreferences.setBool(PreferencesKey.backgroundSyncNotificationsEnabled, false);
+      return;
+    }
+    PermissionStatus permissionStatus = await Permission.notification.status;
+    if (permissionStatus != PermissionStatus.granted) {
+      final resp = await Permission.notification.request();
+      if (resp == PermissionStatus.denied) {
+        throw Exception("Notification permission denied");
+      }
+    }
+    backgroundSyncNotificationsEnabled = value;
+    await sharedPreferences.setBool(PreferencesKey.backgroundSyncNotificationsEnabled, value);
+  }
+
+  bool get hasBgsyncNetworkConstraints => Platform.isAndroid;
+  bool get hasBgsyncBatteryNotLowConstraints => Platform.isAndroid;
+  bool get hasBgsyncChargingConstraints => Platform.isAndroid;
+  bool get hasBgsyncDeviceIdleConstraints => Platform.isAndroid;
+
+  @observable
+  bool backgroundSyncNetworkUnmetered = false;
+
+  @observable
+  bool backgroundSyncBatteryNotLow = false;
+
+  @observable
+  bool backgroundSyncCharging = false;
+
+  @observable
+  bool backgroundSyncDeviceIdle = false;
+
+  Future<void> _loadConstraints() async {
+    if (Platform.isAndroid) {
+      backgroundSyncNetworkUnmetered = await FlutterDaemon().getNetworkType();
+      backgroundSyncBatteryNotLow = await FlutterDaemon().getBatteryNotLow();
+      backgroundSyncCharging = await FlutterDaemon().getRequiresCharging();
+      backgroundSyncDeviceIdle = await FlutterDaemon().getDeviceIdle();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncNetworkUnmetered(bool value) async {
+    backgroundSyncNetworkUnmetered = value;
+    await FlutterDaemon().setNetworkType(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncBatteryNotLow(bool value) async {
+    backgroundSyncBatteryNotLow = value;
+    await FlutterDaemon().setBatteryNotLow(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncCharging(bool value) async {
+    backgroundSyncCharging = value;
+    await FlutterDaemon().setRequiresCharging(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
+  }
+
+  @action
+  Future<void> setBackgroundSyncDeviceIdle(bool value) async {
+    backgroundSyncDeviceIdle = value;
+    await FlutterDaemon().setDeviceIdle(value);
+    if (await isBackgroundSyncEnabled()) {
+      await enableBackgroundSync();
+    }
   }
 
   bool get hasBatteryOptimization => Platform.isAndroid;
@@ -661,6 +781,8 @@ abstract class DashboardViewModelBase with Store {
   AnonpayTransactionsStore anonpayTransactionsStore;
 
   TransactionFilterStore transactionFilterStore;
+
+  PayjoinTransactionsStore payjoinTransactionsStore;
 
   Map<String, List<FilterItem>> filterItems;
 
@@ -808,8 +930,19 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
 
-    _transactionDisposer = reaction((_) => appStore.wallet!.transactionHistory.transactions.length,
-        _transactionDisposerCallback);
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
   }
 
   @action

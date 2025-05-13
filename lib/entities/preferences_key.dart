@@ -84,6 +84,7 @@ class PreferencesKey {
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const usePayjoin = 'use_payjoin';
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
 
@@ -107,4 +108,6 @@ class PreferencesKey {
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
+  static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
+  static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
 }

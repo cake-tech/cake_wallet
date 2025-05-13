@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'dart:ui';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:mobx/mobx.dart';
@@ -308,9 +307,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!context.mounted) {
-            return;
-          }
+          if (!mounted) return;
 
           await showModalBottomSheet<void>(
             context: context,
@@ -324,10 +321,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
                   actionButton: () {
                     Navigator.of(bottomSheetContext).pop();
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                      Routes.dashboard,
-                      (route) => false,
-                    );
+                    if (mounted) {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        Routes.dashboard,
+                        (route) => false,
+                      );
+                    }
                     RequestReviewHandler.requestReview();
                   });
             },

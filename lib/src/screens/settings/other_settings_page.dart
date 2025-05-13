@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/setting_priority_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
 import 'package:cake_wallet/tari/tari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -76,6 +75,24 @@ class OtherSettingsPage extends BasePage {
                   title: '[dev] xmr call profiler',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] shared preferences',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSharedPreferences),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] secure storage preferences',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSecurePreferences),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] background sync logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
                 ),
               if (_otherSettingsViewModel.walletType == WalletType.tari)
                 SettingsSwitcherCell(

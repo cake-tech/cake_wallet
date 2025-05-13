@@ -20,7 +20,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
-  static const _coolDownDurationInDays = 7;
+  static const _coolDownDurationInDays =
+      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode) ? 0 : 7;
   static File? _file;
 
   static Future<void> _saveException(String? error, StackTrace? stackTrace,
@@ -224,12 +225,14 @@ class ExceptionHandler {
     // just ignoring until we find a solution to this issue or migrate from flutter secure storage
     "core/auth_service.dart:64",
     "core/key_service.dart:14",
-    "core/wallet_loading_service.dart:131",
+    "core/wallet_loading_service.dart:134",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
+    final appName = packageInfo.appName;
+    final package = packageInfo.packageName;
 
     final deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, dynamic> deviceInfo = {};
@@ -252,7 +255,7 @@ class ExceptionHandler {
     }
 
     await file.writeAsString(
-      "App Version: $currentVersion\n\nDevice Info $deviceInfo\n\n",
+      "App Version: $currentVersion\nApp Name: $appName\nPackage: $package\n\nDevice Info $deviceInfo\n\n",
       mode: FileMode.append,
     );
   }
