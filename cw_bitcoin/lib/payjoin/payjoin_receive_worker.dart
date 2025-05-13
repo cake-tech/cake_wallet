@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -101,7 +102,8 @@ class PayjoinReceiverWorker {
       http.Client httpClient, Receiver session) async {
     while (true) {
       printV("Polling for Proposal (${session.id()})");
-      final extractReq = await session.extractReq();
+      final extractReq = await session.extractReq(
+          ohttpRelay: PayjoinManager.randomOhttpRelayUrl());
       final request = extractReq.$1;
 
       final url = Uri.parse(request.url.asString());
@@ -116,7 +118,8 @@ class PayjoinReceiverWorker {
 
   Future<String> sendFinalProposal(
       http.Client httpClient, PayjoinProposal finalProposal) async {
-    final req = await finalProposal.extractV2Req();
+    final req = await finalProposal.extractReq(
+        ohttpRelay: PayjoinManager.randomOhttpRelayUrl());
     final proposalReq = req.$1;
     final proposalCtx = req.$2;
 
