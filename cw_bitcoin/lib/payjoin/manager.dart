@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_persister.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_send_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
@@ -16,6 +17,8 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
 import 'package:payjoin_flutter/send.dart';
+import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
+import 'package:payjoin_flutter/src/config.dart' as pj_config;
 import 'package:payjoin_flutter/uri.dart' as PayjoinUri;
 
 class PayjoinManager {
@@ -31,10 +34,12 @@ class PayjoinManager {
     'https://ohttp.cakewallet.com',
   ];
 
-  static Future<PayjoinUri.Url> randomOhttpRelayUrl() => PayjoinUri.Url.fromStr(
-      ohttpRelayUrls[Random.secure().nextInt(ohttpRelayUrls.length)]);
+  static String randomOhttpRelayUrl() =>
+      ohttpRelayUrls[Random.secure().nextInt(ohttpRelayUrls.length)];
 
   static const payjoinDirectoryUrl = 'https://payjo.in';
+
+  Future<void> initPayjoin() => pj_config.PConfig.initializeApp();
 
   Future<void> resumeSessions() async {
     final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
@@ -66,7 +71,12 @@ class PayjoinManager {
         psbtBase64: originalPsbt,
         pjUri: pjUri,
       );
-      return senderBuilder.buildRecommended(minFeeRate: minFeeRateSatPerKwu);
+      final persister = PayjoinSenderPersister.impl();
+      final newSender =
+          await senderBuilder.buildRecommended(minFeeRate: minFeeRateSatPerKwu);
+      final senderToken = await newSender.persist(persister: persister);
+
+      return Sender.load(token: senderToken, persister: persister);
     } catch (e) {
       throw Exception('Error initializing Payjoin Sender: $e');
     }
@@ -143,21 +153,21 @@ class PayjoinManager {
   Future<Receiver> initReceiver(String address,
       [bool isTestnet = false]) async {
     try {
-      final payjoinDirectory =
-          await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
-
       final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
         ohttpRelay: await randomOhttpRelayUrl(),
-        payjoinDirectory: payjoinDirectory,
+        payjoinDirectory: payjoinDirectoryUrl,
       );
 
-      final receiver = await Receiver.create(
+      final newReceiver = await NewReceiver.create(
         address: address,
         network: isTestnet ? Network.testnet : Network.bitcoin,
-        directory: payjoinDirectory,
+        directory: payjoinDirectoryUrl,
         ohttpKeys: ohttpKeys,
-        ohttpRelay: await randomOhttpRelayUrl(),
       );
+      final persister = PayjoinReceiverPersister.impl();
+      final receiverToken = await newReceiver.persist(persister: persister);
+      final receiver =
+          await Receiver.load(persister: persister, token: receiverToken);
 
       await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
 
@@ -195,7 +205,8 @@ class PayjoinManager {
               rawAmount = getOutputAmountFromTx(tx, _wallet);
               break;
             case PayjoinReceiverRequestTypes.checkIsOwned:
-              (_wallet.walletAddresses as BitcoinWalletAddresses).newPayjoinReceiver();
+              (_wallet.walletAddresses as BitcoinWalletAddresses)
+                  .newPayjoinReceiver();
               _payjoinStorage.markReceiverSessionInProgress(receiver.id());
 
               final inputScript = message['input_script'] as Uint8List;

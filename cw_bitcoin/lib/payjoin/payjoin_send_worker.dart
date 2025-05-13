@@ -9,6 +9,8 @@ import 'package:http/http.dart' as http;
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/send.dart';
 import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
+import 'package:payjoin_flutter/src/generated/api/send/error.dart' as pj_error;
+import 'package:payjoin_flutter/uri.dart' as pj_uri;
 
 enum PayjoinSenderRequestTypes {
   requestPosted,
@@ -51,9 +53,7 @@ class PayjoinSenderWorker {
       return await _runSenderV2(sender, httpClient);
     } catch (e) {
       printV(e);
-      if (e is PayjoinException &&
-          // TODO condition on error type instead of message content
-          e.message?.contains('parse receiver public key') == true) {
+      if (e is pj_error.FfiCreateRequestError) {
         return await _runSenderV1(sender, httpClient);
       } else if (e is HttpException) {
         printV(e);
@@ -68,7 +68,8 @@ class PayjoinSenderWorker {
   Future<String> _runSenderV2(Sender sender, http.Client httpClient) async {
     try {
       final postRequest = await sender.extractV2(
-        ohttpProxyUrl: await PayjoinManager.randomOhttpRelayUrl(),
+        ohttpProxyUrl:
+            await pj_uri.Url.fromStr(PayjoinManager.randomOhttpRelayUrl()),
       );
 
       final postResult = await _postRequest(httpClient, postRequest.$1);
