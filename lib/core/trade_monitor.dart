@@ -21,6 +21,9 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 
 class TradeMonitor {
+  static const int _tradeCheckIntervalMinutes = 1;
+  static const int _maxTradeAgeHours = 24;
+  
   TradeMonitor({
     required this.tradesStore,
     required this.settingsStore,
@@ -31,7 +34,6 @@ class TradeMonitor {
   final Box<Trade> trades;
   final SettingsStore settingsStore;
   final Map<String, Timer> _tradeTimers = {};
-  static const int _tradeCheckInterval = 1;
 
   ExchangeProvider? _getProviderByDescription(ExchangeProviderDescription description) {
     switch (description) {
@@ -64,85 +66,123 @@ class TradeMonitor {
   void monitorActiveTrades(String walletId) {
     final now = DateTime.now();
     final trades = tradesStore.trades;
+    final tradesToCancel = <String>[];
 
     for (final item in trades) {
       final trade = item.trade;
-
-      if (trade.walletId != walletId) continue;
-
-      final createdAt = trade.createdAt;
-      if (createdAt == null) continue;
-
-      if (now.difference(createdAt).inHours > 24) continue;
-
-      if (_isFinalState(trade.state)) continue;
+      
+      if (_shouldCancelTradeTimer(trade, walletId, now)) {
+        if (_tradeTimers.containsKey(trade.id)) {
+          tradesToCancel.add(trade.id);
+        }
+        continue;
+      }
 
       if (!_tradeTimers.containsKey(trade.id)) {
         printV('Starting trade monitoring for ${trade.id}');
         _startTradeMonitoring(trade);
       }
     }
+
+    _cancelTradeTimers(tradesToCancel);
+  }
+
+  bool _shouldCancelTradeTimer(Trade trade, String walletId, DateTime now) {
+    if (trade.walletId != walletId) return true;
+    
+    final createdAt = trade.createdAt;
+    if (createdAt == null) return true;
+    
+    if (now.difference(createdAt).inHours > _maxTradeAgeHours) return true;
+    
+    return _isFinalState(trade.state);
   }
 
   void _startTradeMonitoring(Trade trade) {
     if (_tradeTimers.containsKey(trade.id)) return;
 
-    final provider = _getProviderByDescription(trade.provider);
-    if (provider == null) {
-      printV('No provider found for trade ${trade.id}');
-      return;
-    }
-
     _checkTradeStatus(trade);
 
-    final timer = Timer.periodic(Duration(minutes: _tradeCheckInterval), (_) {
-      _checkTradeStatus(trade);
-    });
+    final timer = Timer.periodic(
+      Duration(minutes: _tradeCheckIntervalMinutes), 
+      (_) => _checkTradeStatus(trade)
+    );
 
     _tradeTimers[trade.id] = timer;
   }
 
   Future<void> _checkTradeStatus(Trade trade) async {
     printV('Checking trade status for ${trade.id}');
+    
+    if (_isTradeOld(trade)) {
+      printV('The trade ${trade.id} is older than $_maxTradeAgeHours hours, we will cancel the timer');
+      _cancelTradeTimer(trade.id);
+      return;
+    }
+
     final provider = _getProviderByDescription(trade.provider);
     if (provider == null) {
       printV('No provider found for trade ${trade.id}');
       return;
     }
 
-    final exchangeApiMode = settingsStore.exchangeStatus;
-
-    if (exchangeApiMode == ExchangeApiMode.disabled) {
-      printV('Exchange API mode is disabled');
-      return;
-    }
-
-    if (exchangeApiMode == ExchangeApiMode.torOnly && !provider.supportsOnionAddress) {
-      printV('Skipping ${trade.provider}, no TOR support');
+    if (!_isExchangeModeEnabled(provider)) {
       return;
     }
 
     try {
-      final updated = await provider.findTradeById(id: trade.id);
-      trade
-        ..stateRaw = updated.state.raw
-        ..receiveAmount = updated.receiveAmount
-        ..outputTransaction = updated.outputTransaction;
-      printV('Trade ${trade.id} updated: ${trade.state}');
-      await trade.save();
-
-      if (_isFinalState(updated.state)) {
-        printV('Trade ${trade.id} is in final state');
-        _cancelTradeTimer(trade.id);
-      }
+      await _updateTradeStatus(trade, provider);
     } catch (e) {
       printV('Error fetching status for ${trade.id}: $e');
+    }
+  }
+
+  bool _isTradeOld(Trade trade) {
+    final now = DateTime.now();
+    final createdAt = trade.createdAt;
+    return createdAt != null && now.difference(createdAt).inHours > _maxTradeAgeHours;
+  }
+
+  bool _isExchangeModeEnabled(ExchangeProvider provider) {
+    final exchangeApiMode = settingsStore.exchangeStatus;
+
+    if (exchangeApiMode == ExchangeApiMode.disabled) {
+      printV('Exchange API mode is disabled');
+      return false;
+    }
+
+    if (exchangeApiMode == ExchangeApiMode.torOnly && !provider.supportsOnionAddress) {
+      printV('Skipping ${provider.description}, no TOR support');
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> _updateTradeStatus(Trade trade, ExchangeProvider provider) async {
+    final updated = await provider.findTradeById(id: trade.id);
+    trade
+      ..stateRaw = updated.state.raw
+      ..receiveAmount = updated.receiveAmount
+      ..outputTransaction = updated.outputTransaction;
+    printV('Trade ${trade.id} updated: ${trade.state}');
+    await trade.save();
+
+    if (_isFinalState(updated.state)) {
+      printV('Trade ${trade.id} is in final state');
+      _cancelTradeTimer(trade.id);
     }
   }
 
   void _cancelTradeTimer(String tradeId) {
     _tradeTimers[tradeId]?.cancel();
     _tradeTimers.remove(tradeId);
+  }
+
+  void _cancelTradeTimers(List<String> tradeIds) {
+    for (final tradeId in tradeIds) {
+      _cancelTradeTimer(tradeId);
+    }
   }
 
   void cancelAllTradeTimers() {
