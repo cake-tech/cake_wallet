@@ -593,7 +593,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
       final sharedPreferences = await SharedPreferences.getInstance();
       await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name), DateTime.now().add(Duration(minutes: 1)).toIso8601String());
-      unawaited(wallet.fetchTransactions());
+      unawaited(() {
+        try {
+          wallet.fetchTransactions();
+        } catch (e) {
+          printV(e);
+        }
+      }());
       state = TransactionCommitted();
     } catch (e) {
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
