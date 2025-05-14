@@ -224,19 +224,11 @@ class MoneroWalletService extends WalletService<
       final wmaddr = wmPtr.ffiAddress();
       final waddr = w.ffiAddress();
       openedWalletsByPath.remove("$path/$wallet");
-      if (Platform.isWindows) {
-        await Isolate.run(() {
+        // await Isolate.run(() {
           monero.WalletManager_closeWallet(
               Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
           monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-        });
-      } else {
-        unawaited(Isolate.run(() {
-          monero.WalletManager_closeWallet(
-              Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-          monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-        }));
-      }
+        // });
       printV("wallet closed");
     }
 
