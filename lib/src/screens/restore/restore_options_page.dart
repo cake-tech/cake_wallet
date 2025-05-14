@@ -64,7 +64,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     final mainImageColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
     final brightImageColor = Theme.of(context).extension<InfoTheme>()!.textColor;
     final imageColor = widget.themeType == ThemeType.bright ? brightImageColor : mainImageColor;
-    final imageLedger = Image.asset('assets/images/hardware_wallet/ledger_nano_x.png', width: 40, color: imageColor);
+    final imageLedger = Image.asset('assets/images/hardware_wallet/ledger_nano_x.png',
+        width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
     final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
 
@@ -78,9 +79,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
               children: <Widget>[
                 OptionTile(
                   key: ValueKey('restore_options_from_seeds_or_keys_button_key'),
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    Routes.restoreWalletFromSeedKeys),
+                  onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletFromSeedKeys),
                   image: imageSeedKeys,
                   title: S.of(context).restore_title_from_seed_keys,
                   description: S.of(context).restore_description_from_seed_keys,
@@ -101,26 +100,27 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_hardware_wallet_button_key'),
-                      onPressed: () => Navigator.pushNamed(
-                          context, Routes.restoreWalletFromHardwareWallet),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, Routes.restoreWalletFromHardwareWallet),
                       image: imageLedger,
                       title: S.of(context).restore_title_from_hardware_wallet,
                       description: S.of(context).restore_description_from_hardware_wallet,
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: OptionTile(
-                      key: ValueKey('restore_options_from_qr_button_key'),
-                      onPressed: () => _onScanQRCode(context),
-                      icon: Icon(
-                        Icons.qr_code_rounded,
-                        color: imageColor,
-                        size: 50,
-                      ),
-                      title: S.of(context).scan_qr_code,
-                      description: S.of(context).cold_or_recover_wallet),
-                )
+                if (DeviceInfo.instance.isMobile)
+                  Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: OptionTile(
+                        key: ValueKey('restore_options_from_qr_button_key'),
+                        onPressed: () => _onScanQRCode(context),
+                        icon: Icon(
+                          Icons.qr_code_rounded,
+                          color: imageColor,
+                          size: 50,
+                        ),
+                        title: S.of(context).scan_qr_code,
+                        description: S.of(context).cold_or_recover_wallet),
+                  )
               ],
             ),
           )),
@@ -145,7 +145,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
   Future<void> _onScanQRCode(BuildContext context) async {
     final isCameraPermissionGranted =
-    await PermissionHandler.checkPermission(Permission.camera, context);
+        await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
     try {

@@ -20,7 +20,7 @@ class ListRow extends StatelessWidget {
   final String value;
   final double titleFontSize;
   final double valueFontSize;
-  final Image? image;
+  final Widget? image;
   final EdgeInsetsGeometry? padding;
   final Color? color;
   final Color? hintTextColor;

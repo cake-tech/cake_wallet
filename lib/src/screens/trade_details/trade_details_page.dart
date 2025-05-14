@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -59,9 +60,31 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
             final item = tradeDetailsViewModel.items[index];
 
             if (item is TrackTradeListItem)
-              return GestureDetector(
+              return ListRow(
+                title: '${item.title}',
+                value: '${item.value}',
+                textWidget: GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: '${item.value}'));
+                    showBar<void>(context, S.of(context).copied_to_clipboard);
+                  },
+                  child: Text(
+                    '${item.value}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    ),
+                  ),
+                ),
+                image: GestureDetector(
                   onTap: item.onTap,
-                  child: ListRow(title: '${item.title}', value: '${item.value}'));
+                  child: Icon(
+                    Icons.launch_rounded,
+                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  ),
+                ),
+              );
 
             if (item is DetailsListStatusItem)
               return StandardListStatusRow(title: item.title, value: item.value);
