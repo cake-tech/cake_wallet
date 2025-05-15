@@ -118,6 +118,10 @@ class DecredWalletService extends WalletService<
             currentWalletInfo.derivationInfo?.derivationPath == pubkeyRestorePathTestnet
         ? testnet
         : mainnet;
+    if (libwallet == null) {
+      libwallet = await Libwallet.spawn();
+      libwallet!.initLibdcrwallet("", "err");
+    }
     final currentWallet = DecredWallet(
         currentWalletInfo, password, this.unspentCoinsInfoSource, libwallet!, closeLibwallet);
 

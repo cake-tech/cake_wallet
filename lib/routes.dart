@@ -15,6 +15,7 @@ class Routes {
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
+  static const payjoinDetails = '/transaction_info/payjoin';
   static const bumpFeePage = '/bump_fee_page';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
@@ -115,6 +116,7 @@ class Routes {
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
   static const devSharedPreferences = '/dev/shared_preferences';
+  static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
 
   static const signPage = '/sign_page';
