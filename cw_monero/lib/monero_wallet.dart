@@ -446,7 +446,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     // final status = monero.PendingTransaction_status(pendingTransactionDescription);
 
-    return PendingMoneroTransaction(pendingTransactionDescription);
+    return PendingMoneroTransaction(pendingTransactionDescription, this);
   }
 
   @override
