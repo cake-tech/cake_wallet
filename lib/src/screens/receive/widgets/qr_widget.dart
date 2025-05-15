@@ -210,24 +210,30 @@ class QRWidget extends StatelessWidget {
                 ),
               ),
             ),
-            if (addressListViewModel.payjoinEndpoint.isNotEmpty) ...[
-              Padding(
-                padding: EdgeInsets.only(top: 12),
-                child: PrimaryImageButton(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(
-                        text: addressListViewModel.payjoinEndpoint));
-                    showBar<void>(context, S.of(context).copied_to_clipboard);
-                  },
-                  image: Image.asset('assets/images/payjoin.png', width: 25,),
-                  text: S.of(context).copy_payjoin_url,
-                  color: Theme.of(context).cardColor,
-                  textColor: Theme.of(context)
-                      .extension<CakeTextTheme>()!
-                      .buttonTextColor,
+            Observer(
+              builder: (_) => Offstage(
+                offstage: addressListViewModel.payjoinEndpoint.isEmpty,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: PrimaryImageButton(
+                    onPressed: () {
+                      Clipboard.setData(
+                          ClipboardData(text: addressUri.toString()));
+                      showBar<void>(context, S.of(context).copied_to_clipboard);
+                    },
+                    image: Image.asset(
+                      'assets/images/payjoin.png',
+                      width: 25,
+                    ),
+                    text: S.of(context).copy_payjoin_url,
+                    color: Theme.of(context).cardColor,
+                    textColor: Theme.of(context)
+                        .extension<CakeTextTheme>()!
+                        .buttonTextColor,
+                  ),
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),
