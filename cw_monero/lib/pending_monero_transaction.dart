@@ -7,6 +7,7 @@ import 'package:cw_core/amount_converter.dart';
 
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/monero_wallet.dart';
 
 class DoubleSpendException implements Exception {
   DoubleSpendException();
@@ -17,9 +18,10 @@ class DoubleSpendException implements Exception {
 }
 
 class PendingMoneroTransaction with PendingTransaction {
-  PendingMoneroTransaction(this.pendingTransactionDescription);
+  PendingMoneroTransaction(this.pendingTransactionDescription, this.wallet);
 
   final PendingTransactionDescription pendingTransactionDescription;
+  final MoneroWalletBase wallet;
 
   @override
   String get id => pendingTransactionDescription.hash;
@@ -54,6 +56,7 @@ class PendingMoneroTransaction with PendingTransaction {
 
       rethrow;
     }
+    await wallet.fetchTransactions();
     storeSync(force: true);
   }
 
@@ -63,6 +66,8 @@ class PendingMoneroTransaction with PendingTransaction {
       final ret = monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
           useUR: true);
+      await wallet.fetchTransactions();
+      storeSync(force: true);
       return ret;
     } catch (e) {
       final message = e.toString();
