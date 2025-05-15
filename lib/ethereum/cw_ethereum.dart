@@ -212,4 +212,9 @@ class CWEthereum extends Ethereum {
   List<String> getDefaultTokenContractAddresses() {
     return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
   }
+
+  // Integrations
+  Future<BigInt> getDEuroSavingsBalance(WalletBase wallet) {
+    return deuro.getSavingsBalance((wallet as EthereumWallet));
+  }
 }

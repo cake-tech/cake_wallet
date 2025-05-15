@@ -696,6 +696,7 @@ import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
+import 'package:cw_ethereum/deuro/deuro_savings.dart' as deuro;
 
 import 'package:eth_sig_util/util/utils.dart';
 
@@ -743,6 +744,8 @@ abstract class Ethereum {
   void updateEtherscanUsageState(WalletBase wallet, bool isEnabled);
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
+
+  Future<BigInt> getDEuroSavingsBalance(WalletBase wallet);
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
