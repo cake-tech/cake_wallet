@@ -5,8 +5,8 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/theme_type_images.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/utils/theme_type_images.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
   });
 
   final WalletGroupsDisplayViewModel walletGroupsDisplayViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +159,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
 class WalletGroupEmptyStateWidget extends StatelessWidget {
   const WalletGroupEmptyStateWidget({required this.currentTheme, super.key});
 
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {

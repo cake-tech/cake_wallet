@@ -1,7 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
@@ -37,7 +37,7 @@ class AddressCell extends StatelessWidget {
     required Color backgroundColor,
     required Color textColor,
     required WalletType walletType,
-    required ThemeBase currentTheme,
+    required MaterialThemeBase currentTheme,
     Function(String)? onTap,
     bool hasBalance = false,
     bool hasReceived = false,
@@ -73,7 +73,7 @@ class AddressCell extends StatelessWidget {
   final Color backgroundColor;
   final Color textColor;
   final WalletType walletType;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final Function(String)? onTap;
   final Function()? onEdit;
   final Function()? onHide;

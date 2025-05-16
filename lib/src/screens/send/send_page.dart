@@ -26,10 +26,9 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -192,7 +191,7 @@ class SendPage extends BasePage {
           KeyboardActions(
             config: KeyboardActionsConfig(
               keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-              keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+              keyboardBarColor: Theme.of(context).colorScheme.surface,
               nextFocus: false,
               actions: keyboardActions,
             ),

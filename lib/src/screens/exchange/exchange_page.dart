@@ -1,15 +1,12 @@
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -160,7 +157,7 @@ class ExchangePage extends BasePage {
         disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+            keyboardBarColor: Theme.of(context).colorScheme.surfaceVariant,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -220,7 +217,7 @@ class ExchangePage extends BasePage {
                             child: Container(
                               alignment: Alignment.centerRight,
                               child: Icon(Icons.warning_amber_rounded,
-                                color: Theme.of(context).extension<ExchangePageTheme>()!.receiveAmountColor,
+                                color: Theme.of(context).colorScheme.error,
                                 size: 26),
                             ),
                           ),
@@ -232,12 +229,9 @@ class ExchangePage extends BasePage {
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 3,
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .extension<ExchangePageTheme>()!
-                                    .receiveAmountColor,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 12,
                               ),
                             ),
                           ),
@@ -279,8 +273,8 @@ class ExchangePage extends BasePage {
                               }
                             }
                           } : () => PresentProviderPicker(exchangeViewModel: exchangeViewModel).presentProviderPicker(context),
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
                           isDisabled: exchangeViewModel.selectedProviders.isEmpty,
                           isLoading: exchangeViewModel.tradeState is TradeIsCreating)),
                 ]),
@@ -690,10 +684,8 @@ class ExchangePage extends BasePage {
                 exchangeViewModel.changeDepositCurrency(currency: currency);
               },
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor:
-                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor:
-                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
+              addressButtonsColor: Theme.of(context).colorScheme.primary,
+              borderColor: Theme.of(context).colorScheme.outlineVariant,
               currencyValueValidator: (value) {
                 return !exchangeViewModel.isFixedRateMode && value != S.of(context).all
                     ? AmountValidator(
@@ -737,10 +729,8 @@ class ExchangePage extends BasePage {
               onCurrencySelected: (currency) =>
                   exchangeViewModel.changeReceiveCurrency(currency: currency),
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor:
-                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor:
-                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
+              addressButtonsColor: Theme.of(context).colorScheme.primary,
+              borderColor: Theme.of(context).colorScheme.outlineVariant,
               currencyValueValidator: (value) {
                 return exchangeViewModel.isFixedRateMode
                     ? AmountValidator(
@@ -764,14 +754,12 @@ class ExchangePage extends BasePage {
               },
             ));
 
-    if (responsiveLayoutUtil.shouldRenderMobileUI) {
-      return MobileExchangeCardsSection(
+    return responsiveLayoutUtil.shouldRenderMobileUI
+        ? MobileExchangeCardsSection(
         firstExchangeCard: firstExchangeCard,
         secondExchangeCard: secondExchangeCard,
-      );
-    }
-
-    return DesktopExchangeCardsSection(
+          )
+        : DesktopExchangeCardsSection(
       firstExchangeCard: firstExchangeCard,
       secondExchangeCard: secondExchangeCard,
     );

@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_auth_view_model.dart';
@@ -63,7 +62,7 @@ class CakePayVerifyOtpPage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+          keyboardBarColor: Theme.of(context).colorScheme.surface,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(

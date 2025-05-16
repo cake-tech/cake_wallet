@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -26,7 +26,7 @@ class LoadingBottomSheet extends BaseBottomSheet {
 }
 
 class InfoBottomSheet extends BaseBottomSheet {
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final String? contentImage;
   final Color? contentImageColor;
   final String? content;

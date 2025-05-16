@@ -1,4 +1,5 @@
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/route_aware.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +15,7 @@ abstract class BasePage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey;
 
   final Image closeButtonImage = Image.asset('assets/images/close_button.png');
-  final Image closeButtonImageDarkTheme =
-      Image.asset('assets/images/close_button_dark_theme.png');
+  final Image closeButtonImageDarkTheme = Image.asset('assets/images/close_button_dark_theme.png');
 
   String? get title => null;
 
@@ -45,25 +45,17 @@ abstract class BasePage extends StatelessWidget {
 
   Widget Function(BuildContext, Widget)? get rootWrapper => null;
 
-  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
+  MaterialThemeBase get currentTheme => getIt.get<ThemeStore>().currentTheme;
 
   void onOpenEndDrawer() => _scaffoldKey.currentState!.openEndDrawer();
 
   void onClose(BuildContext context) => Navigator.of(context).pop();
 
   Color pageBackgroundColor(BuildContext context) =>
-      (currentTheme.type == ThemeType.dark
-          ? backgroundDarkColor
-          : backgroundLightColor) ??
-      (gradientBackground && currentTheme.type == ThemeType.bright
-          ? Colors.transparent
-          : Theme.of(context).colorScheme.background);
+      (currentTheme.type == ThemeType.dark ? backgroundDarkColor : backgroundLightColor) ??
+      Theme.of(context).colorScheme.surface;
 
-  Color titleColor(BuildContext context) =>
-      (gradientBackground && currentTheme.type == ThemeType.bright) ||
-              (gradientAll && currentTheme.brightness == Brightness.light)
-          ? Colors.white
-          : Theme.of(context).appBarTheme.titleTextStyle!.color!;
+  Color titleColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
 
   Color? pageIconColor(BuildContext context) => titleColor(context);
 
@@ -95,9 +87,9 @@ abstract class BasePage extends StatelessWidget {
           child: Semantics(
             label: S.of(context).seed_alert_back,
             child: TextButton(
-              style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith(
-                    (states) => Colors.transparent),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: backButton(context),
@@ -113,11 +105,11 @@ abstract class BasePage extends StatelessWidget {
         ? null
         : Text(
             title!,
-            style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Lato',
-                color: titleColor(context)),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Lato',
+                  color: titleColor(context),
+                ),
           );
   }
 

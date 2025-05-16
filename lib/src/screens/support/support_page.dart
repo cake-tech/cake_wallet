@@ -2,13 +2,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:cake_wallet/themes/extensions/info_theme.dart';
-import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/view_model/support_view_model.dart';
+import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/view_model/support_view_model.dart';
 
 class SupportPage extends BasePage {
   SupportPage(this.supportViewModel);
@@ -31,9 +30,9 @@ class SupportPage extends BasePage {
   Widget body(BuildContext context) {
 
     final mainColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
-    final brightColor = Theme.of(context).extension<InfoTheme>()!.textColor;
+    final brightColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
-    final iconColor = currentTheme.type == ThemeType.bright ? brightColor : mainColor;
+    final iconColor = currentTheme.type == ThemeType.light ? brightColor : mainColor;
 
     return Container(
       child: Center(

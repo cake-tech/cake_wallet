@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -42,7 +42,7 @@ class SendCard extends StatefulWidget {
   final PaymentRequest? initialPaymentRequest;
   final FocusNode? cryptoAmountFocus;
   final FocusNode? fiatAmountFocus;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
 
   @override
@@ -74,7 +74,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
 
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final Output output;
   final SendViewModel sendViewModel;
   final PaymentRequest? initialPaymentRequest;
@@ -451,10 +451,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                             StandardCheckbox(
                               caption: S.of(context).litecoin_mweb_allow_coins,
                               captionColor: Colors.white,
-                              borderColor: currentTheme.type == ThemeType.bright
+                              borderColor: currentTheme.type == ThemeType.light
                                   ? Colors.white
                                   : Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                              iconColor: currentTheme.type == ThemeType.bright
+                              iconColor: currentTheme.type == ThemeType.light
                                   ? Colors.white
                                   : Theme.of(context).primaryColor,
                               value:

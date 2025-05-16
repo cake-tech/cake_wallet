@@ -1,4 +1,4 @@
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class WarningBox extends StatelessWidget {
@@ -6,7 +6,7 @@ class WarningBox extends StatelessWidget {
       : super(key: key);
 
   final String content;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
