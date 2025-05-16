@@ -4,7 +4,7 @@ import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -16,7 +16,7 @@ import 'base_bottom_sheet_widget.dart';
 
 class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final CryptoCurrency currency;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final String? paymentId;
   final String? paymentIdValue;
   final String? expirationTime;
@@ -71,7 +71,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
       fontSize: 12,
       fontFamily: 'Lato',
       fontWeight: FontWeight.w600,
-      color: currentTheme.type == ThemeType.bright
+      color: currentTheme.type == ThemeType.light
           ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
           : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
       decoration: TextDecoration.none,
@@ -79,8 +79,6 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
 
     final tileBackgroundColor = currentTheme.type == ThemeType.light
         ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
-        : currentTheme.type == ThemeType.oled
-        ? Colors.black.withOpacity(0.5)
         : Theme.of(context).extension<FilterTheme>()!.buttonColor;
 
     Widget content = Padding(
@@ -291,7 +289,7 @@ class AddressTile extends StatelessWidget {
   });
 
   final String itemTitle;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final TextStyle itemTitleTextStyle;
   final bool isBatchSending;
   final String amount;
@@ -319,15 +317,14 @@ class AddressTile extends StatelessWidget {
             ],
           ),
           AddressFormatter.buildSegmentedAddress(
-            address: address,
-            walletType: walletType,
-            evenTextStyle: TextStyle(
-                fontSize: 12,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                decoration: TextDecoration.none)
-          ),
+              address: address,
+              walletType: walletType,
+              evenTextStyle: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  decoration: TextDecoration.none)),
         ],
       ),
     );
@@ -350,7 +347,7 @@ class AddressExpansionTile extends StatelessWidget {
   });
 
   final String contactType;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final String name;
   final String address;
   final String amount;
@@ -407,8 +404,7 @@ class AddressExpansionTile extends StatelessWidget {
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                              decoration: TextDecoration.none)
-                      ),
+                              decoration: TextDecoration.none)),
                     ),
                   ],
                 ),

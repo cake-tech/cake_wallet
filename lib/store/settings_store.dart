@@ -26,15 +26,12 @@ import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -43,7 +40,6 @@ import 'package:cw_core/set_app_secure_native.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -79,7 +75,6 @@ abstract class SettingsStoreBase with Store {
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
       required ExchangeApiMode initialExchangeStatus,
-      required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
@@ -168,7 +163,6 @@ abstract class SettingsStoreBase with Store {
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         exchangeStatus = initialExchangeStatus,
-        currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
         languageCode = initialLanguageCode,
         shouldRequireTOTP2FAForAccessingWallet = initialShouldRequireTOTP2FAForAccessingWallet,
@@ -361,9 +355,6 @@ abstract class SettingsStoreBase with Store {
         (_) => fiatApiMode,
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
-
-    reaction((_) => currentTheme,
-        (ThemeBase theme) => sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
 
     reaction(
         (_) => numberOfFailedTokenTrials,
@@ -616,6 +607,8 @@ abstract class SettingsStoreBase with Store {
         _saveCurrentPowNode(change.newValue!, change.key!);
       }
     });
+
+
   }
 
   static const defaultPinLength = 4;
@@ -737,9 +730,6 @@ abstract class SettingsStoreBase with Store {
   ExchangeApiMode exchangeStatus;
 
   @observable
-  ThemeBase currentTheme;
-
-  @observable
   int pinCodeLength;
 
   @observable
@@ -747,9 +737,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   SeedPhraseLength seedPhraseLength;
-
-  @computed
-  ThemeData get theme => currentTheme.themeData;
 
   @observable
   String languageCode;
@@ -884,8 +871,7 @@ abstract class SettingsStoreBase with Store {
       required Box<Node> powNodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
-      ThemeBase? initialTheme}) async {
+      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final secureStorage = await getIt.get<SecureStorage>();
     final currentFiatCurrency = FiatCurrency.deserialize(
@@ -981,16 +967,6 @@ abstract class SettingsStoreBase with Store {
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
-    final int defaultTheme;
-    if (isNewInstall) {
-      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw;
-    } else {
-      defaultTheme = ThemeType.bright.index;
-    }
-    final savedTheme = initialTheme ??
-        ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? defaultTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1299,7 +1275,6 @@ abstract class SettingsStoreBase with Store {
       initialTotpSecretKey: totpSecretKey,
       initialFailedTokenTrial: tokenTrialNumber,
       initialExchangeStatus: exchangeStatus,
-      initialTheme: savedTheme,
       actionlistDisplayMode: actionListDisplayMode,
       initialPinLength: pinLength,
       pinTimeOutDuration: pinCodeTimeOutDuration,
@@ -1467,9 +1442,6 @@ abstract class SettingsStoreBase with Store {
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    currentTheme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));

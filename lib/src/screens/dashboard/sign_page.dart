@@ -6,8 +6,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/verify_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
@@ -38,11 +36,9 @@ class SignPage extends BasePage {
   Widget middle(BuildContext context) => Observer(
       builder: (_) => Text(
             S.current.sign_verify_title,
-            style: TextStyle(
-              fontSize: 18.0,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
               fontFamily: 'Lato',
-              color: titleColor(context),
             ),
           ));
 
@@ -60,7 +56,7 @@ class SignPage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-        keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+        keyboardBarColor: Theme.of(context).colorScheme.surfaceVariant,
         nextFocus: false,
         actions: [
           KeyboardActionsItem(
@@ -100,8 +96,8 @@ class SignPage extends BasePage {
                         radius: 6.0,
                         dotWidth: 6.0,
                         dotHeight: 6.0,
-                        dotColor: Theme.of(context).hintColor.withOpacity(0.5),
-                        activeDotColor: Theme.of(context).hintColor,
+                        dotColor: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                        activeDotColor: Theme.of(context).colorScheme.outline,
                       ),
                     ),
                   ),
@@ -118,12 +114,8 @@ class SignPage extends BasePage {
                             text: signViewModel.isSigning
                                 ? S.current.sign_message
                                 : S.current.verify_message,
-                            color: Theme.of(context)
-                                .extension<WalletListTheme>()!
-                                .createNewWalletButtonBackgroundColor,
-                            textColor: Theme.of(context)
-                                .extension<WalletListTheme>()!
-                                .restoreWalletButtonTextColor,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: signViewModel.state is IsExecutingState,
                             isDisabled: signViewModel.state is IsExecutingState,
                           );

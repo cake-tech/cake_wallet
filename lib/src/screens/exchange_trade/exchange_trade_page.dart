@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_ca
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:mobx/mobx.dart';
@@ -96,7 +96,7 @@ class ExchangeTradeForm extends StatefulWidget {
   );
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   ExchangeTradeState createState() => ExchangeTradeState();
@@ -346,7 +346,7 @@ class _ExchangeTradeItemsCardSection extends StatelessWidget {
   });
 
   final ExchangeTradeViewModel viewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {

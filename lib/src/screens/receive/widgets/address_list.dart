@@ -7,7 +7,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/address_cell.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
@@ -29,7 +29,7 @@ class AddressList extends StatefulWidget {
   });
 
   final WalletAddressListViewModel addressListViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final Function(String)? onSelect;
 
   @override

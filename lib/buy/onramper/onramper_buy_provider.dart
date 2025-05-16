@@ -8,8 +8,8 @@ import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -18,7 +18,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class OnRamperBuyProvider extends BuyProvider {
-  OnRamperBuyProvider(this._settingsStore,
+  OnRamperBuyProvider(this._themeStore,
       {required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet,
       isTestEnvironment: isTestEnvironment,
@@ -39,7 +39,7 @@ class OnRamperBuyProvider extends BuyProvider {
   static const List<FiatCurrency> _notSupportedFiat = [];
   static Map<String, dynamic> _onrampMetadata = {};
 
-  final SettingsStore _settingsStore;
+  final ThemeStore _themeStore;
 
   String? recommendedPaymentType;
 
@@ -254,7 +254,7 @@ class OnRamperBuyProvider extends BuyProvider {
     final containerColor = getColorStr(Theme.of(context).colorScheme.background);
     var cardColor = getColorStr(Theme.of(context).cardColor);
 
-    if (_settingsStore.currentTheme.title == S.current.high_contrast_theme) {
+    if (_themeStore.currentTheme.title == S.current.high_contrast_theme) {
       cardColor = getColorStr(Colors.white);
     }
 

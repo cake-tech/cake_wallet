@@ -2,7 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -14,7 +14,7 @@ class AddPassphraseBottomSheet extends StatefulWidget {
   });
 
   final void Function(String) onRestoreButtonPressed;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   State<AddPassphraseBottomSheet> createState() => _AddPassphraseBottomSheetState();

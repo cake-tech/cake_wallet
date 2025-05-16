@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';

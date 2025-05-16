@@ -1,13 +1,13 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import '../../../../themes/theme_base.dart';
 
 class NavigationDock extends StatelessWidget {
   const NavigationDock({
@@ -103,7 +103,7 @@ class NavigationDock extends StatelessWidget {
   }
 
   List<Color> _getColors(BuildContext context) {
-    final isBright = dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright;
+    final isBright = dashboardViewModel.appStore.themeStore.currentTheme.type == ThemeType.light;
     return isBright
         ? <Color>[
             Theme.of(context)

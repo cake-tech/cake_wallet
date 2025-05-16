@@ -1,7 +1,7 @@
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
 class TradeDetailsStandardListCard extends StatelessWidget {
   TradeDetailsStandardListCard(

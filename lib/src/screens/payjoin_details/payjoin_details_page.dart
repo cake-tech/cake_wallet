@@ -60,7 +60,7 @@ class _PayjoinDetailsPageBodyState extends State<PayjoinDetailsPageBody> {
               id: item.id,
               create: item.createdAt,
               pair: item.pair,
-              currentTheme: widget.payjoinDetailsViewModel.settingsStore.currentTheme.type,
+              currentTheme: widget.payjoinDetailsViewModel.themeStore.currentTheme.type,
               onTap: item.onTap,
             );
           }

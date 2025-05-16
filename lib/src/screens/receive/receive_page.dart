@@ -1,27 +1,12 @@
-import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/address_list.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
-import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/share_util.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/address_cell.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -102,7 +87,7 @@ class ReceivePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+            keyboardBarColor: Theme.of(context).colorScheme.surface,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(

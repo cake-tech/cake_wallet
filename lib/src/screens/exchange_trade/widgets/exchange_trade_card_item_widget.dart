@@ -4,6 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -17,7 +18,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import '../../../../themes/extensions/cake_text_theme.dart';
 import '../../../../themes/extensions/transaction_trade_theme.dart';
-import '../../../../themes/theme_base.dart';
 
 class ExchangeTradeCardItemWidget extends StatelessWidget {
   ExchangeTradeCardItemWidget({
@@ -32,7 +32,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
   final bool isReceiveDetailsCard;
   final FeesViewModel feesViewModel;
   final ExchangeTradeViewModel exchangeTradeViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +154,7 @@ class TradeItemRowWidget extends StatelessWidget {
   final String value;
   final bool isCopied;
   final Image copyImage;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   const TradeItemRowWidget({
     required this.title,
@@ -167,11 +167,11 @@ class TradeItemRowWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final hintTextColor = currentTheme == ThemeType.bright
+    final hintTextColor = currentTheme.type == ThemeType.light
         ? Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor
         : Colors.white.withAlpha(175);
 
-    final mainTextColor = currentTheme == ThemeType.bright
+    final mainTextColor = currentTheme.type == ThemeType.light
         ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
         : Colors.white;
 

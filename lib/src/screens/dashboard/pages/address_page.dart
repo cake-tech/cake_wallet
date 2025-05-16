@@ -1,6 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
@@ -10,7 +9,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
@@ -135,7 +134,7 @@ class AddressPage extends BasePage {
         tapOutsideBehavior: TapOutsideBehavior.translucentDismiss,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+            keyboardBarColor: Theme.of(context).colorScheme.surface,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -154,7 +153,7 @@ class AddressPage extends BasePage {
                           addressListViewModel: addressListViewModel,
                           amountTextFieldFocusNode: _cryptoAmountFocus,
                           amountController: _amountController,
-                          isLight: dashboardViewModel.settingsStore.currentTheme.type ==
+                          isLight: dashboardViewModel.appStore.themeStore.currentTheme.type ==
                               ThemeType.light,
                         ))),
               SizedBox(height: 16),

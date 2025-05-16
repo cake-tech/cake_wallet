@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 
@@ -21,8 +20,7 @@ class AlertBackground extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
             decoration: BoxDecoration(
-                color:
-                    Theme.of(context).extension<AlertTheme>()!.backdropColor),
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.8)),
             child: Center(
               child: Container(
                 width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,

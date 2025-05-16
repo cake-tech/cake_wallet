@@ -95,7 +95,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                 extraId: item.extraId,
                 create: item.createdAt,
                 pair: item.pair,
-                currentTheme: tradeDetailsViewModel.settingsStore.currentTheme.type,
+                currentTheme: tradeDetailsViewModel.appStore.themeStore.currentTheme.type,
                 onTap: item.onTap,
               );
 

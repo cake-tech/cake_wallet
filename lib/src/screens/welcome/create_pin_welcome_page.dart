@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +8,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class CreatePinWelcomePage extends BasePage {
   CreatePinWelcomePage(this.isWalletPasswordDirectInput);
@@ -40,7 +37,7 @@ class CreatePinWelcomePage extends BasePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         resizeToAvoidBottomInset: false,
         body: body(context));
   }
@@ -52,7 +49,7 @@ class CreatePinWelcomePage extends BasePage {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor);
+        color: Theme.of(context).colorScheme.surface);
 
     return PopScope(
       canPop: false,
@@ -77,10 +74,9 @@ class CreatePinWelcomePage extends BasePage {
                       padding: EdgeInsets.only(top: 24),
                       child: Text(
                         S.of(context).welcome,
-                        style: TextStyle(
-                          fontSize: 18,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                          color:  Theme.of(context).colorScheme.onSurface
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -89,10 +85,9 @@ class CreatePinWelcomePage extends BasePage {
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
                         appTitle(context),
-                        style: TextStyle(
-                          fontSize: 36,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -101,10 +96,9 @@ class CreatePinWelcomePage extends BasePage {
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
                         appDescription(context),
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -120,16 +114,15 @@ class CreatePinWelcomePage extends BasePage {
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 children: [
                   TextSpan(text: 'By continuing, you agree to our '),
                   TextSpan(
                     text: 'Terms of Service',
                     style: TextStyle(
-                      color: Theme.of(context).primaryColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                       decoration: TextDecoration.underline,
                     ),
                     recognizer: TapGestureRecognizer()
@@ -145,13 +138,11 @@ class CreatePinWelcomePage extends BasePage {
                 onPressed: () => Navigator.pushNamed(context, Routes.welcomeWallet),
                 image: newWalletImage,
                 text: isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
-                color: Theme.of(context)
-                    .extension<WalletListTheme>()!
-                    .createNewWalletButtonBackgroundColor,
-                textColor:
-                    Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
+            SizedBox(height: 8),
           ],
         ),
       ),

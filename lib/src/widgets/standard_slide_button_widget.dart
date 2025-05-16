@@ -3,7 +3,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardSlideButton extends StatefulWidget {
@@ -19,7 +19,7 @@ class StandardSlideButton extends StatefulWidget {
   final VoidCallback onSlideComplete;
   final String buttonText;
   final double height;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final String accessibleNavigationModeButtonText;
 
   @override
@@ -35,9 +35,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
 
     final tileBackgroundColor = widget.currentTheme.type == ThemeType.light
         ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
-        : widget.currentTheme.type == ThemeType.oled
-            ? Colors.black.withOpacity(0.5)
-            : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+        : Theme.of(context).extension<FilterTheme>()!.buttonColor;
 
     return accessible
         ? PrimaryButton(
@@ -93,7 +91,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                         ),
                         alignment: Alignment.center,
                         child: Icon(Icons.arrow_forward,
-                            color: widget.currentTheme.type == ThemeType.bright
+                            color: widget.currentTheme.type == ThemeType.light
                                 ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
                                 : Theme.of(context).extension<FilterTheme>()!.buttonColor),
                       ),

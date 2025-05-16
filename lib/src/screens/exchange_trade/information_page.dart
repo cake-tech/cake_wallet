@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/info_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -40,7 +39,7 @@ class InformationPage extends StatelessWidget {
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Lato',
                     decoration: TextDecoration.none,
-                    color: Theme.of(context).extension<InfoTheme>()!.textColor
+                    color: Theme.of(context).colorScheme.onSurfaceVariant
                   ),
                 ),
               ),

@@ -3,10 +3,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_verify_context_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -25,7 +25,7 @@ class WCRequestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentTheme = getIt.get<SettingsStore>().currentTheme;
+    final currentTheme = getIt.get<ThemeStore>().currentTheme;
     
     return Column(
       mainAxisSize: MainAxisSize.min,

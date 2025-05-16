@@ -1,7 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +48,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                 crossAxisSpacing: 20,
               ),
               itemBuilder: (context, index) {
-                final ThemeBase e = items[index];
+                final MaterialThemeBase e = items[index];
                 final currentTheme = _displaySettingsViewModel.theme;
                 final isSelected = currentTheme == e;
 
