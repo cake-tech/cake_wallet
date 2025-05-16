@@ -136,7 +136,7 @@ abstract class EVMChainWalletBase
 
   //! Methods to be overridden by every child
 
-  void addInitialTokens();
+  void addInitialTokens([bool isMigration]);
 
   // Future<EVMChainWallet> open({
   //   required String name,

@@ -33,12 +33,14 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
+import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
@@ -49,6 +51,7 @@ import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
+import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
@@ -56,7 +59,10 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
+import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -284,6 +290,7 @@ late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
+late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
 Future<void> setup({
@@ -297,6 +304,7 @@ Future<void> setup({
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+  required Box<PayjoinSession> payjoinSessionSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
@@ -311,6 +319,7 @@ Future<void> setup({
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
+  _payjoinSessionSource = payjoinSessionSource;
   _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
 
   if (!_isSetupFinished) {
@@ -352,6 +361,8 @@ Future<void> setup({
       TradesStore(tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerFactory(() =>
+      PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
@@ -505,6 +516,7 @@ Future<void> setup({
       yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>(),
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+      payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
@@ -837,7 +849,7 @@ Future<void> setup({
     if (wallet.type == WalletType.monero ||
         wallet.type == WalletType.wownero ||
         wallet.type == WalletType.haven) {
-      return MoneroAccountListViewModel(wallet);
+      return MoneroAccountListViewModel(wallet,getIt.get<SettingsStore>());
     }
     throw Exception(
         'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
@@ -919,6 +931,8 @@ Future<void> setup({
   getIt.registerFactory(() => DevMoneroBackgroundSync(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => DevSharedPreferences());
+
+  getIt.registerFactory(() => DevSecurePreferences());
 
   getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
       WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
@@ -1091,6 +1105,7 @@ Future<void> setup({
         return bitcoin!.createBitcoinWalletService(
           _walletInfoSource,
           _unspentCoinsInfoSource,
+          _payjoinSessionSource,
           getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
         );
@@ -1419,6 +1434,15 @@ Future<void> setup({
             settingsStore: getIt.get<SettingsStore>(),
           ));
 
+  getIt.registerFactoryParam<PayjoinDetailsViewModel, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) =>
+          PayjoinDetailsViewModel(
+            sessionId,
+            transactionInfo,
+            payjoinSessionSource: _payjoinSessionSource,
+            settingsStore: getIt.get<SettingsStore>(),
+          ));
+
   getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInfoBase, void>(
       (AnonpayInfoBase anonpayInvoiceInfo, _) =>
           AnonPayReceivePage(invoiceInfo: anonpayInvoiceInfo));
@@ -1426,6 +1450,11 @@ Future<void> setup({
   getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(
           anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
+
+  getIt.registerFactoryParam<PayjoinDetailsPage, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsPage(
+          payjoinDetailsViewModel: getIt.get<PayjoinDetailsViewModel>(
+              param1: sessionId, param2: transactionInfo)));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));
@@ -1463,6 +1492,8 @@ Future<void> setup({
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
 
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
+
+  getIt.registerFactory(() => DevSecurePreferencesPage(getIt.get<DevSecurePreferences>()));
   
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
   

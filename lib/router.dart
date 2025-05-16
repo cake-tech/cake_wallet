@@ -36,6 +36,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
@@ -57,6 +58,7 @@ import 'package:cake_wallet/src/screens/new_wallet/wallet_group_existing_seed_de
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
+import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -718,6 +720,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<AnonpayDetailsPage>(param1: anonInvoiceViewData));
 
+    case Routes.payjoinDetails:
+      final arguments = settings.arguments as List;
+      final sessionId = arguments.first as String;
+      final transactionInfo = arguments[1] as TransactionInfo?;
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<PayjoinDetailsPage>(
+              param1: sessionId, param2: transactionInfo));
+
     case Routes.desktop_actions:
       return PageRouteBuilder(
         opaque: false,
@@ -851,6 +861,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devMoneroCallProfiler:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
+      );
+
+    case Routes.devSecurePreferences:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevSecurePreferencesPage>(),
       );
 
     default:
