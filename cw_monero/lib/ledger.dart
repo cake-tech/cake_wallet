@@ -7,20 +7,20 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
-import 'package:monero/src/wallet2.dart';
+import 'package:monero/src/monero.dart' as api;
 import 'package:monero/monero.dart' as monero;
+import 'package:monero/src/generated_bindings_monero.g.dart' as gen;
 
 LedgerConnection? gLedger;
 
 typedef LedgerCallback = Void Function(Pointer<UnsignedChar>, UnsignedInt);
 NativeCallable<LedgerCallback>? callable;
 
-void enableLedgerExchange(Wallet2Wallet wallet, LedgerConnection connection) {
+void enableLedgerExchange(LedgerConnection connection) {
   callable?.close();
 
   void callback(Pointer<UnsignedChar> request, int requestLength) async {
     final ledgerRequest = request.cast<Uint8>().asTypedList(requestLength);
-    malloc.free(request);
 
     _logLedgerCommand(ledgerRequest, false);
     final response = await exchange(connection, ledgerRequest);
@@ -31,11 +31,12 @@ void enableLedgerExchange(Wallet2Wallet wallet, LedgerConnection connection) {
       result.asTypedList(response.length)[i] = response[i];
     }
 
-    wallet.setDeviceReceivedData(
+    api.MoneroWallet.setDeviceReceivedData(
          result.cast<UnsignedChar>(), response.length);
   }
 
   callable = NativeCallable<LedgerCallback>.listener(callback);
+  monero.lib ??= gen.MoneroC(DynamicLibrary.open(monero.libPath));
   monero.lib!.MONERO_Wallet_setLedgerCallback(callable!.nativeFunction);
 }
 

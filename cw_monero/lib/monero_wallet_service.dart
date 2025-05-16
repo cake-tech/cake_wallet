@@ -306,12 +306,7 @@ class MoneroWalletService extends WalletService<
       final password = credentials.password;
       final height = credentials.height;
 
-      if (currentWallet == null) {
-        final tmpWptr = monero_wallet_manager.createWalletPointer();
-        enableLedgerExchange(tmpWptr, credentials.ledgerConnection);
-      } else {
-        enableLedgerExchange(currentWallet!, credentials.ledgerConnection);
-      }
+      enableLedgerExchange(credentials.ledgerConnection);
 
       await monero_wallet_manager.restoreWalletFromHardwareWallet(
           path: path,
