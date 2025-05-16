@@ -1,19 +1,16 @@
 # Material 3 Theming System
 
-This directory contains the Material 3 (M3) theming implementation for Cake Wallet. The new theming system is designed to be more maintainable, scalable, and compliant with Material Design 3 guidelines while ensuring a seamless transition from the existing theme system.
+This directory contains the Material 3 (M3) theming implementation for Cake Wallet. The theming system is now fully based on Material 3 color tokens and patterns, with all custom theme extensions removed for simplicity, maintainability, and compliance with Material Design 3 guidelines.
 
 ## Directory Structure
 
 ```
-lib/themes/m3/
-├── base/
-│   └── app_theme_data.dart      # Base theme data class
-├── themes/
-│   ├── app_light_theme.dart     # Light theme implementation
-│   └── app_dark_theme.dart      # Dark theme implementation
-├── theme_manager.dart           # Theme state management
-├── theme_extensions.dart        # Convenience extensions
-└── README.md                   # This file
+lib/themes/
+├── core/                # Theme state management and base theme logic
+├── theme_classes/       # Light and dark theme data definitions
+├── extensions/          # (Optional) Theme extensions for specific widgets/pages
+├── utils/               # Utilities for theme management
+└── README.md            # This file
 ```
 
 ## Key Features
@@ -22,7 +19,6 @@ lib/themes/m3/
 - Dynamic color support (when available)
 - MobX-based state management
 - Simplified theme management
-- Seamless migration path from existing themes
 - Consistent design language across the app
 
 ## Usage
@@ -30,145 +26,57 @@ lib/themes/m3/
 ### Accessing Theme Colors
 
 ```dart
-// Using the theme directly
-final colors = Theme.of(context).colorScheme;
-final primaryColor = colors.primary;
-final onPrimaryColor = colors.onPrimary;
-
-// Using the convenience extension (optional)
-final colors = context.colors;
-final primaryColor = colors.primary;
+final colorScheme = Theme.of(context).colorScheme;
+final primaryColor = colorScheme.primary;
+final onSurfaceVariant = colorScheme.onSurfaceVariant;
 ```
 
 ### Available Color Tokens
 
-The Material 3 color system provides semantic color tokens that automatically adapt to light/dark themes:
+Material 3 provides a comprehensive set of semantic color tokens that adapt to light/dark themes:
 
-- `primary` / `onPrimary`: Primary brand color and its contrast color
-- `secondary` / `onSecondary`: Secondary brand color and its contrast color
-- `tertiary` / `onTertiary`: Tertiary color for accents and its contrast color
-- `error` / `onError`: Error states and their contrast colors
-- `background` / `onBackground`: Background colors and their contrast colors
-- `surface` / `onSurface`: Surface colors and their contrast colors
-- `surfaceVariant` / `onSurfaceVariant`: Variant surface colors
-- `outline`: Color for outlines and dividers
+- `primary` / `onPrimary`
+- `secondary` / `onSecondary`
+- `tertiary` / `onTertiary`
+- `error` / `onError`
+- `background` / `onBackground`
+- `surface` / `onSurface`
+- `surfaceVariant` / `onSurfaceVariant`
+- `outline`, `outlineVariant`
+- ...and more (see Flutter's ColorScheme)
 
-### Adding New Themes
+### Theme Management
 
-1. Create a new theme file in the `themes` directory:
-
-```dart
-// lib/themes/m3/themes/app_custom_theme.dart
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/m3/base/app_theme_data.dart';
-import 'package:cake_wallet/palette.dart';
-
-class AppCustomTheme extends AppThemeData {
-  AppCustomTheme({required this.seedColor});
-
-  @override
-  final Color seedColor;
-
-  @override
-  Brightness get brightness => Brightness.light; // or dark
-
-  @override
-  Color get primaryColor => Palette.yourColor;
-
-  // ... implement other required properties
-}
-```
-
-2. Update the theme manager to support the new theme:
+Theme state (light/dark/system) and switching is handled via MobX stores in `core/`. Use the provided store to get/set the current theme mode and listen for changes.
 
 ```dart
-// In theme_manager.dart
-AppThemeData get currentTheme {
-  switch (_themeType) {
-    case ThemeType.custom:
-      return AppCustomTheme(seedColor: _seedColor);
-    // ... other cases
-  }
-}
+// Example: Getting the current theme mode
+final themeStore = ... // Obtain from provider or context
+final isDark = themeStore.isDark;
+
+// Example: Switching theme mode
+await themeStore.setThemeMode(ThemeMode.dark);
 ```
-
-### Theme Manager
-
-The theme manager handles:
-- Theme mode (light/dark/system)
-- Theme switching
-- Theme persistence
-- Dynamic color support
-
-```dart
-// Get the current theme
-final themeManager = ThemeManager.of(context);
-final isDark = themeManager.isDarkMode;
-
-// Switch themes
-themeManager.setThemeMode(ThemeMode.dark);
-
-// Listen to theme changes (using MobX)
-// TODO: Add MobX store example
-```
-
-## Migration Guide
-
-1. Replace direct color usage with semantic color tokens:
-   ```dart
-   // Before
-   color: Palette.blueCraiola
-   
-   // After
-   color: Theme.of(context).colorScheme.primary
-   ```
-
-2. Update custom widgets to use Material 3 components where possible
-
-3. Replace custom theme extensions with Material 3 equivalents:
-   ```dart
-   // Before
-   context.theme.primaryColor
-   
-   // After
-   context.colors.primary
-   ```
-
-4. For custom components that need specific theming, use `ThemeExtension`:
-   ```dart
-   class CustomComponentTheme extends ThemeExtension<CustomComponentTheme> {
-     final Color customColor;
-     
-     CustomComponentTheme({required this.customColor});
-     
-     @override
-     ThemeExtension<CustomComponentTheme> copyWith({Color? customColor}) {
-       return CustomComponentTheme(
-         customColor: customColor ?? this.customColor,
-       );
-     }
-   }
-   ```
 
 ## Best Practices
 
-1. Always use semantic color tokens instead of hardcoded colors
-2. Leverage Material 3 components when possible
-3. Use the theme manager for theme-related operations
-4. Keep custom theme extensions minimal and focused
-5. Test themes in both light and dark modes
-6. Consider dynamic color support for Android 12+ devices
-7. Use MobX for theme state management
-8. Follow the directory structure when adding new themes
+1. **Always use semantic color tokens** from `ColorScheme` instead of hardcoded colors.
+2. **Leverage Material 3 components** wherever possible for consistency and accessibility.
+3. **Use the MobX theme store** for all theme-related state and switching.
+4. **Test in both light and dark modes** to ensure good contrast and appearance.
+5. **Keep any theme extensions minimal and focused** (if used at all).
+6. **Do not reintroduce custom theme extensions** unless absolutely necessary and not covered by Material 3.
+
+## Adding or Modifying Themes
+
+- To update theme colors, edit the files in `theme_classes/` (e.g., `light_theme.dart`, `dark_theme.dart`).
+- To add a new theme variant, create a new file in `theme_classes/` and update the MobX store in `core/` to support it.
+- For widget-specific theming, prefer using Material 3's built-in tokens. Only use a theme extension if there is no Material 3 equivalent.
 
 ## Contributing
 
-When adding new themes or modifying existing ones:
-
-1. Follow Material 3 color system guidelines
-2. Ensure proper contrast ratios for accessibility
-3. Test in both light and dark modes
-4. Update documentation for any new theme tokens
-5. Consider adding preview screenshots for new themes
-6. Add MobX store integration for theme changes
-7. Keep theme files separate and focused 
+- Follow Material 3 color system and accessibility guidelines.
+- Ensure proper contrast ratios for accessibility.
+- Test all changes in both light and dark modes.
+- Update this documentation if you add new color tokens or theme variants.
+- Keep theme files organized and focused. 
