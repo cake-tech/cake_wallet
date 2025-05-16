@@ -20,6 +20,7 @@ BitcoinBaseAddress addressFromScript(Script script,
       return P2pkhAddress.fromScriptPubkey(
           script: script, network: BitcoinNetwork.mainnet);
     case P2shAddressType.p2pkhInP2sh:
+    case P2shAddressType.p2pkInP2sh:
       return P2shAddress.fromScriptPubkey(
           script: script, network: BitcoinNetwork.mainnet);
     case SegwitAddresType.p2wpkh:

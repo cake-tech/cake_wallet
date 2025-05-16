@@ -34,12 +34,12 @@ import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
 import 'package:cw_monero/monero_wallet_addresses.dart';
+import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
-import 'package:monero/src/monero.dart' as m;
 import 'package:monero/monero.dart' as monero;
 
 part 'monero_wallet.g.dart';
@@ -193,19 +193,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         final wmaddr = wmPtr.ffiAddress();
         final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
         openedWalletsByPath.remove("$currentWalletDirPath/$name");
-        if (Platform.isWindows) {
-          await Isolate.run(() {
-            monero.WalletManager_closeWallet(
-                Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-            monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-          });
-        } else {
-          unawaited(Isolate.run(() {
-            monero.WalletManager_closeWallet(
-                Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-            monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-          }));
-        }
+        closeWalletAwaitIfShould(wmaddr, waddr);
         currentWallet = null;
         printV("wallet closed");
       }
