@@ -658,11 +658,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
 
-    case Routes.cakePayBuyCardDetailPage:
-      final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<CakePayBuyCardDetailPage>(param1: args));
-
     case Routes.cakePayWelcomePage:
       return CupertinoPageRoute<void>(
         builder: (_) => getIt.get<CakePayWelcomePage>(),

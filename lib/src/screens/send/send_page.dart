@@ -23,6 +23,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/simple_checkbox.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -608,13 +609,31 @@ class SendPage extends BasePage {
                       sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
-                      showDontAskMeCheckbox: true,
-                      onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/contact_icon.svg',
                       contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
                       isTwoAction: true,
+                      bottomActionPanel: Padding(
+                        padding: const EdgeInsets.only(left: 34.0),
+                        child: Row(
+                          children: [
+                            SimpleCheckbox(onChanged: (value) => sendViewModel.setShowAddressBookPopup(!value)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Don’t ask me next time',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       leftButtonText: 'No',
                       rightButtonText: 'Yes',
                       actionLeftButton: () {

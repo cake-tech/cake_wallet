@@ -4,6 +4,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -31,8 +32,7 @@ class InfoBottomSheet extends BaseBottomSheet {
   final Color? contentImageColor;
   final String? content;
   final bool isTwoAction;
-  final bool showDontAskMeCheckbox;
-  final Function(bool)? onCheckboxChanged;
+  final Widget? bottomActionPanel;
   final String? actionButtonText;
   final VoidCallback? actionButton;
   final Key? actionButtonKey;
@@ -51,8 +51,7 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.contentImageColor,
     this.content,
     this.isTwoAction = false,
-    this.showDontAskMeCheckbox = false,
-    this.onCheckboxChanged,
+    this.bottomActionPanel,
     this.actionButtonText,
     this.actionButton,
     this.actionButtonKey,
@@ -73,7 +72,12 @@ class InfoBottomSheet extends BaseBottomSheet {
           if (contentImage != null)
             Expanded(
               flex: 4,
-              child: getImage(contentImage!, imageColor: contentImageColor),
+              child: ImageUtil.getImageFromPath(
+                imagePath: contentImage!,
+                svgImageColor: contentImageColor,
+                fit: BoxFit.contain,
+                borderRadius: 10,
+              ),
             )
           else
             Container(),
@@ -102,27 +106,7 @@ class InfoBottomSheet extends BaseBottomSheet {
                 ],
               ),
             ),
-          if (showDontAskMeCheckbox)
-            Padding(
-              padding: const EdgeInsets.only(left: 34.0),
-              child: Row(
-                children: [
-                  SimpleCheckbox(onChanged: onCheckboxChanged),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Don’t ask me next time',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          bottomActionPanel ?? const SizedBox(),
         ],
       ),
     );
@@ -183,50 +167,5 @@ class InfoBottomSheet extends BaseBottomSheet {
         ),
       );
     }
-  }
-
-  Widget getImage(String imagePath, {Color? imageColor}) {
-    final bool isSvg = imagePath.endsWith('.svg');
-    if (isSvg) {
-      return SvgPicture.asset(
-        imagePath,
-        colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
-      );
-    } else {
-      return Image.asset(imagePath);
-    }
-  }
-}
-
-class SimpleCheckbox extends StatefulWidget {
-  SimpleCheckbox({this.onChanged});
-
-  final Function(bool)? onChanged;
-
-  @override
-  State<SimpleCheckbox> createState() => _SimpleCheckboxState();
-}
-
-class _SimpleCheckboxState extends State<SimpleCheckbox> {
-  bool initialValue = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 24.0,
-      width: 24.0,
-      child: Checkbox(
-        value: initialValue,
-        onChanged: (value) => setState(() {
-          initialValue = value!;
-          widget.onChanged?.call(value);
-        }),
-        checkColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-        activeColor: Colors.transparent,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
-            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor, width: 1.0)),
-      ),
-    );
   }
 }

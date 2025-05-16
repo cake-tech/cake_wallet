@@ -97,6 +97,8 @@ class CakePayService {
     required bool confirmsNoVpn,
     required bool confirmsVoidedRefund,
     required bool confirmsTermsAgreed,
+    String? cardName,
+    String? cardImagePath,
   }) async {
     final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
     final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
@@ -110,6 +112,8 @@ class CakePayService {
       confirmsNoVpn: confirmsNoVpn,
       confirmsVoidedRefund: confirmsVoidedRefund,
       confirmsTermsAgreed: confirmsTermsAgreed,
+      cardName: cardName,
+      cardImagePath: cardImagePath,
     );
   }
 

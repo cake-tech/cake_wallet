@@ -1,32 +1,39 @@
 import 'dart:io';
 
-import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_payment_credantials.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/enter_amount_widget.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/rounded_overlay_cards_widget.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/text_icon_button.dart';
+import 'package:cake_wallet/cake_pay/src/widgets/three_checkbox_alert_content_widget.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item_widget.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:mobx/mobx.dart';
 
 class CakePayBuyCardPage extends BasePage {
   CakePayBuyCardPage(
@@ -44,6 +51,8 @@ class CakePayBuyCardPage extends BasePage {
 
   final CakePayBuyCardViewModel cakePayBuyCardViewModel;
   final CakePayService cakePayService;
+
+  bool _effectsInstalled = false;
 
   @override
   String get title => cakePayBuyCardViewModel.card.name;
@@ -75,6 +84,8 @@ class CakePayBuyCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    _setEffects(context);
+
     final card = cakePayBuyCardViewModel.card;
     final vendor = cakePayBuyCardViewModel.vendor;
 
@@ -92,156 +103,164 @@ class CakePayBuyCardPage extends BasePage {
           ]),
       child: Container(
         color: Theme.of(context).colorScheme.background,
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.zero,
-          content: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(25.0), bottomRight: Radius.circular(25.0)),
-                child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                          Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+        child: Column(
+          children: [
+            RoundedOverlayCards(
+                topCardChild: Column(
+                  children: [
+                    Expanded(flex: 4, child: const SizedBox()),
+                    Expanded(
+                      flex: 7,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: Image.network(
+                          card.cardImageUrl ?? '',
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(child: CircularProgressIndicator());
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                              CakePayCardImagePlaceholder(),
+                        ),
                       ),
                     ),
-                    height: responsiveLayoutUtil.screenHeight * 0.35,
-                    width: double.infinity,
-                    child: Column(
-                      children: [
-                        Expanded(flex: 4, child: const SizedBox()),
-                        Expanded(
-                          flex: 7,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            child: Image.network(
-                              card.cardImageUrl ?? '',
-                              fit: BoxFit.cover,
-                              loadingBuilder: (BuildContext context, Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(child: CircularProgressIndicator());
-                              },
-                              errorBuilder: (context, error, stackTrace) =>
-                                  CakePayCardImagePlaceholder(),
+                    Expanded(child: const SizedBox()),
+                  ],
+                ),
+                bottomCardChild: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: card.denominations.isNotEmpty
+                      ? DenominationsAmountWidget(
+                          fiatCurrency: card.fiatCurrency.title,
+                          denominations: card.denominations,
+                          amountFieldFocus: _amountFieldFocus,
+                          amountController: _amountController,
+                          quantityFieldFocus: _quantityFieldFocus,
+                          quantityController: _quantityController,
+                          onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                          onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
+                          cakePayBuyCardViewModel: cakePayBuyCardViewModel,
+                        )
+                      : EnterAmountWidget(
+                          minValue: card.minValue ?? '-',
+                          maxValue: card.maxValue ?? '-',
+                          fiatCurrency: card.fiatCurrency.title,
+                          amountFieldFocus: _amountFieldFocus,
+                          amountController: _amountController,
+                          onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                        ),
+                )),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (vendor.cakeWarnings != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white.withAlpha(50)),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                vendor.cakeWarnings!,
+                                textAlign: TextAlign.center,
+                                style: textSmallSemiBold(color: Colors.white),
+                              ),
                             ),
                           ),
                         ),
-                        Expanded(child: const SizedBox()),
-                      ],
-                    )),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Container(
-                  height: responsiveLayoutUtil.screenHeight * 0.5,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 24),
-                      Expanded(
-                        child: Text(S.of(context).enter_amount,
-                            style: TextStyle(
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                            )),
                       ),
-                      card.denominations.isNotEmpty
-                          ? Expanded(
-                              flex: 2,
-                              child: _DenominationsAmountWidget(
-                                fiatCurrency: card.fiatCurrency.title,
-                                denominations: card.denominations,
-                                amountFieldFocus: _amountFieldFocus,
-                                amountController: _amountController,
-                                quantityFieldFocus: _quantityFieldFocus,
-                                quantityController: _quantityController,
-                                onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                                onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
-                                cakePayBuyCardViewModel: cakePayBuyCardViewModel,
-                              ),
-                            )
-                          : Expanded(
-                              flex: 2,
-                              child: _EnterAmountWidget(
-                                minValue: card.minValue ?? '-',
-                                maxValue: card.maxValue ?? '-',
-                                fiatCurrency: card.fiatCurrency.title,
-                                amountFieldFocus: _amountFieldFocus,
-                                amountController: _amountController,
-                                onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                              ),
-                            ),
-                      Expanded(
-                        flex: 5,
-                        child: Column(
-                          children: [
-                            if (vendor.cakeWarnings != null)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.white.withOpacity(0.20)),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      vendor.cakeWarnings!,
-                                      textAlign: TextAlign.center,
-                                      style: textSmallSemiBold(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: ClickableLinksText(
-                                  text: card.description ?? '',
-                                  textStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .extension<CakeTextTheme>()!
-                                        .secondaryTextColor,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                    Expanded(
+                      child: SingleChildScrollView(
+                        primary: false,
+                        padding: EdgeInsets.zero,
+                        child: ClickableLinksText(
+                          text: card.description ?? '',
+                          textStyle: TextStyle(
+                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                primary: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 38, right: 24),
+                  child: Column(
+                    children: [
+                      if (card.expiryAndValidity != null && card.expiryAndValidity!.isNotEmpty)
+                        Row(
+                          children: [
+                            Text(S.of(context).expiry_and_validity + ':',
+                                style: TextStyle(
+                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w900)),
+                            Expanded(
+                                child: Text(card.expiryAndValidity!,
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .extension<CakeTextTheme>()!
+                                            .titleColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400))),
+                          ],
+                        ),
+                      SizedBox(height: 8),
+                      TextIconButton(
+                          label: S.of(context).how_to_use_card,
+                          onTap: () => _showHowToUseCard(context, card)),
+                      SizedBox(height: 8),
+                      TextIconButton(
+                          label: S.of(context).settings_terms_and_conditions,
+                          onTap: () => _showTermsAndCondition(context, card.termsAndConditions)),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
-          bottomSection: Column(
-            children: [
-              Observer(builder: (_) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: PrimaryButton(
-                    onPressed: () => isIOSUnavailable(card)
+            ),
+            SizedBox(height: 8),
+            Observer(builder: (_) {
+              return Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 34, right: 20, left: 20),
+                child: LoadingPrimaryButton(
+                  onPressed: () {
+                    //Request dummy node to get the focus out of the text fields
+                    FocusScope.of(context).requestFocus(FocusNode());
+
+                    isIOSUnavailable(card)
                         ? alertIOSAvailability(context, card)
-                        : navigateToCakePayBuyCardDetailPage(context, card),
-                    text: S.of(context).buy_now,
-                    isDisabled: !cakePayBuyCardViewModel.isEnablePurchase,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                  ),
-                );
-              }),
-            ],
-          ),
+                        : confirmPurchaseFirst(context);
+                  },
+                  text: S.of(context).purchase_gift_card,
+                  isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                      cakePayBuyCardViewModel.isPurchasing,
+                  isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
+                      cakePayBuyCardViewModel.isPurchasing,
+                  color: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                ),
+              );
+            }),
+          ],
         ),
       ),
     );
@@ -303,234 +322,354 @@ class CakePayBuyCardPage extends BasePage {
         });
   }
 
-  Future<void> navigateToCakePayBuyCardDetailPage(BuildContext context, CakePayCard card) async {
-    final userName = await cakePayService.getUserEmail();
-    final paymentCredential = PaymentCredential(
-      amount: cakePayBuyCardViewModel.amount,
-      quantity: cakePayBuyCardViewModel.quantity,
-      totalAmount: cakePayBuyCardViewModel.totalAmount,
-      userName: userName,
-      fiatCurrency: card.fiatCurrency.title,
-    );
-
-    Navigator.pushNamed(
-      context,
-      Routes.cakePayBuyCardDetailPage,
-      arguments: [paymentCredential, card],
-    );
+  Future<void> confirmPurchaseFirst(BuildContext context) async {
+    bool isLogged = await cakePayBuyCardViewModel.cakePayService.isLogged();
+    if (!isLogged) {
+      Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+    } else {
+      cakePayBuyCardViewModel.isPurchasing = true;
+      await _showconfirmPurchaseFirstAlert(context);
+    }
   }
-}
 
-class _DenominationsAmountWidget extends StatelessWidget {
-  const _DenominationsAmountWidget({
-    required this.fiatCurrency,
-    required this.denominations,
-    required this.amountFieldFocus,
-    required this.amountController,
-    required this.quantityFieldFocus,
-    required this.quantityController,
-    required this.cakePayBuyCardViewModel,
-    required this.onAmountChanged,
-    required this.onQuantityChanged,
-  });
+  Future<void> _showconfirmPurchaseFirstAlert(BuildContext context) async {
+    if (!cakePayBuyCardViewModel.confirmsNoVpn ||
+        !cakePayBuyCardViewModel.confirmsVoidedRefund ||
+        !cakePayBuyCardViewModel.confirmsTermsAgreed) {
+      await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => ThreeCheckboxAlert(
+          alertTitle: S.of(context).cakepay_confirm_purchase,
+          leftButtonText: S.of(context).cancel,
+          rightButtonText: S.of(context).confirm,
+          actionLeftButton: () {
+            cakePayBuyCardViewModel.isPurchasing = false;
+            Navigator.of(context).pop();
+          },
+          actionRightButton: (confirmsNoVpn, confirmsVoidedRefund, confirmsTermsAgreed) {
+            cakePayBuyCardViewModel.confirmsNoVpn = confirmsNoVpn;
+            cakePayBuyCardViewModel.confirmsVoidedRefund = confirmsVoidedRefund;
+            cakePayBuyCardViewModel.confirmsTermsAgreed = confirmsTermsAgreed;
 
-  final String fiatCurrency;
-  final List<String> denominations;
-  final FocusNode amountFieldFocus;
-  final TextEditingController amountController;
-  final FocusNode quantityFieldFocus;
-  final TextEditingController quantityController;
-  final CakePayBuyCardViewModel cakePayBuyCardViewModel;
-  final Function(String) onAmountChanged;
-  final Function(int?) onQuantityChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 12,
-          child: Column(
-            children: [
-              Expanded(
-                child: DropdownFilterList(
-                  items: denominations,
-                  itemPrefix: fiatCurrency,
-                  selectedItem: denominations.first,
-                  textStyle: textMediumSemiBold(
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-                  onItemSelected: (value) {
-                    amountController.text = value;
-                    onAmountChanged(value);
-                  },
-                  caption: '',
-                ),
-              ),
-              const SizedBox(height: 4),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                          width: 1.0,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
-                    ),
-                  ),
-                  child: Text(S.of(context).choose_card_value + ':',
-                      maxLines: 2,
-                      style: textSmall(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
-                ),
-              ),
-            ],
-          ),
+            Navigator.of(context).pop();
+          },
         ),
-        Expanded(child: const SizedBox()),
-        Expanded(
-          flex: 8,
-          child: Column(
-            children: [
-              Expanded(
-                child: NumberTextField(
-                  controller: quantityController,
-                  focusNode: quantityFieldFocus,
-                  min: 1,
-                  max: 99,
-                  onChanged: (value) => onQuantityChanged(value),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                          width: 1.0,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
-                    ),
-                  ),
-                  child: Text(S.of(context).quantity + ':',
-                      maxLines: 1,
-                      style: textSmall(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(child: const SizedBox()),
-        Expanded(
-            flex: 12,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Container(
-                      alignment: Alignment.bottomCenter,
-                      child: Observer(
-                          builder: (_) => AutoSizeText(
-                              '$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
-                              maxLines: 1,
-                              style: textMediumSemiBold(
-                                  color:
-                                      Theme.of(context).extension<CakeTextTheme>()!.titleColor)))),
-                ),
-                const SizedBox(height: 4),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                            width: 1.0,
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+      );
+    }
+
+    if (cakePayBuyCardViewModel.confirmsNoVpn &&
+        cakePayBuyCardViewModel.confirmsVoidedRefund &&
+        cakePayBuyCardViewModel.confirmsTermsAgreed) {
+      await purchaseCard(context);
+    }
+  }
+
+  Future<void> purchaseCard(BuildContext context) async {
+    bool isLogged = await cakePayBuyCardViewModel.cakePayService.isLogged();
+    if (!isLogged) {
+      Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
+    } else {
+      try {
+        await cakePayBuyCardViewModel.createOrder();
+      } catch (_) {
+        await cakePayBuyCardViewModel.cakePayService.logout();
+      }
+    }
+    cakePayBuyCardViewModel.isPurchasing = false;
+  }
+
+  BuildContext? dialogContext;
+  BuildContext? loadingBottomSheetContext;
+  BuildContext? confirmBottomSheetContext;
+
+  void _setEffects(BuildContext context) {
+    if (_effectsInstalled) {
+      return;
+    }
+
+    if (cakePayBuyCardViewModel.sendViewModel.isElectrumWallet) {
+      bitcoin!.updateFeeRates(cakePayBuyCardViewModel.sendViewModel.wallet);
+    }
+
+    reaction((_) => cakePayBuyCardViewModel.sendViewModel.state, (ExecutionState state) async {
+      if (dialogContext != null && dialogContext!.mounted) Navigator.of(dialogContext!).pop();
+
+      if (confirmBottomSheetContext != null && confirmBottomSheetContext!.mounted) {
+        Navigator.of(confirmBottomSheetContext!).pop();
+      }
+
+      if (state is! IsExecutingState &&
+          loadingBottomSheetContext != null &&
+          loadingBottomSheetContext!.mounted) {
+        Navigator.of(loadingBottomSheetContext!).pop();
+      }
+
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted)
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertWithOneAction(
+                      key: ValueKey('cake_pay_buy_page_send_failure_dialog_key'),
+                      buttonKey: ValueKey('cake_pay_buy_page_send_failure_dialog_button_key'),
+                      alertTitle: S.of(context).error,
+                      alertContent: state.error,
+                      buttonText: S.of(context).ok,
+                      buttonAction: () => Navigator.of(context).pop());
+                });
+        });
+      }
+
+      if (state is IsExecutingState) {
+        // wait a bit to avoid showing the loading dialog if transaction is failed
+        await Future.delayed(const Duration(milliseconds: 300));
+        final currentState = cakePayBuyCardViewModel.sendViewModel.state;
+        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
+          return;
+        }
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: S.of(context).generating_transaction,
+                );
+              },
+            );
+          }
+        });
+      }
+
+      if (state is ExecutedSuccessfullyState) {
+        if (cakePayBuyCardViewModel.order == null) return;
+
+        ReactionDisposer? disposer;
+
+        disposer = reaction((_) => cakePayBuyCardViewModel.isOrderExpired, (bool isExpired) {
+          if (isExpired) {
+            cakePayBuyCardViewModel.sendViewModel.state = FailureState('Order expired');
+            disposer?.call();
+          }
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (context.mounted) {
+            final order = cakePayBuyCardViewModel.order;
+
+            final displayingOutputs = cakePayBuyCardViewModel.sendViewModel.outputs
+                .map((o) => o.OutputCopyWithParsedAddress(
+                      parsedAddress: ParsedAddress(
+                        addresses: [o.address],
+                        name: 'Cake Pay',
+                        profileName: order?.cardName ?? 'Cake Pay',
+                        profileImageUrl: order?.cardImagePath ?? '',
                       ),
-                    ),
-                    child: Text(S.of(context).total + ':',
-                        maxLines: 1,
-                        style: textSmall(
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
-                  ),
-                ),
-              ],
-            )),
-      ],
-    );
+                      fiatAmount: '${order?.amountUsd.toString()} USD',
+                    ))
+                .toList();
+
+            final result = await showModalBottomSheet<bool>(
+              context: context,
+              isDismissible: false,
+              isScrollControlled: true,
+              builder: (BuildContext bottomSheetContext) {
+                confirmBottomSheetContext = bottomSheetContext;
+                return ConfirmSendingBottomSheet(
+                  key: ValueKey('cake_pay_buy_page_confirm_sending_dialog_key'),
+                  titleText: S.of(bottomSheetContext).confirm_transaction,
+                  currentTheme: currentTheme,
+                  cakePayBuyCardViewModel: cakePayBuyCardViewModel,
+                  paymentId: S.of(bottomSheetContext).payment_id,
+                  paymentIdValue: cakePayBuyCardViewModel.order?.orderId,
+                  expirationTime: cakePayBuyCardViewModel.formattedRemainingTime,
+                  walletType: cakePayBuyCardViewModel.sendViewModel.walletType,
+                  titleIconPath:
+                      cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                  currency: cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency,
+                  amount: S.of(bottomSheetContext).send_amount,
+                  amountValue:
+                      cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  fiatAmountValue:
+                      cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                  fee: S.of(bottomSheetContext).send_fee,
+                  feeValue: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                  feeFiatAmount: cakePayBuyCardViewModel
+                      .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                  outputs: displayingOutputs,
+                  onSlideComplete: () async {
+                    Navigator.of(bottomSheetContext).pop(true);
+                    cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
+                  },
+                  change: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: cakePayBuyCardViewModel.sendViewModel.ocpRequest != null,
+                );
+              },
+            );
+
+            confirmBottomSheetContext = null;
+            _handleDispose(disposer);
+            if (result == null) cakePayBuyCardViewModel.sendViewModel.dismissTransaction();
+          }
+        });
+      }
+
+      if (state is TransactionCommitted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          cakePayBuyCardViewModel.sendViewModel.clearOutputs();
+
+          if (!context.mounted) return;
+
+          final isCopy = await showModalBottomSheet<bool>(
+                  context: context,
+                  isDismissible: false,
+                  builder: (BuildContext bottomSheetContext) {
+                    return InfoBottomSheet(
+                      currentTheme: currentTheme,
+                      isTwoAction: true,
+                      rightActionButtonKey:
+                          ValueKey('cake_pay_buy_page_sent_dialog_copy_button_key'),
+                      rightButtonText: S.of(bottomSheetContext).copy,
+                      actionRightButton: () {
+                        Navigator.of(bottomSheetContext).pop(true);
+                      },
+                      leftActionButtonKey: ValueKey('cake_pay_buy_page_sent_dialog_ok_button_key'),
+                      leftButtonText: S.of(bottomSheetContext).close,
+                      actionLeftButton: () => Navigator.of(bottomSheetContext).pop(false),
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: cakePayBuyCardViewModel.order!.cardImagePath,
+                      bottomActionPanel: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        child: Column(
+                          children: [
+                            Text(
+                              textAlign: TextAlign.center,
+                              S.of(bottomSheetContext).cake_pay_save_order,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                            SizedBox(height: 6),
+                            Text(cakePayBuyCardViewModel.order!.orderId,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'Lato',
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                  decoration: TextDecoration.none,
+                                )),
+                          ],
+                        ),
+                      ),
+                    );
+                  }) ??
+              false;
+
+          if (isCopy) {
+            await Clipboard.setData(ClipboardData(text: cakePayBuyCardViewModel.order!.orderId));
+          }
+        });
+      }
+
+      if (state is IsAwaitingDeviceResponseState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+
+          showModalBottomSheet<void>(
+            context: context,
+            isDismissible: false,
+            builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+              currentTheme: currentTheme,
+              titleText: S.of(bottomSheetContext).proceed_on_device,
+              contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
+              contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              content: S.of(bottomSheetContext).proceed_on_device_description,
+              isTwoAction: false,
+              actionButtonText: S.of(context).cancel,
+              actionButton: () {
+                cakePayBuyCardViewModel.sendViewModel.state = InitialExecutionState();
+                Navigator.of(bottomSheetContext).pop();
+              },
+            ),
+          );
+        });
+      }
+    });
+
+    _effectsInstalled = true;
+  }
+
+  void _handleDispose(ReactionDisposer? disposer) {
+    cakePayBuyCardViewModel.dispose();
+    if (disposer != null) {
+      disposer();
+    }
   }
 }
 
-class _EnterAmountWidget extends StatelessWidget {
-  const _EnterAmountWidget({
-    required this.minValue,
-    required this.maxValue,
-    required this.fiatCurrency,
-    required this.amountFieldFocus,
-    required this.amountController,
-    required this.onAmountChanged,
-  });
-
-  final String minValue;
-  final String maxValue;
-  final String fiatCurrency;
-  final FocusNode amountFieldFocus;
-  final TextEditingController amountController;
-  final Function(String) onAmountChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                  width: 1.0,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
-            ),
-          ),
-          child: BaseTextFormField(
-            controller: amountController,
-            keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-            hintText: '0.00',
-            maxLines: null,
-            borderColor: Colors.transparent,
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(
-                '$fiatCurrency: ',
-                style: textMediumSemiBold(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+void _showHowToUseCard(BuildContext context, CakePayCard card) {
+  showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return CakePayAlertModal(
+          title: S.of(context).how_to_use_card,
+          content: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+                padding: EdgeInsets.all(10),
+                child: Text(
+                  card.name,
+                  style: textLargeSemiBold(
+                    color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                  ),
+                )),
+            ClickableLinksText(
+              text: card.howToUse ?? '',
+              textStyle: TextStyle(
+                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
+              linkStyle: TextStyle(
+                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                fontSize: 18,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w400,
               ),
             ),
-            textStyle:
-                textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-            placeholderTextStyle: textMediumSemiBold(
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
-            inputFormatters: [
-              FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-              FilteringTextInputFormatter.allow(
-                RegExp(r'^\d+(\.|\,)?\d{0,2}'),
+          ]),
+          actionTitle: S.current.got_it,
+        );
+      });
+}
+
+void _showTermsAndCondition(BuildContext context, String? termsAndConditions) {
+  showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return CakePayAlertModal(
+          title: S.of(context).settings_terms_and_conditions,
+          content: Align(
+            alignment: Alignment.bottomLeft,
+            child: ClickableLinksText(
+              text: termsAndConditions ?? '',
+              textStyle: TextStyle(
+                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
               ),
-            ],
+            ),
           ),
-        ),
-        SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
-                style: textSmall(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
-            Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
-                style: textSmall(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
-          ],
-        ),
-      ],
-    );
-  }
+          actionTitle: S.of(context).agree,
+          showCloseButton: false,
+          heightFactor: 0.6,
+        );
+      });
 }

@@ -33,6 +33,9 @@ class BaseTextFormField extends StatelessWidget {
       this.initialValue,
       this.onSubmit,
       this.borderWidth = 1.0,
+      this.isDense = false,
+      this.contentPadding,
+      this.prefixIconConstraints,
       super.key});
 
   final TextEditingController? controller;
@@ -62,6 +65,9 @@ class BaseTextFormField extends StatelessWidget {
   final bool? enableInteractiveSelection;
   final String? initialValue;
   final double borderWidth;
+  final bool isDense;
+  final EdgeInsets? contentPadding;
+  final BoxConstraints? prefixIconConstraints;
   final void Function(String)? onSubmit;
   final bool obscureText;
 
@@ -89,6 +95,9 @@ class BaseTextFormField extends StatelessWidget {
               color: textColor ??
                   Theme.of(context).extension<CakeTextTheme>()!.titleColor),
       decoration: InputDecoration(
+          isDense: isDense,
+          contentPadding: contentPadding,
+          prefixIconConstraints: prefixIconConstraints,
           prefix: prefix,
           prefixIcon: prefixIcon,
           suffix: suffix,

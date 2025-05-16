@@ -96,6 +96,8 @@ class CakePayApi {
     required bool confirmsNoVpn,
     required bool confirmsVoidedRefund,
     required bool confirmsTermsAgreed,
+    String? cardName,
+    String? cardImagePath,
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
     final headers = {
@@ -128,6 +130,8 @@ class CakePayApi {
       }
 
       final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+      bodyJson['card_name'] = cardName;
+      bodyJson['card_image_path'] = cardImagePath;
       return CakePayOrder.fromMap(bodyJson);
     } catch (e) {
       throw Exception('${e}');
