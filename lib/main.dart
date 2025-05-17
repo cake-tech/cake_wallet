@@ -50,6 +50,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -206,8 +207,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 
   final havenSeedStoreBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
-  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(
-      HavenSeedStore.boxName,
+  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(HavenSeedStore.boxName,
       encryptionKey: havenSeedStoreBoxKey);
 
   await initialSetup(
@@ -232,25 +232,26 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   );
 }
 
-Future<void> initialSetup(
-    {required bool loadWallet,
-    required SharedPreferences sharedPreferences,
-    required Box<Node> nodes,
-    required Box<Node> powNodes,
-    required Box<WalletInfo> walletInfoSource,
-    required Box<Contact> contactSource,
-    required Box<Trade> tradesSource,
-    required Box<Order> ordersSource,
-    // required FiatConvertationService fiatConvertationService,
-    required Box<Template> templates,
-    required Box<ExchangeTemplate> exchangeTemplates,
-    required Box<TransactionDescription> transactionDescriptions,
-    required SecureStorage secureStorage,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    required Box<PayjoinSession> payjoinSessionSource,
-    required Box<HavenSeedStore> havenSeedStore,
-    int initialMigrationVersion = 15, }) async {
+Future<void> initialSetup({
+  required bool loadWallet,
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+  required Box<Node> powNodes,
+  required Box<WalletInfo> walletInfoSource,
+  required Box<Contact> contactSource,
+  required Box<Trade> tradesSource,
+  required Box<Order> ordersSource,
+  // required FiatConvertationService fiatConvertationService,
+  required Box<Template> templates,
+  required Box<ExchangeTemplate> exchangeTemplates,
+  required Box<TransactionDescription> transactionDescriptions,
+  required SecureStorage secureStorage,
+  required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
+  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+  required Box<PayjoinSession> payjoinSessionSource,
+  required Box<HavenSeedStore> havenSeedStore,
+  int initialMigrationVersion = 15,
+}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,

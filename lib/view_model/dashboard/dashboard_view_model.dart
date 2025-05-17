@@ -57,6 +57,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../themes/theme_base.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -65,6 +66,7 @@ class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 abstract class DashboardViewModelBase with Store {
   DashboardViewModelBase(
       {required this.balanceViewModel,
+      required this.tradeMonitor,
       required this.appStore,
       required this.tradesStore,
       required this.tradeFilterStore,
@@ -283,7 +285,8 @@ abstract class DashboardViewModelBase with Store {
       int confirmations = 1;
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
-          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+          confirmations =
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
         } catch (_) {}
       }
       return length * confirmations;
@@ -299,6 +302,10 @@ abstract class DashboardViewModelBase with Store {
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
+
+    reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
+
+    tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
@@ -766,6 +773,8 @@ abstract class DashboardViewModelBase with Store {
 
   BalanceViewModel balanceViewModel;
 
+  TradeMonitor tradeMonitor;
+
   AppStore appStore;
 
   SettingsStore settingsStore;
@@ -937,7 +946,8 @@ abstract class DashboardViewModelBase with Store {
       int confirmations = 1;
       if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
         try {
-          confirmations = appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+          confirmations =
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
         } catch (_) {}
       }
       return length * confirmations;
