@@ -224,7 +224,7 @@ class QRWidget extends StatelessWidget {
                       'assets/images/payjoin.png',
                       width: 25,
                     ),
-                    text: S.of(context).copy_payjoin_url,
+                    text: S.of(context).copy_payjoin_address,
                     color: Theme.of(context).cardColor,
                     textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                   ),

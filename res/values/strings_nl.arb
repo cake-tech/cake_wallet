@@ -202,6 +202,7 @@
   "copy": "Kopiëren",
   "copy_address": "Adres kopiëren",
   "copy_id": "ID kopiëren",
+  "copy_payjoin_address": "Payjoin -adres kopiëren",
   "copy_payjoin_url": "Kopieer Payjoin url",
   "copyWalletConnectLink": "Kopieer de WalletConnect-link van dApp en plak deze hier",
   "corrupted_seed_notice": "De bestanden voor deze portemonnee zijn beschadigd en kunnen niet worden geopend. Bekijk de zaadzin, bewaar deze en herstel de portemonnee.\n\nAls de waarde leeg is, kon het zaad niet correct worden hersteld.",
