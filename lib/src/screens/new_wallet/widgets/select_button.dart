@@ -1,6 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:flutter/material.dart';
 
@@ -43,12 +40,12 @@ class SelectButton extends StatelessWidget {
     final backgroundColor = color ?? (isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor);
     final effectiveTextColor = textColor ??
         (isSelected
-            ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-            : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurface);
     final effectiveArrowColor = arrowColor ??
         (isSelected
-            ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-            : Theme.of(context).extension<FilterTheme>()!.titlesColor);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurface);
 
     final trailingIcons = <Image>[];
     final selectArrowImage =

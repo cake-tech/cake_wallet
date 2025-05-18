@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/add_passphrase_bottom_sheet
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
@@ -42,11 +41,9 @@ class WalletRestorePage extends BasePage {
             walletRestoreViewModel.mode == WalletRestoreMode.seed
                 ? S.current.restore_title_from_seed
                 : S.current.restore_title_from_keys,
-            style: TextStyle(
-                fontSize: 18.0,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Lato',
-                color: titleColor(context)),
+                color: Theme.of(context).colorScheme.primary),
           ));
 
   // DerivationType derivationType = DerivationType.unknown;
@@ -80,7 +77,7 @@ class WalletRestorePage extends BasePage {
       ),
       child: Container(
         height: 0,
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: Center(
           child: ConstrainedBox(
             constraints:
@@ -131,7 +128,7 @@ class WalletRestorePage extends BasePage {
                         },
                         text: S.of(context).advanced_settings,
                         color: Theme.of(context).cardColor,
-                        textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                       SizedBox(height: 8),
                       Observer(

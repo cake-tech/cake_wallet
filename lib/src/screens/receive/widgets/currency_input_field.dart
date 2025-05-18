@@ -1,7 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -106,7 +104,7 @@ class CurrencyAmountTextField extends StatelessWidget {
               height: 32,
               decoration: BoxDecoration(
                 color: tagBackgroundColor ??
-                    Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: const BorderRadius.all(Radius.circular(6)),
               ),
               child: Center(
@@ -118,7 +116,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -186,7 +184,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: currentTheme == ThemeType.light
                             ? Theme.of(context).appBarTheme.titleTextStyle!.color!
-                            : Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
                       ),
                       validator: isAmountEditable ? currencyValueValidator : null,
                     ),
@@ -197,7 +195,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                     height: 32,
                     width: 32,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: const BorderRadius.all(Radius.circular(6)),
                     ),
                     child: InkWell(
@@ -211,8 +209,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context)
-                                .extension<SendPageTheme>()!
-                                .textFieldButtonIconColor,
+                                .colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),

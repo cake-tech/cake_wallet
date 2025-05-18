@@ -1,12 +1,7 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'dart:ui';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 class InformationPage extends StatelessWidget {
   InformationPage({required this.information, super.key});
@@ -24,7 +19,7 @@ class InformationPage extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(30)),
-            color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
+            color: Theme.of(context).colorScheme.surface,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -39,7 +34,7 @@ class InformationPage extends StatelessWidget {
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Lato',
                     decoration: TextDecoration.none,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -49,8 +44,8 @@ class InformationPage extends StatelessWidget {
                   key: ValueKey('information_page_got_it_button_key'),
                   onPressed: () => Navigator.of(context).pop(),
                   text: S.of(context).got_it,
-                  color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
-                  textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor
+                  color: Theme.of(context).colorScheme.surface,
+                  textColor: Theme.of(context).colorScheme.primary,
                 ),
               )
             ],

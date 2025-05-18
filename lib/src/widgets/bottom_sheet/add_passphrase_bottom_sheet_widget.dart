@@ -1,7 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -59,8 +58,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                     height: 6,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
-                      color:
-                          Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ),
@@ -75,7 +73,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                 fontSize: 18,
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).colorScheme.onSurface,
                 decoration: TextDecoration.none,
               ),
             ),
@@ -105,7 +103,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                   fontSize: 16,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -129,7 +127,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                   child: Icon(
                     obscurePassphrase ? Icons.visibility_off : Icons.visibility,
                     size: 24,
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
                 border: OutlineInputBorder(
@@ -157,7 +155,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                   child: Icon(
                     obscurePassphrase ? Icons.visibility_off : Icons.visibility,
                     size: 24,
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
                 border: OutlineInputBorder(
@@ -189,7 +187,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                         },
                         text: S.of(context).cancel,
                         color: Theme.of(context).cardColor,
-                        textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                        textColor: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),

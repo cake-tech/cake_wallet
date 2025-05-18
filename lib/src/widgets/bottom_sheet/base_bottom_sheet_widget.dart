@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 abstract class BaseBottomSheet extends StatelessWidget {
   final String titleText;
@@ -21,7 +20,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
                   height: 6,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -44,7 +43,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
                 fontSize: 20,
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).colorScheme.onSurface,
                 decoration: TextDecoration.none,
               ),
             ),

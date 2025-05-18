@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:flutter/material.dart';
@@ -100,7 +99,7 @@ class SeedVerificationStepView extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),

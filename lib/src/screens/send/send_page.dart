@@ -25,9 +25,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
@@ -239,12 +236,8 @@ class SendPage extends BasePage {
                                               radius: 6.0,
                                               dotWidth: 6.0,
                                               dotHeight: 6.0,
-                                              dotColor: Theme.of(context)
-                                                  .extension<SendPageTheme>()!
-                                                  .indicatorDotColor,
-                                              activeDotColor: Theme.of(context)
-                                                  .extension<SendPageTheme>()!
-                                                  .templateBackgroundColor),
+                                              dotColor: Theme.of(context).colorScheme.outline,
+                                              activeDotColor: Theme.of(context).colorScheme.primaryContainer),
                                         ))
                                     : Offstage();
                               },
@@ -367,7 +360,7 @@ class SendPage extends BasePage {
                               text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                               color: Colors.transparent,
                               textColor:
-                                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                                  Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -385,11 +378,9 @@ class SendPage extends BasePage {
                               text: S.of(context).add_receiver,
                               color: Colors.transparent,
                               textColor:
-                                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                                  Theme.of(context).colorScheme.onSurfaceVariant,
                               isDottedBorder: true,
-                              borderColor: Theme.of(context)
-                                  .extension<SendPageTheme>()!
-                                  .templateDottedBorderColor,
+                              borderColor: Theme.of(context).colorScheme.outline,
                             )),
                       Observer(
                         builder: (_) {
@@ -611,7 +602,7 @@ class SendPage extends BasePage {
                       onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/contact_icon.svg',
-                      contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      contentImageColor: Theme.of(context).colorScheme.onSurface,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
                       isTwoAction: true,
                       leftButtonText: 'No',
@@ -684,7 +675,7 @@ class SendPage extends BasePage {
               currentTheme: currentTheme,
               titleText: S.of(bottomSheetContext).proceed_on_device,
               contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-              contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              contentImageColor: Theme.of(context).colorScheme.onSurface,
               content: S.of(bottomSheetContext).proceed_on_device_description,
               isTwoAction: false,
               actionButtonText: S.of(context).cancel,

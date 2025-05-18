@@ -1,7 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +32,7 @@ class CakePayAlertModal extends StatelessWidget {
               padding: EdgeInsets.only(top: 24, left: 24, right: 24),
               margin: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Column(
@@ -42,8 +40,9 @@ class CakePayAlertModal extends StatelessWidget {
                   if (title.isNotEmpty)
                     Text(
                       title,
-                      style: textLargeSemiBold(
-                        color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   Container(
@@ -59,8 +58,7 @@ class CakePayAlertModal extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                     text: actionTitle,
                     color: Theme.of(context).cardColor,
-                    textColor:
-                        Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    textColor: Theme.of(context).colorScheme.primary,
                   ),
                   SizedBox(height: 21),
                 ],

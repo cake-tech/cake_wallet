@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +7,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WelcomePage extends BasePage {
@@ -41,9 +38,9 @@ class WelcomePage extends BasePage {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor);
+        color: Theme.of(context).colorScheme.onPrimary);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+        height: 12, width: 12, color: Theme.of(context).colorScheme.onSurface);
 
     return ScrollableWithBottomSection(
       content: Container(
@@ -88,7 +85,7 @@ class WelcomePage extends BasePage {
                 image: restoreWalletImage,
                 text: S.of(context).restore_existing_wallet,
                 color: Theme.of(context).cardColor,
-                textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                textColor: Theme.of(context).colorScheme.onSurface),
           ),
           Padding(
             padding: EdgeInsets.only(top: 10),
@@ -97,11 +94,8 @@ class WelcomePage extends BasePage {
               onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
               image: newWalletImage,
               text: S.of(context).create_new,
-              color: Theme.of(context)
-                  .extension<WalletListTheme>()!
-                  .createNewWalletButtonBackgroundColor,
-              textColor:
-                  Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
+              color: Theme.of(context).colorScheme.primaryContainer,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ],
@@ -122,7 +116,7 @@ class WelcomePage extends BasePage {
             fontSize: 16,
             height: 1.5,
             fontWeight: FontWeight.w400,
-            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       );
@@ -142,7 +136,7 @@ class WelcomePage extends BasePage {
             fontSize: 16,
             height: 1.5,
             fontWeight: FontWeight.w400,
-            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ));
       }
@@ -152,7 +146,7 @@ class WelcomePage extends BasePage {
         style: TextStyle(
           fontSize: 16,
           height: 1.5,
-          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+          color: Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.bold,
         ),
       ));
@@ -167,7 +161,7 @@ class WelcomePage extends BasePage {
           fontSize: 16,
           height: 1.5,
           fontWeight: FontWeight.w400,
-          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ));
     }

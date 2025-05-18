@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/services.dart';
 
 class WalletRestoreFromKeysForm extends StatefulWidget {
@@ -155,14 +154,13 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6.0),
-                        color: Theme.of(context).hintColor,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       width: 34,
                       height: 34,
                       child: Image.asset(
                         'assets/images/refresh_icon.png',
-                        color:
-                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonIconColor,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -219,7 +217,7 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         controller: privateKeyController,
         placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
         options: [AddressTextFieldOption.paste],
-        buttonColor: Theme.of(context).hintColor,
+        buttonColor: Theme.of(context).colorScheme.primary,
         onPushPasteButton: (_) {
           _pasteText();
         },

@@ -8,7 +8,6 @@ import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -247,11 +246,11 @@ class OnRamperBuyProvider extends BuyProvider {
     final actionType = isBuyAction ? 'buy' : 'sell';
 
     final primaryColor = getColorStr(Theme.of(context).primaryColor);
-    final secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
-    final primaryTextColor = getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+    final secondaryColor = getColorStr(Theme.of(context).colorScheme.surface);
+    final primaryTextColor = getColorStr(Theme.of(context).colorScheme.onSurface);
     final secondaryTextColor =
-        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
-    final containerColor = getColorStr(Theme.of(context).colorScheme.background);
+        getColorStr(Theme.of(context).colorScheme.onSurfaceVariant);
+    final containerColor = getColorStr(Theme.of(context).colorScheme.surface);
     var cardColor = getColorStr(Theme.of(context).cardColor);
 
     if (_themeStore.currentTheme.title == S.current.high_contrast_theme) {

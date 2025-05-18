@@ -15,8 +15,6 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -90,7 +88,7 @@ class CakePayBuyCardPage extends BasePage {
             ),
           ]),
       child: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.zero,
           content: Column(
@@ -102,8 +100,8 @@ class CakePayBuyCardPage extends BasePage {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                          Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -146,7 +144,7 @@ class CakePayBuyCardPage extends BasePage {
                       Expanded(
                         child: Text(S.of(context).enter_amount,
                             style: TextStyle(
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontSize: 24,
                               fontWeight: FontWeight.w600,
                             )),
@@ -206,8 +204,7 @@ class CakePayBuyCardPage extends BasePage {
                                   text: card.description ?? '',
                                   textStyle: TextStyle(
                                     color: Theme.of(context)
-                                        .extension<CakeTextTheme>()!
-                                        .secondaryTextColor,
+                                        .colorScheme.onSurfaceVariant,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -358,7 +355,7 @@ class _DenominationsAmountWidget extends StatelessWidget {
                   itemPrefix: fiatCurrency,
                   selectedItem: denominations.first,
                   textStyle: textMediumSemiBold(
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                      color: Theme.of(context).colorScheme.onSurface),
                   onItemSelected: (value) {
                     amountController.text = value;
                     onAmountChanged(value);
@@ -374,13 +371,13 @@ class _DenominationsAmountWidget extends StatelessWidget {
                     border: Border(
                       top: BorderSide(
                           width: 1.0,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                   child: Text(S.of(context).choose_card_value + ':',
                       maxLines: 2,
                       style: textSmall(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               ),
             ],
@@ -408,13 +405,13 @@ class _DenominationsAmountWidget extends StatelessWidget {
                     border: Border(
                       top: BorderSide(
                           width: 1.0,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                   child: Text(S.of(context).quantity + ':',
                       maxLines: 1,
                       style: textSmall(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               ),
             ],
@@ -433,8 +430,7 @@ class _DenominationsAmountWidget extends StatelessWidget {
                               '$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
                               maxLines: 1,
                               style: textMediumSemiBold(
-                                  color:
-                                      Theme.of(context).extension<CakeTextTheme>()!.titleColor)))),
+                                  color: Theme.of(context).colorScheme.onSurface)))),
                 ),
                 const SizedBox(height: 4),
                 Expanded(
@@ -444,15 +440,13 @@ class _DenominationsAmountWidget extends StatelessWidget {
                       border: Border(
                         top: BorderSide(
                             width: 1.0,
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ),
                     child: Text(S.of(context).total + ':',
                         maxLines: 1,
                         style: textSmall(
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ),
                 ),
               ],
@@ -488,7 +482,7 @@ class _EnterAmountWidget extends StatelessWidget {
             border: Border(
               bottom: BorderSide(
                   width: 1.0,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           child: BaseTextFormField(
@@ -502,13 +496,13 @@ class _EnterAmountWidget extends StatelessWidget {
               child: Text(
                 '$fiatCurrency: ',
                 style: textMediumSemiBold(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                    color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
             textStyle:
-                textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                textMediumSemiBold(color: Theme.of(context).colorScheme.onSurface),
             placeholderTextStyle: textMediumSemiBold(
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
             inputFormatters: [
               FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
               FilteringTextInputFormatter.allow(
@@ -523,10 +517,10 @@ class _EnterAmountWidget extends StatelessWidget {
           children: [
             Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
                 style: textSmall(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
             Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
                 style: textSmall(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ],

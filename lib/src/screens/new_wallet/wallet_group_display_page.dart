@@ -4,7 +4,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_type_images.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
@@ -185,7 +184,7 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
             height: 1.5,
             fontSize: 16,
             fontWeight: FontWeight.w400,
-            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],

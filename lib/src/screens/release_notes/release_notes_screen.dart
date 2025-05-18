@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,8 +33,8 @@ class ReleaseNotesScreen extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).extension<DashboardPageTheme>()!.firstGradientBackgroundColor,
-                    Theme.of(context).extension<DashboardPageTheme>()!.secondGradientBackgroundColor,
+                    Theme.of(context).colorScheme.primaryContainer,
+                    Theme.of(context).colorScheme.secondaryContainer,
                   ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -52,7 +51,7 @@ class ReleaseNotesScreen extends StatelessWidget {
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Lato',
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             child: Text(title),
                           ),
@@ -119,7 +118,7 @@ class ReleaseNotesScreen extends StatelessWidget {
               decoration: TextDecoration.none,
               fontSize: 16.0,
               fontFamily: 'Lato',
-              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

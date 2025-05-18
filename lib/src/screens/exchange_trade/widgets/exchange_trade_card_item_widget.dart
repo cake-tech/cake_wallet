@@ -13,11 +13,8 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import '../../../../themes/extensions/cake_text_theme.dart';
-import '../../../../themes/extensions/transaction_trade_theme.dart';
 
 class ExchangeTradeCardItemWidget extends StatelessWidget {
   ExchangeTradeCardItemWidget({
@@ -40,7 +37,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
       'assets/images/copy_content.png',
       height: 16,
       width: 16,
-      color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
     return Container(
@@ -168,11 +165,11 @@ class TradeItemRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final hintTextColor = currentTheme.type == ThemeType.light
-        ? Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor
+        ? Theme.of(context).colorScheme.onSurfaceVariant
         : Colors.white.withAlpha(175);
 
     final mainTextColor = currentTheme.type == ThemeType.light
-        ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
+        ? Theme.of(context).colorScheme.onSurface
         : Colors.white;
 
     return Padding(
@@ -251,7 +248,7 @@ class FeeSelectionWidget extends StatelessWidget {
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color:
-                                  Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                                  Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),

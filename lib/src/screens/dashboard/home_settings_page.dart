@@ -8,13 +8,9 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
-import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 
 class HomeSettingsPage extends BasePage {
   HomeSettingsPage(this._homeSettingsViewModel);
@@ -39,7 +35,7 @@ class HomeSettingsPage extends BasePage {
               onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
             ),
           ),
-          Divider(color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor),
+          Divider(color: Theme.of(context).colorScheme.outlineVariant),
           Observer(
             builder: (_) => SettingsSwitcherCell(
               title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
@@ -49,7 +45,7 @@ class HomeSettingsPage extends BasePage {
               },
             ),
           ),
-          Divider(color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor),
+          Divider(color: Theme.of(context).colorScheme.outlineVariant),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -59,12 +55,12 @@ class HomeSettingsPage extends BasePage {
                   child: TextFormField(
                     controller: _searchController,
                     style: TextStyle(
-                        color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                     decoration: InputDecoration(
                       hintText: S.of(context).search_add_token,
                       prefixIcon: Image.asset("assets/images/search_icon.png"),
                       filled: true,
-                      fillColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                      fillColor: Theme.of(context).colorScheme.primaryContainer,
                       alignLabelWithHint: false,
                       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                       enabledBorder: OutlineInputBorder(
@@ -93,7 +89,7 @@ class HomeSettingsPage extends BasePage {
                 fillColor: Theme.of(context).cardColor,
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                   size: 22.0,
                 ),
                 padding: EdgeInsets.all(12),

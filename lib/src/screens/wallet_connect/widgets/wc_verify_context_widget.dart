@@ -1,6 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
@@ -39,9 +37,7 @@ class WCVerifyContextWidget extends StatelessWidget {
     }
     if (verifyContext!.validation.valid) {
       return VerifyHeader(
-        iconColor: currentTheme.type == ThemeType.dark
-            ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-            : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+        iconColor: Theme.of(context).colorScheme.onPrimary,
         title: verifyContext!.origin,
       );
     }

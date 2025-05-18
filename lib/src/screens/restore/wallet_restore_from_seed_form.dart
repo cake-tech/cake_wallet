@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -185,9 +184,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                         height: 34,
                         child: Image.asset(
                           'assets/images/refresh_icon.png',
-                          color: Theme.of(context)
-                              .extension<SendPageTheme>()!
-                              .textFieldButtonIconColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),

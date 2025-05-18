@@ -3,8 +3,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_verify_context_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:flutter/material.dart';
@@ -66,9 +64,7 @@ class WCRequestWidget extends StatelessWidget {
                     },
                 text: S.current.approve,
                 color: Theme.of(context).primaryColor,
-                textColor: currentTheme.type == ThemeType.dark
-                    ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                    : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ],

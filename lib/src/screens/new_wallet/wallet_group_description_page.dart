@@ -1,6 +1,5 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_type_images.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +59,7 @@ class WalletGroupDescriptionPage extends BasePage {
                     height: 1.5,
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -74,7 +73,7 @@ class WalletGroupDescriptionPage extends BasePage {
             ),
             text: S.of(context).create_new_seed,
             color: Theme.of(context).cardColor,
-            textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            textColor: Theme.of(context).colorScheme.onSurface,
           ),
           SizedBox(height: 12),
           PrimaryButton(

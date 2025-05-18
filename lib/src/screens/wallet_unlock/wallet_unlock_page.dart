@@ -4,8 +4,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -141,7 +139,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                     ),
                   ))
               : Container(),
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           border: null),
       resizeToAvoidBottomInset: false,
       body: Center(
@@ -164,7 +162,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     SizedBox(height: 24),
@@ -178,24 +176,24 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         decoration: InputDecoration(
                           hintStyle: TextStyle(
                             fontSize: 18.0,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           hintText: S.of(context).enter_wallet_password,
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                              color: Theme.of(context).colorScheme.primary,
                               width: 1.0,
                             ),
                           ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                              color: Theme.of(context).colorScheme.outline,
                               width: 1.0,
                             ),
                           ),

@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class WCConnectionItemWidget extends StatelessWidget {
@@ -26,7 +25,7 @@ class WCConnectionItemWidget extends StatelessWidget {
             Text(
               model.title ?? '',
               style: TextStyle(
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -59,7 +58,7 @@ class _NoModelElementWidget extends StatelessWidget {
     return Text(
       model.text!,
       style: TextStyle(
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
         fontSize: 14,
         fontWeight: FontWeight.w600,
       ),
@@ -82,14 +81,14 @@ class _ModelElementWidget extends StatelessWidget {
       onTap: model.elementActions != null ? model.elementActions![modelElement] : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(6),
         ),
         padding: const EdgeInsets.all(8),
         child: Text(
           modelElement,
           style: TextStyle(
-            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),

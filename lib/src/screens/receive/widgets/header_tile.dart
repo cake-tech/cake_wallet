@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -32,11 +31,11 @@ class _HeaderTileState extends State<HeaderTile> {
   @override
   Widget build(BuildContext context) {
     final searchIcon = Icon( Icons.search,
-        color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor);
+        color: Theme.of(context).colorScheme.primary);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      color: Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -47,7 +46,7 @@ class _HeaderTileState extends State<HeaderTile> {
                       widget.walletAddressListViewModel.updateSearchText(value);
                       widget.onSearchCallback?.call();
                     },
-                    cursorColor: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
+                    cursorColor: Theme.of(context).colorScheme.onSurface,
                     cursorWidth: 0.5,
                     decoration: InputDecoration(
                       hintText: '${S.of(context).search}...',
@@ -56,7 +55,7 @@ class _HeaderTileState extends State<HeaderTile> {
                       hintStyle: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
+                          color: Theme.of(context).colorScheme.onSurface),
                       border: UnderlineInputBorder(
                         borderSide: BorderSide(color: Theme.of(context).dividerColor),
                       ),
@@ -75,7 +74,7 @@ class _HeaderTileState extends State<HeaderTile> {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
           Row(
             children: [
@@ -92,9 +91,7 @@ class _HeaderTileState extends State<HeaderTile> {
                       width: 32,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Theme.of(context)
-                              .extension<ReceivePageTheme>()!
-                              .iconsBackgroundColor),
+                          color: Theme.of(context).colorScheme.secondaryContainer),
                       child: searchIcon,
                     )),
               const SizedBox(width: 8),
@@ -106,8 +103,7 @@ class _HeaderTileState extends State<HeaderTile> {
                     width: 32,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color:
-                            Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor),
+                        color: Theme.of(context).colorScheme.secondaryContainer),
                     child: widget.trailingIcon,
                   ),
                 ),

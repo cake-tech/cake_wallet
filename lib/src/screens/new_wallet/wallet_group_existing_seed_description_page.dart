@@ -2,8 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_type_images.dart';
 import 'package:flutter/material.dart';
@@ -16,10 +14,8 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final textStyle = TextStyle(
-      fontSize: 16,
-      fontWeight: FontWeight.w400,
-      color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+    final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
     return Container(
@@ -47,7 +43,7 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                        color: Theme.of(context).colorScheme.surface,
                       ),
                     ),
                   ],
@@ -71,8 +67,8 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
                         text: S.current.verify_seed,
                         color: Theme.of(context).cardColor,
                         textColor: currentTheme.type == ThemeType.dark
-                            ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                            : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                            ? Theme.of(context).colorScheme.surface
+                            : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),

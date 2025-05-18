@@ -1,6 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 class TextFieldListRow extends StatefulWidget {
@@ -51,7 +49,7 @@ class _TextFieldListRowState extends State<TextFieldListRow> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
         child: Column(
@@ -62,7 +60,7 @@ class _TextFieldListRowState extends State<TextFieldListRow> {
               style: TextStyle(
                 fontSize: widget.titleFontSize,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.left,
             ),
@@ -76,7 +74,7 @@ class _TextFieldListRowState extends State<TextFieldListRow> {
               style: TextStyle(
                 fontSize: widget.valueFontSize,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 isDense: true,
@@ -85,7 +83,7 @@ class _TextFieldListRowState extends State<TextFieldListRow> {
                 hintStyle: TextStyle(
                   fontSize: widget.valueFontSize,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 border: InputBorder.none,
               ),
