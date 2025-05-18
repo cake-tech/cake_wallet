@@ -1,10 +1,8 @@
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -12,11 +10,9 @@ import 'package:cw_core/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 
 class ExchangeCard<T extends Currency> extends StatefulWidget {
   ExchangeCard({
@@ -187,7 +183,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
         width: 16,
-        color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor);
+        color: Theme.of(context).colorScheme.surfaceContainerHighest);
 
     return Container(
       width: double.infinity,
@@ -204,7 +200,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor),
+                  color: Theme.of(context).colorScheme.onSurface),
             )
           ],
         ),
@@ -230,7 +226,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
           tag: _selectedCurrency.tag,
           allAmountCallback: widget.allAmount,
         ),
-        Divider(height: 1, color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
+        Divider(height: 1, color: Theme.of(context).colorScheme.surfaceContainerHighest),
         Padding(
           padding: EdgeInsets.only(top: 5),
           child: widget.showLimitsField ? Container(
@@ -243,7 +239,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                         style: TextStyle(
                             fontSize: 10,
                             height: 1.2,
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       )
                     : Offstage(),
                 _min != null ? SizedBox(width: 10) : Offstage(),
@@ -254,7 +250,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                         style: TextStyle(
                           fontSize: 10,
                           height: 1.2,
-                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       )
                     : Offstage(),
@@ -268,7 +264,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ))
             : Offstage(),
         _isAddressEditable
@@ -306,7 +302,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color:
-                          Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                          Theme.of(context).colorScheme.onSurfaceVariant),
                       buttonColor: widget.addressButtonsColor,
                       validator: widget.addressTextFieldValidator,
                       onPushPasteButton: widget.onPushPasteButton,
@@ -371,8 +367,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                                                     child: Image.asset(
                                                       'assets/images/open_book.png',
                                                       color: Theme.of(context)
-                                                          .extension<SendPageTheme>()!
-                                                          .textFieldButtonIconColor,
+                                                          .colorScheme.surfaceContainerHighest,
                                                     )),
                                               ),
                                             )),

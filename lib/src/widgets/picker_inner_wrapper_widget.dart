@@ -44,7 +44,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(14)),
               child: Container(
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight:

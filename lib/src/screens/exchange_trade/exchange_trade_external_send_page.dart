@@ -1,7 +1,5 @@
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -39,7 +37,7 @@ class ExchangeTradeExternalSendPage extends BasePage {
       'assets/images/copy_content.png',
       height: 16,
       width: 16,
-      color: Theme.of(context).extension<SendPageTheme>()!.estimatedFeeColor,
+      color: Theme.of(context).colorScheme.primary,
     );
     return Container(
       child: ScrollableWithBottomSection(
@@ -54,8 +52,8 @@ class ExchangeTradeExternalSendPage extends BasePage {
                         bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
                     gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                        Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
+                        Theme.of(context).colorScheme.primary,
+                        Theme.of(context).colorScheme.secondary,
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -78,9 +76,7 @@ class ExchangeTradeExternalSendPage extends BasePage {
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       width: 3,
-                                      color: Theme.of(context)
-                                          .extension<ExchangePageTheme>()!
-                                          .qrCodeColor,
+                                      color: Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                   child: QrImage(
@@ -128,8 +124,8 @@ class ExchangeTradeExternalSendPage extends BasePage {
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     },
                     text: S.current.continue_text,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                   )
                 : Offstage();
           },

@@ -1,9 +1,7 @@
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
+import 'package:cake_wallet/routes.dart';   
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -75,7 +73,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
           focusNode: focusNode,
           style: textStyle ??
               TextStyle(
-                  fontSize: 16, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                  fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
           decoration: InputDecoration(
             suffixIcon: SizedBox(
               width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
@@ -130,9 +128,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                               child: Image.asset(
                                 'assets/images/paste_ios.png',
                                 color: iconColor ??
-                                    Theme.of(context)
-                                        .extension<SendPageTheme>()!
-                                        .textFieldButtonIconColor,
+                                    Theme.of(context).colorScheme.onPrimary,
                               )),
                         ),
                       ),
@@ -158,9 +154,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                               child: Image.asset(
                                 'assets/images/qr_code_icon.png',
                                 color: iconColor ??
-                                    Theme.of(context)
-                                        .extension<SendPageTheme>()!
-                                        .textFieldButtonIconColor,
+                                    Theme.of(context).colorScheme.onPrimary,
                               )),
                         ),
                       ),
@@ -185,9 +179,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                               child: Image.asset(
                                 'assets/images/open_book.png',
                                 color: iconColor ??
-                                    Theme.of(context)
-                                        .extension<SendPageTheme>()!
-                                        .textFieldButtonIconColor,
+                                    Theme.of(context).colorScheme.onPrimary,
                               )),
                         ),
                       ),
@@ -212,9 +204,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                               child: Image.asset(
                                 'assets/images/open_book.png',
                                 color: iconColor ??
-                                    Theme.of(context)
-                                        .extension<SendPageTheme>()!
-                                        .textFieldButtonIconColor,
+                                    Theme.of(context).colorScheme.onPrimary,
                               )),
                         ),
                       ),

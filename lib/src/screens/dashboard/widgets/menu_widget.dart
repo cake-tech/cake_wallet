@@ -1,7 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -114,9 +113,9 @@ class MenuWidgetState extends State<MenuWidget> {
     int itemCount = items.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
-        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
+        color: Theme.of(context).colorScheme.primary);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
-        color: Theme.of(context).extension<CakeMenuTheme>()!.iconColor);
+        color: Theme.of(context).colorScheme.primary);
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -137,7 +136,7 @@ class MenuWidgetState extends State<MenuWidget> {
             borderRadius:
                 BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
             child: Container(
-              color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
+              color: Theme.of(context).colorScheme.surface,
               child: ListView.separated(
                 padding: EdgeInsets.only(top: 0),
                 itemBuilder: (_, index) {
@@ -147,8 +146,8 @@ class MenuWidgetState extends State<MenuWidget> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
                         gradient: LinearGradient(colors: [
-                          Theme.of(context).extension<CakeMenuTheme>()!.headerFirstGradientColor,
-                          Theme.of(context).extension<CakeMenuTheme>()!.headerSecondGradientColor,
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
                         ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                       ),
                       padding: EdgeInsets.only(
@@ -179,8 +178,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                         widget.dashboardViewModel.subname,
                                         style: TextStyle(
                                             color: Theme.of(context)
-                                                .extension<CakeMenuTheme>()!
-                                                .subnameTextColor,
+                                                .colorScheme.onSurfaceVariant,
                                             fontWeight: FontWeight.w500,
                                             fontSize: 12),
                                       ),
@@ -213,7 +211,7 @@ class MenuWidgetState extends State<MenuWidget> {
                 },
                 separatorBuilder: (_, index) => Container(
                   height: 0,
-                  color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
+                  color: Theme.of(context).colorScheme.outline,
                 ),
                 itemCount: itemCount + 1,
               ),

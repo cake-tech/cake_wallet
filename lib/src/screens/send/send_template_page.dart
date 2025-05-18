@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -9,7 +7,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_template_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -107,13 +104,8 @@ class SendTemplatePage extends BasePage {
                                         radius: 6.0,
                                         dotWidth: 6.0,
                                         dotHeight: 6.0,
-                                        dotColor: Theme.of(context)
-                                            .extension<SendPageTheme>()!
-                                            .indicatorDotColor,
-                                        activeDotColor: Theme.of(context)
-                                            .extension<DashboardPageTheme>()!
-                                            .indicatorDotTheme
-                                            .activeIndicatorColor)),
+                                        dotColor: Theme.of(context).colorScheme.outlineVariant,
+                                        activeDotColor: Theme.of(context).colorScheme.primary)),
                               )
                               : Offstage();
                         },
@@ -135,10 +127,9 @@ class SendTemplatePage extends BasePage {
                         },
                         text: S.of(context).add_receiver,
                         color: Colors.transparent,
-                        textColor: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                        textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                         isDottedBorder: true,
-                        borderColor:
-                            Theme.of(context).extension<SendPageTheme>()!.templateBackgroundColor)),
+                        borderColor: Theme.of(context).colorScheme.surfaceContainerHighest)),
               PrimaryButton(
                   onPressed: () {
                     if (_formKey.currentState != null && _formKey.currentState!.validate()) {

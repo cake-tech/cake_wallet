@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class GradientBackground extends StatelessWidget {
@@ -12,15 +11,9 @@ class GradientBackground extends StatelessWidget {
         decoration: BoxDecoration(
             gradient: LinearGradient(
           colors: [
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .firstGradientBackgroundColor,
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .secondGradientBackgroundColor,
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor,
+            Theme.of(context).colorScheme.primaryContainer,
+            Theme.of(context).colorScheme.secondaryContainer,
+            Theme.of(context).colorScheme.tertiaryContainer,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

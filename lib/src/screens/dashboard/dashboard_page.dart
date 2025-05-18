@@ -32,7 +32,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class DashboardPage extends StatefulWidget {
   DashboardPage({
@@ -166,7 +165,7 @@ class _DashboardPageView extends BasePage {
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset(
       'assets/images/menu.png',
-      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
 
     return Container(
@@ -250,14 +249,8 @@ class _DashboardPageView extends BasePage {
                             radius: 6.0,
                             dotWidth: 6.0,
                             dotHeight: 6.0,
-                            dotColor: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .indicatorDotTheme
-                                .indicatorColor,
-                            activeDotColor: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .indicatorDotTheme
-                                .activeIndicatorColor,
+                            dotColor: Theme.of(context).colorScheme.outlineVariant,
+                            activeDotColor: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       );

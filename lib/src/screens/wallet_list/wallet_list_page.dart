@@ -17,9 +17,6 @@ import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.da
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -56,7 +53,7 @@ class WalletListPage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final filterIcon = Image.asset('assets/images/filter_icon.png',
-        color: Theme.of(context).extension<FilterTheme>()!.iconColor);
+        color: Theme.of(context).colorScheme.onPrimary);
     return MergeSemantics(
       child: SizedBox(
         height: 37,
@@ -88,8 +85,7 @@ class WalletListPage extends BasePage {
                   width: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color:
-                        Theme.of(context).extension<FilterTheme>()!.buttonColor,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   child: filterIcon,
                 ),
@@ -146,7 +142,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor);
+        color: Theme.of(context).colorScheme.onSurface);
 
     return Container(
         height: double.infinity,
@@ -170,8 +166,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor,
+                            .colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -279,8 +274,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor,
+                            .colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -297,9 +291,8 @@ class WalletListBodyState extends State<WalletListBody> {
                               .walletListViewModel.singleWalletsList[index];
                           final currentColor = wallet.isCurrent
                               ? Theme.of(context)
-                                  .extension<WalletListTheme>()!
-                                  .createNewWalletButtonBackgroundColor
-                              : Theme.of(context).colorScheme.background;
+                                  .colorScheme.primary
+                              : Theme.of(context).colorScheme.surface;
 
                           return GroupedWalletExpansionTile(
                             tileKey: ValueKey(
@@ -377,10 +370,10 @@ class WalletListBodyState extends State<WalletListBody> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: <Color>[
-                    Theme.of(context).colorScheme.background.withAlpha(10),
-                    Theme.of(context).colorScheme.background,
-                    Theme.of(context).colorScheme.background,
-                    Theme.of(context).colorScheme.background
+                    Theme.of(context).colorScheme.surface.withAlpha(10),
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surface
                   ],
                 ),
               ),
@@ -418,8 +411,7 @@ class WalletListBodyState extends State<WalletListBody> {
                       text: S.of(context).wallet_list_restore_wallet,
                       color: Theme.of(context).cardColor,
                       textColor: Theme.of(context)
-                          .extension<CakeTextTheme>()!
-                          .buttonTextColor,
+                          .colorScheme.onPrimary,
                     ),
                     SizedBox(height: 10.0),
                     PrimaryImageButton(

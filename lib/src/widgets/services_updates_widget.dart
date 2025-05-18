@@ -5,8 +5,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/service_status_tile.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -44,7 +42,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
         },
         child: SvgPicture.asset(
           "assets/images/notification_icon.svg",
-          color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           width: 30,
           placeholderBuilder: (_) => Icon(Icons.error),
         ),
@@ -118,11 +116,9 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                                     ),
                                     text: "Status Website",
                                     color: Theme.of(context)
-                                        .extension<WalletListTheme>()!
-                                        .createNewWalletButtonBackgroundColor,
+                                        .colorScheme.primary,
                                     textColor: Theme.of(context)
-                                        .extension<WalletListTheme>()!
-                                        .restoreWalletButtonTextColor,
+                                        .colorScheme.onPrimary,
                                   ),
                                 ),
                               )
@@ -137,7 +133,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
               children: [
                 SvgPicture.asset(
                   "assets/images/notification_icon.svg",
-                  color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   width: 30,
                   placeholderBuilder: (_) => Icon(Icons.error),
                 ),

@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_s
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -23,7 +22,6 @@ import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
   final trade = exchangeTradeViewModel.trade;
@@ -64,7 +62,7 @@ class ExchangeTradePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+        color: Theme.of(context).colorScheme.onSurface);
 
     return SizedBox(
       height: 20.0,
@@ -147,16 +145,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       children: <Widget>[
                           Text(
                             S.of(context).offer_expires_in,
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .extension<TransactionTradeTheme>()!
-                                    .detailsTitlesColor),
+                                color: Theme.of(context).colorScheme.onSurface),
                           ),
                           if (trade.expiredAt != null)
                             TimerWidget(trade.expiredAt!,
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)
+                                color: Theme.of(context).colorScheme.onSurface)
                         ])
                   : Offstage(),
               _ExchangeTradeItemsCardSection(
@@ -175,8 +171,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               onPressed: () async {
                 Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
               },
-              color: Theme.of(context).cardColor,
-              textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
             SizedBox(height: 16),
             Observer(
@@ -192,8 +188,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         isLoading: sendingState is IsExecutingState,
                         onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
                         text: S.current.send_from_cake_wallet,
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
                       )
                     : Offstage();
               },

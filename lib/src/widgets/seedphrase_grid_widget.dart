@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class SeedPhraseGridWidget extends StatelessWidget {
@@ -43,8 +42,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
                       height: 1,
                       fontWeight: FontWeight.w800,
                       color: Theme.of(context)
-                          .extension<CakeTextTheme>()!
-                          .buttonTextColor
+                          .colorScheme.onSurfaceVariant
                           .withOpacity(0.5)),
                 ),
               ),
@@ -56,7 +54,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
                       fontSize: 14,
                       height: 0.8,
                       fontWeight: FontWeight.w700,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ),
             ],

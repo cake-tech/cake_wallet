@@ -1,9 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -64,7 +60,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
       fontSize: 16,
       fontFamily: 'Lato',
       fontWeight: FontWeight.w500,
-      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+      color: Theme.of(context).colorScheme.onSurface,
       decoration: TextDecoration.none,
     );
     final itemSubTitleTextStyle = TextStyle(
@@ -72,14 +68,14 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
       fontFamily: 'Lato',
       fontWeight: FontWeight.w600,
       color: currentTheme.type == ThemeType.light
-          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-          : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+          ? Theme.of(context).colorScheme.onSurface
+          : Theme.of(context).colorScheme.onSurfaceVariant,
       decoration: TextDecoration.none,
     );
 
     final tileBackgroundColor = currentTheme.type == ThemeType.light
-        ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
-        : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+        ? Theme.of(context).colorScheme.primaryContainer
+        : Theme.of(context).colorScheme.secondaryContainer;
 
     Widget content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),
@@ -323,7 +319,7 @@ class AddressTile extends StatelessWidget {
                   fontSize: 12,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                   decoration: TextDecoration.none)),
         ],
       ),
@@ -387,7 +383,7 @@ class AddressExpansionTile extends StatelessWidget {
                         fontSize: 14,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context).colorScheme.onSurface,
                         decoration: TextDecoration.none,
                       )),
                 ],
@@ -403,7 +399,7 @@ class AddressExpansionTile extends StatelessWidget {
                               fontSize: 12,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w600,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              color: Theme.of(context).colorScheme.onSurface,
                               decoration: TextDecoration.none)),
                     ),
                   ],

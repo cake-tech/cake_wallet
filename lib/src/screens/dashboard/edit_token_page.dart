@@ -8,8 +8,6 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -141,7 +139,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           Padding(
@@ -151,9 +149,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .extension<TransactionTradeTheme>()!
-                                    .detailsTitlesColor,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -210,10 +206,11 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 
-                            final hasPotentialError = !isWhitelisted && await widget.homeSettingsViewModel
-                                .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
-                              _contractAddressController.text,
-                            );
+                            final hasPotentialError = !isWhitelisted &&
+                                await widget.homeSettingsViewModel
+                                    .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
+                                  _contractAddressController.text,
+                                );
 
                             bool isPotentialScam = hasPotentialError && !isWhitelisted;
                             final tokenSymbol = _tokenSymbolController.text.toUpperCase();

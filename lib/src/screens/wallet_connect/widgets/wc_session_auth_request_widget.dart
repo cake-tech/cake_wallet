@@ -1,7 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class WCSessionAuthRequestWidget extends StatelessWidget {
@@ -40,7 +39,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
               },
               text: S.current.sign_one,
               color: Theme.of(context).primaryColor,
-              textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
             const SizedBox(width: 8),
             PrimaryButton(
@@ -51,7 +50,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
               },
               text: S.current.sign_all,
               color: Theme.of(context).secondaryHeaderColor,
-              textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
           ],
         ),

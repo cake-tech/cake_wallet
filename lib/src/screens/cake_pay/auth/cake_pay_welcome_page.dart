@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_auth_view_model.dart';
@@ -34,7 +33,7 @@ class CakePayWelcomePage extends BasePage {
     return Text(
       S.current.welcome_to_cakepay,
       style: textMediumSemiBold(
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -68,12 +67,12 @@ class CakePayWelcomePage extends BasePage {
           Text(
             S.of(context).about_cake_pay,
             style: textLarge(
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 20),
           Text(S.of(context).cake_pay_account_note,
-              style: textLarge(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+              style: textLarge(color: Theme.of(context).colorScheme.onSurface)),
         ],
       ),
       bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),

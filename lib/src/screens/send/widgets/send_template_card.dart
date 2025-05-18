@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
@@ -8,7 +7,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
@@ -44,8 +42,8 @@ class SendTemplateCard extends StatelessWidget {
           borderRadius:
               BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
           gradient: LinearGradient(colors: [
-            Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-            Theme.of(context).extension<SendPageTheme>()!.secondGradientColor
+            Theme.of(context).colorScheme.primary,
+            Theme.of(context).colorScheme.secondary
           ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
       child: Column(
         children: <Widget>[
@@ -60,11 +58,11 @@ class SendTemplateCard extends StatelessWidget {
                           ? S.of(context).template_name
                           : S.of(context).send_name,
                       borderColor:
-                          Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                          Theme.of(context).colorScheme.outline,
                       textStyle:
                           TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                       placeholderTextStyle: TextStyle(
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                           fontSize: 14),
                       validator: sendTemplateViewModel.templateValidator),
@@ -92,19 +90,17 @@ class SendTemplateCard extends StatelessWidget {
                         template.output.resetParsedAddress();
                         await template.output.fetchParsedAddress(context);
                       },
-                      buttonColor:
-                          Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                      borderColor:
-                          Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                      buttonColor: Theme.of(context).colorScheme.primaryContainer,
+                      borderColor: Theme.of(context).colorScheme.outline,
                       textStyle: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                       hintStyle: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       validator: sendTemplateViewModel.addressValidator,
                     );
@@ -129,7 +125,7 @@ class SendTemplateCard extends StatelessWidget {
                               isAmountEditable: true)),
                       Divider(
                           height: 1,
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor)
+                          color: Theme.of(context).colorScheme.outline)
                     ],
                   ),
                 ),
@@ -149,7 +145,7 @@ class SendTemplateCard extends StatelessWidget {
                               isAmountEditable: true)),
                       Divider(
                           height: 1,
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor)
+                          color: Theme.of(context).colorScheme.outline)
                     ],
                   ),
                 ),

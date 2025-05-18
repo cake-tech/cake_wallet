@@ -4,8 +4,6 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -76,8 +74,7 @@ class NanoChangeRepPage extends BasePage {
                             AddressTextFieldOption.paste,
                             AddressTextFieldOption.qrCode,
                           ],
-                          buttonColor:
-                              Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                          buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                           validator: AddressValidator(type: CryptoCurrency.nano),
                         ),
                       )
@@ -251,7 +248,7 @@ class NanoChangeRepPage extends BasePage {
                       Text(
                         rep.alias ?? rep.account!,
                         style: TextStyle(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w700,
                           fontSize: rep.alias == null ? 14 : 18,
                         ),
@@ -262,8 +259,7 @@ class NanoChangeRepPage extends BasePage {
                           text: TextSpan(
                             text: "${S.current.voting_weight}: ${rep.weight.toString()}%",
                             style: TextStyle(
-                              color:
-                                  Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w700,
                               fontSize: 14.0,
                             ),
@@ -279,9 +275,7 @@ class NanoChangeRepPage extends BasePage {
                               TextSpan(
                                 text: "${S.current.uptime}: ",
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .extension<CakeTextTheme>()!
-                                      .secondaryTextColor,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
                                 ),
@@ -289,9 +283,7 @@ class NanoChangeRepPage extends BasePage {
                               TextSpan(
                                 text: rep.uptime,
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .extension<CakeTextTheme>()!
-                                      .secondaryTextColor,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 14,
                                 ),
@@ -326,7 +318,7 @@ class NanoChangeRepPage extends BasePage {
                           (rep.score).toString(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                           ),

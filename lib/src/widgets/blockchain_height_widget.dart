@@ -1,6 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -105,7 +104,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                 style: TextStyle(
                     fontSize: 16.0,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
             Row(
@@ -136,7 +135,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     Padding(

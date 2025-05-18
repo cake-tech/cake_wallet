@@ -6,9 +6,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 
 class NFTDetailsPage extends BasePage {
@@ -41,7 +38,7 @@ class NFTDetailsPage extends BasePage {
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset(
       'assets/images/menu.png',
-      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+      color: Theme.of(context).colorScheme.onSurface,
     );
 
     return Container(
@@ -68,10 +65,10 @@ class NFTDetailsPage extends BasePage {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30.0),
           border: Border.all(
-            color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+            color: Theme.of(context).colorScheme.outline,
             width: 1,
           ),
-          color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: arguments.isSolanaNFT
             ? SolanaNFTDetailsWidget(
@@ -92,9 +89,6 @@ class _NFTImageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final balanceTheme = Theme.of(context).extension<BalancePageTheme>()!;
-    final syncTheme = Theme.of(context).extension<SyncIndicatorTheme>()!;
-
     return Container(
       height: MediaQuery.sizeOf(context).height / 2.5,
       width: double.infinity,
@@ -103,10 +97,10 @@ class _NFTImageWidget extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: balanceTheme.cardBorderColor,
+          color: Theme.of(context).colorScheme.outline,
           width: 1,
         ),
-        color: syncTheme.syncedBackgroundColor,
+        color: Theme.of(context).colorScheme.surface,
       ),
       child: CakeImageWidget(imageUrl: imageUrl),
     );
@@ -231,7 +225,6 @@ class _NFTSingleInfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final balanceTheme = Theme.of(context).extension<BalancePageTheme>()!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -239,22 +232,17 @@ class _NFTSingleInfoTile extends StatelessWidget {
         children: [
           Text(
             infoType,
-            style: TextStyle(
-              fontSize: 12,
-              fontFamily: 'Lato',
-              fontWeight: FontWeight.w400,
-              color: balanceTheme.labelTextColor,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               height: 1,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             infoValue,
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Lato',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w600,
-              color: balanceTheme.assetTitleColor,
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1,
             ),
           ),

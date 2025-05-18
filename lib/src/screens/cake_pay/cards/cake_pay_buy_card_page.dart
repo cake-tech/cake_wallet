@@ -57,11 +57,10 @@ class CakePayBuyCardPage extends BasePage {
       title,
       textAlign: TextAlign.center,
       maxLines: 2,
-      style: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Lato',
-          color: titleColor(context)),
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 
@@ -184,16 +183,21 @@ class CakePayBuyCardPage extends BasePage {
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
+                                    color: Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.white.withOpacity(0.20)),
+                                    border: Border.all(
+                                      color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.20),
+                                    ),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
                                       vendor.cakeWarnings!,
                                       textAlign: TextAlign.center,
-                                      style: textSmallSemiBold(color: Colors.white),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ),

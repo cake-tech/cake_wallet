@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dar
 import 'package:cake_wallet/src/screens/receive/widgets/address_cell.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -106,7 +105,7 @@ class _AddressListState extends State<AddressList> {
               trailingIcon: Icon(
                 Icons.arrow_forward_ios,
                 size: 14,
-                color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ));
         }
 
@@ -120,7 +119,7 @@ class _AddressListState extends State<AddressList> {
               trailingIcon: Icon(
                 showHiddenAddresses ? Icons.toggle_on : Icons.toggle_off,
                 size: 20,
-                color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ));
         }
 
@@ -138,7 +137,7 @@ class _AddressListState extends State<AddressList> {
               trailingIcon: Icon(
                 Icons.add,
                 size: 20,
-                color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ));
         }
 
@@ -152,11 +151,11 @@ class _AddressListState extends State<AddressList> {
               final isCurrent =
                   item.address == widget.addressListViewModel.address.address && editable;
               final backgroundColor = isCurrent
-                  ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
-                  : Theme.of(context).extension<ReceivePageTheme>()!.tilesBackgroundColor;
+                  ? Theme.of(context).colorScheme.primaryContainer
+                  : Theme.of(context).colorScheme.surface;
               final textColor = isCurrent
-                  ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileTextColor
-                  : Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor;
+                  ? Theme.of(context).colorScheme.onPrimaryContainer
+                  : Theme.of(context).colorScheme.onSurface;
 
               return AddressCell.fromItem(
                 item,

@@ -1,18 +1,14 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class ExchangeConfirmPage extends BasePage {
   ExchangeConfirmPage({required this.tradesStore}) : trade = tradesStore.trade!;
@@ -37,10 +33,10 @@ class ExchangeConfirmPage extends BasePage {
                 child: Text(
                   S.of(context).exchange_result_write_down_trade_id,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
-                      color:  Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
               )),
               Container(
@@ -62,19 +58,19 @@ class ExchangeConfirmPage extends BasePage {
                         children: <Widget>[
                           Text(
                             "${trade.provider.title} ${S.of(context).trade_id}",
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                                color: Theme.of(context).colorScheme.onSurface),
                           ),
                           Text(
                             trade.id,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                color: Theme.of(context).colorScheme.onSurface),
                           ),
                         ],
                       ),
@@ -90,8 +86,8 @@ class ExchangeConfirmPage extends BasePage {
                                   context, S.of(context).copied_to_clipboard);
                             },
                             text: S.of(context).copy_id,
-                            color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
-                            textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary),
                       ),
                     )
                   ],
@@ -106,10 +102,10 @@ class ExchangeConfirmPage extends BasePage {
                       child: Text(
                        S.of(context).selected_trocador_provider +':${trade.providerName}',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             fontSize: 12.0,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                            color: Theme.of(context).colorScheme.onSurface),
                       ),
                     ),
                     Flexible(
@@ -139,8 +135,8 @@ class ExchangeConfirmPage extends BasePage {
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white)
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary)
         ],
       ),
     );

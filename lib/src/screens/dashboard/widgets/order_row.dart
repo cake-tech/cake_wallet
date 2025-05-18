@@ -1,9 +1,6 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/buy/get_buy_provider_icon.dart';
-import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class OrderRow extends StatelessWidget {
   OrderRow({
@@ -25,7 +22,7 @@ class OrderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = Theme.of(context).extension<OrderTheme>()!.iconColor;
+    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
 
@@ -52,14 +49,13 @@ class OrderRow extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
+                            color: Theme.of(context).colorScheme.onSurface)),
                     formattedAmount != null
                         ? Text(formattedAmount! + ' ' + to,
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color:
-                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor))
+                                color: Theme.of(context).colorScheme.onSurface))
                         : Container()
                   ]),
                   SizedBox(height: 5),
@@ -67,8 +63,7 @@ class OrderRow extends StatelessWidget {
                     Text(createdAtFormattedDate,
                         style: TextStyle(
                             fontSize: 14,
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                            color: Theme.of(context).colorScheme.onSurfaceVariant))
                   ])
                 ],
               ))

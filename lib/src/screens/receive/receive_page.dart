@@ -1,7 +1,6 @@
 import 'package:cake_wallet/src/screens/receive/widgets/address_list.dart';
-import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:flutter/material.dart';
@@ -119,7 +118,7 @@ class ReceivePage extends BasePage {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 15,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
+                        color: Theme.of(context).colorScheme.onSurface)),
               ),
             ],
           ),

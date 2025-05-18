@@ -1,7 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -75,7 +73,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             decoration: InputDecoration(
               suffixIcon: Container(
@@ -93,7 +91,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
                       ),
                       child: Image.asset(
                         'assets/images/paste_ios.png',
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -102,11 +100,11 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
               hintText: S.current.enterWalletConnectURI,
               border: OutlineInputBorder(
                 borderSide: BorderSide(
-                  color: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                  color: Theme.of(context).colorScheme.outline,
                 ),
               ),
               hintStyle: TextStyle(
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
                 fontSize: 14,
               ),
@@ -136,7 +134,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               decoration: TextDecoration.none,
             ),
           ),

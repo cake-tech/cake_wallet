@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -22,7 +20,7 @@ class PickerItemWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Theme.of(context).dialogTheme.backgroundColor,
+        color: Theme.of(context).colorScheme.surface,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
           child: Row(
@@ -43,7 +41,7 @@ class PickerItemWidget extends StatelessWidget {
                       style: TextStyle(
                         color: isSelected
                             ? Palette.blueCraiola
-                            : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            : Theme.of(context).colorScheme.onSurface,
                         fontSize: isSelected ? 16 : 14.0,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
@@ -61,13 +59,13 @@ class PickerItemWidget extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 7.0,
                                   fontFamily: 'Lato',
-                                  color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor),
+                                  color: Theme.of(context).colorScheme.primary),
                             ),
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6.0),
                             //border: Border.all(color: ),
-                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                           ),
                         ),
                       ),
@@ -75,8 +73,10 @@ class PickerItemWidget extends StatelessWidget {
                 ),
               ),
               if (isSelected)
-                Icon(Icons.check_circle,
-                    color: Theme.of(context).primaryColor)
+                Icon(
+                  Icons.check,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
             ],
           ),
         ),

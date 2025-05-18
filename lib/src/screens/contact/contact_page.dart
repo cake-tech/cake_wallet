@@ -1,6 +1,5 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +17,6 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 class ContactPage extends BasePage {
   ContactPage(this.contactViewModel)
@@ -51,7 +48,7 @@ class ContactPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final downArrow = Image.asset('assets/images/arrow_bottom_purple_icon.png',
-        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+        color: Theme.of(context).colorScheme.primary,
         height: 8);
 
     _setEffects(context);
@@ -95,11 +92,10 @@ class ContactPage extends BasePage {
                         AddressTextFieldOption.paste,
                         AddressTextFieldOption.qrCode,
                       ],
-                      buttonColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                      buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       iconColor: PaletteDark.gray,
-                      borderColor: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
-                      validator:
-                          AddressValidator(type: contactViewModel.currency!),
+                      borderColor: Theme.of(context).colorScheme.onSurface,
+                      validator: AddressValidator(type: contactViewModel.currency!),
                     ),
                   )
               ],

@@ -6,8 +6,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/text_info_box.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
@@ -230,7 +228,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
             ),
           ),
           const SizedBox(width: 6),
@@ -250,7 +248,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     if (snapshot.connectionState == ConnectionState.done && snapshot.data != null)
@@ -289,7 +287,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
             ),
           ),
           const SizedBox(width: 6),
@@ -305,7 +303,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   );
                 }),
@@ -351,9 +349,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                     onPressed: () => _onCopy(titleForClipboard, dataToCopy, context),
                     text: S.of(context).copy,
                     color: Theme.of(context).cardColor,
-                    textColor: widget.currentTheme.type == ThemeType.dark
-                        ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
               ),

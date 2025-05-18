@@ -6,14 +6,13 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 class EditBackupPasswordPage extends BasePage {
   EditBackupPasswordPage(this.editBackupPasswordViewModel)
       : textEditingController = TextEditingController() {
     textEditingController.text = editBackupPasswordViewModel.backupPassword;
-    textEditingController.addListener(() => editBackupPasswordViewModel
-        .backupPassword = textEditingController.text);
+    textEditingController
+        .addListener(() => editBackupPasswordViewModel.backupPassword = textEditingController.text);
   }
 
   final EditBackupPasswordViewModel editBackupPasswordViewModel;
@@ -37,16 +36,16 @@ class EditBackupPasswordPage extends BasePage {
                         autocorrect: false,
                         keyboardType: TextInputType.visiblePassword,
                         controller: textEditingController,
-                        style: TextStyle(
-                            fontSize: 26,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)))),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        )))),
             Positioned(
                 child: Observer(
                     builder: (_) => PrimaryButton(
                         onPressed: () => onSave(context),
                         text: S.of(context).save,
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
                         isDisabled: !editBackupPasswordViewModel.canSave)),
                 bottom: 24,
                 left: 0,

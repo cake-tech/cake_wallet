@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +72,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -81,7 +80,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   onTap: item.onTap,
                   child: Icon(
                     Icons.launch_rounded,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               );
@@ -105,7 +104,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ));
 
             return GestureDetector(

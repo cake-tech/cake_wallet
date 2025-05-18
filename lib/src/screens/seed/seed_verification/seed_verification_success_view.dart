@@ -1,6 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class SeedVerificationSuccessView extends StatelessWidget {
@@ -26,10 +25,9 @@ class SeedVerificationSuccessView extends StatelessWidget {
           Text(
             S.current.seed_verified,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
             ),
           ),
           SizedBox(height: 48),
@@ -38,18 +36,15 @@ class SeedVerificationSuccessView extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '${S.current.seed_verified_subtext} ',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 TextSpan(
                   text: S.current.seed_display_path,
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w800,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                   ),
                 ),
               ],
@@ -63,8 +58,8 @@ class SeedVerificationSuccessView extends StatelessWidget {
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             text: S.current.open_wallet,
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
           ),
           SizedBox(height: 16),
         ],

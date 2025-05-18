@@ -1,6 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class PayjoinTransactionRow extends StatelessWidget {
@@ -43,22 +41,16 @@ class PayjoinTransactionRow extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           "${isSending ? S.current.outgoing : S.current.incoming} Payjoin",
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .textColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Text(
                           amount + ' ' + currency,
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .textColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         )
                       ]),
@@ -68,20 +60,14 @@ class PayjoinTransactionRow extends StatelessWidget {
                       children: <Widget>[
                         Text(
                           createdAt,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context)
-                                .extension<CakeTextTheme>()!
-                                .dateSectionRowColor,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         Text(
                           state,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context)
-                                .extension<CakeTextTheme>()!
-                                .dateSectionRowColor,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ])

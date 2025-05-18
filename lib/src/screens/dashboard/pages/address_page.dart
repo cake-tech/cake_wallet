@@ -8,7 +8,6 @@ import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
@@ -24,7 +23,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 
 class AddressPage extends BasePage {
   AddressPage({
@@ -162,10 +160,10 @@ class AddressPage extends BasePage {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
                     onTap: () => Navigator.of(context).pushNamed(Routes.receive),
-                    textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
-                    color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                    borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                    arrowColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
+                    textColor: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderColor: Theme.of(context).colorScheme.outline,
+                    arrowColor: Theme.of(context).colorScheme.onSurface,
                     textSize: 14,
                     height: 50,
                   );

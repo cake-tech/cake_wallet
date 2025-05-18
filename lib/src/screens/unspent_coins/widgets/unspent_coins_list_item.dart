@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class UnspentCoinsListItem extends StatelessWidget {
@@ -31,10 +30,10 @@ class UnspentCoinsListItem extends StatelessWidget {
     final selectedItemColor = Theme.of(context).primaryColor;
     final itemColor = isSending ? selectedItemColor : unselectedItemColor;
     final amountColor =
-        isSending ? Colors.white : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor;
+        isSending ? Colors.white : Theme.of(context).colorScheme.onPrimary;
     final addressColor = isSending
         ? Colors.white.withOpacity(0.5)
-        : Theme.of(context).extension<CakeTextTheme>()!.buttonSecondaryTextColor;
+        : Theme.of(context).colorScheme.onPrimary;
 
     return Container(
         height: 70,

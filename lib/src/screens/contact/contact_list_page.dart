@@ -10,8 +10,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dar
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -39,7 +37,7 @@ class ContactListPage extends BasePage {
         height: 32.0,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor),
+            color: Theme.of(context).colorScheme.primaryContainer),
         child: Semantics(
           label: S.of(context).add_contact,
           button: true,
@@ -201,7 +199,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               leading: _buildCurrencyIcon(activeContact),
@@ -209,8 +207,8 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
               childrenPadding: const EdgeInsets.only(left: 16),
               expandedCrossAxisAlignment: CrossAxisAlignment.start,
               expandedAlignment: Alignment.topLeft,
-              backgroundColor: Theme.of(context).cardColor,
-              collapsedBackgroundColor: Theme.of(context).cardColor,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              collapsedBackgroundColor: Theme.of(context).colorScheme.surface,
               collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               children: groupContacts.map((contact) => generateRaw(context, contact)).toList(),
@@ -248,7 +246,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
       child: Container(
     decoration: BoxDecoration(
     borderRadius: BorderRadius.all(Radius.circular(10)),
-    color: Theme.of(context).cardColor,
+    color: Theme.of(context).colorScheme.surface,
     ),
         margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
         padding: const EdgeInsets.only(top: 16, bottom: 16, right: 16, left: 16),
@@ -265,7 +263,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -324,7 +322,7 @@ class _ContactListBodyState extends State<ContactListBody> {
         ? widget.contactListViewModel.contacts
         : widget.contactListViewModel.contactsToShow;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Container(
         child: FilteredList(
           list: contacts,
@@ -379,7 +377,7 @@ class _ContactListBodyState extends State<ContactListBody> {
           key: Key('${contact.name}'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(8)),
-            color: Theme.of(context).cardColor,
+            color: Theme.of(context).colorScheme.surface,
           ),
           margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
           padding: const EdgeInsets.only(top: 16, bottom: 16, right: 16, left: 16),
@@ -396,7 +394,7 @@ class _ContactListBodyState extends State<ContactListBody> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ))
@@ -469,7 +467,7 @@ class _ContactListBodyState extends State<ContactListBody> {
                   width: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).extension<ExchangePageTheme>()!.buttonBackgroundColor,
+                    color: Theme.of(context).colorScheme.primaryContainer,
                   ),
                   child: filterIcon,
                 ),
@@ -514,7 +512,7 @@ class DialogService {
                   fontSize: 16,
                   fontWeight: FontWeight.normal,
                   fontFamily: 'Lato',
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                   decoration: TextDecoration.none,
                 ),
               ),

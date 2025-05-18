@@ -6,9 +6,6 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
@@ -81,26 +78,26 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                           style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           decoration: InputDecoration(
                             hintStyle: TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             hintText: S.of(context).wallet_name,
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                 color:
-                                    Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                    Theme.of(context).colorScheme.outline,
                                 width: 1.0,
                               ),
                             ),
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                 color:
-                                    Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
+                                    Theme.of(context).colorScheme.outline,
                                 width: 1.0,
                               ),
                             ),
@@ -122,15 +119,14 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(6.0),
-                                    color: Theme.of(context).hintColor,
+                                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                   ),
                                   width: 34,
                                   height: 34,
                                   child: Image.asset(
                                     'assets/images/refresh_icon.png',
                                     color: Theme.of(context)
-                                        .extension<SendPageTheme>()!
-                                        .textFieldButtonIconColor,
+                                        .colorScheme.primary,
                                   ),
                                 ),
                               ),
@@ -151,7 +147,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -188,8 +184,8 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                     return LoadingPrimaryButton(
                       onPressed: _loadMoreAccounts,
                       text: S.of(context).load_more,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                       isLoading: _walletHardwareRestoreVM.isLoadingMoreAccounts,
                     );
                   }),

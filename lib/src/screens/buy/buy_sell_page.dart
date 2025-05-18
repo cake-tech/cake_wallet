@@ -14,11 +14,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
@@ -94,11 +89,11 @@ class BuySellPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor(context),
+      color: Theme.of(context).colorScheme.onSurface,
       size: 16,
     );
     final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+        buySellViewModel.isDarkTheme ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -112,7 +107,7 @@ class BuySellPage extends BasePage {
             label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -128,89 +123,88 @@ class BuySellPage extends BasePage {
     WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context, buySellViewModel));
 
     return KeyboardActions(
-        disableScroll: true,
-        config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).colorScheme.surface,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                  focusNode: _fiatAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]),
-              KeyboardActionsItem(
-                  focusNode: _cryptoAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()])
-            ]),
-        child: Container(
-          color: Theme.of(context).colorScheme.background,
-          child: Form(
-              key: _formKey,
-              child: ScrollableWithBottomSection(
-                contentPadding: EdgeInsets.only(bottom: 24),
-                content: Observer(
-                    builder: (_) => Column(children: [
-                          _exchangeCardsSection(context),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 12),
-                                _buildPaymentMethodTile(context),
-                              ],
-                            ),
-                          ),
-                        ])),
-                bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-                bottomSection: Observer(
-                    builder: (_) => Column(children: [
-                      buySellViewModel.isBuySellQuotFailed
-                          ? Padding(
-                        padding: EdgeInsets.only(bottom: 15),
-                        child: Row(
+      disableScroll: true,
+      config: KeyboardActionsConfig(
+          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+          keyboardBarColor: Theme.of(context).colorScheme.surface,
+          nextFocus: false,
+          actions: [
+            KeyboardActionsItem(
+                focusNode: _fiatAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]),
+            KeyboardActionsItem(
+                focusNode: _cryptoAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()])
+          ]),
+      child: Container(
+        color: Theme.of(context).colorScheme.surface,
+        child: Form(
+          key: _formKey,
+          child: ScrollableWithBottomSection(
+            contentPadding: EdgeInsets.only(bottom: 24),
+            content: Observer(
+                builder: (_) => Column(children: [
+                      _exchangeCardsSection(context),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
                           children: [
-                            Expanded(
-                              child: Container(
-                                alignment: Alignment.centerRight,
-                                child: Icon(Icons.warning_amber_rounded,
-                                    color: Theme.of(context)
-                                        .extension<ExchangePageTheme>()!
-                                        .receiveAmountColor,
-                                    size: 26),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 8,
-                              child: Text(
-                                S.of(context).buy_sell_pair_is_not_supported_warning,
-                                textAlign: TextAlign.center,
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 3,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .extension<ExchangePageTheme>()!
-                                      .receiveAmountColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
+                            SizedBox(height: 12),
+                            _buildPaymentMethodTile(context),
                           ],
                         ),
-                      )
-                          : Container(),
-                      LoadingPrimaryButton(
-                          text: S.current.choose_a_provider,
-                          onPressed: () async {
-                            if(!_formKey.currentState!.validate()) return;
-                            buySellViewModel.onTapChoseProvider(context);
-                          },
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          isDisabled: buySellViewModel.isBuySellQuotFailed,
-                          isLoading: !buySellViewModel.isReadyToTrade &&
-                              !buySellViewModel.isBuySellQuotFailed),
+                      ),
                     ])),
-              )),
-        ));
+            bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+            bottomSection: Observer(
+              builder: (_) => Column(
+                children: [
+                  if (buySellViewModel.isBuySellQuotFailed)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 15),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Icon(Icons.warning_amber_rounded,
+                                  color: Theme.of(context).colorScheme.error, size: 26),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 8,
+                            child: Text(
+                              S.of(context).buy_sell_pair_is_not_supported_warning,
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  LoadingPrimaryButton(
+                    text: S.current.choose_a_provider,
+                    onPressed: () async {
+                      if (!_formKey.currentState!.validate()) return;
+                      buySellViewModel.onTapChoseProvider(context);
+                    },
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    isDisabled: buySellViewModel.isBuySellQuotFailed,
+                    isLoading:
+                        !buySellViewModel.isReadyToTrade && !buySellViewModel.isBuySellQuotFailed,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildPaymentMethodTile(BuildContext context) {
@@ -229,21 +223,21 @@ class BuySellPage extends BasePage {
     }
     if (buySellViewModel.paymentMethodState is PaymentMethodLoaded &&
         buySellViewModel.selectedPaymentMethod != null) {
-      return Observer(builder: (_) {
-        final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
-        return ProviderOptionTile(
-          lightImagePath: selectedPaymentMethod.lightIconPath,
-          darkImagePath: selectedPaymentMethod.darkIconPath,
-          title: selectedPaymentMethod.title,
-          onPressed: () => _pickPaymentMethod(context),
-          leadingIcon: Icons.arrow_forward_ios,
-          isLightMode: !buySellViewModel.isDarkTheme,
-          borderRadius: 30,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          titleTextStyle:
-          textLargeBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-        );
-      });
+      final selectedPaymentMethod = buySellViewModel.selectedPaymentMethod!;
+      return ProviderOptionTile(
+        lightImagePath: selectedPaymentMethod.lightIconPath,
+        darkImagePath: selectedPaymentMethod.darkIconPath,
+        title: selectedPaymentMethod.title,
+        onPressed: () => _pickPaymentMethod(context),
+        leadingIcon: Icons.arrow_forward_ios,
+        isLightMode: !buySellViewModel.isDarkTheme,
+        borderRadius: 30,
+        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+      );
     }
     return OptionTilePlaceholder(errorText: 'No payment methods available', borderRadius: 30);
   }
@@ -279,19 +273,17 @@ class BuySellPage extends BasePage {
     _onCurrencyChange(buySellViewModel.fiatCurrency, buySellViewModel, fiatCurrencyKey);
 
     reaction(
-            (_) => buySellViewModel.wallet.name,
-            (String _) =>
-            _onWalletNameChange(buySellViewModel, buySellViewModel.cryptoCurrency, cryptoCurrencyKey));
+        (_) => buySellViewModel.wallet.name,
+        (String _) => _onWalletNameChange(
+            buySellViewModel, buySellViewModel.cryptoCurrency, cryptoCurrencyKey));
 
     reaction(
         (_) => buySellViewModel.cryptoCurrency,
         (CryptoCurrency currency) =>
             _onCurrencyChange(currency, buySellViewModel, cryptoCurrencyKey));
 
-    reaction(
-        (_) => buySellViewModel.fiatCurrency,
-        (FiatCurrency currency) =>
-            _onCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
+    reaction((_) => buySellViewModel.fiatCurrency,
+        (FiatCurrency currency) => _onCurrencyChange(currency, buySellViewModel, fiatCurrencyKey));
 
     reaction((_) => buySellViewModel.fiatAmount, (String amount) {
       if (fiatCurrencyKey.currentState!.amountController.text != amount) {
@@ -317,13 +309,13 @@ class BuySellPage extends BasePage {
 
     fiatAmountController.addListener(() {
       if (fiatAmountController.text != buySellViewModel.fiatAmount) {
-          buySellViewModel.changeFiatAmount(amount: fiatAmountController.text);
+        buySellViewModel.changeFiatAmount(amount: fiatAmountController.text);
       }
     });
 
     cryptoAmountController.addListener(() {
       if (cryptoAmountController.text != buySellViewModel.cryptoAmount) {
-          buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);
+        buySellViewModel.changeCryptoAmount(amount: cryptoAmountController.text);
       }
     });
 
@@ -335,7 +327,7 @@ class BuySellPage extends BasePage {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
         buySellViewModel.cryptoCurrencyAddress =
-        await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+            await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
       }
     });
 
@@ -364,15 +356,16 @@ class BuySellPage extends BasePage {
     _isReactionsSet = true;
   }
 
-  void _onCurrencyChange(Currency currency, BuySellViewModel buySellViewModel,
-      GlobalKey<ExchangeCardState> key) {
+  void _onCurrencyChange(
+      Currency currency, BuySellViewModel buySellViewModel, GlobalKey<ExchangeCardState> key) {
     final isCurrentTypeWallet = currency == buySellViewModel.wallet.currency;
 
     key.currentState!.changeSelectedCurrency(currency);
     key.currentState!.changeWalletName(isCurrentTypeWallet ? buySellViewModel.wallet.name : '');
 
     key.currentState!.changeAddress(
-        address: isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.addressForExchange : '');
+        address:
+            isCurrentTypeWallet ? buySellViewModel.wallet.walletAddresses.addressForExchange : '');
 
     key.currentState!.changeAmount(amount: '');
   }
@@ -383,7 +376,8 @@ class BuySellPage extends BasePage {
 
     if (isCurrentTypeWallet) {
       key.currentState!.changeWalletName(buySellViewModel.wallet.name);
-      key.currentState!.addressController.text = buySellViewModel.wallet.walletAddresses.addressForExchange;
+      key.currentState!.addressController.text =
+          buySellViewModel.wallet.walletAddresses.addressForExchange;
     } else if (key.currentState!.addressController.text ==
         buySellViewModel.wallet.walletAddresses.addressForExchange) {
       key.currentState!.changeWalletName('');
@@ -416,10 +410,8 @@ class BuySellPage extends BasePage {
                   buySellViewModel.changeFiatCurrency(currency: currency),
               imageArrow: arrowBottomPurple,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor:
-                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor:
-                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderTopPanelColor,
+              addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderColor: Theme.of(context).colorScheme.outlineVariant,
               onPushPasteButton: (context) async {},
               onPushAddressBookButton: (context) async {},
             ));
@@ -448,10 +440,8 @@ class BuySellPage extends BasePage {
                   buySellViewModel.changeCryptoCurrency(currency: currency),
               imageArrow: arrowBottomCakeGreen,
               currencyButtonColor: Colors.transparent,
-              addressButtonsColor:
-                  Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-              borderColor:
-                  Theme.of(context).extension<ExchangePageTheme>()!.textFieldBorderBottomPanelColor,
+              addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              borderColor: Theme.of(context).colorScheme.outlineVariant,
               addressTextFieldValidator: AddressValidator(type: buySellViewModel.cryptoCurrency),
               onPushPasteButton: (context) async {},
               onPushAddressBookButton: (context) async {},

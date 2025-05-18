@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/enter_wallet_connect_uri_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -124,14 +123,14 @@ class WCPairingsWidget extends BasePage {
                     style: TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   SizedBox(height: 16),
                   PrimaryButton(
                     text: S.current.newConnection,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                     onPressed: () => _onScanQrCode(context, walletKit),
                   ),
                   SizedBox(height: 4),
@@ -145,7 +144,7 @@ class WCPairingsWidget extends BasePage {
                       style: TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.normal,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -163,7 +162,7 @@ class WCPairingsWidget extends BasePage {
                     style: TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),

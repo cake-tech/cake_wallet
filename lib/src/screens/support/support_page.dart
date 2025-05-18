@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,15 +23,11 @@ class SupportPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
-
-
   @override
   Widget body(BuildContext context) {
-
-    final mainColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
-    final brightColor = Theme.of(context).colorScheme.onSurfaceVariant;
-
-    final iconColor = currentTheme.type == ThemeType.light ? brightColor : mainColor;
+    final iconColor = currentTheme.type == ThemeType.light 
+        ? Theme.of(context).colorScheme.onSurfaceVariant 
+        : Theme.of(context).colorScheme.onSurface;
 
     return Container(
       child: Center(

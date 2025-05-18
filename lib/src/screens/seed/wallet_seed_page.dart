@@ -1,8 +1,6 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
@@ -29,9 +27,7 @@ class WalletSeedPage extends BasePage {
   Widget trailing(BuildContext context) {
     final copyImage = Image.asset(
       'assets/images/copy_address.png',
-      color: Theme.of(context)
-          .extension<CakeTextTheme>()!
-          .buttonTextColor
+      color: Theme.of(context).colorScheme.onSurface,
     );
 
     return isNewWalletCreated
@@ -88,7 +84,7 @@ class WalletSeedPage extends BasePage {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         SizedBox(height: 20),
@@ -122,8 +118,8 @@ class WalletSeedPage extends BasePage {
                             text: S.of(context).save,
                             color: Theme.of(context).cardColor,
                             textColor: currentTheme.type == ThemeType.dark
-                                ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
                       ),

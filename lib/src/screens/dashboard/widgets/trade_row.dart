@@ -1,9 +1,7 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class TradeRow extends StatelessWidget {
   TradeRow({
@@ -50,17 +48,16 @@ class TradeRow extends StatelessWidget {
                 children: [
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
                     Text('${from.toString()} → ${to.toString()}',
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
+                            color: Theme.of(context).colorScheme.onSurface)),
                     formattedAmount != null
                         ? Text(formattedAmount! + ' ' + amountCrypto,
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color:
-                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor))
+                                color: Theme.of(context).colorScheme.onSurface))
                         : Container()
                   ]),
                   SizedBox(height: 5),
@@ -69,15 +66,15 @@ class TradeRow extends StatelessWidget {
                       children: <Widget>[
                         createdAtFormattedDate != null
                           ? Text(createdAtFormattedDate!,
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   fontSize: 14,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant))
                           : Container(),
                         formattedReceiveAmount != null
                           ? Text(formattedReceiveAmount! + ' ' + receiveAmountCrypto,
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   fontSize: 14,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant))
                           : Container(),
                   ])
                 ],

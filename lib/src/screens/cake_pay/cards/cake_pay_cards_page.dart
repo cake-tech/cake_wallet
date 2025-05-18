@@ -10,11 +10,6 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -60,7 +55,7 @@ class CakePayCardsPage extends BasePage {
     return Text(
       'Cake Pay',
       style: textMediumSemiBold(
-        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -118,7 +113,7 @@ class CakePayCardsPage extends BasePage {
               width: 32,
               padding: EdgeInsets.only(top: 7, bottom: 7),
               decoration: BoxDecoration(
-                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                color: Theme.of(context).colorScheme.surface,
                 border: Border.all(
                   color: Colors.transparent,
                 ),
@@ -126,7 +121,7 @@ class CakePayCardsPage extends BasePage {
               ),
               child: Image.asset(
                 'assets/images/filter_icon.png',
-                color: Theme.of(context).extension<FilterTheme>()!.iconColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ))),
     );
     final _countryPicker = Semantics(
@@ -143,7 +138,7 @@ class CakePayCardsPage extends BasePage {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            color: Theme.of(context).colorScheme.surface,
             border: Border.all(color: Colors.transparent),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -164,7 +159,7 @@ class CakePayCardsPage extends BasePage {
                 Text(
                   _cardsListViewModel.selectedCountry.countryCode,
                   style: TextStyle(
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -311,9 +306,9 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
                 title: vendor.name,
                 subTitle: vendor.card?.description ?? '',
                 backgroundColor:
-                    Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                    Theme.of(context).colorScheme.surface,
+                titleColor: Theme.of(context).colorScheme.onSurface,
+                subtitleColor: Theme.of(context).colorScheme.onSecondary,
                 discount: 0.0,
               );
             },
@@ -325,9 +320,9 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
                   rightOffset: 1,
                   width: 3,
                   backgroundColor:
-                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.05),
+                      Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.05),
                   thumbColor:
-                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.5),
+                      Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
                   fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
                 )
               : Offstage()
@@ -337,15 +332,14 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
     });
   }
 }
-
 class _VendorLoadedIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
       child: CircularProgressIndicator(
-        backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
         valueColor: AlwaysStoppedAnimation<Color>(
-            Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
+            Theme.of(context).colorScheme.primary),
       ),
     );
   }
@@ -364,14 +358,14 @@ class _SearchWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final searchIcon = ExcludeSemantics(
         child: Icon( Icons.search,
-          color: Theme.of(context).extension<FilterTheme>()!.iconColor,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
           //size: 24
         ),
     );
 
     return TextField(
       focusNode: focusNode,
-      style: TextStyle(color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       controller: controller,
       decoration: InputDecoration(
           filled: true,
@@ -379,10 +373,10 @@ class _SearchWidget extends StatelessWidget {
             top: 8,
             left: 8,
           ),
-          fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+          fillColor: Theme.of(context).colorScheme.surface,
           hintText: S.of(context).search,
           hintStyle: TextStyle(
-            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+            color: Theme.of(context).colorScheme.onSecondary,
           ),
           alignLabelWithHint: true,
           floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -424,3 +418,4 @@ class _TrailingIcon extends StatelessWidget {
         ));
   }
 }
+

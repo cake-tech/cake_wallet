@@ -1,10 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -72,11 +69,9 @@ class _ImportNFTPage extends BasePage {
           Text(
             S.current.address,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Lato',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
-              color: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               height: 1,
             ),
           ),
@@ -91,18 +86,14 @@ class _ImportNFTPage extends BasePage {
                 tokenAddressController.text = tokenAddress;
               }
             },
-            borderColor: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
-            iconColor: Theme.of(context).primaryColor,
+            borderColor: Theme.of(context).colorScheme.outline,
+            iconColor: Theme.of(context).colorScheme.primary,
             placeholder: '0x...',
-            textStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
+            textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
             ),
-            hintStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
+            hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           if (nftViewModel.appStore.wallet!.type != WalletType.solana) ...[
@@ -110,11 +101,9 @@ class _ImportNFTPage extends BasePage {
             Text(
               S.current.tokenID,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontFamily: 'Lato',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
-                color: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1,
               ),
             ),
@@ -129,18 +118,14 @@ class _ImportNFTPage extends BasePage {
                   tokenIDController.text = tokenID;
                 }
               },
-              borderColor: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
-              iconColor: Theme.of(context).primaryColor,
+              borderColor: Theme.of(context).colorScheme.outline,
+              iconColor: Theme.of(context).colorScheme.primary,
               placeholder: S.current.enterTokenID,
-              textStyle: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: PaletteDark.darkCyanBlue,
+              textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
               ),
-              hintStyle: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: PaletteDark.darkCyanBlue,
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -149,8 +134,8 @@ class _ImportNFTPage extends BasePage {
             return LoadingPrimaryButton(
               isLoading: nftViewModel.isImportNFTLoading,
               text: S.current.import,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
               onPressed: () async {
                 await nftViewModel.importNFT(tokenAddressController.text, tokenIDController.text);
                 Navigator.pop(context);

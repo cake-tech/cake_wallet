@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,7 +56,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
 
   @override
   Widget build(BuildContext context) => TextField(
-      style: textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+      style: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurfaceVariant),
       enableInteractiveSelection: false,
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.bottom,
@@ -83,7 +82,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
               type: MaterialType.transparency,
               child: InkWell(
                   child: Container(
-                    width: widget.arrowsWidth,
+                      width: widget.arrowsWidth,
                       alignment: Alignment.bottomCenter,
                       child: Icon(Icons.arrow_left_outlined, size: widget.arrowsWidth)),
                   onTap: _canGoDown ? () => _update(false) : null)),
@@ -91,8 +90,8 @@ class _NumberTextFieldState extends State<NumberTextField> {
               type: MaterialType.transparency,
               child: InkWell(
                   child: Container(
-                    width: widget.arrowsWidth,
-                    alignment: Alignment.bottomCenter,
+                      width: widget.arrowsWidth,
+                      alignment: Alignment.bottomCenter,
                       child: Icon(Icons.arrow_right_outlined, size: widget.arrowsWidth)),
                   onTap: _canGoUp ? () => _update(true) : null))),
       maxLines: 1,
