@@ -71,9 +71,10 @@ class OnRamperBuyProvider extends BuyProvider {
         clearnetUri: url,
         headers: {'Authorization': _apiKey, 'accept': 'application/json'},
       );
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final Map<String, dynamic> data = jsonDecode(responseString) as Map<String, dynamic>;
         final recommended = data['message']['recommended'] as Map<String, dynamic>;
 
         final recommendedPaymentType = recommended['paymentMethod'] as String?;
@@ -81,7 +82,7 @@ class OnRamperBuyProvider extends BuyProvider {
         return recommendedPaymentType ;
       } else {
         final responseBody =
-        jsonDecode(response.body) as Map<String, dynamic>;
+        jsonDecode(responseString) as Map<String, dynamic>;
         printV('Failed to fetch available payment types: ${responseBody['message']}');
       }
     } catch (e) {
@@ -120,7 +121,7 @@ class OnRamperBuyProvider extends BuyProvider {
         return allAvailablePaymentMethods;
       } else {
         final responseBody =
-            jsonDecode(response.body) as Map<String, dynamic>;
+            jsonDecode(responseString) as Map<String, dynamic>;
         printV('Failed to fetch available payment types: ${responseBody['message']}');
         return [];
       }
