@@ -1,7 +1,6 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'dart:ui';
+
 import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/themes/extensions/alert_theme.dart';
 import 'package:flutter/material.dart';
 
 class BaseAlertDialog extends StatelessWidget {
@@ -53,7 +52,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: titleTextSize,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
         decoration: TextDecoration.none,
       ),
     );
@@ -69,7 +68,7 @@ class BaseAlertDialog extends StatelessWidget {
           fontSize: 25,
           fontFamily: 'Lato',
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+          color: Theme.of(context).colorScheme.onSurface,
           decoration: TextDecoration.none,
         ),
       ),
@@ -89,7 +88,7 @@ class BaseAlertDialog extends StatelessWidget {
               fontSize: 16,
               fontWeight: FontWeight.normal,
               fontFamily: 'Lato',
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).colorScheme.onSurface,
               decoration: TextDecoration.none,
             ),
           ),
@@ -122,7 +121,7 @@ class BaseAlertDialog extends StatelessWidget {
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
                       color: leftActionButtonTextColor ??
-                          Theme.of(context).extension<AlertTheme>()!.leftButtonTextColor,
+                          Theme.of(context).colorScheme.onSurface,
                       decoration: TextDecoration.none,
                     ),
                   )),
@@ -181,8 +180,8 @@ class BaseAlertDialog extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration:
-                BoxDecoration(color: Theme.of(context).extension<AlertTheme>()!.backdropColor),
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.8)),
             child: Center(
               child: GestureDetector(
                 onTap: () => null,

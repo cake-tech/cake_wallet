@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class TextInfoBox extends StatelessWidget {
@@ -27,15 +26,12 @@ class TextInfoBox extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .extension<CakeTextTheme>()!
-                          .buttonTextColor
-                          .withOpacity(0.5))),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
               GestureDetector(
                   onTap: onCopy != null ? () => onCopy!(context) : null,
                   child: Icon(Icons.copy,
                       size: 13,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7))),
+                      color: Theme.of(context).colorScheme.onSurface)),
             ],
           ),
           const SizedBox(height: 4),
@@ -43,7 +39,7 @@ class TextInfoBox extends StatelessWidget {
               style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor)),
+                  color: Theme.of(context).colorScheme.onSurface)),
         ],
       ),
     );

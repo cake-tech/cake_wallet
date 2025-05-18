@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -31,8 +30,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.normal,
-                  color:
-                      Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -69,10 +67,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                               ? Border.all(
                                   color: Theme.of(context).primaryColor)
                               : null,
-                          color: Theme.of(context)
-                              .extension<CakeTextTheme>()!
-                              .secondaryTextColor
-                              .withOpacity(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(
                                   currentTheme.brightness == Brightness.light
                                       ? 0.1
                                       : 0.3),
@@ -94,7 +89,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                               padding: EdgeInsets.symmetric(
                                   horizontal: cellWidth, vertical: cellHeight),
                               decoration: BoxDecoration(
-                                color: e.themeData.colorScheme.background,
+                                color: e.themeData.colorScheme.surface,
                               ),
                             ),
                             Container(

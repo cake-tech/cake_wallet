@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardExpandableList<T> extends StatelessWidget {
@@ -18,20 +16,19 @@ class StandardExpandableList<T> extends StatelessWidget {
     return Container(
       decoration: decoration ??
           BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
           ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          iconColor: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-          collapsedIconColor:
-              Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+          iconColor: Theme.of(context).colorScheme.onSurface,
+          collapsedIconColor: Theme.of(context).colorScheme.onSurface,
           title: Text(
             title,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             textAlign: TextAlign.left,
           ),
@@ -46,7 +43,7 @@ class StandardExpandableList<T> extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                      color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             );

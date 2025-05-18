@@ -166,7 +166,7 @@ class ExchangePage extends BasePage {
                   focusNode: _receiveAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()])
             ]),
         child: Container(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: Form(
               key: _formKey,
               child: ScrollableWithBottomSection(

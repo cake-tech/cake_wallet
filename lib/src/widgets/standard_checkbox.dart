@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardCheckbox extends StatelessWidget {
@@ -23,12 +21,12 @@ class StandardCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).extension<FilterTheme>()!.checkboxFirstGradientColor,
-      Theme.of(context).extension<FilterTheme>()!.checkboxSecondGradientColor,
+      Theme.of(context).colorScheme.primary,
+      Theme.of(context).colorScheme.primary.withOpacity(0.7),
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(
-      color: borderColor ?? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+      color: borderColor ?? Theme.of(context).colorScheme.onSurface,
       width: 1.0,
     );
 
@@ -70,7 +68,7 @@ class StandardCheckbox extends StatelessWidget {
                     fontSize: 16.0,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.normal,
-                    color: captionColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: captionColor ?? Theme.of(context).colorScheme.onSurface,
                     decoration: TextDecoration.none,
                   ),
                 ),

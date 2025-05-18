@@ -6,8 +6,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -72,10 +70,10 @@ class BalanceRowWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
             border: Border.all(
-              color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+              color: Theme.of(context).colorScheme.outlineVariant,
               width: 1,
             ),
-            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            color: Theme.of(context).colorScheme.primaryContainer,
             // boxShadow: [
             //   BoxShadow(
             //       color: Theme.of(context)
@@ -120,9 +118,7 @@ class BalanceRowWidget extends StatelessWidget {
                                           fontSize: 12,
                                           fontFamily: 'Lato',
                                           fontWeight: FontWeight.w400,
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .labelTextColor,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           height: 1)),
                                 ),
                                 if (hasAdditionalBalance)
@@ -130,9 +126,7 @@ class BalanceRowWidget extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(horizontal: 4),
                                     child: Icon(Icons.help_outline,
                                         size: 16,
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .labelTextColor),
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                                   ),
                               ],
                             ),
@@ -143,9 +137,7 @@ class BalanceRowWidget extends StatelessWidget {
                                   fontSize: 24,
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w900,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .balanceAmountColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                   height: 1),
                               maxLines: 1,
                               textAlign: TextAlign.start),
@@ -157,8 +149,7 @@ class BalanceRowWidget extends StatelessWidget {
                                     fontSize: 14,
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w400,
-                                    color:
-                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     height: 1)),
                           if (!isTestnet)
                             Text('${availableFiatBalance}',
@@ -167,8 +158,7 @@ class BalanceRowWidget extends StatelessWidget {
                                     fontSize: 16,
                                     fontFamily: 'Lato',
                                     fontWeight: FontWeight.w500,
-                                    color:
-                                        Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     height: 1)),
                         ],
                       ),
@@ -203,9 +193,7 @@ class BalanceRowWidget extends StatelessWidget {
                                   fontSize: 15,
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w800,
-                                  color: Theme.of(context)
-                                      .extension<BalancePageTheme>()!
-                                      .assetTitleColor,
+                                  color: Theme.of(context).colorScheme.secondary,
                                   height: 1,
                                 ),
                               ),
@@ -256,8 +244,7 @@ class BalanceRowWidget extends StatelessWidget {
                                 fontSize: 12,
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w400,
-                                color:
-                                    Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 height: 1,
                               ),
                             ),
@@ -270,8 +257,7 @@ class BalanceRowWidget extends StatelessWidget {
                             fontSize: 20,
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w400,
-                            color:
-                                Theme.of(context).extension<BalancePageTheme>()!.balanceAmountColor,
+                            color: Theme.of(context).colorScheme.primary,
                             height: 1,
                           ),
                           maxLines: 1,
@@ -286,7 +272,7 @@ class BalanceRowWidget extends StatelessWidget {
                               fontSize: 12,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w400,
-                              color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                              color: Theme.of(context).colorScheme.onSurface,
                               height: 1,
                             ),
                           ),
@@ -304,7 +290,7 @@ class BalanceRowWidget extends StatelessWidget {
                             fontSize: 12,
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w400,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             height: 1,
                           ),
                         ),
@@ -315,7 +301,7 @@ class BalanceRowWidget extends StatelessWidget {
                             fontSize: 20,
                             fontFamily: 'Lato',
                             fontWeight: FontWeight.w400,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.assetTitleColor,
+                            color: Theme.of(context).colorScheme.secondary,
                             height: 1,
                           ),
                           maxLines: 1,
@@ -330,7 +316,7 @@ class BalanceRowWidget extends StatelessWidget {
                               fontSize: 12,
                               fontFamily: 'Lato',
                               fontWeight: FontWeight.w400,
-                              color: Theme.of(context).extension<BalancePageTheme>()!.textColor,
+                              color: Theme.of(context).colorScheme.onSurface,
                               height: 1,
                             ),
                           ),
@@ -348,10 +334,10 @@ class BalanceRowWidget extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30.0),
               border: Border.all(
-                color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 width: 1,
               ),
-              color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              color: Theme.of(context).colorScheme.primaryContainer,
               // boxShadow: [
               //   BoxShadow(
               //       color: Theme.of(context)
@@ -385,9 +371,7 @@ class BalanceRowWidget extends StatelessWidget {
                                     Container(
                                       child: ImageIcon(
                                         AssetImage('assets/images/mweb_logo.png'),
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .assetTitleColor,
+                                        color: Theme.of(context).colorScheme.secondary,
                                         size: 40,
                                       ),
                                     ),
@@ -398,9 +382,7 @@ class BalanceRowWidget extends StatelessWidget {
                                         fontSize: 15,
                                         fontFamily: 'Lato',
                                         fontWeight: FontWeight.w800,
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .assetTitleColor,
+                                        color: Theme.of(context).colorScheme.secondary,
                                         height: 1,
                                       ),
                                     ),
@@ -431,9 +413,7 @@ class BalanceRowWidget extends StatelessWidget {
                                             fontSize: 12,
                                             fontFamily: 'Lato',
                                             fontWeight: FontWeight.w400,
-                                            color: Theme.of(context)
-                                                .extension<BalancePageTheme>()!
-                                                .labelTextColor,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             height: 1,
                                           ),
                                         ),
@@ -441,9 +421,7 @@ class BalanceRowWidget extends StatelessWidget {
                                           padding: const EdgeInsets.symmetric(horizontal: 4),
                                           child: Icon(Icons.help_outline,
                                               size: 16,
-                                              color: Theme.of(context)
-                                                  .extension<BalancePageTheme>()!
-                                                  .labelTextColor),
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant),
                                         )
                                       ],
                                     ),
@@ -455,9 +433,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       fontSize: 24,
                                       fontFamily: 'Lato',
                                       fontWeight: FontWeight.w900,
-                                      color: Theme.of(context)
-                                          .extension<BalancePageTheme>()!
-                                          .assetTitleColor,
+                                      color: Theme.of(context).colorScheme.secondary,
                                       height: 1,
                                     ),
                                     maxLines: 1,
@@ -472,9 +448,7 @@ class BalanceRowWidget extends StatelessWidget {
                                         fontSize: 16,
                                         fontFamily: 'Lato',
                                         fontWeight: FontWeight.w500,
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .textColor,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                         height: 1,
                                       ),
                                     ),
@@ -503,9 +477,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       fontSize: 12,
                                       fontFamily: 'Lato',
                                       fontWeight: FontWeight.w400,
-                                      color: Theme.of(context)
-                                          .extension<BalancePageTheme>()!
-                                          .labelTextColor,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       height: 1,
                                     ),
                                   ),
@@ -516,9 +488,7 @@ class BalanceRowWidget extends StatelessWidget {
                                       fontSize: 20,
                                       fontFamily: 'Lato',
                                       fontWeight: FontWeight.w400,
-                                      color: Theme.of(context)
-                                          .extension<BalancePageTheme>()!
-                                          .assetTitleColor,
+                                      color: Theme.of(context).colorScheme.secondary,
                                       height: 1,
                                     ),
                                     maxLines: 1,
@@ -533,9 +503,7 @@ class BalanceRowWidget extends StatelessWidget {
                                         fontSize: 12,
                                         fontFamily: 'Lato',
                                         fontWeight: FontWeight.w400,
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .textColor,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                         height: 1,
                                       ),
                                     ),
@@ -590,17 +558,13 @@ class BalanceRowWidget extends StatelessWidget {
                                         height: 30,
                                         width: 30,
                                         'assets/images/received.png',
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .balanceAmountColor,
+                                        color: Theme.of(context).colorScheme.primary,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
                                         S.of(context).litecoin_mweb_pegin,
                                         style: TextStyle(
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .textColor,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       ),
                                     ],
@@ -648,17 +612,13 @@ class BalanceRowWidget extends StatelessWidget {
                                         height: 30,
                                         width: 30,
                                         'assets/images/upload.png',
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .balanceAmountColor,
+                                        color: Theme.of(context).colorScheme.primary,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
                                         S.of(context).litecoin_mweb_pegout,
                                         style: TextStyle(
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .textColor,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                       ),
                                     ],

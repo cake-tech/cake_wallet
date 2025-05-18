@@ -52,7 +52,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
             });
           }
           return Material(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.all(Radius.circular(16)),
             child: Padding(
               padding: EdgeInsets.only(

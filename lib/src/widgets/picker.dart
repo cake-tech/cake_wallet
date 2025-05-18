@@ -9,9 +9,6 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 //TODO(David): PickerWidget is intertwined and confusing as is, find a way to optimize?
 class Picker<Item> extends StatefulWidget {
@@ -164,7 +161,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -199,7 +196,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           ),
                         ),
                       Divider(
-                        color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+                        color: Theme.of(context).colorScheme.outlineVariant,
                         height: 1,
                       ),
                       if (widget.selectedAtIndex != -1 && widget.headerEnabled)
@@ -229,9 +226,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                         fontWeight: FontWeight.w500,
                                         fontFamily: 'Lato',
                                         decoration: TextDecoration.none,
-                                        color: Theme.of(context)
-                                            .extension<CakeTextTheme>()!
-                                            .titleColor,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                   )
@@ -267,7 +262,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
             ? 0
             : filteredItems.length;
     return Container(
-      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+      color: Theme.of(context).colorScheme.outlineVariant,
       child: widget.isGridView
           ? GridView.builder(
               key: ValueKey('picker_items_grid_view_key'),
@@ -292,7 +287,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               shrinkWrap: true,
               separatorBuilder: (context, index) => widget.isSeparated
                   ? Divider(
-                      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+                      color: Theme.of(context).colorScheme.outlineVariant,
                       height: 1,
                     )
                   : const SizedBox(),
@@ -352,7 +347,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                       fontSize: 14,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -370,14 +365,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           style: TextStyle(
                             fontSize: 7.0,
                             fontFamily: 'Lato',
-                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6.0),
                         //border: Border.all(color: ),
-                        color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
+                        color: Theme.of(context).colorScheme.surfaceVariant,
                       ),
                     ),
                   ),
@@ -443,7 +438,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
                       fontSize: 16,
                       fontFamily: 'Lato',
                       fontWeight: FontWeight.w700,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -460,14 +455,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           style: TextStyle(
                             fontSize: 7.0,
                             fontFamily: 'Lato',
-                            color: Theme.of(context).extension<CakeScrollbarTheme>()!.thumbColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6.0),
                         //border: Border.all(color: ),
-                        color: Theme.of(context).extension<CakeScrollbarTheme>()!.trackColor,
+                        color: Theme.of(context).colorScheme.surfaceVariant,
                       ),
                     ),
                   ),

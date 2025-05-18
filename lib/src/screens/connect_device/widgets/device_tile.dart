@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
@@ -47,7 +46,7 @@ class DeviceTile extends StatelessWidget {
               Image.asset(
                 leading!,
                 height: 30,
-                color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             Expanded(
               child: Padding(
@@ -57,7 +56,7 @@ class DeviceTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -67,7 +66,7 @@ class DeviceTile extends StatelessWidget {
                 child: Image.asset(
                   connectionTypeIcon!,
                   height: 25,
-                  color: Theme.of(context).extension<OptionTileTheme>()!.titleColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               )
           ],

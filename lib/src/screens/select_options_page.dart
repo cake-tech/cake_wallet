@@ -3,8 +3,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 abstract class SelectOptionsPage extends BasePage {
@@ -62,7 +60,7 @@ abstract class SelectOptionsPage extends BasePage {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
-                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             if (primaryButtonEnabled)
@@ -130,10 +128,8 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
-
-    Color titleColor =
-        isLightMode ? Theme.of(context).appBarTheme.titleTextStyle!.color! : Colors.white;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    Color titleColor = isDarkMode ? Theme.of(context).colorScheme.onSurface : Colors.white;
 
     return Center(
       child: ConstrainedBox(
@@ -185,7 +181,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                   badges: item.badges,
                   isSelected: item.isOptionSelected,
                   borderRadius: widget.tileBorderRadius,
-                  isLightMode: isLightMode,
+                  isLightMode: !isDarkMode,
                   onPressed: () => _handleOptionTap(item),
                 ),
               );

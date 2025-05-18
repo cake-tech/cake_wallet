@@ -1,9 +1,5 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class StandardListStatusRow extends StatelessWidget {
   StandardListStatusRow({required this.title, required this.value, this.status});
@@ -16,7 +12,7 @@ class StandardListStatusRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: Padding(
         padding:
             const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
@@ -27,13 +23,13 @@ class StandardListStatusRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
+                    color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   child: Padding(
@@ -53,7 +49,7 @@ class StandardListStatusRow extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor))
+                                color: Theme.of(context).colorScheme.onSurface))
                       ],
                     ),
                   ),

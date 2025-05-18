@@ -92,7 +92,7 @@ class AnonPayInvoicePage extends BasePage {
           ],
         ),
         child: Container(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 24),
             content: Container(

@@ -167,7 +167,7 @@ class AuthPagePinCodeStateImpl extends AuthPageState<AuthPage> {
                       ),
                     ))
                 : Container(),
-            backgroundColor: Theme.of(context).colorScheme.background,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             border: null),
         resizeToAvoidBottomInset: false,
         body: PinCode((pin, _) => widget.authViewModel.auth(password: pin),

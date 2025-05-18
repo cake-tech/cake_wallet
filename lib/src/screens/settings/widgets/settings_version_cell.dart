@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class SettingsVersionCell extends StatelessWidget {
   SettingsVersionCell({required this.title});
@@ -19,7 +18,7 @@ class SettingsVersionCell extends StatelessWidget {
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.normal,
-                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
           )
         ],
       ),

@@ -1,11 +1,8 @@
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 
 class CheckBoxPicker extends StatefulWidget {
   CheckBoxPicker({
@@ -48,7 +45,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                 fontFamily: 'Lato',
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -57,7 +54,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(30)),
             child: Container(
-              color: Theme.of(context).dialogTheme.backgroundColor,
+              color: Theme.of(context).colorScheme.outlineVariant,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: MediaQuery.of(context).size.height * 0.65,
@@ -91,14 +88,14 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 
   Widget itemsList() {
     return Container(
-      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+      color: Theme.of(context).colorScheme.outlineVariant,
       child: ListView.separated(
         padding: EdgeInsets.zero,
         controller: controller,
         shrinkWrap: true,
         separatorBuilder: (context, index) => widget.isSeparated
             ? Divider(
-                color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 height: 1,
               )
             : const SizedBox(),
@@ -120,14 +117,14 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
       },
       child: Container(
         height: 55,
-        color: Theme.of(context).dialogTheme.backgroundColor,
+        color: Theme.of(context).colorScheme.outlineVariant,
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Row(
           children: [
             StandardCheckbox(
               value: item.value,
               gradientBackground: true,
-              borderColor: Theme.of(context).dividerColor,
+              borderColor: Theme.of(context).colorScheme.outlineVariant,
               iconColor: Colors.white,
               onChanged: (bool? value) {
                 if (value == null) {
@@ -149,7 +146,7 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                     fontWeight: FontWeight.w600,
                     color: item.isDisabled
                         ? Colors.grey.withOpacity(0.5)
-                        : Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        : Theme.of(context).colorScheme.onSurface,
                     decoration: TextDecoration.none,
                   ),
                 )

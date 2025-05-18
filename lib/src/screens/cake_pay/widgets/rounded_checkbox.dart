@@ -19,7 +19,7 @@ class RoundedCheckbox extends StatelessWidget {
               ),
               child: Icon(
                 Icons.check,
-                color: Theme.of(context).colorScheme.background,
+                color: Theme.of(context).colorScheme.surface,
                 size: 14.0,
               ))
           : Offstage();

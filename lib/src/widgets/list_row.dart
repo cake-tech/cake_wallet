@@ -1,6 +1,4 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class ListRow extends StatelessWidget {
   ListRow({
@@ -32,7 +30,7 @@ class ListRow extends StatelessWidget {
     style: TextStyle(
       fontSize: valueFontSize,
       fontWeight: FontWeight.w500,
-      color: mainTextColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor
+      color: mainTextColor ?? Theme.of(context).colorScheme.onSurface
     ),
   );
 
@@ -40,7 +38,7 @@ class ListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: color ?? Theme.of(context).colorScheme.background,
+      color: color ?? Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: padding ?? const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
         child: Column(
@@ -50,7 +48,7 @@ class ListRow extends StatelessWidget {
                   style: TextStyle(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
-                      color: hintTextColor ?? Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                      color: hintTextColor ?? Theme.of(context).colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.left),
               Padding(
                 padding: const EdgeInsets.only(top: 12),

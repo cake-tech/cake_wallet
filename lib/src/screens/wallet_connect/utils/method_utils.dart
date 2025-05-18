@@ -112,7 +112,7 @@ class GoBackModalWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       height: 280.0,
       width: double.infinity,
       padding: const EdgeInsets.all(20.0),

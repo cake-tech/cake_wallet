@@ -23,7 +23,7 @@ class WCConnectionWidget extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(context) .colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
             ),
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),

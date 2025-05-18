@@ -67,7 +67,7 @@ class SignPage extends BasePage {
       ),
       child: Container(
         height: 0,
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: Center(
           child: ConstrainedBox(
             constraints:

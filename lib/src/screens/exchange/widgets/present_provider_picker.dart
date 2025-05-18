@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/extensions/qr_code_theme.dart';
 import 'package:cake_wallet/src/widgets/check_box_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,7 @@ class PresentProviderPicker extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 10.0,
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<QRCodeTheme>()!.qrCodeColor)))
+                                color: Theme.of(context).colorScheme.onSurfaceVariant)))
               ],
             ),
             SizedBox(width: 5),
