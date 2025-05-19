@@ -2,7 +2,6 @@ name: cw_wownero
 description: A new flutter plugin project.
 version: 0.0.1
 publish_to: none
-author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
@@ -25,7 +24,7 @@ dependencies:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
-      ref: c44cc3b6a07493ca1fc42d8edbc041ade9a63d4f # monero_c hash
+      ref: 4868eb9220962a4176a7ed0fc7c809c6200e71a0 # monero_c hash
       path: impls/monero.dart
   mutex: ^3.1.0
 
