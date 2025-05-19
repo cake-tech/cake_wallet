@@ -139,16 +139,16 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
 }
 
 int getFullBalance({int accountIndex = 0}) =>
-    currentWallet!.balance(accountIndex: accountIndex);
+    currentWallet?.balance(accountIndex: accountIndex) ?? 0;
 
 int getUnlockedBalance({int accountIndex = 0}) =>
-    currentWallet!.unlockedBalance(accountIndex: accountIndex);
+    currentWallet?.unlockedBalance(accountIndex: accountIndex) ?? 0;
 
-int getCurrentHeight() => currentWallet!.blockChainHeight();
+int getCurrentHeight() => currentWallet?.blockChainHeight() ?? 0;
 
-int getNodeHeightSync() => currentWallet!.daemonBlockChainHeight();
+int getNodeHeightSync() => currentWallet?.daemonBlockChainHeight() ?? 0;
 
-bool isConnectedSync() => currentWallet!.connected() != 0;
+bool isConnectedSync() => currentWallet?.connected() != 0;
 
 Future<bool> setupNodeSync(
     {required String address,

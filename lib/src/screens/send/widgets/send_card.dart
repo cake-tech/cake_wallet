@@ -188,19 +188,23 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       sendViewModel.createOpenCryptoPayTransaction(uri.toString());
                     } else {
                       final paymentRequest = PaymentRequest.fromUri(uri);
-                      addressController.text = paymentRequest.address;
-                      cryptoAmountController.text = paymentRequest.amount;
-                      noteController.text = paymentRequest.note;
-                    }
-                  },
-                  options: [
-                    AddressTextFieldOption.paste,
-                    AddressTextFieldOption.qrCode,
-                    AddressTextFieldOption.addressBook
-                  ],
-                  buttonColor: Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
-                  borderColor: Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
-                  textStyle:
+                      if (sendViewModel.usePayjoin) {
+                            sendViewModel.payjoinUri = paymentRequest.pjUri;
+                          }
+                          addressController.text = paymentRequest.address;
+                          cryptoAmountController.text = paymentRequest.amount;
+                          noteController.text = paymentRequest.note;}
+                        },
+                        options: [
+                          AddressTextFieldOption.paste,
+                          AddressTextFieldOption.qrCode,
+                          AddressTextFieldOption.addressBook
+                        ],
+                        buttonColor:
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldButtonColor,
+                        borderColor:
+                            Theme.of(context).extension<SendPageTheme>()!.textFieldBorderColor,
+                        textStyle:
                       TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
                   hintStyle: TextStyle(
                       fontSize: 14,
@@ -595,6 +599,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     final isBitcoinWallet = sendViewModel.walletType == WalletType.bitcoin;
     final maxCustomFeeRate = sendViewModel.feesViewModel.maxCustomFeeRate?.toDouble();
     double? customFeeRate = isBitcoinWallet ? sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
+
+    FocusManager.instance.primaryFocus?.unfocus();
 
     await showPopUp<void>(
       context: context,

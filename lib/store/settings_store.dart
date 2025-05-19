@@ -121,6 +121,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsOpenAlias,
       required this.lookupsENS,
       required this.lookupsWellKnown,
+      required this.usePayjoin,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.silentPaymentsAlwaysScan,
@@ -483,6 +484,11 @@ abstract class SettingsStoreBase with Store {
         (bool looksUpWellKnown) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
 
+    reaction(
+        (_) => usePayjoin,
+        (bool usePayjoin) =>
+            _sharedPreferences.setBool(PreferencesKey.usePayjoin, usePayjoin));
+
     // secure storage keys:
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -803,6 +809,9 @@ abstract class SettingsStoreBase with Store {
   bool lookupsWellKnown;
 
   @observable
+  bool usePayjoin;
+
+  @observable
   SyncMode currentSyncMode;
 
   @observable
@@ -1009,6 +1018,7 @@ abstract class SettingsStoreBase with Store {
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
+    final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
@@ -1311,6 +1321,7 @@ abstract class SettingsStoreBase with Store {
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
       lookupsWellKnown: lookupsWellKnown,
+      usePayjoin: usePayjoin,
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
