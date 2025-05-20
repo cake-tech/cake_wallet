@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
@@ -205,8 +206,31 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
       encryptionKey: transactionDescriptionsBoxKey);
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
+  
+  var lsofProcess = await Process.start(
+    "/system/bin/lsof",
+    ["walletinfo.hive", "walletinfo.lock"],
+    workingDirectory: (await getAppDir()).path,
+    runInShell: true,
+  );
+
+  printV("exitcode: ${await lsofProcess.exitCode}");
+  printV("__stderr: ${await lsofProcess.stderr.transform(utf8.decoder).join()}", separateMultiline: true);
+  printV("__stdout: ${await lsofProcess.stdout.transform(utf8.decoder).join()}", separateMultiline: true);
+
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
   printV("WalletInfoSource length (initializeAppConfigs): ${walletInfoSource.length}");
+
+  lsofProcess = await Process.start(
+    "/system/bin/lsof",
+    ["walletinfo.hive", "walletinfo.lock"],
+    workingDirectory: (await getAppDir()).path,
+    runInShell: true,
+  );
+  printV("exitcode: ${await lsofProcess.exitCode}");
+  printV("__stderr: ${await lsofProcess.stderr.transform(utf8.decoder).join()}", separateMultiline: true);
+  printV("__stdout: ${await lsofProcess.stdout.transform(utf8.decoder).join()}", separateMultiline: true);
+
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);

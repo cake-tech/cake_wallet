@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -10,6 +12,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.d
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -104,6 +107,12 @@ class OtherSettingsPage extends BasePage {
                   title: '[dev] print verbose',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devPrintVerbose),
+                ),
+              if (kDebugMode && Platform.isAndroid)
+                SettingsCellWithArrow(
+                  title: '[dev] lsof',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devLsof),
                 ),
               Spacer(),
               SettingsVersionCell(

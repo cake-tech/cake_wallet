@@ -37,6 +37,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/hash_change_logs_page.dart';
+import 'package:cake_wallet/src/screens/dev/lsof.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/print_verbose_logs_page.dart';
@@ -927,6 +928,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.devPrintVerbose:
       return MaterialPageRoute<void>(builder: (_) => PrintVerboseLogsPage());
+
+    case Routes.devLsof:
+      return MaterialPageRoute<void>(builder: (_) => DevLsof());
 
     default:
       return MaterialPageRoute<void>(
