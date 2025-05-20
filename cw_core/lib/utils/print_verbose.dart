@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 String? printVLogFilePath;
 
-void printV(dynamic content) {
+void printV(dynamic content, {bool separateMultiline = false}) {
   CustomTrace programInfo = CustomTrace(StackTrace.current);
   final logMsg = "${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content";
   if (printVLogFilePath != null) {
@@ -14,7 +14,14 @@ void printV(dynamic content) {
       print("Unable to write to log file (printV): $e");
     }
   }
-  print(logMsg);
+  if (separateMultiline) {
+    final lines = content.toString().split("\n");
+    for (final s in lines) {
+      print("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $s");
+    }
+  } else {
+    print(logMsg);
+  }
 }
 
 // https://stackoverflow.com/a/59386101
