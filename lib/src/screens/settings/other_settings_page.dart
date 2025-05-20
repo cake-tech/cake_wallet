@@ -77,6 +77,18 @@ class OtherSettingsPage extends BasePage {
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
+                  title: '[dev] file explorer',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devFileExplorer),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] wallet fuzzer',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devWalletFuzzer),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
                   title: '[dev] shared preferences',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devSharedPreferences),
