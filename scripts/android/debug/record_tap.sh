@@ -127,6 +127,6 @@ adb shell getevent -lt "$TOUCH_DEVICE" | gawk -v sw="$SCREEN_WIDTH" -v sh="$SCRE
     scaled_x = int(raw_x * sw / rx)
     scaled_y = int(raw_y * sh / ry)
     # Print the input tap command.
-    printf "adb shell input tap %d %d\n", scaled_x, scaled_y
+    printf "adb -s \$device_id shell input tap %d %d\n", scaled_x, scaled_y
   }
 '
