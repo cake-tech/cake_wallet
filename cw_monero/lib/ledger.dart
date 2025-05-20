@@ -8,8 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
 import 'package:monero/src/monero.dart' as api;
-import 'package:monero/monero.dart' as monero;
-import 'package:monero/src/generated_bindings_monero.g.dart' as gen;
 
 LedgerConnection? gLedger;
 
@@ -33,11 +31,11 @@ void enableLedgerExchange(LedgerConnection connection) {
 
     api.MoneroWallet.setDeviceReceivedData(
          result.cast<UnsignedChar>(), response.length);
+    api.MoneroFree().free(result.cast());
   }
 
   callable = NativeCallable<LedgerCallback>.listener(callback);
-  monero.lib ??= gen.MoneroC(DynamicLibrary.open(monero.libPath));
-  monero.lib!.MONERO_Wallet_setLedgerCallback(callable!.nativeFunction);
+  api.MoneroWallet.setLedgerCallback(callable!.nativeFunction);
 }
 
 void disableLedgerExchange() {
