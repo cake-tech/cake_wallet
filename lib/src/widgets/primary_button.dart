@@ -210,7 +210,7 @@ class PrimaryImageButton extends StatelessWidget {
                   backgroundColor: MaterialStateProperty.all(color),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(26.0),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                   )),
               child: Center(
