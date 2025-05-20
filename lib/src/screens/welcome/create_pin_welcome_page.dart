@@ -8,15 +8,18 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CreatePinWelcomePage extends BasePage {
   CreatePinWelcomePage(this.isWalletPasswordDirectInput);
 
   final bool isWalletPasswordDirectInput;
 
-  static const aspectRatioImage = 1.25;
-  final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
-  final welcomeImageDark = Image.asset('assets/images/welcome.png');
+  //static const aspectRatioImage = 0.8;
+  final welcomeImageLight = SvgPicture.asset('assets/images/welcome_light.svg', width: 480);
+  final welcomeImageDark = SvgPicture.asset('assets/images/welcome_dark.svg', width: 480);
+  final cwWelcomeImageLight = SvgPicture.asset('assets/images/cw_welcome_light.svg');
+  final cwWelcomeImageDark = SvgPicture.asset('assets/images/cw_welcome_dark.svg');
 
   String appTitle(BuildContext context) {
     if (isMoneroOnly) {
@@ -45,6 +48,7 @@ class CreatePinWelcomePage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
+    final cwWelcomeImage = currentTheme.type == ThemeType.dark ? cwWelcomeImageDark : cwWelcomeImageLight;
 
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
@@ -54,46 +58,40 @@ class CreatePinWelcomePage extends BasePage {
     return PopScope(
       canPop: false,
       child: ScrollableWithBottomSection(
+        contentPadding: EdgeInsets.zero,
         content: Container(
           alignment: Alignment.center,
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+          // child: ConstrainedBox(
+          //   constraints:
+          //       BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Column(
                   children: <Widget>[
-                    SizedBox(height: 70),
-                    AspectRatio(
-                      aspectRatio: aspectRatioImage,
-                      child: FittedBox(child: welcomeImage, fit: BoxFit.contain),
-                    ),
-                    SizedBox(height: 50),
+                    // AspectRatio(
+                    //   aspectRatio: aspectRatioImage,
+                    //   child: FittedBox(child: welcomeImage),
+                    // ),
+                    FittedBox(child: welcomeImage),
                     Padding(
-                      padding: EdgeInsets.only(top: 24),
+                      padding: EdgeInsets.only(top: 0),
                       child: Text(
                         S.of(context).welcome,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color:  Theme.of(context).colorScheme.onSurface
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color:  Theme.of(context).colorScheme.primary
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    Padding(
+                    Container(
                       padding: EdgeInsets.only(top: 5),
-                      child: Text(
-                        appTitle(context),
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                      width: 175,
+                      child: FittedBox(child: cwWelcomeImage, fit: BoxFit.contain),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 5),
+                      padding: EdgeInsets.only(top: 50),
                       child: Text(
                         appDescription(context),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -108,7 +106,7 @@ class CreatePinWelcomePage extends BasePage {
               ],
             ),
           ),
-        ),
+        //),
         bottomSection: Column(
           children: [
             RichText(
