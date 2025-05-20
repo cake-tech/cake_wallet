@@ -204,6 +204,11 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+  if (walletInfoSource.length == 0) {
+    printV("WalletInfo corrupted: length == 0");
+  } else {
+    printV("WalletInfo normal: ${walletInfoSource.length}");
+  }
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);

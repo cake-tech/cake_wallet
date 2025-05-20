@@ -26,21 +26,21 @@ function start_app() {
     # and then copy the output into the adb shell input tap commands below.
     # make sure to tap very briefly, otherwise multiple events will be generated.
     sleep 6
-    adb -s $device_id shell input tap 602 1940
-    sleep 2.664044
-    adb -s $device_id shell input tap 473 1923
-    sleep 2.713335
-    adb -s $device_id shell input tap 459 2021
-    sleep 2.668894
-    adb -s $device_id shell input tap 515 2027
-    sleep 3.871710
-    adb -s $device_id shell input tap 977 141
-    sleep 4.263207
-    adb -s $device_id shell input tap 635 1801
-    sleep 3.804010
-    adb -s $device_id shell input tap 289 757
-    sleep 3.833263
-    adb -s $device_id shell input tap 962 2176
+    adb -s $device_id shell input tap 435 1982
+    sleep 2.596161
+    adb -s $device_id shell input tap 532 1920
+    sleep 2.583818
+    adb -s $device_id shell input tap 594 1973
+    sleep 2.549104
+    adb -s $device_id shell input tap 539 2072
+    sleep 3.529221
+    adb -s $device_id shell input tap 979 139
+    sleep 3.287868
+    adb -s $device_id shell input tap 430 1645
+    sleep 2.325175
+    adb -s $device_id shell input tap 368 1784
+    sleep 2.461983
+    adb -s $device_id shell input tap 442 2164
 }
 
 function stop_app() {
