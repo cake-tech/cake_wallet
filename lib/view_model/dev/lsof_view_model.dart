@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' hide stderr, stdout;
 
 import 'package:cw_core/root_dir.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:mobx/mobx.dart';
 
 part 'lsof_view_model.g.dart';
@@ -70,5 +71,4 @@ ${stdout}
   Future<void> refresh() async {
     logs = await fetchLsof();
   }
-
 } 

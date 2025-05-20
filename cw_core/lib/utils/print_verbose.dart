@@ -22,7 +22,6 @@ void printV(dynamic content, {bool separateMultiline = false}) {
   } else {
     print(logMsg);
   }
-  print(logMsg);
 }
 
 // https://stackoverflow.com/a/59386101
