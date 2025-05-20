@@ -97,6 +97,11 @@ class ExchangePage extends BasePage {
         }
       };
 
+  bool get _shouldWaitTillSynced =>
+      [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.ltc]
+          .contains(exchangeViewModel.depositCurrency) &&
+      !(exchangeViewModel.status is SyncedSyncStatus);
+
   @override
   Widget middle(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -252,20 +257,21 @@ class ExchangePage extends BasePage {
                           onPressed: exchangeViewModel.isAvailableInSelected ? () {
                             FocusScope.of(context).unfocus();
 
-                            if (_formKey.currentState != null &&
-                                _formKey.currentState!.validate()) {
-                              if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr) &&
-                                  (!(exchangeViewModel.status is SyncedSyncStatus))) {
-                                showPopUp<void>(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertWithOneAction(
-                                          alertTitle: S.of(context).exchange,
-                                          alertContent: S.of(context).exchange_sync_alert_content,
-                                          buttonText: S.of(context).ok,
-                                          buttonAction: () => Navigator.of(context).pop());
-                                    });
-                              } else {
+                                  if (_formKey.currentState != null &&
+                                      _formKey.currentState!.validate()) {
+                                    if (_shouldWaitTillSynced) {
+                                      showPopUp<void>(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertWithOneAction(
+                                              alertTitle: S.of(context).exchange,
+                                              alertContent:
+                                                  S.of(context).exchange_sync_alert_content,
+                                              buttonText: S.of(context).ok,
+                                              buttonAction: () => Navigator.of(context).pop(),
+                                            );
+                                          });
+                                    } else {
                                 final check = exchangeViewModel.shouldDisplayTOTP();
                                 authService.authenticateAction(
                                   context,
