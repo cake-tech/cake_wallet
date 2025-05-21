@@ -33,6 +33,7 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Zano (ZANO)
 * Decred (DCR)
 * Wownero (WOW)
+* DigiByte (DGB)
 
 ## Features
 
