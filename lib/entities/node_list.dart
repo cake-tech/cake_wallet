@@ -16,6 +16,9 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.litecoin:
       path = 'assets/litecoin_electrum_server_list.yml';
       break;
+    case WalletType.digibyte:
+      path = 'assets/digibyte_electrum_server_list.yml';
+      break;
     case WalletType.haven:
       path = 'assets/haven_node_list.yml';
       break;
@@ -90,6 +93,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes(WalletType.monero);
   final bitcoinElectrumServerList = await loadDefaultNodes(WalletType.bitcoin);
   final litecoinElectrumServerList = await loadDefaultNodes(WalletType.litecoin);
+  final digibyteElectrumServerList = await loadDefaultNodes(WalletType.digibyte);
   final bitcoinCashElectrumServerList = await loadDefaultNodes(WalletType.bitcoinCash);
   final havenNodes = await loadDefaultNodes(WalletType.haven);
   final ethereumNodes = await loadDefaultNodes(WalletType.ethereum);
@@ -104,6 +108,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
       litecoinElectrumServerList +
+      digibyteElectrumServerList +
       havenNodes +
       ethereumNodes +
       bitcoinCashElectrumServerList +

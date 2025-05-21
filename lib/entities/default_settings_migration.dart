@@ -33,6 +33,7 @@ const publicBitcoinTestnetElectrumPort = '50002';
 const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
+const cakeWalletDigibyteElectrumUri = 'electrumx.digibyte.io:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum-rpc.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor-rpc.publicnode.com';
@@ -597,6 +598,8 @@ String _getDefaultNodeUri(WalletType type) {
       return newCakeWalletBitcoinUri;
     case WalletType.litecoin:
       return cakeWalletLitecoinElectrumUri;
+    case WalletType.digibyte:
+      return cakeWalletDigibyteElectrumUri;
     case WalletType.haven:
       return havenDefaultNodeUri;
     case WalletType.ethereum:
@@ -643,6 +646,7 @@ Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
       case cakeWalletLitecoinElectrumUri:
       case cakeWalletBitcoinElectrumUri:
       case newCakeWalletBitcoinUri:
+      case cakeWalletDigibyteElectrumUri:
       case newCakeWalletMoneroUri:
         node.useSSL = true;
         node.trusted = true;
@@ -1039,6 +1043,8 @@ Future<void> checkCurrentNodes(
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
   final currentLitecoinElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+  final currentDigibyteElectrumSeverId =
+      sharedPreferences.getInt(PreferencesKey.currentDigibyteElectrumSererIdKey);
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
@@ -1057,6 +1063,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinElectrumSeverId);
   final currentLitecoinElectrumServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentLitecoinElectrumSeverId);
+  final currentDigibyteElectrumServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentDigibyteElectrumSeverId);
   final currentHavenNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentHavenNodeId);
   final currentEthereumNodeServer =
@@ -1103,6 +1111,14 @@ Future<void> checkCurrentNodes(
     await nodeSource.add(cakeWalletElectrum);
     await sharedPreferences.setInt(
         PreferencesKey.currentLitecoinElectrumSererIdKey, cakeWalletElectrum.key as int);
+  }
+
+  if (currentDigibyteElectrumServer == null) {
+    final cakeWalletElectrum =
+        Node(uri: cakeWalletDigibyteElectrumUri, type: WalletType.digibyte, useSSL: false);
+    await nodeSource.add(cakeWalletElectrum);
+    await sharedPreferences.setInt(
+        PreferencesKey.currentDigibyteElectrumSererIdKey, cakeWalletElectrum.key as int);
   }
 
   if (currentHavenNodeServer == null) {
