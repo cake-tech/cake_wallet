@@ -1,0 +1,13 @@
+-
+  uri: electrumx.digibyte.io:50002
+  useSSL: true
+  isDefault: true
+-
+  uri: electrum1.cipig.net:10059
+  useSSL: true
+-
+  uri: electrum2.cipig.net:10059
+  useSSL: true
+-
+  uri: electrum3.cipig.net:10059
+  useSSL: true
