@@ -33,6 +33,7 @@ const publicBitcoinTestnetElectrumPort = '50002';
 const publicBitcoinTestnetElectrumUri =
     '$publicBitcoinTestnetElectrumAddress:$publicBitcoinTestnetElectrumPort';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
+const cakeWalletDigibyteElectrumUri = 'electrumx.digibyte.io:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum-rpc.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor-rpc.publicnode.com';
@@ -597,6 +598,8 @@ String _getDefaultNodeUri(WalletType type) {
       return newCakeWalletBitcoinUri;
     case WalletType.litecoin:
       return cakeWalletLitecoinElectrumUri;
+    case WalletType.digibyte:
+      return cakeWalletDigibyteElectrumUri;
     case WalletType.haven:
       return havenDefaultNodeUri;
     case WalletType.ethereum:
@@ -641,6 +644,7 @@ Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
   for (Node node in nodes.values) {
     switch (node.uriRaw) {
       case cakeWalletLitecoinElectrumUri:
+      case cakeWalletDigibyteElectrumUri:
       case cakeWalletBitcoinElectrumUri:
       case newCakeWalletBitcoinUri:
       case newCakeWalletMoneroUri:
