@@ -30,6 +30,7 @@ import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/view_model/dev/lsof_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
@@ -207,29 +208,9 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   
-  var lsofProcess = await Process.start(
-    "/system/bin/lsof",
-    ["walletinfo.hive", "walletinfo.lock"],
-    workingDirectory: (await getAppDir()).path,
-    runInShell: true,
-  );
-
-  printV("exitcode: ${await lsofProcess.exitCode}");
-  printV("__stderr: ${await lsofProcess.stderr.transform(utf8.decoder).join()}", separateMultiline: true);
-  printV("__stdout: ${await lsofProcess.stdout.transform(utf8.decoder).join()}", separateMultiline: true);
-
+  printV("lsof (before): ${await LsofViewModelBase.fetchLsof()}", separateMultiline: true);
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-  printV("WalletInfoSource length (initializeAppConfigs): ${walletInfoSource.length}");
-
-  lsofProcess = await Process.start(
-    "/system/bin/lsof",
-    ["walletinfo.hive", "walletinfo.lock"],
-    workingDirectory: (await getAppDir()).path,
-    runInShell: true,
-  );
-  printV("exitcode: ${await lsofProcess.exitCode}");
-  printV("__stderr: ${await lsofProcess.stderr.transform(utf8.decoder).join()}", separateMultiline: true);
-  printV("__stdout: ${await lsofProcess.stdout.transform(utf8.decoder).join()}", separateMultiline: true);
+  printV("lsof ( after): ${await LsofViewModelBase.fetchLsof()}",separateMultiline: true);
 
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);

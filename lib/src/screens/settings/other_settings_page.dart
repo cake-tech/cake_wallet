@@ -108,7 +108,7 @@ class OtherSettingsPage extends BasePage {
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devPrintVerbose),
                 ),
-              if (kDebugMode && Platform.isAndroid)
+              if (FeatureFlag.hasDevOptions && Platform.isAndroid)
                 SettingsCellWithArrow(
                   title: '[dev] lsof',
                   handler: (BuildContext context) =>
