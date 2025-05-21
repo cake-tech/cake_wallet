@@ -359,14 +359,23 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           onTimeout: () => [],
         )));
 
-    final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
+    final List<PaymentMethod> tempPaymentMethods = [];
+
     for (var methods in result) {
       for (var method in methods) {
-        uniquePaymentMethods[method.paymentMethodType] = method;
+        final alreadyExists = tempPaymentMethods.any((m) {
+          return m.paymentMethodType == method.paymentMethodType &&
+              m.customTitle == method.customTitle;
+        });
+
+        if (!alreadyExists) {
+          tempPaymentMethods.add(method);
+        }
       }
     }
 
-    paymentMethods = ObservableList<PaymentMethod>.of(uniquePaymentMethods.values);
+    paymentMethods = ObservableList<PaymentMethod>.of(tempPaymentMethods);
+
     if (paymentMethods.isNotEmpty) {
       paymentMethods.insert(0, PaymentMethod.all());
       selectedPaymentMethod = paymentMethods.first;
@@ -404,6 +413,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           paymentType: selectedPaymentMethod?.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
+          customPaymentMethodType: selectedPaymentMethod?.customPaymentMethodType,
         )
         .timeout(
           Duration(seconds: 10),
