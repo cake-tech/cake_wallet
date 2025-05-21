@@ -4,6 +4,7 @@ class PreferencesKey {
   static const currentNodeIdKey = 'current_node_id';
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
   static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
+  static const currentDigibyteElectrumSererIdKey = 'current_node_id_dgb';
   static const currentHavenNodeIdKey = 'current_node_id_xhv';
   static const currentZanoNodeIdKey = 'current_node_id_zano';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
