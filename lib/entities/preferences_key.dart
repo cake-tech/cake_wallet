@@ -47,6 +47,7 @@ class PreferencesKey {
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
   static const havenTransactionPriority = 'current_fee_priority_haven';
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
+  static const digibyteTransactionPriority = 'current_fee_priority_digibyte';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';

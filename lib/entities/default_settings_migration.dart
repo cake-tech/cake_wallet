@@ -644,6 +644,7 @@ Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
   for (Node node in nodes.values) {
     switch (node.uriRaw) {
       case cakeWalletLitecoinElectrumUri:
+      case cakeWalletDigibyteElectrumUri:
       case cakeWalletBitcoinElectrumUri:
       case newCakeWalletBitcoinUri:
       case cakeWalletDigibyteElectrumUri:
