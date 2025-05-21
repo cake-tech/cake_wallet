@@ -80,6 +80,7 @@ import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cw_digibyte/digibyte_wallet_service.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
@@ -1139,6 +1140,13 @@ Future<void> setup({
         return zano!.createZanoWalletService(_walletInfoSource);
       case WalletType.decred:
         return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+      case WalletType.digibyte:
+        return DigibyteWalletService(
+          _walletInfoSource,
+          _unspentCoinsInfoSource,
+          false,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.haven:
         return HavenWalletService(_walletInfoSource);
       case WalletType.none:
