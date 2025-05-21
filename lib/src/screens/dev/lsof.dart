@@ -51,7 +51,7 @@ class DevLsof extends BasePage {
               children: [
                 SelectableText(
                   viewModel.logs??'',
-                  style: TextStyle(fontSize: 8),
+                  style: TextStyle(fontSize: 6),
                 ),
               ],
             ),
