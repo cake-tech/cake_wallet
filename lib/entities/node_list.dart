@@ -40,6 +40,9 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.wownero:
       path = 'assets/wownero_node_list.yml';
       break;
+    case WalletType.digibyte:
+      path = 'assets/digibyte_electrum_server_list.yml';
+      break;
     case WalletType.zano:
       path = 'assets/zano_node_list.yml';
       break;
@@ -94,6 +97,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final polygonNodes = await loadDefaultNodes(WalletType.polygon);
   final solanaNodes = await loadDefaultNodes(WalletType.solana);
   final tronNodes = await loadDefaultNodes(WalletType.tron);
+  final digibyteNodes = await loadDefaultNodes(WalletType.digibyte);
   final decredNodes = await loadDefaultNodes(WalletType.decred);
   final zanoNodes = await loadDefaultNodes(WalletType.zano);
 
@@ -107,6 +111,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       polygonNodes +
       solanaNodes +
       tronNodes +
+      digibyteNodes +
       zanoNodes +
       decredNodes;
 
