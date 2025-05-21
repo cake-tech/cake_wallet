@@ -9,6 +9,7 @@ class WalletListItem {
     this.isCurrent = false,
     this.isEnabled = true,
     this.isTestnet = false,
+    this.hashId = '',
   });
 
   final String name;
@@ -18,4 +19,5 @@ class WalletListItem {
   final bool isEnabled;
   final bool isTestnet;
   final bool isHardware;
+  final String hashId;
 }
