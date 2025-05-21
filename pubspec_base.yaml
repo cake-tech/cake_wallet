@@ -167,6 +167,7 @@ dependency_overrides:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
   web_socket_channel: ^3.0.2
+  freezed_annotation: ^2.4.4
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
