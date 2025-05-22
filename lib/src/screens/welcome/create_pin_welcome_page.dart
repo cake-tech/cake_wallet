@@ -85,7 +85,7 @@ class CreatePinWelcomePage extends BasePage {
                   child: Column(
                     children: <Widget>[
                       Text(
-                        S.current.welcome_only,
+                        S.current.welcome,
                         style: Theme.of(context).textTheme.displayLarge?.copyWith(
                               fontWeight: FontWeight.w700,
                               fontSize: 60,
@@ -105,7 +105,7 @@ class CreatePinWelcomePage extends BasePage {
                           ),
                           SizedBox(width: 8),
                           if (!isMoneroOnly) ...[
-                                 SizedBox(width: 8),
+                            SizedBox(width: 8),
                             CakeImageWidget(
                               height: 40,
                               imageUrl: cakeLogoThemed,
