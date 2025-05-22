@@ -27,6 +27,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -280,7 +281,11 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey, loadWallet: loadWallet);
+  await bootstrapOffline();
+  final settingsStore = getIt<SettingsStore>();
+  if (!settingsStore.currentBuiltinTor) {
+    bootstrapOnline(navigatorKey, loadWallet: loadWallet);
+  }
 }
 
 class App extends StatefulWidget {

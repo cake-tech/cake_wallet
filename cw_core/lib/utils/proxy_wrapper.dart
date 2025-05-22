@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:socks5_proxy/socks_client.dart';
 import 'package:tor/tor.dart';
@@ -29,6 +30,8 @@ class ProxyWrapper {
             password: null,
           ),
       ]);
+    } else {
+      printV("+++++++ TOR NOT STARTED");
     }
 
     return client;
@@ -124,16 +127,20 @@ class ProxyWrapper {
     if (torEnabled) {
       try {
         torClient = await getProxyHttpClient(portOverride: portOverride);
-      } catch (_) {}
+      } catch (_) {
+        rethrow;
+      }
 
       if (onionUri != null) {
         try {
           return await makeGet(
-            client: torClient!,
+            client: torClient,
             uri: onionUri,
             headers: headers,
           );
-        } catch (_) {}
+        } catch (_) {
+          rethrow;
+        }
       }
 
       if (clearnetUri != null) {
@@ -143,7 +150,9 @@ class ProxyWrapper {
             uri: clearnetUri,
             headers: headers,
           );
-        } catch (_) {}
+        } catch (_) {
+          rethrow;
+        }
       }
     }
 
@@ -157,7 +166,7 @@ class ProxyWrapper {
               headers: headers,
             );
           },
-          createHttpClient: NullOverrides().createHttpClient,
+          // createHttpClient: NullOverrides().createHttpClient,
         );
       } catch (_) {
         // we weren't able to get a response:
@@ -190,31 +199,37 @@ class ProxyWrapper {
     if (torEnabled) {
       try {
         torClient = await getProxyHttpClient(portOverride: portOverride);
-      } catch (_) {}
+      } catch (_) {
+        rethrow;
+      }
       if (allowMitmMoneroBypassSSLCheck) {
-        torClient!.badCertificateCallback =
+        torClient.badCertificateCallback =
             ((X509Certificate cert, String host, int port) => true);
       }
       if (onionUri != null) {
         try {
           return await makePost(
-            client: torClient!,
+            client: torClient,
             uri: onionUri,
             headers: headers,
             body: body,
           );
-        } catch (_) {}
+        } catch (_) {
+          rethrow;
+        }
       }
 
       if (clearnetUri != null) {
         try {
           return await makePost(
-            client: torClient!,
+            client: torClient,
             uri: clearnetUri,
             headers: headers,
             body: body,
           );
-        } catch (_) {}
+        } catch (_) {
+          rethrow;
+        }
       }
     }
 
@@ -229,10 +244,9 @@ class ProxyWrapper {
               body: body,
             );
           },
-          createHttpClient: NullOverrides().createHttpClient,
+          // createHttpClient: NullOverrides().createHttpClient,
         );
       } catch (_) {
-        // we weren't able to get a response:
         rethrow;
       }
     }
@@ -263,7 +277,9 @@ class ProxyWrapper {
             headers: headers,
             body: body,
           );
-        } catch (_) {}
+        } catch (_) {
+          rethrow;
+        }
       }
 
       if (clearnetUri != null) {
@@ -274,7 +290,9 @@ class ProxyWrapper {
             headers: headers,
             body: body,
           );
-        } catch (_) {}
+        } catch (_) {
+          rethrow;
+        }
       }
     }
 
@@ -289,7 +307,7 @@ class ProxyWrapper {
               body: body,
             );
           },
-          createHttpClient: NullOverrides().createHttpClient,
+          // createHttpClient: NullOverrides().createHttpClient,
         );
       } catch (_) {
         // we weren't able to get a response:

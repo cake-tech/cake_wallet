@@ -100,7 +100,10 @@ dependencies:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
 #      ref: main
-  socks5_proxy: any
+  socks5_proxy:
+    git:
+      url: https://github.com/LacticWhale/socks_dart.git
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
   flutter_svg: ^2.0.9
   polyseed: ^0.0.7
   nostr_tools:
@@ -179,8 +182,8 @@ dependency_overrides:
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
   socks5_proxy:
     git:
-      url: https://github.com/cake-tech/socks_dart.git
-      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
+      url: https://github.com/LacticWhale/socks_dart.git
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
