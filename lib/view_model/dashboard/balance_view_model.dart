@@ -172,6 +172,8 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.nano:
       case WalletType.banano:
         return S.current.receivable_balance;
+      case WalletType.digibyte:
+        return S.current.unconfirmed;
       default:
         return S.current.unconfirmed;
     }
@@ -308,6 +310,8 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.zano:
       case WalletType.decred:
         return true;
+      case WalletType.digibyte:
+        return false;
       default:
         return false;
     }
