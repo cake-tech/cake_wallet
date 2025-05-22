@@ -1094,7 +1094,17 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  static ServicesResponse? cachedServicesResponse; 
+
   Future<ServicesResponse> getServicesStatus() async {
+    if (cachedServicesResponse != null) {
+      return cachedServicesResponse!;
+    }
+    cachedServicesResponse = await _getServicesStatus();
+    return cachedServicesResponse!;
+  }
+
+  Future<ServicesResponse> _getServicesStatus() async {
     try {
       if (isEnabledBulletinAction) {
         final uri = Uri.https(

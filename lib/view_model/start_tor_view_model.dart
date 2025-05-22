@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/tor.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
@@ -54,8 +57,15 @@ abstract class StartTorViewModelBase with Store {
       return;
     }
     await ensureTorStarted(context: null);
+    while (true) {
+      await Future.delayed(Duration(milliseconds: 250));
+      if (CakeTor.instance.port != -1 && CakeTor.instance.started) {
+        break;
+      }
+    }
     didStartTor = true;
     final appStore = getIt.get<AppStore>();
+    bootstrapOnline(navigatorKey, loadWallet: true);
     appStore.wallet?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
