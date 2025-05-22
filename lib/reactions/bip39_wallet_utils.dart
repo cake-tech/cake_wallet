@@ -8,6 +8,7 @@ bool isBIP39Wallet(WalletType walletType) {
     case WalletType.tron:
     case WalletType.bitcoin:
     case WalletType.litecoin:
+    case WalletType.digibyte:
     case WalletType.bitcoinCash:
     case WalletType.nano:
     case WalletType.banano:

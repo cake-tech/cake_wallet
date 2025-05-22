@@ -37,6 +37,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
+  final digibyteIcon = Image.asset('assets/images/digibyte.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
   final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
@@ -164,6 +165,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return wowneroIcon;
       case WalletType.litecoin:
         return litecoinIcon;
+      case WalletType.digibyte:
+        return digibyteIcon;
       case WalletType.haven:
         return havenIcon;
       case WalletType.ethereum:
