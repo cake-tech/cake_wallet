@@ -30,9 +30,9 @@ class SolanaNFTTileWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(16.0),
           border: Border.all(
             color: Theme.of(context).colorScheme.outline,
-            width: 1,
+            width: 0.0,
           ),
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.surfaceContainer,
         ),
         child: Row(
           children: [
@@ -42,10 +42,10 @@ class SolanaNFTTileWidget extends StatelessWidget {
               margin: const EdgeInsets.all(8),
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16.0),
+                borderRadius: BorderRadius.circular(24.0),
                 border: Border.all(
                   color: Theme.of(context).colorScheme.outline,
-                  width: 1,
+                  width: 0.0,
                 ),
                 color: Theme.of(context).colorScheme.surface,
               ),

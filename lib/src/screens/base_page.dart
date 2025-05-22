@@ -4,7 +4,6 @@ import 'package:cake_wallet/utils/route_aware.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/widgets/nav_bar.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -106,8 +105,8 @@ abstract class BasePage extends StatelessWidget {
         : Text(
             title!,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Lato',
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
                   color: titleColor(context),
                 ),
           );

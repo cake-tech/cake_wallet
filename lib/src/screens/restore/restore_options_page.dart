@@ -59,9 +59,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final mainImageColor = Theme.of(context).colorScheme.primary;
-    final brightImageColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    final imageColor = widget.themeType == ThemeType.light ? brightImageColor : mainImageColor;
+    final imageColor = Theme.of(context).colorScheme.primary;
     final imageLedger = Image.asset('assets/images/hardware_wallet/ledger_nano_x.png',
         width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);

@@ -20,12 +20,10 @@ class DesktopDashboardNavbar extends StatelessWidget implements ObstructingPrefe
 
   @override
   Widget build(BuildContext context) {
-    final appBarColor =
-        currentTheme.type == ThemeType.dark ? Colors.black.withOpacity(0.1) : Colors.white;
 
     return Container(
       padding: const EdgeInsetsDirectional.only(end: 24),
-      color: appBarColor,
+      color: Theme.of(context).colorScheme.surfaceContainerLowest.withOpacity(0.1),
       child: Center(
         child: Row(
           mainAxisSize: MainAxisSize.max,

@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/verify_form.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
+
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:flutter/material.dart';
@@ -34,13 +34,16 @@ class SignPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) => Observer(
-      builder: (_) => Text(
+        builder: (_) {
+          return Text(
             S.current.sign_verify_title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Lato',
-            ),
-          ));
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+          );
+        },
+      );
 
   final SignViewModel signViewModel;
   final PageController _controller;
@@ -69,63 +72,59 @@ class SignPage extends BasePage {
         height: 0,
         color: Theme.of(context).colorScheme.surface,
         child: Center(
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    onPageChanged: (page) {
-                      signViewModel.isSigning = page == 0;
-                    },
-                    controller: _controller,
-                    itemCount: _pages.length,
-                    itemBuilder: (_, index) => SingleChildScrollView(child: _pages[index]),
-                  ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  onPageChanged: (page) {
+                    signViewModel.isSigning = page == 0;
+                  },
+                  controller: _controller,
+                  itemCount: _pages.length,
+                  itemBuilder: (_, index) => SingleChildScrollView(child: _pages[index]),
                 ),
-                if (_pages.length > 1)
-                  Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: SmoothPageIndicator(
-                      controller: _controller,
-                      count: _pages.length,
-                      effect: ColorTransitionEffect(
-                        spacing: 6.0,
-                        radius: 6.0,
-                        dotWidth: 6.0,
-                        dotHeight: 6.0,
-                        dotColor: Theme.of(context).colorScheme.outline.withOpacity(0.5),
-                        activeDotColor: Theme.of(context).colorScheme.outline,
-                      ),
+              ),
+              if (_pages.length > 1)
+                Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: SmoothPageIndicator(
+                    controller: _controller,
+                    count: _pages.length,
+                    effect: ColorTransitionEffect(
+                      spacing: 6.0,
+                      radius: 6.0,
+                      dotWidth: 6.0,
+                      dotHeight: 6.0,
+                      dotColor: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+                      activeDotColor: Theme.of(context).colorScheme.outline,
                     ),
                   ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
-                  child: Column(
-                    children: [
-                      Observer(
-                        builder: (context) {
-                          return LoadingPrimaryButton(
-                            onPressed: () async {
-                              await _confirmForm(context);
-                            },
-                            text: signViewModel.isSigning
-                                ? S.current.sign_message
-                                : S.current.verify_message,
-                            color: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.onPrimary,
-                            isLoading: signViewModel.state is IsExecutingState,
-                            isDisabled: signViewModel.state is IsExecutingState,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+                ),
+              Padding(
+                padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
+                child: Column(
+                  children: [
+                    Observer(
+                      builder: (context) {
+                        return LoadingPrimaryButton(
+                          onPressed: () async {
+                            await _confirmForm(context);
+                          },
+                          text: signViewModel.isSigning
+                              ? S.current.sign_message
+                              : S.current.verify_message,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          isLoading: signViewModel.state is IsExecutingState,
+                          isDisabled: signViewModel.state is IsExecutingState,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),

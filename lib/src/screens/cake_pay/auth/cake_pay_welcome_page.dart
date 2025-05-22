@@ -87,8 +87,8 @@ class CakePayWelcomePage extends BasePage {
                   onPressed: _login,
                   isLoading:
                       _authViewModel.userVerificationState is CakePayUserVerificationStateLoading,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
               SizedBox(

@@ -51,16 +51,16 @@ class GroupedWalletExpansionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = color ?? (isSelected ? Colors.green : Theme.of(context).cardColor);
+    final backgroundColor = color ?? (isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer);
     final effectiveTextColor = textColor ??
         (isSelected
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onPrimaryContainer);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSecondaryContainer);
 
     final effectiveArrowColor = arrowColor ??
         (isSelected
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurfaceVariant);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSecondaryContainer);
     return Container(
       decoration: BoxDecoration(
         borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(30)),
@@ -88,7 +88,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             onTap: onTitleTapped,
             child: Text(
               title,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: effectiveTextColor,
@@ -136,7 +136,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 title: Text(
                   item.name,
                   maxLines: 2,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
                     color: effectiveTextColor,

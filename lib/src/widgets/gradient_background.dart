@@ -11,9 +11,8 @@ class GradientBackground extends StatelessWidget {
         decoration: BoxDecoration(
             gradient: LinearGradient(
           colors: [
-            Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.secondaryContainer,
-            Theme.of(context).colorScheme.tertiaryContainer,
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).colorScheme.tertiary,
           ],
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,

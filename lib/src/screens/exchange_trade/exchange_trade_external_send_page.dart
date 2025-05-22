@@ -50,14 +50,7 @@ class ExchangeTradeExternalSendPage extends BasePage {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.secondary,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
                   ),
                   padding: EdgeInsets.fromLTRB(24, 110, 24, 32),
                   child: Column(

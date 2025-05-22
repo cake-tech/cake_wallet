@@ -15,12 +15,10 @@ class DisclaimerPage extends BasePage {
   String get title => 'Terms of Use';
 
   @override
-  Widget? leading(BuildContext context) =>
-      isReadOnly ? super.leading(context) : null;
+  Widget? leading(BuildContext context) => isReadOnly ? super.leading(context) : null;
 
   @override
-  Widget body(BuildContext context) =>
-      DisclaimerPageBody(isReadOnly: isReadOnly);
+  Widget body(BuildContext context) => DisclaimerPageBody(isReadOnly: isReadOnly);
 }
 
 class DisclaimerPageBody extends StatefulWidget {
@@ -33,15 +31,12 @@ class DisclaimerPageBody extends StatefulWidget {
 }
 
 class DisclaimerBodyState extends State<DisclaimerPageBody> {
-
   bool _checked = false;
   String _fileText = '';
 
   Future<void> getFileLines() async {
     _fileText = await rootBundle.loadString(
-      isMoneroOnly
-      ? 'assets/text/Monerocom_Terms_of_Use.txt'
-      : 'assets/text/Terms_of_Use.txt' );
+        isMoneroOnly ? 'assets/text/Monerocom_Terms_of_Use.txt' : 'assets/text/Terms_of_Use.txt');
     setState(() {});
   }
 
@@ -90,10 +85,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               child: Text(
                                 'Legal Disclaimer\nAnd\nTerms of Use',
                                 textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                             )
                           ],
@@ -106,10 +100,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                             Expanded(
                                 child: Text(
                               _fileText,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.normal,
-                                  color: Theme.of(context).colorScheme.onSurface),
+                              style: Theme.of(context).textTheme.bodySmall,
                             ))
                           ],
                         ),
@@ -130,10 +121,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .surface
-                                      .withOpacity(0.0),
+                                  Theme.of(context).colorScheme.surface.withOpacity(0.0),
                                   Theme.of(context).colorScheme.surface,
                                 ],
                                 begin: FractionalOffset.topCenter,
@@ -152,8 +140,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                   children: <Widget>[
                     Expanded(
                       child: Container(
-                          padding: EdgeInsets.only(
-                              left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
+                          padding:
+                              EdgeInsets.only(left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
                           child: InkWell(
                             key: ValueKey('disclaimer_check_key'),
                             onTap: () {
@@ -172,10 +160,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   ),
                                   decoration: BoxDecoration(
                                       border: Border.all(
-                                          color: Theme.of(context).colorScheme.outline,
-                                          width: 1.0),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(8.0)),
+                                          color: Theme.of(context).colorScheme.outline, width: 1.0),
+                                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
                                       color: Theme.of(context).colorScheme.surface),
                                   child: _checked
                                       ? Icon(
@@ -189,9 +175,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 Text(
                                   'I agree to Terms of Use',
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14.0,
-                                      color: Theme.of(context).colorScheme.onSurface),
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 )
                               ],
                             ),
@@ -200,13 +185,11 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                   ],
                 ),
                 Container(
-                  padding:
-                      EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
+                  padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
                   child: PrimaryButton(
                       key: ValueKey('disclaimer_accept_button_key'),
                       onPressed: _checked
-                          ? () => Navigator.of(context)
-                              .popAndPushNamed(Routes.welcome)
+                          ? () => Navigator.of(context).popAndPushNamed(Routes.welcome)
                           : null,
                       text: 'Accept',
                       color: Theme.of(context).colorScheme.primary,

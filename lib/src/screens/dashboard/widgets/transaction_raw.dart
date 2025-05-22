@@ -53,22 +53,21 @@ class TransactionRow extends StatelessWidget {
                     children: <Widget>[
                       Row(
                         children: [
-                          Text(title,
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  )),
+                          Text(
+                            title,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
                           ...tags
                               .map((tag) => Row(children: [SizedBox(width: 8), TxTag(tag: tag)])),
                         ],
                       ),
                       Text(
                         formattedAmount,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                       )
                     ],
                   ),
@@ -78,17 +77,17 @@ class TransactionRow extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         formattedDate,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                       Text(
                         formattedFiatAmount,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       )
                     ],
                   ),

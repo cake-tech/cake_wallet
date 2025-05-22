@@ -15,7 +15,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_purchase_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -216,23 +215,21 @@ class CakePayBuyCardDetailPage extends BasePage {
                     cakePayPurchaseViewModel.sendViewModel.state is IsExecutingState,
                 onPressed: () => confirmPurchaseFirst(context),
                 text: S.of(context).purchase_gift_card,
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               );
             }),
           ),
           SizedBox(height: 8),
           InkWell(
             onTap: () => _showTermsAndCondition(context, card.termsAndConditions),
-            child: Text(S.of(context).settings_terms_and_conditions,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge
-                    ?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w600,
-                    )
-                    .copyWith(fontSize: 12)),
+            child: Text(
+              S.of(context).settings_terms_and_conditions,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
           ),
           SizedBox(height: 16)
         ],
@@ -253,13 +250,11 @@ class CakePayBuyCardDetailPage extends BasePage {
                 textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 18,
-                          fontWeight: FontWeight.w400,
                         ) ??
-                    TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 18,
+                        ),
               ),
             ),
             actionTitle: S.of(context).agree,
@@ -348,22 +343,18 @@ class CakePayBuyCardDetailPage extends BasePage {
                 text: card.howToUse ?? '',
                 textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w400,
                         ) ??
-                    TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                 linkStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                           fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w400,
                         ) ??
-                    TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontStyle: FontStyle.italic,
+                        ),
               ),
             ]),
             actionTitle: S.current.got_it,
@@ -684,14 +675,12 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 S.of(context).settings_terms_and_conditions,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).primaryColor,
-                  decoration: TextDecoration.none,
-                  height: 1,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                      decoration: TextDecoration.none,
+                      height: 1,
+                    ),
                 softWrap: true,
               ),
             ),
@@ -701,13 +690,10 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 'Please confirm all checkboxes',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 14,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w400,
-                  decoration: TextDecoration.none,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      decoration: TextDecoration.none,
+                    ),
               ),
             ),
         ],

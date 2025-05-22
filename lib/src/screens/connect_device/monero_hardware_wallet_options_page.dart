@@ -23,8 +23,7 @@ class MoneroHardwareWalletOptionsPage extends BasePage {
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) =>
-      _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM);
+  Widget body(BuildContext context) => _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM);
 }
 
 class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
@@ -37,8 +36,7 @@ class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
       _MoneroHardwareWalletOptionsFormState(_walletHardwareRestoreVM);
 }
 
-class _MoneroHardwareWalletOptionsFormState
-    extends State<_MoneroHardwareWalletOptionsForm> {
+class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletOptionsForm> {
   _MoneroHardwareWalletOptionsFormState(this._walletHardwareRestoreVM)
       : _formKey = GlobalKey<FormState>(),
         _blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
@@ -65,8 +63,8 @@ class _MoneroHardwareWalletOptionsFormState
         contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         content: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-                maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+            constraints:
+                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -78,20 +76,18 @@ class _MoneroHardwareWalletOptionsFormState
                       alignment: Alignment.centerRight,
                       children: [
                         TextFormField(
-                          onChanged: (value) =>
-                              _walletHardwareRestoreVM.name = value,
+                          onChanged: (value) => _walletHardwareRestoreVM.name = value,
                           controller: _controller,
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                              ),
                           decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                            hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                             hintText: S.of(context).wallet_name,
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
@@ -165,8 +161,8 @@ class _MoneroHardwareWalletOptionsFormState
     setState(() {
       _controller.text = rName;
       _walletHardwareRestoreVM.name = rName;
-      _controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: _controller.text.length));
+      _controller.selection =
+          TextSelection.fromPosition(TextPosition(offset: _controller.text.length));
     });
   }
 
@@ -193,8 +189,7 @@ class _MoneroHardwareWalletOptionsFormState
 
     reaction((_) => _walletHardwareRestoreVM.error, (String? error) {
       if (error != null) {
-        if (error == S.current.ledger_connection_error)
-          Navigator.of(context).pop();
+        if (error == S.current.ledger_connection_error) Navigator.of(context).pop();
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(

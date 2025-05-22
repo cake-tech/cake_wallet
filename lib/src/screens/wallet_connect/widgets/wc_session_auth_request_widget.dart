@@ -38,7 +38,7 @@ class WCSessionAuthRequestWidget extends StatelessWidget {
                 }
               },
               text: S.current.sign_one,
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               textColor: Theme.of(context).colorScheme.onPrimary,
             ),
             const SizedBox(width: 8),

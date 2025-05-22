@@ -135,7 +135,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
             Observer(builder: (_) {
               return SettingsChoicesCell(
                 ChoicesListItem<ExchangeApiMode>(
-                  title: S.current.exchange,
+                  title: S.current.swap,
                   items: ExchangeApiMode.all,
                   selectedItem: widget.privacySettingsViewModel.exchangeStatus,
                   onItemSelected: (ExchangeApiMode mode) =>
@@ -143,8 +143,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ),
               );
             }),
-            if (widget
-                    .privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled &&
+            if (widget.privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled &&
                 !widget.isChildWallet)
               Observer(builder: (_) {
                 return SettingsChoicesCell(
@@ -214,13 +213,16 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                         hintText: S.of(context).passphrase,
                         controller: passphraseController,
                         obscureText: obscurePassphrase,
+                        borderWidth: 0.0,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                        hasUnderlineBorder: false,
+                        borderRadius: BorderRadius.circular(10),
                         suffixIcon: GestureDetector(
                           onTap: () => setState(() {
                             obscurePassphrase = !obscurePassphrase;
                           }),
                           child: Icon(
                             Icons.remove_red_eye,
-                            // color: obscurePassphrase ? Colors.black54 : Colors.black26,
                           ),
                         ),
                       ),
@@ -229,6 +231,10 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                         hintText: S.of(context).confirm_passphrase,
                         controller: confirmPassphraseController,
                         obscureText: obscurePassphrase,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                        hasUnderlineBorder: false,
+                        borderWidth: 0.0,
+                        borderRadius: BorderRadius.circular(10),
                         validator: (text) {
                           if (text == passphraseController.text) {
                             return null;
@@ -242,7 +248,6 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                           }),
                           child: Icon(
                             Icons.remove_red_eye,
-                            // color: obscurePassphrase ? Colors.black54 : Colors.black26,
                           ),
                         ),
                       ),
@@ -254,11 +259,12 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               return Column(
                 children: [
                   SettingsSwitcherCell(
-                      title: S.current.disable_bulletin,
-                      value: widget.privacySettingsViewModel.disableBulletin,
-                      onValueChange: (BuildContext _, bool value) {
-                        widget.privacySettingsViewModel.setDisableBulletin(value);
-                      }),
+                    title: S.current.disable_bulletin,
+                    value: widget.privacySettingsViewModel.disableBulletin,
+                    onValueChange: (BuildContext _, bool value) {
+                      widget.privacySettingsViewModel.setDisableBulletin(value);
+                    },
+                  ),
                   SettingsSwitcherCell(
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,
@@ -294,6 +300,20 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
         bottomSectionPadding: EdgeInsets.all(24),
         bottomSection: Column(
           children: [
+            const SizedBox(height: 24),
+            LayoutBuilder(
+              builder: (_, constraints) => SizedBox(
+                width: constraints.maxWidth * 0.8,
+                child: Text(
+                  S.of(context).settings_can_be_changed_later,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             LoadingPrimaryButton(
               onPressed: () {
                 if (widget.privacySettingsViewModel.addCustomNode) {
@@ -304,8 +324,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   widget.nodeViewModel.save();
                 }
                 if (testnetValue == true &&
-                    widget.privacySettingsViewModel.type ==
-                        WalletType.bitcoin) {
+                    widget.privacySettingsViewModel.type == WalletType.bitcoin) {
                   // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
                   // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;
@@ -325,22 +344,10 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 Navigator.pop(context);
               },
               text: S.of(context).continue_text,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
-            const SizedBox(height: 25),
-            LayoutBuilder(
-              builder: (_, constraints) => SizedBox(
-                width: constraints.maxWidth * 0.8,
-                child: Text(
-                  S.of(context).settings_can_be_changed_later,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            )
+            SizedBox(height: 16),
           ],
         ),
       ),

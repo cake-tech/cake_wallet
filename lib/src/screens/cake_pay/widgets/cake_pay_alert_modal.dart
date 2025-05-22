@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
 class CakePayAlertModal extends StatelessWidget {
@@ -57,7 +56,7 @@ class CakePayAlertModal extends StatelessWidget {
                   PrimaryButton(
                     onPressed: () => Navigator.pop(context),
                     text: actionTitle,
-                    color: Theme.of(context).cardColor,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
                     textColor: Theme.of(context).colorScheme.primary,
                   ),
                   SizedBox(height: 21),
@@ -73,9 +72,9 @@ class CakePayAlertModal extends StatelessWidget {
                 child: CircleAvatar(
                   child: Icon(
                     Icons.close,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  backgroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 ),
               ),
             )

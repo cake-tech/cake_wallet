@@ -26,7 +26,7 @@ class StandardListRow extends StatelessWidget {
       child: TextButton(
         onPressed: () => onTap?.call(context),
         style: ButtonStyle(
-          //backgroundColor: MaterialStateProperty.all(Theme.of(context).cardColor),
+          //backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.surfaceContainer),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -56,11 +56,9 @@ class StandardListRow extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: titleColor(context),
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: titleColor(context),
+                  ),
             ),
           )
         ],
@@ -71,7 +69,7 @@ class StandardListRow extends StatelessWidget {
   Widget? buildTrailing(BuildContext context) => null;
 
   Color titleColor(BuildContext context) =>
-      isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.onSurface;
+      isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface;
 }
 
 class SectionHeaderListRow extends StatelessWidget {

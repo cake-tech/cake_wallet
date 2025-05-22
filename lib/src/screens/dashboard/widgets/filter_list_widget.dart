@@ -60,11 +60,10 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   child: Text(
                     S.of(context).order_by,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontFamily: 'Lato',
-                      decoration: TextDecoration.none,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                 ),
                 if (type != FilterListOrderType.Custom) ...[
@@ -89,14 +88,13 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   title: Text(
                     FilterListOrderType.CreationDate.toString(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 RadioListTile(
                   value: FilterListOrderType.Alphabetical,
@@ -104,14 +102,13 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   title: Text(
                     FilterListOrderType.Alphabetical.toString(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 RadioListTile(
                   value: FilterListOrderType.GroupByType,
@@ -119,14 +116,13 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   title: Text(
                     FilterListOrderType.GroupByType.toString(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 RadioListTile(
                   value: FilterListOrderType.Custom,
@@ -134,14 +130,13 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   title: Text(
                     FilterListOrderType.Custom.toString(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
               ]),
             ),

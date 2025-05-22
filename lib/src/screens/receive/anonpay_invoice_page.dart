@@ -22,6 +22,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class AnonPayInvoicePage extends BasePage {
   AnonPayInvoicePage(
     this.anonInvoicePageViewModel,
@@ -99,16 +100,10 @@ class AnonPayInvoicePage extends BasePage {
               decoration: responsiveLayoutUtil.shouldRenderMobileUI
                   ? BoxDecoration(
                       borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).colorScheme.surfaceContainerLowest,
-                          Theme.of(context).colorScheme.surfaceContainerLow,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                        bottomLeft: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
                       ),
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
                     )
                   : null,
               child: Observer(builder: (_) {
@@ -143,9 +138,9 @@ class AnonPayInvoicePage extends BasePage {
                             : S.of(context).anonpay_description("a donation link", "donate"),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
                       ),
                     ),
                   ),

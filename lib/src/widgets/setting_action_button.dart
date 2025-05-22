@@ -27,7 +27,6 @@ class SettingActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     Color? color = isSelected
         ? Theme.of(context).colorScheme.primary
         : selectionActive
@@ -38,8 +37,9 @@ class SettingActionButton extends StatelessWidget {
       margin: EdgeInsets.only(top: 10, left: 20, bottom: 0, right: 20),
       child: TextButton(
         style: ButtonStyle(
-          backgroundColor:
-              WidgetStateProperty.all(isDarkMode ? Colors.black12 : Theme.of(context).cardColor),
+          backgroundColor: WidgetStateProperty.all(
+            Theme.of(context).colorScheme.surfaceContainer,
+          ),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
@@ -61,23 +61,23 @@ class SettingActionButton extends StatelessWidget {
                 image,
                 height: 16,
                 width: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: 16),
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: color,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
                 ),
               ),
               if (isArrowVisible)
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 16,
                 )
             ],

@@ -40,8 +40,8 @@ class _NFTListingPageState extends State<NFTListingPage> {
               padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: PrimaryButton(
                 text: S.current.import,
-                color: Theme.of(context).colorScheme.surface,
-                textColor: Theme.of(context).colorScheme.onSurface,
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                 onPressed: () => Navigator.pushNamed(
                   context,
                   Routes.importNFTPage,

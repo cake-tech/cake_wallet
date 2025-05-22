@@ -30,62 +30,72 @@ class BackupPage extends BasePage {
       fit: StackFit.expand,
       children: [
         Center(
-            child: Container(
-                padding: EdgeInsets.only(left: 24, right: 24),
-                height: 300,
-                child: Column(children: [
-                  Text(
-                    S.of(context).backup_password + ':',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  Padding(
-                      padding: EdgeInsets.only(top: 20, bottom: 10),
-                      child: Observer(
-                          builder: (_) => GestureDetector(
-                                onTap: () {
-                                  ClipboardUtil.setSensitiveDataToClipboard(
-                                      ClipboardData(text: backupViewModelBase.backupPassword));
-                                  showBar<void>(
-                                      context,
-                                      S.of(context).transaction_details_copied(
-                                          S.of(context).backup_password));
-                                },
-                                child: Text(
-                                  backupViewModelBase.backupPassword,
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ))),
-                  Padding(
-                      padding: EdgeInsets.all(20),
+          child: Container(
+            padding: EdgeInsets.only(left: 24, right: 24),
+            height: 300,
+            child: Column(
+              children: [
+                Text(
+                  S.of(context).backup_password + ':',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 20, bottom: 10),
+                  child: Observer(
+                    builder: (_) => GestureDetector(
+                      onTap: () {
+                        ClipboardUtil.setSensitiveDataToClipboard(
+                          ClipboardData(text: backupViewModelBase.backupPassword),
+                        );
+                        showBar<void>(
+                          context,
+                          S.of(context).transaction_details_copied(S.of(context).backup_password),
+                        );
+                      },
                       child: Text(
-                        S.of(context).write_down_backup_password,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                        backupViewModelBase.backupPassword,
+                        style: Theme.of(context).textTheme.titleLarge,
                         textAlign: TextAlign.center,
-                      ))
-                ]))),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    S.of(context).write_down_backup_password,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
         Positioned(
-          child: Column(children: [
-            PrimaryButton(
-              onPressed: () => Navigator.of(context).pushNamed(Routes.editBackupPassword),
-              text: S.of(context).change_password,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              textColor: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            SizedBox(height: 10),
-            Observer(
-              builder: (_) => LoadingPrimaryButton(
-                isLoading: backupViewModelBase.state is IsExecutingState,
-                onPressed: () => onExportBackup(context),
-                text: S.of(context).export_backup,
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
+          child: Column(
+            children: [
+              PrimaryButton(
+                onPressed: () => Navigator.of(context).pushNamed(Routes.editBackupPassword),
+                text: S.of(context).change_password,
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                textColor: Theme.of(context).colorScheme.onSecondaryContainer,
               ),
-            ),
-          ]),
+              const SizedBox(height: 10),
+              Observer(
+                builder: (_) => LoadingPrimaryButton(
+                  isLoading: backupViewModelBase.state is IsExecutingState,
+                  onPressed: () => onExportBackup(context),
+                  text: S.of(context).export_backup,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ],
+          ),
           bottom: 24,
           left: 24,
           right: 24,
@@ -96,31 +106,33 @@ class BackupPage extends BasePage {
 
   void onExportBackup(BuildContext context) {
     showPopUp<void>(
-        context: context,
-        builder: (dialogContext) {
-          return AlertWithTwoActions(
-              alertTitle: S.of(context).export_backup,
-              alertContent: S.of(context).save_backup_password,
-              rightButtonText: S.of(context).seed_alert_yes,
-              leftButtonText: S.of(context).seed_alert_back,
-              actionRightButton: () async {
-                Navigator.of(dialogContext).pop();
-                final backup = await backupViewModelBase.exportBackup();
+      context: context,
+      builder: (dialogContext) {
+        return AlertWithTwoActions(
+          alertTitle: S.of(context).export_backup,
+          alertContent: S.of(context).save_backup_password,
+          rightButtonText: S.of(context).seed_alert_yes,
+          leftButtonText: S.of(context).seed_alert_back,
+          actionRightButton: () async {
+            Navigator.of(dialogContext).pop();
+            final backup = await backupViewModelBase.exportBackup();
 
-                if (backup == null) {
-                  return;
-                }
+            if (backup == null) {
+              return;
+            }
 
-                if (Platform.isAndroid) {
-                  onExportAndroid(context, backup);
-                } else if (Platform.isIOS) {
-                  await share(backup, context);
-                } else {
-                  await _saveFile(backup);
-                }
-              },
-              actionLeftButton: () => Navigator.of(dialogContext).pop());
-        });
+            if (Platform.isAndroid) {
+              onExportAndroid(context, backup);
+            } else if (Platform.isIOS) {
+              await share(backup, context);
+            } else {
+              await _saveFile(backup);
+            }
+          },
+          actionLeftButton: () => Navigator.of(dialogContext).pop(),
+        );
+      },
+    );
   }
 
   void onExportAndroid(BuildContext context, BackupExportFile backup) {

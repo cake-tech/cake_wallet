@@ -86,7 +86,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                         );
                       },
                       separatorBuilder: (_, index) => Container(
-                        height: 1,
+                        height: 0.0,
                         color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       itemCount: itemCount,

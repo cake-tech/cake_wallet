@@ -54,11 +54,10 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
     return Text(
       displayItem?.call(selectedItem) ?? selectedItem.toString(),
       textAlign: TextAlign.right,
-      style: TextStyle(
-        fontSize: 14.0,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
     );
   }
 }

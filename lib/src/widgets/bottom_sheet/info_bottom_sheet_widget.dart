@@ -86,13 +86,13 @@ class InfoBottomSheet extends BaseBottomSheet {
                     child: AutoSizeText(
                       content!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        decoration: TextDecoration.none,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                             
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            decoration: TextDecoration.none,
+                          ),
                     ),
                   ),
                   const Spacer(flex: 2),
@@ -109,13 +109,11 @@ class InfoBottomSheet extends BaseBottomSheet {
                   Text(
                     'Don’t ask me next time',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      decoration: TextDecoration.none,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                 ],
               ),
@@ -142,7 +140,7 @@ class InfoBottomSheet extends BaseBottomSheet {
                   text: leftButtonText ?? '',
                   color: currentTheme.type == ThemeType.dark
                       ? Theme.of(context).colorScheme.surfaceContainerLow
-                      : Theme.of(context).cardColor,
+                      : Theme.of(context).colorScheme.surfaceContainer,
                   textColor: currentTheme.type == ThemeType.dark
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Theme.of(context).colorScheme.onPrimary,
@@ -156,7 +154,7 @@ class InfoBottomSheet extends BaseBottomSheet {
                   key: rightActionButtonKey,
                   onPressed: actionRightButton,
                   text: rightButtonText ?? '',
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                   textColor: currentTheme.type == ThemeType.dark
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Theme.of(context).colorScheme.onPrimary,
@@ -173,8 +171,8 @@ class InfoBottomSheet extends BaseBottomSheet {
           key: actionButtonKey,
           onPressed: actionButton ?? () {},
           text: actionButtonText ?? '',
-          color: Theme.of(context).primaryColor,
-          textColor: Colors.white,
+          color: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onPrimary,
           isLoading: false,
           isDisabled: false,
         ),
@@ -221,8 +219,8 @@ class _SimpleCheckboxState extends State<SimpleCheckbox> {
         checkColor: Theme.of(context).colorScheme.onSurfaceVariant,
         activeColor: Colors.transparent,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
-            color: Theme.of(context).colorScheme.onSurfaceVariant, width: 1.0)),
+        side: WidgetStateBorderSide.resolveWith((states) =>
+            BorderSide(color: Theme.of(context).colorScheme.onSurfaceVariant, width: 1.0)),
       ),
     );
   }

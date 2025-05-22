@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -25,14 +24,12 @@ class SupportPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final iconColor = currentTheme.type == ThemeType.light 
-        ? Theme.of(context).colorScheme.onSurfaceVariant 
-        : Theme.of(context).colorScheme.onSurface;
+    final iconColor = Theme.of(context).colorScheme.primary;
 
     return Container(
       child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 330),
+        child: Container(
+          padding: EdgeInsets.only(left: 24, right: 24),
           child: Column(
             children: [
               Padding(
@@ -58,8 +55,8 @@ class SupportPage extends BasePage {
                 padding: EdgeInsets.only(top: 20),
                 child: OptionTile(
                   icon: Icon(
-                      Icons.find_in_page,
-                      color: iconColor,
+                    Icons.find_in_page,
+                    color: iconColor,
                     size: 50,
                   ),
                   title: S.of(context).support_title_guides,

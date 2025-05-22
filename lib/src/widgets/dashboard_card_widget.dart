@@ -58,12 +58,15 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           child: OutlinedButton(
             onPressed: onTap,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(width: 1, color: Theme.of(context).colorScheme.outlineVariant),
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(customBorder ?? 20)
+              side: BorderSide(
+                width: 0,
+                color: Theme.of(context).colorScheme.outlineVariant,
               ),
-              padding: EdgeInsets.all(24)
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(customBorder ?? 20),
+              ),
+              padding: EdgeInsets.all(24),
             ),
             child: Column(
               children: [
@@ -76,21 +79,20 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 24,
+                                ),
                             softWrap: true,
                           ),
                           SizedBox(height: 5),
                           Text(
                             subTitle,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Lato'
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             softWrap: true,
                           ),
                         ],

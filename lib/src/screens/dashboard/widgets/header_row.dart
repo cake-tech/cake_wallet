@@ -47,7 +47,7 @@ class HeaderRow extends StatelessWidget {
                   width: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
                   ),
                   child: filterIcon,
                 ),

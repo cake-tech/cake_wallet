@@ -26,14 +26,15 @@ class StandardCheckbox extends StatelessWidget {
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(
-      color: borderColor ?? Theme.of(context).colorScheme.onSurface,
+      color: borderColor ?? Theme.of(context).colorScheme.outline,
       width: 1.0,
     );
 
     final checkedBoxDecoration = BoxDecoration(
-        gradient: gradientBackground ? baseGradient : null,
-        border: gradientBackground ? null : boxBorder,
-        borderRadius: BorderRadius.all(Radius.circular(8.0)));
+      gradient: gradientBackground ? baseGradient : null,
+      border: gradientBackground ? null : boxBorder,
+      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    );
 
     final uncheckedBoxDecoration =
         BoxDecoration(border: boxBorder, borderRadius: BorderRadius.all(Radius.circular(8.0)));
@@ -52,7 +53,7 @@ class StandardCheckbox extends StatelessWidget {
             child: value
                 ? Icon(
                     Icons.check,
-                    color: iconColor ?? Theme.of(context).primaryColor,
+                    color: iconColor ?? Theme.of(context).colorScheme.primary,
                     size: 20.0,
                   )
                 : Offstage(),
@@ -64,9 +65,9 @@ class StandardCheckbox extends StatelessWidget {
                 child: Text(
                   caption,
                   softWrap: true,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 16.0,
-                    fontFamily: 'Lato',
+                     
                     fontWeight: FontWeight.normal,
                     color: captionColor ?? Theme.of(context).colorScheme.onSurface,
                     decoration: TextDecoration.none,

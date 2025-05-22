@@ -48,9 +48,9 @@ class BaseAlertDialog extends StatelessWidget {
     return Text(
       titleText!,
       textAlign: TextAlign.center,
-      style: TextStyle(
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
         fontSize: titleTextSize,
-        fontFamily: 'Lato',
+         
         fontWeight: FontWeight.w600,
         color: Theme.of(context).colorScheme.onSurface,
         decoration: TextDecoration.none,
@@ -64,9 +64,9 @@ class BaseAlertDialog extends StatelessWidget {
       child: Text(
         headerText!,
         textAlign: TextAlign.center,
-        style: TextStyle(
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
           fontSize: 25,
-          fontFamily: 'Lato',
+           
           fontWeight: FontWeight.w600,
           color: Theme.of(context).colorScheme.onSurface,
           decoration: TextDecoration.none,
@@ -82,16 +82,13 @@ class BaseAlertDialog extends StatelessWidget {
         children: [
           contentTextWidget ??
               Text(
-            contentText,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
-              fontFamily: 'Lato',
-              color: Theme.of(context).colorScheme.onSurface,
-              decoration: TextDecoration.none,
-            ),
-          ),
+                contentText,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 16,
+                      decoration: TextDecoration.none,
+                    ),
+              ),
         ],
       ),
     );
@@ -109,19 +106,20 @@ class BaseAlertDialog extends StatelessWidget {
                   key: leftActionButtonKey,
                   onPressed: actionLeft,
                   style: TextButton.styleFrom(
-                      backgroundColor:
-                          leftActionButtonColor ?? Theme.of(context).dialogBackgroundColor,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.zero))),
+                    backgroundColor:
+                        leftActionButtonColor ?? Theme.of(context).colorScheme.surface,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.zero),
+                    ),
+                  ),
                   child: Text(
                     leftActionButtonText,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 15,
-                      fontFamily: 'Lato',
+                       
                       fontWeight: FontWeight.w600,
-                      color: leftActionButtonTextColor ??
-                          Theme.of(context).colorScheme.onSurface,
+                      color: leftActionButtonTextColor ?? Theme.of(context).colorScheme.errorContainer,
                       decoration: TextDecoration.none,
                     ),
                   )),
@@ -139,11 +137,11 @@ class BaseAlertDialog extends StatelessWidget {
                   child: Text(
                     rightActionButtonText,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 15,
-                      fontFamily: 'Lato',
+                       
                       fontWeight: FontWeight.w600,
-                      color: rightActionButtonTextColor ?? Theme.of(context).primaryColor,
+                      color: rightActionButtonTextColor ?? Theme.of(context).colorScheme.primary,
                       decoration: TextDecoration.none,
                     ),
                   )),
@@ -159,7 +157,7 @@ class BaseAlertDialog extends StatelessWidget {
       right: 0,
       child: CircleAvatar(
         radius: 50,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: ClipOval(
           child: Image.network(
             imageUrl,
@@ -180,8 +178,8 @@ class BaseAlertDialog extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withOpacity(0.8)),
+            decoration:
+                BoxDecoration(color: Theme.of(context).colorScheme.surface.withOpacity(0.8)),
             child: Center(
               child: GestureDetector(
                 onTap: () => null,
@@ -202,11 +200,12 @@ class BaseAlertDialog extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               if (headerText?.isNotEmpty ?? false) headerTitle(context),
-                              titleText != null ?
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
-                                child: title(context),
-                              ) : SizedBox(height: 16),
+                              titleText != null
+                                  ? Padding(
+                                      padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+                                      child: title(context),
+                                    )
+                                  : SizedBox(height: 16),
                               isDividerExists
                                   ? Padding(
                                       padding: EdgeInsets.only(top: 16, bottom: 8),

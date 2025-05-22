@@ -40,7 +40,7 @@ class TransactionsPage extends StatelessWidget {
       child: Container(
         color: responsiveLayoutUtil.shouldRenderMobileUI
             ? null
-            : Theme.of(context).colorScheme.outlineVariant,
+            : Theme.of(context).colorScheme.surface,
         child: Column(
           children: <Widget>[
             Observer(builder: (_) {
@@ -50,8 +50,7 @@ class TransactionsPage extends StatelessWidget {
                   key: ValueKey('transactions_page_syncing_alert_card_key'),
                   onTap: () {
                     try {
-                      final uri = Uri.parse(
-                          "https://docs.cakewallet.com/faq/funds-not-appearing");
+                      final uri = Uri.parse("https://docs.cakewallet.com/faq/funds-not-appearing");
                       launchUrl(uri, mode: LaunchMode.externalApplication);
                     } catch (_) {}
                   },
@@ -75,8 +74,7 @@ class TransactionsPage extends StatelessWidget {
                           key: ValueKey('transactions_page_list_view_builder_key'),
                           itemCount: items.length + 1,
                           itemBuilder: (context, index) {
-
-                            if(index == items.length) return SizedBox(height: 150);
+                            if (index == items.length) return SizedBox(height: 150);
 
                             final item = items[index];
 
@@ -155,10 +153,9 @@ class TransactionsPage extends StatelessWidget {
                                 ),
                                 currency: "BTC",
                                 state: item.status,
-                                amount: bitcoin!.formatterBitcoinAmountToString(
-                                    amount: session.amount.toInt()),
-                                createdAt: DateFormat('HH:mm')
-                                    .format(session.inProgressSince!),
+                                amount: bitcoin!
+                                    .formatterBitcoinAmountToString(amount: session.amount.toInt()),
+                                createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
                                 isSending: session.isSenderSession,
                               );
                             }
@@ -168,18 +165,17 @@ class TransactionsPage extends StatelessWidget {
 
                               return Observer(
                                 builder: (_) => TradeRow(
-                                  key: item.key,
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.tradeDetails, arguments: trade),
-                                  provider: trade.provider,
-                                  from: trade.from,
-                                  to: trade.to,
-                                  createdAtFormattedDate: trade.createdAt != null
-                                      ? DateFormat('HH:mm').format(trade.createdAt!)
-                                      : null,
-                                  formattedAmount: item.tradeFormattedAmount, 
-                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount
-                                ),
+                                    key: item.key,
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.tradeDetails, arguments: trade),
+                                    provider: trade.provider,
+                                    from: trade.from,
+                                    to: trade.to,
+                                    createdAtFormattedDate: trade.createdAt != null
+                                        ? DateFormat('HH:mm').format(trade.createdAt!)
+                                        : null,
+                                    formattedAmount: item.tradeFormattedAmount,
+                                    formattedReceiveAmount: item.tradeFormattedReceiveAmount),
                               );
                             }
                             if (item is OrderListItem) {
@@ -200,15 +196,15 @@ class TransactionsPage extends StatelessWidget {
                               );
                             }
                             return Container(color: Colors.transparent, height: 1);
-                          })
+                          },
+                        )
                       : Center(
                           child: Text(
                             key: ValueKey('transactions_page_placeholder_transactions_text_key'),
                             S.of(context).placeholder_transactions,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).colorScheme.outlineVariant,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                         );
                 },

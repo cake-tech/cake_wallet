@@ -10,12 +10,14 @@ class SeedLanguageSelector extends StatefulWidget {
     required this.initialSelected,
     this.seedType = MoneroSeedType.defaultSeedType,
     this.buttonKey,
+    this.borderRadius,
     Key? key,
   }) : super(key: key);
 
   final String initialSelected;
   final MoneroSeedType seedType;
   final Key? buttonKey;
+  final BorderRadius? borderRadius;
 
   @override
   SeedLanguageSelectorState createState() => SeedLanguageSelectorState(selected: initialSelected);
@@ -29,6 +31,7 @@ class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
   @override
   Widget build(BuildContext context) {
     return SelectButton(
+      borderRadius: widget.borderRadius,
       key: widget.buttonKey,
       image: null,
       text:

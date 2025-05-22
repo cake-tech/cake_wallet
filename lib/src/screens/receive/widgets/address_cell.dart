@@ -44,24 +44,25 @@ class AddressCell extends StatelessWidget {
     Function()? onDelete,
   }) =>
       AddressCell(
-          address: item.address,
-          name: item.name ?? '',
-          isCurrent: isCurrent,
-          isPrimary: item.isPrimary,
-          backgroundColor: backgroundColor,
-          textColor: textColor,
-          walletType: walletType,
-          currentTheme: currentTheme,
-          onTap: onTap,
-          onEdit: onEdit,
-          onHide: onHide,
-          isHidden: isHidden,
-          onDelete: onDelete,
-          txCount: item.txCount,
-          balance: item.balance,
-          isChange: item.isChange,
-          hasBalance: hasBalance,
-          hasReceived: hasReceived,);
+        address: item.address,
+        name: item.name ?? '',
+        isCurrent: isCurrent,
+        isPrimary: item.isPrimary,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        walletType: walletType,
+        currentTheme: currentTheme,
+        onTap: onTap,
+        onEdit: onEdit,
+        onHide: onHide,
+        isHidden: isHidden,
+        onDelete: onDelete,
+        txCount: item.txCount,
+        balance: item.balance,
+        isChange: item.isChange,
+        hasBalance: hasBalance,
+        hasReceived: hasReceived,
+      );
 
   final String address;
   final String name;
@@ -96,7 +97,9 @@ class AddressCell extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: name.isNotEmpty ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                      mainAxisAlignment: name.isNotEmpty
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Row(
@@ -108,39 +111,41 @@ class AddressCell extends StatelessWidget {
                                   height: 20,
                                   padding: EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(8.5)),
-                                      color: textColor),
+                                    borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                                    color: textColor,
+                                  ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     S.of(context).unspent_change,
-                                    style: TextStyle(
-                                      color: backgroundColor,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: backgroundColor,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ),
                               ),
                             if (name.isNotEmpty)
                               Text(
                                 '$name',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
                               ),
                           ],
                         ),
                         Flexible(
                           child: AddressFormatter.buildSegmentedAddress(
-                              address: address,
-                              walletType: walletType,
-                              shouldTruncate: name.isNotEmpty || address.length > 43 ,
-                              evenTextStyle: TextStyle(
+                            address: address,
+                            walletType: walletType,
+                            shouldTruncate: name.isNotEmpty || address.length > 43,
+                            evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: isChange ? 10 : 14,
-                                  color: textColor
-                              ))),
+                                  color: textColor,
+                                ),
+                          ),
+                        ),
                       ],
                     ),
                     if (hasBalance || hasReceived)
@@ -152,7 +157,7 @@ class AddressCell extends StatelessWidget {
                           children: [
                             Text(
                               '${hasReceived ? S.of(context).received : S.of(context).balance}: $balance',
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: textColor,
@@ -160,8 +165,8 @@ class AddressCell extends StatelessWidget {
                             ),
                             Text(
                               '${S.of(context).transactions.toLowerCase()}: $txCount',
-                              style: TextStyle(
-                                fontSize: 16,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: textColor,
                               ),
@@ -196,8 +201,8 @@ class AddressCell extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) => onHide?.call(),
-            backgroundColor: isHidden ? Colors.green : Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: isHidden ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.errorContainer,
+            foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
             icon: isHidden ? CupertinoIcons.arrow_left : CupertinoIcons.arrow_right,
             label: isHidden ? S.of(context).show : S.of(context).hide,
           ),
@@ -210,16 +215,16 @@ class AddressCell extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) => onEdit?.call(),
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
             icon: Icons.edit,
             label: S.of(context).edit,
           ),
           if (onDelete != null)
             SlidableAction(
               onPressed: (_) => onDelete!.call(),
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
               icon: Icons.delete,
               label: S.of(context).delete,
             ),

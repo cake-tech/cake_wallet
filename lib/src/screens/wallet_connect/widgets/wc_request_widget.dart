@@ -63,7 +63,7 @@ class WCRequestWidget extends StatelessWidget {
                       }
                     },
                 text: S.current.approve,
-                color: Theme.of(context).primaryColor,
+                color: Theme.of(context).colorScheme.primary,
                 textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ),

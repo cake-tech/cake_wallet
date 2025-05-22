@@ -21,14 +21,15 @@ class AddTemplateButton extends StatelessWidget {
           dashPattern: [6, 4],
           color: Theme.of(context).colorScheme.outline,
           strokeWidth: 2,
-          radius: Radius.circular(20),
+          radius: Radius.circular(12),
           child: Container(
             height: 34,
             padding: EdgeInsets.symmetric(
-                horizontal: responsiveLayoutUtil.shouldRenderMobileUI ? 10 : 30),
+              horizontal: responsiveLayoutUtil.shouldRenderMobileUI ? 10 : 30,
+            ),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+              borderRadius: BorderRadius.all(Radius.circular(12)),
               color: Colors.transparent,
             ),
             child: currentTemplatesLength >= 1
@@ -38,11 +39,10 @@ class AddTemplateButton extends StatelessWidget {
                   )
                 : Text(
                     S.of(context).new_template,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
           ),
         ),

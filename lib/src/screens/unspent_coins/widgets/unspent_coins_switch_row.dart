@@ -25,7 +25,7 @@ class UnspentCoinsSwitchRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(title,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: titleFontSize,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).colorScheme.onSurfaceVariant),

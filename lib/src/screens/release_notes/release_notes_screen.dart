@@ -46,11 +46,11 @@ class ReleaseNotesScreen extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               decoration: TextDecoration.none,
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Lato',
+                        
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                             child: Text(title),
@@ -114,10 +114,10 @@ class ReleaseNotesScreen extends StatelessWidget {
     return Column(
       children: [
         DefaultTextStyle(
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               decoration: TextDecoration.none,
               fontSize: 16.0,
-              fontFamily: 'Lato',
+               
               color: Theme.of(context).colorScheme.onSurface,
             ),
             child: Row(

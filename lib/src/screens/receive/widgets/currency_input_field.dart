@@ -28,6 +28,8 @@ class CurrencyAmountTextField extends StatelessWidget {
     this.selectedCurrencyTextKey,
     this.selectedCurrencyTagTextKey,
     this.currencyAmountTextFieldWidgetKey,
+    this.fillColor,
+    this.borderColor,
   }) : super(key: currencyAmountTextFieldWidgetKey);
 
   final Key? sendAllButtonKey;
@@ -52,12 +54,11 @@ class CurrencyAmountTextField extends StatelessWidget {
   final bool allAmountButton;
   final VoidCallback? allAmountCallback;
   final VoidCallback? onTapPicker;
-
+  final Color? fillColor;
+  final Color? borderColor;
   @override
   Widget build(BuildContext context) {
-    final textColor = currentTheme == ThemeType.light
-        ? Theme.of(context).appBarTheme.titleTextStyle!.color!
-        : Colors.white;
+    final textColor = Theme.of(context).colorScheme.onSurface;
     final _prefixContent = Row(
       children: [
         isPickerEnable
@@ -71,18 +72,22 @@ class CurrencyAmountTextField extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Padding(
-                          padding: const EdgeInsets.only(right: 5),
-                          child: imageArrow ??
-                              Image.asset('assets/images/arrow_bottom_purple_icon.png',
-                                  color: textColor, height: 8)),
+                        padding: const EdgeInsets.only(right: 5),
+                        child: imageArrow ??
+                            Image.asset(
+                              'assets/images/arrow_bottom_purple_icon.png',
+                              color: textColor,
+                              height: 8,
+                            ),
+                      ),
                       Text(
                         key: selectedCurrencyTextKey,
                         selectedCurrency,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: textColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: textColor,
+                            ),
                       ),
                     ],
                   ),
@@ -91,11 +96,11 @@ class CurrencyAmountTextField extends StatelessWidget {
             : Text(
                 key: selectedCurrencyTextKey,
                 selectedCurrency,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: textColor,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: textColor,
+                    ),
               ),
         if (tag != null)
           Padding(
@@ -103,8 +108,7 @@ class CurrencyAmountTextField extends StatelessWidget {
             child: Container(
               height: 32,
               decoration: BoxDecoration(
-                color: tagBackgroundColor ??
-                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                color: tagBackgroundColor ?? Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: const BorderRadius.all(Radius.circular(6)),
               ),
               child: Center(
@@ -113,11 +117,10 @@ class CurrencyAmountTextField extends StatelessWidget {
                   child: Text(
                     key: selectedCurrencyTagTextKey,
                     tag!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
                 ),
               ),
@@ -127,11 +130,11 @@ class CurrencyAmountTextField extends StatelessWidget {
           padding: EdgeInsets.only(right: 4.0),
           child: Text(
             ':',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-              color: textColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: textColor,
+                ),
           ),
         ),
       ],
@@ -146,11 +149,13 @@ class CurrencyAmountTextField extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   margin: const EdgeInsets.only(right: 3),
                   decoration: BoxDecoration(
-                      border: Border.all(
-                        color: textColor,
-                      ),
-                      borderRadius: BorderRadius.circular(26),
-                      color: Theme.of(context).primaryColor))
+                    border: Border.all(
+                      color: textColor,
+                    ),
+                    borderRadius: BorderRadius.circular(26),
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                )
               : _prefixContent,
           Expanded(
             child: Row(
@@ -172,20 +177,21 @@ class CurrencyAmountTextField extends StatelessWidget {
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
                       ],
+                      // hasUnderlineBorder: false,
+                      borderWidth: 0.0,
                       hintText: hintText ?? '0.0000',
-                      borderColor: Colors.transparent,
-                      textStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
-                      placeholderTextStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: currentTheme == ThemeType.light
-                            ? Theme.of(context).appBarTheme.titleTextStyle!.color!
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
-                      ),
+                      fillColor: fillColor,
+                      borderColor: borderColor ?? Colors.transparent,
+                      textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                      placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                       validator: isAmountEditable ? currencyValueValidator : null,
                     ),
                   ),
@@ -205,12 +211,10 @@ class CurrencyAmountTextField extends StatelessWidget {
                         child: Text(
                           S.of(context).all,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context)
-                                .colorScheme.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                       ),
                     ),

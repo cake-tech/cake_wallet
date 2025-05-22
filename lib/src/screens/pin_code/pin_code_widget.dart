@@ -101,7 +101,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
 
   void changeProcessText(String text) {
     hideProgressText();
-    _progressBar = createBar<void>(text, duration: null)..show(_key.currentContext!);
+    _progressBar = createBar<void>(text, context, duration: null)..show(_key.currentContext!);
   }
 
   void close() {
@@ -144,15 +144,16 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
         padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 60.0),
         child: Column(
           children: <Widget>[
-            Spacer(flex: 3),
+            Spacer(flex: 2),
             Text(
               title,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w500,
+                    fontSize: 20,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),
-            Spacer(flex: 4),
+            Spacer(flex: 3),
             Container(
               width: 180,
               child: Row(
@@ -167,7 +168,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isFilled
-                            ? Theme.of(context).colorScheme.onSurface
+                            ? Theme.of(context).colorScheme.primary
                             : Theme.of(context).colorScheme.primary.withOpacity(0.25),
                       ));
                 }),
@@ -251,8 +252,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                       shape: CircleBorder(),
                                     ),
                                     child: Text('$index',
-                                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                               fontWeight: FontWeight.w600,
+                                              fontSize: 30,
                                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             )),
                                   ),

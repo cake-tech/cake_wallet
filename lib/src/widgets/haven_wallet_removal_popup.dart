@@ -35,11 +35,11 @@ class HavenWalletRemovalPopup extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               decoration: TextDecoration.none,
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Lato',
+                               
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             child: Text("Emergency Notice"),
@@ -60,10 +60,10 @@ class HavenWalletRemovalPopup extends StatelessWidget {
                                 ),
                                 child: Text(
                                   "It looks like you have Haven wallets in your list. Haven is getting removed in next release of Cake Wallet, and you currently have Haven in the following wallets:\n\n[${affectedWalletNames.join(", ")}]\n\nPlease move your funds to other wallet, as you will lose access to your Haven funds in next update.\n\nFor assistance, please use the in-app support or email support@cakewallet.com",
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     decoration: TextDecoration.none,
                                     fontSize: 16.0,
-                                    fontFamily: 'Lato',
+                                     
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),

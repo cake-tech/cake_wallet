@@ -73,9 +73,9 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               debugPrint('${e.toString()}');
             }
           },
-          text:  S.current.extend_session,
-          color: Theme.of(context).primaryColor,
-          textColor: Colors.white,
+          text: S.current.extend_session,
+          color: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onPrimary,
         ),
       );
       sessionWidgets.add(const SizedBox.square(dimension: 10.0));
@@ -92,8 +92,8 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
             }
           },
           text: S.current.update_session,
-          color: Theme.of(context).primaryColor,
-          textColor: Colors.white,
+          color: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onPrimary,
         ),
       );
       sessionWidgets.add(const SizedBox.square(dimension: 10.0));
@@ -108,9 +108,9 @@ class WalletConnectPairingDetailsPageState extends State<WalletConnectPairingDet
               debugPrint('${e.toString()}');
             }
           },
-          text:  S.current.disconnect_session,
-          color: Theme.of(context).primaryColor,
-          textColor: Colors.white,
+          text: S.current.disconnect_session,
+          color: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onPrimary,
         ),
       );
     }
@@ -152,37 +152,32 @@ class WCCDetailsWidget extends BasePage {
               Flexible(
                 child: CircleAvatar(
                   backgroundImage: (pairing.peerMetadata!.icons.isNotEmpty
-                          ? NetworkImage(pairing.peerMetadata!.icons[0])
-                          : const AssetImage('assets/images/app_logo.png'))
-                      as ImageProvider<Object>,
+                      ? NetworkImage(pairing.peerMetadata!.icons[0])
+                      : const AssetImage('assets/images/app_logo.png')) as ImageProvider<Object>,
                 ),
               ),
               const SizedBox(height: 20.0),
               Text(
                 pairing.peerMetadata!.name,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               const SizedBox(height: 16.0),
               Text(
                 pairing.peerMetadata!.url,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               const SizedBox(height: 8.0),
               Text(
                 '${S.current.expiresOn}: $expiryDate',
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               const SizedBox(height: 20.0),
               Column(
@@ -195,8 +190,8 @@ class WCCDetailsWidget extends BasePage {
                 onPressed: () =>
                     _onDeleteButtonPressed(context, pairing.peerMetadata!.name, walletKitService),
                 text: S.current.delete,
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ],
           ),

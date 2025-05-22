@@ -114,7 +114,7 @@ class TransactionDetailsPage extends BasePage {
     required String value,
     required WalletType walletType,
   }) {
-    final textStyle = TextStyle(
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
       fontSize: 16,
       fontWeight: FontWeight.w500,
       color: Theme.of(context).colorScheme.onSurface,

@@ -66,15 +66,16 @@ class ExchangeTemplatePage extends BasePage {
     return KeyboardActions(
         disableScroll: true,
         config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).colorScheme.surfaceVariant,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                  focusNode: _depositAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]),
-              KeyboardActionsItem(
-                  focusNode: _receiveAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()])
-            ]),
+          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+          keyboardBarColor: Theme.of(context).colorScheme.surfaceVariant,
+          nextFocus: false,
+          actions: [
+            KeyboardActionsItem(
+                focusNode: _depositAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]),
+            KeyboardActionsItem(
+                focusNode: _receiveAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()])
+          ],
+        ),
         child: Container(
             color: Theme.of(context).colorScheme.surface,
             child: Form(
@@ -85,14 +86,10 @@ class ExchangeTemplatePage extends BasePage {
                     padding: EdgeInsets.only(bottom: 32),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(colors: [
-                        Theme.of(context).colorScheme.surfaceContainerLowest,
-                        Theme.of(context).colorScheme.surfaceContainerLow,
-                      ], stops: [
-                        0.35,
-                        1.0
-                      ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        bottomLeft: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
+                      ),
+                      color: Theme.of(context).colorScheme.surfaceContainer,
                     ),
                     child: FocusTraversalGroup(
                       policy: OrderedTraversalPolicy(),
@@ -103,10 +100,7 @@ class ExchangeTemplatePage extends BasePage {
                               borderRadius: BorderRadius.only(
                                   bottomLeft: Radius.circular(24),
                                   bottomRight: Radius.circular(24)),
-                              gradient: LinearGradient(colors: [
-                                Theme.of(context).colorScheme.surfaceContainerLowest,
-                                Theme.of(context).colorScheme.surfaceContainerLow,
-                              ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                              color: Theme.of(context).colorScheme.surfaceContainerLow,
                             ),
                             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                             child: Observer(
@@ -131,8 +125,10 @@ class ExchangeTemplatePage extends BasePage {
                                     exchangeViewModel.changeDepositCurrency(currency: currency),
                                 imageArrow: arrowBottomPurple,
                                 currencyButtonColor: Colors.transparent,
-                                addressButtonsColor: Theme.of(context).colorScheme.primary,
+                                addressButtonsColor:
+                                    Theme.of(context).colorScheme.surfaceContainerHighest,
                                 borderColor: Theme.of(context).colorScheme.outlineVariant,
+                                fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
                                 currencyValueValidator:
                                     AmountValidator(currency: exchangeViewModel.depositCurrency),
                               ),
@@ -141,30 +137,33 @@ class ExchangeTemplatePage extends BasePage {
                           Padding(
                             padding: EdgeInsets.only(top: 29, left: 24, right: 24),
                             child: Observer(
-                                builder: (_) => ExchangeCard(
-                                      cardInstanceName: 'receive_exchange_template_card',
-                                      amountFocusNode: _receiveAmountFocus,
-                                      key: receiveKey,
-                                      title: S.of(context).you_will_get,
-                                      initialCurrency: exchangeViewModel.receiveCurrency,
-                                      initialWalletName: receiveWalletName ?? '',
-                                      initialAddress: exchangeViewModel.receiveCurrency ==
-                                              exchangeViewModel.wallet.currency
-                                          ? exchangeViewModel.wallet.walletAddresses.addressForExchange
-                                          : exchangeViewModel.receiveAddress,
-                                      initialIsAmountEditable: false,
-                                      isAmountEstimated: true,
-                                      isMoneroWallet: exchangeViewModel.isMoneroWallet,
-                                      currencies: exchangeViewModel.receiveCurrencies,
-                                      onCurrencySelected: (currency) => exchangeViewModel
-                                          .changeReceiveCurrency(currency: currency),
-                                      imageArrow: arrowBottomCakeGreen,
-                                      currencyButtonColor: Colors.transparent,
-                                      addressButtonsColor: Theme.of(context).colorScheme.primary,
-                                      borderColor: Theme.of(context).colorScheme.outlineVariant,
-                                      currencyValueValidator: AmountValidator(
-                                          currency: exchangeViewModel.receiveCurrency),
-                                    )),
+                              builder: (_) => ExchangeCard(
+                                cardInstanceName: 'receive_exchange_template_card',
+                                amountFocusNode: _receiveAmountFocus,
+                                key: receiveKey,
+                                title: S.of(context).you_will_get,
+                                initialCurrency: exchangeViewModel.receiveCurrency,
+                                initialWalletName: receiveWalletName ?? '',
+                                initialAddress: exchangeViewModel.receiveCurrency ==
+                                        exchangeViewModel.wallet.currency
+                                    ? exchangeViewModel.wallet.walletAddresses.addressForExchange
+                                    : exchangeViewModel.receiveAddress,
+                                initialIsAmountEditable: false,
+                                isAmountEstimated: true,
+                                isMoneroWallet: exchangeViewModel.isMoneroWallet,
+                                currencies: exchangeViewModel.receiveCurrencies,
+                                onCurrencySelected: (currency) =>
+                                    exchangeViewModel.changeReceiveCurrency(currency: currency),
+                                imageArrow: arrowBottomCakeGreen,
+                                currencyButtonColor: Colors.transparent,
+                                addressButtonsColor:
+                                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                                borderColor: Theme.of(context).colorScheme.outlineVariant,
+                                fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                                currencyValueValidator:
+                                    AmountValidator(currency: exchangeViewModel.receiveCurrency),
+                              ),
+                            ),
                           )
                         ],
                       ),
@@ -180,9 +179,9 @@ class ExchangeTemplatePage extends BasePage {
                             S.of(context).amount_is_estimate,
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w500,
-                            ),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                         ),
                       ),

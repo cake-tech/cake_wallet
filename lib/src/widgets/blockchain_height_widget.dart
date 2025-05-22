@@ -9,8 +9,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/decred/decred.dart';
-import 'package:cw_core/wallet_type.dart';
-
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({
@@ -82,18 +80,24 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           Row(
             children: <Widget>[
               Flexible(
-                  child: Container(
-                      padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
-                      child: BaseTextFormField(
-                        key: widget.blockHeightTextFieldKey,
-                        focusNode: widget.focusNode,
-                        controller: restoreHeightController,
-                        keyboardType:
-                            TextInputType.numberWithOptions(signed: false, decimal: false),
-                        hintText: widget.isSilentPaymentsScan
-                            ? S.of(context).silent_payments_scan_from_height
-                            : S.of(context).widgets_restore_from_blockheight,
-                      )))
+                child: Container(
+                  padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
+                  child: BaseTextFormField(
+                    key: widget.blockHeightTextFieldKey,
+                    focusNode: widget.focusNode,
+                    controller: restoreHeightController,
+                    keyboardType: TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: false,
+                    ),
+                    hintText: widget.isSilentPaymentsScan
+                        ? S.of(context).silent_payments_scan_from_height
+                        : S.of(context).widgets_restore_from_blockheight,
+                    hasUnderlineBorder: false,
+                    borderWidth: 0,
+                  ),
+                ),
+              )
             ],
           ),
           if (widget.hasDatePicker) ...[
@@ -101,10 +105,11 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               padding: EdgeInsets.only(top: 15, bottom: 15),
               child: Text(
                 S.of(context).widgets_or,
-                style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
             Row(
@@ -114,12 +119,15 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   child: InkWell(
                     onTap: () => _selectDate(context),
                     child: IgnorePointer(
-                        child: BaseTextFormField(
-                      controller: dateController,
-                      hintText: widget.isSilentPaymentsScan
-                          ? S.of(context).silent_payments_scan_from_date
-                          : S.of(context).widgets_restore_from_date,
-                    )),
+                      child: BaseTextFormField(
+                        controller: dateController,
+                        hintText: widget.isSilentPaymentsScan
+                            ? S.of(context).silent_payments_scan_from_date
+                            : S.of(context).widgets_restore_from_date,
+                        hasUnderlineBorder: false,
+                        borderWidth: 0,
+                      ),
+                    ),
                   ),
                 ))
               ],
@@ -132,11 +140,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   children: [
                     Text(
                       S.of(context).scan_one_block,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
@@ -155,10 +161,9 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     ? S.of(context).silent_payments_scan_from_date_or_blockheight
                     : S.of(context).restore_from_date_or_blockheight,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).hintColor),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             )
           ]

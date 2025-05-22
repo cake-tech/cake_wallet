@@ -163,15 +163,6 @@ class TradeItemRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final hintTextColor = currentTheme.type == ThemeType.light
-        ? Theme.of(context).colorScheme.onSurfaceVariant
-        : Colors.white.withAlpha(175);
-
-    final mainTextColor = currentTheme.type == ThemeType.light
-        ? Theme.of(context).colorScheme.onSurface
-        : Colors.white;
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: GestureDetector(
@@ -186,8 +177,8 @@ class TradeItemRowWidget extends StatelessWidget {
           value: value,
           image: isCopied ? copyImage : null,
           color: Colors.transparent,
-          hintTextColor: hintTextColor,
-          mainTextColor: mainTextColor,
+          hintTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          mainTextColor: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -219,11 +210,10 @@ class FeeSelectionWidget extends StatelessWidget {
             children: <Widget>[
               Text(
                 S.of(context).send_estimated_fee,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,23 +223,20 @@ class FeeSelectionWidget extends StatelessWidget {
                     children: [
                       Text(
                         '${output.estimatedFee} ${feesViewModel.currency}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                       ),
                       if (!feesViewModel.isFiatDisabled)
                         Padding(
                           padding: EdgeInsets.only(top: 5),
                           child: Text(
                             '${output.estimatedFeeFiatAmount} ${feesViewModel.fiat.title}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color:
-                                  Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                         ),
                     ],
@@ -259,7 +246,7 @@ class FeeSelectionWidget extends StatelessWidget {
                     child: Icon(
                       Icons.arrow_forward_ios,
                       size: 12,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -290,16 +277,15 @@ class CoinControlWidget extends StatelessWidget {
           children: [
             Text(
               S.of(context).coin_control,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
             Icon(
               Icons.arrow_forward_ios,
               size: 12,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
         ),

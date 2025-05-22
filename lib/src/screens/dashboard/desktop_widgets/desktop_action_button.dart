@@ -32,7 +32,7 @@ class DesktopActionButton extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
-              color: Theme.of(context).colorScheme.primaryContainer,
+              color: Theme.of(context).colorScheme.surfaceContainer,
             ),
             child: Center(
               child: Row(
@@ -49,9 +49,8 @@ class DesktopActionButton extends StatelessWidget {
                   const SizedBox(width: 10),
                   AutoSizeText(
                     title,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 24,
-                      fontFamily: 'Lato',
                       fontWeight: FontWeight.bold,
                       color: isEnabled
                           ? Theme.of(context).colorScheme.onPrimaryContainer

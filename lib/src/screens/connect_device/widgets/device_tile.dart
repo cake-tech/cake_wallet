@@ -35,7 +35,7 @@ class DeviceTile extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(12)),
-          color: Theme.of(context).cardColor,
+          color: Theme.of(context).colorScheme.surfaceContainer,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -53,10 +53,9 @@ class DeviceTile extends StatelessWidget {
                 padding: EdgeInsets.only(left: 16),
                 child: Text(
                   title,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),

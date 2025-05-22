@@ -1,5 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
@@ -69,9 +68,9 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
             Text(
               S.of(context).add_passphrase,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 18,
-                fontFamily: 'Lato',
+                 
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).colorScheme.onSurface,
                 decoration: TextDecoration.none,
@@ -85,11 +84,11 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                   children: [
                     TextSpan(
                       text: '${S.of(context).warning.toUpperCase()}: ',
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 16,
-                        fontFamily: 'Lato',
+                         
                         fontWeight: FontWeight.w700,
-                        color: Palette.red,
+                        color: Theme.of(context).colorScheme.errorContainer,
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -99,9 +98,9 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                   ],
                 ),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 16,
-                  fontFamily: 'Lato',
+                   
                   fontWeight: FontWeight.w500,
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   decoration: TextDecoration.none,
@@ -116,7 +115,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(horizontal: 12),
                 filled: true,
-                fillColor: Theme.of(context).cardColor,
+                fillColor: Theme.of(context).colorScheme.surfaceContainer,
                 hintText: S.of(context).required_passphrase,
                 suffixIcon: GestureDetector(
                   onTap: () {
@@ -144,7 +143,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(horizontal: 12),
                 filled: true,
-                fillColor: Theme.of(context).cardColor,
+                fillColor: Theme.of(context).colorScheme.surfaceContainer,
                 hintText: S.of(context).confirm_passphrase,
                 suffixIcon: GestureDetector(
                   onTap: () {
@@ -186,7 +185,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                           Navigator.pop(context);
                         },
                         text: S.of(context).cancel,
-                        color: Theme.of(context).cardColor,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
                         textColor: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -201,8 +200,8 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                           widget.onRestoreButtonPressed(passphraseController.text);
                         },
                         text: S.of(context).restore,
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ),

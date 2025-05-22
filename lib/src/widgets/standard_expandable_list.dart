@@ -25,11 +25,9 @@ class StandardExpandableList<T> extends StatelessWidget {
           collapsedIconColor: Theme.of(context).colorScheme.onSurface,
           title: Text(
             title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
             textAlign: TextAlign.left,
           ),
           children: expandableItems.map((item) {
@@ -40,7 +38,7 @@ class StandardExpandableList<T> extends StatelessWidget {
                 child: Text(
                   item.toString(),
                   maxLines: 1,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).colorScheme.primary),

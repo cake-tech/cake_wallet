@@ -27,7 +27,7 @@ class NodeListRow extends StandardListRow {
       child: FilledButton(
         onPressed: () => onTap?.call(context),
         style: FilledButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
@@ -35,9 +35,9 @@ class NodeListRow extends StandardListRow {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            if (leading != null) leading,
-            buildCenter(context, hasLeftOffset: leading != null),
-            if (trailing != null) trailing,
+            leading,
+            buildCenter(context, hasLeftOffset: true),
+            trailing,
           ],
         ),
       ),
@@ -51,7 +51,7 @@ class NodeListRow extends StandardListRow {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return NodeIndicator(isLive: (snapshot.data as bool?) ?? false);
+              return NodeIndicator(isLive: snapshot.data ?? false);
             default:
               return NodeIndicator(isLive: false);
           }
@@ -69,12 +69,12 @@ class NodeListRow extends StandardListRow {
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.primaryContainer,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
         ),
         child: Icon(
           Icons.edit,
           size: 14,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
     );
@@ -107,7 +107,7 @@ class NodeHeaderListRow extends StandardListRow {
           children: <Widget>[
             if (leading != null) leading,
             buildCenter(context, hasLeftOffset: leading != null),
-            if (trailing != null) trailing,
+            trailing,
           ],
         ),
       ),

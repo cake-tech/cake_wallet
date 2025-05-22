@@ -27,37 +27,35 @@ class WCPairingItemWidget extends StatelessWidget {
 
     return ListTile(
       leading: CakeImageWidget(
-        imageUrl: metadata.icons.isNotEmpty ?  metadata.icons[0]: null,
-        displayOnError: CircleAvatar(
+        imageUrl: metadata.icons.isNotEmpty ? metadata.icons[0] : null,
+        errorWidget: CircleAvatar(
           backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
         ),
       ),
       title: Text(
         metadata.name,
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w700,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             metadata.url,
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           Text(
             '${S.current.expiresOn}: $expiryDate',
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),

@@ -31,14 +31,15 @@ class PickerInnerWrapperWidget extends StatelessWidget {
             child: Text(
               title!,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Lato',
-                  decoration: TextDecoration.none,
-                  color: Colors.white),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    decoration: TextDecoration.none,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
           ),
+          SizedBox(height: 8),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),
             child: ClipRRect(

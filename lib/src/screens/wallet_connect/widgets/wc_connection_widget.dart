@@ -14,7 +14,7 @@ class WCConnectionWidget extends StatelessWidget {
     
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColorLight,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(8),
@@ -29,7 +29,7 @@ class WCConnectionWidget extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             child: Text(
               title,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Theme.of(context).appBarTheme.titleTextStyle!.color!

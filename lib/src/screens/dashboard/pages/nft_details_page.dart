@@ -61,9 +61,8 @@ class NFTDetailsPage extends BasePage {
       child: Container(
         width: double.infinity,
         margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30.0),
+          borderRadius: BorderRadius.circular(24.0),
           border: Border.all(
             color: Theme.of(context).colorScheme.outline,
             width: 1,
@@ -95,7 +94,7 @@ class _NFTImageWidget extends StatelessWidget {
       margin: const EdgeInsets.all(8),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(24.0),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline,
           width: 1,
@@ -234,6 +233,7 @@ class _NFTSingleInfoTile extends StatelessWidget {
             infoType,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
               height: 1,
             ),
           ),

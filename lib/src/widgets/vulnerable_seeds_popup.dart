@@ -35,11 +35,11 @@ class VulnerableSeedsPopup extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               decoration: TextDecoration.none,
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Lato',
+                               
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
                             child: Text("Emergency Notice"),
@@ -60,10 +60,10 @@ class VulnerableSeedsPopup extends StatelessWidget {
                                 ),
                                 child: Text(
                                   "Your Bitcoin wallet(s) below use a legacy seed format that is vulnerable, which MAY result in you losing money from these wallet(s) if no action is taken.\nWe recommend that you IMMEDIATELY create wallet(s) in Cake Wallet and immediately transfer the funds to these wallet(s).\nVulnerable wallet name(s):\n\n[${affectedWalletNames.join(", ")}]\n\nFor assistance, please use the in-app support or email support@cakewallet.com",
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     decoration: TextDecoration.none,
                                     fontSize: 16.0,
-                                    fontFamily: 'Lato',
+                                     
                                     color: Theme.of(context)
                                         .colorScheme.onSurface,
                                   ),

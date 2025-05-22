@@ -12,7 +12,7 @@ class OrderRow extends StatelessWidget {
     this.formattedAmount,
     super.key,
   });
-  
+
   final VoidCallback? onTap;
   final BuyProviderDescription provider;
   final String from;
@@ -27,48 +27,59 @@ class OrderRow extends StatelessWidget {
     final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
 
     return InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
-          color: Colors.transparent,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (providerIcon != null)
-                Padding(
-                  padding: EdgeInsets.only(right: 12),
-                  child: providerIcon,
-                ),
-              Expanded(
-                  child: Column(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+        color: Colors.transparent,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (providerIcon != null)
+              Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: providerIcon,
+              ),
+            Expanded(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text('$from → $to',
-                        style: TextStyle(
+                    Text(
+                      '$from → $to',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurface)),
+                          ),
+                    ),
                     formattedAmount != null
-                        ? Text(formattedAmount! + ' ' + to,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface))
+                        ? Text(
+                            formattedAmount! + ' ' + to,
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          )
                         : Container()
                   ]),
                   SizedBox(height: 5),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text(createdAtFormattedDate,
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant))
-                  ])
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        createdAtFormattedDate,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                    ],
+                  )
                 ],
-              ))
-            ],
-          ),
-        ));
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

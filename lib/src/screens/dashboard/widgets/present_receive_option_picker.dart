@@ -40,18 +40,27 @@ class PresentReceiveOptionPicker extends StatelessWidget {
             children: <Widget>[
               Text(
                 S.current.receive,
-                style: TextStyle(
-                    fontSize: 18.0, fontWeight: FontWeight.bold, fontFamily: 'Lato', color: color),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
               ),
               Observer(
-                  builder: (_) => Text(
-                      receiveOptionViewModel.selectedReceiveOption
-                          .toString()
-                          .replaceAll(RegExp(r'silent payments', caseSensitive: false),
-                              S.current.silent_payments)
-                          .replaceAll(
-                              RegExp(r'default', caseSensitive: false), S.current.string_default),
-                      style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w500, color: color)))
+                builder: (_) => Text(
+                  receiveOptionViewModel.selectedReceiveOption
+                      .toString()
+                      .replaceAll(RegExp(r'silent payments', caseSensitive: false),
+                          S.current.silent_payments)
+                      .replaceAll(
+                          RegExp(r'default', caseSensitive: false), S.current.string_default),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 10.0,
+                        fontWeight: FontWeight.w500,
+                        color: color,
+                      ),
+                ),
+              )
             ],
           ),
           SizedBox(width: 5),

@@ -49,10 +49,11 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (_) {
-      final itemsCount = tradeDetailsViewModel.items.length;
+    return Observer(
+      builder: (_) {
+        final itemsCount = tradeDetailsViewModel.items.length;
 
-      return SectionStandardList(
+        return SectionStandardList(
           sectionCount: 1,
           itemCounter: (int _) => itemsCount,
           itemBuilder: (__, index) {
@@ -62,6 +63,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
               return ListRow(
                 title: '${item.title}',
                 value: '${item.value}',
+                hintTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
                 textWidget: GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: '${item.value}'));
@@ -69,7 +71,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                   },
                   child: Text(
                     '${item.value}',
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -99,21 +101,30 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
               );
 
             if (item is TradeProviderUnsupportedItem)
-              return AutoSizeText(item.value,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.error,
-                  ));
+              return AutoSizeText(
+                item.value,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+              );
 
             return GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: '${item.value}'));
-                  showBar<void>(context, S.of(context).copied_to_clipboard);
-                },
-                child: ListRow(title: '${item.title}', value: '${item.value}'));
-          });
-    });
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: '${item.value}'));
+                showBar<void>(context, S.of(context).copied_to_clipboard);
+              },
+              child: ListRow(
+                title: '${item.title}',
+                value: '${item.value}',
+                hintTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

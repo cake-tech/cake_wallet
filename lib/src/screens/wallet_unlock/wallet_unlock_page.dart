@@ -50,7 +50,8 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
       if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // null duration to make it indefinite until its disposed
-          _authBar = createBar<void>(S.of(context).authentication, duration: null)..show(context);
+          _authBar = createBar<void>(S.of(context).authentication, context, duration: null)
+            ..show(context);
         });
       }
 
@@ -88,7 +89,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
   @override
   void changeProcessText(String text) {
     dismissFlushBar(_authBar);
-    _progressBar = createBar<void>(text, duration: null)..show(_key.currentContext!);
+    _progressBar = createBar<void>(text, context, duration: null)..show(_key.currentContext!);
   }
 
   @override
@@ -159,7 +160,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                     Text(
                       widget.walletUnlockViewModel.walletName,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 24,
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -173,13 +174,13 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                         controller: _passwordController,
                         textAlign: TextAlign.center,
                         obscureText: true,
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontSize: 20.0,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                         decoration: InputDecoration(
-                          hintStyle: TextStyle(
+                          hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontSize: 18.0,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -208,25 +209,25 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                 padding: EdgeInsets.only(bottom: 24),
                 child: Observer(
                   builder: (_) => LoadingPrimaryButton(
-                      onPressed: () async {
-                        if (widget.authPasswordHandler != null) {
-                          try {
-                            await widget
-                                .authPasswordHandler!(widget.walletUnlockViewModel.password);
-                            widget.walletUnlockViewModel.success();
-                          } catch (e) {
-                            widget.walletUnlockViewModel.failure(e);
-                          }
-                          return;
+                    onPressed: () async {
+                      if (widget.authPasswordHandler != null) {
+                        try {
+                          await widget.authPasswordHandler!(widget.walletUnlockViewModel.password);
+                          widget.walletUnlockViewModel.success();
+                        } catch (e) {
+                          widget.walletUnlockViewModel.failure(e);
                         }
+                        return;
+                      }
 
-                        widget.walletUnlockViewModel.unlock();
-                      },
-                      text: S.of(context).unlock,
-                      color: Colors.green,
-                      textColor: Colors.white,
-                      isLoading: widget.walletUnlockViewModel.state is IsExecutingState,
-                      isDisabled: widget.walletUnlockViewModel.state is IsExecutingState),
+                      widget.walletUnlockViewModel.unlock();
+                    },
+                    text: S.of(context).unlock,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    isLoading: widget.walletUnlockViewModel.state is IsExecutingState,
+                    isDisabled: widget.walletUnlockViewModel.state is IsExecutingState,
+                  ),
                 ),
               ),
             ],

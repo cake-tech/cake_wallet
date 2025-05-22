@@ -99,7 +99,13 @@ class NodeForm extends StatelessWidget {
                 child: BaseTextFormField(
                   controller: _addressController,
                   hintText: S.of(context).node_address,
-                  validator: type == WalletType.decred ? NodeAddressValidatorDecredBlankException() : NodeAddressValidator(),
+                  hasUnderlineBorder: false,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(10),
+                  borderWidth: 0.0,
+                  validator: type == WalletType.decred
+                      ? NodeAddressValidatorDecredBlankException()
+                      : NodeAddressValidator(),
                 ),
               )
             ],
@@ -113,6 +119,10 @@ class NodeForm extends StatelessWidget {
                     controller: _pathController,
                     hintText: "/path",
                     validator: NodePathValidator(),
+                    hasUnderlineBorder: false,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(10),
+                    borderWidth: 0.0,
                   ),
                 )
               ],
@@ -122,12 +132,17 @@ class NodeForm extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
-                  child: BaseTextFormField(
-                controller: _portController,
-                hintText: S.of(context).node_port,
-                keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
-                validator: NodePortValidator(),
-              ))
+                child: BaseTextFormField(
+                  controller: _portController,
+                  hintText: S.of(context).node_port,
+                  keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                  validator: NodePortValidator(),
+                  hasUnderlineBorder: false,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(10),
+                  borderWidth: 0.0,
+                ),
+              )
             ],
           ),
           SizedBox(height: 10.0),
@@ -140,9 +155,8 @@ class NodeForm extends StatelessWidget {
                 Observer(
                   builder: (_) => StandardCheckbox(
                     value: nodeViewModel.useSSL,
-                    gradientBackground: true,
-                    borderColor: Theme.of(context).dividerColor,
-                    iconColor: Colors.white,
+                    borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    iconColor: Theme.of(context).colorScheme.primary,
                     onChanged: (value) => nodeViewModel.useSSL = value,
                     caption: S.of(context).use_ssl,
                   ),
@@ -155,10 +169,15 @@ class NodeForm extends StatelessWidget {
             Row(
               children: <Widget>[
                 Expanded(
-                    child: BaseTextFormField(
-                  controller: _loginController,
-                  hintText: S.of(context).login,
-                ))
+                  child: BaseTextFormField(
+                    controller: _loginController,
+                    hintText: S.of(context).login,
+                    hasUnderlineBorder: false,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(10),
+                    borderWidth: 0.0,
+                  ),
+                )
               ],
             ),
             SizedBox(height: 10.0),
@@ -168,6 +187,10 @@ class NodeForm extends StatelessWidget {
                     child: BaseTextFormField(
                   controller: _passwordController,
                   hintText: S.of(context).password,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                  hasUnderlineBorder: false,
+                  borderRadius: BorderRadius.circular(10),
+                  borderWidth: 0.0,
                 ))
               ],
             ),
@@ -180,9 +203,8 @@ class NodeForm extends StatelessWidget {
                   Observer(
                     builder: (_) => StandardCheckbox(
                       value: nodeViewModel.trusted,
-                      gradientBackground: true,
-                      borderColor: Theme.of(context).dividerColor,
-                      iconColor: Colors.white,
+                      borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      iconColor: Theme.of(context).colorScheme.primary,
                       onChanged: (value) => nodeViewModel.trusted = value,
                       caption: S.of(context).trusted,
                     ),
@@ -201,9 +223,8 @@ class NodeForm extends StatelessWidget {
                             children: [
                               StandardCheckbox(
                                 value: nodeViewModel.useSocksProxy,
-                                gradientBackground: true,
-                                borderColor: Theme.of(context).dividerColor,
-                                iconColor: Colors.white,
+                                borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                iconColor: Theme.of(context).colorScheme.primary,
                                 onChanged: (value) {
                                   if (!value) {
                                     _socksAddressController.text = '';
@@ -223,6 +244,10 @@ class NodeForm extends StatelessWidget {
                                   child: BaseTextFormField(
                                 controller: _socksAddressController,
                                 hintText: '[<ip>:]<port>',
+                                fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                                hasUnderlineBorder: false,
+                                borderRadius: BorderRadius.circular(10),
+                                borderWidth: 0.0,
                                 validator: SocksProxyNodeAddressValidator(),
                               ))
                             ],

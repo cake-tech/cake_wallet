@@ -75,29 +75,26 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                         TextFormField(
                           onChanged: (value) => _walletHardwareRestoreVM.name = value,
                           controller: _controller,
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
+                              ),
                           decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                            hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                             hintText: S.of(context).wallet_name,
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                color:
-                                    Theme.of(context).colorScheme.outline,
+                                color: Theme.of(context).colorScheme.outline,
                                 width: 1.0,
                               ),
                             ),
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                color:
-                                    Theme.of(context).colorScheme.outline,
+                                color: Theme.of(context).colorScheme.outline,
                                 width: 1.0,
                               ),
                             ),
@@ -125,8 +122,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                                   height: 34,
                                   child: Image.asset(
                                     'assets/images/refresh_icon.png',
-                                    color: Theme.of(context)
-                                        .colorScheme.primary,
+                                    color: Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
                               ),
@@ -144,10 +140,9 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                     width: double.infinity,
                     child: Text(
                       S.of(context).select_hw_account_below,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -155,7 +150,6 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                 Observer(
                   builder: (context) => Column(
                     children: _walletHardwareRestoreVM.availableAccounts.map((acc) {
-
                       final address = acc.address;
                       return Padding(
                         padding: EdgeInsets.only(top: 10),
@@ -167,7 +161,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                             width: 24,
                           ),
                           text:
-                          "${acc.accountIndex} - ${address.substring(0, 6)}...${address.substring(address.length - 6)}",
+                              "${acc.accountIndex} - ${address.substring(0, 6)}...${address.substring(address.length - 6)}",
                           showTrailingIcon: false,
                           height: 54,
                           isSelected: _walletHardwareRestoreVM.selectedAccount == acc,
@@ -180,15 +174,17 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 10),
-                  child: Observer(builder: (context) {
-                    return LoadingPrimaryButton(
-                      onPressed: _loadMoreAccounts,
-                      text: S.of(context).load_more,
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary,
-                      isLoading: _walletHardwareRestoreVM.isLoadingMoreAccounts,
-                    );
-                  }),
+                  child: Observer(
+                    builder: (context) {
+                      return LoadingPrimaryButton(
+                        onPressed: _loadMoreAccounts,
+                        text: S.of(context).load_more,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                        isLoading: _walletHardwareRestoreVM.isLoadingMoreAccounts,
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -200,8 +196,8 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
             return LoadingPrimaryButton(
               onPressed: _confirmForm,
               text: S.of(context).seed_language_next,
-              color: Colors.green,
-              textColor: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
               isDisabled: _walletHardwareRestoreVM.name.isEmpty,
             );
           },
@@ -225,11 +221,8 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
     if (_effectsInstalled) return;
 
     reaction((_) => _walletHardwareRestoreVM.error, (String? error) {
-
       if (error != null) {
-
-        if (error == S.current.ledger_connection_error)
-          Navigator.of(context).pop();
+        if (error == S.current.ledger_connection_error) Navigator.of(context).pop();
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(

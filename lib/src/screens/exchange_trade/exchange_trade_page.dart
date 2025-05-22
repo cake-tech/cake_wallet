@@ -34,9 +34,12 @@ void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext
           exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
-      context: context,
-      builder: (_) =>
-          InformationPage(key: ValueKey('information_page_dialog_key'), information: information));
+    context: context,
+    builder: (_) => InformationPage(
+      key: ValueKey('information_page_dialog_key'),
+      information: information,
+    ),
+  );
 }
 
 class ExchangeTradePage extends BasePage {
@@ -145,10 +148,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       children: <Widget>[
                           Text(
                             S.of(context).offer_expires_in,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                           if (trade.expiredAt != null)
                             TimerWidget(trade.expiredAt!,
@@ -171,8 +173,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               onPressed: () async {
                 Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
               },
-              color: Theme.of(context).colorScheme.primary,
-              textColor: Theme.of(context).colorScheme.onPrimary,
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              textColor: Theme.of(context).colorScheme.onSecondaryContainer,
             ),
             SizedBox(height: 16),
             Observer(
@@ -210,10 +212,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
     _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
         (ExecutionState state) async {
-
-          if (dialogContext != null && dialogContext?.mounted == true) {
-            Navigator.of(dialogContext!).pop();
-          }
+      if (dialogContext != null && dialogContext?.mounted == true) {
+        Navigator.of(dialogContext!).pop();
+      }
 
       if (state is! IsExecutingState &&
           loadingBottomSheetContext != null &&

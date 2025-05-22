@@ -42,8 +42,10 @@ class QRWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context).colorScheme.onSurfaceVariant);
+    final copyImage = Image.asset(
+      'assets/images/copy_address.png',
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
 
     // This magic number for wider screen sets the text input focus at center of the inputfield
     final _width =
@@ -62,10 +64,9 @@ class QRWidget extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     S.of(context).qr_fullscreen,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ),
                 Row(
@@ -78,11 +79,14 @@ class QRWidget extends StatelessWidget {
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
                               () async {
-                                await Navigator.pushNamed(context, Routes.fullscreenQR,
-                                    arguments: QrViewData(
-                                      data: addressUri.toString(),
-                                      heroTag: heroTag,
-                                    ));
+                                await Navigator.pushNamed(
+                                  context,
+                                  Routes.fullscreenQR,
+                                  arguments: QrViewData(
+                                    data: addressUri.toString(),
+                                    heroTag: heroTag,
+                                  ),
+                                );
                               },
                             );
                           },
@@ -93,9 +97,8 @@ class QRWidget extends StatelessWidget {
                                 padding: EdgeInsets.zero,
                                 decoration: BoxDecoration(
                                   border: Border(top: BorderSide.none),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)),
-                                  color: Colors.white,
+                                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                                  color: Theme.of(context).colorScheme.surface,
                                 ),
                                 child: Column(
                                   children: [
@@ -108,11 +111,9 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    if (addressListViewModel
-                                        .payjoinEndpoint.isNotEmpty) ...[
+                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty) ...[
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Padding(
                                             padding: EdgeInsets.only(
@@ -127,11 +128,9 @@ class QRWidget extends StatelessWidget {
                                           ),
                                           Text(
                                             S.of(context).payjoin_enabled,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black,
-                                            ),
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -149,29 +148,34 @@ class QRWidget extends StatelessWidget {
                 ),
               ],
             ),
-            Observer(builder: (_) {
-              return Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Form(
+            Observer(
+              builder: (_) {
+                return Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Form(
                           key: formKey,
                           child: CurrencyAmountTextField(
-                              selectedCurrency: _currencyName,
-                              amountFocusNode: amountTextFieldFocusNode,
-                              amountController: amountController,
-                              padding: EdgeInsets.only(top: 20, left: _width / 4),
-                              currentTheme: isLight ? ThemeType.light : ThemeType.dark,
-                              isAmountEditable: true,
-                              tag: addressListViewModel.selectedCurrency.tag,
-                              onTapPicker: () => _presentPicker(context),
-                              isPickerEnable: true)),
-                    ),
-                  ],
-                ),
-              );
-            }),
+                            selectedCurrency: _currencyName,
+                            amountFocusNode: amountTextFieldFocusNode,
+                            amountController: amountController,
+                            padding: EdgeInsets.only(top: 20, left: _width / 4),
+                            currentTheme: isLight ? ThemeType.light : ThemeType.dark,
+                            isAmountEditable: true,
+                            tag: addressListViewModel.selectedCurrency.tag,
+                            onTapPicker: () => _presentPicker(context),
+                            isPickerEnable: true,
+                            fillColor: Theme.of(context).colorScheme.surface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
             Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
             Padding(
               padding: EdgeInsets.only(top: 20, bottom: 8),
@@ -191,10 +195,11 @@ class QRWidget extends StatelessWidget {
                             address: addressUri.address,
                             walletType: addressListViewModel.type,
                             textAlign: TextAlign.center,
-                            evenTextStyle: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface)),
+                            evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 12),
@@ -213,8 +218,7 @@ class QRWidget extends StatelessWidget {
                   padding: EdgeInsets.only(top: 12),
                   child: PrimaryImageButton(
                     onPressed: () {
-                      Clipboard.setData(
-                          ClipboardData(text: addressUri.toString()));
+                      Clipboard.setData(ClipboardData(text: addressUri.toString()));
                       showBar<void>(context, S.of(context).copied_to_clipboard);
                     },
                     image: Image.asset(
@@ -222,7 +226,7 @@ class QRWidget extends StatelessWidget {
                       width: 25,
                     ),
                     text: S.of(context).copy_payjoin_url,
-                    color: Theme.of(context).cardColor,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
                     textColor: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),

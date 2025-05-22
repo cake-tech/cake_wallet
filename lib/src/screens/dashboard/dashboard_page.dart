@@ -163,18 +163,19 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final menuButton = Image.asset(
-      'assets/images/menu.png',
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-    );
-
     return Container(
       alignment: Alignment.centerRight,
       width: 40,
       child: TextButton(
         key: ValueKey('dashboard_page_wallet_menu_button_key'),
         onPressed: () => onOpenEndDrawer(),
-        child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
+        child: Semantics(
+          label: S.of(context).wallet_menu,
+          child: Image.asset(
+            'assets/images/menu.png',
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
       ),
     );
   }
@@ -249,7 +250,7 @@ class _DashboardPageView extends BasePage {
                             radius: 6.0,
                             dotWidth: 6.0,
                             dotHeight: 6.0,
-                            dotColor: Theme.of(context).colorScheme.outlineVariant,
+                            dotColor: Theme.of(context).colorScheme.primary.withOpacity(0.4),
                             activeDotColor: Theme.of(context).colorScheme.primary,
                           ),
                         ),
@@ -300,7 +301,6 @@ class _DashboardPageView extends BasePage {
 
     rootKey.currentState?.isInactive.listen(
       (inactive) {
-
         if (needToPresentYat) {
           Future<void>.delayed(Duration(milliseconds: 500)).then(
             (_) {

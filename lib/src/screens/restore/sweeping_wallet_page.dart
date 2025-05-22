@@ -79,7 +79,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                               padding: EdgeInsets.only(top: 24),
                               child: Text(
                                 S.of(context).please_wait,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -91,7 +91,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                               padding: EdgeInsets.only(top: 5),
                               child: Text(
                                 S.of(context).sweeping_wallet,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
                                   color: Theme.of(context).colorScheme.primary,
@@ -103,7 +103,7 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                               padding: EdgeInsets.only(top: 5),
                               child: Text(
                                 S.of(context).sweeping_wallet_alert,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,

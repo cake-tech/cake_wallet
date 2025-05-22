@@ -3,7 +3,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:flutter/material.dart';
@@ -22,12 +21,12 @@ class AnonInvoiceForm extends StatelessWidget {
     required this.depositAmountFocus,
   })  : _nameFocusNode = FocusNode(),
         _emailFocusNode = FocusNode(),
-        _descriptionFocusNode = FocusNode(){
-          amountController.text = anonInvoicePageViewModel.amount;
-          nameController.text = anonInvoicePageViewModel.receipientName;
-          descriptionController.text = anonInvoicePageViewModel.description;
-          emailController.text = anonInvoicePageViewModel.receipientEmail;
-        }
+        _descriptionFocusNode = FocusNode() {
+    amountController.text = anonInvoicePageViewModel.amount;
+    nameController.text = anonInvoicePageViewModel.receipientName;
+    descriptionController.text = anonInvoicePageViewModel.description;
+    emailController.text = anonInvoicePageViewModel.receipientEmail;
+  }
 
   final TextEditingController amountController;
   final TextEditingController nameController;
@@ -51,20 +50,22 @@ class AnonInvoiceForm extends StatelessWidget {
           Text(
             isInvoice ? S.of(context).invoice_details : S.of(context).donation_link_details,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           if (isInvoice)
-            Observer(builder: (_) {
-              return AnonpayCurrencyInputField(
-                onTapPicker: () => _presentPicker(context),
-                controller: amountController,
-                focusNode: depositAmountFocus,
-                maxAmount: anonInvoicePageViewModel.maximum?.toString() ?? '...',
-                minAmount: anonInvoicePageViewModel.minimum?.toString() ?? '...',
-                selectedCurrency: anonInvoicePageViewModel.selectedCurrency,
-              );
-            }),
+            Observer(
+              builder: (_) {
+                return AnonpayCurrencyInputField(
+                  onTapPicker: () => _presentPicker(context),
+                  controller: amountController,
+                  focusNode: depositAmountFocus,
+                  maxAmount: anonInvoicePageViewModel.maximum?.toString() ?? '...',
+                  minAmount: anonInvoicePageViewModel.minimum?.toString() ?? '...',
+                  selectedCurrency: anonInvoicePageViewModel.selectedCurrency,
+                );
+              },
+            ),
           SizedBox(height: 24),
           BaseTextFormField(
             controller: nameController,
@@ -74,14 +75,15 @@ class AnonInvoiceForm extends StatelessWidget {
             hintText: S.of(context).optional_name,
             textInputAction: TextInputAction.next,
             placeholderTextStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
             textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
             validator: null,
+            fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
           ),
           SizedBox(height: 24),
           BaseTextFormField(
@@ -92,14 +94,15 @@ class AnonInvoiceForm extends StatelessWidget {
             suffixIcon: SizedBox(width: 36),
             hintText: S.of(context).optional_description,
             placeholderTextStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
             textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
             validator: null,
+            fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
           ),
           SizedBox(height: 24),
           BaseTextFormField(
@@ -111,14 +114,15 @@ class AnonInvoiceForm extends StatelessWidget {
             keyboardType: TextInputType.emailAddress,
             hintText: S.of(context).optional_email_hint,
             placeholderTextStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
             textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
             validator: EmailValidator(),
+            fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
           ),
           SizedBox(height: 52),
         ],

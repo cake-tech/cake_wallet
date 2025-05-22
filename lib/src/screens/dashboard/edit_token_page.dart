@@ -122,7 +122,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               Container(
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 28),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -136,21 +136,18 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         children: [
                           Text(
                             S.of(context).warning,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 5),
                             child: Text(
                               S.of(context).add_token_warning,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    height: 1.6,
+                                  ),
                             ),
                           ),
                         ],
@@ -191,8 +188,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                           Navigator.pop(context);
                         },
                         text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
-                        color: Colors.red,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        textColor: Theme.of(context).colorScheme.onErrorContainer,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -295,8 +292,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                           }
                         },
                         text: S.of(context).save,
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ],
@@ -351,13 +348,14 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             focusNode: _contractAddressFocusNode,
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
-            buttonColor: Theme.of(context).hintColor,
             validator: widget.homeSettingsViewModel.walletType == WalletType.zano
                 ? null
                 : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,
             onPushPasteButton: (_) {
               _pasteText();
             },
+            isBorderExist: false,
+            borderWidth: 0.0,
           ),
           const SizedBox(height: 8),
           BaseTextFormField(
@@ -366,6 +364,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenSymbolFocusNode),
             textInputAction: TextInputAction.next,
             hintText: S.of(context).token_name,
+            hasUnderlineBorder: false,
+            borderWidth: 0.0,
             validator: (text) {
               if (text?.isNotEmpty ?? false) {
                 return null;
@@ -381,6 +381,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenDecimalFocusNode),
             textInputAction: TextInputAction.next,
             hintText: S.of(context).token_symbol,
+            hasUnderlineBorder: false,
+            borderWidth: 0.0,
             validator: (text) {
               if (text?.isNotEmpty ?? false) {
                 return null;
@@ -395,6 +397,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             focusNode: _tokenDecimalFocusNode,
             textInputAction: TextInputAction.done,
             hintText: S.of(context).token_decimal,
+            hasUnderlineBorder: false,
+            borderWidth: 0.0,
             validator: (text) {
               if (text?.isEmpty ?? true) {
                 return S.of(context).field_required;

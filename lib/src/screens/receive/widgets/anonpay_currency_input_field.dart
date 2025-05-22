@@ -59,9 +59,9 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                         Text(
                           selectedCurrency.name.toUpperCase(),
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                       ],
                     ),
@@ -82,9 +82,9 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                           child: Text(
                             selectedCurrency.tag!,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSecondaryContainer,
-                            ),
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                ),
                           ),
                         ),
                       ),
@@ -95,9 +95,9 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                   child: Text(
                     ':',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                 ),
                 Expanded(
@@ -111,20 +111,22 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                           textInputAction: TextInputAction.next,
                           enabled: true,
                           textAlign: TextAlign.left,
-                          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
-                          ],
+                          keyboardType:
+                              TextInputType.numberWithOptions(signed: false, decimal: true),
+                          inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))],
                           hintText: '0.0000',
+                          hasUnderlineBorder: false,
+                          borderWidth: 0.0,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
                           borderColor: Colors.transparent,
                           textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                           placeholderTextStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                           validator: null,
                         ),
                       ),
@@ -143,17 +145,17 @@ class AnonpayCurrencyInputField extends StatelessWidget {
               Text(
                 S.of(context).min_value(minAmount, selectedCurrency.toString()),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  height: 1.2,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      height: 1.2,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               SizedBox(width: 10),
               Text(
                 S.of(context).max_value(maxAmount, selectedCurrency.toString()),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  height: 1.2,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      height: 1.2,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ],
           ),

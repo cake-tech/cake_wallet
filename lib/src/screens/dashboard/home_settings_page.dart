@@ -54,13 +54,17 @@ class HomeSettingsPage extends BasePage {
                   padding: const EdgeInsetsDirectional.only(start: 16),
                   child: TextFormField(
                     controller: _searchController,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                     decoration: InputDecoration(
                       hintText: S.of(context).search_add_token,
-                      prefixIcon: Image.asset("assets/images/search_icon.png"),
+                      prefixIcon: Image.asset(
+                        "assets/images/search_icon.png",
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.primaryContainer,
+                      fillColor: Theme.of(context).colorScheme.surfaceContainer,
                       alignLabelWithHint: false,
                       contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                       enabledBorder: OutlineInputBorder(
@@ -78,23 +82,27 @@ class HomeSettingsPage extends BasePage {
               ),
               RawMaterialButton(
                 onPressed: () async {
-                  Navigator.pushNamed(context, Routes.editToken, arguments: {
-                    'homeSettingsViewModel': _homeSettingsViewModel,
-                    if (AddressValidator(type: _homeSettingsViewModel.nativeToken)
-                        .isValid(_searchController.text))
-                      'contractAddress': _searchController.text,
-                  });
+                  Navigator.pushNamed(
+                    context,
+                    Routes.editToken,
+                    arguments: {
+                      'homeSettingsViewModel': _homeSettingsViewModel,
+                      if (AddressValidator(type: _homeSettingsViewModel.nativeToken)
+                          .isValid(_searchController.text))
+                        'contractAddress': _searchController.text,
+                    },
+                  );
                 },
                 elevation: 0,
-                fillColor: Theme.of(context).cardColor,
+                fillColor: Theme.of(context).colorScheme.surfaceContainer,
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 22.0,
                 ),
                 padding: EdgeInsets.all(12),
                 shape: CircleBorder(),
-                splashColor: Theme.of(context).cardColor,
+                splashColor: Theme.of(context).colorScheme.surfaceContainer,
               ),
             ],
           ),
@@ -132,24 +140,27 @@ class HomeSettingsPage extends BasePage {
                               imageUrl: token.iconPath,
                               height: 40,
                               width: 40,
-                              displayOnError: Container(
+                              errorWidget: Container(
                                 height: 30.0,
                                 width: 30.0,
                                 child: Center(
                                   child: Text(
                                     token.title.substring(0, min(token.title.length, 2)),
-                                    style: TextStyle(fontSize: 11),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
                                   ),
                                 ),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.grey.shade400,
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                 ),
                               ),
                             ),
                           ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
+                            color: Theme.of(context).colorScheme.surfaceContainer,
                             borderRadius: BorderRadius.circular(30),
                           ),
                         );

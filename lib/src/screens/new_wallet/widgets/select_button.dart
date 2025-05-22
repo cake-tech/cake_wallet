@@ -37,7 +37,7 @@ class SelectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = color ?? (isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor);
+    final backgroundColor = color ?? (isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer);
     final effectiveTextColor = textColor ??
         (isSelected
             ? Theme.of(context).colorScheme.onPrimary
@@ -67,9 +67,9 @@ class SelectButton extends StatelessWidget {
         padding: padding ?? EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(30)),
+          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(20)),
           color: backgroundColor,
-          border: borderColor != null ? Border.all(color: borderColor!) : null,
+          border: borderColor != null ? Border.all(color: borderColor!, width: 2) : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -86,7 +86,7 @@ class SelectButton extends StatelessWidget {
                     padding: image != null ? EdgeInsets.only(left: 15) : EdgeInsets.only(left: 0),
                     child: Text(
                       text,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: textSize,
                         fontWeight: FontWeight.w500,
                         color: effectiveTextColor,

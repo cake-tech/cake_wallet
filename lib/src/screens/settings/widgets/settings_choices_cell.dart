@@ -20,11 +20,7 @@ class SettingsChoicesCell extends StatelessWidget {
               children: [
                 Text(
                   choicesListItem.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
             ),
@@ -33,7 +29,7 @@ class SettingsChoicesCell extends StatelessWidget {
           Center(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(10),
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               child: Row(
@@ -48,18 +44,18 @@ class SettingsChoicesCell extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: isSelected ? Theme.of(context).primaryColor : null,
+                          borderRadius: BorderRadius.circular(10),
+                          color: isSelected ? Theme.of(context).colorScheme.primary : null,
                         ),
                         child: Center(
                           child: Text(
                             choicesListItem.displayItem.call(e),
-                            style: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                ),
                           ),
                         ),
                       ),

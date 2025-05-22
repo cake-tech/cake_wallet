@@ -57,13 +57,14 @@ class _TextFieldListRowState extends State<TextFieldListRow> {
           children: <Widget>[
             Text(
               widget.title,
-              style: TextStyle(
-                fontSize: widget.titleFontSize,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: widget.titleFontSize,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.left,
             ),
+            SizedBox(height: 4),
             TextField(
               controller: _textController,
               focusNode: _focusNode,
@@ -71,21 +72,32 @@ class _TextFieldListRowState extends State<TextFieldListRow> {
               textInputAction: TextInputAction.done,
               maxLines: null,
               textAlign: TextAlign.start,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: widget.valueFontSize,
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
+                fillColor: Theme.of(context).colorScheme.surfaceContainer,
                 isDense: true,
-                contentPadding: EdgeInsets.only(top: 12, bottom: 0),
-                hintText: S.of(context).enter_your_note,
-                hintStyle: TextStyle(
-                  fontSize: widget.valueFontSize,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                contentPadding: EdgeInsets.only(
+                  top: 12,
+                  bottom: 0,
+                  left: 8,
+                  right: 8,
                 ),
-                border: InputBorder.none,
+                hintText: S.of(context).enter_your_note,
+                hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: widget.valueFontSize,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                    width: 0.0,
+                  ),
+                ),
               ),
               onSubmitted: (value) {
                 widget.onSubmitted?.call(value);

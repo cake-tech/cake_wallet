@@ -45,12 +45,13 @@ class AlertWithPickerOption extends BaseAlertDialog {
         Text(
           contentText,
           textAlign: TextAlign.center,
-          style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Lato',
-              color: Theme.of(context).colorScheme.onSurface,
-              decoration: TextDecoration.none),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                 
+                color: Theme.of(context).colorScheme.onSurface,
+                decoration: TextDecoration.none,
+              ),
         ),
         const SizedBox(height: 4),
         Container(
@@ -80,23 +81,17 @@ class AlertWithPickerOption extends BaseAlertDialog {
                     children: [
                       Text(
                         displayKey,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Lato',
-                          color: Theme.of(context).colorScheme.onSurface,
-                          decoration: TextDecoration.none,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              decoration: TextDecoration.none,
+                            ),
                       ),
                       Row(
                         children: [
                           Text(
                             displayValue,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
-                              color: Theme.of(context).colorScheme.onSurface,
-                              decoration: TextDecoration.none,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                  decoration: TextDecoration.none,
+                                ),
                           ),
                           const SizedBox(width: 4),
                           Icon(

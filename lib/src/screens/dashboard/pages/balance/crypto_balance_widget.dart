@@ -74,10 +74,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   Text(
                                     dashboardViewModel.balanceViewModel.asset,
                                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                      height: 1,
-                                    ),
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
                                     maxLines: 1,
                                     textAlign: TextAlign.center,
                                   ),
@@ -93,13 +93,16 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   if (dashboardViewModel
                                       .balanceViewModel.isHomeScreenSettingsEnabled)
                                     InkWell(
-                                      onTap: () => Navigator.pushNamed(context, Routes.homeSettings,
-                                          arguments: dashboardViewModel.balanceViewModel),
+                                      onTap: () => Navigator.pushNamed(
+                                        context,
+                                        Routes.homeSettings,
+                                        arguments: dashboardViewModel.balanceViewModel,
+                                      ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Image.asset(
                                           'assets/images/home_screen_settings_icon.png',
-                                          color: Theme.of(context).colorScheme.onSurface,
+                                          color: Theme.of(context).colorScheme.secondary,
                                         ),
                                       ),
                                     ),
@@ -227,10 +230,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     Text(
                                       S.of(context).what_is_silent_payments,
                                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        height: 1,
-                                      ),
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1,
+                                          ),
                                       softWrap: true,
                                     ),
                                     Padding(
@@ -282,10 +284,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                         child: Text(
                           S.of(context).learn_more,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            height: 1,
-                          ),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1,
+                              ),
                           softWrap: true,
                         ),
                       ),
@@ -303,7 +304,8 @@ class CryptoBalanceWidget extends StatelessWidget {
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
-                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
+                      rightButtonAction: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
                     ),
                   ),
                 ],

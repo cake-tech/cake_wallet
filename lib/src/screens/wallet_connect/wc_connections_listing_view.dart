@@ -120,7 +120,7 @@ class WCPairingsWidget extends BasePage {
                   SizedBox(height: 24),
                   Text(
                     S.current.connectWalletPrompt,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -141,11 +141,7 @@ class WCPairingsWidget extends BasePage {
                     },
                     child: Text(
                       'Click to paste WalletConnect Link',
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
                 ],
@@ -159,7 +155,7 @@ class WCPairingsWidget extends BasePage {
                   child: Text(
                     S.current.activeConnectionsPrompt,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal,
                       color: Theme.of(context).colorScheme.onSurface,

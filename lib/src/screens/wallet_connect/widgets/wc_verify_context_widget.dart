@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -21,7 +22,7 @@ class WCVerifyContextWidget extends StatelessWidget {
 
     if (verifyContext!.validation.scam) {
       return VerifyBanner(
-        color: Theme.of(context).colorScheme.error,
+        color: Theme.of(context).colorScheme.errorContainer,
         origin: verifyContext!.origin,
         title: S.current.security_risk,
         text: S.current.security_risk_description,
@@ -29,7 +30,7 @@ class WCVerifyContextWidget extends StatelessWidget {
     }
     if (verifyContext!.validation.invalid) {
       return VerifyBanner(
-        color: Theme.of(context).colorScheme.error,
+        color: Theme.of(context).colorScheme.errorContainer,
         origin: verifyContext!.origin,
         title: S.current.domain_mismatch,
         text: S.current.domain_mismatch_description,
@@ -42,7 +43,7 @@ class WCVerifyContextWidget extends StatelessWidget {
       );
     }
     return VerifyBanner(
-      color: Colors.orange,
+      color: CustomThemeColors.syncYellow,
       origin: verifyContext!.origin,
       title: S.current.cannot_verify,
       text: S.current.cannot_verify_description,
@@ -71,10 +72,10 @@ class VerifyHeader extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           title,
-          style: TextStyle(
-            color: iconColor,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: iconColor,
+                fontWeight: FontWeight.bold,
+              ),
         ),
       ],
     );
@@ -98,9 +99,9 @@ class VerifyBanner extends StatelessWidget {
       children: [
         Text(
           origin,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox.square(dimension: 8.0),
         Container(
@@ -119,10 +120,10 @@ class VerifyBanner extends StatelessWidget {
               Text(
                 text,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ],
           ),

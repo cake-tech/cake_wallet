@@ -1,7 +1,6 @@
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
-import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 
 class AnonInvoiceStatusSection extends StatelessWidget {
@@ -44,12 +43,12 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                   children: [
                     SyncIndicatorIcon(
                       boolMode: false,
-                      value: invoiceInfo.status ?? '',
+                      value: invoiceInfo.status,
                       size: 6,
                     ),
                     SizedBox(width: 5),
                     Text(
-                      invoiceInfo.status ?? '',
+                      invoiceInfo.status,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.onSecondaryContainer,
@@ -72,7 +71,7 @@ class AnonInvoiceStatusSection extends StatelessWidget {
                 ),
               ),
               Text(
-                invoiceInfo.invoiceId ?? '',
+                invoiceInfo.invoiceId,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface,

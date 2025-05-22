@@ -37,14 +37,17 @@ class WalletRestorePage extends BasePage {
 
   @override
   Widget middle(BuildContext context) => Observer(
-      builder: (_) => Text(
-            walletRestoreViewModel.mode == WalletRestoreMode.seed
-                ? S.current.restore_title_from_seed
-                : S.current.restore_title_from_keys,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary),
-          ));
+        builder: (_) => Text(
+          walletRestoreViewModel.mode == WalletRestoreMode.seed
+              ? S.current.restore_title_from_seed
+              : S.current.restore_title_from_keys,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontSize: 18,
+                 
+                fontWeight: FontWeight.w600,
+              ),
+        ),
+      );
 
   // DerivationType derivationType = DerivationType.unknown;
   // String? derivationPath = null;
@@ -79,106 +82,103 @@ class WalletRestorePage extends BasePage {
         height: 0,
         color: Theme.of(context).colorScheme.surface,
         child: Center(
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-            child: Column(
-              children: [
-                Expanded(
-                  child: _WalletRestorePageBody(
-                    walletRestoreViewModel: walletRestoreViewModel,
-                    seedSettingsViewModel: seedSettingsViewModel,
-                    walletRestoreFromSeedFormKey: walletRestoreFromSeedFormKey,
-                    walletRestoreFromKeysFormKey: walletRestoreFromKeysFormKey,
-                    blockHeightFocusNode: _blockHeightFocusNode,
-                    derivationInfo: derivationInfo,
-                    onDerivationInfoChanged: (info) => derivationInfo = info,
-                  ),
+          child: Column(
+            children: [
+              Expanded(
+                child: _WalletRestorePageBody(
+                  walletRestoreViewModel: walletRestoreViewModel,
+                  seedSettingsViewModel: seedSettingsViewModel,
+                  walletRestoreFromSeedFormKey: walletRestoreFromSeedFormKey,
+                  walletRestoreFromKeysFormKey: walletRestoreFromKeysFormKey,
+                  blockHeightFocusNode: _blockHeightFocusNode,
+                  derivationInfo: derivationInfo,
+                  onDerivationInfoChanged: (info) => derivationInfo = info,
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
-                  child: Column(
-                    children: [
-                      Observer(
-                        builder: (context) {
-                          return walletRestoreViewModel.mode == WalletRestoreMode.seed
-                              ? StandardCheckbox(
-                                  value: walletRestoreViewModel.hasPassphrase,
-                                  caption: S.of(context).wallet_has_passphrase,
-                                  onChanged: (value) {
-                                    walletRestoreViewModel.hasPassphrase = value;
-                                  },
-                                )
-                              : SizedBox.shrink();
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      PrimaryButton(
-                        key: ValueKey('wallet_restore_advanced_settings_button_key'),
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(
-                            Routes.advancedPrivacySettings,
-                            arguments: {
-                              'isFromRestore': true,
-                              'type': walletRestoreViewModel.type,
-                              'useTestnet': walletRestoreViewModel.useTestnet,
-                              'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
-                            },
-                          );
-                        },
-                        text: S.of(context).advanced_settings,
-                        color: Theme.of(context).cardColor,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      SizedBox(height: 8),
-                      Observer(
-                        builder: (context) {
-                          return LoadingPrimaryButton(
-                            key: ValueKey('wallet_restore_seed_or_key_restore_button_key'),
-                            onPressed: () async {
-                              if (walletRestoreViewModel.hasPassphrase) {
-                                await showModalBottomSheet<void>(
-                                  context: context,
-                                  isDismissible: false,
-                                  isScrollControlled: true,
-                                  builder: (BuildContext bottomSheetContext) {
-                                    return Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
-                                      ),
-                                      child: AddPassphraseBottomSheet(
-                                        currentTheme: currentTheme,
-                                        titleText: S.of(context).add_passphrase,
-                                        onRestoreButtonPressed: (passphrase) async {
-                                          await _onPassphraseBottomSheetRestoreButtonPressed(
-                                            passphrase,
-                                            context,
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                );
-                              } else {
-                                await _confirmForm(context);
-                              }
-                            },
-                            text: walletRestoreViewModel.hasPassphrase
-                                ? S.of(context).add_passphrase
-                                : S.of(context).restore_recover,
-                            color: Theme.of(context).primaryColor,
-                            textColor: Colors.white,
-                            isLoading: walletRestoreViewModel.state is IsExecutingState,
-                            isDisabled: !walletRestoreViewModel.isButtonEnabled,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                )
-              ],
-            ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    Observer(
+                      builder: (context) {
+                        return walletRestoreViewModel.mode == WalletRestoreMode.seed
+                            ? StandardCheckbox(
+                                captionColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                                value: walletRestoreViewModel.hasPassphrase,
+                                caption: S.of(context).wallet_has_passphrase,
+                                onChanged: (value) {
+                                  walletRestoreViewModel.hasPassphrase = value;
+                                },
+                              )
+                            : SizedBox.shrink();
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    PrimaryButton(
+                      key: ValueKey('wallet_restore_advanced_settings_button_key'),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(
+                          Routes.advancedPrivacySettings,
+                          arguments: {
+                            'isFromRestore': true,
+                            'type': walletRestoreViewModel.type,
+                            'useTestnet': walletRestoreViewModel.useTestnet,
+                            'toggleTestnet': walletRestoreViewModel.toggleUseTestnet
+                          },
+                        );
+                      },
+                      text: S.of(context).advanced_settings,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                    SizedBox(height: 8),
+                    Observer(
+                      builder: (context) {
+                        return LoadingPrimaryButton(
+                          key: ValueKey('wallet_restore_seed_or_key_restore_button_key'),
+                          onPressed: () async {
+                            if (walletRestoreViewModel.hasPassphrase) {
+                              await showModalBottomSheet<void>(
+                                context: context,
+                                isDismissible: false,
+                                isScrollControlled: true,
+                                builder: (BuildContext bottomSheetContext) {
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
+                                    ),
+                                    child: AddPassphraseBottomSheet(
+                                      currentTheme: currentTheme,
+                                      titleText: S.of(context).add_passphrase,
+                                      onRestoreButtonPressed: (passphrase) async {
+                                        await _onPassphraseBottomSheetRestoreButtonPressed(
+                                          passphrase,
+                                          context,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              );
+                            } else {
+                              await _confirmForm(context);
+                            }
+                          },
+                          text: walletRestoreViewModel.hasPassphrase
+                              ? S.of(context).add_passphrase
+                              : S.of(context).restore_recover,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          isLoading: walletRestoreViewModel.state is IsExecutingState,
+                          isDisabled: !walletRestoreViewModel.isButtonEnabled,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),
@@ -460,18 +460,18 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
               splashFactory: NoSplash.splashFactory,
               indicatorSize: TabBarIndicatorSize.label,
               isScrollable: true,
-              labelStyle: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).appBarTheme.titleTextStyle!.color),
-              unselectedLabelStyle: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).appBarTheme.titleTextStyle!.color?.withOpacity(0.5)),
-              labelColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
-              indicatorColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
+              labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+              unselectedLabelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                  ),
+              labelColor: Theme.of(context).colorScheme.primary,
+              indicatorColor: Theme.of(context).colorScheme.primary,
               indicatorPadding: EdgeInsets.zero,
               labelPadding: const EdgeInsets.only(right: 24),
               tabAlignment: TabAlignment.start,

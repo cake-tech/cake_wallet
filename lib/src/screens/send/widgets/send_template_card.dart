@@ -39,12 +39,10 @@ class SendTemplateCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-          borderRadius:
-              BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-          gradient: LinearGradient(colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.secondary
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+        borderRadius:
+            BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+        color: Theme.of(context).colorScheme.surfaceContainer,
+      ),
       child: Column(
         children: <Widget>[
           Padding(
@@ -53,58 +51,58 @@ class SendTemplateCard extends StatelessWidget {
               children: <Widget>[
                 if (index == 0)
                   BaseTextFormField(
-                      controller: _nameController,
-                      hintText: sendTemplateViewModel.recipients.length > 1
-                          ? S.of(context).template_name
-                          : S.of(context).send_name,
-                      borderColor:
-                          Theme.of(context).colorScheme.outline,
-                      textStyle:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.white),
-                      placeholderTextStyle: TextStyle(
+                    controller: _nameController,
+                    hintText: sendTemplateViewModel.recipients.length > 1
+                        ? S.of(context).template_name
+                        : S.of(context).send_name,
+                    borderColor: Theme.of(context).colorScheme.outlineVariant,
+                    textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                    placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
-                          fontSize: 14),
-                      validator: sendTemplateViewModel.templateValidator),
+                        ),
+                    validator: sendTemplateViewModel.templateValidator,
+                  ),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: Observer(builder: (context) {
-                    return AddressTextField(
-                      selectedCurrency: template.selectedCurrency,
-                      controller: _addressController,
-                      onURIScanned: (uri) {
-                        final paymentRequest = PaymentRequest.fromUri(uri);
-                        _addressController.text = paymentRequest.address;
-                        _cryptoAmountController.text = paymentRequest.amount;
-                      },
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.qrCode,
-                        AddressTextFieldOption.addressBook
-                      ],
-                      onPushPasteButton: (context) async {
-                        template.output.resetParsedAddress();
-                        await template.output.fetchParsedAddress(context);
-                      },
-                      onPushAddressBookButton: (context) async {
-                        template.output.resetParsedAddress();
-                        await template.output.fetchParsedAddress(context);
-                      },
-                      buttonColor: Theme.of(context).colorScheme.primaryContainer,
-                      borderColor: Theme.of(context).colorScheme.outline,
-                      textStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                      hintStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      validator: sendTemplateViewModel.addressValidator,
-                    );
-                  }),
+                  child: Observer(
+                    builder: (context) {
+                      return AddressTextField(
+                        selectedCurrency: template.selectedCurrency,
+                        controller: _addressController,
+                        onURIScanned: (uri) {
+                          final paymentRequest = PaymentRequest.fromUri(uri);
+                          _addressController.text = paymentRequest.address;
+                          _cryptoAmountController.text = paymentRequest.amount;
+                        },
+                        options: [
+                          AddressTextFieldOption.paste,
+                          AddressTextFieldOption.qrCode,
+                          AddressTextFieldOption.addressBook
+                        ],
+                        onPushPasteButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
+                        onPushAddressBookButton: (context) async {
+                          template.output.resetParsedAddress();
+                          await template.output.fetchParsedAddress(context);
+                        },
+                        buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        borderColor: Theme.of(context).colorScheme.outlineVariant,
+                        textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                        hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                        validator: sendTemplateViewModel.addressValidator,
+                      );
+                    },
+                  ),
                 ),
                 Focus(
                   onFocusChange: (hasFocus) {
@@ -113,19 +111,19 @@ class SendTemplateCard extends StatelessWidget {
                   child: Column(
                     children: [
                       Observer(
-                          builder: (context) => CurrencyAmountTextField(
-                              selectedCurrency: template.selectedCurrency.title,
-                              amountFocusNode: _cryptoAmountFocus,
-                              amountController: _cryptoAmountController,
-                              isSelected: template.isCryptoSelected,
-                              tag: template.selectedCurrency.tag,
-                              isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
-                              onTapPicker: () => _presentPicker(context),
-                              currencyValueValidator: sendTemplateViewModel.amountValidator,
-                              isAmountEditable: true)),
-                      Divider(
-                          height: 1,
-                          color: Theme.of(context).colorScheme.outline)
+                        builder: (context) => CurrencyAmountTextField(
+                          selectedCurrency: template.selectedCurrency.title,
+                          amountFocusNode: _cryptoAmountFocus,
+                          amountController: _cryptoAmountController,
+                          isSelected: template.isCryptoSelected,
+                          tag: template.selectedCurrency.tag,
+                          isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
+                          onTapPicker: () => _presentPicker(context),
+                          currencyValueValidator: sendTemplateViewModel.amountValidator,
+                          isAmountEditable: true,
+                        ),
+                      ),
+                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
                     ],
                   ),
                 ),
@@ -136,16 +134,16 @@ class SendTemplateCard extends StatelessWidget {
                   child: Column(
                     children: [
                       Observer(
-                          builder: (context) => CurrencyAmountTextField(
-                              selectedCurrency: sendTemplateViewModel.fiatCurrency,
-                              amountFocusNode: _fiatAmountFocus,
-                              amountController: _fiatAmountController,
-                              isSelected: !template.isCryptoSelected,
-                              hintText: '0.00',
-                              isAmountEditable: true)),
-                      Divider(
-                          height: 1,
-                          color: Theme.of(context).colorScheme.outline)
+                        builder: (context) => CurrencyAmountTextField(
+                          selectedCurrency: sendTemplateViewModel.fiatCurrency,
+                          amountFocusNode: _fiatAmountFocus,
+                          amountController: _fiatAmountController,
+                          isSelected: !template.isCryptoSelected,
+                          hintText: '0.00',
+                          isAmountEditable: true,
+                        ),
+                      ),
+                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
                     ],
                   ),
                 ),

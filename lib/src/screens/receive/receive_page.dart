@@ -42,11 +42,11 @@ class ReceivePage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       title,
-      style: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Lato',
-          color: pageIconColor(context)),
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontSize: 18.0,
+            fontWeight: FontWeight.bold,
+            color: pageIconColor(context),
+          ),
     );
   }
 
@@ -57,28 +57,29 @@ class ReceivePage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     return Material(
-        color: Colors.transparent,
-        child: Semantics(
-          label: S.of(context).share,
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(),
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            iconSize: 25,
-            onPressed: () {
-              ShareUtil.share(
-                text: addressListViewModel.uri.toString(),
-                context: context,
-              );
-            },
-            icon: Icon(
-              Icons.share,
-              size: 20,
-              color: pageIconColor(context),
-            ),
+      color: Colors.transparent,
+      child: Semantics(
+        label: S.of(context).share,
+        child: IconButton(
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          iconSize: 25,
+          onPressed: () {
+            ShareUtil.share(
+              text: addressListViewModel.uri.toString(),
+              context: context,
+            );
+          },
+          icon: Icon(
+            Icons.share,
+            size: 20,
+            color: pageIconColor(context),
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   @override
@@ -100,25 +101,27 @@ class ReceivePage extends BasePage {
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 50, 24, 24),
                 child: QRWidget(
-                    addressListViewModel: addressListViewModel,
-                    formKey: _formKey,
-                    heroTag: _heroTag,
-                    amountTextFieldFocusNode: _cryptoAmountFocus,
-                    amountController: _amountController,
-                    isLight: currentTheme.type == ThemeType.light,
-                  ),
+                  addressListViewModel: addressListViewModel,
+                  formKey: _formKey,
+                  heroTag: _heroTag,
+                  amountTextFieldFocusNode: _cryptoAmountFocus,
+                  amountController: _amountController,
+                  isLight: currentTheme.type == ThemeType.light,
+                ),
               ),
               AddressList(addressListViewModel: addressListViewModel, currentTheme: currentTheme),
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(
-                    addressListViewModel.isSilentPayments
-                        ? S.of(context).silent_payments_disclaimer
-                        : S.of(context).electrum_address_disclaimer,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
+                  addressListViewModel.isSilentPayments
+                      ? S.of(context).silent_payments_disclaimer
+                      : S.of(context).electrum_address_disclaimer,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 15,
-                        color: Theme.of(context).colorScheme.onSurface)),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
               ),
             ],
           ),

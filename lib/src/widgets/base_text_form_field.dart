@@ -32,6 +32,8 @@ class BaseTextFormField extends StatelessWidget {
       this.initialValue,
       this.onSubmit,
       this.borderWidth = 1.0,
+      this.hasUnderlineBorder = true,
+      this.borderRadius,
       super.key});
 
   final TextEditingController? controller;
@@ -63,6 +65,8 @@ class BaseTextFormField extends StatelessWidget {
   final double borderWidth;
   final void Function(String)? onSubmit;
   final bool obscureText;
+  final bool hasUnderlineBorder;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -83,37 +87,60 @@ class BaseTextFormField extends StatelessWidget {
       maxLength: maxLength,
       onFieldSubmitted: onSubmit,
       style: textStyle ??
-          TextStyle(
-              fontSize: 16.0,
-              color: textColor ??
-                  Theme.of(context).colorScheme.onSurface),
+          Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
-          prefix: prefix,
-          prefixIcon: prefixIcon,
-          suffix: suffix,
-          suffixIcon: suffixIcon,
-          fillColor: fillColor,
-          filled: filled,
-          hintStyle: placeholderTextStyle ??
-              TextStyle(
-                  color: hintColor ?? Theme.of(context).hintColor,
-                  fontSize: 16),
-          hintText: hintText,
-          focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: borderColor ??
-                      Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth)),
-          disabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: borderColor ??
-                      Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth)),
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: borderColor ??
-                      Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth))),
+        prefix: prefix,
+        prefixIcon: prefixIcon,
+        suffix: suffix,
+        suffixIcon: suffixIcon,
+        fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
+        filled: filled,
+        hintStyle: placeholderTextStyle ??
+            Theme.of(context).textTheme.bodyMedium!.copyWith(color: hintColor ?? Theme.of(context).hintColor, fontSize: 16),
+        hintText: hintText,
+        focusedBorder: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
+                  width: borderWidth,
+                ),
+              )
+            : OutlineInputBorder(
+                borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(4.0)),
+                borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
+                  width: borderWidth,
+                ),
+              ),
+        disabledBorder: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
+                  width: borderWidth,
+                ),
+              )
+            : OutlineInputBorder(
+                borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10.0)),
+                borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
+                  width: borderWidth,
+                ),
+              ),
+        enabledBorder: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
+                  width: borderWidth,
+                ),
+              )
+            : OutlineInputBorder(
+                borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10.0)),
+                borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
+                  width: borderWidth,
+                ),
+              ),
+      ),
       validator: validator,
     );
   }

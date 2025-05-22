@@ -36,41 +36,37 @@ class PayjoinTransactionRow extends StatelessWidget {
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          "${isSending ? S.current.outgoing : S.current.incoming} Payjoin",
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text(
+                      "${isSending ? S.current.outgoing : S.current.incoming} Payjoin",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
-                        ),
-                        Text(
-                          amount + ' ' + currency,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    ),
+                    Text(
+                      amount + ' ' + currency,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
-                        )
-                      ]),
+                    )
+                  ]),
                   SizedBox(height: 5),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          createdAt,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text(
+                      createdAt,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                        Text(
-                          state,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    ),
+                    Text(
+                      state,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                      ])
+                    ),
+                  ])
                 ],
               ))
             ],
@@ -79,7 +75,11 @@ class PayjoinTransactionRow extends StatelessWidget {
   }
 
   Widget _getImage() => ClipRRect(
-      borderRadius: BorderRadius.circular(50),
-      child: Image.asset('assets/images/payjoin.png', width: 36, height: 36));
-
+        borderRadius: BorderRadius.circular(50),
+        child: Image.asset(
+          'assets/images/payjoin.png',
+          width: 36,
+          height: 36,
+        ),
+      );
 }

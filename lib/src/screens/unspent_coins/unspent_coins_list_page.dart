@@ -149,7 +149,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                         SizedBox(width: 12),
                         Text(
                           S.current.all_coins,
-                          style: TextStyle(
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -164,7 +164,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                             child: Text(
                               'No unspent coins available',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
                             )

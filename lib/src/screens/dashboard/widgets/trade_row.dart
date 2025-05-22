@@ -29,58 +29,79 @@ class TradeRow extends StatelessWidget {
     final receiveAmountCrypto = to.toString();
 
     return InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
-          color: Colors.transparent,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: ImageUtil.getImageFromPath(
-                      imagePath: provider.image, height: 36, width: 36)),
-              SizedBox(width: 12),
-              Expanded(
-                  child: Column(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+        color: Colors.transparent,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: ImageUtil.getImageFromPath(
+                imagePath: provider.image,
+                height: 36,
+                width: 36,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text('${from.toString()} → ${to.toString()}',
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        '${from.toString()} → ${to.toString()}',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurface)),
-                    formattedAmount != null
-                        ? Text(formattedAmount! + ' ' + amountCrypto,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface))
-                        : Container()
-                  ]),
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.primary),
+                      ),
+                      formattedAmount != null
+                          ? Text(
+                              formattedAmount! + ' ' + amountCrypto,
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
+                            )
+                          : Container()
+                    ],
+                  ),
                   SizedBox(height: 5),
                   Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-                      children: <Widget>[
-                        createdAtFormattedDate != null
-                          ? Text(createdAtFormattedDate!,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant))
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      createdAtFormattedDate != null
+                          ? Text(
+                              createdAtFormattedDate!,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            )
                           : Container(),
-                        formattedReceiveAmount != null
-                          ? Text(formattedReceiveAmount! + ' ' + receiveAmountCrypto,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontSize: 14,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant))
+                      formattedReceiveAmount != null
+                          ? Text(
+                              formattedReceiveAmount! + ' ' + receiveAmountCrypto,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            )
                           : Container(),
-                  ])
+                    ],
+                  )
                 ],
-              ))
-            ],
-          ),
-        ));
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

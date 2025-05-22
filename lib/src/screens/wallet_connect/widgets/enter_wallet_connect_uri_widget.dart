@@ -70,11 +70,9 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
           SizedBox(height: 16),
           TextField(
             controller: controller,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
             decoration: InputDecoration(
               suffixIcon: Container(
                 width: 24,
@@ -103,11 +101,10 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
                   color: Theme.of(context).colorScheme.outline,
                 ),
               ),
-              hintStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
+              hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
         ],
@@ -131,12 +128,12 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
           child: Text(
             S.current.confirm,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.primary,
-              decoration: TextDecoration.none,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                  decoration: TextDecoration.none,
+                ),
           ),
         ),
       ),

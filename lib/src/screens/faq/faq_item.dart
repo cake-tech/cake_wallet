@@ -52,10 +52,7 @@ class FAQItemState extends State<FAQItem> {
                   ),
                   child: Text(
                     widget.text,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).colorScheme.onSurface),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
               )

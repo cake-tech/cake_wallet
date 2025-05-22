@@ -14,7 +14,6 @@ class StandardSwitch extends StatefulWidget {
 class StandardSwitchState extends State<StandardSwitch> {
   @override
   Widget build(BuildContext context) {
-
     return Semantics(
       toggled: widget.value,
       child: GestureDetector(
@@ -26,16 +25,20 @@ class StandardSwitchState extends State<StandardSwitch> {
           width: 50,
           height: 28,
           decoration: BoxDecoration(
-              color: widget.value
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).disabledColor,
-              borderRadius: BorderRadius.all(Radius.circular(14.0))),
+            color: widget.value
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.all(
+              Radius.circular(14.0),
+            ),
+          ),
           child: Container(
             width: 24.0,
             height: 24.0,
             decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle),
+              color: Theme.of(context).colorScheme.onSurface,
+              shape: BoxShape.circle,
+            ),
           ),
         ),
       ),

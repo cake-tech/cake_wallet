@@ -48,21 +48,22 @@ class AlertWithOneAction extends BaseAlertDialog {
       child: ButtonTheme(
         minWidth: double.infinity,
         child: TextButton(
-            key: buttonKey,
-            onPressed: buttonAction,
-            // FIX-ME: Style
-            //highlightColor: Colors.transparent,
-            //splashColor: Colors.transparent,
-            child: Text(
-              buttonText,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).primaryColor,
-                decoration: TextDecoration.none,
-              ),
-            )),
+          key: buttonKey,
+          onPressed: buttonAction,
+          // FIX-ME: Style
+          //highlightColor: Colors.transparent,
+          //splashColor: Colors.transparent,
+          child: Text(
+            buttonText,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.primary,
+              decoration: TextDecoration.none,
+            ),
+          ),
+        ),
       ),
     );
   }

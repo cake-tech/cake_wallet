@@ -39,17 +39,15 @@ abstract class BaseBottomSheet extends StatelessWidget {
             Text(
               titleText,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
-                decoration: TextDecoration.none,
-              ),
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.none,
+                  ),
             ),
           ],
         ),
-        const SizedBox(height: 13),
+        const SizedBox(height: 24),
       ],
     );
   }

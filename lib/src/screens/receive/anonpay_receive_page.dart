@@ -36,20 +36,21 @@ class AnonPayReceivePage extends BasePage {
       children: [
         Text(
           title,
-          style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Lato',
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         ),
         Text(
           invoiceInfo is AnonpayInvoiceInfo
               ? ReceivePageOption.anonPayInvoice.toString()
               : ReceivePageOption.anonPayDonationLink.toString(),
-          style: TextStyle(
-              fontSize: 10.0,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                fontSize: 10.0,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         )
       ],
     );

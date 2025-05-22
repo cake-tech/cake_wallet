@@ -2,6 +2,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +29,13 @@ class Setup2FAPage extends BasePage {
           flex: 2,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-            child:
-                AspectRatio(aspectRatio: 0.6, child: Image.asset('assets/images/setup_2fa_img.png')),
+            child: AspectRatio(
+              aspectRatio: 0.672,
+              child: CakeImageWidget(imageUrl: 'assets/images/2fa_setup_dark.svg'),
+            ),
           ),
         ),
+        const SizedBox(height: 24),
         Expanded(
           flex: 2,
           child: Padding(
@@ -38,12 +43,10 @@ class Setup2FAPage extends BasePage {
             child: Text(
               S.current.setup_2fa_text,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 14,
-                height: 1.571,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    height: 1.571,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ),
         ),
@@ -57,10 +60,10 @@ class Setup2FAPage extends BasePage {
                   return Navigator.of(context).pushReplacementNamed(Routes.setup_2faQRPage);
                 },
               ),
-              StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+              HorizontalSectionDivider(margin: EdgeInsets.symmetric(horizontal: 24)),
               SettingsCellWithArrow(
                   title: cake2FAGuideTitle, handler: (_) => _launchUrl(cake2FAGuideUri)),
-              StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
+              HorizontalSectionDivider(margin: EdgeInsets.symmetric(horizontal: 24)),
             ],
           ),
         ),

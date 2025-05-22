@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 
-//TODO(David): PickerWidget is intertwined and confusing as is, find a way to optimize?
 class Picker<Item> extends StatefulWidget {
   Picker({
     required this.selectedAtIndex,
@@ -156,13 +155,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
               key: ValueKey('picker_title_text_key'),
               widget.title!,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 18,
+                     
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
           ),
         Padding(
@@ -177,7 +176,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(30)),
               child: Container(
-                color: Theme.of(context).dialogTheme.backgroundColor,
+                color: Theme.of(context).colorScheme.surface,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight: containerHeight,
@@ -186,19 +185,21 @@ class _PickerState<Item> extends State<Picker<Item>> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (widget.hintText != null)
+                      if (widget.hintText != null) ...[
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: SearchBarWidget(
                             key: ValueKey('picker_search_bar_key'),
                             searchController: searchController,
+                            enabledBorderColor: Theme.of(context).colorScheme.outlineVariant,
                             hintText: widget.hintText,
                           ),
                         ),
-                      Divider(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                        height: 1,
-                      ),
+                        Divider(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                          height: 1,
+                        ),
+                      ],
                       if (widget.selectedAtIndex != -1 && widget.headerEnabled)
                         buildSelectedItem(widget.selectedAtIndex),
                       Flexible(
@@ -221,13 +222,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
                                       key: ValueKey('picker_descriptinon_text_key'),
                                       widget.description!,
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: 'Lato',
-                                        decoration: TextDecoration.none,
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                      ),
+                                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            decoration: TextDecoration.none,
+                                          ),
                                     ),
                                   )
                                 : Offstage(),
@@ -343,13 +341,10 @@ class _PickerState<Item> extends State<Picker<Item>> {
                     key: ValueKey('picker_items_index_${itemName}_text_key'),
                     widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      decoration: TextDecoration.none,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                 ),
                 if (tag != null)
@@ -362,11 +357,11 @@ class _PickerState<Item> extends State<Picker<Item>> {
                         child: Text(
                           key: ValueKey('picker_items_index_${index}_tag_key'),
                           tag,
-                          style: TextStyle(
-                            fontSize: 7.0,
-                            fontFamily: 'Lato',
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 7.0,
+                                 
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ),
                       decoration: BoxDecoration(
@@ -391,7 +386,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: isCustomItem ? 95 : 55,
-        color: Theme.of(context).dialogTheme.backgroundColor,
+        color: Theme.of(context).colorScheme.surface,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: isCustomItem
             ? Column(
@@ -434,13 +429,13 @@ class _PickerState<Item> extends State<Picker<Item>> {
                     key: ValueKey('picker_items_index_${itemName}_selected_item_text_key'),
                     widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w700,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      decoration: TextDecoration.none,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 16,
+                           
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                 ),
                 if (tag != null)
@@ -452,11 +447,11 @@ class _PickerState<Item> extends State<Picker<Item>> {
                       child: Center(
                         child: Text(
                           tag,
-                          style: TextStyle(
-                            fontSize: 7.0,
-                            fontFamily: 'Lato',
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 7.0,
+                                 
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                         ),
                       ),
                       decoration: BoxDecoration(
@@ -470,7 +465,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
             ),
           ),
         ),
-        Icon(Icons.check_circle, color: Theme.of(context).primaryColor),
+        Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary),
       ],
     );
 
@@ -481,7 +476,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       },
       child: Container(
         height: isCustomItem ? 95 : 55,
-        color: Theme.of(context).dialogTheme.backgroundColor,
+        color: Theme.of(context).colorScheme.surface,
         padding: EdgeInsets.symmetric(horizontal: 24),
         child: isCustomItem
             ? Column(
@@ -511,12 +506,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
           child: Center(
             child: Text(
               item.name.substring(0, min(item.name.length, 2)).toUpperCase(),
-              style: TextStyle(fontSize: 11),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                  ),
             ),
           ),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.grey.shade400,
+            color: Theme.of(context).colorScheme.surfaceContainer,
           ),
         );
       }

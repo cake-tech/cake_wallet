@@ -116,11 +116,9 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               child: Text(
                 S.of(context).choose_wallet_currency,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
             Padding(
@@ -162,8 +160,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   key: ValueKey('new_wallet_type_next_button_key'),
                   onPressed: () => onTypeSelected(),
                   text: S.of(context).seed_language_next,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                   isDisabled: selected == null,
                 ),
               ),

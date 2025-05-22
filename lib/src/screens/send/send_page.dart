@@ -25,7 +25,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -83,11 +82,10 @@ class SendPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor(context),
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
-    final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -101,7 +99,7 @@ class SendPage extends BasePage {
             label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -139,25 +137,29 @@ class SendPage extends BasePage {
   }
 
   @override
-  Widget trailing(context) => Observer(builder: (_) {
-        return sendViewModel.isBatchSending
-            ? TrailButton(
-                caption: S.of(context).remove,
-                onPressed: () {
-                  var pageToJump = (controller.page?.round() ?? 0) - 1;
-                  pageToJump = pageToJump > 0 ? pageToJump : 0;
-                  final output = _defineCurrentOutput();
-                  sendViewModel.removeOutput(output);
-                  controller.jumpToPage(pageToJump);
-                })
-            : TrailButton(
-                caption: S.of(context).clear,
-                onPressed: () {
-                  final output = _defineCurrentOutput();
-                  _formKey.currentState?.reset();
-                  output.reset();
-                });
-      });
+  Widget trailing(context) => Observer(
+        builder: (_) {
+          return sendViewModel.isBatchSending
+              ? TrailButton(
+                  caption: S.of(context).remove,
+                  onPressed: () {
+                    var pageToJump = (controller.page?.round() ?? 0) - 1;
+                    pageToJump = pageToJump > 0 ? pageToJump : 0;
+                    final output = _defineCurrentOutput();
+                    sendViewModel.removeOutput(output);
+                    controller.jumpToPage(pageToJump);
+                  },
+                )
+              : TrailButton(
+                  caption: S.of(context).clear,
+                  onPressed: () {
+                    final output = _defineCurrentOutput();
+                    _formKey.currentState?.reset();
+                    output.reset();
+                  },
+                );
+        },
+      );
 
   @override
   Widget body(BuildContext context) {
@@ -169,19 +171,29 @@ class SendPage extends BasePage {
       for (var output in sendViewModel.outputs) {
         var cryptoAmountFocus = FocusNode();
         var fiatAmountFocus = FocusNode();
-        sendCards.add(SendCard(
-          currentTheme: currentTheme,
-          key: output.key,
-          output: output,
-          sendViewModel: sendViewModel,
-          initialPaymentRequest: initialPaymentRequest,
-          cryptoAmountFocus: cryptoAmountFocus,
-          fiatAmountFocus: fiatAmountFocus,
-        ));
-        keyboardActions.add(KeyboardActionsItem(
-            focusNode: cryptoAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]));
-        keyboardActions.add(KeyboardActionsItem(
-            focusNode: fiatAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]));
+        sendCards.add(
+          SendCard(
+            currentTheme: currentTheme,
+            key: output.key,
+            output: output,
+            sendViewModel: sendViewModel,
+            initialPaymentRequest: initialPaymentRequest,
+            cryptoAmountFocus: cryptoAmountFocus,
+            fiatAmountFocus: fiatAmountFocus,
+          ),
+        );
+        keyboardActions.add(
+          KeyboardActionsItem(
+            focusNode: cryptoAmountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          ),
+        );
+        keyboardActions.add(
+          KeyboardActionsItem(
+            focusNode: fiatAmountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          ),
+        );
       }
       return Stack(
         children: [
@@ -232,13 +244,18 @@ class SendPage extends BasePage {
                                           controller: controller,
                                           count: count,
                                           effect: ScrollingDotsEffect(
-                                              spacing: 6.0,
-                                              radius: 6.0,
-                                              dotWidth: 6.0,
-                                              dotHeight: 6.0,
-                                              dotColor: Theme.of(context).colorScheme.outline,
-                                              activeDotColor: Theme.of(context).colorScheme.primaryContainer),
-                                        ))
+                                            spacing: 6.0,
+                                            radius: 6.0,
+                                            dotWidth: 6.0,
+                                            dotHeight: 6.0,
+                                            dotColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withOpacity(0.4),
+                                            activeDotColor: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                      )
                                     : Offstage();
                               },
                             ),
@@ -359,8 +376,7 @@ class SendPage extends BasePage {
                               onPressed: () => presentCurrencyPicker(context),
                               text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                               color: Colors.transparent,
-                              textColor:
-                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                              textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -377,8 +393,7 @@ class SendPage extends BasePage {
                               },
                               text: S.of(context).add_receiver,
                               color: Colors.transparent,
-                              textColor:
-                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                              textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                               isDottedBorder: true,
                               borderColor: Theme.of(context).colorScheme.outline,
                             )),
@@ -453,9 +468,11 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: sendViewModel.payjoinUri != null ? S.of(context).send_payjoin : S.of(context).send,
-                            color: Theme.of(context).primaryColor,
-                            textColor: Colors.white,
+                            text: sendViewModel.payjoinUri != null
+                                ? S.of(context).send_payjoin
+                                : S.of(context).send,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: sendViewModel.state is IsExecutingState ||
                                 sendViewModel.state is TransactionCommitting ||
                                 sendViewModel.state is IsAwaitingDeviceResponseState ||
@@ -497,19 +514,23 @@ class SendPage extends BasePage {
       }
 
       if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    key: ValueKey('send_page_send_failure_dialog_key'),
-                    buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
+                  key: ValueKey('send_page_send_failure_dialog_key'),
+                  buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              },
+            );
+          },
+        );
       }
 
       if (state is IsExecutingState) {
@@ -594,8 +615,7 @@ class SendPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return showContactSheet &&
-                      sendViewModel.ocpRequest == null
+              return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       showDontAskMeCheckbox: true,

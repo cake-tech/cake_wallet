@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/utils/theme_type_images.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -15,17 +15,21 @@ class WalletGroupDescriptionPage extends BasePage {
   @override
   String get title => S.current.wallet_group;
 
-
   @override
   Widget body(BuildContext context) {
-
     return Container(
       alignment: Alignment.center,
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          Image.asset(currentTheme.type.walletGroupImage, height: 200),
-          SizedBox(height: 32),
+          SizedBox(height: 48),
+          CakeImageWidget(
+            imageUrl: currentTheme.isDark
+                ? 'assets/images/wallet_group_options_dark.svg'
+                : 'assets/images/wallet_group_options_light.svg',
+            height: 200,
+          ),
+          SizedBox(height: 40),
           Expanded(
             child: Scrollbar(
               child: SingleChildScrollView(
@@ -35,32 +39,40 @@ class WalletGroupDescriptionPage extends BasePage {
                       TextSpan(text: '${S.of(context).wallet_group_description_one} '),
                       TextSpan(
                         text: '${S.of(context).wallet_group.toLowerCase()} ',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(fontWeight: FontWeight.w700),
                       ),
                       TextSpan(
                         text: '${S.of(context).wallet_group_description_two} ',
                       ),
                       TextSpan(
                         text: '${S.of(context).choose_wallet_group} ',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(fontWeight: FontWeight.w700),
                       ),
                       TextSpan(
                         text: '${S.of(context).wallet_group_description_three} ',
                       ),
                       TextSpan(
                         text: '${S.of(context).create_new_seed} ',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(fontWeight: FontWeight.w700),
                       ),
                       TextSpan(text: S.of(context).wallet_group_description_four),
                     ],
                   ),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    height: 1.5,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        height: 1.5,
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ),
             ),
@@ -72,8 +84,8 @@ class WalletGroupDescriptionPage extends BasePage {
               arguments: NewWalletArguments(type: selectedWalletType),
             ),
             text: S.of(context).create_new_seed,
-            color: Theme.of(context).cardColor,
-            textColor: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            textColor: Theme.of(context).colorScheme.onSecondaryContainer,
           ),
           SizedBox(height: 12),
           PrimaryButton(
@@ -83,10 +95,10 @@ class WalletGroupDescriptionPage extends BasePage {
               arguments: selectedWalletType,
             ),
             text: S.of(context).choose_wallet_group,
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
           ),
-          SizedBox(height: 32),
+          SizedBox(height: 24),
         ],
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
@@ -26,13 +25,10 @@ class ContactPage extends BasePage {
         _currencyTypeController = TextEditingController() {
     _nameController.text = contactViewModel.name;
     _addressController.text = contactViewModel.address;
-    _nameController
-        .addListener(() => contactViewModel.name = _nameController.text);
-    _addressController
-        .addListener(() => contactViewModel.address = _addressController.text);
+    _nameController.addListener(() => contactViewModel.name = _nameController.text);
+    _addressController.addListener(() => contactViewModel.address = _addressController.text);
 
-    autorun((_) => _currencyTypeController.text =
-        contactViewModel.currency?.toString() ?? '');
+    autorun((_) => _currencyTypeController.text = contactViewModel.currency?.toString() ?? '');
   }
 
   @override
@@ -47,9 +43,11 @@ class ContactPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final downArrow = Image.asset('assets/images/arrow_bottom_purple_icon.png',
-        color: Theme.of(context).colorScheme.primary,
-        height: 8);
+    final downArrow = Image.asset(
+      'assets/images/arrow_bottom_purple_icon.png',
+      color: Theme.of(context).colorScheme.primary,
+      height: 8,
+    );
 
     _setEffects(context);
 
@@ -62,24 +60,33 @@ class ContactPage extends BasePage {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 BaseTextFormField(
-                    controller: _nameController,
-                    hintText: S.of(context).contact_name,
-                    validator: ContactNameValidator()),
+                  controller: _nameController,
+                  hintText: S.of(context).contact_name,
+                  validator: ContactNameValidator(),
+                  hasUnderlineBorder: false,
+                  borderWidth: 0.0,
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Container(
                     child: InkWell(
                       onTap: () => _presentCurrencyPicker(context),
                       child: IgnorePointer(
-                          child: BaseTextFormField(
-                        controller: _currencyTypeController,
-                        hintText: S.of(context).settings_currency,
-                        suffixIcon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[downArrow],
+                        child: BaseTextFormField(
+                          controller: _currencyTypeController,
+                          hintText: S.of(context).settings_currency,
+                          hasUnderlineBorder: false,
+                          borderWidth: 0.0,
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              downArrow,
+                              SizedBox(width: 16),
+                            ],
+                          ),
                         ),
-                      )),
+                      ),
                     ),
                   ),
                 ),
@@ -87,51 +94,55 @@ class ContactPage extends BasePage {
                   Padding(
                     padding: EdgeInsets.only(top: 20),
                     child: AddressTextField(
+                      isBorderExist: false,
+                      borderWidth: 0.0,
                       controller: _addressController,
                       options: [
                         AddressTextFieldOption.paste,
                         AddressTextFieldOption.qrCode,
                       ],
                       buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      iconColor: PaletteDark.gray,
-                      borderColor: Theme.of(context).colorScheme.onSurface,
+                      iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                      borderColor: Theme.of(context).colorScheme.outlineVariant,
                       validator: AddressValidator(type: contactViewModel.currency!),
                     ),
                   )
               ],
             ),
           ),
-          bottomSectionPadding:
-              EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Row(
             children: <Widget>[
               Expanded(
                 child: PrimaryButton(
-                    onPressed: () {
-                      contactViewModel.reset();
-                      _nameController.text = '';
-                      _addressController.text = '';
-                    },
-                    text: S.of(context).reset,
-                    color: Colors.orange,
-                    textColor: Colors.white),
+                  onPressed: () {
+                    contactViewModel.reset();
+                    _nameController.text = '';
+                    _addressController.text = '';
+                  },
+                  text: S.of(context).reset,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                ),
               ),
               SizedBox(width: 20),
               Expanded(
-                  child: Observer(
-                      builder: (_) => PrimaryButton(
-                          onPressed: () async {
-                            if (_formKey.currentState != null &&
-                                !_formKey.currentState!.validate()) {
-                              return;
-                            }
+                child: Observer(
+                  builder: (_) => PrimaryButton(
+                    onPressed: () async {
+                      if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+                        return;
+                      }
 
-                            await contactViewModel.save();
-                          },
-                          text: S.of(context).save,
-                          color: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          isDisabled: !contactViewModel.isReady)))
+                      await contactViewModel.save();
+                    },
+                    text: S.of(context).save,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    isDisabled: !contactViewModel.isReady,
+                  ),
+                ),
+              )
             ],
           )),
     );
@@ -139,17 +150,16 @@ class ContactPage extends BasePage {
 
   void _presentCurrencyPicker(BuildContext context) {
     showPopUp<void>(
-        builder: (_) => CurrencyPicker(
-            selectedAtIndex: contactViewModel.currency != null
-                ? contactViewModel.currencies
-                    .indexOf(contactViewModel.currency!)
-                : -1,
-            items: contactViewModel.currencies,
-            title: S.of(context).please_select,
-            hintText: S.of(context).search_currency,
-            onItemSelected: (Currency item) =>
-                contactViewModel.currency = item as CryptoCurrency),
-        context: context);
+      builder: (_) => CurrencyPicker(
+          selectedAtIndex: contactViewModel.currency != null
+              ? contactViewModel.currencies.indexOf(contactViewModel.currency!)
+              : -1,
+          items: contactViewModel.currencies,
+          title: S.of(context).please_select,
+          hintText: S.of(context).search_currency,
+          onItemSelected: (Currency item) => contactViewModel.currency = item as CryptoCurrency),
+      context: context,
+    );
   }
 
   void _onContactSavingFailure(BuildContext context, String error) {
@@ -157,15 +167,15 @@ class ContactPage extends BasePage {
         context: context,
         builder: (BuildContext context) {
           return AlertWithOneAction(
-              alertTitle: S.current.contact,
-              alertContent: error,
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop());
+            alertTitle: S.current.contact,
+            alertContent: error,
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop(),
+          );
         });
   }
 
-  void _onContactSavedSuccessfully(BuildContext context) =>
-      Navigator.of(context).pop();
+  void _onContactSavedSuccessfully(BuildContext context) => Navigator.of(context).pop();
 
   void _setEffects(BuildContext context) {
     if (_isEffectsApplied) {

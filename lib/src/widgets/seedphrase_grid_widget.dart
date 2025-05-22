@@ -27,34 +27,31 @@ class SeedPhraseGridWidget extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: Theme.of(context).cardColor,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
                 child: Text(
-                  //maxLines: 1,
                   numberCount.toString(),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 12,
-                      height: 1,
-                      fontWeight: FontWeight.w800,
-                      color: Theme.of(context)
-                          .colorScheme.onSurfaceVariant
-                          .withOpacity(0.5)),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        height: 1.9,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      ),
                 ),
               ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   '${item[0].toLowerCase()}${item.substring(1)}',
-                  style: TextStyle(
-                      fontSize: 14,
-                      height: 0.8,
-                      fontWeight: FontWeight.w700,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        height: 1.9,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                 ),
               ),
             ],

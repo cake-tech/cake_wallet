@@ -15,10 +15,10 @@ class SettingsVersionCell extends StatelessWidget {
         children: <Widget>[
           Text(
             title,
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  fontWeight: FontWeight.normal,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           )
         ],
       ),

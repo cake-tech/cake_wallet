@@ -35,12 +35,13 @@ class WalletRestoreFromKeysForm extends StatefulWidget {
   final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromKeysFormState createState() =>
-      WalletRestoreFromKeysFormState(displayWalletPassword: displayWalletPassword, restoredWallet: restoredWallet);
+  WalletRestoreFromKeysFormState createState() => WalletRestoreFromKeysFormState(
+      displayWalletPassword: displayWalletPassword, restoredWallet: restoredWallet);
 }
 
 class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
-  WalletRestoreFromKeysFormState({required bool displayWalletPassword, RestoredWallet? restoredWallet})
+  WalletRestoreFromKeysFormState(
+      {required bool displayWalletPassword, RestoredWallet? restoredWallet})
       : formKey = GlobalKey<FormState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
         nameController = TextEditingController(),
@@ -58,7 +59,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             : TextEditingController(),
         nameTextEditingController = TextEditingController(),
         passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
-        repeatedPasswordTextEditingController = displayWalletPassword ? TextEditingController() : null;
+        repeatedPasswordTextEditingController =
+            displayWalletPassword ? TextEditingController() : null;
 
   final GlobalKey<FormState> formKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
@@ -81,7 +83,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
     }
 
     if (repeatedPasswordTextEditingController != null) {
-      repeatedPasswordListener = () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
+      repeatedPasswordListener =
+          () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
       repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
     }
     super.initState();
@@ -95,7 +98,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.restoredWallet?.height != null) {
-        blockchainHeightKey.currentState?.restoreHeightController.text = widget.restoredWallet!.height.toString();
+        blockchainHeightKey.currentState?.restoreHeightController.text =
+            widget.restoredWallet!.height.toString();
       }
     });
 
@@ -125,7 +129,7 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 24, right: 24),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Form(
         key: formKey,
         child: Column(
@@ -138,6 +142,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
                   controller: nameTextEditingController,
                   hintText: S.of(context).wallet_name,
                   validator: WalletNameValidator(),
+                  hasUnderlineBorder: false,
+                  borderWidth: 0,
                   suffixIcon: IconButton(
                     key: ValueKey('wallet_restore_from_keys_wallet_name_refresh_button_key'),
                     onPressed: () async {
@@ -154,34 +160,43 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6.0),
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.surfaceContainerLow,
                       ),
                       width: 34,
                       height: 34,
                       child: Image.asset(
                         'assets/images/refresh_icon.png',
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            if (widget.displayWalletPassword)
-              ...[Container(
-                  key: ValueKey('password'),
-                  padding: EdgeInsets.only(top: 20.0),
-                  child: BaseTextFormField(
-                    controller: passwordTextEditingController,
-                    hintText: S.of(context).password,
-                    obscureText: true)),
-                Container(
-                  key: ValueKey('repeat_wallet_password'),
-                  padding: EdgeInsets.only(top: 20.0),
-                  child: BaseTextFormField(
-                    controller: repeatedPasswordTextEditingController,
-                    hintText: S.of(context).repeat_wallet_password,
-                    obscureText: true))],
+            if (widget.displayWalletPassword) ...[
+              Container(
+                key: ValueKey('password'),
+                padding: EdgeInsets.only(top: 20.0),
+                child: BaseTextFormField(
+                  controller: passwordTextEditingController,
+                  hintText: S.of(context).password,
+                  obscureText: true,
+                  hasUnderlineBorder: false,
+                  borderWidth: 0,
+                ),
+              ),
+              Container(
+                key: ValueKey('repeat_wallet_password'),
+                padding: EdgeInsets.only(top: 20.0),
+                child: BaseTextFormField(
+                  controller: repeatedPasswordTextEditingController,
+                  hintText: S.of(context).repeat_wallet_password,
+                  obscureText: true,
+                  hasUnderlineBorder: false,
+                  borderWidth: 0,
+                ),
+              )
+            ],
             Container(height: 20),
             _restoreFromKeysFormFields(),
           ],
@@ -200,7 +215,10 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             controller: viewKeyController,
             hintText: S.of(context).view_key_public,
             maxLines: null,
-        )],
+            hasUnderlineBorder: false,
+            borderWidth: 0,
+          )
+        ],
       );
     }
 
@@ -217,7 +235,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         controller: privateKeyController,
         placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
         options: [AddressTextFieldOption.paste],
-        buttonColor: Theme.of(context).colorScheme.primary,
+        isBorderExist: false,
+        borderWidth: 0.0,
         onPushPasteButton: (_) {
           _pasteText();
         },
@@ -231,6 +250,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
           keyboardType: TextInputType.multiline,
           maxLines: null,
           hintText: S.of(context).restore_address,
+          hasUnderlineBorder: false,
+          borderWidth: 0,
         ),
         Container(
           padding: EdgeInsets.only(top: 20.0),
@@ -238,6 +259,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             controller: viewKeyController,
             hintText: S.of(context).restore_view_key_private,
             maxLines: null,
+            hasUnderlineBorder: false,
+            borderWidth: 0,
           ),
         ),
         Container(
@@ -246,6 +269,8 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             controller: spendKeyController,
             hintText: S.of(context).restore_spend_key_private,
             maxLines: null,
+            hasUnderlineBorder: false,
+            borderWidth: 0,
           ),
         ),
         BlockchainHeightWidget(

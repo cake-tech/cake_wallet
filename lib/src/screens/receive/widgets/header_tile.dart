@@ -30,8 +30,7 @@ class _HeaderTileState extends State<HeaderTile> {
 
   @override
   Widget build(BuildContext context) {
-    final searchIcon = Icon( Icons.search,
-        color: Theme.of(context).colorScheme.primary);
+    final searchIcon = Icon(Icons.search, color: Theme.of(context).colorScheme.primary);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -49,21 +48,32 @@ class _HeaderTileState extends State<HeaderTile> {
                     cursorColor: Theme.of(context).colorScheme.onSurface,
                     cursorWidth: 0.5,
                     decoration: InputDecoration(
+                      fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                      filled: true,
                       hintText: '${S.of(context).search}...',
                       isDense: true,
                       contentPadding: EdgeInsets.zero,
-                      hintStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface),
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                      hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 0.0,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 0.0,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Theme.of(context).dividerColor),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 0.0,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                       ),
                     ),
                     autofocus: true,
@@ -71,29 +81,31 @@ class _HeaderTileState extends State<HeaderTile> {
                 )
               : Text(
                   widget.title,
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
           Row(
             children: [
               if (widget.showSearchButton)
                 GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isSearchActive = !_isSearchActive;
-                        widget.walletAddressListViewModel.updateSearchText('');
-                      });
-                    },
-                    child: Container(
-                      height: 32,
-                      width: 32,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.secondaryContainer),
-                      child: searchIcon,
-                    )),
+                  onTap: () {
+                    setState(() {
+                      _isSearchActive = !_isSearchActive;
+                      widget.walletAddressListViewModel.updateSearchText('');
+                    });
+                  },
+                  child: Container(
+                    height: 32,
+                    width: 32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                    ),
+                    child: searchIcon,
+                  ),
+                ),
               const SizedBox(width: 8),
               if (widget.showTrailingButton)
                 GestureDetector(
@@ -102,8 +114,9 @@ class _HeaderTileState extends State<HeaderTile> {
                     height: 32,
                     width: 32,
                     decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.secondaryContainer),
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                    ),
                     child: widget.trailingIcon,
                   ),
                 ),

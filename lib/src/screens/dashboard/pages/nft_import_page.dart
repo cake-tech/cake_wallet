@@ -75,6 +75,7 @@ class _ImportNFTPage extends BasePage {
               height: 1,
             ),
           ),
+          SizedBox(height: 8),
           AddressTextField(
             controller: tokenAddressController,
             options: [AddressTextFieldOption.paste],
@@ -95,6 +96,8 @@ class _ImportNFTPage extends BasePage {
             hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
+            isBorderExist: false,
+            borderWidth: 0.0,
           ),
           if (nftViewModel.appStore.wallet!.type != WalletType.solana) ...[
             SizedBox(height: 48),
@@ -107,6 +110,7 @@ class _ImportNFTPage extends BasePage {
                 height: 1,
               ),
             ),
+            SizedBox(height: 8),
             AddressTextField(
               controller: tokenIDController,
               options: [AddressTextFieldOption.paste],
@@ -127,6 +131,8 @@ class _ImportNFTPage extends BasePage {
               hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
+              isBorderExist: false,
+              borderWidth: 0.0,
             ),
           ],
           Spacer(),

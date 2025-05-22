@@ -253,7 +253,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, duration: null)..show(context);
+    _progressBar = createBar<void>(text,context, duration: null)..show(context);
   }
 
   void hideProgressText() {

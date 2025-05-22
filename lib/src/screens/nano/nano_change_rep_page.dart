@@ -86,10 +86,10 @@ class NanoChangeRepPage extends BasePage {
                         margin: EdgeInsets.only(top: 12),
                         child: Text(
                           S.current.nano_current_rep,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                       ),
                       _buildSingleRepresentative(
@@ -104,10 +104,10 @@ class NanoChangeRepPage extends BasePage {
                           margin: EdgeInsets.only(top: 12),
                           child: Text(
                             S.current.nano_pick_new_rep,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
                         ),
                         Divider(height: 20),
@@ -135,8 +135,8 @@ class NanoChangeRepPage extends BasePage {
                             child: LoadingPrimaryButton(
                               onPressed: () => _onSubmit(context),
                               text: S.of(context).change,
-                              color: Theme.of(context).primaryColor,
-                              textColor: Colors.white,
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary,
                             ),
                           )),
                         ],
@@ -247,22 +247,21 @@ class NanoChangeRepPage extends BasePage {
                     children: <Widget>[
                       Text(
                         rep.alias ?? rep.account!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w700,
-                          fontSize: rep.alias == null ? 14 : 18,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w700,
+                              fontSize: rep.alias == null ? 14 : 18,
+                            ),
                       ),
                       Container(
                         margin: const EdgeInsets.only(top: 7),
                         child: RichText(
                           text: TextSpan(
                             text: "${S.current.voting_weight}: ${rep.weight.toString()}%",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14.0,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
                         ),
                       ),
@@ -274,19 +273,17 @@ class NanoChangeRepPage extends BasePage {
                             children: [
                               TextSpan(
                                 text: "${S.current.uptime}: ",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                               ),
                               TextSpan(
                                 text: rep.uptime,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 14,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontWeight: FontWeight.w900,
+                                    ),
                               ),
                             ],
                           ),
@@ -301,13 +298,13 @@ class NanoChangeRepPage extends BasePage {
                     children: <Widget>[
                       Icon(
                         Icons.verified,
-                        color: Theme.of(context).primaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 50,
                       ),
                       Positioned.fill(
                         child: Container(
                           margin: EdgeInsets.all(13),
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Container(
@@ -317,11 +314,9 @@ class NanoChangeRepPage extends BasePage {
                         child: Text(
                           (rep.score).toString(),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                         ),
                       ),
                     ],

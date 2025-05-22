@@ -37,17 +37,6 @@ class BuySellPage extends BasePage {
   final _cryptoAddressFocus = FocusNode();
   var _isReactionsSet = false;
 
-  final arrowBottomPurple = Image.asset(
-    'assets/images/arrow_bottom_purple_icon.png',
-    color: Colors.white,
-    height: 8,
-  );
-  final arrowBottomCakeGreen = Image.asset(
-    'assets/images/arrow_bottom_cake_green.png',
-    color: Colors.white,
-    height: 8,
-  );
-
   late final String? depositWalletName;
   late final String? receiveWalletName;
 
@@ -141,18 +130,21 @@ class BuySellPage extends BasePage {
           child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 24),
             content: Observer(
-                builder: (_) => Column(children: [
-                      _exchangeCardsSection(context),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            SizedBox(height: 12),
-                            _buildPaymentMethodTile(context),
-                          ],
-                        ),
-                      ),
-                    ])),
+              builder: (_) => Column(
+                children: [
+                  _exchangeCardsSection(context),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 12),
+                        _buildPaymentMethodTile(context),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Observer(
               builder: (_) => Column(
@@ -165,8 +157,11 @@ class BuySellPage extends BasePage {
                           Expanded(
                             child: Container(
                               alignment: Alignment.centerRight,
-                              child: Icon(Icons.warning_amber_rounded,
-                                  color: Theme.of(context).colorScheme.error, size: 26),
+                              child: Icon(
+                                Icons.warning_amber_rounded,
+                                color: Theme.of(context).colorScheme.error,
+                                size: 26,
+                              ),
                             ),
                           ),
                           Expanded(
@@ -192,8 +187,8 @@ class BuySellPage extends BasePage {
                       if (!_formKey.currentState!.validate()) return;
                       buySellViewModel.onTapChoseProvider(context);
                     },
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                     isDisabled: buySellViewModel.isBuySellQuotFailed,
                     isLoading:
                         !buySellViewModel.isReadyToTrade && !buySellViewModel.isBuySellQuotFailed,
@@ -389,63 +384,77 @@ class BuySellPage extends BasePage {
 
   Widget _exchangeCardsSection(BuildContext context) {
     final fiatExchangeCard = Observer(
-        builder: (_) => ExchangeCard(
-              cardInstanceName: 'fiat_currency_trade_card',
-              onDispose: disposeBestRateSync,
-              amountFocusNode: _fiatAmountFocus,
-              key: fiatCurrencyKey,
-              title: 'FIAT ${S.of(context).amount}',
-              initialCurrency: buySellViewModel.fiatCurrency,
-              initialWalletName: '',
-              initialAddress: '',
-              initialIsAmountEditable: true,
-              isAmountEstimated: false,
-              currencyRowPadding: EdgeInsets.zero,
-              addressRowPadding: EdgeInsets.zero,
-              isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
-              showAddressField: false,
-              showLimitsField: false,
-              currencies: buySellViewModel.fiatCurrencies,
-              onCurrencySelected: (currency) =>
-                  buySellViewModel.changeFiatCurrency(currency: currency),
-              imageArrow: arrowBottomPurple,
-              currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderColor: Theme.of(context).colorScheme.outlineVariant,
-              onPushPasteButton: (context) async {},
-              onPushAddressBookButton: (context) async {},
-            ));
+      builder: (_) => ExchangeCard(
+        cardInstanceName: 'fiat_currency_trade_card',
+        onDispose: disposeBestRateSync,
+        amountFocusNode: _fiatAmountFocus,
+        key: fiatCurrencyKey,
+        title: 'FIAT ${S.of(context).amount}',
+        initialCurrency: buySellViewModel.fiatCurrency,
+        initialWalletName: '',
+        initialAddress: '',
+        initialIsAmountEditable: true,
+        isAmountEstimated: false,
+        currencyRowPadding: EdgeInsets.zero,
+        addressRowPadding: EdgeInsets.zero,
+        isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
+        showAddressField: false,
+        showLimitsField: false,
+        currencies: buySellViewModel.fiatCurrencies,
+        onCurrencySelected: (currency) => buySellViewModel.changeFiatCurrency(currency: currency),
+        imageArrow: Image.asset(
+          'assets/images/arrow_bottom_purple_icon.png',
+          color: Theme.of(context).colorScheme.onSurface,
+          height: 8,
+        ),
+        currencyButtonColor: Colors.transparent,
+        addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderColor: Theme.of(context).colorScheme.outlineVariant,
+        onPushPasteButton: (context) async {},
+        onPushAddressBookButton: (context) async {},
+        fillColor: buySellViewModel.isBuyAction
+            ? Theme.of(context).colorScheme.surfaceContainerLow
+            : Theme.of(context).colorScheme.surfaceContainer,
+      ),
+    );
 
     final cryptoExchangeCard = Observer(
-        builder: (_) => ExchangeCard(
-              cardInstanceName: 'crypto_currency_trade_card',
-              onDispose: disposeBestRateSync,
-              amountFocusNode: _cryptoAmountFocus,
-              addressFocusNode: _cryptoAddressFocus,
-              key: cryptoCurrencyKey,
-              title: 'Crypto ${S.of(context).amount}',
-              initialCurrency: buySellViewModel.cryptoCurrency,
-              initialWalletName: '',
-              initialAddress: buySellViewModel.cryptoCurrency == buySellViewModel.wallet.currency
-                  ? buySellViewModel.wallet.walletAddresses.addressForExchange
-                  : buySellViewModel.cryptoCurrencyAddress,
-              initialIsAmountEditable: true,
-              isAmountEstimated: true,
-              showLimitsField: false,
-              currencyRowPadding: EdgeInsets.zero,
-              addressRowPadding: EdgeInsets.zero,
-              isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
-              currencies: buySellViewModel.cryptoCurrencies,
-              onCurrencySelected: (currency) =>
-                  buySellViewModel.changeCryptoCurrency(currency: currency),
-              imageArrow: arrowBottomCakeGreen,
-              currencyButtonColor: Colors.transparent,
-              addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderColor: Theme.of(context).colorScheme.outlineVariant,
-              addressTextFieldValidator: AddressValidator(type: buySellViewModel.cryptoCurrency),
-              onPushPasteButton: (context) async {},
-              onPushAddressBookButton: (context) async {},
-            ));
+      builder: (_) => ExchangeCard(
+        cardInstanceName: 'crypto_currency_trade_card',
+        onDispose: disposeBestRateSync,
+        amountFocusNode: _cryptoAmountFocus,
+        addressFocusNode: _cryptoAddressFocus,
+        key: cryptoCurrencyKey,
+        title: 'Crypto ${S.of(context).amount}',
+        initialCurrency: buySellViewModel.cryptoCurrency,
+        initialWalletName: '',
+        initialAddress: buySellViewModel.cryptoCurrency == buySellViewModel.wallet.currency
+            ? buySellViewModel.wallet.walletAddresses.addressForExchange
+            : buySellViewModel.cryptoCurrencyAddress,
+        initialIsAmountEditable: true,
+        isAmountEstimated: true,
+        showLimitsField: false,
+        currencyRowPadding: EdgeInsets.zero,
+        addressRowPadding: EdgeInsets.zero,
+        isMoneroWallet: buySellViewModel.wallet == WalletType.monero,
+        currencies: buySellViewModel.cryptoCurrencies,
+        onCurrencySelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
+        imageArrow: Image.asset(
+          'assets/images/arrow_bottom_cake_green.png',
+          color: Theme.of(context).colorScheme.onSurface,
+          height: 8,
+        ),
+        currencyButtonColor: Colors.transparent,
+        addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderColor: Theme.of(context).colorScheme.outlineVariant,
+        addressTextFieldValidator: AddressValidator(type: buySellViewModel.cryptoCurrency),
+        onPushPasteButton: (context) async {},
+        onPushAddressBookButton: (context) async {},
+        fillColor: buySellViewModel.isBuyAction
+            ? Theme.of(context).colorScheme.surfaceContainer
+            : Theme.of(context).colorScheme.surfaceContainerLow,
+      ),
+    );
 
     if (responsiveLayoutUtil.shouldRenderMobileUI) {
       return Observer(

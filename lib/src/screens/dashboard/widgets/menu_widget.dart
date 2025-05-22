@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -102,7 +101,8 @@ class MenuWidgetState extends State<MenuWidget> {
   Widget build(BuildContext context) {
     List<SettingActions> items = List.of(SettingActions.all);
     if (!widget.dashboardViewModel.hasSilentPayments) {
-      items.removeWhere((element) => element.name(context) == S.of(context).silent_payments_settings);
+      items.removeWhere(
+          (element) => element.name(context) == S.of(context).silent_payments_settings);
     }
     if (!widget.dashboardViewModel.isMoneroViewOnly) {
       items.removeWhere((element) => element.name(context) == S.of(context).export_outputs);
@@ -112,10 +112,10 @@ class MenuWidgetState extends State<MenuWidget> {
     }
     int itemCount = items.length;
 
-    moneroIcon = Image.asset('assets/images/monero_menu.png',
-        color: Theme.of(context).colorScheme.primary);
-    bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
-        color: Theme.of(context).colorScheme.primary);
+    moneroIcon =
+        Image.asset('assets/images/monero_menu.png', color: Theme.of(context).colorScheme.primary);
+    bitcoinIcon =
+        Image.asset('assets/images/bitcoin_menu.png', color: Theme.of(context).colorScheme.primary);
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -127,16 +127,20 @@ class MenuWidgetState extends State<MenuWidget> {
             height: 60,
             width: 4,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(2)), color: PaletteDark.gray),
+              borderRadius: BorderRadius.all(Radius.circular(2)),
+              color: Theme.of(context).colorScheme.outline,
+            ),
           ),
         ),
         SizedBox(width: 12),
         Expanded(
           child: ClipRRect(
-            borderRadius:
-                BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              bottomLeft: Radius.circular(24),
+            ),
             child: Container(
-              color: Theme.of(context).colorScheme.surface,
+              color: Theme.of(context).colorScheme.surfaceContainerLowest,
               child: ListView.separated(
                 padding: EdgeInsets.only(top: 0),
                 itemBuilder: (_, index) {
@@ -145,13 +149,14 @@ class MenuWidgetState extends State<MenuWidget> {
                       height: headerHeight,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
-                        gradient: LinearGradient(colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.secondary,
-                        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        color: Theme.of(context).colorScheme.surfaceContainerLowest,
                       ),
                       padding: EdgeInsets.only(
-                          left: 24, top: fromTopEdge, right: 24, bottom: fromBottomEdge),
+                        left: 24,
+                        top: fromTopEdge,
+                        right: 24,
+                        bottom: fromBottomEdge,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
@@ -167,20 +172,18 @@ class MenuWidgetState extends State<MenuWidget> {
                                 children: <Widget>[
                                   Text(
                                     widget.dashboardViewModel.name,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                   ),
                                   if (widget.dashboardViewModel.subname.isNotEmpty)
                                     Observer(
                                       builder: (_) => Text(
                                         widget.dashboardViewModel.subname,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme.onSurfaceVariant,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 12),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                       ),
                                     ),
                                 ],

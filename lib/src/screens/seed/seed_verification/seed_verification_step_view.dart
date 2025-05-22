@@ -31,27 +31,24 @@ class SeedVerificationStepView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '${S.current.seed_position_question_one} ',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: questionTextColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: questionTextColor,
+                            ),
                       ),
                       TextSpan(
                         text: '${getOrdinal(walletSeedViewModel.currentWordIndex + 1)} ',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: questionTextColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: questionTextColor,
+                            ),
                       ),
                       TextSpan(
                         text: S.current.seed_position_question_two,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: questionTextColor,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: questionTextColor,
+                            ),
                       ),
                     ],
                   ),
@@ -92,15 +89,15 @@ class SeedVerificationStepView extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: Theme.of(context).cardColor,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
                           ),
                           child: Text(
                             option,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  height: 1.2,
+                                  fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                         ),
                       );

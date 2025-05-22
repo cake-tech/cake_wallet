@@ -20,13 +20,12 @@ class OptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.only(left: 6, right: 6),
       alignment: Alignment.center,
       child: TextButton(
         style: TextButton.styleFrom(
-          backgroundColor: Theme.of(context).cardColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          padding: EdgeInsets.all(24)
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          padding: EdgeInsets.all(24),
         ),
         onPressed: onPressed,
         child: Row(
@@ -45,21 +44,19 @@ class OptionTile extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       title,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
                         description,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                     )
                   ],

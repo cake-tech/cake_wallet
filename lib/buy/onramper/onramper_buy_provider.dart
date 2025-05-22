@@ -245,17 +245,13 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     final actionType = isBuyAction ? 'buy' : 'sell';
 
-    final primaryColor = getColorStr(Theme.of(context).primaryColor);
+    final primaryColor = getColorStr(Theme.of(context).colorScheme.primary,);
     final secondaryColor = getColorStr(Theme.of(context).colorScheme.surface);
     final primaryTextColor = getColorStr(Theme.of(context).colorScheme.onSurface);
     final secondaryTextColor =
         getColorStr(Theme.of(context).colorScheme.onSurfaceVariant);
     final containerColor = getColorStr(Theme.of(context).colorScheme.surface);
-    var cardColor = getColorStr(Theme.of(context).cardColor);
-
-    if (_themeStore.currentTheme.title == S.current.high_contrast_theme) {
-      cardColor = getColorStr(Colors.white);
-    }
+    var cardColor = getColorStr(Theme.of(context).colorScheme.surfaceContainer);
 
     final defaultCrypto =
         quote.cryptoCurrency.title + _getNormalizeNetwork(quote.cryptoCurrency).toLowerCase();

@@ -23,7 +23,7 @@ class SeedVerificationPage extends BasePage {
           child: walletSeedViewModel.isVerificationComplete ||
                   walletSeedViewModel.verificationIndices.isEmpty
               ? SeedVerificationSuccessView(
-                  imageColor: titleColor(context),
+                  currentTheme: currentTheme,
                 )
               : SeedVerificationStepView(
                   walletSeedViewModel: walletSeedViewModel,

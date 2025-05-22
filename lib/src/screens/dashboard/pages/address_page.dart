@@ -127,53 +127,58 @@ class AddressPage extends BasePage {
     _setEffects(context);
 
     return KeyboardActions(
-        autoScroll: false,
-        disableScroll: true,
-        tapOutsideBehavior: TapOutsideBehavior.translucentDismiss,
-        config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).colorScheme.surface,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _cryptoAmountFocus,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
-              )
-            ]),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 0, 24, 32),
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                  child: Observer(
-                      builder: (_) => QRWidget(
-                          formKey: _formKey,
-                          addressListViewModel: addressListViewModel,
-                          amountTextFieldFocusNode: _cryptoAmountFocus,
-                          amountController: _amountController,
-                          isLight: dashboardViewModel.appStore.themeStore.currentTheme.type ==
-                              ThemeType.light,
-                        ))),
-              SizedBox(height: 16),
-              Observer(builder: (_) {
+      autoScroll: false,
+      disableScroll: true,
+      tapOutsideBehavior: TapOutsideBehavior.translucentDismiss,
+      config: KeyboardActionsConfig(
+        keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+        keyboardBarColor: Theme.of(context).colorScheme.surface,
+        nextFocus: false,
+        actions: [
+          KeyboardActionsItem(
+            focusNode: _cryptoAmountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          )
+        ],
+      ),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(24, 0, 24, 32),
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Observer(
+                builder: (_) => QRWidget(
+                  formKey: _formKey,
+                  addressListViewModel: addressListViewModel,
+                  amountTextFieldFocusNode: _cryptoAmountFocus,
+                  amountController: _amountController,
+                  isLight:
+                      dashboardViewModel.appStore.themeStore.currentTheme.type == ThemeType.light,
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            Observer(
+              builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
                     onTap: () => Navigator.of(context).pushNamed(Routes.receive),
-                    textColor: Theme.of(context).colorScheme.onSurface,
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    borderColor: Theme.of(context).colorScheme.outline,
-                    arrowColor: Theme.of(context).colorScheme.onSurface,
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    arrowColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     textSize: 14,
                     height: 50,
                   );
                 } else {
                   return const SizedBox();
                 }
-              }),
-            ],
-          ),
-        ));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _setEffects(BuildContext context) {
@@ -182,7 +187,8 @@ class AddressPage extends BasePage {
     }
 
     reaction((_) => receiveOptionViewModel.selectedReceiveOption, (ReceivePageOption option) {
-      if (dashboardViewModel.type == WalletType.bitcoin && bitcoin!.isBitcoinReceivePageOption(option)) {
+      if (dashboardViewModel.type == WalletType.bitcoin &&
+          bitcoin!.isBitcoinReceivePageOption(option)) {
         addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
         return;
       }

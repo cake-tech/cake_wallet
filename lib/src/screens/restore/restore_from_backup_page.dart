@@ -23,11 +23,11 @@ class RestoreFromBackupPage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget body(BuildContext context) {
@@ -52,7 +52,7 @@ class RestoreFromBackupPage extends BasePage {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
         child: Padding(
-          padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
+          padding: EdgeInsets.only(bottom: 24, left: 8, right: 8),
           child: Column(
             children: [
               Expanded(
@@ -69,7 +69,10 @@ class RestoreFromBackupPage extends BasePage {
                               InputDecoration(hintText: S.of(context).enter_backup_password),
                           keyboardType: TextInputType.visiblePassword,
                           controller: textEditingController,
-                          style: TextStyle(fontSize: 26, color: Colors.black),
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                fontSize: 26,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                         Observer(
                           builder: (_) {
@@ -81,20 +84,20 @@ class RestoreFromBackupPage extends BasePage {
                                     children: [
                                       Text(
                                         "File Name: ",
-                                        style: TextStyle(
+                                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                           fontSize: 18.0,
                                           fontWeight: FontWeight.bold,
-                                          fontFamily: 'Lato',
+                                           
                                           color: titleColor(context),
                                         ),
                                       ),
                                       Expanded(
                                         child: Text(
                                           restoreFromBackupViewModel.filePath.split("/").last,
-                                          style: TextStyle(
+                                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold,
-                                            fontFamily: 'Lato',
+                                             
                                             color: titleColor(context),
                                           ),
                                         ),
@@ -120,8 +123,8 @@ class RestoreFromBackupPage extends BasePage {
                       child: PrimaryButton(
                         onPressed: () => presentFilePicker(),
                         text: S.of(context).select_backup_file,
-                        color: Colors.grey,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.error,
+                        textColor: Theme.of(context).colorScheme.onError,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -129,11 +132,12 @@ class RestoreFromBackupPage extends BasePage {
                       child: Observer(
                         builder: (_) {
                           return LoadingPrimaryButton(
-                              isLoading: restoreFromBackupViewModel.state is IsExecutingState,
-                              onPressed: () => onImportHandler(context),
-                              text: S.of(context).import,
-                              color: Theme.of(context).primaryColor,
-                              textColor: Colors.white);
+                            isLoading: restoreFromBackupViewModel.state is IsExecutingState,
+                            onPressed: () => onImportHandler(context),
+                            text: S.of(context).import,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
+                          );
                         },
                       ),
                     ),

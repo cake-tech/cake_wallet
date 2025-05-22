@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/main_actions.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
@@ -19,7 +18,7 @@ class NavigationDock extends StatelessWidget {
       child: Observer(
         builder: (_) {
           return Container(
-            height: 150,
+            height: 100,
             alignment: Alignment.bottomCenter,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -39,9 +38,9 @@ class NavigationDock extends StatelessWidget {
                       borderRadius: BorderRadius.circular(50.0),
                       border: Border.all(
                         color: Theme.of(context).colorScheme.outline,
-                        width: 1,
+                        width: 0.0,
                       ),
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
                     ),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8),
@@ -62,9 +61,7 @@ class NavigationDock extends StatelessWidget {
                                         action.image,
                                         height: 24,
                                         width: 24,
-                                        color: action.isEnabled?.call(dashboardViewModel) ?? true
-                                            ? Theme.of(context).colorScheme.onSurface
-                                            : Theme.of(context).colorScheme.outline,
+                                        color:  Theme.of(context).colorScheme.onSurface
                                       ),
                                       title: action.name(context),
                                       onClick: (action.isEnabled?.call(dashboardViewModel) ?? true)
@@ -93,23 +90,23 @@ class NavigationDock extends StatelessWidget {
   }
 
   List<Color> _getColors(BuildContext context) {
-    final isBright = dashboardViewModel.appStore.themeStore.currentTheme.type == ThemeType.light;
+    final isBright = !dashboardViewModel.appStore.themeStore.currentTheme.isDark;
     return isBright
         ? <Color>[
-            Theme.of(context).colorScheme.surface.withAlpha(10),
-            Theme.of(context).colorScheme.surface.withAlpha(75),
-            Theme.of(context).colorScheme.surface.withAlpha(150),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(10),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(75),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(150),
             Theme.of(context).colorScheme.surface,
             Theme.of(context).colorScheme.surface
           ]
         : <Color>[
-            Theme.of(context).colorScheme.surface.withAlpha(5),
-            Theme.of(context).colorScheme.surface.withAlpha(50),
-            Theme.of(context).colorScheme.surface.withAlpha(125),
-            Theme.of(context).colorScheme.surface.withAlpha(150),
-            Theme.of(context).colorScheme.surface.withAlpha(200),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(5),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(50),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(125),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(150),
+            Theme.of(context).colorScheme.surfaceContainer.withAlpha(200),
             Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surface
+            Theme.of(context).colorScheme.surface  
           ];
   }
 }

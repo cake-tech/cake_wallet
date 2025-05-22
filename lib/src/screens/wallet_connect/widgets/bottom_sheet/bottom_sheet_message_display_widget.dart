@@ -19,11 +19,11 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
           children: [
             Text(
               isError ? S.current.error : S.current.successful,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
             IconButton(
               color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
@@ -44,11 +44,9 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
           ],

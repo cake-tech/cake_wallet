@@ -1,6 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -86,7 +85,9 @@ class CakePayVerifyOtpPage extends BasePage {
               SizedBox(height: 14),
               Text(
                 S.of(context).fill_code,
-                style: TextStyle(color: Color(0xff7A93BA), fontSize: 12),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               SizedBox(height: 34),
               Row(
@@ -98,7 +99,9 @@ class CakePayVerifyOtpPage extends BasePage {
                     onTap: () => _authViewModel.logIn(_email),
                     child: Text(
                       S.of(context).resend_code,
-                      style: textSmallSemiBold(color: Palette.blueCraiola),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                     ),
                   ),
                 ],
@@ -117,8 +120,8 @@ class CakePayVerifyOtpPage extends BasePage {
                       onPressed: _verify,
                       isDisabled: _authViewModel.otpState is CakePayOtpSendDisabled,
                       isLoading: _authViewModel.otpState is CakePayOtpValidating,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                   SizedBox(height: 20),
@@ -143,8 +146,7 @@ class CakePayVerifyOtpPage extends BasePage {
         });
   }
 
-  void _onOtpSuccessful(BuildContext context) =>
-      Navigator.pop(context);
+  void _onOtpSuccessful(BuildContext context) => Navigator.pop(context);
 
   void _verify() async => await _authViewModel.verifyEmail(_codeController.text);
 }

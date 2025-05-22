@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
@@ -20,70 +19,59 @@ class TradeDetailsStandardListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final darkTheme = currentTheme == ThemeType.dark;
-
-    final baseGradient = LinearGradient(colors: [
-      Theme.of(context).colorScheme.primary,
-      Theme.of(context).colorScheme.secondary,
-    ], begin: Alignment.centerLeft, end: Alignment.centerRight);
-
-    final gradient = LinearGradient(colors: [
-      PaletteDark.wildNightBlue,
-      PaletteDark.oceanBlue,
-    ], begin: Alignment.bottomCenter, end: Alignment.topCenter);
-
-    final textColor = Colors.white;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       child: GestureDetector(
         onTap: () => onTap(context),
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              gradient: darkTheme ? gradient : baseGradient),
+            borderRadius: BorderRadius.circular(15.0),
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          ),
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
             child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(id,
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w400,
-                          color: textColor)),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  if (extraId != null && extraId!.isNotEmpty)
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  id,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                if (extraId != null && extraId!.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(extraId!,
-                        style: TextStyle(
+                    child: Text(
+                      extraId!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 16,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color: textColor)),
+                          ),
+                    ),
                   ),
-                  Text(create,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w400,
-                          color: textColor)),
-                  SizedBox(
-                    height: 35,
-                  ),
-                  Text(pair,
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.bold,
-                          color: textColor)),
-                ]),
+                Text(
+                  create,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                ),
+                SizedBox(
+                  height: 35,
+                ),
+                Text(
+                  pair,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -33,10 +33,10 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get shouldShowMarketPlaceInDashboard => _settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  MaterialThemeBase get currentTheme => _themeStore.currentTheme;
+  ThemeData get theme => _themeStore.currentTheme.themeData;
 
   @computed
-  ThemeData get theme => _themeStore.currentTheme.themeData;
+  ThemeMode get themeMode => _themeStore.themeMode;
 
   @computed
   bool get disabledFiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
@@ -62,8 +62,19 @@ abstract class DisplaySettingsViewModelBase with Store {
   }
 
   @action
+  Future<void> onThemeSelected(MaterialThemeBase newTheme) async {
+    await setTheme(newTheme);
+    await setThemeMode(newTheme.themeMode);
+  }
+
+  @action
   Future<void> setTheme(MaterialThemeBase newTheme) async {
     await _themeStore.setTheme(newTheme);
+  }
+
+  @action
+  Future<void> setThemeMode(ThemeMode value) async {
+    await _themeStore.setThemeMode(value);
   }
 
   @action

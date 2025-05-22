@@ -1,6 +1,5 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -14,9 +13,12 @@ class CreatePinWelcomePage extends BasePage {
 
   final bool isWalletPasswordDirectInput;
 
-  static const aspectRatioImage = 1.25;
-  final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
-  final welcomeImageDark = Image.asset('assets/images/welcome.png');
+  static const imageAspectRatio = 1.25;
+  static const imageMaxWidth = 600.0;
+  final welcomeImageLight = 'assets/images/welcome_light_theme.svg';
+  final welcomeImageDark = 'assets/images/welcome_dark_theme.svg';
+  final cakeLogoLight = 'assets/images/cake_logo_light.svg';
+  final cakeLogoDark = 'assets/images/cake_logo_dark.svg';
 
   String appTitle(BuildContext context) {
     if (isMoneroOnly) {
@@ -31,79 +33,106 @@ class CreatePinWelcomePage extends BasePage {
       return S.of(context).monero_com_wallet_text;
     }
 
-    return S.of(context).new_first_wallet_text;
+    return S.of(context).payment_made_easy;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        resizeToAvoidBottomInset: false,
-        body: body(context));
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      resizeToAvoidBottomInset: false,
+      body: body(context),
+    );
   }
 
   @override
   Widget body(BuildContext context) {
-    final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
+    String welcomeImage;
+    String cakeLogoThemed;
 
-    final newWalletImage = Image.asset('assets/images/new_wallet.png',
-        height: 12,
-        width: 12,
-        color: Theme.of(context).colorScheme.surface);
+    if (currentTheme.isDark) {
+      welcomeImage = welcomeImageDark;
+      cakeLogoThemed = cakeLogoDark;
+    } else {
+      welcomeImage = welcomeImageLight;
+      cakeLogoThemed = cakeLogoLight;
+    }
 
     return PopScope(
       canPop: false,
       child: ScrollableWithBottomSection(
+        contentPadding: EdgeInsets.zero,
         content: Container(
           alignment: Alignment.center,
           child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            constraints: BoxConstraints(maxWidth: imageMaxWidth),
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
               children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    SizedBox(height: 70),
-                    AspectRatio(
-                      aspectRatio: aspectRatioImage,
-                      child: FittedBox(child: welcomeImage, fit: BoxFit.contain),
+                AspectRatio(
+                  aspectRatio: imageAspectRatio,
+                  child: FittedBox(
+                    child: CakeImageWidget(
+                      imageUrl: welcomeImage,
+                      fit: BoxFit.contain,
                     ),
-                    SizedBox(height: 50),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
-                      child: Text(
-                        S.of(context).welcome,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color:  Theme.of(context).colorScheme.onSurface
-                        ),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                Positioned(
+                  top: (imageMaxWidth / imageAspectRatio) * 0.57,
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        S.current.welcome_only,
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 60,
+                              letterSpacing: 2.5,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                         textAlign: TextAlign.center,
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Text(
-                        appTitle(context),
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        textAlign: TextAlign.center,
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            S.current.to.toLowerCase(),
+                            style: Theme.of(context).textTheme.titleMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(width: 8),
+                          if (!isMoneroOnly) ...[
+                                 SizedBox(width: 8),
+                            CakeImageWidget(
+                              height: 40,
+                              imageUrl: cakeLogoThemed,
+                              fit: BoxFit.contain,
+                            ),
+                            SizedBox(width: 8),
+                          ],
+                          Text(
+                            appTitle(context),
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Text(
+                      SizedBox(height: 48),
+                      Text(
                         appDescription(context),
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.w500),
                         textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -115,16 +144,23 @@ class CreatePinWelcomePage extends BasePage {
               textAlign: TextAlign.center,
               text: TextSpan(
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                 children: [
-                  TextSpan(text: 'By continuing, you agree to our '),
+                  TextSpan(
+                    text: 'By continuing, you agree to our ',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
                   TextSpan(
                     text: 'Terms of Service',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      decoration: TextDecoration.underline,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.w700,
+                        ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => Navigator.pushNamed(context, Routes.readDisclaimer),
                   ),
@@ -133,16 +169,15 @@ class CreatePinWelcomePage extends BasePage {
             ),
             Padding(
               padding: EdgeInsets.only(top: 24),
-              child: PrimaryImageButton(
+              child: PrimaryButton(
                 key: ValueKey('create_pin_welcome_page_create_a_pin_button_key'),
                 onPressed: () => Navigator.pushNamed(context, Routes.welcomeWallet),
-                image: newWalletImage,
                 text: isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
                 color: Theme.of(context).colorScheme.primary,
                 textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 16),
           ],
         ),
       ),

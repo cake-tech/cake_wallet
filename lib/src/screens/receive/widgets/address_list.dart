@@ -86,59 +86,66 @@ class _AddressListState extends State<AddressList> {
 
         if (item is WalletAccountListHeader) {
           cell = HeaderTile(
-              showTrailingButton: true,
-              walletAddressListViewModel: widget.addressListViewModel,
-              trailingButtonTap: () async {
-                if (widget.addressListViewModel.type == WalletType.monero ||
-                    widget.addressListViewModel.type == WalletType.wownero ||
-                    widget.addressListViewModel.type == WalletType.haven) {
-                  await showPopUp<void>(
-                      context: context, builder: (_) => getIt.get<MoneroAccountListPage>());
-                  updateItems();
-                } else {
-                  await showPopUp<void>(
-                      context: context, builder: (_) => getIt.get<NanoAccountListPage>());
-                  updateItems();
-                }
-              },
-              title: S.of(context).accounts,
-              trailingIcon: Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ));
+            showTrailingButton: true,
+            walletAddressListViewModel: widget.addressListViewModel,
+            trailingButtonTap: () async {
+              if (widget.addressListViewModel.type == WalletType.monero ||
+                  widget.addressListViewModel.type == WalletType.wownero ||
+                  widget.addressListViewModel.type == WalletType.haven) {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (_) => getIt.get<MoneroAccountListPage>(),
+                );
+                updateItems();
+              } else {
+                await showPopUp<void>(
+                  context: context,
+                  builder: (_) => getIt.get<NanoAccountListPage>(),
+                );
+                updateItems();
+              }
+            },
+            title: S.of(context).accounts,
+            trailingIcon: Icon(
+              Icons.arrow_forward_ios,
+              size: 14,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          );
         }
 
         if (item is WalletAddressHiddenListHeader) {
           cell = HeaderTile(
-              title: S.of(context).hidden_addresses,
-              walletAddressListViewModel: widget.addressListViewModel,
-              showTrailingButton: true,
-              showSearchButton: false,
-              trailingButtonTap: _toggleHiddenAddresses,
-              trailingIcon: Icon(
-                showHiddenAddresses ? Icons.toggle_on : Icons.toggle_off,
-                size: 20,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ));
+            title: S.of(context).hidden_addresses,
+            walletAddressListViewModel: widget.addressListViewModel,
+            showTrailingButton: true,
+            showSearchButton: false,
+            trailingButtonTap: _toggleHiddenAddresses,
+            trailingIcon: Icon(
+              showHiddenAddresses ? Icons.toggle_on : Icons.toggle_off,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          );
         }
 
         if (item is WalletAddressListHeader) {
           cell = HeaderTile(
-              title: S.of(context).addresses,
-              walletAddressListViewModel: widget.addressListViewModel,
-              showTrailingButton: widget.addressListViewModel.showAddManualAddresses,
-              showSearchButton: true,
-              onSearchCallback: updateItems,
-              trailingButtonTap: () =>
-                  Navigator.of(context).pushNamed(Routes.newSubaddress).then((value) {
-                    updateItems(); // refresh the new address
-                  }),
-              trailingIcon: Icon(
-                Icons.add,
-                size: 20,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ));
+            title: S.of(context).addresses,
+            walletAddressListViewModel: widget.addressListViewModel,
+            showTrailingButton: widget.addressListViewModel.showAddManualAddresses,
+            showSearchButton: true,
+            onSearchCallback: updateItems,
+            trailingButtonTap: () =>
+                Navigator.of(context).pushNamed(Routes.newSubaddress).then((value) {
+              updateItems(); // refresh the new address
+            }),
+            trailingIcon: Icon(
+              Icons.add,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          );
         }
 
         if (item is WalletAddressListItem) {
@@ -147,56 +154,56 @@ class _AddressListState extends State<AddressList> {
           } else if (!item.isHidden && showHiddenAddresses) {
             cell = Container();
           } else {
-            cell = Observer(builder: (_) {
-              final isCurrent =
-                  item.address == widget.addressListViewModel.address.address && editable;
-              final backgroundColor = isCurrent
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surface;
-              final textColor = isCurrent
-                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                  : Theme.of(context).colorScheme.onSurface;
+            cell = Observer(
+              builder: (_) {
+                final isCurrent =
+                    item.address == widget.addressListViewModel.address.address && editable;
+                final backgroundColor = isCurrent
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.surface;
+                final textColor = isCurrent
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onSurface;
 
-              return AddressCell.fromItem(
-                item,
-                isCurrent: isCurrent,
-                currentTheme: widget.currentTheme,
-                walletType: widget.addressListViewModel.type,
-                hasBalance: widget.addressListViewModel.isBalanceAvailable,
-                hasReceived: widget.addressListViewModel.isReceivedAvailable,
-                // hasReceived:
-                backgroundColor: (kDebugMode && item.isHidden)
-                    ? Theme.of(context).colorScheme.error
-                    : (kDebugMode && item.isManual)
-                        ? Theme.of(context).colorScheme.error.withBlue(255)
-                        : backgroundColor,
-                textColor: textColor,
-                onTap: (_) {
-                  if (widget.onSelect != null) {
-                    widget.onSelect!(item.address);
-                    return;
-                  }
-                  widget.addressListViewModel.setAddress(item);
-                },
-                onEdit: editable
-                    ? () => Navigator.of(context)
-                            .pushNamed(Routes.newSubaddress, arguments: item)
-                            .then((value) {
-                          updateItems(); // refresh the new address
-                        })
-                    : null,
-                isHidden: item.isHidden,
-                onHide: () => _hideAddress(item),
-              );
-            });
+                return AddressCell.fromItem(
+                  item,
+                  isCurrent: isCurrent,
+                  currentTheme: widget.currentTheme,
+                  walletType: widget.addressListViewModel.type,
+                  hasBalance: widget.addressListViewModel.isBalanceAvailable,
+                  hasReceived: widget.addressListViewModel.isReceivedAvailable,
+                  // hasReceived:
+                  backgroundColor: backgroundColor,
+                  textColor: textColor,
+                  onTap: (_) {
+                    if (widget.onSelect != null) {
+                      widget.onSelect!(item.address);
+                      return;
+                    }
+                    widget.addressListViewModel.setAddress(item);
+                  },
+                  onEdit: editable
+                      ? () => Navigator.of(context)
+                              .pushNamed(Routes.newSubaddress, arguments: item)
+                              .then((value) {
+                            updateItems(); // refresh the new address
+                          })
+                      : null,
+                  isHidden: item.isHidden,
+                  onHide: () => _hideAddress(item),
+                );
+              },
+            );
           }
         }
 
         return index != 0
             ? cell
             : ClipRRect(
-                borderRadius:
-                    BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
                 child: cell,
               );
       },

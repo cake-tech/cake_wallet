@@ -71,9 +71,9 @@ class BalanceRowWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(30.0),
             border: Border.all(
               color: Theme.of(context).colorScheme.outlineVariant,
-              width: 1,
+              width: 0.0,
             ),
-            color: Theme.of(context).colorScheme.primaryContainer,
+            color: Theme.of(context).colorScheme.surfaceContainer,
             // boxShadow: [
             //   BoxShadow(
             //       color: Theme.of(context)
@@ -91,7 +91,12 @@ class BalanceRowWidget extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             ),
             child: Container(
-              margin: const EdgeInsets.only(top: 10, left: 12, right: 12, bottom: 10),
+              margin: const EdgeInsets.only(
+                top: 10,
+                left: 12,
+                right: 12,
+                bottom: 10,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -113,53 +118,58 @@ class BalanceRowWidget extends StatelessWidget {
                                 Semantics(
                                   hint: 'Double tap to see more information',
                                   container: true,
-                                  child: Text('${availableBalanceLabel}',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontFamily: 'Lato',
-                                          fontWeight: FontWeight.w400,
+                                  child: Text(
+                                    '${availableBalanceLabel}',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                           color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          height: 1)),
+                                          height: 1,
+                                        ),
+                                  ),
                                 ),
                                 if (hasAdditionalBalance)
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: Icon(Icons.help_outline,
-                                        size: 16,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    child: Icon(
+                                      Icons.help_outline,
+                                      size: 16,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                               ],
                             ),
                           ),
                           SizedBox(height: 6),
-                          AutoSizeText(availableBalance,
-                              style: TextStyle(
-                                  fontSize: 24,
-                                  fontFamily: 'Lato',
+                          AutoSizeText(
+                            availableBalance,
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.w900,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  height: 1),
-                              maxLines: 1,
-                              textAlign: TextAlign.start),
+                                  fontSize: 24,
+                                  height: 1,
+                                ),
+                            maxLines: 1,
+                            textAlign: TextAlign.start,
+                          ),
                           SizedBox(height: 6),
                           if (isTestnet)
-                            Text(S.of(context).testnet_coins_no_value,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: 'Lato',
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    height: 1)),
+                            Text(
+                              S.of(context).testnet_coins_no_value,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    height: 1,
+                                  ),
+                            ),
                           if (!isTestnet)
-                            Text('${availableFiatBalance}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
+                            Text(
+                              '${availableFiatBalance}',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontSize: 16,
-                                    fontFamily: 'Lato',
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    height: 1)),
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    height: 1,
+                                  ),
+                            ),
                         ],
                       ),
                       SizedBox(
@@ -171,31 +181,33 @@ class BalanceRowWidget extends StatelessWidget {
                                 imageUrl: currency.iconPath,
                                 height: 40,
                                 width: 40,
-                                displayOnError: Container(
+                                errorWidget: Container(
                                   height: 30.0,
                                   width: 30.0,
                                   child: Center(
                                     child: Text(
                                       currency.title.substring(0, min(currency.title.length, 2)),
-                                      style: TextStyle(fontSize: 11),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            fontSize: 11,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          ),
                                     ),
                                   ),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.grey.shade400,
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 10),
                               Text(
                                 currency.title,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w800,
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  height: 1,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      height: 1,
+                                    ),
                               ),
                             ],
                           ),
@@ -208,7 +220,7 @@ class BalanceRowWidget extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       margin: EdgeInsets.only(top: 4),
                       decoration: BoxDecoration(
-                        color: Colors.red[800],
+                        color: Theme.of(context).colorScheme.errorContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -217,15 +229,15 @@ class BalanceRowWidget extends StatelessWidget {
                           Icon(
                             Icons.warning_amber_outlined,
                             size: 16,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             S.of(context).potential_scam,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onErrorContainer,
+                                  fontWeight: FontWeight.w700,
+                                ),
                           ),
                         ],
                       ),
@@ -240,26 +252,21 @@ class BalanceRowWidget extends StatelessWidget {
                             Text(
                               S.of(context).frozen_balance,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w400,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                height: 1,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    height: 1,
+                                  ),
                             ),
                           ],
                         ),
                         SizedBox(height: 8),
                         AutoSizeText(
                           frozenBalance,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.primary,
-                            height: 1,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.primary,
+                                height: 1,
+                              ),
                           maxLines: 1,
                           textAlign: TextAlign.center,
                         ),
@@ -268,13 +275,9 @@ class BalanceRowWidget extends StatelessWidget {
                           Text(
                             frozenFiatBalance,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              height: 1,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                  height: 1,
+                                ),
                           ),
                       ],
                     ),
@@ -286,24 +289,19 @@ class BalanceRowWidget extends StatelessWidget {
                         Text(
                           '${additionalBalanceLabel}',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            height: 1,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1,
+                              ),
                         ),
                         SizedBox(height: 8),
                         AutoSizeText(
                           additionalBalance,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).colorScheme.secondary,
-                            height: 1,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.secondary,
+                                height: 1,
+                              ),
                           maxLines: 1,
                           textAlign: TextAlign.center,
                         ),
@@ -312,13 +310,9 @@ class BalanceRowWidget extends StatelessWidget {
                           Text(
                             '${additionalFiatBalance}',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w400,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              height: 1,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                  height: 1,
+                                ),
                           ),
                       ],
                     ),
@@ -335,9 +329,9 @@ class BalanceRowWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(30.0),
               border: Border.all(
                 color: Theme.of(context).colorScheme.outlineVariant,
-                width: 1,
+                width: 0.0,
               ),
-              color: Theme.of(context).colorScheme.primaryContainer,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               // boxShadow: [
               //   BoxShadow(
               //       color: Theme.of(context)
@@ -371,20 +365,18 @@ class BalanceRowWidget extends StatelessWidget {
                                     Container(
                                       child: ImageIcon(
                                         AssetImage('assets/images/mweb_logo.png'),
-                                        color: Theme.of(context).colorScheme.secondary,
                                         size: 40,
                                       ),
                                     ),
                                     const SizedBox(height: 10),
                                     Text(
                                       'MWEB',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontFamily: 'Lato',
-                                        fontWeight: FontWeight.w800,
-                                        color: Theme.of(context).colorScheme.secondary,
-                                        height: 1,
-                                      ),
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                            height: 1,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -409,19 +401,19 @@ class BalanceRowWidget extends StatelessWidget {
                                         Text(
                                           '${secondAvailableBalanceLabel}',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontFamily: 'Lato',
-                                            fontWeight: FontWeight.w400,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            height: 1,
-                                          ),
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                                height: 1,
+                                              ),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(horizontal: 4),
-                                          child: Icon(Icons.help_outline,
-                                              size: 16,
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                          child: Icon(
+                                            Icons.help_outline,
+                                            size: 16,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          ),
                                         )
                                       ],
                                     ),
@@ -429,13 +421,12 @@ class BalanceRowWidget extends StatelessWidget {
                                   SizedBox(height: 8),
                                   AutoSizeText(
                                     secondAvailableBalance,
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontFamily: 'Lato',
-                                      fontWeight: FontWeight.w900,
-                                      color: Theme.of(context).colorScheme.secondary,
-                                      height: 1,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w800,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
                                     maxLines: 1,
                                     textAlign: TextAlign.center,
                                   ),
@@ -444,13 +435,12 @@ class BalanceRowWidget extends StatelessWidget {
                                     Text(
                                       '${secondAvailableFiatBalance}',
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontFamily: 'Lato',
-                                        fontWeight: FontWeight.w500,
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                        height: 1,
-                                      ),
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1,
+                                          ),
                                     ),
                                 ],
                               ),
@@ -473,24 +463,19 @@ class BalanceRowWidget extends StatelessWidget {
                                   Text(
                                     '${secondAdditionalBalanceLabel}',
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontFamily: 'Lato',
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      height: 1,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          height: 1,
+                                        ),
                                   ),
                                   SizedBox(height: 8),
                                   AutoSizeText(
                                     secondAdditionalBalance,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontFamily: 'Lato',
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.secondary,
-                                      height: 1,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                          fontSize: 20,
+                                          color: Theme.of(context).colorScheme.secondary,
+                                          height: 1,
+                                        ),
                                     maxLines: 1,
                                     textAlign: TextAlign.center,
                                   ),
@@ -499,13 +484,9 @@ class BalanceRowWidget extends StatelessWidget {
                                     Text(
                                       '${secondAdditionalFiatBalance}',
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: 'Lato',
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context).colorScheme.onSurface,
-                                        height: 1,
-                                      ),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            height: 1,
+                                          ),
                                     ),
                                 ],
                               ),
@@ -542,11 +523,13 @@ class BalanceRowWidget extends StatelessWidget {
                                   );
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.grey.shade400.withAlpha(50),
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
                                   side: BorderSide(
-                                      color: Colors.grey.shade400.withAlpha(50), width: 0),
+                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                    width: 0,
+                                  ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
                                 child: Container(
@@ -558,14 +541,15 @@ class BalanceRowWidget extends StatelessWidget {
                                         height: 30,
                                         width: 30,
                                         'assets/images/received.png',
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context).colorScheme.onPrimary,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
                                         S.of(context).litecoin_mweb_pegin,
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onSurface,
-                                        ),
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                              color: Theme.of(context).colorScheme.onPrimary,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -596,11 +580,13 @@ class BalanceRowWidget extends StatelessWidget {
                                   );
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  backgroundColor: Colors.grey.shade400.withAlpha(50),
+                                  backgroundColor: Theme.of(context).colorScheme.surface,
                                   side: BorderSide(
-                                      color: Colors.grey.shade400.withAlpha(50), width: 0),
+                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                    width: 0,
+                                  ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
                                 child: Container(
@@ -612,14 +598,17 @@ class BalanceRowWidget extends StatelessWidget {
                                         height: 30,
                                         width: 30,
                                         'assets/images/upload.png',
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(context).colorScheme.onSecondaryContainer,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
                                         S.of(context).litecoin_mweb_pegout,
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onSurface,
-                                        ),
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondaryContainer,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                       ),
                                     ],
                                   ),

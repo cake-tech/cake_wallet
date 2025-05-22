@@ -118,8 +118,8 @@ class _FilterWidgetState extends State<FilterWidget> {
                                 value: item.value(),
                                 caption: item.caption,
                                 gradientBackground: true,
-                                borderColor: Theme.of(context).dividerColor,
-                                iconColor: Colors.white,
+                                borderColor: Theme.of(context).colorScheme.outlineVariant,
+                                iconColor: Theme.of(context).colorScheme.onSurface,
                                 onChanged: (value) => item.onChanged(),
                               ),
                             );
