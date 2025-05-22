@@ -77,7 +77,6 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) =>
       throw UnimplementedError();
-}
 
   static Future<DigibyteWallet> create({
     required String mnemonic,
