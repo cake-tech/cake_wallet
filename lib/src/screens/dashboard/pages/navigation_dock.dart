@@ -36,10 +36,6 @@ class NavigationDock extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(50.0),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline,
-                        width: 0.0,
-                      ),
                       color: Theme.of(context).colorScheme.surfaceContainer,
                     ),
                     child: Container(

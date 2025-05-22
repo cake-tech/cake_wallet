@@ -69,10 +69,6 @@ class BalanceRowWidget extends StatelessWidget {
           margin: const EdgeInsets.only(left: 16, right: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outlineVariant,
-              width: 0.0,
-            ),
             color: Theme.of(context).colorScheme.surfaceContainer,
             // boxShadow: [
             //   BoxShadow(
@@ -327,10 +323,6 @@ class BalanceRowWidget extends StatelessWidget {
             margin: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30.0),
-              border: Border.all(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                width: 0.0,
-              ),
               color: Theme.of(context).colorScheme.surfaceContainer,
               // boxShadow: [
               //   BoxShadow(

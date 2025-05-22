@@ -38,7 +38,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          margin: EdgeInsets.symmetric(horizontal: marginH ?? 20, vertical: marginV ?? 8),
+          margin: EdgeInsets.symmetric(horizontal: marginH ?? 20, vertical: marginV ?? 5),
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(customBorder ?? 20),
@@ -55,13 +55,9 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             //   )
             // ],
           ),
-          child: OutlinedButton(
+          child: TextButton(
             onPressed: onTap,
             style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                width: 0,
-                color: Theme.of(context).colorScheme.outlineVariant,
-              ),
               backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(customBorder ?? 20),

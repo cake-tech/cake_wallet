@@ -140,7 +140,7 @@ class MenuWidgetState extends State<MenuWidget> {
               bottomLeft: Radius.circular(24),
             ),
             child: Container(
-              color: Theme.of(context).colorScheme.surfaceContainerLowest,
+              color: Theme.of(context).colorScheme.surface,
               child: ListView.separated(
                 padding: EdgeInsets.only(top: 0),
                 itemBuilder: (_, index) {
@@ -149,7 +149,7 @@ class MenuWidgetState extends State<MenuWidget> {
                       height: headerHeight,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
-                        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                        color: Theme.of(context).colorScheme.surface,
                       ),
                       padding: EdgeInsets.only(
                         left: 24,
