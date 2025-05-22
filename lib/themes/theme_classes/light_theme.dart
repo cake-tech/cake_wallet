@@ -38,6 +38,11 @@ class LightTheme extends MaterialThemeBase {
         surface: surfaceColor,
         onSurface: const Color(0xFF312938),
         onSurfaceVariant: const Color(0xFF6C6772),
+        surfaceContainerLowest: Color(0xFFE4E4E4),
+        surfaceContainerLow: Color(0xFFECECED),
+        surfaceContainer: Color(0xFFFBFBFD),
+        surfaceContainerHigh: Color(0xFFFDFDFE),
+        surfaceContainerHighest: Color(0xFFFFFFFF),
 
         // outline: const Color(0x6C6772),
         // outlineVariant: const Color(0xE1E4EA),
