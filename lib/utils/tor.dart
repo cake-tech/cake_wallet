@@ -41,8 +41,12 @@ Future<void> ensureTorStarted({required BuildContext? context}) async {
   // second start is fast but populates the values on current thread
   await CakeTor.instance.start();
   printV("Tor started");
+  while (!CakeTor.instance.started) {
+    printV("Waiting for tor to start (part 1)");
+    await Future.delayed(const Duration(seconds: 1));
+  }
   while (CakeTor.instance.port == -1) {
-    printV("Waiting for tor to start");
+    printV("Waiting for tor to start (listening on port)");
     await Future.delayed(const Duration(seconds: 1));
   }
   printV("Tor started on port ${CakeTor.instance.port}");
