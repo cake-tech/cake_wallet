@@ -34,7 +34,6 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * DigiByte (DGB)
 * Decred (DCR)
 * Wownero (WOW)
-* DigiByte (DGB)
 
 ## Features
 
