@@ -49,12 +49,11 @@ class BaseAlertDialog extends StatelessWidget {
       titleText!,
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-        fontSize: titleTextSize,
-         
-        fontWeight: FontWeight.w600,
-        color: Theme.of(context).colorScheme.onSurface,
-        decoration: TextDecoration.none,
-      ),
+            fontSize: titleTextSize,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+            decoration: TextDecoration.none,
+          ),
     );
   }
 
@@ -65,12 +64,11 @@ class BaseAlertDialog extends StatelessWidget {
         headerText!,
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-          fontSize: 25,
-           
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurface,
-          decoration: TextDecoration.none,
-        ),
+              fontSize: 25,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
+              decoration: TextDecoration.none,
+            ),
       ),
     );
   }
@@ -96,58 +94,59 @@ class BaseAlertDialog extends StatelessWidget {
 
   Widget actionButtons(BuildContext context) {
     return Container(
-        height: 60,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(
-              child: TextButton(
-                  key: leftActionButtonKey,
-                  onPressed: actionLeft,
-                  style: TextButton.styleFrom(
-                    backgroundColor:
-                        leftActionButtonColor ?? Theme.of(context).colorScheme.surface,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.zero),
-                    ),
+      height: 60,
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: TextButton(
+                key: leftActionButtonKey,
+                onPressed: actionLeft,
+                style: TextButton.styleFrom(
+                  backgroundColor: leftActionButtonColor ?? Theme.of(context).colorScheme.surface,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.zero),
                   ),
-                  child: Text(
-                    leftActionButtonText,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                ),
+                child: Text(
+                  leftActionButtonText,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: leftActionButtonTextColor ??
+                            Theme.of(context).colorScheme.errorContainer,
+                        decoration: TextDecoration.none,
+                      ),
+                )),
+          ),
+          const VerticalSectionDivider(),
+          Expanded(
+            child: TextButton(
+              key: rightActionButtonKey,
+              onPressed: actionRight,
+              style: TextButton.styleFrom(
+                backgroundColor: rightActionButtonColor ?? Theme.of(context).colorScheme.surface,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.zero),
+                ),
+              ),
+              child: Text(
+                rightActionButtonText,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 15,
-                       
                       fontWeight: FontWeight.w600,
-                      color: leftActionButtonTextColor ?? Theme.of(context).colorScheme.errorContainer,
+                      color: rightActionButtonTextColor ?? Theme.of(context).colorScheme.onSurface,
                       decoration: TextDecoration.none,
                     ),
-                  )),
+              ),
             ),
-            const VerticalSectionDivider(),
-            Expanded(
-              child: TextButton(
-                  key: rightActionButtonKey,
-                  onPressed: actionRight,
-                  style: TextButton.styleFrom(
-                      backgroundColor:
-                          rightActionButtonColor ?? Theme.of(context).dialogBackgroundColor,
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.zero))),
-                  child: Text(
-                    rightActionButtonText,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 15,
-                       
-                      fontWeight: FontWeight.w600,
-                      color: rightActionButtonTextColor ?? Theme.of(context).colorScheme.primary,
-                      decoration: TextDecoration.none,
-                    ),
-                  )),
-            ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   Widget headerImage(BuildContext context, String imageUrl) {
@@ -185,8 +184,9 @@ class BaseAlertDialog extends StatelessWidget {
                 onTap: () => null,
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Theme.of(context).dialogBackgroundColor),
+                    borderRadius: BorderRadius.circular(30),
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
                   width: 300,
                   child: Stack(
                     clipBehavior: Clip.none,

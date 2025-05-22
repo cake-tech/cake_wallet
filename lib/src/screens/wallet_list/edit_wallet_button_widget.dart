@@ -29,12 +29,12 @@ class EditWalletButtonWidget extends StatelessWidget {
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
                 ),
                 child: Icon(
                   Icons.edit,
                   size: 14,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),

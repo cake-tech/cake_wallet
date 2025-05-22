@@ -56,7 +56,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
   @override
   Widget content(BuildContext context) {
     return Card(
-      color: Theme.of(context).dialogBackgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       elevation: 0.0,
       margin: EdgeInsets.zero,
       child: Column(
@@ -118,7 +118,7 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
       width: 300,
       height: 52,
       padding: EdgeInsets.only(left: 12, right: 12),
-      color: Theme.of(context).dialogBackgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       child: ButtonTheme(
         minWidth: double.infinity,
         child: TextButton(

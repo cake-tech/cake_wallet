@@ -64,7 +64,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
         Container(
           width: 300,
           height: 158,
-          color: Theme.of(context).dialogBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           child: ListView.separated(
             controller: controller,
             padding: EdgeInsets.all(0),

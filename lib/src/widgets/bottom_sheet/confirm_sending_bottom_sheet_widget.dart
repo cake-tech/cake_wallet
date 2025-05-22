@@ -190,7 +190,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     return Container(
       padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
       decoration: BoxDecoration(
-        color: Theme.of(context).dialogBackgroundColor,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           if (showScrollbar)
             BoxShadow(

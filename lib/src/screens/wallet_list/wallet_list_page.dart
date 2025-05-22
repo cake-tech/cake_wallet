@@ -51,7 +51,6 @@ class WalletListPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-
     return MergeSemantics(
       child: SizedBox(
         height: 37,
@@ -155,10 +154,10 @@ class WalletListBodyState extends State<WalletListBody> {
                     child: Text(
                       S.current.shared_seed_wallet_groups,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                     ),
                   ),
                   SizedBox(height: 16),
@@ -249,10 +248,10 @@ class WalletListBodyState extends State<WalletListBody> {
                     child: Text(
                       S.current.single_seed_wallets_group,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                     ),
                   ),
                   SizedBox(height: 16),
@@ -357,39 +356,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    PrimaryImageButton(
-                      image: Image.asset(
-                        'assets/images/restore_wallet.png',
-                        height: 12,
-                        width: 12,
-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                      key: ValueKey('wallet_list_page_restore_wallet_button_key'),
-                      onPressed: () {
-                        if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
-                          widget.authService.authenticateAction(
-                            context,
-                            route: Routes.restoreOptions,
-                            arguments: false,
-                            conditionToDetermineIfToUse2FA: widget
-                                .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
-                          );
-                        } else {
-                          Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
-                        }
-                      },
-                      text: S.of(context).wallet_list_restore_wallet,
-                      color: Theme.of(context).colorScheme.surfaceContainer,
-                      textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                    ),
-                    SizedBox(height: 10.0),
-                    PrimaryImageButton(
-                      image: Image.asset(
-                        'assets/images/new_wallet.png',
-                        height: 12,
-                        width: 12,
-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
+                    PrimaryButton(
                       key: ValueKey('wallet_list_page_create_new_wallet_button_key'),
                       onPressed: () {
                         //TODO(David): Find a way to optimize this
@@ -430,6 +397,32 @@ class WalletListBodyState extends State<WalletListBody> {
                       text: S.of(context).wallet_list_create_new_wallet,
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                    SizedBox(height: 10.0),
+                    PrimaryImageButton(
+                      image: Image.asset(
+                        'assets/images/restore_wallet.png',
+                        height: 12,
+                        width: 12,
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                      key: ValueKey('wallet_list_page_restore_wallet_button_key'),
+                      onPressed: () {
+                        if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                          widget.authService.authenticateAction(
+                            context,
+                            route: Routes.restoreOptions,
+                            arguments: false,
+                            conditionToDetermineIfToUse2FA: widget
+                                .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                          );
+                        } else {
+                          Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+                        }
+                      },
+                      text: S.of(context).wallet_list_restore_wallet,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                     ),
                   ],
                 ),
@@ -532,7 +525,7 @@ class WalletListBodyState extends State<WalletListBody> {
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, context,duration: null)..show(context);
+    _progressBar = createBar<void>(text, context, duration: null)..show(context);
   }
 
   Future<void> hideProgressText() async {

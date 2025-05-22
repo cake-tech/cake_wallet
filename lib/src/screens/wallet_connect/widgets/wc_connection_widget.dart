@@ -32,8 +32,8 @@ class WCConnectionWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).appBarTheme.titleTextStyle!.color!
-              ),
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
           ),
           const SizedBox(height: 8),

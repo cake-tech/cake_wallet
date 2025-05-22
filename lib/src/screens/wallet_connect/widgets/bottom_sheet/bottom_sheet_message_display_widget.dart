@@ -26,7 +26,7 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
                   ),
             ),
             IconButton(
-              color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               padding: const EdgeInsets.all(0.0),
               visualDensity: VisualDensity.compact,
               onPressed: () {
@@ -34,7 +34,10 @@ class BottomSheetMessageDisplayWidget extends StatelessWidget {
                   Navigator.pop(context);
                 }
               },
-              icon: const Icon(Icons.close_sharp),
+              icon: Icon(
+                Icons.close_sharp,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

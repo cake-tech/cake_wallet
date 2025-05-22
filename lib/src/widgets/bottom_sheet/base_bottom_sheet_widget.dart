@@ -64,7 +64,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
         borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
         child: Container(
-          color: Theme.of(context).dialogBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[

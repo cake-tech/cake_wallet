@@ -42,7 +42,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30.0)),
-        color: Theme.of(context).dialogBackgroundColor,
+        color: Theme.of(context).colorScheme.surface,
       ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
