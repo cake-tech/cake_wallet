@@ -1,4 +1,5 @@
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_search_bar_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/user_card_item.dart';
 import 'package:cake_wallet/entities/country.dart';
@@ -7,6 +8,8 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_card_info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -16,6 +19,7 @@ import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -34,7 +38,7 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -70,19 +74,19 @@ class CakePayCardsPage extends BasePage {
     if (_cardsListViewModel.settingsStore.selectedCakePayCountry == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         reaction((_) => _cardsListViewModel.shouldShowCountryPicker,
-                (bool shouldShowCountryPicker) async {
-              if (shouldShowCountryPicker) {
-                _cardsListViewModel.storeInitialFilterStates();
-                await showCountryPicker(context, _cardsListViewModel);
-                if (_cardsListViewModel.hasFiltersChanged) {
-                  _cardsListViewModel.resetLoadingNextPageState();
-                  _cardsListViewModel.getVendors();
-                }
+            (bool shouldShowCountryPicker) async {
+          if (shouldShowCountryPicker) {
+            _cardsListViewModel.storeInitialFilterStates();
+            await showCountryPicker(context, _cardsListViewModel);
+            if (_cardsListViewModel.hasFiltersChanged) {
+              _cardsListViewModel.resetLoadingNextPageState();
+              _cardsListViewModel.getVendors();
+            }
 
-                _cardsListViewModel.settingsStore.selectedCakePayCountry =
-                    _cardsListViewModel.selectedCountry;
-              }
-            });
+            _cardsListViewModel.settingsStore.selectedCakePayCountry =
+                _cardsListViewModel.selectedCountry;
+          }
+        });
       });
     }
 
@@ -90,19 +94,20 @@ class CakePayCardsPage extends BasePage {
         padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Column(children: [
           Expanded(
-              child: TabViewWrapper(tabs: const [
-                Tab(text: 'My Cards'),
-                Tab(text: 'Shop'),
-              ], views: [
-                _MyCardsTab(cardsListViewModel: _cardsListViewModel),
-                _ShopTab(cardsListViewModel: _cardsListViewModel),
-              ]))
+            child: TabViewWrapper(tabs: const [
+              Tab(text: 'My Cards'),
+              Tab(text: 'Shop')
+            ], views: [
+              _MyCardsTab(cardsListViewModel: _cardsListViewModel, currentTheme: currentTheme),
+              _ShopTab(cardsListViewModel: _cardsListViewModel)
+            ]),
+          )
         ]));
   }
 }
 
-Future<void> showFilterWidget(BuildContext context,
-    CakePayCardsListViewModel cardsListViewModel) async {
+Future<void> showFilterWidget(
+    BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
   return showPopUp<void>(
     context: context,
     builder: (BuildContext context) {
@@ -111,36 +116,29 @@ Future<void> showFilterWidget(BuildContext context,
   );
 }
 
-Future<void> showCountryPicker(BuildContext context,
-    CakePayCardsListViewModel cardsListViewModel) async {
+Future<void> showCountryPicker(
+    BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
   await showPopUp<void>(
       context: context,
-      builder: (_) =>
-          Picker(
-              title: S
-                  .of(context)
-                  .select_your_country,
-              items: cardsListViewModel.availableCountries,
-              images: cardsListViewModel.availableCountries
-                  .map((e) =>
-                  Image.asset(
+      builder: (_) => Picker(
+          title: S.of(context).select_your_country,
+          items: cardsListViewModel.availableCountries,
+          images: cardsListViewModel.availableCountries
+              .map((e) => Image.asset(
                     e.iconPath,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Container(
-                          width: 58,
-                          height: 58,
-                        ),
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 58,
+                      height: 58,
+                    ),
                   ))
-                  .toList(),
-              selectedAtIndex:
+              .toList(),
+          selectedAtIndex:
               cardsListViewModel.availableCountries.indexOf(cardsListViewModel.selectedCountry),
-              onItemSelected: (Country country) => cardsListViewModel.setSelectedCountry(country),
-              isSeparated: false,
-              hintText: S
-                  .of(context)
-                  .search,
-              matchingCriteria: (Country country, String searchText) =>
-                  country.fullName.toLowerCase().contains(searchText.toLowerCase())));
+          onItemSelected: (Country country) => cardsListViewModel.setSelectedCountry(country),
+          isSeparated: false,
+          hintText: S.of(context).search,
+          matchingCriteria: (Country country, String searchText) =>
+              country.fullName.toLowerCase().contains(searchText.toLowerCase())));
 }
 
 class _TrailingIcon extends StatelessWidget {
@@ -153,9 +151,7 @@ class _TrailingIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-        label: S
-            .of(context)
-            .profile,
+        label: S.of(context).profile,
         child: Material(
           color: Colors.transparent,
           child: IconButton(
@@ -170,9 +166,10 @@ class _TrailingIcon extends StatelessWidget {
 }
 
 class _MyCardsTab extends StatefulWidget {
-  const _MyCardsTab({required this.cardsListViewModel});
+  const _MyCardsTab({required this.cardsListViewModel, required this.currentTheme});
 
   final CakePayCardsListViewModel cardsListViewModel;
+  final ThemeBase currentTheme;
 
   @override
   State<_MyCardsTab> createState() => _MyCardsTabState();
@@ -191,10 +188,7 @@ class _MyCardsTabState extends State<_MyCardsTab> {
       ..addListener(() {
         if (!_scrollController.hasClients) return;
         final max = _scrollController.position.maxScrollExtent;
-        final bg = MediaQuery
-            .of(context)
-            .size
-            .height * 0.75;
+        final bg = MediaQuery.of(context).size.height * 0.75;
         setState(() {
           _thumbOffset = max == 0 ? 0 : _scrollController.offset / max * (bg - _thumbHeight);
         });
@@ -215,15 +209,10 @@ class _MyCardsTabState extends State<_MyCardsTab> {
 
       if (viewModel.userCardState is UserCakePayCardsStateFetching) return const _Loading();
 
-      if (cards.isEmpty) return Center(child: Text(S
-          .of(context)
-          .no_cards_found));
+      if (cards.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
 
       final showThumb = cards.length > 3;
-      final bgHeight = MediaQuery
-          .of(context)
-          .size
-          .height * 0.75;
+      final bgHeight = MediaQuery.of(context).size.height * 0.75;
       return Column(
         children: [
           Padding(
@@ -231,8 +220,7 @@ class _MyCardsTabState extends State<_MyCardsTab> {
               child: CakePaySearchBar(
                   initialQuery: viewModel.searchString,
                   onSearch: (String searchText) {},
-                  onFilter: () async {}
-              )),
+                  onFilter: () async {})),
           Expanded(
             child: Stack(
               children: [
@@ -252,11 +240,11 @@ class _MyCardsTabState extends State<_MyCardsTab> {
                       title: c.name,
                       subTitle: '\$100',
                       backgroundColor:
-                      Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                       titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                       subtitleColor:
-                      Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                      onTap: () {}, // open card details if needed
+                          Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                      onTap: () => _showCardInfoBottomSheet(context, c, widget.currentTheme),
                     );
                   },
                 ),
@@ -268,9 +256,9 @@ class _MyCardsTabState extends State<_MyCardsTab> {
                     rightOffset: 1,
                     width: 3,
                     backgroundColor:
-                    Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
                     thumbColor:
-                    Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
                   ),
               ],
             ),
@@ -279,6 +267,52 @@ class _MyCardsTabState extends State<_MyCardsTab> {
       );
     });
   }
+}
+
+Future<void> _showCardInfoBottomSheet(
+    BuildContext context, CakePayCard card, ThemeBase currentTheme) async {
+  bool isReloadable = false; // TODO: replace with real logic
+  if (card.name.toLowerCase().contains('prepaid')) {
+    isReloadable = true;
+  }
+  await showModalBottomSheet<void>(
+    context: context,
+    isDismissible: false,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext bottomSheetContext) {
+      return isReloadable
+          ? CakePayCardInfoBottomSheet(
+              isReloadable: isReloadable,
+              titleText: 'Reloadable Card',
+              balance: '100 USD',
+              howToUse: card.howToUse,
+              currentTheme: currentTheme,
+              footerType: FooterType.doubleActionButton,
+              applyBoxShadow: true,
+              contentImage: card.cardImageUrl,
+              leftActionButtonKey: const Key('cake_pay_cards_page_reload_card_left_button_key'),
+              doubleActionLeftButtonText: 'Archive',
+              onLeftActionButtonPressed: () {},
+              rightActionButtonKey: const Key('cake_pay_cards_page_reload_card_right_button_key'),
+              doubleActionRightButtonText: 'Top Up',
+              onRightActionButtonPressed: () {},
+              onUpdateBalancePressed: () {})
+          : CakePayCardInfoBottomSheet(
+              isReloadable: isReloadable,
+              titleText: card.name,
+              balance: '500 USD',
+              howToUse: card.howToUse,
+              currentTheme: currentTheme,
+              footerType: FooterType.singleActionButton,
+              applyBoxShadow: true,
+              contentImage: card.cardImageUrl,
+              singleActionButtonKey: const Key('cake_pay_cards_page_card_info_bottom_sheet_key'),
+              singleActionButtonText: 'Mark As Used',
+              onSingleActionButtonPressed: () {},
+              onUpdateBalancePressed: () {});
+    },
+  );
 }
 
 class _ShopTab extends StatefulWidget {
@@ -304,10 +338,7 @@ class _ShopTabState extends State<_ShopTab> {
         if (!_scroll.hasClients) return;
 
         final max = _scroll.position.maxScrollExtent;
-        final bg = MediaQuery
-            .of(context)
-            .size
-            .height * 0.75;
+        final bg = MediaQuery.of(context).size.height * 0.75;
         setState(() {
           _thumbOffset = max == 0 ? 0 : _scroll.offset / max * (bg - _thumbHeight);
         });
@@ -365,16 +396,11 @@ class _ShopTabState extends State<_ShopTab> {
           final vendors = viewModel.cakePayVendors;
 
           if (viewModel.vendorsState is! CakePayVendorLoadedState) return const _Loading();
-          if (vendors.isEmpty) return Center(child: Text(S
-              .of(context)
-              .no_cards_found));
+          if (vendors.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
 
           final loadingMore = viewModel.isLoadingNextPage;
           final showThumb = vendors.length > 3;
-          final bgHeight = MediaQuery
-              .of(context)
-              .size
-              .height * 0.75;
+          final bgHeight = MediaQuery.of(context).size.height * 0.75;
           return Expanded(
             child: Stack(
               children: [
@@ -397,10 +423,10 @@ class _ShopTabState extends State<_ShopTab> {
                       subTitle: v.card?.description ?? '',
                       discount: 0,
                       backgroundColor:
-                      Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                       titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
                       subtitleColor:
-                      Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                          Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
                       onTap: () =>
                           Navigator.pushNamed(context, Routes.cakePayBuyCardPage, arguments: [v]),
                     );
@@ -414,9 +440,9 @@ class _ShopTabState extends State<_ShopTab> {
                     rightOffset: 1,
                     width: 3,
                     backgroundColor:
-                    Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
                     thumbColor:
-                    Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
+                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
                   ),
               ],
             ),
@@ -431,8 +457,7 @@ class _Loading extends StatelessWidget {
   const _Loading();
 
   @override
-  Widget build(BuildContext context) =>
-      Center(
+  Widget build(BuildContext context) => Center(
         child: CircularProgressIndicator(
           backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
           valueColor: AlwaysStoppedAnimation<Color>(

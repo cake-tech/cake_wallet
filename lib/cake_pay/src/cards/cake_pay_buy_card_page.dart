@@ -17,6 +17,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -438,6 +439,7 @@ class CakePayBuyCardPage extends BasePage {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
                   titleText: S.of(context).generating_transaction,
+                  footerType: FooterType.none,
                 );
               },
             );
@@ -501,7 +503,10 @@ class CakePayBuyCardPage extends BasePage {
                   feeFiatAmount: cakePayBuyCardViewModel
                       .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
-                  onSlideComplete: () async {
+                  footerType: FooterType.slideActionButton,
+                  slideActionButtonText: 'Swipe to send',
+                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
+                  onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
                     cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
                   },
@@ -530,16 +535,16 @@ class CakePayBuyCardPage extends BasePage {
                   builder: (BuildContext bottomSheetContext) {
                     return InfoBottomSheet(
                       currentTheme: currentTheme,
-                      isTwoAction: true,
+                      footerType: FooterType.doubleActionButton,
                       rightActionButtonKey:
                           ValueKey('cake_pay_buy_page_sent_dialog_copy_button_key'),
-                      rightButtonText: S.of(bottomSheetContext).copy,
-                      actionRightButton: () {
+                      doubleActionRightButtonText: S.of(bottomSheetContext).copy,
+                      onRightActionButtonPressed: () {
                         Navigator.of(bottomSheetContext).pop(true);
                       },
                       leftActionButtonKey: ValueKey('cake_pay_buy_page_sent_dialog_ok_button_key'),
-                      leftButtonText: S.of(bottomSheetContext).close,
-                      actionLeftButton: () => Navigator.of(bottomSheetContext).pop(false),
+                      doubleActionLeftButtonText: S.of(bottomSheetContext).close,
+                      onLeftActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(false),
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: cakePayBuyCardViewModel.order!.cardImagePath,
                       bottomActionPanel: Padding(
@@ -588,13 +593,13 @@ class CakePayBuyCardPage extends BasePage {
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
               currentTheme: currentTheme,
+              footerType: FooterType.singleActionButton,
               titleText: S.of(bottomSheetContext).proceed_on_device,
               contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
               contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               content: S.of(bottomSheetContext).proceed_on_device_description,
-              isTwoAction: false,
-              actionButtonText: S.of(context).cancel,
-              actionButton: () {
+              singleActionButtonText: S.of(context).cancel,
+              onSingleActionButtonPressed: () {
                 cakePayBuyCardViewModel.sendViewModel.state = InitialExecutionState();
                 Navigator.of(bottomSheetContext).pop();
               },

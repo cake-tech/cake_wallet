@@ -153,7 +153,14 @@ abstract class CakePayCardsListViewModelBase with Store {
           .where((vendor) => vendor.card != null)
           .map((vendor) => vendor.card!)
           .toList();
-      userCards = vendorsCard.sublist(0,5);
+      userCards = vendorsCard.sublist(0,10);
+
+      vendorsCard.forEach((card) {
+        if (card.name.toLowerCase().contains('amazon.com')) {
+          userCards.add(card);
+        }
+      });
+      
 
       userCardState = UserCakePayCardsStateSuccess();
       if (userCards.isEmpty) {
