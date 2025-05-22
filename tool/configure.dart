@@ -11,6 +11,7 @@ const tronOutputPath = 'lib/tron/tron.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
+const digibyteOutputPath = 'lib/digibyte/digibyte.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -30,6 +31,7 @@ Future<void> main(List<String> args) async {
   final hasWownero = args.contains('${prefix}wownero');
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
+  final hasDigibyte = args.contains('${prefix}digibyte');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -43,6 +45,7 @@ Future<void> main(List<String> args) async {
   await generateWownero(hasWownero);
   await generateZano(hasZano);
   // await generateBanano(hasEthereum);
+  await generateDigibyte(hasDigibyte);
   await generateDecred(hasDecred);
 
   await generatePubspec(
@@ -59,6 +62,7 @@ Future<void> main(List<String> args) async {
     hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
+    hasDigibyte: hasDigibyte,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -73,6 +77,7 @@ Future<void> main(List<String> args) async {
     hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
+    hasDigibyte: hasDigibyte,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1311,6 +1316,41 @@ abstract class Zano {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateDigibyte(bool hasImplementation) async {
+  final outputFile = File(digibyteOutputPath);
+  const digibyteCommonHeaders = """
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:hive/hive.dart';
+""";
+  const digibyteCWHeaders = """
+import 'package:cw_digibyte/cw_digibyte.dart';
+""";
+  const digibyteCwPart = "part 'cw_digibyte.dart';";
+  const digibyteContent = """
+abstract class Digibyte {}
+""";
+
+  const digibyteEmptyDefinition = 'Digibyte? digibyte;\n';
+  const digibyteCWDefinition = 'Digibyte? digibyte = CWDigibyte();\n';
+
+  final output = '$digibyteCommonHeaders\n' +
+      (hasImplementation ? '$digibyteCWHeaders\n' : '\n') +
+      (hasImplementation ? '$digibyteCwPart\n\n' : '\n') +
+      (hasImplementation ? digibyteCWDefinition : digibyteEmptyDefinition) +
+      '\n' +
+      digibyteContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateDecred(bool hasImplementation) async {
   final outputFile = File(decredOutputPath);
   const decredCommonHeaders = """
@@ -1404,6 +1444,7 @@ Future<void> generatePubspec({
   required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
+  required bool hasDigibyte,
 }) async {
   const cwCore = """
   cw_core:
@@ -1468,6 +1509,10 @@ Future<void> generatePubspec({
   cw_decred:
     path: ./cw_decred
   """;
+  const cwDigibyte = """
+  cw_digibyte:
+    path: ./cw_digibyte
+  """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -1517,6 +1562,10 @@ Future<void> generatePubspec({
     output += '\n$cwDecred';
   }
 
+  if (hasDigibyte) {
+    output += '\n$cwDigibyte';
+  }
+
   if (hasFlutterSecureStorage) {
     output += '\n$flutterSecureStorage\n';
   }
@@ -1558,6 +1607,7 @@ Future<void> generateWalletTypes({
   required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
+  required bool hasDigibyte,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1615,6 +1665,10 @@ Future<void> generateWalletTypes({
 
   if (hasDecred) {
     outputContent += '\tWalletType.decred,\n';
+  }
+
+  if (hasDigibyte) {
+    outputContent += '\tWalletType.digibyte,\n';
   }
 
   if (hasWownero) {
