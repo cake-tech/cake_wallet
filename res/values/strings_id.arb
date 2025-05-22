@@ -202,6 +202,7 @@
   "copy": "Salin",
   "copy_address": "Salin Alamat",
   "copy_id": "Salin ID",
+  "copy_payjoin_address": "Salin Alamat Payjoin",
   "copy_payjoin_url": "Salin Payjoin url",
   "copyWalletConnectLink": "Salin tautan WalletConnect dari dApp dan tempel di sini",
   "corrupted_seed_notice": "File untuk dompet ini rusak dan tidak dapat dibuka. Silakan lihat frasa benih, simpan, dan kembalikan dompet.\n\nJika nilainya kosong, maka benih tidak dapat dipulihkan dengan benar.",

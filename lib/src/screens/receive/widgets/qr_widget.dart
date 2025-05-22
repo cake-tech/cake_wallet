@@ -111,7 +111,8 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty) ...[
+                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty &&
+                                        !addressListViewModel.isSilentPayments) ...[
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -198,6 +199,7 @@ class QRWidget extends StatelessWidget {
                             evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                 ),
                           ),
                         ),
@@ -213,7 +215,8 @@ class QRWidget extends StatelessWidget {
             ),
             Observer(
               builder: (_) => Offstage(
-                offstage: addressListViewModel.payjoinEndpoint.isEmpty,
+                offstage: addressListViewModel.payjoinEndpoint.isEmpty ||
+                    addressListViewModel.isSilentPayments,
                 child: Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: PrimaryImageButton(
@@ -225,7 +228,7 @@ class QRWidget extends StatelessWidget {
                       'assets/images/payjoin.png',
                       width: 25,
                     ),
-                    text: S.of(context).copy_payjoin_url,
+                    text: S.of(context).copy_payjoin_address,
                     color: Theme.of(context).colorScheme.surfaceContainer,
                     textColor: Theme.of(context).colorScheme.onSurface,
                   ),

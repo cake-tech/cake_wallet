@@ -593,6 +593,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     double? customFeeRate =
         isBitcoinWallet ? sendViewModel.feesViewModel.customBitcoinFeeRate.toDouble() : null;
 
+    FocusManager.instance.primaryFocus?.unfocus();
+
     await showPopUp<void>(
       context: context,
       builder: (BuildContext context) {

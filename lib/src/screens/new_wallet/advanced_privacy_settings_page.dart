@@ -152,6 +152,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     items: MoneroSeedType.all,
                     selectedItem: widget.seedTypeViewModel.moneroSeedType,
                     onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
+                    displayItem: (seedType) => seedType.shortTitle ?? seedType.toString(),
                   ),
                 );
               }),

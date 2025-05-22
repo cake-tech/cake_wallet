@@ -78,8 +78,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void initState() {
-    // _setSeedType(widget.seedTypeViewModel.moneroSeedType);
-    _setSeedType(MoneroSeedType.defaultSeedType);
+    if (widget.type == WalletType.monero) {
+      _setSeedType(widget.seedSettingsViewModel.moneroSeedType);
+    } else {
+      _setSeedType(MoneroSeedType.defaultSeedType);
+    }
     _setLanguageLabel(language);
 
     if (passwordTextEditingController != null) {
@@ -111,7 +114,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     }
 
     if (repeatedPasswordListener != null) {
-      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
+      repeatedPasswordTextEditingController
+          ?.removeListener(repeatedPasswordListener!);
     }
 
     super.dispose();
@@ -160,7 +164,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                     hintText: S.of(context).wallet_name,
                     fillColor: Theme.of(context).colorScheme.surfaceContainer,
                     suffixIcon: IconButton(
-                      key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
+                      key: ValueKey(
+                          'wallet_restore_from_seed_wallet_name_refresh_button_key'),
                       onPressed: () async {
                         final rName = await generateName();
                         FocusManager.instance.primaryFocus?.unfocus();
@@ -196,12 +201,15 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             language: language,
             type: widget.type,
             onSeedChange: onSeedChange,
-            seedTextFieldKey: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
-            pasteButtonKey: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
+            seedTextFieldKey:
+                ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
+            pasteButtonKey: ValueKey(
+                'wallet_restore_from_seed_wallet_seeds_paste_button_key'),
           ),
           if ([WalletType.monero, WalletType.wownero].contains(widget.type))
             GestureDetector(
-              key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
+              key: ValueKey(
+                  'wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
                 await showPopUp<void>(
                   context: context,
@@ -259,7 +267,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             )
           ],
           if (widget.displayLanguageSelector)
-            if (!seedTypeController.value.text.contains("14") && widget.displayLanguageSelector)
+            if (!seedTypeController.value.text.contains("14") &&
+                widget.displayLanguageSelector)
               GestureDetector(
                 onTap: () async {
                   await showPopUp<void>(

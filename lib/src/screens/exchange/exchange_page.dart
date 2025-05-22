@@ -94,6 +94,11 @@ class ExchangePage extends BasePage {
         }
       };
 
+  bool get _shouldWaitTillSynced =>
+      [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.ltc]
+          .contains(exchangeViewModel.depositCurrency) &&
+      !(exchangeViewModel.status is SyncedSyncStatus);
+
   @override
   Widget middle(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -257,8 +262,7 @@ class ExchangePage extends BasePage {
 
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
-                              if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr) &&
-                                  (!(exchangeViewModel.status is SyncedSyncStatus))) {
+                              if (_shouldWaitTillSynced) {
                                 showPopUp<void>(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -759,7 +763,7 @@ class ExchangePage extends BasePage {
         fillColor: Theme.of(context).colorScheme.surfaceContainer,
         currencyValueValidator: (value) {
           return exchangeViewModel.isFixedRateMode
-              ? AmountValidator( 
+              ? AmountValidator(
                   isAutovalidate: true,
                   currency: exchangeViewModel.receiveCurrency,
                   minValue: exchangeViewModel.limits.min.toString(),
