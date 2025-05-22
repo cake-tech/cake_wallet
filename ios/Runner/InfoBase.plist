@@ -282,6 +282,26 @@
                 <string>decred-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>digibyte</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>digibyte</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>digibyte-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>digibyte-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
