@@ -77,6 +77,7 @@ class WalletCreationService {
     switch (type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.digibyte:
       case WalletType.bitcoinCash:
       case WalletType.ethereum:
       case WalletType.polygon:

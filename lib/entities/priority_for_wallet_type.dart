@@ -19,6 +19,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return bitcoin!.getTransactionPriorities();
     case WalletType.litecoin:
       return bitcoin!.getLitecoinTransactionPriorities();
+    case WalletType.digibyte:
+      return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.ethereum:
       return ethereum!.getTransactionPriorities();
     case WalletType.bitcoinCash:

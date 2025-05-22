@@ -39,7 +39,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.tronIcon = Image.asset('assets/images/trx_icon.png'),
         this.wowneroIcon = Image.asset('assets/images/wownero_icon.png'),
         this.zanoIcon = Image.asset('assets/images/zano_icon.png'),
-        this.decredIcon = Image.asset('assets/images/decred_menu.png');
+        this.decredIcon = Image.asset('assets/images/decred_menu.png'),
+        this.digibyteIcon = Image.asset('assets/images/digibyte.png');
 
   final largeScreen = 731;
 
@@ -55,6 +56,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image moneroIcon;
   Image bitcoinIcon;
   Image litecoinIcon;
+  Image digibyteIcon;
   Image havenIcon;
   Image ethereumIcon;
   Image bitcoinCashIcon;
@@ -232,6 +234,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return bitcoinIcon;
       case WalletType.litecoin:
         return litecoinIcon;
+      case WalletType.digibyte:
+        return digibyteIcon;
       case WalletType.haven:
         return havenIcon;
       case WalletType.ethereum:
