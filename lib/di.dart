@@ -77,6 +77,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/digibyte/digibyte.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
