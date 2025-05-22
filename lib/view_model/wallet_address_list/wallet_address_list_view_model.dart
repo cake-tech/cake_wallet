@@ -106,6 +106,21 @@ class LitecoinURI extends PaymentURI {
   }
 }
 
+class DigibyteURI extends PaymentURI {
+  DigibyteURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'digibyte:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class EthereumURI extends PaymentURI {
   EthereumURI({required super.amount, required super.address});
 
@@ -344,6 +359,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
          return ZanoURI(amount: amount, address: address.address);
       case WalletType.decred:
         return DecredURI(amount: amount, address: address.address);
+      case WalletType.digibyte:
+        return DigibyteURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
