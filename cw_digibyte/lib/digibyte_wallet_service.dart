@@ -46,7 +46,7 @@ class DigibyteWalletService extends WalletService<
         break;
     }
 
-    final wallet = await DigibyteWalletBase(
+    final wallet = await DigibyteWalletBase.create(
       mnemonic: mnemonic,
       password: credentials.password!,
       passphrase: credentials.passphrase,
@@ -168,7 +168,7 @@ class DigibyteWalletService extends WalletService<
       throw DigibyteMnemonicIsIncorrectException();
     }
 
-    final wallet = await DigibyteWalletBase(
+    final wallet = await DigibyteWalletBase.create(
       password: credentials.password!,
       passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
