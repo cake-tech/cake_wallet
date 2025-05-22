@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
+import 'digibyte_mnemonic_is_incorrect_exception.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -30,7 +30,7 @@ class DigibyteWalletService extends WalletService<
   final bool isDirect;
 
   @override
-  WalletType getType() => WalletType.bitcoin;
+  WalletType getType() => WalletType.digibyte;
 
   @override
   Future<DigibyteWallet> create(BitcoinNewWalletCredentials credentials, {bool? isTestnet}) async {
@@ -165,7 +165,7 @@ class DigibyteWalletService extends WalletService<
   @override
   Future<DigibyteWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
-      throw LitecoinMnemonicIsIncorrectException();
+      throw DigibyteMnemonicIsIncorrectException();
     }
 
     final wallet = await DigibyteWalletBase(
