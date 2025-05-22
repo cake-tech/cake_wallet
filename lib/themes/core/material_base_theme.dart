@@ -9,6 +9,8 @@ abstract class MaterialThemeBase {
 
   String get title;
 
+  ThemeMode get themeMode;
+
   ThemeType get type;
 
   Color get errorColor;
@@ -23,7 +25,7 @@ abstract class MaterialThemeBase {
 
   ColorScheme get colorScheme;
 
-  // Color get tertiaryColor;
+  Color get tertiaryColor;
 
   TextTheme get textTheme;
 

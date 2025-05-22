@@ -14,11 +14,20 @@ class ThemeList {
   static MaterialThemeBase deserialize({required int raw}) {
     switch (raw) {
       case 0:
+      case 2:
+      case 4:
+      case 5:
+      case 7:
+      case 10:
+      case 11:
         return lightTheme;
       case 1:
-        return darkTheme;
+      case 3:
+      case 6:
+      case 8:
+      case 9:
       default:
-        throw Exception('Unexpected token raw: $raw for deserialization of MaterialBaseTheme');
+        return darkTheme;
     }
   }
 }

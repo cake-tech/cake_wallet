@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
-/// Light theme implementation using Material 3
 class LightTheme extends MaterialThemeBase {
   @override
   Brightness get brightness => Brightness.light;
+
+  @override
+  ThemeMode get themeMode => ThemeMode.light;
 
   @override
   Color get primaryColor => const Color(0xFF4EBEFF);
@@ -12,8 +14,8 @@ class LightTheme extends MaterialThemeBase {
   @override
   Color get secondaryColor => const Color(0xFF625C64);
 
-  // @override
-  // Color get tertiaryColor => const Color(0xFF403747);
+  @override
+  Color get tertiaryColor => const Color(0xFFBFCBDE);
 
   @override
   Color get errorColor => const Color(0xFFBA1A1A);
@@ -31,6 +33,10 @@ class LightTheme extends MaterialThemeBase {
         onSecondary: const Color(0xFFFFFFFF),
         secondaryContainer: const Color(0xFFE1E4EA),
         onSecondaryContainer: const Color(0xFF4C474E),
+        tertiary: tertiaryColor,
+        onTertiary: const Color(0xFFFFFFFF),
+        tertiaryContainer: const Color(0xFF35404A),
+        onTertiaryContainer: const Color(0xFFC5D7E5),
         error: errorColor,
         onError: const Color(0xFFFFFFFF),
         errorContainer: const Color(0xFFFFBDBD),
@@ -38,19 +44,13 @@ class LightTheme extends MaterialThemeBase {
         surface: surfaceColor,
         onSurface: const Color(0xFF312938),
         onSurfaceVariant: const Color(0xFF6C6772),
-
-        // outline: const Color(0x6C6772),
-        // outlineVariant: const Color(0xE1E4EA),
-        // shadow: const Color(0xFF000000),
-        // scrim: const Color(0xFF000000),
-        // inverseSurface: const Color(0x312938),
-        // onInverseSurface: const Color(0xEFEFF8),
-        // inversePrimary: primaryColor.withAlpha(204),
-        // surfaceTint: primaryColor.withAlpha(13),
-        // tertiary: tertiaryColor,
-        // onTertiary: const Color(0xFFFFFF),
-        // tertiaryContainer: const Color(0xE1E4EA),
-        // onTertiaryContainer: const Color(0x4C474E),
+        surfaceContainerLowest: Color(0xFFE4E4E4),
+        surfaceContainerLow: Color(0xFFECECED),
+        surfaceContainer: Color(0xFFFBFBFD),
+        surfaceContainerHigh: Color(0xFFFDFDFE),
+        surfaceContainerHighest: Color(0xFFFFFFFF),
+        outline: const Color(0xFF7B757C),
+        outlineVariant: const Color(0xFFCBC4CB),
       );
 
   @override
@@ -147,11 +147,13 @@ class LightTheme extends MaterialThemeBase {
         ),
       );
 
+  static const String fontFamily = 'Lato';
   @override
   ThemeData get themeData => ThemeData(
         useMaterial3: true,
         brightness: brightness,
         colorScheme: colorScheme,
+        fontFamily: fontFamily,
         textTheme: textTheme,
         appBarTheme: AppBarTheme(
           backgroundColor: colorScheme.surface,
@@ -194,7 +196,7 @@ class LightTheme extends MaterialThemeBase {
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: colorScheme.surfaceVariant,
+          fillColor: colorScheme.surfaceContainerHighest,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,

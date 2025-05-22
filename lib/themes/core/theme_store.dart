@@ -14,10 +14,6 @@ part 'theme_store.g.dart';
 class ThemeStore = ThemeStoreBase with _$ThemeStore;
 
 abstract class ThemeStoreBase with Store {
-  ThemeStoreBase() {
-    loadThemePreferences();
-  }
-
   @observable
   MaterialThemeBase _currentTheme = ThemeList.lightTheme;
 
@@ -43,42 +39,97 @@ abstract class ThemeStoreBase with Store {
     await sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw);
   }
 
+  @action
+  Future<void> setThemeMode(ThemeMode mode, {bool shouldRefreshTheme = true}) async {
+    if (_themeMode == mode) return;
+
+    _themeMode = mode;
+    await sharedPreferences.setString(PreferencesKey.themeMode, mode.toString());
+
+    if (mode == ThemeMode.system && shouldRefreshTheme) {
+      setTheme(getThemeFromSystem());
+    }
+  }
+
   /// Loads the saved theme preferences
   Future<void> loadThemePreferences() async {
     sharedPreferences = await SharedPreferences.getInstance();
 
-    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
-    MaterialThemeBase? initialTheme;
+    await _loadThemeMode();
+    await _loadAndSetTheme();
 
-    if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) {
-      initialTheme = null;
-      if (isNewInstall) {
-        setTheme(_getThemeFromSystem());
-      } else {
-        final savedTheme = sharedPreferences.getInt(PreferencesKey.currentTheme);
-        if (savedTheme != null) {
-          try {
-            final theme = ThemeList.deserialize(raw: savedTheme);
-            _currentTheme = theme;
-          } catch (e) {
-            final _fallbackTheme = _getThemeFromSystem();
-            _currentTheme = _fallbackTheme;
-          }
-        }
-      }
-    } else {
-      // Enforce darkTheme on platforms other than mobile
-      initialTheme = ThemeList.darkTheme;
-      setTheme(initialTheme);
+    _setupThemeReaction();
+  }
+
+  /// Loads the saved theme mode from SharedPreferences
+  Future<void> _loadThemeMode() async {
+    final savedThemeMode = sharedPreferences.getString(PreferencesKey.themeMode);
+    if (savedThemeMode != null) {
+      _themeMode = ThemeMode.values.firstWhere(
+        (mode) => mode.toString() == savedThemeMode,
+        orElse: () => ThemeMode.system,
+      );
     }
+  }
 
+  /// Loads and sets the appropriate theme based on platform and installation status
+  Future<void> _loadAndSetTheme() async {
+    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
+
+    bool shouldUseMobileTheme =
+        responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile;
+
+    if (shouldUseMobileTheme) {
+      await _handleMobileTheme(isNewInstall);
+    } else {
+      await _handleNonMobileTheme();
+    }
+  }
+
+  /// Handles theme loading for non-mobile platforms
+  Future<void> _handleNonMobileTheme() async {
+    await setTheme(ThemeList.darkTheme);
+    await setThemeMode(ThemeMode.dark);
+  }
+
+  /// Handles theme loading for mobile platforms
+  Future<void> _handleMobileTheme(bool isNewInstall) async {
+    if (isNewInstall) {
+      await _setSystemTheme();
+    } else {
+      await _loadSavedTheme();
+    }
+  }
+
+  /// Sets the theme based on system brightness
+  Future<void> _setSystemTheme() async {
+    await setTheme(getThemeFromSystem());
+    await setThemeMode(ThemeMode.system);
+  }
+
+  /// Loads the saved theme from SharedPreferences
+  Future<void> _loadSavedTheme() async {
+    final savedTheme = sharedPreferences.getInt(PreferencesKey.currentTheme);
+    if (savedTheme != null) {
+      try {
+        final theme = ThemeList.deserialize(raw: savedTheme);
+        await setTheme(theme);
+        await setThemeMode(ThemeMode.system, shouldRefreshTheme: false);
+      } catch (e) {
+        await _setSystemTheme();
+      }
+    }
+  }
+
+  /// Sets up a reaction to save theme changes to SharedPreferences
+  void _setupThemeReaction() {
     reaction(
       (_) => currentTheme,
       (MaterialThemeBase theme) => sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw),
     );
   }
 
-  MaterialThemeBase _getThemeFromSystem() {
+  MaterialThemeBase getThemeFromSystem() {
     final systemBrightness = WidgetsBinding.instance.window.platformBrightness;
     return systemBrightness == Brightness.dark ? ThemeList.darkTheme : ThemeList.lightTheme;
   }

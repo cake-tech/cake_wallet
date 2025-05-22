@@ -290,7 +290,30 @@ class App extends StatefulWidget {
   AppState createState() => AppState();
 }
 
-class AppState extends State<App> with SingleTickerProviderStateMixin {
+class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    final appStore = getIt.get<AppStore>();
+    if (appStore.themeStore.themeMode == ThemeMode.system) {
+      final systemTheme = appStore.themeStore.getThemeFromSystem();
+      if (appStore.themeStore.currentTheme != systemTheme) {
+        appStore.themeStore.setTheme(systemTheme);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Observer(
@@ -400,11 +423,15 @@ class TopLevelErrorWidget extends StatelessWidget {
               children: [
                 Text(
                   'Error:\n${error.toString()}',
-                  style: TextStyle(fontSize: 22),
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: 22,
+                      ),
                 ),
                 Text(
                   'Stack trace:\n${stackTrace.toString()}',
-                  style: TextStyle(fontSize: 16),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                      ),
                 ),
               ],
             ),

@@ -47,7 +47,7 @@ Material 3 provides a comprehensive set of semantic color tokens that adapt to l
 
 ### Theme Management
 
-Theme state (light/dark/system) and switching is handled via MobX stores in `core/`. Use the provided store to get/set the current theme mode and listen for changes.
+Theme mode state (light/dark/system) and switching is handled via MobX stores in `core/`. Use the provided store to get/set the current theme mode and listen for changes.
 
 ```dart
 // Example: Getting the current theme mode

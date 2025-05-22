@@ -153,11 +153,9 @@ import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
-import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
@@ -326,7 +324,11 @@ Future<void> setup({
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
     getIt.registerSingleton<SecureStorage>(secureStorage);
-    getIt.registerSingleton<ThemeStore>(ThemeStore());
+    getIt.registerSingletonAsync<ThemeStore>(() async {
+      final store = ThemeStore();
+      await store.loadThemePreferences();
+      return store;
+    });
   }
 
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
