@@ -146,12 +146,12 @@ class SeedWidgetState extends State<SeedWidget> {
   }
 
   Future<void> _pasteText() async {
-    final value = await Clipboard.getData('text/plain');
+    final value = (await Clipboard.getData('text/plain'))?.text?.trim();
 
-    if (value?.text?.isNotEmpty ?? false) {
+    if (value?.isNotEmpty ?? false) {
       setState(() {
         _showPlaceholder = false;
-        controller.text = value!.text!;
+        controller.text = value!;
       });
     }
   }

@@ -202,6 +202,7 @@
   "copy": "Kopyahin",
   "copy_address": "Kopyahin ang Address",
   "copy_id": "Kopyahin ang ID",
+  "copy_payjoin_address": "Kopyahin ang address ng PayJoin",
   "copy_payjoin_url": "Kopyahin ang Payjoin url",
   "copyWalletConnectLink": "Kopyahin ang link ng WalletConnect mula sa dApp at i-paste dito",
   "corrupted_seed_notice": "Ang mga file para sa pitaka na ito ay nasira at hindi mabubuksan. Mangyaring tingnan ang parirala ng binhi, i -save ito, at ibalik ang pitaka.\n\nKung ang halaga ay walang laman, kung gayon ang binhi ay hindi ma -recover nang tama.",

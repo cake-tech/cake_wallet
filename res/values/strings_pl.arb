@@ -202,6 +202,7 @@
   "copy": "Kopiuj",
   "copy_address": "Skopiuj adress",
   "copy_id": "skopiuj ID",
+  "copy_payjoin_address": "Kopiuj adres PAYJOIN",
   "copy_payjoin_url": "Skopiuj Payjoin url",
   "copyWalletConnectLink": "Skopiuj link do WalletConnect z dApp i wklej tutaj",
   "corrupted_seed_notice": "Pliki dla tego portfela są uszkodzone i nie można ich otworzyć. Zobacz frazę seed, zapisz je i przywróć portfel.\n\nJeśli wartość jest pusta, frazy seed nie można było poprawnie odzyskać.",

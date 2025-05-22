@@ -1,5 +1,4 @@
-Background sync improvements
-Payment notifications
-WalletConnect enhancements
-UI/UX improvements
+Add Bitcoin Payjoin
+Monero enhancements
+UI improvements
 Bug fixes

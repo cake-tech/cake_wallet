@@ -97,8 +97,7 @@ class QRWidget extends StatelessWidget {
                                 padding: EdgeInsets.zero,
                                 decoration: BoxDecoration(
                                   border: Border(top: BorderSide.none),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: BorderRadius.all(Radius.circular(5)),
                                   color: Colors.white,
                                 ),
                                 child: Column(
@@ -112,11 +111,10 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    if (addressListViewModel
-                                        .payjoinEndpoint.isNotEmpty) ...[
+                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty &&
+                                        !addressListViewModel.isSilentPayments) ...[
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Padding(
                                             padding: EdgeInsets.only(
@@ -196,10 +194,12 @@ class QRWidget extends StatelessWidget {
                             walletType: addressListViewModel.type,
                             textAlign: TextAlign.center,
                             evenTextStyle: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color:
-                                    Theme.of(context).extension<DashboardPageTheme>()!.textColor))),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                            ),
+                          ),
+                        ),
                         Padding(
                           padding: EdgeInsets.only(left: 12),
                           child: copyImage,
@@ -210,24 +210,27 @@ class QRWidget extends StatelessWidget {
                 ),
               ),
             ),
-            if (addressListViewModel.payjoinEndpoint.isNotEmpty) ...[
-              Padding(
-                padding: EdgeInsets.only(top: 12),
-                child: PrimaryImageButton(
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(
-                        text: addressListViewModel.payjoinEndpoint));
-                    showBar<void>(context, S.of(context).copied_to_clipboard);
-                  },
-                  image: Image.asset('assets/images/payjoin.png', width: 25,),
-                  text: S.of(context).copy_payjoin_url,
-                  color: Theme.of(context).cardColor,
-                  textColor: Theme.of(context)
-                      .extension<CakeTextTheme>()!
-                      .buttonTextColor,
+            Observer(
+              builder: (_) => Offstage(
+                offstage: addressListViewModel.payjoinEndpoint.isEmpty || addressListViewModel.isSilentPayments,
+                child: Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: PrimaryImageButton(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: addressUri.toString()));
+                      showBar<void>(context, S.of(context).copied_to_clipboard);
+                    },
+                    image: Image.asset(
+                      'assets/images/payjoin.png',
+                      width: 25,
+                    ),
+                    text: S.of(context).copy_payjoin_address,
+                    color: Theme.of(context).cardColor,
+                    textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                  ),
                 ),
               ),
-            ],
+            ),
           ],
         ),
       ),

@@ -82,7 +82,7 @@ class BitcoinURI extends PaymentURI {
     final qp = <String, String>{};
 
     if (amount.isNotEmpty) qp['amount'] = amount.replaceAll(',', '.');
-    if (pjUri.isNotEmpty) {
+    if (pjUri.isNotEmpty && !address.startsWith("sp")) {
       qp['pjos'] = '0';
       qp['pj'] = pjUri;
     }

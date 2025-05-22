@@ -104,6 +104,7 @@ class MeldBuyProvider extends BuyProvider {
         required bool isBuyAction,
         required String walletAddress,
         PaymentType? paymentType,
+        String? customPaymentMethodType,
         String? countryCode}) async {
     String? paymentMethod;
     if (paymentType != null && paymentType != PaymentType.all) {

@@ -25,8 +25,8 @@ bool isUpdating = false;
 void refreshAccounts() {
   try {
     isUpdating = true;
-    subaddressAccount = currentWallet!.subaddressAccount();
-    subaddressAccount!.refresh();
+    subaddressAccount = currentWallet?.subaddressAccount();
+    subaddressAccount?.refresh();
     isUpdating = false;
   } catch (e) {
     isUpdating = false;

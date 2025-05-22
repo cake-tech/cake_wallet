@@ -70,7 +70,7 @@ class MainActions {
   );
 
   static MainActions tradeAction = MainActions._(
-    name: (context) => S.of(context).exchange,
+    name: (context) => S.of(context).buy,
     image: 'assets/images/buy_sell.png',
     isEnabled: (viewModel) => viewModel.isEnabledTradeAction,
     canShow: (viewModel) => viewModel.hasTradeAction,

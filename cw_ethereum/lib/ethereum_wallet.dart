@@ -31,11 +31,14 @@ class EthereumWallet extends EVMChainWallet {
   }) : super(nativeCurrency: CryptoCurrency.eth);
 
   @override
-  void addInitialTokens() {
+  void addInitialTokens([bool isMigration = false]) {
     final initialErc20Tokens = DefaultEthereumErc20Tokens().initialErc20Tokens;
 
-    for (var token in initialErc20Tokens) {
-      evmChainErc20TokensBox.put(token.contractAddress, token);
+    for (final token in initialErc20Tokens) {
+      if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
+        if (isMigration) token.enabled = false;
+        evmChainErc20TokensBox.put(token.contractAddress, token);
+      }
     }
   }
 

@@ -162,6 +162,7 @@ class MoonPayProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     String? paymentMethod;
 
@@ -410,7 +411,7 @@ class MoonPayProvider extends BuyProvider {
       case 'yellow_card_bank_transfer':
         return PaymentType.yellowCardBankTransfer;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 }
