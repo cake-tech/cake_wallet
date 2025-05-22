@@ -173,6 +173,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.bitcoinCash:
         return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
+      case WalletType.digibyte:
+        return 'https://blockchair.com/digibyte/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
       case WalletType.ethereum:
@@ -206,6 +208,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'mempool.space';
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+        return S.current.view_transaction_on + 'Blockchair.com';
+      case WalletType.digibyte:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
