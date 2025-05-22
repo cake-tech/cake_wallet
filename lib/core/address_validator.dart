@@ -12,12 +12,16 @@ class AddressValidator extends TextValidator {
   AddressValidator({required CryptoCurrency type})
       : super(
             errorMessage: S.current.error_text_address,
-            useAdditionalValidation: type == CryptoCurrency.btc || type == CryptoCurrency.ltc
+            useAdditionalValidation: type == CryptoCurrency.btc ||
+                    type == CryptoCurrency.ltc ||
+                    type == CryptoCurrency.digibyte
                 ? (String txt) => BitcoinAddressUtils.validateAddress(
                       address: txt,
                       network: type == CryptoCurrency.btc
                           ? BitcoinNetwork.mainnet
-                          : LitecoinNetwork.mainnet,
+                          : type == CryptoCurrency.ltc
+                              ? LitecoinNetwork.mainnet
+                              : DigibyteNetwork.mainnet,
                     )
                 : type == CryptoCurrency.zano 
                     ? zano?.validateAddress
@@ -41,6 +45,9 @@ class AddressValidator extends TextValidator {
             '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${RegExp(r'(bc|tb)1q[ac-hj-np-z02-9]{25,39}}').pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
       case CryptoCurrency.ltc:
         pattern = '^${RegExp(r'ltc1q[ac-hj-np-z02-9]{25,39}').pattern}\$|^${MwebAddress.regex.pattern}\$';
+      case CryptoCurrency.digibyte:
+        pattern =
+            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
       case CryptoCurrency.nano:
         pattern = '[0-9a-zA-Z_]+';
       case CryptoCurrency.banano:
@@ -162,6 +169,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btc:
         return null;
       case CryptoCurrency.ltc:
+        return null;
+      case CryptoCurrency.digibyte:
         return null;
       case CryptoCurrency.dash:
         return [34];
@@ -305,6 +314,9 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)ltc[a-zA-Z0-9]{26,45}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)((ltc|t)mweb1q[ac-hj-np-z02-9]{90,120})([^0-9a-zA-Z]|\$)';
+      case CryptoCurrency.digibyte:
+        pattern =
+            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
       case CryptoCurrency.eth:
       case CryptoCurrency.maticpoly:
         pattern = '0x[0-9a-zA-Z]+';
