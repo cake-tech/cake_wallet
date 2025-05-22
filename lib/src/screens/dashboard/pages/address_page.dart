@@ -150,13 +150,13 @@ class AddressPage extends BasePage {
               Expanded(
                   child: Observer(
                       builder: (_) => QRWidget(
-                          formKey: _formKey,
-                          addressListViewModel: addressListViewModel,
-                          amountTextFieldFocusNode: _cryptoAmountFocus,
-                          amountController: _amountController,
-                          isLight: dashboardViewModel.settingsStore.currentTheme.type ==
-                              ThemeType.light,
-                        ))),
+                            formKey: _formKey,
+                            addressListViewModel: addressListViewModel,
+                            amountTextFieldFocusNode: _cryptoAmountFocus,
+                            amountController: _amountController,
+                            currentTheme:
+                                dashboardViewModel.settingsStore.currentTheme,
+                          ))),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
