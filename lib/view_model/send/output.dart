@@ -99,6 +99,7 @@ abstract class OutputBase with Store {
           case WalletType.bitcoin:
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
+          case WalletType.digibyte:
             _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.decred:
@@ -166,7 +167,9 @@ abstract class OutputBase with Store {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash) {
+      if (_wallet.type == WalletType.litecoin ||
+          _wallet.type == WalletType.bitcoinCash ||
+          _wallet.type == WalletType.digibyte) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
@@ -307,6 +310,7 @@ abstract class OutputBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.digibyte:
         maximumFractionDigits = 8;
         break;
       case WalletType.wownero:
