@@ -99,7 +99,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           children: childWallets.map(
             (item) {
               final currentColor = item.isCurrent
-                  ? Theme.of(context).colorScheme.primaryContainer
+                  ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.surface;
               final walletTypeToCrypto = walletTypeToCryptoCurrency(item.type);
               return ListTile(

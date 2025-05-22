@@ -18,7 +18,7 @@ class NavigationDock extends StatelessWidget {
       child: Observer(
         builder: (_) {
           return Container(
-            height: 100,
+            height: 150,
             alignment: Alignment.bottomCenter,
             decoration: BoxDecoration(
               gradient: LinearGradient(

@@ -169,7 +169,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                         shape: BoxShape.circle,
                         color: isFilled
                             ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.primary.withOpacity(0.25),
+                            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
                       ));
                 }),
               ),
@@ -230,7 +230,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         child: TextButton(
                                           onPressed: () => _pop(),
                                           style: TextButton.styleFrom(
-                                            backgroundColor: Theme.of(context).colorScheme.surface,
+                                            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                                             shape: CircleBorder(),
                                           ),
                                           child: deleteIconImage,
@@ -248,7 +248,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                     key: ValueKey('pin_code_button_${index}_key'),
                                     onPressed: () => _push(index),
                                     style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                                      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                                       shape: CircleBorder(),
                                     ),
                                     child: Text('$index',

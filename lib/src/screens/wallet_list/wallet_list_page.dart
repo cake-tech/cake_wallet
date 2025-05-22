@@ -82,11 +82,11 @@ class WalletListPage extends BasePage {
                   width: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
                   ),
                   child: Image.asset(
                     'assets/images/filter_icon.png',
-                    color: Theme.of(context).colorScheme.onSecondary,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -356,7 +356,39 @@ class WalletListBodyState extends State<WalletListBody> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    PrimaryButton(
+                    PrimaryImageButton(
+                      image: Image.asset(
+                        'assets/images/restore_wallet.png',
+                        height: 12,
+                        width: 12,
+                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                      key: ValueKey('wallet_list_page_restore_wallet_button_key'),
+                      onPressed: () {
+                        if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
+                          widget.authService.authenticateAction(
+                            context,
+                            route: Routes.restoreOptions,
+                            arguments: false,
+                            conditionToDetermineIfToUse2FA: widget
+                                .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
+                          );
+                        } else {
+                          Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
+                        }
+                      },
+                      text: S.of(context).wallet_list_restore_wallet,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                    SizedBox(height: 10.0),
+                    PrimaryImageButton(
+                      image: Image.asset(
+                        'assets/images/new_wallet.png',
+                        height: 12,
+                        width: 12,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                       key: ValueKey('wallet_list_page_create_new_wallet_button_key'),
                       onPressed: () {
                         //TODO(David): Find a way to optimize this
@@ -397,32 +429,6 @@ class WalletListBodyState extends State<WalletListBody> {
                       text: S.of(context).wallet_list_create_new_wallet,
                       color: Theme.of(context).colorScheme.primary,
                       textColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    SizedBox(height: 10.0),
-                    PrimaryImageButton(
-                      image: Image.asset(
-                        'assets/images/restore_wallet.png',
-                        height: 12,
-                        width: 12,
-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
-                      ),
-                      key: ValueKey('wallet_list_page_restore_wallet_button_key'),
-                      onPressed: () {
-                        if (widget.walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets) {
-                          widget.authService.authenticateAction(
-                            context,
-                            route: Routes.restoreOptions,
-                            arguments: false,
-                            conditionToDetermineIfToUse2FA: widget
-                                .walletListViewModel.shouldRequireTOTP2FAForCreatingNewWallets,
-                          );
-                        } else {
-                          Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
-                        }
-                      },
-                      text: S.of(context).wallet_list_restore_wallet,
-                      color: Theme.of(context).colorScheme.surfaceContainer,
-                      textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                     ),
                   ],
                 ),
