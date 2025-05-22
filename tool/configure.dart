@@ -1520,6 +1520,10 @@ Future<void> generatePubspec({
       // On Windows it could contains `\r` (Carriage Return). It could be fixed in newer dart versions.
       ? line.toLowerCase() == 'dependencies:\r' || line.toLowerCase() == 'dependencies:'
       : line.toLowerCase() == 'dependencies:');
+
+  // Remove existing cw_* dependency lines so they don't duplicate on reruns
+  inputLines.removeWhere((line) =>
+      line.trim().startsWith('cw_') || line.contains('./cw_'));
   var output = cwCore;
 
   if (hasMonero) {
