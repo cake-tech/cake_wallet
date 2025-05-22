@@ -779,6 +779,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.dcr;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.digibyte:
+        depositCurrency = CryptoCurrency.digibyte;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.none:
         break;
     }
