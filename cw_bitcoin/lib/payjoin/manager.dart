@@ -17,7 +17,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
 import 'package:payjoin_flutter/send.dart';
-import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
 import 'package:payjoin_flutter/src/config.dart' as pj_config;
 import 'package:payjoin_flutter/uri.dart' as PayjoinUri;
 
@@ -48,11 +47,11 @@ class PayjoinManager {
       if (session.isSenderSession) {
         printV("Resuming Payjoin Sender Session ${session.pjUri!}");
         return _spawnSender(
-          sender: Sender.fromJson(session.sender!),
+          sender: Sender.fromJson(json: session.sender!),
           pjUri: session.pjUri!,
         );
       }
-      final receiver = Receiver.fromJson(session.receiver!);
+      final receiver = Receiver.fromJson(json: session.receiver!);
       printV("Resuming Payjoin Receiver Session ${receiver.id()}");
       return _spawnReceiver(receiver: receiver);
     });

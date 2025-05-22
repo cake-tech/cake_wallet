@@ -31,7 +31,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   final PayjoinManager payjoinManager;
 
-  @observable
   payjoin.Receiver? currentPayjoinReceiver;
 
   @observable
@@ -58,6 +57,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
+  @action
   Future<void> initPayjoin() async {
     await payjoinManager.initPayjoin();
     currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
@@ -66,6 +66,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     payjoinManager.resumeSessions();
   }
 
+  @action
   Future<void> newPayjoinReceiver() async {
     currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
     payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
