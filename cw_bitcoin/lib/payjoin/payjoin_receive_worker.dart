@@ -43,7 +43,7 @@ class PayjoinReceiverWorker {
 
     try {
       final httpClient = http.Client();
-      final receiver = Receiver.fromJson(receiverJson);
+      final receiver = Receiver.fromJson(json: receiverJson);
 
       final uncheckedProposal =
           await worker.receiveUncheckedProposal(httpClient, receiver);
@@ -217,6 +217,6 @@ class PayjoinReceiverWorker {
       sequence: 0,
     );
 
-    return InputPair.newInstance(txin, psbtin);
+    return InputPair.newInstance(txin: txin, psbtin: psbtin);
   }
 }

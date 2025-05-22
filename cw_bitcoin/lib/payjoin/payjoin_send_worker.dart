@@ -31,7 +31,7 @@ class PayjoinSenderWorker {
     final senderJson = args[1] as String;
     final pjUrl = args[2] as String;
 
-    final sender = Sender.fromJson(senderJson);
+    final sender = Sender.fromJson(json: senderJson);
     final worker = PayjoinSenderWorker._(sendPort, pjUrl);
 
     try {
