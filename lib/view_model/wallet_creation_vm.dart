@@ -188,6 +188,16 @@ abstract class WalletCreationVMBase with Store {
           description: "Standard BIP84 native segwit (litecoin)",
           scriptType: "p2wpkh",
         );
+      case WalletType.digibyte:
+        if (useElectrum) {
+          return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+        }
+        return DerivationInfo(
+          derivationType: DerivationType.bip39,
+          derivationPath: "m/84'/20'/0'/0",
+          description: "Standard BIP84 native segwit (digibyte)",
+          scriptType: "p2wpkh",
+        );
       default:
         return null;
     }
@@ -203,6 +213,7 @@ abstract class WalletCreationVMBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.digibyte:
         final derivationList = await bitcoin!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
           node: node,

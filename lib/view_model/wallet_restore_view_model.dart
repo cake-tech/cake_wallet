@@ -112,6 +112,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               name: name, height: height, mnemonic: seed, password: password, passphrase: passphrase??'');
         case WalletType.bitcoin:
         case WalletType.litecoin:
+        case WalletType.digibyte:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
@@ -241,6 +242,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             privateKey: options['private_key'] as String,
           );
+        case WalletType.digibyte:
+          return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
+            name: name,
+            password: password,
+            wif: options['private_key'] as String,
+          );
         case WalletType.wownero:
           return wownero!.createWowneroRestoreWalletFromKeysCredentials(
             name: name,
@@ -274,6 +281,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     switch (walletType) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.digibyte:
         String? mnemonic = credentials['seed'] as String?;
         String? passphrase = credentials['passphrase'] as String?;
         return bitcoin!.getDerivationsFromMnemonic(
