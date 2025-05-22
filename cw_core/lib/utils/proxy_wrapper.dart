@@ -30,8 +30,6 @@ class ProxyWrapper {
             password: null,
           ),
       ]);
-    } else {
-      printV("+++++++ TOR NOT STARTED");
     }
 
     return client;
