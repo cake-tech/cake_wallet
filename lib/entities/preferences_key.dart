@@ -51,7 +51,6 @@ class PreferencesKey {
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
-  static const digibyteTransactionPriority = 'current_fee_priority_digibyte';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
   static const decredTransactionPriority = 'current_fee_priority_decred';
