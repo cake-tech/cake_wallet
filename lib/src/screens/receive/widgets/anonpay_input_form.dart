@@ -68,6 +68,7 @@ class AnonInvoiceForm extends StatelessWidget {
             ),
           SizedBox(height: 24),
           BaseTextFormField(
+            hasUnderlineBorder: true,
             controller: nameController,
             focusNode: _nameFocusNode,
             suffixIcon: SizedBox(width: 36),
@@ -85,6 +86,7 @@ class AnonInvoiceForm extends StatelessWidget {
           ),
           SizedBox(height: 24),
           BaseTextFormField(
+            hasUnderlineBorder: true,
             controller: descriptionController,
             focusNode: _descriptionFocusNode,
             textInputAction: TextInputAction.next,
@@ -102,6 +104,7 @@ class AnonInvoiceForm extends StatelessWidget {
           ),
           SizedBox(height: 24),
           BaseTextFormField(
+            hasUnderlineBorder: true,
             controller: emailController,
             textInputAction: TextInputAction.next,
             focusNode: _emailFocusNode,

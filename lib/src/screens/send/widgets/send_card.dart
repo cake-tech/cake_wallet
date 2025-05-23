@@ -95,19 +95,23 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     /// if the current wallet doesn't match the one in the qr code
     if (initialPaymentRequest != null &&
         sendViewModel.walletCurrencyName != initialPaymentRequest!.scheme.toLowerCase()) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        if (mounted) {
-          showPopUp<void>(
+      WidgetsBinding.instance.addPostFrameCallback(
+        (timeStamp) {
+          if (mounted) {
+            showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: S.of(context).unmatched_currencies,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        }
-      });
+                  alertTitle: S.of(context).error,
+                  alertContent: S.of(context).unmatched_currencies,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              },
+            );
+          }
+        },
+      );
     }
   }
 
@@ -171,6 +175,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     : sendViewModel.addressValidator;
 
                 return AddressTextField(
+                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                  hasUnderlineBorder: true,
                   fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   addressKey: ValueKey('send_page_address_textfield_key'),
                   focusNode: addressFocusNode,
@@ -233,6 +239,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   ),
                 ),
               CurrencyAmountTextField(
+                borderWidth: 0.0,
+                hasUnderlineBorder: true,
                 fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 currencyPickerButtonKey: ValueKey('send_page_currency_picker_button_key'),
                 amountTextfieldKey: ValueKey('send_page_amount_textfield_key'),
@@ -254,6 +262,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 allAmountCallback: () async =>
                     output.setSendAll(await sendViewModel.sendingBalance),
               ),
+              Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
               Observer(
                 builder: (_) {
                   // force rebuild on mobx
@@ -293,6 +302,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
               ),
               if (!sendViewModel.isFiatDisabled)
                 CurrencyAmountTextField(
+                  borderWidth: 0.0,
+                  hasUnderlineBorder: true,
                   fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   amountTextfieldKey: ValueKey('send_page_fiat_amount_textfield_key'),
                   currencyAmountTextFieldWidgetKey:
@@ -304,9 +315,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   isAmountEditable: true,
                   allAmountButton: false,
                 ),
+              Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
               Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: BaseTextFormField(
+                  hasUnderlineBorder: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 8),
                   fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   key: ValueKey('send_page_note_textfield_key'),
                   controller: noteController,

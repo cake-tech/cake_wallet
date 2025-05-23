@@ -30,6 +30,8 @@ class CurrencyAmountTextField extends StatelessWidget {
     this.currencyAmountTextFieldWidgetKey,
     this.fillColor,
     this.borderColor,
+    this.hasUnderlineBorder = false,
+    this.borderWidth = 1.0,
   }) : super(key: currencyAmountTextFieldWidgetKey);
 
   final Key? sendAllButtonKey;
@@ -56,6 +58,9 @@ class CurrencyAmountTextField extends StatelessWidget {
   final VoidCallback? onTapPicker;
   final Color? fillColor;
   final Color? borderColor;
+  final bool hasUnderlineBorder;
+  final double borderWidth;
+
   @override
   Widget build(BuildContext context) {
     final textColor = Theme.of(context).colorScheme.onSurface;
@@ -165,6 +170,8 @@ class CurrencyAmountTextField extends StatelessWidget {
                   child: FocusTraversalOrder(
                     order: NumericFocusOrder(1),
                     child: BaseTextFormField(
+                      hasUnderlineBorder: hasUnderlineBorder,
+                      borderWidth: borderWidth,
                       key: amountTextfieldKey,
                       focusNode: amountFocusNode,
                       controller: amountController,

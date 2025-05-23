@@ -76,18 +76,21 @@ class DisplaySettingsPage extends BasePage {
                   return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
                 },
               ),
-              SettingsSwitcherCell(
-                title: 'Use Device Theme',
-                value: _displaySettingsViewModel.themeMode == ThemeMode.system,
-                onValueChange: (_, bool value) {
-                  _displaySettingsViewModel.setThemeMode(value ? ThemeMode.system : ThemeMode.dark);
-                },
-              ),
-              if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile)
+
+              if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
+                SettingsSwitcherCell(
+                  title: S.current.use_device_theme,
+                  value: _displaySettingsViewModel.themeMode == ThemeMode.system,
+                  onValueChange: (_, bool value) {
+                    _displaySettingsViewModel
+                        .setThemeMode(value ? ThemeMode.system : ThemeMode.dark);
+                  },
+                ),
                 Semantics(
                   label: S.current.color_theme,
                   child: SettingsThemeChoicesCell(_displaySettingsViewModel),
                 ),
+              ],
             ],
           ),
         );

@@ -98,6 +98,8 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                     children: [
                       Flexible(
                         child: BaseTextFormField(
+                          hasUnderlineBorder: true,
+                          borderWidth: 0.0,
                           focusNode: focusNode,
                           controller: controller,
                           textInputAction: TextInputAction.next,
@@ -125,6 +127,7 @@ class AnonpayCurrencyInputField extends StatelessWidget {
             ),
           ),
         ),
+        Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
         Container(
           height: 15,
           child: Row(

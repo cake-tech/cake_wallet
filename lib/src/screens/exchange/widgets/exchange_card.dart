@@ -211,6 +211,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             ],
           ),
           CurrencyAmountTextField(
+            hasUnderlineBorder: true,
+            borderWidth: 0.0,
             padding: EdgeInsets.zero,
             currencyPickerButtonKey: ValueKey('${_cardInstanceName}_currency_picker_button_key'),
             selectedCurrencyTextKey: ValueKey('${_cardInstanceName}_selected_currency_text_key'),
@@ -233,6 +235,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             allAmountCallback: widget.allAmount,
             fillColor: widget.fillColor,
           ),
+          Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
           Padding(
             padding: EdgeInsets.only(top: 5),
             child: widget.showLimitsField
@@ -287,6 +290,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                       child: Padding(
                         padding: widget.addressRowPadding ?? EdgeInsets.only(top: 12),
                         child: AddressTextField(
+                          hasUnderlineBorder: true,
+                          borderWidth: 0.0,
                           addressKey:
                               ValueKey('${_cardInstanceName}_editable_address_textfield_key'),
                           focusNode: widget.addressFocusNode,
@@ -338,6 +343,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                         FocusTraversalOrder(
                           order: NumericFocusOrder(3),
                           child: BaseTextFormField(
+                            hasUnderlineBorder: true,
+                            borderWidth: 0.0,
                             key:
                                 ValueKey('${_cardInstanceName}_non_editable_address_textfield_key'),
                             controller: addressController,
@@ -351,8 +358,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                           ),
                         ),
                         Positioned(
-                          top: 10,
-                          right: 4,
+                          top: 2,
+                          right: 0,
                           child: SizedBox(
                             width: _isMoneroWallet ? 80 : 36,
                             child: Row(

@@ -159,6 +159,8 @@ class QRWidget extends StatelessWidget {
                         child: Form(
                           key: formKey,
                           child: CurrencyAmountTextField(
+                            hasUnderlineBorder: true,
+                            borderWidth: 0.0,
                             selectedCurrency: _currencyName,
                             amountFocusNode: amountTextFieldFocusNode,
                             amountController: amountController,
@@ -176,7 +178,6 @@ class QRWidget extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 8),
             Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
             Padding(
               padding: EdgeInsets.only(top: 12, bottom: 8),

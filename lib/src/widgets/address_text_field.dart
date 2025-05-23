@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -32,6 +33,9 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.selectedCurrency,
     this.addressKey,
     this.fillColor,
+    this.hasUnderlineBorder = false,
+    this.borderWidth = 1.0,
+    this.contentPadding,
   });
 
   static const prefixIconWidth = 34.0;
@@ -48,9 +52,11 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final Color? buttonColor;
   final Color? fillColor;
   final Color? iconColor;
+  final double borderWidth;
   final TextStyle? textStyle;
   final TextStyle? hintStyle;
-
+  final bool hasUnderlineBorder;
+  final EdgeInsetsGeometry? contentPadding;
   final FocusNode? focusNode;
   final T? selectedCurrency;
   final Key? addressKey;
@@ -60,12 +66,14 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final Function(BuildContext context)? onPushAddressPickerButton;
   final Function(ContactBase contact)? onSelectedContact;
 
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        TextFormField(
+        BaseTextFormField(
+          contentPadding: contentPadding,
+          borderWidth: borderWidth,
+          hasUnderlineBorder: hasUnderlineBorder,
           key: addressKey,
           enableIMEPersonalizedLearning: false,
           keyboardType: TextInputType.visiblePassword,
@@ -73,28 +81,26 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
           enabled: isActive,
           controller: controller,
           focusNode: focusNode,
-          style: textStyle ??
+          textStyle: textStyle ??
               Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 16,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-          decoration: InputDecoration(
-            fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
-            suffixIcon: SizedBox(
-              width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
-            ),
-            hintStyle: hintStyle ??
-                Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-            hintText: placeholder ?? S.current.widgets_address,
+          fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
+          suffixIcon: SizedBox(
+            width: prefixIconWidth * options.length + (spaceBetweenPrefixIcons * options.length),
           ),
+          placeholderTextStyle: hintStyle ??
+              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+          hintText: placeholder ?? S.current.widgets_address,
           validator: validator,
         ),
         Positioned(
-          top: 10,
-          right: 8,
+          top: 2,
+          right: 0,
           child: SizedBox(
             width: (prefixIconWidth * options.length) + (spaceBetweenPrefixIcons * options.length),
             child: Row(

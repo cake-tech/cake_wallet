@@ -39,6 +39,10 @@ class BaseTextFormField extends StatelessWidget {
     this.cursorColor,
     this.cursorWidth,
     this.isDense,
+    this.enableIMEPersonalizedLearning,
+    this.onFieldSubmitted,
+    this.hasUnderlineBorder = false,
+    this.borderWidth = 1.0,
     super.key,
   });
 
@@ -78,10 +82,15 @@ class BaseTextFormField extends StatelessWidget {
   final Color? cursorColor;
   final double? cursorWidth;
   final bool? isDense;
+  final bool? enableIMEPersonalizedLearning;
+  final void Function(String)? onFieldSubmitted;
+  final bool hasUnderlineBorder;
+  final double borderWidth;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      enableIMEPersonalizedLearning: enableIMEPersonalizedLearning ?? true,
       cursorColor: cursorColor,
       cursorWidth: cursorWidth ?? 2.0,
       onChanged: onChanged,
@@ -115,13 +124,46 @@ class BaseTextFormField extends StatelessWidget {
         prefixIcon: prefixIcon,
         suffix: suffix,
         suffixIcon: suffixIcon,
-        fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
+        filled: !hasUnderlineBorder,
+        fillColor:
+            hasUnderlineBorder ? null : fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
         hintStyle: placeholderTextStyle ??
             Theme.of(context)
                 .textTheme
                 .bodyMedium!
                 .copyWith(color: hintColor ?? Theme.of(context).hintColor, fontSize: 16),
         hintText: hintText,
+        focusedBorder: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
+                  width: borderWidth,
+                ),
+              )
+            : null,
+        disabledBorder: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  width: borderWidth,
+                ),
+              )
+            : null,
+        enabledBorder: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
+                  width: borderWidth,
+                ),
+              )
+            : null,
+        errorBorder: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
+              )
+            : null,
       ),
       validator: validator,
     );

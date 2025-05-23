@@ -54,6 +54,8 @@ class SendTemplateCard extends StatelessWidget {
                 SizedBox(height: 32),
                 if (index == 0)
                   BaseTextFormField(
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    hasUnderlineBorder: true,
                     controller: _nameController,
                     hintText: sendTemplateViewModel.recipients.length > 1
                         ? S.of(context).template_name
@@ -73,6 +75,8 @@ class SendTemplateCard extends StatelessWidget {
                   child: Observer(
                     builder: (context) {
                       return AddressTextField(
+                        hasUnderlineBorder: true,
+                        contentPadding: EdgeInsets.symmetric(vertical: 8),
                         selectedCurrency: template.selectedCurrency,
                         controller: _addressController,
                         onURIScanned: (uri) {
@@ -111,19 +115,26 @@ class SendTemplateCard extends StatelessWidget {
                   onFocusChange: (hasFocus) {
                     if (hasFocus) template.setCryptoCurrency(true);
                   },
-                  child: Observer(
-                    builder: (context) => CurrencyAmountTextField(
-                      selectedCurrency: template.selectedCurrency.title,
-                      amountFocusNode: _cryptoAmountFocus,
-                      amountController: _cryptoAmountController,
-                      isSelected: template.isCryptoSelected,
-                      tag: template.selectedCurrency.tag,
-                      isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
-                      onTapPicker: () => _presentPicker(context),
-                      currencyValueValidator: sendTemplateViewModel.amountValidator,
-                      isAmountEditable: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    ),
+                  child: Column(
+                    children: [
+                      Observer(
+                        builder: (context) => CurrencyAmountTextField(
+                          hasUnderlineBorder: true,
+                          borderWidth: 0.0,
+                          selectedCurrency: template.selectedCurrency.title,
+                          amountFocusNode: _cryptoAmountFocus,
+                          amountController: _cryptoAmountController,
+                          isSelected: template.isCryptoSelected,
+                          tag: template.selectedCurrency.tag,
+                          isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
+                          onTapPicker: () => _presentPicker(context),
+                          currencyValueValidator: sendTemplateViewModel.amountValidator,
+                          isAmountEditable: true,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        ),
+                      ),
+                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+                    ],
                   ),
                 ),
                 Focus(
@@ -134,6 +145,8 @@ class SendTemplateCard extends StatelessWidget {
                     children: [
                       Observer(
                         builder: (context) => CurrencyAmountTextField(
+                          hasUnderlineBorder: true,
+                          borderWidth: 0.0,
                           selectedCurrency: sendTemplateViewModel.fiatCurrency,
                           amountFocusNode: _fiatAmountFocus,
                           amountController: _fiatAmountController,
@@ -143,6 +156,7 @@ class SendTemplateCard extends StatelessWidget {
                           fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         ),
                       ),
+                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
                     ],
                   ),
                 ),
