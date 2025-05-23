@@ -67,7 +67,7 @@ class SelectButton extends StatelessWidget {
         padding: padding ?? EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(20)),
+          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10)),
           color: backgroundColor,
           border: borderColor != null ? Border.all(color: borderColor!, width: 2) : null,
         ),
