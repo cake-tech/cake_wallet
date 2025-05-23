@@ -9,8 +9,8 @@ Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async
   try {
     final uri = Uri.parse("https://api.unstoppabledomains.com/profile/public/${Uri.encodeQueryComponent(domain)}?fields=records");
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
-    final jsonParsed = json.decode(responseString) as Map<String, dynamic>;
+    
+    final jsonParsed = json.decode(response.body) as Map<String, dynamic>;
     if (jsonParsed["records"] == null) {
       throw Exception(".records response from $uri is empty");
     };

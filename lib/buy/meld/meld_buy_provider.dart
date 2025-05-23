@@ -80,10 +80,10 @@ class MeldBuyProvider extends BuyProvider {
           'content-type': 'application/json',
         },
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(responseString) as List<dynamic>;
+        final data = jsonDecode(response.body) as List<dynamic>;
         final paymentMethods =
             data.map((e) => PaymentMethod.fromMeldJson(e as Map<String, dynamic>)).toList();
         return paymentMethods;
@@ -136,10 +136,10 @@ class MeldBuyProvider extends BuyProvider {
         headers: headers,
         body: body,
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(responseString) as Map<String, dynamic>;
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
         final paymentType = _getPaymentTypeByString(data['paymentMethodType'] as String?);
         final quote = Quote.fromMeldJson(data, isBuyAction, paymentType);
 

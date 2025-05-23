@@ -70,10 +70,10 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'accept': 'application/json'});
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(responseString) as Map<String, dynamic>;
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
         final pairs = responseData['cryptoCurrencyPairs'] as List<dynamic>;
 
         final supportedAssets = <CryptoCurrency>[];
@@ -130,8 +130,8 @@ class RobinhoodBuyProvider extends BuyProvider {
     );
 
     if (response.statusCode == 200) {
-      final responseString = await response.transform(utf8.decoder).join();
-      return (jsonDecode(responseString) as Map<String, dynamic>)['connectId'] as String;
+      
+      return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
       throw Exception('Provider currently unavailable. Status: ${response.statusCode}');
     }
@@ -223,8 +223,8 @@ class RobinhoodBuyProvider extends BuyProvider {
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'accept': 'application/json'});
-      final responseString = await response.transform(utf8.decoder).join();
-      final responseData = jsonDecode(responseString) as Map<String, dynamic>;
+      
+      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 200) {
         final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);

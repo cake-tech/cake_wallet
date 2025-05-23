@@ -74,8 +74,9 @@ class ElectrumClient {
     } catch (_) {}
     socket = null;
 
+    final ssl = !(useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum")));
     try {
-      socket = await ProxyWrapper().getSocksSocket(useSSL ?? false, host, port, connectionTimeout: connectionTimeout);
+      socket = await ProxyWrapper().getSocksSocket(ssl, host, port, connectionTimeout: connectionTimeout);
     } catch (e) {
       printV("connect: $e");
       if (e is HandshakeException) {
