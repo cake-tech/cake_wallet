@@ -35,8 +35,8 @@ class SolanaRPCHTTPService implements SolanaJSONRPCService {
         'Content-Type': 'application/json',
       },
     ).timeout(timeout ?? defaultRequestTimeout);
-    final responseString = await response.transform(utf8.decoder).join();
-    final data = json.decode(responseString) as Map<String, dynamic>;
+    
+    final data = json.decode(response.body) as Map<String, dynamic>;
     return data;
   }
 }

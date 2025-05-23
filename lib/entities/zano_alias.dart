@@ -16,8 +16,8 @@ class ZanoAlias {
           "params": {"alias": alias}
         }),
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final jsonParsed = json.decode(responseString) as Map<String, dynamic>;
+      
+      final jsonParsed = json.decode(response.body) as Map<String, dynamic>;
 
       return jsonParsed['result']['alias_details']['address'] as String?;
     } catch (e) {
