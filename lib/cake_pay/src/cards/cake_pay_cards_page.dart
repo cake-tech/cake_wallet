@@ -55,54 +55,130 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    return _TrailingIcon(
-        asset: 'assets/images/profile.png',
-        iconColor: pageIconColor(context) ?? Colors.white,
-        onPressed: () {
-          _cardsListViewModel.isCakePayUserAuthenticated().then((value) {
-            if (value) {
-              Navigator.pushNamed(context, Routes.cakePayAccountPage);
-              return;
-            }
-            Navigator.pushNamed(context, Routes.cakePayWelcomePage);
-          });
-        });
+    return Observer(builder: (_) {
+      final loggedIn = _cardsListViewModel.isUserAuthenticated == true;
+
+      Future<void> _handleOnPressed() async {
+        if (loggedIn) {
+          Navigator.pushNamed(context, Routes.cakePayAccountPage);
+          return;
+        }
+        final success = await Navigator.pushNamed<bool>(context, Routes.cakePayWelcomePage);
+
+        if (success == true) await _cardsListViewModel.checkAuth();
+      }
+
+      if (!loggedIn || _cardsListViewModel.username == null) {
+        return _TrailingIcon(
+          asset: 'assets/images/profile.png',
+          iconColor: pageIconColor(context) ?? Colors.white,
+          onPressed: () async => await _handleOnPressed(),
+        );
+      }
+      final letter = _cardsListViewModel.username!.trim()[0].toUpperCase();
+      return IconButton(
+        padding: EdgeInsets.zero,
+        iconSize: 25,
+        onPressed: _handleOnPressed,
+        icon: CircleAvatar(
+          radius: 12,
+          backgroundColor: Theme.of(context).primaryColor,
+          child: Text(
+            letter,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   @override
   Widget body(BuildContext context) {
-    if (_cardsListViewModel.settingsStore.selectedCakePayCountry == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        reaction((_) => _cardsListViewModel.shouldShowCountryPicker,
-            (bool shouldShowCountryPicker) async {
-          if (shouldShowCountryPicker) {
-            _cardsListViewModel.storeInitialFilterStates();
-            await showCountryPicker(context, _cardsListViewModel);
-            if (_cardsListViewModel.hasFiltersChanged) {
-              _cardsListViewModel.resetLoadingNextPageState();
-              _cardsListViewModel.getVendors();
+    return CakePayCardsPageBody(
+        cardsListViewModel: _cardsListViewModel, currentTheme: currentTheme);
+  }
+}
+
+class CakePayCardsPageBody extends StatefulWidget {
+  const CakePayCardsPageBody({
+    super.key,
+    required CakePayCardsListViewModel cardsListViewModel,
+    required this.currentTheme,
+  }) : _cardsListViewModel = cardsListViewModel;
+
+  final CakePayCardsListViewModel _cardsListViewModel;
+  final ThemeBase currentTheme;
+
+  @override
+  State<CakePayCardsPageBody> createState() => _CakePayCardsPageBodyState();
+}
+
+class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
+  ReactionDisposer? _countryPickerDisposer;
+
+  @override
+  void initState() {
+    super.initState();
+    final viewModel = widget._cardsListViewModel;
+
+    _countryPickerDisposer = when(
+      (_) => viewModel.shouldShowCountryPicker,
+      () async {
+        viewModel.storeInitialFilterStates();
+
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) async {
+            await showCountryPicker(context, viewModel);
+            if (viewModel.hasFiltersChanged) {
+              viewModel.resetLoadingNextPageState();
+              viewModel.getVendors();
             }
+            viewModel.settingsStore.selectedCakePayCountry = viewModel.selectedCountry;
+          },
+        );
+      },
+    );
+  }
 
-            _cardsListViewModel.settingsStore.selectedCakePayCountry =
-                _cardsListViewModel.selectedCountry;
-          }
-        });
-      });
-    }
+  @override
+  void dispose() {
+    _countryPickerDisposer?.call();
+    super.dispose();
+  }
 
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        child: Column(children: [
-          Expanded(
-            child: TabViewWrapper(tabs: const [
-              Tab(text: 'My Cards'),
-              Tab(text: 'Shop')
-            ], views: [
-              _MyCardsTab(cardsListViewModel: _cardsListViewModel, currentTheme: currentTheme),
-              _ShopTab(cardsListViewModel: _cardsListViewModel)
-            ]),
-          )
-        ]));
+  @override
+  Widget build(BuildContext context) {
+    return Observer(builder: (_) {
+      final isUserAuthenticated = widget._cardsListViewModel.isUserAuthenticated;
+
+      if (isUserAuthenticated == null) return const _Loading();
+
+      if (isUserAuthenticated == false) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: _ShopTab(cardsListViewModel: widget._cardsListViewModel),
+        );
+      }
+
+      return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Column(children: [
+            Expanded(
+              child: TabViewWrapper(tabs: const [
+                Tab(text: 'My Cards'),
+                Tab(text: 'Shop')
+              ], views: [
+                _MyCardsTab(
+                    cardsListViewModel: widget._cardsListViewModel,
+                    currentTheme: widget.currentTheme),
+                _ShopTab(cardsListViewModel: widget._cardsListViewModel)
+              ]),
+            )
+          ]));
+    });
   }
 }
 
@@ -208,8 +284,8 @@ class _MyCardsTabState extends State<_MyCardsTab> {
       final cards = viewModel.userCards;
 
       if (viewModel.userCardState is UserCakePayCardsStateFetching) return const _Loading();
-
-      if (cards.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
+      if (viewModel.userCardState is UserCakePayCardsStateNoCards)
+        return Expanded (child: Center(child: Text(S.of(context).no_cards_found)));
 
       final showThumb = cards.length > 3;
       final bgHeight = MediaQuery.of(context).size.height * 0.75;
@@ -395,8 +471,11 @@ class _ShopTabState extends State<_ShopTab> {
         Observer(builder: (_) {
           final vendors = viewModel.cakePayVendors;
 
-          if (viewModel.vendorsState is! CakePayVendorLoadedState) return const _Loading();
-          if (vendors.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
+          if (viewModel.vendorsState is! CakePayVendorLoadedState) {
+            return Expanded(child: const _Loading());
+          }
+
+          if (vendors.isEmpty) return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
 
           final loadingMore = viewModel.isLoadingNextPage;
           final showThumb = vendors.length > 3;

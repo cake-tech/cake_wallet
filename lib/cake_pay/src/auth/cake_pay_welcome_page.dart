@@ -114,12 +114,14 @@ class CakePayWelcomePage extends BasePage {
         });
   }
 
-  void _onLoginSuccessful(BuildContext context, CakePayAuthViewModel authViewModel) =>
-      Navigator.pushReplacementNamed(
-        context,
-        Routes.cakePayVerifyOtpPage,
-        arguments: [authViewModel.email, true],
-      );
+  Future<void> _onLoginSuccessful(BuildContext context, CakePayAuthViewModel authViewModel) async {
+    final verified = await Navigator.pushNamed<bool>(context, Routes.cakePayVerifyOtpPage,
+        arguments: [authViewModel.email, true]);
+
+    if (verified == true) {
+      Navigator.pop(context, true);
+    }
+  }
 
   void _login() async {
     if (_formKey.currentState != null && !_formKey.currentState!.validate()) {

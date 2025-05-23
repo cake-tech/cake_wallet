@@ -31,6 +31,7 @@ abstract class CakePayCardsListViewModelBase with Store {
         userCardState = UserCakePayCardsStateInitial(),
         searchString = '',
         CakePayVendorList = <CakePayVendor>[] {
+    checkAuth();
     initialization();
   }
 
@@ -76,6 +77,7 @@ abstract class CakePayCardsListViewModelBase with Store {
       };
 
   String searchString;
+  String? username;
   int page;
 
   late Country _initialSelectedCountry;
@@ -123,13 +125,20 @@ abstract class CakePayCardsListViewModelBase with Store {
   @observable
   bool displayCustomValueCards;
 
+  @observable
+  ObservableFuture<bool>? authFuture;
+
+  @computed
+  bool? get isUserAuthenticated =>
+      authFuture?.status == FutureStatus.fulfilled ? authFuture?.value : null;
+
   @computed
   Country get selectedCountry =>
       settingsStore.selectedCakePayCountry ?? _getInitialCountry(settingsStore.fiatCurrency);
 
   @computed
-  bool get shouldShowCountryPicker => settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
-
+  bool get shouldShowCountryPicker =>
+      settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
 
   bool get hasFiltersChanged {
     return selectedCountry != _initialSelectedCountry ||
@@ -138,7 +147,6 @@ abstract class CakePayCardsListViewModelBase with Store {
         displayDenominationsCards != _initialDisplayDenominationsCards ||
         displayCustomValueCards != _initialDisplayCustomValueCards;
   }
-
 
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();
@@ -153,24 +161,32 @@ abstract class CakePayCardsListViewModelBase with Store {
           .where((vendor) => vendor.card != null)
           .map((vendor) => vendor.card!)
           .toList();
-      userCards = vendorsCard.sublist(0,10);
+      userCards = vendorsCard.sublist(0, 10);
 
       vendorsCard.forEach((card) {
         if (card.name.toLowerCase().contains('amazon.com')) {
           userCards.add(card);
         }
       });
-      
 
       userCardState = UserCakePayCardsStateSuccess();
       if (userCards.isEmpty) {
         userCardState = UserCakePayCardsStateNoCards();
       }
-    }
-    catch (e) {
+    } catch (e) {
       userCardState = UserCakePayCardsStateFailure(
         error: e.toString(),
       );
+    }
+  }
+
+  @action
+  Future<void> checkAuth() async {
+    authFuture = ObservableFuture(cakePayService.isLogged());
+
+    final logged = await authFuture!;
+    if (logged) {
+      username = await cakePayService.getUserEmail();
     }
   }
 
