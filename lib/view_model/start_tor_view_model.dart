@@ -74,11 +74,17 @@ abstract class StartTorViewModelBase with Store {
   void disableTor(BuildContext context) {
     final settingsStore = getIt.get<SettingsStore>();
     settingsStore.currentBuiltinTor = false;
+    bootstrapOnline(navigatorKey, loadWallet: true);
+    final appStore = getIt.get<AppStore>();
+    appStore.wallet?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 
   @action
   void ignoreAndLaunchApp(BuildContext context) {
+    bootstrapOnline(navigatorKey, loadWallet: true);
+    final appStore = getIt.get<AppStore>();
+    appStore.wallet?.connectToNode(node: appStore.settingsStore.getCurrentNode(appStore.wallet!.type));
     Navigator.pushReplacementNamed(context, Routes.login);
   }
 

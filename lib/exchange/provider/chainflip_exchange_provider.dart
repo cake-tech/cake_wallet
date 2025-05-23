@@ -276,28 +276,28 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(_baseURL, path, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
-    if ((response.statusCode != 200) || (responseString.contains('error'))) {
-      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${responseString}');
+    if ((response.statusCode != 200) || (response.body.contains('error'))) {
+      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
-    return json.decode(responseString) as Map<String, dynamic>;
+    return json.decode(response.body) as Map<String, dynamic>;
   }
 
   Future<Map<String, dynamic>?> _getStatus(Map<String, String> params) async {
     final uri = Uri.https(_baseURL, _txInfoPath, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode == 404) return null;
 
-    if ((response.statusCode != 200) || (responseString.contains('error'))) {
-      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${responseString}');
+    if ((response.statusCode != 200) || (response.body.contains('error'))) {
+      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
-    return json.decode(responseString) as Map<String, dynamic>;
+    return json.decode(response.body) as Map<String, dynamic>;
   }
 
   TradeState _determineState(String state) {

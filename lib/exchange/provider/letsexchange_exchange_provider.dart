@@ -156,12 +156,12 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         clearnetUri: uri,
         headers: headers,
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode != 200) {
-        throw Exception('LetsExchange create trade failed: ${responseString}');
+        throw Exception('LetsExchange create trade failed: ${response.body}');
       }
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final id = responseJSON['transaction_id'] as String;
       final from = responseJSON['coin_from'] as String;
       final to = responseJSON['coin_to'] as String;
@@ -223,12 +223,12 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     final url = Uri.https(_baseUrl, '$_getTransactionPath/$id');
     final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 200) {
-      throw Exception('LetsExchange fetch trade failed: ${responseString}');
+      throw Exception('LetsExchange fetch trade failed: ${response.body}');
     }
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final from = responseJSON['coin_from'] as String;
     final to = responseJSON['coin_to'] as String;
     final payoutAddress = responseJSON['withdrawal'] as String;
@@ -275,11 +275,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         clearnetUri: uri,
         headers: headers,
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
       if (response.statusCode != 200) {
-        throw Exception('LetsExchange fetch info failed: ${responseString}');
+        throw Exception('LetsExchange fetch info failed: ${response.body}');
       }
-      return json.decode(responseString) as Map<String, dynamic>;
+      return json.decode(response.body) as Map<String, dynamic>;
     } catch (e) {
       throw Exception('LetsExchange failed to fetch info ${e.toString()}');
     }

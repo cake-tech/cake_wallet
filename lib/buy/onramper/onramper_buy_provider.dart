@@ -71,10 +71,9 @@ class OnRamperBuyProvider extends BuyProvider {
         clearnetUri: url,
         headers: {'Authorization': _apiKey, 'accept': 'application/json'},
       );
-      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(responseString) as Map<String, dynamic>;
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final recommended = data['message']['recommended'] as Map<String, dynamic>;
 
         final recommendedPaymentType = recommended['paymentMethod'] as String?;
@@ -82,7 +81,7 @@ class OnRamperBuyProvider extends BuyProvider {
         return recommendedPaymentType ;
       } else {
         final responseBody =
-        jsonDecode(responseString) as Map<String, dynamic>;
+        jsonDecode(response.body) as Map<String, dynamic>;
         printV('Failed to fetch available payment types: ${responseBody['message']}');
       }
     } catch (e) {
@@ -107,9 +106,9 @@ class OnRamperBuyProvider extends BuyProvider {
     try {
       final response =
           await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
-      final responseString = await response.transform(utf8.decoder).join();
+      
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(responseString) as Map<String, dynamic>;
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final List<dynamic> message = data['message'] as List<dynamic>;
 
         final allAvailablePaymentMethods = message
@@ -121,7 +120,7 @@ class OnRamperBuyProvider extends BuyProvider {
         return allAvailablePaymentMethods;
       } else {
         final responseBody =
-            jsonDecode(responseString) as Map<String, dynamic>;
+            jsonDecode(response.body) as Map<String, dynamic>;
         printV('Failed to fetch available payment types: ${responseBody['message']}');
         return [];
       }
@@ -137,10 +136,10 @@ class OnRamperBuyProvider extends BuyProvider {
     try {
       final response =
           await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(responseString) as Map<String, dynamic>;
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
 
         final List<dynamic> onramps = data['message'] as List<dynamic>;
 
@@ -201,9 +200,9 @@ class OnRamperBuyProvider extends BuyProvider {
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
-      final responseString = await response.transform(utf8.decoder).join();
+      
       if (response.statusCode == 200) {
-        final data = jsonDecode(responseString) as List<dynamic>;
+        final data = jsonDecode(response.body) as List<dynamic>;
         if (data.isEmpty) return null;
 
         List<Quote> validQuotes = [];

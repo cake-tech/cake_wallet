@@ -70,9 +70,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     try {
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
@@ -122,8 +122,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         body: json.encode(body),
         headers: headers,
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final responseBody = json.decode(responseString) as Map<String, dynamic>;
+      
+      final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
@@ -164,8 +164,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         body: json.encode(body),
         headers: headers,
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final responseBody = json.decode(responseString) as Map<String, dynamic>;
+      
+      final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 400 || responseBody["success"] == false) {
         final error = responseBody['errors'][0]['msg'] as String;
@@ -212,8 +212,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         body: json.encode(body),
         headers: headers,
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final responseBody = json.decode(responseString) as Map<String, dynamic>;
+      
+      final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 400 || responseBody["success"] == false) {
         final error = responseBody['errors'][0]['msg'] as String;

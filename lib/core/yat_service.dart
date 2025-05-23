@@ -34,8 +34,8 @@ class YatService {
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
-      final resBody = json.decode(responseString) as Map<String, dynamic>;
+      
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
       final results = resBody["result"] as Map<dynamic, dynamic>;
       // Favour a subaddress over a standard address.
       final yatRecord = (

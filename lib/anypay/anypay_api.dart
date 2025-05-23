@@ -58,13 +58,13 @@ class AnyPayApi {
       headers: headers,
       body: json.encode(body),
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode != 200) {
 			await ExceptionHandler.onError(FlutterErrorDetails(exception: response));
       throw Exception('Unexpected response http code: ${response.statusCode}');
 		}
 
-    final decodedBody = json.decode(responseString) as Map<String, dynamic>;
+    final decodedBody = json.decode(response.body) as Map<String, dynamic>;
     return AnyPayPayment.fromMap(decodedBody);
 	}
 
@@ -88,9 +88,9 @@ class AnyPayApi {
       headers: headers,
       body: json.encode(body),
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
 		if (response.statusCode == 400) {
-			final decodedBody = json.decode(responseString) as Map<String, dynamic>;
+			final decodedBody = json.decode(response.body) as Map<String, dynamic>;
 			throw Exception(decodedBody['message'] as String? ?? 'Unexpected response\nError code: 400');
 		}
 
@@ -98,7 +98,7 @@ class AnyPayApi {
 			throw Exception('Unexpected response');
 		}
 
-		final decodedBody = json.decode(responseString) as Map<String, dynamic>;
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
 		return AnyPayPaymentCommittedInfo(
 			uri: uri,
 			currency: currency,

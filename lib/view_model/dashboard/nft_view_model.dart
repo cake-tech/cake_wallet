@@ -87,9 +87,9 @@ abstract class NFTViewModelBase with Store {
           "X-API-Key": secrets.moralisApiKey,
         },
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
-      final decodedResponse = jsonDecode(responseString) as Map<String, dynamic>;
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (walletType == WalletType.solana) {
         final results = await Future.wait(
@@ -139,8 +139,8 @@ abstract class NFTViewModelBase with Store {
         "X-API-Key": secrets.moralisApiKey,
       },
     );
-    final responseString = await response.transform(utf8.decoder).join();
-    final decodedResponse = jsonDecode(responseString) as Map<String, dynamic>;
+    
+    final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
     return SolanaNFTAssetModel.fromJson(decodedResponse);
   }
@@ -179,8 +179,8 @@ abstract class NFTViewModelBase with Store {
             "X-API-Key": secrets.moralisApiKey,
           },
         );
-        final responseString = await response.transform(utf8.decoder).join();
-        final decodedResponse = jsonDecode(responseString) as Map<String, dynamic>;
+        
+        final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
         final nftAsset = NFTAssetModel.fromJson(decodedResponse);
 

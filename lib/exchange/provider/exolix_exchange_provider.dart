@@ -87,15 +87,15 @@ class ExolixExchangeProvider extends ExchangeProvider {
     for (int i = 0; i < 2; i++) {
       final uri = Uri.https(apiBaseUrl, ratePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
+      
       
       if (response.statusCode == 200) {
-        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final minAmount = responseJSON['minAmount'];
         final maxAmount = responseJSON['maxAmount'];
         return Limits(min: _toDouble(minAmount), max: _toDouble(maxAmount));
       } else if (response.statusCode == 422) {
-        final errorResponse = json.decode(responseString) as Map<String, dynamic>;
+        final errorResponse = json.decode(response.body) as Map<String, dynamic>;
         if (errorResponse.containsKey('minAmount')) {
           params['amount'] = errorResponse['minAmount'].toString();
           continue;
@@ -135,8 +135,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
       final uri = Uri.https(apiBaseUrl, ratePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200) {
         final message = responseJSON['message'] as String?;
@@ -179,10 +179,10 @@ class ExolixExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final errors = responseJSON['errors'] as Map<String, String>;
       final errorMessage = errors.values.join(', ');
       throw Exception(errorMessage);
@@ -191,7 +191,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200 && response.statusCode != 201)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['depositAddress'] as String;
     final refundAddress = responseJSON['refundAddress'] as String?;
@@ -222,11 +222,11 @@ class ExolixExchangeProvider extends ExchangeProvider {
     final findTradeByIdPath = '$transactionsPath/$id';
     final uri = Uri.https(apiBaseUrl, findTradeByIdPath);
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final errors = responseJSON['errors'] as Map<String, String>;
       final errorMessage = errors.values.join(', ');
 
@@ -236,7 +236,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final coinFrom = responseJSON['coinFrom']['coinCode'] as String;
     final coinTo = responseJSON['coinTo']['coinCode'] as String;
     final inputAddress = responseJSON['depositAddress'] as String;

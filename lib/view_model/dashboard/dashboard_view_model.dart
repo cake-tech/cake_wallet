@@ -1114,20 +1114,19 @@ abstract class DashboardViewModelBase with Store {
         );
 
         final res = await ProxyWrapper().get(clearnetUri: uri);
-        final responseString = await res.transform(utf8.decoder).join();
         if (res.statusCode < 200 || res.statusCode >= 300) {
-          throw responseString;
+          throw res.body;
         }
 
         final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
 
-        final hash = await Cryptography.instance.sha256().hash(utf8.encode(responseString));
+        final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
         final currentSha = bytesToHex(hash.bytes);
 
         final hasUpdates = oldSha != currentSha;
 
         return ServicesResponse.fromJson(
-          json.decode(responseString) as Map<String, dynamic>,
+          json.decode(res.body) as Map<String, dynamic>,
           hasUpdates,
           currentSha,
         );

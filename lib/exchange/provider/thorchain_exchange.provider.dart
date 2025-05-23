@@ -165,7 +165,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
     final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode == 404) {
       throw Exception('Trade not found for id: $formattedId');
@@ -173,7 +173,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(responseString);
+    final responseJSON = json.decode(response.body);
     final Map<String, dynamic> stagesJson = responseJSON['stages'] as Map<String, dynamic>;
 
     final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? true;
@@ -219,12 +219,12 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static Future<Map<String, String>?>? lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode != 200) {
       return null;
     }
 
-    final body = json.decode(responseString) as Map<String, dynamic>;
+    final body = json.decode(response.body) as Map<String, dynamic>;
     final entries = body['entries'] as List<dynamic>?;
 
     if (entries == null || entries.isEmpty) {
@@ -246,16 +246,16 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode != 200) {
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
 
-    if (responseString.contains('error')) {
-      throw Exception('Unexpected response: ${responseString}');
+    if (response.body.contains('error')) {
+      throw Exception('Unexpected response: ${response.body}');
     }
 
-    return json.decode(responseString) as Map<String, dynamic>;
+    return json.decode(response.body) as Map<String, dynamic>;
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {

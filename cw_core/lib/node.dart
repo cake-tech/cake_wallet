@@ -184,11 +184,6 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': "getinfo"};
 
     try {
-      final authenticatingClient = ProxyWrapper().getHttpClient();
-
-      authenticatingClient.badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => true);
-
       final jsonBody = json.encode(body);
 
       final response = await ProxyWrapper().post(
@@ -197,8 +192,8 @@ class Node extends HiveObject with Keyable {
         body: jsonBody,
       );
 
-      final responseString = await response.transform(utf8.decoder).join();
-      final resBody = json.decode(responseString) as Map<String, dynamic>;
+      
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
 
       return resBody['result']['height'] != null;
     } catch (e) {
@@ -263,7 +258,7 @@ class Node extends HiveObject with Keyable {
         }
       }
 
-      final resBody = json.decode(responseString) as Map<String, dynamic>;
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
       return !(resBody['result']['offline'] as bool);
     } catch (e) {
       printV("error: $e");
@@ -324,8 +319,8 @@ class Node extends HiveObject with Keyable {
           },
         ),
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final data = jsonDecode(responseString);
+      
+      final data = jsonDecode(response.body);
       if (response.statusCode != 200 ||
           data["error"] != null ||
           data["balance"] == null ||

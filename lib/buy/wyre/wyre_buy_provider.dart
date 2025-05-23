@@ -87,8 +87,8 @@ class WyreBuyProvider extends BuyProvider {
       throw BuyException(title: providerDescription, content: 'Url $url is not found!');
     }
 
-    final responseString = await response.transform(utf8.decoder).join();
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final urlFromResponse = responseJSON['url'] as String;
     return urlFromResponse;
   }
@@ -118,8 +118,8 @@ class WyreBuyProvider extends BuyProvider {
       throw BuyException(title: providerDescription, content: 'Quote is not found!');
     }
 
-    final responseString = await response.transform(utf8.decoder).join();
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final sourceAmount = responseJSON['sourceAmount'] as double;
     final destAmount = responseJSON['destAmount'] as double;
     final achAmount = responseJSON['sourceAmountWithoutFees'] as double;
@@ -132,12 +132,11 @@ class WyreBuyProvider extends BuyProvider {
     final orderUrl = baseApiUrl + _ordersSuffix + '/$id';
     final orderUri = Uri.parse(orderUrl);
     final orderResponse = await ProxyWrapper().get(clearnetUri: orderUri);
-    final responseString = await orderResponse.transform(utf8.decoder).join();
     if (orderResponse.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Order $id is not found!');
     }
 
-    final orderResponseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final orderResponseJSON = json.decode(orderResponse.body) as Map<String, dynamic>;
     final transferId = orderResponseJSON['transferId'] as String;
     final from = orderResponseJSON['sourceCurrency'] as String;
     final to = orderResponseJSON['destCurrency'] as String;
@@ -149,12 +148,11 @@ class WyreBuyProvider extends BuyProvider {
     final transferUrl = baseApiUrl + _transferSuffix + transferId + _trackSuffix;
     final transferUri = Uri.parse(transferUrl);
     final transferResponse = await ProxyWrapper().get(clearnetUri: transferUri);
-    final transferResponseString = await transferResponse.transform(utf8.decoder).join();
     if (transferResponse.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Transfer $transferId is not found!');
     }
 
-    final transferResponseJSON = json.decode(transferResponseString) as Map<String, dynamic>;
+    final transferResponseJSON = json.decode(transferResponse.body) as Map<String, dynamic>;
     final amount = transferResponseJSON['destAmount'] as double;
 
     return Order(

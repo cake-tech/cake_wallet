@@ -42,8 +42,8 @@ class CakePayApi {
         throw Exception('Unexpected http status: ${response.statusCode}');
       }
 
-      final responseString = await response.transform(utf8.decoder).join();
-      final bodyJson = json.decode(responseString) as Map<String, dynamic>;
+      
+      final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
       if (bodyJson.containsKey('user') && bodyJson['user']['email'] != null) {
         return bodyJson['user']['email'] as String;
@@ -79,8 +79,8 @@ class CakePayApi {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final responseString = await response.transform(utf8.decoder).join();
-    final bodyJson = json.decode(responseString) as Map<String, dynamic>;
+    
+    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     if (bodyJson.containsKey('error')) {
       throw Exception(bodyJson['error'] as String);
@@ -133,8 +133,8 @@ class CakePayApi {
       );
 
       if (response.statusCode != 201) {
-        final responseString = await response.transform(utf8.decoder).join();
-        final responseBody = json.decode(responseString);
+        
+        final responseBody = json.decode(response.body);
         if (responseBody is List) {
           throw '${responseBody[0]}';
         } else {
@@ -142,8 +142,8 @@ class CakePayApi {
         }
       }
 
-      final responseString = await response.transform(utf8.decoder).join();
-      final bodyJson = json.decode(responseString) as Map<String, dynamic>;
+      
+      final bodyJson = json.decode(response.body) as Map<String, dynamic>;
       return CakePayOrder.fromMap(bodyJson);
     } catch (e) {
       throw Exception('${e}');
@@ -162,7 +162,7 @@ class CakePayApi {
     };
 
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     printV('Response: ${response.statusCode}');
 
@@ -170,7 +170,7 @@ class CakePayApi {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final bodyJson = json.decode(responseString) as Map<String, dynamic>;
+    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     throw Exception('You just bot a gift card with id: ${bodyJson['order_id']}');
   }
@@ -209,12 +209,12 @@ class CakePayApi {
     };
 
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final bodyJson = json.decode(responseString) as List;
+    final bodyJson = json.decode(response.body) as List;
     return bodyJson
         .map<String>((country) => country['name'] as String)
         .map((name) => Country.fromCakePayName(name))
@@ -256,14 +256,14 @@ class CakePayApi {
     };
 
     var response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 200) {
       throw Exception(
-          'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${responseString}');
+          'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
     }
 
-    final bodyJson = json.decode(responseString);
+    final bodyJson = json.decode(response.body);
 
     if (bodyJson is List<dynamic> && bodyJson.isEmpty) {
       return [];

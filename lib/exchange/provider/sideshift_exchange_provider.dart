@@ -60,9 +60,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     const url = apiBaseUrl + permissionPath;
     final uri = Uri.parse(url);
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode == 500) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
       throw Exception('$error');
@@ -70,7 +70,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     if (response.statusCode != 200) return false;
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     return responseJSON['createShift'] as bool;
   }
 
@@ -90,10 +90,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final uri = Uri.parse(url);
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode == 500) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
       throw Exception('$error');
@@ -103,7 +103,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final min = double.tryParse(responseJSON['min'] as String? ?? '');
     final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
@@ -138,11 +138,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
       final uri = Uri.parse(url);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 500) {
-        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error']['message'] as String;
 
         throw Exception('SideShift Internal Server Error: $error');
@@ -192,11 +192,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
-        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error']['message'] as String;
 
         throw TradeNotCreatedException(description, description: error);
@@ -205,7 +205,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       throw TradeNotCreatedException(description);
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['depositAddress'] as String;
     final settleAddress = responseJSON['settleAddress'] as String;
@@ -234,13 +234,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final url = apiBaseUrl + orderPath + '/' + id;
     final uri = Uri.parse(url);
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
     }
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
       throw TradeNotFoundException(id, provider: description, description: error);
@@ -250,7 +250,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['depositCoin'] as String;
     final toCurrency = responseJSON['settleCoin'] as String;
     final inputAddress = responseJSON['depositAddress'] as String;
@@ -292,11 +292,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
-        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error']['message'] as String;
 
         throw TradeNotCreatedException(description, description: error);
@@ -305,7 +305,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       throw TradeNotCreatedException(description);
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     return responseJSON['id'] as String;
   }

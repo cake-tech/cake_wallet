@@ -29,13 +29,12 @@ class AnonPayApi {
   static const apiKey = secrets.trocadorApiKey;
 
   Future<AnonpayStatusResponse> paymentStatus(String id) async {
-    final authority = await _getAuthority();
     final response = await ProxyWrapper().get(
-      clearnetUri: Uri.https(authority, "$anonPayStatus/$id"),
+      clearnetUri: Uri.https(clearNetAuthority, "$anonPayStatus/$id"),
       onionUri: Uri.https(onionApiAuthority, "$anonPayStatus/$id"),
     );
-    final responseString = await response.transform(utf8.decoder).join();
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final status = responseJSON['Status'] as String;
     final fiatAmount = responseJSON['Fiat_Amount'] as double?;
     final fiatEquiv = responseJSON['Fiat_Equiv'] as String?;
@@ -73,11 +72,12 @@ class AnonPayApi {
     if (request.fiatEquivalent != null) {
       body['fiat_equiv'] = request.fiatEquivalent;
     }
-    final authority = await _getAuthority();
-
-    final response = await ProxyWrapper().get(clearnetUri: Uri.https(authority, anonPayPath, body));
-    final responseString = await response.transform(utf8.decoder).join();
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final response = await ProxyWrapper().get(
+      clearnetUri: Uri.https(clearNetAuthority, anonPayPath, body),
+      onionUri: Uri.https(onionApiAuthority, anonPayPath, body),
+    );
+    
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['ID'] as String;
     final url = responseJSON['url'] as String;
     final urlOnion = responseJSON['url_onion'] as String;
@@ -150,12 +150,12 @@ class AnonPayApi {
       'name': cryptoCurrency.name,
     };
 
-    final String apiAuthority = await _getAuthority();
-    final uri = Uri.https(apiAuthority, coinPath, params);
-
-    final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
-    final responseJSON = json.decode(responseString) as List<dynamic>;
+    final response = await ProxyWrapper().get(
+      clearnetUri: Uri.https(clearNetAuthority, coinPath, params),
+      onionUri: Uri.https(onionApiAuthority, coinPath, params),
+    );
+    
+    final responseJSON = json.decode(response.body) as List<dynamic>;
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
@@ -198,19 +198,6 @@ class AnonPayApi {
         return 'ERC20';
       default:
         return tag.toLowerCase();
-    }
-  }
-
-  Future<String> _getAuthority() async {
-    try {
-      if (useTorOnly) {
-        return onionApiAuthority;
-      }
-      final uri = Uri.https(onionApiAuthority, '/anonpay');
-      await ProxyWrapper().get(clearnetUri: uri, onionUri: uri);
-      return onionApiAuthority;
-    } catch (e) {
-      return clearNetAuthority;
     }
   }
 }

@@ -21,11 +21,11 @@ class MastodonAPI {
       );
 
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode != 200) return null;
 
-      final Map<String, dynamic> responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final Map<String, dynamic> responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       return MastodonUser.fromJson(responseJSON);
     } catch (e) {
@@ -49,13 +49,13 @@ class MastodonAPI {
       );
 
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode != 200) {
         throw Exception('Unexpected HTTP status: ${response.statusCode}');
       }
 
-      final List<dynamic> responseJSON = json.decode(responseString) as List<dynamic>;
+      final List<dynamic> responseJSON = json.decode(response.body) as List<dynamic>;
 
       return responseJSON.map((json) => PinnedPost.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {

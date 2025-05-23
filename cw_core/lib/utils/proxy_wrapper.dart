@@ -1,43 +1,33 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
+import 'package:http/http.dart';
 import 'package:socks5_proxy/socks_client.dart';
 import 'package:tor/tor.dart';
 import 'package:http/io_client.dart' as ioc;
 
 class ProxyWrapper {
-  ProxyWrapper();
-
+  static final ProxyWrapper _proxyWrapper = ProxyWrapper._internal();
+  
+  factory ProxyWrapper() {
+    return _proxyWrapper;
+  }
+  
+  ProxyWrapper._internal();
   Future<ProxySocket> getSocksSocket(bool sslEnabled, String host, int port, {Duration? connectionTimeout}) async {
     return ProxySocket.connect(sslEnabled, ProxyAddress(host: host, port: port), connectionTimeout: connectionTimeout);
   }
 
-  ioc.IOClient getHttpIOClient() {
-    final httpClient = ProxyWrapper().getHttpClient();
+  ioc.IOClient getHttpIOClient({int? portOverride}) {
+    // ignore: deprecated_member_use_from_same_package
+    final httpClient = ProxyWrapper().getHttpClient(portOverride: portOverride);
     return ioc.IOClient(httpClient);
-  }
-
-  @Deprecated('Use ProxyWrapper().get/post/put methods instead, and provide proper clearnet and onion uri.')
-  HttpClient getHttpClient() {
-    final client = HttpClient();
-
-    if (CakeTor.instance.enabled) {
-      SocksTCPClient.assignToHttpClient(client, [
-        ProxySettings(InternetAddress.loopbackIPv4,
-            CakeTor.instance.port,
-            password: null,
-          ),
-      ]);
-    }
-
-    return client;
   }
 
   int getPort() => CakeTor.instance.port;
 
-  HttpClient getProxyHttpClient({int? portOverride}) {
+  @Deprecated('Use ProxyWrapper().get/post/put methods instead, and provide proper clearnet and onion uri.')
+  HttpClient getHttpClient({int? portOverride}) {
     final torClient = HttpClient();
 
     if (CakeTor.instance.started) {
@@ -54,65 +44,67 @@ class ProxyWrapper {
     return torClient;
   }
 
-  Future<HttpClientResponse> makeGet({
-    required HttpClient client,
+  Future<Response> _makeGet({
+    required ioc.IOClient client,
     required Uri uri,
     required Map<String, String>? headers,
   }) async {
-    final request = await client.getUrl(uri);
-    if (headers != null) {
-      headers.forEach((key, value) {
-        request.headers.add(key, value);
-      });
-    }
-    return await request.close();
+    final request = await client.get(
+      uri,
+      headers: headers,
+    );
+    return request;
   }
 
-  Future<HttpClientResponse> makePost({
-    required HttpClient client,
-    required Uri uri,
-    required Map<String, String>? headers,
-    String? body,
-  }) async {
-    final request = await client.postUrl(uri);
-    if (headers != null) {
-      headers.forEach((key, value) {
-        request.headers.add(key, value);
-      });
-    }
-    if (body != null) {
-      request.add(utf8.encode(body));
-    }
-    await request.flush();
-    return await request.close();
-  }
-
-  Future<HttpClientResponse> makePut({
-    required HttpClient client,
+  Future<Response> _makePost({
+    required ioc.IOClient client,
     required Uri uri,
     required Map<String, String>? headers,
     String? body,
   }) async {
-    final request = await client.putUrl(uri);
-    if (headers != null) {
-      headers.forEach((key, value) {
-        request.headers.add(key, value);
-      });
-    }
-    if (body != null) {
-      request.add(utf8.encode(body));
-    }
-    await request.flush();
-    return await request.close();
+    final request = await client.post(
+      uri,
+      headers: headers,
+      body: body,
+    );
+    return request;
   }
 
-  Future<HttpClientResponse> get({
+  Future<Response> _makePut({
+    required ioc.IOClient client,
+    required Uri uri,
+    required Map<String, String>? headers,
+    String? body,
+  }) async {
+    final request = await client.put(
+      uri,
+      headers: headers,
+      body: body,
+    );
+    return request;
+  }
+
+    Future<Response> _makeDelete({
+    required ioc.IOClient client,
+    required Uri uri,
+    required Map<String, String>? headers,
+    String? body,
+  }) async {
+    final request = await client.delete(
+      uri,
+      headers: headers,
+      body: body,
+    );
+    return request;
+  }
+
+  Future<Response> get({
     Map<String, String>? headers,
     int? portOverride,
     Uri? clearnetUri,
     Uri? onionUri,
   }) async {
-    HttpClient? torClient;
+    ioc.IOClient? torClient;
     bool torEnabled = CakeTor.instance.started;
 
     if (CakeTor.instance.started) {
@@ -124,14 +116,15 @@ class ProxyWrapper {
     // if tor is enabled, try to connect to the onion url first:
     if (torEnabled) {
       try {
-        torClient = await getProxyHttpClient(portOverride: portOverride);
+        // ignore: deprecated_member_use_from_same_package
+        torClient = await getHttpIOClient(portOverride: portOverride);
       } catch (_) {
         rethrow;
       }
 
       if (onionUri != null) {
         try {
-          return await makeGet(
+          return await _makeGet(
             client: torClient,
             uri: onionUri,
             headers: headers,
@@ -143,8 +136,8 @@ class ProxyWrapper {
 
       if (clearnetUri != null) {
         try {
-          return await makeGet(
-            client: torClient!,
+          return await _makeGet(
+            client: torClient,
             uri: clearnetUri,
             headers: headers,
           );
@@ -158,13 +151,12 @@ class ProxyWrapper {
       try {
         return HttpOverrides.runZoned(
           () async {
-            return await makeGet(
-              client: HttpClient(),
+            return await _makeGet(
+              client: ioc.IOClient(),
               uri: clearnetUri,
               headers: headers,
             );
           },
-          // createHttpClient: NullOverrides().createHttpClient,
         );
       } catch (_) {
         // we weren't able to get a response:
@@ -176,7 +168,7 @@ class ProxyWrapper {
   }
   
 
-  Future<HttpClientResponse> post({
+  Future<Response> post({
     Map<String, String>? headers,
     int? portOverride,
     Uri? clearnetUri,
@@ -184,30 +176,34 @@ class ProxyWrapper {
     String? body,
     bool allowMitmMoneroBypassSSLCheck = false,
   }) async {
-    HttpClient? torClient;
-    HttpClient clearnetClient = HttpClient();
-
+    HttpClient? torHttpClient;
+    ioc.IOClient? torClient;
+    HttpClient cleatnetHttpClient = HttpClient();
     if (allowMitmMoneroBypassSSLCheck) {
-      clearnetClient.badCertificateCallback =
+      cleatnetHttpClient.badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
     }
+
+    ioc.IOClient clearnetClient = ioc.IOClient(cleatnetHttpClient);
+
 
     bool torEnabled = CakeTor.instance.started;
 
     if (torEnabled) {
       try {
-        torClient = await getProxyHttpClient(portOverride: portOverride);
+        // ignore: deprecated_member_use_from_same_package
+        torHttpClient = await getHttpClient(portOverride: portOverride);
       } catch (_) {
         rethrow;
       }
       if (allowMitmMoneroBypassSSLCheck) {
-        torClient.badCertificateCallback =
+        torHttpClient.badCertificateCallback =
             ((X509Certificate cert, String host, int port) => true);
       }
       if (onionUri != null) {
         try {
-          return await makePost(
-            client: torClient,
+          return await _makePost(
+            client: ioc.IOClient(torHttpClient),
             uri: onionUri,
             headers: headers,
             body: body,
@@ -219,8 +215,8 @@ class ProxyWrapper {
 
       if (clearnetUri != null) {
         try {
-          return await makePost(
-            client: torClient,
+          return await _makePost(
+            client: ioc.IOClient(torHttpClient),
             uri: clearnetUri,
             headers: headers,
             body: body,
@@ -235,14 +231,13 @@ class ProxyWrapper {
       try {
         return HttpOverrides.runZoned(
           () async {
-            return await makePost(
+            return await _makePost(
               client: clearnetClient,
               uri: clearnetUri,
               headers: headers,
               body: body,
             );
           },
-          // createHttpClient: NullOverrides().createHttpClient,
         );
       } catch (_) {
         rethrow;
@@ -252,24 +247,25 @@ class ProxyWrapper {
     throw Exception("Unable to connect to server");
   }
 
-  Future<HttpClientResponse> put({
+  Future<Response> put({
     Map<String, String>? headers,
     int? portOverride,
     Uri? clearnetUri,
     Uri? onionUri,
     String? body,
   }) async {
-    HttpClient? torClient;
+    ioc.IOClient? torClient;
     bool torEnabled = CakeTor.instance.started;
 
     if (torEnabled) {
       try {
-        torClient = await getProxyHttpClient(portOverride: portOverride);
+        // ignore: deprecated_member_use_from_same_package
+        torClient = await getHttpIOClient(portOverride: portOverride);
       } catch (_) {}
 
       if (onionUri != null) {
         try {
-          return await makePut(
+          return await _makePut(
             client: torClient!,
             uri: onionUri,
             headers: headers,
@@ -282,7 +278,7 @@ class ProxyWrapper {
 
       if (clearnetUri != null) {
         try {
-          return await makePut(
+          return await _makePut(
             client: torClient!,
             uri: clearnetUri,
             headers: headers,
@@ -298,14 +294,82 @@ class ProxyWrapper {
       try {
         return HttpOverrides.runZoned(
           () async {
-            return await makePut(
-              client: HttpClient(),
+            return await _makePut(
+              client: ioc.IOClient(),
               uri: clearnetUri,
               headers: headers,
               body: body,
             );
           },
-          // createHttpClient: NullOverrides().createHttpClient,
+        );
+      } catch (_) {
+        // we weren't able to get a response:
+        rethrow;
+      }
+    }
+
+    throw Exception("Unable to connect to server");
+  }
+
+  Future<Response> delete({
+    Map<String, String>? headers,
+    int? portOverride,
+    Uri? clearnetUri,
+    Uri? onionUri,
+  }) async {
+    ioc.IOClient? torClient;
+    bool torEnabled = CakeTor.instance.started;
+
+    if (CakeTor.instance.started) {
+      torEnabled = true;
+    } else {
+      torEnabled = false;
+    }
+
+    // if tor is enabled, try to connect to the onion url first:
+    if (torEnabled) {
+      try {
+        // ignore: deprecated_member_use_from_same_package
+        torClient = await getHttpIOClient(portOverride: portOverride);
+      } catch (_) {
+        rethrow;
+      }
+
+      if (onionUri != null) {
+        try {
+          return await _makeDelete(
+            client: torClient,
+            uri: onionUri,
+            headers: headers,
+          );
+        } catch (_) {
+          rethrow;
+        }
+      }
+
+      if (clearnetUri != null) {
+        try {
+          return await _makeDelete(
+            client: torClient,
+            uri: clearnetUri,
+            headers: headers,
+          );
+        } catch (_) {
+          rethrow;
+        }
+      }
+    }
+
+    if (clearnetUri != null) {
+      try {
+        return HttpOverrides.runZoned(
+          () async {
+            return await _makeDelete(
+              client: ioc.IOClient(),
+              uri: clearnetUri,
+              headers: headers,
+            );
+          },
         );
       } catch (_) {
         // we weren't able to get a response:

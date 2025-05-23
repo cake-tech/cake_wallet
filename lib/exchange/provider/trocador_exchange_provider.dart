@@ -98,12 +98,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final uri = await _getUri(coinPath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(responseString) as List<dynamic>;
+    final responseJSON = json.decode(response.body) as List<dynamic>;
 
     if (responseJSON.isEmpty) throw Exception('No data');
 
@@ -140,9 +140,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       final uri = await _getUri(newRatePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';
@@ -206,10 +206,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final uri = await _getUri(createTradePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
-    final responseString = await response.transform(utf8.decoder).join();
+    
     
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
       throw Exception('${error}\n$message');
@@ -218,7 +218,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['trade_id'] as String;
     final inputAddress = responseJSON['address_provider'] as String;
     final refundAddress = responseJSON['refund_address'] as String;
@@ -258,9 +258,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     return ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
-      final responseListJson = json.decode(responseString) as List;
+      final responseListJson = json.decode(response.body) as List;
       final responseJSON = responseListJson.first;
       final id = responseJSON['trade_id'] as String;
       final payoutAddress = responseJSON['address_user'] as String;
@@ -294,12 +294,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   Future<List<TrocadorPartners>> fetchProviders() async {
     final uri = await _getUri(providersListPath, {'api_key': apiKey});
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     final providersJsonList = responseJSON['list'] as List<dynamic>;
     final filteredProvidersList = providersJsonList
