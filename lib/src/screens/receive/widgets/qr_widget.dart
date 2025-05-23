@@ -21,6 +21,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget({
@@ -340,7 +341,10 @@ class QRWidget extends StatelessWidget {
         currentTheme: currentTheme,
         isTwoAction: true,
         leftButtonText: S.of(context).learn_more,
-        actionLeftButton: () => Navigator.of(context).pop(),
+        actionLeftButton: () => launchUrl(
+          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+          mode: LaunchMode.externalApplication,
+        ),
         rightButtonText: S.of(context).ok,
         actionRightButton: () => Navigator.of(context).pop(),
       ),
