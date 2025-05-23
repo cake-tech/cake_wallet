@@ -68,11 +68,11 @@ class StealthExExchangeProvider extends ExchangeProvider {
         headers: headers,
         body: json.encode(body),
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
       if (response.statusCode != 200) {
-        throw Exception('StealthEx fetch limits failed: ${responseString}');
+        throw Exception('StealthEx fetch limits failed: ${response.body}');
       }
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final min = toDouble(responseJSON['min_amount']);
       final max = responseJSON['max_amount'] as double?;
       return Limits(min: min, max: max);
@@ -143,12 +143,12 @@ class StealthExExchangeProvider extends ExchangeProvider {
         headers: headers,
         body: json.encode(body),
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
       if (response.statusCode != 201) {
-        throw Exception('StealthEx create trade failed: ${responseString}');
+        throw Exception('StealthEx create trade failed: ${response.body}');
       }
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final deposit = responseJSON['deposit'] as Map<String, dynamic>;
       final withdrawal = responseJSON['withdrawal'] as Map<String, dynamic>;
 
@@ -211,12 +211,12 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     final uri = Uri.parse('$_baseUrl$_exchangesPath/$id');
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     
     if (response.statusCode != 200) {
-      throw Exception('StealthEx fetch trade failed: ${responseString}');
+      throw Exception('StealthEx fetch trade failed: ${response.body}');
     }
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final deposit = responseJSON['deposit'] as Map<String, dynamic>;
     final withdrawal = responseJSON['withdrawal'] as Map<String, dynamic>;
 
@@ -274,9 +274,9 @@ class StealthExExchangeProvider extends ExchangeProvider {
         headers: headers,
         body: json.encode(body),
       );
-      final responseString = await response.transform(utf8.decoder).join();
+      
       if (response.statusCode != 200) return {};
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final rate = responseJSON['rate'] as Map<String, dynamic>?;
       return {
         'estimated_amount': responseJSON['estimated_amount'] as double?,

@@ -76,8 +76,8 @@ class NanoClient {
         },
       ),
     );
-    final responseString = await response.transform(utf8.decoder).join();
-    final data = jsonDecode(responseString) as Map<String, dynamic>;
+    
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200 ||
         data["error"] != null ||
         data["balance"] == null ||
@@ -105,8 +105,8 @@ class NanoClient {
           },
         ),
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final data = jsonDecode(responseString) as Map<String, dynamic>;
+      
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       return AccountInfoResponse.fromJson(data);
     } catch (e) {
       printV("error while getting account info $e");
@@ -127,8 +127,8 @@ class NanoClient {
           },
         ),
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final data = jsonDecode(responseString) as Map<String, dynamic>;
+      
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
     } catch (e) {
       printV("error while getting block info $e");
@@ -194,15 +194,15 @@ class NanoClient {
         },
       ),
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode == 200) {
-      final decoded = jsonDecode(responseString) as Map<String, dynamic>;
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
       if (decoded.containsKey("error")) {
         throw Exception("Received error ${decoded["error"]}");
       }
       return decoded["work"] as String;
     } else {
-      throw Exception("Received work error ${responseString}");
+      throw Exception("Received work error ${response.body}");
     }
   }
 
@@ -234,8 +234,7 @@ class NanoClient {
       body: processBody,
     );
 
-    final responseString = await processResponse.transform(utf8.decoder).join();
-    final Map<String, dynamic> decoded = jsonDecode(responseString) as Map<String, dynamic>;
+    final Map<String, dynamic> decoded = jsonDecode(processResponse.body) as Map<String, dynamic>;
     if (decoded.containsKey("error")) {
       throw Exception("Received error ${decoded["error"]}");
     }
@@ -433,8 +432,7 @@ class NanoClient {
       headers: getHeaders(_node!.uri.host),
       body: processBody,
     );
-    final responseString = await processResponse.transform(utf8.decoder).join();
-    final Map<String, dynamic> decoded = json.decode(responseString) as Map<String, dynamic>;
+    final Map<String, dynamic> decoded = json.decode(processResponse.body) as Map<String, dynamic>;
     if (decoded.containsKey("error")) {
       throw Exception("Received error ${decoded["error"]}");
     }
@@ -455,8 +453,7 @@ class NanoClient {
         "source": true,
       }),
     );
-    final responseString = await receivableResponse.transform(utf8.decoder).join();
-    final receivableData = jsonDecode(responseString) as Map<String, dynamic>;
+    final receivableData = jsonDecode(receivableResponse.body) as Map<String, dynamic>;
     if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
       return 0;
     }
@@ -509,8 +506,8 @@ class NanoClient {
           // "raw": true,
         }),
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final data = jsonDecode(responseString) as Map<String, dynamic>;
+      
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final transactions = data["history"] is List ? data["history"] as List<dynamic> : [];
 
       // Map the transactions list to NanoTransactionModel using the factory
@@ -532,8 +529,8 @@ class NanoClient {
       body: jsonEncode({"action": "reps"}),
     );
     try {
-      final responseString = await response.transform(utf8.decoder).join();
-      final List<N2Node> nodes = (jsonDecode(responseString) as List<dynamic>)
+      
+      final List<N2Node> nodes = (jsonDecode(response.body) as List<dynamic>)
           .map((dynamic e) => N2Node.fromJson(e as Map<String, dynamic>))
           .toList();
       return nodes;
@@ -553,8 +550,8 @@ class NanoClient {
       }),
     );
     try {
-      final responseString = await response.transform(utf8.decoder).join();
-      final N2Node node = N2Node.fromJson(jsonDecode(responseString) as Map<String, dynamic>);
+      
+      final N2Node node = N2Node.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
       return node.score ?? 100;
     } catch (error) {
       return 100;

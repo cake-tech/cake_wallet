@@ -27,13 +27,13 @@ Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
       onionUri: onionUri,
       clearnetUri: torOnly ? onionUri : clearnetUri,
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 200) {
       return 0.0;
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final results = responseJSON['results'] as Map<String, dynamic>;
 
     if (results.isNotEmpty) {
