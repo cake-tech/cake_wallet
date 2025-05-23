@@ -11,6 +11,9 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
   @override
   String get title => S.current.wallet_group;
 
+  final walletGroupConfirmedImageLight = 'assets/images/wallet_group_confirmed_light.png';
+  final walletGroupConfirmedImageDark = 'assets/images/wallet_group_confirmed_dark.png';
+
   @override
   Widget body(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -23,9 +26,8 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
       child: Column(
         children: [
           Image.asset(
-            currentTheme.type.walletGroupImage,
-            height: 200,
-            color: Theme.of(context).colorScheme.primary,
+            currentTheme.isDark ? walletGroupConfirmedImageDark : walletGroupConfirmedImageLight,
+            height: 200
           ),
           SizedBox(height: 32),
           Expanded(

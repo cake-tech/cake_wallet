@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/main_actions.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
@@ -20,7 +21,14 @@ class NavigationDock extends StatelessWidget {
           return Container(
             height: 150,
             alignment: Alignment.bottomCenter,
-            color: Colors.transparent,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: _getColors(context),
+              ),
+            ),
+            //color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50),
@@ -89,20 +97,22 @@ class NavigationDock extends StatelessWidget {
     final isBright = !dashboardViewModel.appStore.themeStore.currentTheme.isDark;
     return isBright
         ? <Color>[
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(10),
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(75),
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(150),
-            Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surface
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(5),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(50),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(125),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(150),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(200),
+            CustomThemeColors.backgroundGradientColorLight,
+            CustomThemeColors.backgroundGradientColorLight
           ]
         : <Color>[
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(5),
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(50),
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(125),
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(150),
-            Theme.of(context).colorScheme.surfaceContainer.withAlpha(200),
-            Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surface
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(5),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(50),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(125),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(150),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(200),
+            CustomThemeColors.backgroundGradientColorDark,
+            CustomThemeColors.backgroundGradientColorDark
           ];
   }
 }

@@ -25,8 +25,8 @@ class WalletGroupDescriptionPage extends BasePage {
           SizedBox(height: 48),
           CakeImageWidget(
             imageUrl: currentTheme.isDark
-                ? 'assets/images/wallet_group_options_dark.svg'
-                : 'assets/images/wallet_group_options_light.svg',
+                ? 'assets/images/wallet_group_options_dark.png'
+                : 'assets/images/wallet_group_options_light.png',
             height: 200,
           ),
           SizedBox(height: 40),

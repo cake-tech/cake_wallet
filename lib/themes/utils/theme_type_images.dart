@@ -4,9 +4,9 @@ extension ThemeTypeImages on ThemeType {
   String get walletGroupImage {
     switch (this) {
       case ThemeType.light:
-        return 'assets/images/wallet_group_light.png';
+        return 'assets/images/wallet_group_confirmed_light.png';
       case ThemeType.dark:
-        return 'assets/images/wallet_group_dark.png';
+        return 'assets/images/wallet_group_confirmed_dark.png';
     }
   }
 }
