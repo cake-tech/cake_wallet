@@ -63,8 +63,6 @@ class ContactPage extends BasePage {
                   controller: _nameController,
                   hintText: S.of(context).contact_name,
                   validator: ContactNameValidator(),
-                  hasUnderlineBorder: false,
-                  borderWidth: 0.0,
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
@@ -75,8 +73,6 @@ class ContactPage extends BasePage {
                         child: BaseTextFormField(
                           controller: _currencyTypeController,
                           hintText: S.of(context).settings_currency,
-                          hasUnderlineBorder: false,
-                          borderWidth: 0.0,
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -94,8 +90,6 @@ class ContactPage extends BasePage {
                   Padding(
                     padding: EdgeInsets.only(top: 20),
                     child: AddressTextField(
-                      isBorderExist: false,
-                      borderWidth: 0.0,
                       controller: _addressController,
                       options: [
                         AddressTextFieldOption.paste,
@@ -103,7 +97,6 @@ class ContactPage extends BasePage {
                       ],
                       buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                      borderColor: Theme.of(context).colorScheme.outlineVariant,
                       validator: AddressValidator(type: contactViewModel.currency!),
                     ),
                   )

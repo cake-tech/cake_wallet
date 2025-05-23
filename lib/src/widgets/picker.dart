@@ -191,7 +191,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           child: SearchBarWidget(
                             key: ValueKey('picker_search_bar_key'),
                             searchController: searchController,
-                            enabledBorderColor: Theme.of(context).colorScheme.outlineVariant,
                             hintText: widget.hintText,
                           ),
                         ),

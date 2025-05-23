@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -68,44 +69,37 @@ class EnterWalletConnectURIWidget extends BaseAlertDialog {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           SizedBox(height: 16),
-          TextField(
+          BaseTextFormField(
             controller: controller,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
-            decoration: InputDecoration(
-              suffixIcon: Container(
-                width: 24,
-                height: 24,
-                padding: EdgeInsets.only(top: 0),
-                child: Semantics(
-                  label: S.of(context).paste,
-                  child: InkWell(
-                    onTap: () => _pasteWalletConnectURI(),
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
-                      ),
-                      child: Image.asset(
-                        'assets/images/paste_ios.png',
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+            suffixIcon: Container(
+              width: 24,
+              height: 24,
+              padding: EdgeInsets.only(top: 0),
+              child: Semantics(
+                label: S.of(context).paste,
+                child: InkWell(
+                  onTap: () => _pasteWalletConnectURI(),
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                    ),
+                    child: Image.asset(
+                      'assets/images/paste_ios.png',
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
               ),
-              hintText: S.current.enterWalletConnectURI,
-              border: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ),
-              hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
             ),
+            hintText: S.current.enterWalletConnectURI,
+            placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),

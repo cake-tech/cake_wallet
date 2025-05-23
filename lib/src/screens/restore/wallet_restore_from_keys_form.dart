@@ -142,8 +142,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
                   controller: nameTextEditingController,
                   hintText: S.of(context).wallet_name,
                   validator: WalletNameValidator(),
-                  hasUnderlineBorder: false,
-                  borderWidth: 0,
                   suffixIcon: IconButton(
                     key: ValueKey('wallet_restore_from_keys_wallet_name_refresh_button_key'),
                     onPressed: () async {
@@ -181,8 +179,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
                   controller: passwordTextEditingController,
                   hintText: S.of(context).password,
                   obscureText: true,
-                  hasUnderlineBorder: false,
-                  borderWidth: 0,
                 ),
               ),
               Container(
@@ -192,8 +188,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
                   controller: repeatedPasswordTextEditingController,
                   hintText: S.of(context).repeat_wallet_password,
                   obscureText: true,
-                  hasUnderlineBorder: false,
-                  borderWidth: 0,
                 ),
               )
             ],
@@ -215,8 +209,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             controller: viewKeyController,
             hintText: S.of(context).view_key_public,
             maxLines: null,
-            hasUnderlineBorder: false,
-            borderWidth: 0,
           )
         ],
       );
@@ -235,8 +227,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         controller: privateKeyController,
         placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
         options: [AddressTextFieldOption.paste],
-        isBorderExist: false,
-        borderWidth: 0.0,
         onPushPasteButton: (_) {
           _pasteText();
         },
@@ -250,8 +240,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
           keyboardType: TextInputType.multiline,
           maxLines: null,
           hintText: S.of(context).restore_address,
-          hasUnderlineBorder: false,
-          borderWidth: 0,
         ),
         Container(
           padding: EdgeInsets.only(top: 20.0),
@@ -259,8 +247,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             controller: viewKeyController,
             hintText: S.of(context).restore_view_key_private,
             maxLines: null,
-            hasUnderlineBorder: false,
-            borderWidth: 0,
           ),
         ),
         Container(
@@ -269,8 +255,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             controller: spendKeyController,
             hintText: S.of(context).restore_spend_key_private,
             maxLines: null,
-            hasUnderlineBorder: false,
-            borderWidth: 0,
           ),
         ),
         BlockchainHeightWidget(

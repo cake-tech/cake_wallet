@@ -31,14 +31,6 @@ class AnonpayCurrencyInputField extends StatelessWidget {
     return Column(
       children: [
         Container(
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                width: 1,
-              ),
-            ),
-          ),
           child: Padding(
             padding: EdgeInsets.only(top: 20),
             child: Row(
@@ -115,10 +107,6 @@ class AnonpayCurrencyInputField extends StatelessWidget {
                               TextInputType.numberWithOptions(signed: false, decimal: true),
                           inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))],
                           hintText: '0.0000',
-                          hasUnderlineBorder: false,
-                          borderWidth: 0.0,
-                          fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
-                          borderColor: Colors.transparent,
                           textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: Theme.of(context).colorScheme.onSurface,

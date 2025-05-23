@@ -2,39 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class BaseTextFormField extends StatelessWidget {
-  BaseTextFormField(
-      {this.controller,
-      this.keyboardType = TextInputType.text,
-      this.textInputAction = TextInputAction.done,
-      this.textAlign = TextAlign.start,
-      this.autovalidateMode,
-      this.hintText = '',
-      this.maxLines = 1,
-      this.inputFormatters,
-      this.textColor,
-      this.hintColor,
-      this.borderColor,
-      this.fillColor,
-      this.filled,
-      this.prefix,
-      this.prefixIcon,
-      this.suffix,
-      this.suffixIcon,
-      this.enabled = true,
-      this.readOnly = false,
-      this.enableInteractiveSelection = true,
-      this.obscureText = false,
-      this.validator,
-      this.textStyle,
-      this.placeholderTextStyle,
-      this.maxLength,
-      this.focusNode,
-      this.initialValue,
-      this.onSubmit,
-      this.borderWidth = 1.0,
-      this.hasUnderlineBorder = true,
-      this.borderRadius,
-      super.key});
+  BaseTextFormField({
+    this.onChanged,
+    this.controller,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction = TextInputAction.done,
+    this.textAlign = TextAlign.start,
+    this.autovalidateMode,
+    this.hintText = '',
+    this.maxLines = 1,
+    this.inputFormatters,
+    this.textColor,
+    this.hintColor,
+    this.fillColor,
+    this.prefix,
+    this.prefixIcon,
+    this.suffix,
+    this.suffixIcon,
+    this.enabled = true,
+    this.readOnly = false,
+    this.enableInteractiveSelection = true,
+    this.obscureText = false,
+    this.validator,
+    this.textStyle,
+    this.placeholderTextStyle,
+    this.maxLength,
+    this.focusNode,
+    this.initialValue,
+    this.onSubmit,
+    this.autofocus = false,
+    this.autocorrect = true,
+    this.enableSuggestions = true,
+    this.contentPadding,
+    this.alignLabelWithHint = false,
+    this.floatingLabelBehavior,
+    this.cursorColor,
+    this.cursorWidth,
+    this.isDense,
+    super.key,
+  });
 
   final TextEditingController? controller;
   final TextInputType? keyboardType;
@@ -46,9 +52,7 @@ class BaseTextFormField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Color? textColor;
   final Color? hintColor;
-  final Color? borderColor;
   final Color? fillColor;
-  bool? filled;
   final Widget? prefix;
   final Widget? prefixIcon;
   final Widget? suffix;
@@ -62,15 +66,28 @@ class BaseTextFormField extends StatelessWidget {
   final bool readOnly;
   final bool? enableInteractiveSelection;
   final String? initialValue;
-  final double borderWidth;
   final void Function(String)? onSubmit;
   final bool obscureText;
-  final bool hasUnderlineBorder;
-  final BorderRadius? borderRadius;
+  final bool? autofocus;
+  final bool? autocorrect;
+  final bool? enableSuggestions;
+  final void Function(String)? onChanged;
+  final EdgeInsetsGeometry? contentPadding;
+  final bool? alignLabelWithHint;
+  final FloatingLabelBehavior? floatingLabelBehavior;
+  final Color? cursorColor;
+  final double? cursorWidth;
+  final bool? isDense;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      cursorColor: cursorColor,
+      cursorWidth: cursorWidth ?? 2.0,
+      onChanged: onChanged,
+      autofocus: autofocus ?? false,
+      autocorrect: autocorrect ?? true,
+      enableSuggestions: enableSuggestions ?? true,
       enableInteractiveSelection: enableInteractiveSelection,
       readOnly: readOnly,
       initialValue: initialValue,
@@ -87,59 +104,24 @@ class BaseTextFormField extends StatelessWidget {
       maxLength: maxLength,
       onFieldSubmitted: onSubmit,
       style: textStyle ??
-          Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurface),
+          Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
+        isDense: isDense,
+        alignLabelWithHint: alignLabelWithHint,
+        contentPadding: contentPadding,
+        floatingLabelBehavior: floatingLabelBehavior,
         prefix: prefix,
         prefixIcon: prefixIcon,
         suffix: suffix,
         suffixIcon: suffixIcon,
         fillColor: fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
-        filled: filled,
         hintStyle: placeholderTextStyle ??
-            Theme.of(context).textTheme.bodyMedium!.copyWith(color: hintColor ?? Theme.of(context).hintColor, fontSize: 16),
+            Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(color: hintColor ?? Theme.of(context).hintColor, fontSize: 16),
         hintText: hintText,
-        focusedBorder: hasUnderlineBorder
-            ? UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth,
-                ),
-              )
-            : OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(4.0)),
-                borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth,
-                ),
-              ),
-        disabledBorder: hasUnderlineBorder
-            ? UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth,
-                ),
-              )
-            : OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10.0)),
-                borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth,
-                ),
-              ),
-        enabledBorder: hasUnderlineBorder
-            ? UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth,
-                ),
-              )
-            : OutlineInputBorder(
-                borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10.0)),
-                borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                  width: borderWidth,
-                ),
-              ),
       ),
       validator: validator,
     );

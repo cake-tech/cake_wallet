@@ -39,8 +39,10 @@ class SendTemplateCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius:
-            BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(24),
+          bottomRight: Radius.circular(24),
+        ),
         color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Column(
@@ -49,13 +51,13 @@ class SendTemplateCard extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
             child: Column(
               children: <Widget>[
+                SizedBox(height: 32),
                 if (index == 0)
                   BaseTextFormField(
                     controller: _nameController,
                     hintText: sendTemplateViewModel.recipients.length > 1
                         ? S.of(context).template_name
                         : S.of(context).send_name,
-                    borderColor: Theme.of(context).colorScheme.outlineVariant,
                     textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
@@ -64,6 +66,7 @@ class SendTemplateCard extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                     validator: sendTemplateViewModel.templateValidator,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
@@ -91,7 +94,6 @@ class SendTemplateCard extends StatelessWidget {
                           await template.output.fetchParsedAddress(context);
                         },
                         buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderColor: Theme.of(context).colorScheme.outlineVariant,
                         textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               fontWeight: FontWeight.w500,
                             ),
@@ -100,6 +102,7 @@ class SendTemplateCard extends StatelessWidget {
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                         validator: sendTemplateViewModel.addressValidator,
+                        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       );
                     },
                   ),
@@ -108,23 +111,19 @@ class SendTemplateCard extends StatelessWidget {
                   onFocusChange: (hasFocus) {
                     if (hasFocus) template.setCryptoCurrency(true);
                   },
-                  child: Column(
-                    children: [
-                      Observer(
-                        builder: (context) => CurrencyAmountTextField(
-                          selectedCurrency: template.selectedCurrency.title,
-                          amountFocusNode: _cryptoAmountFocus,
-                          amountController: _cryptoAmountController,
-                          isSelected: template.isCryptoSelected,
-                          tag: template.selectedCurrency.tag,
-                          isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
-                          onTapPicker: () => _presentPicker(context),
-                          currencyValueValidator: sendTemplateViewModel.amountValidator,
-                          isAmountEditable: true,
-                        ),
-                      ),
-                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
-                    ],
+                  child: Observer(
+                    builder: (context) => CurrencyAmountTextField(
+                      selectedCurrency: template.selectedCurrency.title,
+                      amountFocusNode: _cryptoAmountFocus,
+                      amountController: _cryptoAmountController,
+                      isSelected: template.isCryptoSelected,
+                      tag: template.selectedCurrency.tag,
+                      isPickerEnable: sendTemplateViewModel.hasMultipleTokens,
+                      onTapPicker: () => _presentPicker(context),
+                      currencyValueValidator: sendTemplateViewModel.amountValidator,
+                      isAmountEditable: true,
+                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    ),
                   ),
                 ),
                 Focus(
@@ -141,9 +140,9 @@ class SendTemplateCard extends StatelessWidget {
                           isSelected: !template.isCryptoSelected,
                           hintText: '0.00',
                           isAmountEditable: true,
+                          fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         ),
                       ),
-                      Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant)
                     ],
                   ),
                 ),

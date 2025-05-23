@@ -56,16 +56,16 @@ class _NumberTextFieldState extends State<NumberTextField> {
 
   @override
   Widget build(BuildContext context) => TextField(
-      style: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurfaceVariant),
-      enableInteractiveSelection: false,
-      textAlign: TextAlign.center,
-      textAlignVertical: TextAlignVertical.bottom,
-      controller: _controller,
-      focusNode: _focusNode,
-      textInputAction: TextInputAction.done,
-      keyboardType: TextInputType.number,
-      maxLength: widget.max.toString().length + (widget.min.isNegative ? 1 : 0),
-      decoration: InputDecoration(
+        style: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        enableInteractiveSelection: false,
+        textAlign: TextAlign.center,
+        textAlignVertical: TextAlignVertical.bottom,
+        controller: _controller,
+        focusNode: _focusNode,
+        textInputAction: TextInputAction.done,
+        keyboardType: TextInputType.number,
+        maxLength: widget.max.toString().length + (widget.min.isNegative ? 1 : 0),
+        decoration: InputDecoration(
           border: InputBorder.none,
           contentPadding: EdgeInsets.all(0),
           fillColor: Colors.transparent,
@@ -73,34 +73,50 @@ class _NumberTextFieldState extends State<NumberTextField> {
           isDense: true,
           filled: true,
           suffixIconConstraints: BoxConstraints(
-              maxHeight: widget.arrowsHeight,
-              maxWidth: widget.arrowsWidth + widget.contentPadding.right),
+            maxHeight: widget.arrowsHeight,
+            maxWidth: widget.arrowsWidth + widget.contentPadding.right,
+          ),
           prefixIconConstraints: BoxConstraints(
-              maxHeight: widget.arrowsHeight,
-              maxWidth: widget.arrowsWidth + widget.contentPadding.left),
+            maxHeight: widget.arrowsHeight,
+            maxWidth: widget.arrowsWidth + widget.contentPadding.left,
+          ),
           prefixIcon: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                  child: Container(
-                      width: widget.arrowsWidth,
-                      alignment: Alignment.bottomCenter,
-                      child: Icon(Icons.arrow_left_outlined, size: widget.arrowsWidth)),
-                  onTap: _canGoDown ? () => _update(false) : null)),
+            type: MaterialType.transparency,
+            child: InkWell(
+              child: Container(
+                width: widget.arrowsWidth,
+                alignment: Alignment.bottomCenter,
+                child: Icon(
+                  Icons.arrow_left_outlined,
+                  size: widget.arrowsWidth,
+                ),
+              ),
+              onTap: _canGoDown ? () => _update(false) : null,
+            ),
+          ),
           suffixIcon: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                  child: Container(
-                      width: widget.arrowsWidth,
-                      alignment: Alignment.bottomCenter,
-                      child: Icon(Icons.arrow_right_outlined, size: widget.arrowsWidth)),
-                  onTap: _canGoUp ? () => _update(true) : null))),
-      maxLines: 1,
-      onChanged: (value) {
-        final intValue = int.tryParse(value);
-        widget.onChanged?.call(intValue);
-        _updateArrows(intValue);
-      },
-      inputFormatters: [_NumberTextInputFormatter(widget.min, widget.max)]);
+            type: MaterialType.transparency,
+            child: InkWell(
+              child: Container(
+                width: widget.arrowsWidth,
+                alignment: Alignment.bottomCenter,
+                child: Icon(
+                  Icons.arrow_right_outlined,
+                  size: widget.arrowsWidth,
+                ),
+              ),
+              onTap: _canGoUp ? () => _update(true) : null,
+            ),
+          ),
+        ),
+        maxLines: 1,
+        onChanged: (value) {
+          final intValue = int.tryParse(value);
+          widget.onChanged?.call(intValue);
+          _updateArrows(intValue);
+        },
+        inputFormatters: [_NumberTextInputFormatter(widget.min, widget.max)],
+      );
 
   void _update(bool up) {
     var intValue = int.tryParse(_controller.text);

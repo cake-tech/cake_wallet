@@ -168,7 +168,6 @@ class QRWidget extends StatelessWidget {
                             tag: addressListViewModel.selectedCurrency.tag,
                             onTapPicker: () => _presentPicker(context),
                             isPickerEnable: true,
-                            fillColor: Theme.of(context).colorScheme.surface,
                           ),
                         ),
                       ),
@@ -177,9 +176,10 @@ class QRWidget extends StatelessWidget {
                 );
               },
             ),
+            SizedBox(height: 8),
             Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
             Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 8),
+              padding: EdgeInsets.only(top: 12, bottom: 8),
               child: Builder(
                 builder: (context) => Observer(
                   builder: (context) => GestureDetector(

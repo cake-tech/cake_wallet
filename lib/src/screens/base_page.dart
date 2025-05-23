@@ -51,15 +51,15 @@ abstract class BasePage extends StatelessWidget {
   void onClose(BuildContext context) => Navigator.of(context).pop();
 
   Color pageBackgroundColor(BuildContext context) =>
-      (currentTheme.type == ThemeType.dark ? backgroundDarkColor : backgroundLightColor) ??
-      Theme.of(context).colorScheme.surface;
+      (currentTheme.isDark ? backgroundDarkColor : backgroundLightColor) ??
+      (gradientBackground ? Colors.transparent : Theme.of(context).colorScheme.surface);
 
   Color titleColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
 
   Color? pageIconColor(BuildContext context) => titleColor(context);
 
   Widget closeButton(BuildContext context) => Image.asset(
-        currentTheme.type == ThemeType.dark
+        currentTheme.isDark
             ? 'assets/images/close_button_dark_theme.png'
             : 'assets/images/close_button.png',
         color: pageIconColor(context),
@@ -88,7 +88,7 @@ abstract class BasePage extends StatelessWidget {
             child: TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.onSurface,
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: backButton(context),

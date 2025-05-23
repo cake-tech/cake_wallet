@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -75,48 +76,34 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
                     child: Stack(
                       alignment: Alignment.centerRight,
                       children: [
-                        TextFormField(
+                        BaseTextFormField(
                           onChanged: (value) => _walletHardwareRestoreVM.name = value,
                           controller: _controller,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.w600,
                               ),
-                          decoration: InputDecoration(
-                            hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                          hintText: S.of(context).wallet_name,
+                          suffixIcon: Semantics(
+                            label: S.of(context).generate_name,
+                            child: IconButton(
+                              onPressed: _onGenerateName,
+                              icon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                 ),
-                            hintText: S.of(context).wallet_name,
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outline,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outline,
-                                width: 1.0,
-                              ),
-                            ),
-                            suffixIcon: Semantics(
-                              label: S.of(context).generate_name,
-                              child: IconButton(
-                                onPressed: _onGenerateName,
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.0),
-                                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                  ),
-                                  width: 34,
-                                  height: 34,
-                                  child: Image.asset(
-                                    'assets/images/refresh_icon.png',
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
+                                width: 34,
+                                height: 34,
+                                child: Image.asset(
+                                  'assets/images/refresh_icon.png',
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),

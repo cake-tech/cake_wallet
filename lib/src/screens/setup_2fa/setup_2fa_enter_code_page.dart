@@ -144,7 +144,6 @@ class TOTPEnterCode extends BasePage {
             hintText: S.current.totp_code,
             controller: totpController,
             keyboardType: TextInputType.number,
-            fillColor: Theme.of(context).colorScheme.surface,
             placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 16,

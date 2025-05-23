@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -40,42 +41,20 @@ class _HeaderTileState extends State<HeaderTile> {
         children: <Widget>[
           _isSearchActive
               ? Expanded(
-                  child: TextField(
+                  child: BaseTextFormField(
                     onChanged: (value) {
                       widget.walletAddressListViewModel.updateSearchText(value);
                       widget.onSearchCallback?.call();
                     },
                     cursorColor: Theme.of(context).colorScheme.onSurface,
                     cursorWidth: 0.5,
-                    decoration: InputDecoration(
-                      fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                      filled: true,
-                      hintText: '${S.of(context).search}...',
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                      hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 0.0,
-                          color: Theme.of(context).colorScheme.outline,
+                    isDense: true,
+                    hintText: '${S.of(context).search}...',
+                    contentPadding: EdgeInsets.all(4),
+                    placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 0.0,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 0.0,
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
-                    ),
                     autofocus: true,
                   ),
                 )

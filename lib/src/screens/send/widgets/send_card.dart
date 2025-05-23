@@ -171,6 +171,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     : sendViewModel.addressValidator;
 
                 return AddressTextField(
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   addressKey: ValueKey('send_page_address_textfield_key'),
                   focusNode: addressFocusNode,
                   controller: addressController,
@@ -193,7 +194,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     AddressTextFieldOption.addressBook
                   ],
                   buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderColor: Theme.of(context).colorScheme.outlineVariant,
                   textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -221,19 +221,19 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 Padding(
                   padding: const EdgeInsets.only(top: 20),
                   child: BaseTextFormField(
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     controller: extractedAddressController,
                     readOnly: true,
-                    borderColor: Theme.of(context).colorScheme.outlineVariant,
                     textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
                     validator: sendViewModel.addressValidator,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
                   ),
                 ),
               CurrencyAmountTextField(
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 currencyPickerButtonKey: ValueKey('send_page_currency_picker_button_key'),
                 amountTextfieldKey: ValueKey('send_page_amount_textfield_key'),
                 sendAllButtonKey: ValueKey('send_page_send_all_button_key'),
@@ -254,7 +254,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 allAmountCallback: () async =>
                     output.setSendAll(await sendViewModel.sendingBalance),
               ),
-              Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
               Observer(
                 builder: (_) {
                   // force rebuild on mobx
@@ -294,24 +293,25 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
               ),
               if (!sendViewModel.isFiatDisabled)
                 CurrencyAmountTextField(
-                    amountTextfieldKey: ValueKey('send_page_fiat_amount_textfield_key'),
-                    currencyAmountTextFieldWidgetKey:
-                        ValueKey('send_page_fiat_currency_amount_textfield_widget_key'),
-                    selectedCurrency: sendViewModel.fiat.title,
-                    amountFocusNode: widget.fiatAmountFocus,
-                    amountController: fiatAmountController,
-                    hintText: '0.00',
-                    isAmountEditable: true,
-                    allAmountButton: false),
-              Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  amountTextfieldKey: ValueKey('send_page_fiat_amount_textfield_key'),
+                  currencyAmountTextFieldWidgetKey:
+                      ValueKey('send_page_fiat_currency_amount_textfield_widget_key'),
+                  selectedCurrency: sendViewModel.fiat.title,
+                  amountFocusNode: widget.fiatAmountFocus,
+                  amountController: fiatAmountController,
+                  hintText: '0.00',
+                  isAmountEditable: true,
+                  allAmountButton: false,
+                ),
               Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: BaseTextFormField(
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   key: ValueKey('send_page_note_textfield_key'),
                   controller: noteController,
                   keyboardType: TextInputType.multiline,
                   maxLines: null,
-                  borderColor: Theme.of(context).colorScheme.outlineVariant,
                   textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.w500,
                       ),

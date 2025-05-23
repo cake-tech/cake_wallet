@@ -233,7 +233,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
             allAmountCallback: widget.allAmount,
             fillColor: widget.fillColor,
           ),
-          Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
           Padding(
             padding: EdgeInsets.only(top: 5),
             child: widget.showLimitsField
@@ -310,7 +309,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                             AddressTextFieldOption.qrCode,
                             AddressTextFieldOption.addressBook,
                           ],
-                          isBorderExist: false,
                           textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -328,8 +326,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                           selectedCurrency: _selectedCurrency,
                           fillColor: widget.fillColor,
                           iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                          borderWidth: 0.0,
-                          borderColor: Colors.transparent,
                         ),
                       ),
                     )
@@ -345,7 +341,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                             key:
                                 ValueKey('${_cardInstanceName}_non_editable_address_textfield_key'),
                             controller: addressController,
-                            borderColor: Colors.transparent,
                             suffixIcon: SizedBox(width: _isMoneroWallet ? 80 : 36),
                             textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 16,
@@ -356,8 +351,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                           ),
                         ),
                         Positioned(
-                          top: 2,
-                          right: 0,
+                          top: 10,
+                          right: 4,
                           child: SizedBox(
                             width: _isMoneroWallet ? 80 : 36,
                             child: Row(

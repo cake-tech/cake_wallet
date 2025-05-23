@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -69,16 +70,18 @@ class BalanceRowWidget extends StatelessWidget {
           margin: const EdgeInsets.only(left: 16, right: 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            // boxShadow: [
-            //   BoxShadow(
-            //       color: Theme.of(context)
-            //           .extension<BalancePageTheme>()!
-            //           .cardBorderColor
-            //           .withAlpha(50),
-            //       spreadRadius: dashboardViewModel.getShadowSpread(),
-            //       blurRadius: dashboardViewModel.getShadowBlur())
-            // ],
+            gradient: LinearGradient(
+          colors: [
+            Theme.of(context).brightness == Brightness.dark
+                ? CustomThemeColors.cardGradientColorPrimaryDark
+                : CustomThemeColors.cardGradientColorPrimaryLight,
+                    Theme.of(context).brightness == Brightness.dark
+                ? CustomThemeColors.cardGradientColorSecondaryDark
+                : CustomThemeColors.cardGradientColorSecondaryLight,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
           ),
           child: TextButton(
             onPressed: _showToast,

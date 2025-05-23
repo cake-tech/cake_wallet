@@ -485,7 +485,6 @@ class _EnterAmountWidget extends StatelessWidget {
             keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
             hintText: '0.00',
             maxLines: null,
-            borderColor: Colors.transparent,
             prefixIcon: Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Text(

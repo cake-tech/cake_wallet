@@ -713,7 +713,7 @@ class ExchangePage extends BasePage {
         currencyButtonColor: Colors.transparent,
         addressButtonsColor: Colors.transparent,
         borderColor: Theme.of(context).colorScheme.outlineVariant,
-        fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
+        fillColor: Theme.of(context).colorScheme.surfaceContainer,
         currencyValueValidator: (value) {
           return !exchangeViewModel.isFixedRateMode && value != S.of(context).all
               ? AmountValidator(
@@ -760,7 +760,7 @@ class ExchangePage extends BasePage {
         currencyButtonColor: Colors.transparent,
         addressButtonsColor: Colors.transparent,
         borderColor: Theme.of(context).colorScheme.outlineVariant,
-        fillColor: Theme.of(context).colorScheme.surfaceContainer,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
         currencyValueValidator: (value) {
           return exchangeViewModel.isFixedRateMode
               ? AmountValidator(

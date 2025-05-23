@@ -20,9 +20,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.options = const [AddressTextFieldOption.qrCode, AddressTextFieldOption.addressBook],
     this.onURIScanned,
     this.focusNode,
-    this.isBorderExist = true,
     this.buttonColor,
-    this.borderColor,
     this.iconColor,
     this.textStyle,
     this.hintStyle,
@@ -33,8 +31,6 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.onSelectedContact,
     this.selectedCurrency,
     this.addressKey,
-    this.borderRadius,
-    this.borderWidth,
     this.fillColor,
   });
 
@@ -48,22 +44,22 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final Function(Uri)? onURIScanned;
   final List<AddressTextFieldOption> options;
   final FormFieldValidator<String>? validator;
-  final bool isBorderExist;
+
   final Color? buttonColor;
-  final Color? borderColor;
+  final Color? fillColor;
   final Color? iconColor;
   final TextStyle? textStyle;
   final TextStyle? hintStyle;
+
   final FocusNode? focusNode;
+  final T? selectedCurrency;
+  final Key? addressKey;
+
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
   final Function(BuildContext context)? onPushAddressPickerButton;
   final Function(ContactBase contact)? onSelectedContact;
-  final T? selectedCurrency;
-  final Key? addressKey;
-  final BorderRadius? borderRadius;
-  final double? borderWidth;
-  final Color? fillColor;
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,48 +89,6 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
             hintText: placeholder ?? S.current.widgets_address,
-            focusedBorder: isBorderExist
-                ? UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                      width: 1.0,
-                    ),
-                  )
-                : OutlineInputBorder(
-                    borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                      width: borderWidth ?? 1.0,
-                    ),
-                  ),
-            disabledBorder: isBorderExist
-                ? UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                      width: 1.0,
-                    ),
-                  )
-                : OutlineInputBorder(
-                    borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                      width: borderWidth ?? 1.0,
-                    ),
-                  ),
-            enabledBorder: isBorderExist
-                ? UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                      width: 1.0,
-                    ),
-                  )
-                : OutlineInputBorder(
-                    borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: borderColor ?? Theme.of(context).colorScheme.outlineVariant,
-                      width: borderWidth ?? 1.0,
-                    ),
-                  ),
           ),
           validator: validator,
         ),

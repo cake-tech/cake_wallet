@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
@@ -52,30 +53,18 @@ class HomeSettingsPage extends BasePage {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsetsDirectional.only(start: 16),
-                  child: TextFormField(
+                  child: BaseTextFormField(
                     controller: _searchController,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                    decoration: InputDecoration(
-                      hintText: S.of(context).search_add_token,
-                      prefixIcon: Image.asset(
-                        "assets/images/search_icon.png",
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                      alignLabelWithHint: false,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: const BorderSide(color: Colors.transparent),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: const BorderSide(color: Colors.transparent),
-                      ),
+                    hintText: S.of(context).search_add_token,
+                    prefixIcon: Image.asset(
+                      "assets/images/search_icon.png",
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
+                    alignLabelWithHint: false,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                     onChanged: (String text) => _homeSettingsViewModel.changeSearchText(text),
                   ),
                 ),

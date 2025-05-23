@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -61,15 +62,14 @@ class RestoreFromBackupPage extends BasePage {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        TextFormField(
+                        BaseTextFormField(
                           obscureText: true,
                           enableSuggestions: false,
                           autocorrect: false,
-                          decoration:
-                              InputDecoration(hintText: S.of(context).enter_backup_password),
+                          hintText: S.of(context).enter_backup_password,
                           keyboardType: TextInputType.visiblePassword,
                           controller: textEditingController,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 fontSize: 26,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
@@ -85,21 +85,19 @@ class RestoreFromBackupPage extends BasePage {
                                       Text(
                                         "File Name: ",
                                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                           
-                                          color: titleColor(context),
-                                        ),
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: titleColor(context),
+                                            ),
                                       ),
                                       Expanded(
                                         child: Text(
                                           restoreFromBackupViewModel.filePath.split("/").last,
                                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.bold,
-                                             
-                                            color: titleColor(context),
-                                          ),
+                                                fontSize: 18.0,
+                                                fontWeight: FontWeight.bold,
+                                                color: titleColor(context),
+                                              ),
                                         ),
                                       ),
                                     ],

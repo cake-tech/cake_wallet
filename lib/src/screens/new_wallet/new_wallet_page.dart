@@ -8,6 +8,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -160,99 +161,90 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        TextFormField(
+                        BaseTextFormField(
                           key: ValueKey('new_wallet_page_wallet_name_textformfield_key'),
                           onChanged: (value) => _walletNewVM.name = value,
                           controller: _nameController,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
-                          decoration: InputDecoration(
-                            fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  height: 1.4,
-                                  fontSize: 16.0,
-                                ),
-                            hintText: S.of(context).wallet_name,
-                            suffixIcon: Semantics(
-                              label: S.of(context).generate_name,
-                              child: IconButton(
-                                key: ValueKey(
-                                  'new_wallet_page_wallet_name_textformfield_generate_name_button_key',
-                                ),
-                                onPressed: () async {
-                                  final rName = await generateName();
-                                  FocusManager.instance.primaryFocus?.unfocus();
+                          placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1.4,
+                                fontSize: 16.0,
+                              ),
+                          hintText: S.of(context).wallet_name,
+                          suffixIcon: Semantics(
+                            label: S.of(context).generate_name,
+                            child: IconButton(
+                              key: ValueKey(
+                                'new_wallet_page_wallet_name_textformfield_generate_name_button_key',
+                              ),
+                              onPressed: () async {
+                                final rName = await generateName();
+                                FocusManager.instance.primaryFocus?.unfocus();
 
-                                  setState(() {
-                                    _nameController.text = rName;
-                                    _walletNewVM.name = rName;
-                                    _nameController.selection = TextSelection.fromPosition(
-                                      TextPosition(offset: _nameController.text.length),
-                                    );
-                                  });
-                                },
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.0),
-                                    color: Theme.of(context).colorScheme.surfaceContainerLow,
-                                  ),
-                                  width: 34,
-                                  height: 34,
-                                  child: Image.asset('assets/images/refresh_icon.png',
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                setState(() {
+                                  _nameController.text = rName;
+                                  _walletNewVM.name = rName;
+                                  _nameController.selection = TextSelection.fromPosition(
+                                    TextPosition(offset: _nameController.text.length),
+                                  );
+                                });
+                              },
+                              icon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                                 ),
+                                width: 34,
+                                height: 34,
+                                child: Image.asset('assets/images/refresh_icon.png',
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ),
                             ),
                           ),
                           validator: WalletNameValidator(),
                         ),
                         if (_walletNewVM.hasWalletPassword) ...[
-                          TextFormField(
+                          BaseTextFormField(
                             key: ValueKey('password'),
                             onChanged: (value) => _walletNewVM.walletPassword = value,
                             controller: _passwordController,
                             textAlign: TextAlign.center,
                             obscureText: true,
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                            placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     height: 1.4,
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.w500,
                                   ),
-                              hintText: S.of(context).password,
-                            ),
+                            hintText: S.of(context).password,
                           ),
-                          TextFormField(
+                          BaseTextFormField(
                             key: ValueKey('repeat_wallet_password'),
                             onChanged: (value) => _walletNewVM.repeatedWalletPassword = value,
                             controller: _repeatedPasswordController,
                             textAlign: TextAlign.center,
                             obscureText: true,
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                            placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     height: 1.4,
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.w500,
                                   ),
-                              hintText: S.of(context).repeat_wallet_password,
-                            ),
+                            hintText: S.of(context).repeat_wallet_password,
                           ),
                         ],
                       ],

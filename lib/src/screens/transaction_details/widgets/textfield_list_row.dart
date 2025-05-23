@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
 
 class TextFieldListRow extends StatefulWidget {
@@ -65,41 +66,27 @@ class _TextFieldListRowState extends State<TextFieldListRow> {
               textAlign: TextAlign.left,
             ),
             SizedBox(height: 4),
-            TextField(
+            BaseTextFormField(
               controller: _textController,
               focusNode: _focusNode,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.done,
               maxLines: null,
               textAlign: TextAlign.start,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontSize: widget.valueFontSize,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-              decoration: InputDecoration(
-                fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                isDense: true,
-                contentPadding: EdgeInsets.only(
-                  top: 12,
-                  bottom: 0,
-                  left: 8,
-                  right: 8,
-                ),
-                hintText: S.of(context).enter_your_note,
-                hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: widget.valueFontSize,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                    width: 0.0,
+              textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: widget.valueFontSize,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                ),
-              ),
-              onSubmitted: (value) {
+              isDense: true,
+              contentPadding: EdgeInsets.only(top: 12, bottom: 0, left: 8, right: 8),
+              hintText: S.of(context).enter_your_note,
+              placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: widget.valueFontSize,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+              onSubmit: (value) {
                 widget.onSubmitted?.call(value);
               },
             ),

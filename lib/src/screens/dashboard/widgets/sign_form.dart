@@ -95,7 +95,6 @@ class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
               enabled: false,
               controller: signatureController,
               hintText: S.current.signature,
-              fillColor: Theme.of(context).colorScheme.surface,
             ),
           ),
         ],

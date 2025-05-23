@@ -93,8 +93,6 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     hintText: widget.isSilentPaymentsScan
                         ? S.of(context).silent_payments_scan_from_height
                         : S.of(context).widgets_restore_from_blockheight,
-                    hasUnderlineBorder: false,
-                    borderWidth: 0,
                   ),
                 ),
               )
@@ -124,8 +122,6 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                         hintText: widget.isSilentPaymentsScan
                             ? S.of(context).silent_payments_scan_from_date
                             : S.of(context).widgets_restore_from_date,
-                        hasUnderlineBorder: false,
-                        borderWidth: 0,
                       ),
                     ),
                   ),

@@ -172,7 +172,7 @@ class DarkTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -181,7 +181,7 @@ class DarkTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.primary,
             side: BorderSide(color: colorScheme.outline),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -189,32 +189,36 @@ class DarkTheme extends MaterialThemeBase {
           style: TextButton.styleFrom(
             foregroundColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: colorScheme.surfaceContainerHighest,
+          fillColor: colorScheme.surfaceContainer,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.primary, width: 2),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: colorScheme.primary),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.error, width: 2),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: colorScheme.error),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.error, width: 2),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: colorScheme.error),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
           ),
         ),
       );

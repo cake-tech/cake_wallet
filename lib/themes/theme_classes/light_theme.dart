@@ -196,26 +196,26 @@ class LightTheme extends MaterialThemeBase {
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: colorScheme.surfaceContainerHighest,
+          fillColor: colorScheme.surfaceContainer,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.primary, width: 2),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: colorScheme.primary),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.error, width: 2),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: colorScheme.error),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.error, width: 2),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: colorScheme.error),
           ),
         ),
       );

@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/card_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -362,41 +363,21 @@ class _SearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final searchIcon = ExcludeSemantics(
-      child: Icon(
-        Icons.search,
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-        //size: 24
-      ),
-    );
-
-    return TextField(
+    return BaseTextFormField(
       focusNode: focusNode,
-      style: Theme.of(context).textTheme.bodyMedium,
+      textStyle: Theme.of(context).textTheme.bodyMedium,
       controller: controller,
-      decoration: InputDecoration(
-        filled: true,
-        contentPadding: EdgeInsets.only(
-          top: 8,
-          left: 8,
-        ),
-        fillColor: Theme.of(context).colorScheme.surface,
-        hintText: S.of(context).search,
-        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-        alignLabelWithHint: true,
-        floatingLabelBehavior: FloatingLabelBehavior.never,
-        suffixIcon: searchIcon,
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.transparent,
+      contentPadding: EdgeInsets.only(top: 8, left: 8),
+      hintText: S.of(context).search,
+      placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-          borderRadius: BorderRadius.circular(10),
+      alignLabelWithHint: true,
+      floatingLabelBehavior: FloatingLabelBehavior.never,
+      suffixIcon: ExcludeSemantics(
+        child: Icon(
+          Icons.search,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

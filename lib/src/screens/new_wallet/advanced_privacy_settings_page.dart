@@ -214,10 +214,6 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                         hintText: S.of(context).passphrase,
                         controller: passphraseController,
                         obscureText: obscurePassphrase,
-                        borderWidth: 0.0,
-                        fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                        hasUnderlineBorder: false,
-                        borderRadius: BorderRadius.circular(10),
                         suffixIcon: GestureDetector(
                           onTap: () => setState(() {
                             obscurePassphrase = !obscurePassphrase;
@@ -232,10 +228,6 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                         hintText: S.of(context).confirm_passphrase,
                         controller: confirmPassphraseController,
                         obscureText: obscurePassphrase,
-                        fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                        hasUnderlineBorder: false,
-                        borderWidth: 0.0,
-                        borderRadius: BorderRadius.circular(10),
                         validator: (text) {
                           if (text == passphraseController.text) {
                             return null;
@@ -309,8 +301,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   S.of(context).settings_can_be_changed_later,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ),
             ),

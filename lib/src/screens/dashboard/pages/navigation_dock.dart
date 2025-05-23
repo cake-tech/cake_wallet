@@ -20,14 +20,16 @@ class NavigationDock extends StatelessWidget {
           return Container(
             height: 150,
             alignment: Alignment.bottomCenter,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: _getColors(context),
-              ),
-            ),
+            color: Colors.transparent,
             child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: _getColors(context),
+                ),
+              ),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
@@ -53,12 +55,10 @@ class NavigationDock extends StatelessWidget {
                                     child: ActionButton(
                                       key: ValueKey(
                                           'dashboard_page_${action.name(context)}_action_button_key'),
-                                      image: Image.asset(
-                                        action.image,
-                                        height: 24,
-                                        width: 24,
-                                        color:  Theme.of(context).colorScheme.onSurface
-                                      ),
+                                      image: Image.asset(action.image,
+                                          height: 24,
+                                          width: 24,
+                                          color: Theme.of(context).colorScheme.onSurface),
                                       title: action.name(context),
                                       onClick: (action.isEnabled?.call(dashboardViewModel) ?? true)
                                           ? () async =>
@@ -102,7 +102,7 @@ class NavigationDock extends StatelessWidget {
             Theme.of(context).colorScheme.surfaceContainer.withAlpha(150),
             Theme.of(context).colorScheme.surfaceContainer.withAlpha(200),
             Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surface  
+            Theme.of(context).colorScheme.surface
           ];
   }
 }

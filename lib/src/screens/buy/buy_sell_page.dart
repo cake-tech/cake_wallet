@@ -413,8 +413,8 @@ class BuySellPage extends BasePage {
         onPushPasteButton: (context) async {},
         onPushAddressBookButton: (context) async {},
         fillColor: buySellViewModel.isBuyAction
-            ? Theme.of(context).colorScheme.surfaceContainerLow
-            : Theme.of(context).colorScheme.surfaceContainer,
+            ? Theme.of(context).colorScheme.surfaceContainer
+            : Theme.of(context).colorScheme.surfaceContainerLow,
       ),
     );
 
@@ -451,8 +451,8 @@ class BuySellPage extends BasePage {
         onPushPasteButton: (context) async {},
         onPushAddressBookButton: (context) async {},
         fillColor: buySellViewModel.isBuyAction
-            ? Theme.of(context).colorScheme.surfaceContainer
-            : Theme.of(context).colorScheme.surfaceContainerLow,
+            ? Theme.of(context).colorScheme.surfaceContainerLow
+            : Theme.of(context).colorScheme.surfaceContainer,
       ),
     );
 

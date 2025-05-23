@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -24,34 +25,41 @@ class EditBackupPasswordPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.only(left: 24, right: 24),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Center(
-                child: Observer(
-                    builder: (_) => TextFormField(
-                        autofocus: true,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        keyboardType: TextInputType.visiblePassword,
-                        controller: textEditingController,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                        )))),
-            Positioned(
-                child: Observer(
-                    builder: (_) => PrimaryButton(
-                        onPressed: () => onSave(context),
-                        text: S.of(context).save,
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                        isDisabled: !editBackupPasswordViewModel.canSave)),
-                bottom: 24,
-                left: 0,
-                right: 0)
-          ],
-        ));
+      padding: EdgeInsets.only(left: 24, right: 24),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Center(
+            child: Observer(
+              builder: (_) => BaseTextFormField(
+                autofocus: true,
+                enableSuggestions: false,
+                autocorrect: false,
+                keyboardType: TextInputType.visiblePassword,
+                controller: textEditingController,
+                textStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+              ),
+            ),
+          ),
+          Positioned(
+            child: Observer(
+              builder: (_) => PrimaryButton(
+                onPressed: () => onSave(context),
+                text: S.of(context).save,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                isDisabled: !editBackupPasswordViewModel.canSave,
+              ),
+            ),
+            bottom: 24,
+            left: 0,
+            right: 0,
+          )
+        ],
+      ),
+    );
   }
 
   void onSave(BuildContext context) {

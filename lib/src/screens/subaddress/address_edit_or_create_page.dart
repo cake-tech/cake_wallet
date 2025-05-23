@@ -42,8 +42,6 @@ class AddressEditOrCreatePage extends BasePage {
                   controller: _labelController,
                   hintText: S.of(context).new_subaddress_label_name,
                   validator: AddressLabelValidator(),
-                  hasUnderlineBorder: false,
-                  borderWidth: 0.0,
                 ),
               )),
               Observer(

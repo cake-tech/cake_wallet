@@ -354,8 +354,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             onPushPasteButton: (_) {
               _pasteText();
             },
-            isBorderExist: false,
-            borderWidth: 0.0,
           ),
           const SizedBox(height: 8),
           BaseTextFormField(
@@ -364,8 +362,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenSymbolFocusNode),
             textInputAction: TextInputAction.next,
             hintText: S.of(context).token_name,
-            hasUnderlineBorder: false,
-            borderWidth: 0.0,
             validator: (text) {
               if (text?.isNotEmpty ?? false) {
                 return null;
@@ -381,8 +377,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             onSubmit: (_) => FocusScope.of(context).requestFocus(_tokenDecimalFocusNode),
             textInputAction: TextInputAction.next,
             hintText: S.of(context).token_symbol,
-            hasUnderlineBorder: false,
-            borderWidth: 0.0,
             validator: (text) {
               if (text?.isNotEmpty ?? false) {
                 return null;
@@ -397,8 +391,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             focusNode: _tokenDecimalFocusNode,
             textInputAction: TextInputAction.done,
             hintText: S.of(context).token_decimal,
-            hasUnderlineBorder: false,
-            borderWidth: 0.0,
             validator: (text) {
               if (text?.isEmpty ?? true) {
                 return S.of(context).field_required;

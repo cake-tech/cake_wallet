@@ -39,11 +39,11 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
@@ -123,7 +123,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(24, 24, 24, 12),
-              child: SearchBarWidget(searchController: searchController, borderRadius: 24),
+              child: SearchBarWidget(searchController: searchController),
             ),
             Expanded(
               child: ScrollableWithBottomSection(

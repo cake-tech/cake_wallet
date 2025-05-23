@@ -37,8 +37,6 @@ class MoneroAccountEditOrCreatePage extends BasePage {
                     controller: _textController,
                     hintText: S.of(context).account,
                     validator: MoneroLabelValidator(),
-                    hasUnderlineBorder: false,
-                    borderWidth: 0.0,
                   ),
                 ),
               ),

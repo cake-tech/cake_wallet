@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -161,44 +162,29 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                       widget.walletUnlockViewModel.walletName,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                            fontSize: 24,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                     ),
                     SizedBox(height: 24),
                     Form(
-                      child: TextFormField(
+                      child: BaseTextFormField(
                         key: ValueKey('enter_wallet_password'),
                         onChanged: (value) => null,
                         controller: _passwordController,
                         textAlign: TextAlign.center,
                         obscureText: true,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                        decoration: InputDecoration(
-                          hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                          hintText: S.of(context).enter_wallet_password,
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 1.0,
+                        textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.outline,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
+                        placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        hintText: S.of(context).enter_wallet_password,
                       ),
                     ),
                   ],

@@ -114,8 +114,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     }
 
     if (repeatedPasswordListener != null) {
-      repeatedPasswordTextEditingController
-          ?.removeListener(repeatedPasswordListener!);
+      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
     }
 
     super.dispose();
@@ -157,15 +156,10 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 children: [
                   BaseTextFormField(
                     key: ValueKey('wallet_restore_from_seed_wallet_name_textfield_key'),
-                    hasUnderlineBorder: false,
-                    borderWidth: 0,
-                    borderRadius: BorderRadius.circular(10),
                     controller: nameTextEditingController,
                     hintText: S.of(context).wallet_name,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
                     suffixIcon: IconButton(
-                      key: ValueKey(
-                          'wallet_restore_from_seed_wallet_name_refresh_button_key'),
+                      key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
                       onPressed: () async {
                         final rName = await generateName();
                         FocusManager.instance.primaryFocus?.unfocus();
@@ -201,15 +195,12 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             language: language,
             type: widget.type,
             onSeedChange: onSeedChange,
-            seedTextFieldKey:
-                ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
-            pasteButtonKey: ValueKey(
-                'wallet_restore_from_seed_wallet_seeds_paste_button_key'),
+            seedTextFieldKey: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
+            pasteButtonKey: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
           ),
           if ([WalletType.monero, WalletType.wownero].contains(widget.type))
             GestureDetector(
-              key: ValueKey(
-                  'wallet_restore_from_seed_seedtype_picker_button_key'),
+              key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
                 await showPopUp<void>(
                   context: context,
@@ -237,8 +228,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                     enableInteractiveSelection: false,
                     readOnly: true,
                     suffixIcon: expandIcon,
-                    hasUnderlineBorder: false,
-                    borderWidth: 0,
                     textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -254,21 +243,16 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               controller: passwordTextEditingController,
               hintText: S.of(context).password,
               obscureText: true,
-              hasUnderlineBorder: false,
-              borderWidth: 0,
             ),
             BaseTextFormField(
               key: ValueKey('repeat_wallet_password'),
               controller: repeatedPasswordTextEditingController,
               hintText: S.of(context).repeat_wallet_password,
               obscureText: true,
-              hasUnderlineBorder: false,
-              borderWidth: 0,
             )
           ],
           if (widget.displayLanguageSelector)
-            if (!seedTypeController.value.text.contains("14") &&
-                widget.displayLanguageSelector)
+            if (!seedTypeController.value.text.contains("14") && widget.displayLanguageSelector)
               GestureDetector(
                 onTap: () async {
                   await showPopUp<void>(
@@ -289,8 +273,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                       enableInteractiveSelection: false,
                       readOnly: true,
                       suffixIcon: expandIcon,
-                      hasUnderlineBorder: false,
-                      borderWidth: 0,
                       textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

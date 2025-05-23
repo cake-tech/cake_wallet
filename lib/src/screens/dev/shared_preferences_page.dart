@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -193,9 +194,9 @@ class DevSharedPreferencesPage extends BasePage {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextField(
+        BaseTextFormField(
           controller: controller,
-          decoration: InputDecoration(labelText: 'String value'),
+          hintText: 'String value',
           maxLines: null,
         ),
       ],
@@ -206,9 +207,9 @@ class DevSharedPreferencesPage extends BasePage {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        TextField(
+        BaseTextFormField(
           controller: controller,
-          decoration: InputDecoration(labelText: label),
+          hintText: label,
           keyboardType: isInteger 
               ? TextInputType.number 
               : TextInputType.numberWithOptions(decimal: true),
@@ -261,9 +262,9 @@ class DevSharedPreferencesPage extends BasePage {
         Row(
           children: [
             Expanded(
-              child: TextField(
+              child: BaseTextFormField(
                 controller: controller,
-                decoration: InputDecoration(labelText: 'New item'),
+                hintText: 'New item',
               ),
             ),
             IconButton(
@@ -344,9 +345,9 @@ class DevSharedPreferencesPage extends BasePage {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextField(
+                    BaseTextFormField(
                       controller: keyController,
-                      decoration: InputDecoration(labelText: 'Preference Key'),
+                      hintText: 'Preference Key',
                     ),
                     SizedBox(height: 16),
                     DropdownButtonFormField<PreferenceType>(

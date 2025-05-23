@@ -147,12 +147,12 @@ class CurrencyAmountTextField extends StatelessWidget {
               ? Container(
                   child: _prefixContent,
                   padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  margin: const EdgeInsets.only(right: 3),
+                  margin: const EdgeInsets.only(right: 8),
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: textColor,
                     ),
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(10),
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 )
@@ -177,11 +177,8 @@ class CurrencyAmountTextField extends StatelessWidget {
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
                       ],
-                      // hasUnderlineBorder: false,
-                      borderWidth: 0.0,
                       hintText: hintText ?? '0.0000',
                       fillColor: fillColor,
-                      borderColor: borderColor ?? Colors.transparent,
                       textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

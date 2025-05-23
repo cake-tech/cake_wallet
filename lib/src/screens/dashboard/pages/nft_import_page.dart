@@ -70,10 +70,10 @@ class _ImportNFTPage extends BasePage {
             S.current.address,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              height: 1,
-            ),
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1,
+                ),
           ),
           SizedBox(height: 8),
           AddressTextField(
@@ -87,17 +87,15 @@ class _ImportNFTPage extends BasePage {
                 tokenAddressController.text = tokenAddress;
               }
             },
-            borderColor: Theme.of(context).colorScheme.outline,
+            fillColor: Theme.of(context).colorScheme.surfaceContainer,
             iconColor: Theme.of(context).colorScheme.primary,
             placeholder: '0x...',
             textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
             hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            isBorderExist: false,
-            borderWidth: 0.0,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           if (nftViewModel.appStore.wallet!.type != WalletType.solana) ...[
             SizedBox(height: 48),
@@ -105,10 +103,10 @@ class _ImportNFTPage extends BasePage {
               S.current.tokenID,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                height: 1,
-              ),
+                    fontWeight: FontWeight.w800,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1,
+                  ),
             ),
             SizedBox(height: 8),
             AddressTextField(
@@ -122,17 +120,14 @@ class _ImportNFTPage extends BasePage {
                   tokenIDController.text = tokenID;
                 }
               },
-              borderColor: Theme.of(context).colorScheme.outline,
               iconColor: Theme.of(context).colorScheme.primary,
               placeholder: S.current.enterTokenID,
               textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
               hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              isBorderExist: false,
-              borderWidth: 0.0,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
           ],
           Spacer(),
