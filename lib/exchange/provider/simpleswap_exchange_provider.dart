@@ -67,10 +67,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(apiAuthority, rangePath, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode == 500) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
       throw Exception('$error');
@@ -80,7 +80,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final min = double.tryParse(responseJSON['min'] as String? ?? '');
     final max = double.tryParse(responseJSON['max'] as String? ?? '');
 
@@ -106,11 +106,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       };
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      final responseString = await response.transform(utf8.decoder).join();
+      
 
-      if (responseString == "null") return 0.00;
-
-      final data = json.decode(responseString) as String;
+      if (response.body == "null") return 0.00;
+      final data = json.decode(response.body) as String;
 
       return double.parse(data) / amount;
     } catch (_) {
@@ -141,11 +140,11 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       headers: headers,
       body: json.encode(body),
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       if (response.statusCode == 400) {
-        final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+        final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['message'] as String;
 
         throw TradeNotCreatedException(description, description: error);
@@ -154,7 +153,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       throw TradeNotCreatedException(description);
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
     final inputAddress = responseJSON['address_from'] as String;
     final payoutAddress = responseJSON['address_to'] as String;
@@ -184,14 +183,14 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     final params = {'api_key': apiKey, 'id': id};
     final uri = Uri.https(apiAuthority, getExchangePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseString = await response.transform(utf8.decoder).join();
+    
     
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
     }
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['message'] as String;
 
       throw TradeNotFoundException(id, provider: description, description: error);
@@ -201,7 +200,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['currency_from'] as String;
     final toCurrency = responseJSON['currency_to'] as String;
     final inputAddress = responseJSON['address_from'] as String;

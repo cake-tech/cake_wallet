@@ -48,8 +48,8 @@ class WellKnownRecord {
       if (response.statusCode != 200) {
         return null;
       }
-      final responseString = await response.transform(utf8.decoder).join();
-      final Map<String, dynamic> decoded = json.decode(responseString) as Map<String, dynamic>;
+      
+      final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
 
       // Access the first element in the names array and retrieve its address
       final List<dynamic> names = decoded["names"] as List<dynamic>;

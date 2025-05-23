@@ -105,17 +105,17 @@ class DFXBuyProvider extends BuyProvider {
       headers: {'Content-Type': 'application/json'},
       body: requestBody,
     );
-    final responseString = await response.transform(utf8.decoder).join();
+    
 
     if (response.statusCode == 201) {
-      final responseBody = jsonDecode(responseString);
+      final responseBody = jsonDecode(response.body);
       return responseBody['accessToken'] as String;
     } else if (response.statusCode == 403) {
-      final responseBody = jsonDecode(responseString);
+      final responseBody = jsonDecode(response.body);
       final message = responseBody['message'] ?? 'Service unavailable in your country';
       throw Exception(message);
     } else {
-      throw Exception('Failed to sign up. Status: ${response.statusCode} ${responseString}');
+      throw Exception('Failed to sign up. Status: ${response.statusCode} ${response.body}');
     }
   }
 
@@ -141,9 +141,9 @@ class DFXBuyProvider extends BuyProvider {
       final response = await ProxyWrapper().get(
         clearnetUri: url,
         headers: {'accept': 'application/json'});
-      final responseString = await response.transform(utf8.decoder).join();
+      
       if (response.statusCode == 200) {
-        final data = jsonDecode(responseString) as List<dynamic>;
+        final data = jsonDecode(response.body) as List<dynamic>;
         for (final item in data) {
           if (item['name'] == fiatCurrency) return item as Map<String, dynamic>;
         }
@@ -164,9 +164,9 @@ class DFXBuyProvider extends BuyProvider {
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
-      final responseString = await response.transform(utf8.decoder).join();
+      
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(responseString);
+        final responseData = jsonDecode(response.body);
 
         if (responseData is List && responseData.isNotEmpty) {
           return responseData.first as Map<String, dynamic>;
@@ -279,8 +279,8 @@ class DFXBuyProvider extends BuyProvider {
         headers: headers,
         body: body,
       );
-      final responseString = await response.transform(utf8.decoder).join();
-      final responseData = jsonDecode(responseString);
+      
+      final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
         if (responseData is Map<String, dynamic>) {

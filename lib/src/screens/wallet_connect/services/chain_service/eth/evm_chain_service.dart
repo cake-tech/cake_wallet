@@ -571,8 +571,8 @@ class EvmChainServiceImpl {
       },
     );
 
-    final responseString = await response.transform(utf8.decoder).join();
-    final decodedResponse = jsonDecode(responseString)[0] as Map<String, dynamic>;
+    
+    final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
     final symbol = (decodedResponse['symbol'] ?? '') as String;
 
