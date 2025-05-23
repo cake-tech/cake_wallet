@@ -1174,20 +1174,18 @@ abstract class ElectrumWalletBase
         }
       });
 
-      return PendingBitcoinTransaction(
-        transaction,
-        type,
-        electrumClient: electrumClient,
-        amount: estimatedTx.amount,
-        fee: estimatedTx.fee,
-        feeRate: feeRateInt.toString(),
-        network: network,
-        hasChange: estimatedTx.hasChange,
-        isSendAll: estimatedTx.isSendAll,
-        hasTaprootInputs: hasTaprootInputs,
-        utxos: estimatedTx.utxos,
-        publicKeys: estimatedTx.publicKeys
-      )..addListener((transaction) async {
+      return PendingBitcoinTransaction(transaction, type,
+          electrumClient: electrumClient,
+          amount: estimatedTx.amount,
+          fee: estimatedTx.fee,
+          feeRate: feeRateInt.toString(),
+          network: network,
+          hasChange: estimatedTx.hasChange,
+          isSendAll: estimatedTx.isSendAll,
+          hasTaprootInputs: hasTaprootInputs,
+          utxos: estimatedTx.utxos,
+          publicKeys: estimatedTx.publicKeys)
+        ..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {
             transactionHistory.transactions.values.forEach((tx) {
@@ -2630,16 +2628,16 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         // re-subscribe to continue receiving messages, starting from the next unscanned height
         final nextHeight = syncHeight + 1;
 
-        if (nextHeight <= scanData.chainTip) {
-          final nextStream = scanningClient.subscribe(
-            ElectrumTweaksSubscribe(
-              height: nextHeight,
-              count: getCountToScanPerRequest(nextHeight),
-              historicalMode: false,
-            ),
-          );
-          nextStream?.listen((event) => listenFn(event, req));
-        }
+        // if (nextHeight <= scanData.chainTip) {
+        //   final nextStream = scanningClient.subscribe(
+        //     ElectrumTweaksSubscribe(
+        //       height: nextHeight,
+        //       count: getCountToScanPerRequest(nextHeight),
+        //       historicalMode: false,
+        //     ),
+        //   );
+        //   nextStream?.listen((event) => listenFn(event, req));
+        // }
 
         return;
       }
