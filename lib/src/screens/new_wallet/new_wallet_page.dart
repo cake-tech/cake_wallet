@@ -35,8 +35,8 @@ class NewWalletPage extends BasePage {
   final SeedSettingsViewModel _seedSettingsViewModel;
   final bool isChildWallet;
 
-  final welcomeImageLight = 'assets/images/wallet_type_wallet_light.svg';
-  final welcomeImageDark = 'assets/images/wallet_type_wallet_dark.svg';
+  final welcomeImageLight = 'assets/images/wallet_type_wallet_light.png';
+  final welcomeImageDark = 'assets/images/wallet_type_wallet_dark.png';
 
   @override
   String get title => S.current.new_wallet;

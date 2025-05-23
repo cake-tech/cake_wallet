@@ -17,15 +17,12 @@ class SeedVerificationSuccessView extends StatelessWidget {
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 45),
               child: CakeImageWidget(
                 height: 200,
                 imageUrl: currentTheme.isDark
-                    ? 'assets/images/seed_verified_dark.svg'
-                    : 'assets/images/seed_verified_light.svg',
+                    ? 'assets/images/seed_verified_dark.png'
+                    : 'assets/images/seed_verified_light.png',
               ),
-            ),
           ),
           SizedBox(height: 40),
           Text(

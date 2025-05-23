@@ -69,7 +69,7 @@ class BalanceRowWidget extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(left: 16, right: 16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(15.0),
             gradient: LinearGradient(
           colors: [
             Theme.of(context).brightness == Brightness.dark
@@ -87,7 +87,7 @@ class BalanceRowWidget extends StatelessWidget {
             onPressed: _showToast,
             onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
             style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             ),
             child: Container(
               margin: const EdgeInsets.only(

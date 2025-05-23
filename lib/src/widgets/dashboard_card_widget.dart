@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../themes/utils/custom_theme_colors.dart';
+
 class DashBoardRoundedCardWidget extends StatelessWidget {
   DashBoardRoundedCardWidget({
     this.onTap,
@@ -42,6 +44,18 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).brightness == Brightness.dark
+                    ? CustomThemeColors.cardGradientColorPrimaryDark
+                    : CustomThemeColors.cardGradientColorPrimaryLight,
+                Theme.of(context).brightness == Brightness.dark
+                    ? CustomThemeColors.cardGradientColorSecondaryDark
+                    : CustomThemeColors.cardGradientColorSecondaryLight,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
             // border: Border.all(
             //   color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
             //     width: 1
@@ -58,9 +72,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           child: TextButton(
             onPressed: onTap,
             style: OutlinedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(15),
               ),
               padding: EdgeInsets.all(24),
             ),
