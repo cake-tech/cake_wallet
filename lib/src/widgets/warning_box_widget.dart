@@ -11,10 +11,14 @@ class WarningBox extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: CustomThemeColors.warningContainer,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? CustomThemeColors.warningContainerColorDark
+            : CustomThemeColors.warningContainerColorLight,
         borderRadius: BorderRadius.all(Radius.circular(12)),
         border: Border.all(
-          color: CustomThemeColors.warningOutline,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? CustomThemeColors.warningOutlineColorDark
+              : CustomThemeColors.warningOutlineColorLight,
           width: 2.0,
         ),
       ),
