@@ -134,14 +134,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
         'additional_fee_percent': _additionalFeePercent,
       };
 
-      print("@@@@@@@@@@@");
-      print(body);
-
       final response = await http.post(Uri.parse(_baseUrl + _exchangesPath),
           headers: headers, body: json.encode(body));
-
-      print("@@@@@@@@@@@");
-      print(response.body);
 
       if (response.statusCode != 201) {
         throw Exception('StealthEx create trade failed: ${response.body}');
