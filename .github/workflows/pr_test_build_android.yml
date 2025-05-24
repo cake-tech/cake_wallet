@@ -253,6 +253,11 @@ jobs:
 
       - name: Build generated code
         run: |
+          flutter --version
+          flutter clean
+          rm -rf .dart_tool
+          rm pubspec.lock
+          flutter pub get
           ./model_generator.sh async
 
       - name: Generate key properties
