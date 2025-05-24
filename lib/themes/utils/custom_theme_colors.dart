@@ -10,7 +10,7 @@ class CustomThemeColors {
   static const warningOutlineColorLight = Color(0xFF312938);
 
   static const backgroundGradientColorDark = Color(0xFF0F1A36);
-  static const backgroundGradientColorLight = Color(0xFFDFE3E7);
+  static const backgroundGradientColorLight = Color(0xFFE7E7FD);
   
   static const cardGradientColorPrimaryDark = Color(0xFF2B3A67);
   static const cardGradientColorPrimaryLight = Color(0xFFFFFFFF);
