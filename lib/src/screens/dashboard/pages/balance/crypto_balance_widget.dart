@@ -14,6 +14,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CryptoBalanceWidget extends StatelessWidget {
@@ -84,8 +85,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                   ),
                                   if (dashboardViewModel.wallet.isHardwareWallet)
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                    Container(
                                       child: Image.asset(
                                         'assets/images/hardware_wallet/ledger_nano_x.png',
                                         width: 24,
@@ -94,17 +94,21 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     ),
                                   if (dashboardViewModel
                                       .balanceViewModel.isHomeScreenSettingsEnabled)
-                                    InkWell(
-                                      onTap: () => Navigator.pushNamed(
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                          minimumSize: Size(50, 30),
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          alignment: Alignment.centerLeft),
+                                      onPressed: () => Navigator.pushNamed(
                                         context,
                                         Routes.homeSettings,
                                         arguments: dashboardViewModel.balanceViewModel,
                                       ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Image.asset(
-                                          'assets/images/home_screen_settings_icon.png',
+                                      child: Container(
+                                        child: SvgPicture.asset(
+                                          'assets/images/home_screen_setting_icon.svg',
                                           color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          height: 30
                                         ),
                                       ),
                                     ),

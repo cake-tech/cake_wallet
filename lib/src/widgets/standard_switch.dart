@@ -26,8 +26,8 @@ class StandardSwitchState extends State<StandardSwitch> {
           height: 28,
           decoration: BoxDecoration(
             color: widget.value
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
+                : Theme.of(context).colorScheme.surfaceContainerLowest,
             borderRadius: BorderRadius.all(
               Radius.circular(14.0),
             ),
@@ -36,7 +36,7 @@ class StandardSwitchState extends State<StandardSwitch> {
             width: 24.0,
             height: 24.0,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme.of(context).colorScheme.primary,
               shape: BoxShape.circle,
             ),
           ),

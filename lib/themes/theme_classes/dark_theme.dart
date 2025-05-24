@@ -9,7 +9,7 @@ class DarkTheme extends MaterialThemeBase {
   ThemeMode get themeMode => ThemeMode.dark;
 
   @override
-  Color get primaryColor => const Color(0xFF91A7FF);
+  Color get primaryColor => const Color(0xFF91B0FF);
 
   @override
   Color get secondaryColor => const Color(0xFFA1B9FF);
@@ -43,7 +43,7 @@ class DarkTheme extends MaterialThemeBase {
         onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
         onSurface: const Color(0xFFD7E2F7),
-        onSurfaceVariant: const Color(0xFFA3AFB9),
+        onSurfaceVariant: const Color(0xFF8C9FBB),
         surfaceContainerLowest: Color(0xFF171C30),
         surfaceContainerLow: Color(0xFF2D385C),
         surfaceContainer: Color(0xFF24335B),
