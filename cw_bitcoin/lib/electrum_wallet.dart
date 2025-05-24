@@ -4,8 +4,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
-import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -49,7 +49,6 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 import 'package:hex/hex.dart';
-import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -493,11 +492,12 @@ abstract class ElectrumWalletBase
   Future<void> updateFeeRates() async {
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
-        final response = await http
-            .get(Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
-            .timeout(Duration(seconds: 5));
-
-        final result = json.decode(response.body) as Map<String, dynamic>;
+        final req = await ProxyWrapper().getHttpClient()
+          .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
+          .timeout(Duration(seconds: 15));
+        final response = await req.close();
+        final stringData = await response.transform(utf8.decoder).join();
+        final result = json.decode(stringData) as Map<String, dynamic>;
         final slowFee = (result['economyFee'] as num?)?.toInt() ?? 0;
         int mediumFee = (result['hourFee'] as num?)?.toInt() ?? 0;
         int fastFee = (result['fastestFee'] as num?)?.toInt() ?? 0;
@@ -1880,24 +1880,25 @@ abstract class ElectrumWalletBase
 
       if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
         try {
-          final blockHash = await http.get(
-            Uri.parse(
-              "https://mempool.cakewallet.com/api/v1/block-height/$height",
-            ),
-          );
+          final req = await ProxyWrapper().getHttpClient()
+            .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/block-height/$height"))
+            .timeout(Duration(seconds: 15));
+          final blockHash = await req.close();
+          final stringData = await blockHash.transform(utf8.decoder).join();
 
           if (blockHash.statusCode == 200 &&
-              blockHash.body.isNotEmpty &&
-              jsonDecode(blockHash.body) != null) {
-            final blockResponse = await http.get(
-              Uri.parse(
-                "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
-              ),
-            );
-            if (blockResponse.statusCode == 200 &&
-                blockResponse.body.isNotEmpty &&
-                jsonDecode(blockResponse.body)['timestamp'] != null) {
-              time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+              stringData.isNotEmpty &&
+              jsonDecode(stringData) != null) {
+            final blockResponseReq = await ProxyWrapper().getHttpClient()
+              .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/block/${stringData}"))
+              .timeout(Duration(seconds: 15));
+            final blockResponseRes = await blockResponseReq.close();
+            final blockResponse = await blockResponseRes.transform(utf8.decoder).join();
+
+            if (blockResponseRes == 200 &&
+                blockResponse.isNotEmpty &&
+                jsonDecode(blockResponse)['timestamp'] != null) {
+              time = int.parse(jsonDecode(blockResponse)['timestamp'].toString());
             }
           }
         } catch (_) {}

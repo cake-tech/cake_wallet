@@ -25,6 +25,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -278,7 +279,11 @@ Future<void> initialSetup(
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey, loadWallet: loadWallet);
+  await bootstrapOffline();
+  final settingsStore = getIt<SettingsStore>();
+  if (!settingsStore.currentBuiltinTor) {
+    bootstrapOnline(navigatorKey, loadWallet: loadWallet);
+  }
 }
 
 class App extends StatefulWidget {
@@ -301,7 +306,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
           ? Routes.welcome
-          : Routes.login;
+          : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness =
           currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;

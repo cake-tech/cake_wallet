@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
@@ -41,7 +41,7 @@ class EvmChainServiceImpl {
   }) : ethClient = web3Client ??
             Web3Client(
               appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
-              http.Client(),
+              ProxyWrapper().getHttpIOClient(),
             ) {
     for (final event in EventsConstants.allEvents) {
       walletKit.registerEventEmitter(
@@ -563,14 +563,15 @@ class EvmChainServiceImpl {
       },
     );
 
-    final response = await http.get(
-      uri,
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
       headers: {
         "Accept": "application/json",
         "X-API-Key": secrets.moralisApiKey,
       },
     );
 
+    
     final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
     final symbol = (decodedResponse['symbol'] ?? '') as String;
