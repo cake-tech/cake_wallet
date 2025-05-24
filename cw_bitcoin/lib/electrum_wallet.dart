@@ -2628,16 +2628,23 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         // re-subscribe to continue receiving messages, starting from the next unscanned height
         final nextHeight = syncHeight + 1;
 
-        // if (nextHeight <= scanData.chainTip) {
-        //   final nextStream = scanningClient.subscribe(
-        //     ElectrumTweaksSubscribe(
-        //       height: nextHeight,
-        //       count: getCountToScanPerRequest(nextHeight),
-        //       historicalMode: false,
-        //     ),
-        //   );
-        //   nextStream?.listen((event) => listenFn(event, req));
-        // }
+        if (nextHeight <= scanData.chainTip) {
+          final nextStream = scanningClient.subscribe(
+            ElectrumTweaksSubscribe(
+              height: nextHeight,
+              count: getCountToScanPerRequest(nextHeight),
+              historicalMode: false,
+            ),
+          );
+
+          if (nextStream != null) {
+            nextStream.listen((event) => listenFn(event, req));
+          } else {
+            scanData.sendPort.send(
+              SyncResponse(scanData.height, LostConnectionSyncStatus()),
+            );
+          }
+        }
 
         return;
       }
