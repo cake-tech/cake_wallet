@@ -97,27 +97,45 @@ abstract class ThemeStoreBase with Store {
     if (isNewInstall) {
       await _setSystemTheme();
     } else {
-      await _loadSavedTheme();
+      await loadSavedTheme();
     }
   }
 
-  /// Sets the theme based on system brightness
-  Future<void> _setSystemTheme() async {
-    await setTheme(getThemeFromSystem());
-    await setThemeMode(ThemeMode.system);
+  /// Loads the saved theme from SharedPreferences
+  Future<void> loadSavedTheme({bool isFromBackup = false}) async {
+    try {
+      final savedTheme = sharedPreferences.getInt(PreferencesKey.currentTheme);
+      if (savedTheme == null) {
+        await _setSystemTheme();
+        return;
+      }
+
+      final theme = ThemeList.deserialize(raw: savedTheme);
+
+      if (_currentTheme != theme) {
+        await setTheme(theme);
+      }
+
+      final newThemeMode =
+          isFromBackup ? (theme.isDark ? ThemeMode.dark : ThemeMode.light) : ThemeMode.system;
+
+      if (_themeMode != newThemeMode) {
+        await setThemeMode(newThemeMode, shouldRefreshTheme: false);
+      }
+    } catch (e) {
+      await _setSystemTheme();
+    }
   }
 
-  /// Loads the saved theme from SharedPreferences
-  Future<void> _loadSavedTheme() async {
-    final savedTheme = sharedPreferences.getInt(PreferencesKey.currentTheme);
-    if (savedTheme != null) {
-      try {
-        final theme = ThemeList.deserialize(raw: savedTheme);
-        await setTheme(theme);
-        await setThemeMode(ThemeMode.system, shouldRefreshTheme: false);
-      } catch (e) {
-        await _setSystemTheme();
-      }
+  Future<void> _setSystemTheme() async {
+    final systemTheme = getThemeFromSystem();
+
+    if (_currentTheme != systemTheme) {
+      await setTheme(systemTheme);
+    }
+
+    if (_themeMode != ThemeMode.system) {
+      await setThemeMode(ThemeMode.system);
     }
   }
 
