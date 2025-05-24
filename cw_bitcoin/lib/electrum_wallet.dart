@@ -2669,7 +2669,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
             final scanResult = scanOutputs([outputPubkeys.keys.toList()], tweak, receiver);
 
             if (scanResult.isEmpty) {
-              return;
+              continue;
             }
 
             if (addToWallet[receiver.BSpend] == null) {
@@ -2767,9 +2767,14 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       syncHeight = tweakHeight;
 
       if ((tweakHeight >= scanData.chainTip) || scanData.isSingleScan) {
-        scanData.sendPort.send(
-          scanData.isSingleScan ? SyncedSyncStatus() : SyncedTipSyncStatus(scanData.chainTip),
-        );
+        if (tweakHeight >= scanData.chainTip)
+          scanData.sendPort.send(
+            SyncResponse(syncHeight, SyncedTipSyncStatus(scanData.chainTip)),
+          );
+
+        if (scanData.isSingleScan) {
+          scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
+        }
 
         _scanningStream?.close();
         _scanningStream = null;

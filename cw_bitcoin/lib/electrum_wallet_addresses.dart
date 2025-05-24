@@ -72,16 +72,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
         b_scan: ECPrivate.fromHex(
-          masterHd
-              .derive(BitcoinDerivationInfos.SILENT_PAYMENTS_SCAN.derivationPath)
-              .privateKey
-              .toHex(),
+          masterHd.derivePath("m/352'/1'/0'/1'/0").privateKey.toHex(),
         ),
         b_spend: ECPrivate.fromHex(
-          masterHd
-              .derive(BitcoinDerivationInfos.SILENT_PAYMENTS_SPEND.derivationPath)
-              .privateKey
-              .toHex(),
+          masterHd.derivePath("m/352'/1'/0'/0'/0").privateKey.toHex(),
         ),
       );
 
