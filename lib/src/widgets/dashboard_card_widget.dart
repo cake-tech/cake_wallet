@@ -43,7 +43,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: marginH ?? 20, vertical: marginV ?? 5),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(15),
             gradient: LinearGradient(
               colors: [
                 Theme.of(context).brightness == Brightness.dark
@@ -99,7 +99,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                           Text(
                             subTitle,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w500,
                                 ),
                             softWrap: true,
@@ -126,7 +126,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             child: IconButton(
               icon: Icon(Icons.close),
               onPressed: onClose,
-              color: Theme.of(context).colorScheme.onSurface,
+              //color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
       ],

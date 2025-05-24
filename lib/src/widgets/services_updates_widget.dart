@@ -49,7 +49,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
       );
     }
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(left: 16, top: 12, right: 8, bottom: 8),
       child: FutureBuilder<ServicesResponse>(
         future: widget.servicesResponse,
         builder: (context, state) {
@@ -138,7 +138,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                 SvgPicture.asset(
                   "assets/images/notification_icon.svg",
                   color: Theme.of(context).colorScheme.onSurface,
-                  width: 30,
+                  width: 20,
                   placeholderBuilder: (_) => Icon(Icons.error),
                 ),
                 if (state.hasData && state.data!.hasUpdates && !wasOpened)

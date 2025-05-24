@@ -262,7 +262,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   ),
                 ],
                 if (dashboardViewModel.showMwebCard) ...[
-                  SizedBox(height: 16),
+                  SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(

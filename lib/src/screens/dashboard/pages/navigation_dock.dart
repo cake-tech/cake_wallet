@@ -66,7 +66,7 @@ class NavigationDock extends StatelessWidget {
                                       image: Image.asset(action.image,
                                           height: 24,
                                           width: 24,
-                                          color: Theme.of(context).colorScheme.onSurface),
+                                          color: Theme.of(context).colorScheme.primary),
                                       title: action.name(context),
                                       onClick: (action.isEnabled?.call(dashboardViewModel) ?? true)
                                           ? () async =>

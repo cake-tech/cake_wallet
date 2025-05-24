@@ -352,7 +352,7 @@ class BalanceRowWidget extends StatelessWidget {
               onPressed: _showToast,
               onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
               style: TextButton.styleFrom(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -531,7 +531,7 @@ class BalanceRowWidget extends StatelessWidget {
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.primary,
                                   side: BorderSide(
-                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                    color: Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
                                     width: 0,
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -588,7 +588,7 @@ class BalanceRowWidget extends StatelessWidget {
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: Theme.of(context).colorScheme.surface,
                                   side: BorderSide(
-                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                    color: Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
                                     width: 0,
                                   ),
                                   shape: RoundedRectangleBorder(

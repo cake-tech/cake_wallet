@@ -27,6 +27,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -165,14 +166,14 @@ class _DashboardPageView extends BasePage {
   Widget trailing(BuildContext context) {
     return Container(
       alignment: Alignment.centerRight,
-      width: 40,
+      width: 42,
       child: TextButton(
         key: ValueKey('dashboard_page_wallet_menu_button_key'),
         onPressed: () => onOpenEndDrawer(),
         child: Semantics(
           label: S.of(context).wallet_menu,
-          child: Image.asset(
-            'assets/images/menu.png',
+          child: SvgPicture.asset(
+            'assets/images/menu.svg',
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
