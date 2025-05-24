@@ -168,8 +168,8 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
       children: [
         CakeImageWidget(
           imageUrl: currentTheme.isDark
-              ? 'assets/images/wallet_group_empty_dark.svg'
-              : 'assets/images/wallet_group_empty_light.svg',
+              ? 'assets/images/wallet_group_empty_dark.png'
+              : 'assets/images/wallet_group_empty_light.png',
           height: 200,
         ),
         SizedBox(height: 60),

@@ -12,8 +12,8 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.5;
-  final welcomeImageLight = 'assets/images/welcome_wallet_light.svg';
-  final welcomeImageDark = 'assets/images/welcome_wallet_dark.svg';
+  final welcomeImageLight = 'assets/images/welcome_wallet_light.png';
+  final welcomeImageDark = 'assets/images/welcome_wallet_dark.png';
 
   @override
   String? get title => S.current.wallet;
