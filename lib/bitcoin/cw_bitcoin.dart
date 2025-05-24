@@ -747,5 +747,6 @@ class CWBitcoin extends Bitcoin {
     final _wallet = wallet as ElectrumWallet;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
     (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
   }
 }
