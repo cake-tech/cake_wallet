@@ -71,7 +71,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
           ),
           child: TextButton(
             onPressed: onTap,
-            style: OutlinedButton.styleFrom(
+            style: TextButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),

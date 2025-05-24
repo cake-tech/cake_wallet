@@ -199,7 +199,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     AddressTextFieldOption.qrCode,
                     AddressTextFieldOption.addressBook
                   ],
-                  buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,

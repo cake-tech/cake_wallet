@@ -36,7 +36,7 @@ class SyncIndicator extends StatelessWidget {
             child: Container(
               height: 30,
               width: syncIndicatorWidth,
-              color: Theme.of(context).colorScheme.surfaceContainer,
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
               child: Stack(
                 alignment: Alignment.center,
                 children: <Widget>[

@@ -14,6 +14,6 @@ class CustomThemeColors {
   
   static const cardGradientColorPrimaryDark = Color(0xFF2B3A67);
   static const cardGradientColorPrimaryLight = Color(0xFFFFFFFF);
-  static const cardGradientColorSecondaryDark = Color(0xFF253150);
-  static const cardGradientColorSecondaryLight = Color(0xFFF4F4F4);
+  static const cardGradientColorSecondaryDark = Color(0xFF1C2A4F);
+  static const cardGradientColorSecondaryLight = Color(0xFFF3F3FF);
 }

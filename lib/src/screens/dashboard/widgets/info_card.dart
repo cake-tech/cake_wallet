@@ -45,7 +45,7 @@ class InfoCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: leftButtonAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -53,7 +53,7 @@ class InfoCard extends StatelessWidget {
                   child: Text(
                     leftButtonTitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: Theme.of(context).colorScheme.onSecondaryContainer,
                         ),
                   ),
                 ),
@@ -63,7 +63,7 @@ class InfoCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: rightButtonAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -72,7 +72,7 @@ class InfoCard extends StatelessWidget {
                     rightButtonTitle,
                     maxLines: 1,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSecondaryContainer,
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                   ),
                 ),

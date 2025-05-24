@@ -205,7 +205,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                     height: 32,
                     width: 32,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: const BorderRadius.all(Radius.circular(6)),
                     ),
                     child: InkWell(

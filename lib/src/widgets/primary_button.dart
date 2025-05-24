@@ -228,7 +228,7 @@ class PrimaryImageButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         height: 52.0,
-        child: TextButton(
+        child: ElevatedButton(
           onPressed: onPressed,
           style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(color),

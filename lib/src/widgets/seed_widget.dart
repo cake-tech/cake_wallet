@@ -156,7 +156,7 @@ class SeedWidgetState extends State<SeedWidget> {
                           child: Container(
                             padding: EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerLow,
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.all(
                                 Radius.circular(6),
                               ),

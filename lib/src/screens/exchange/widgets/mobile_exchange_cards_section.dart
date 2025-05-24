@@ -39,7 +39,7 @@ class MobileExchangeCardsSection extends StatelessWidget {
               ),
               color: Theme.of(context).colorScheme.surfaceContainerLow,
             ),
-            padding: EdgeInsets.fromLTRB(24, 90, 24, 24),
+            padding: EdgeInsets.fromLTRB(24, 105, 24, 24),
             child: Column(
               children: [
                 if (isBuySellOption)

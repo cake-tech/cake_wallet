@@ -174,7 +174,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6.0),
-                          color: Theme.of(context).colorScheme.surfaceContainerLow,
+                          color: Theme.of(context).colorScheme.surface,
                         ),
                         width: 34,
                         height: 34,
