@@ -388,9 +388,7 @@ Future<void> loadWallet(
       if (gLedger == null) {
        throw Exception("Tried to open a ledger wallet with no ledger connected");
       }
-      final dummyWPtr = (currentWallet ??
-          wmPtr.openWallet(path: '', password: ''));
-      enableLedgerExchange(dummyWPtr, gLedger!);
+      enableLedgerExchange(gLedger!);
     }
 
     final addr = wmPtr.ffiAddress();

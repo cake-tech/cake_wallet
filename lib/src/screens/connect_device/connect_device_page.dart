@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -181,52 +184,21 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-        height: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                child: Text(
-                  Platform.isIOS
-                      ? S.of(context).connect_your_hardware_wallet_ios
-                      : S.of(context).connect_your_hardware_wallet,
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .extension<CakeTextTheme>()!
-                          .titleColor),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Offstage(
-                offstage: !longWait,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: Text(
-                    S.of(context).if_you_dont_see_your_device,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              Observer(
-                builder: (_) => Offstage(
-                  offstage: widget.ledgerVM.bleIsEnabled,
-                  child: Padding(
+    return Container(
+      width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
+      padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
                     padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                     child: Text(
-                      S.of(context).ledger_please_enable_bluetooth,
+                      Platform.isIOS
+                          ? S.of(context).connect_your_hardware_wallet_ios
+                          : S.of(context).connect_your_hardware_wallet,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -236,85 +208,128 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                ),
+                  Offstage(
+                    offstage: !longWait,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      child: Text(
+                        S.of(context).if_you_dont_see_your_device,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context)
+                                .extension<CakeTextTheme>()!
+                                .titleColor),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Observer(
+                    builder: (_) => Offstage(
+                      offstage: widget.ledgerVM.bleIsEnabled,
+                      child: Padding(
+                        padding:
+                            EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                        child: Text(
+                          S.of(context).ledger_please_enable_bluetooth,
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context)
+                                  .extension<CakeTextTheme>()!
+                                  .titleColor),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (bleDevices.length > 0) ...[
+                    Padding(
+                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      child: Container(
+                        width: double.infinity,
+                        child: Text(
+                          S.of(context).bluetooth,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context)
+                                .extension<CakeTextTheme>()!
+                                .titleColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    ...bleDevices
+                        .map(
+                          (device) => Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: DeviceTile(
+                              onPressed: () => _connectToDevice(device),
+                              title: device.name,
+                              leading: _getDeviceTileLeading(device.deviceInfo),
+                              connectionType: device.connectionType,
+                            ),
+                          ),
+                        )
+                        .toList()
+                  ],
+                  if (usbDevices.length > 0) ...[
+                    Padding(
+                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                      child: Container(
+                        width: double.infinity,
+                        child: Text(
+                          S.of(context).usb,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context)
+                                .extension<CakeTextTheme>()!
+                                .titleColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    ...usbDevices
+                        .map(
+                          (device) => Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: DeviceTile(
+                              onPressed: () => _connectToDevice(device),
+                              title: device.name,
+                              leading: _getDeviceTileLeading(device.deviceInfo),
+                              connectionType: device.connectionType,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ],
+                  if (widget.allowChangeWallet) ...[
+                    PrimaryButton(
+                      text: S.of(context).wallets,
+                      color: Theme.of(context)
+                          .extension<WalletListTheme>()!
+                          .createNewWalletButtonBackgroundColor,
+                      textColor: Theme.of(context)
+                          .extension<WalletListTheme>()!
+                          .restoreWalletButtonTextColor,
+                      onPressed: _onChangeWallet,
+                    )
+                  ],
+                ],
               ),
-              if (bleDevices.length > 0) ...[
-                Padding(
-                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: Container(
-                    width: double.infinity,
-                    child: Text(
-                      S.of(context).bluetooth,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor,
-                      ),
-                    ),
-                  ),
-                ),
-                ...bleDevices
-                    .map(
-                      (device) => Padding(
-                        padding: EdgeInsets.only(bottom: 20),
-                        child: DeviceTile(
-                          onPressed: () => _connectToDevice(device),
-                          title: device.name,
-                          leading: _getDeviceTileLeading(device.deviceInfo),
-                          connectionType: device.connectionType,
-                        ),
-                      ),
-                    )
-                    .toList()
-              ],
-              if (usbDevices.length > 0) ...[
-                Padding(
-                  padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                  child: Container(
-                    width: double.infinity,
-                    child: Text(
-                      S.of(context).usb,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .titleColor,
-                      ),
-                    ),
-                  ),
-                ),
-                ...usbDevices
-                    .map(
-                      (device) => Padding(
-                        padding: EdgeInsets.only(bottom: 20),
-                        child: DeviceTile(
-                          onPressed: () => _connectToDevice(device),
-                          title: device.name,
-                          leading: _getDeviceTileLeading(device.deviceInfo),
-                          connectionType: device.connectionType,
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ],
-              if (widget.allowChangeWallet) ...[
-                PrimaryButton(
-                  text: S.of(context).wallets,
-                  color: Theme.of(context)
-                      .extension<WalletListTheme>()!
-                      .createNewWalletButtonBackgroundColor,
-                  textColor: Theme.of(context)
-                      .extension<WalletListTheme>()!
-                      .restoreWalletButtonTextColor,
-                  onPressed: _onChangeWallet,
-                )
-              ],
-            ],
+            ),
           ),
-        ),
+          PrimaryButton(
+            text: S.of(context).how_to_connect,
+            color: Theme.of(context).cardColor,
+            textColor: Theme.of(context)
+                .extension<CakeTextTheme>()!
+                .buttonTextColor,
+            onPressed: () => _onHowToConnect(context),
+          )
+        ],
       ),
     );
   }
@@ -324,6 +339,23 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       Routes.walletList,
       arguments: (BuildContext context) => Navigator.of(context)
           .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
+    );
+  }
+
+  void _onHowToConnect(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext bottomSheetContext) => InfoStepsBottomSheet(
+        titleText: S.of(context).how_to_connect,
+        currentTheme: getIt.get<SettingsStore>().currentTheme,
+        steps: [
+          InfoStep('${S.of(context).step} 1', S.of(context).connect_hw_info_step_1),
+          InfoStep('${S.of(context).step} 2', S.of(context).connect_hw_info_step_2),
+          InfoStep('${S.of(context).step} 3', S.of(context).connect_hw_info_step_3),
+          InfoStep('${S.of(context).step} 4', S.of(context).connect_hw_info_step_4),
+        ],
+      ),
     );
   }
 }
