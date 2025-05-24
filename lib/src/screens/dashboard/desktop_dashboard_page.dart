@@ -35,7 +35,7 @@ class DesktopDashboardPage extends StatelessWidget {
     _setEffects(context);
 
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class YatPageIndicator extends StatelessWidget {
   YatPageIndicator({required this.filled});
@@ -22,8 +21,8 @@ class YatPageIndicator extends StatelessWidget {
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isFilled
-                          ? Palette.frostySky
-                          : Palette.stateGray.withOpacity(0.1)
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.1)
                   )
               );
             })

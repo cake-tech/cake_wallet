@@ -1,6 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class PayjoinTransactionRow extends StatelessWidget {
@@ -38,53 +36,37 @@ class PayjoinTransactionRow extends StatelessWidget {
                   child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          "${isSending ? S.current.outgoing : S.current.incoming} Payjoin",
-                          style: TextStyle(
-                            fontSize: 16,
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text(
+                      "${isSending ? S.current.outgoing : S.current.incoming} Payjoin",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .textColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
-                        ),
-                        Text(
-                          amount + ' ' + currency,
-                          style: TextStyle(
-                            fontSize: 16,
+                    ),
+                    Text(
+                      amount + ' ' + currency,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .textColor,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
-                        )
-                      ]),
+                    )
+                  ]),
                   SizedBox(height: 5),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          createdAt,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context)
-                                .extension<CakeTextTheme>()!
-                                .dateSectionRowColor,
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text(
+                      createdAt,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                        Text(
-                          state,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context)
-                                .extension<CakeTextTheme>()!
-                                .dateSectionRowColor,
+                    ),
+                    Text(
+                      state,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                        ),
-                      ])
+                    ),
+                  ])
                 ],
               ))
             ],
@@ -93,7 +75,11 @@ class PayjoinTransactionRow extends StatelessWidget {
   }
 
   Widget _getImage() => ClipRRect(
-      borderRadius: BorderRadius.circular(50),
-      child: Image.asset('assets/images/payjoin.png', width: 36, height: 36));
-
+        borderRadius: BorderRadius.circular(50),
+        child: Image.asset(
+          'assets/images/payjoin.png',
+          width: 36,
+          height: 36,
+        ),
+      );
 }

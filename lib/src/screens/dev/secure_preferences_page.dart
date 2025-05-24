@@ -38,10 +38,10 @@ class DevSecurePreferencesPage extends BasePage {
                 Clipboard.setData(ClipboardData(text: key + ": " + values[key].toString()));
               },
               title: switch (type) {
-                PreferenceType.bool => Text(key, style: TextStyle(color: Colors.blue)),
-                PreferenceType.int => Text(key, style: TextStyle(color: Colors.green)),
-                PreferenceType.double => Text(key, style: TextStyle(color: Colors.yellow)),
-                PreferenceType.listString => Text(key, style: TextStyle(color: Colors.purple)),
+                PreferenceType.bool => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.blue)),
+                PreferenceType.int => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.green)),
+                PreferenceType.double => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.yellow)),
+                PreferenceType.listString => Text(key, style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.purple)),
                 PreferenceType.string => Text(key),
                 PreferenceType.unknown => Text(key),
               },

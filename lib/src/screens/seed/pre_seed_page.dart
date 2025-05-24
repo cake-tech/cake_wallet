@@ -4,7 +4,11 @@ import 'package:cake_wallet/src/screens/Info_page.dart';
 import 'package:flutter/cupertino.dart';
 
 class PreSeedPage extends InfoPage {
-  PreSeedPage();
+  PreSeedPage()
+      : super(
+          imageLightPath: 'assets/images/seed_warning_light.svg',
+          imageDarkPath: 'assets/images/seed_warning_dark.svg',
+        );
 
   @override
   bool get onWillPop => false;

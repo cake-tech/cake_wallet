@@ -1,10 +1,8 @@
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 
 class SweepingWalletPage extends BasePage {
   SweepingWalletPage();
@@ -18,7 +16,7 @@ class SweepingWalletPage extends BasePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         resizeToAvoidBottomInset: false,
         body: body(context));
   }
@@ -81,10 +79,10 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                               padding: EdgeInsets.only(top: 24),
                               child: Text(
                                 S.of(context).please_wait,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -93,10 +91,10 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                               padding: EdgeInsets.only(top: 5),
                               child: Text(
                                 S.of(context).sweeping_wallet,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 36,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -105,10 +103,10 @@ class _SweepingWalletWidgetState extends State<SweepingWalletWidget> {
                               padding: EdgeInsets.only(top: 5),
                               child: Text(
                                 S.of(context).sweeping_wallet_alert,
-                                style: TextStyle(
+                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                                 textAlign: TextAlign.center,
                               ),

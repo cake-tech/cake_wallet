@@ -16,7 +16,7 @@ class SideMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.1),
+      color: Theme.of(context).colorScheme.surfaceContainerLowest.withOpacity(0.1),
       width: width,
       height: MediaQuery.of(context).size.height,
       child: Column(

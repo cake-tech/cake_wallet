@@ -5,16 +5,13 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
-import 'package:cake_wallet/themes/extensions/address_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
-import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 
 class HomeSettingsPage extends BasePage {
   HomeSettingsPage(this._homeSettingsViewModel);
@@ -39,7 +36,7 @@ class HomeSettingsPage extends BasePage {
               onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
             ),
           ),
-          Divider(color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor),
+          Divider(color: Theme.of(context).colorScheme.outlineVariant),
           Observer(
             builder: (_) => SettingsSwitcherCell(
               title: S.of(context).pin_at_top(_homeSettingsViewModel.nativeToken.title),
@@ -49,56 +46,52 @@ class HomeSettingsPage extends BasePage {
               },
             ),
           ),
-          Divider(color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor),
+          Divider(color: Theme.of(context).colorScheme.outlineVariant),
           const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
                 child: Padding(
                   padding: const EdgeInsetsDirectional.only(start: 16),
-                  child: TextFormField(
+                  child: BaseTextFormField(
                     controller: _searchController,
-                    style: TextStyle(
-                        color: Theme.of(context).extension<PickerTheme>()!.searchHintColor),
-                    decoration: InputDecoration(
-                      hintText: S.of(context).search_add_token,
-                      prefixIcon: Image.asset("assets/images/search_icon.png"),
-                      filled: true,
-                      fillColor: Theme.of(context).extension<AddressTheme>()!.actionButtonColor,
-                      alignLabelWithHint: false,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: const BorderSide(color: Colors.transparent),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: const BorderSide(color: Colors.transparent),
-                      ),
+                    textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                    hintText: S.of(context).search_add_token,
+                    prefixIcon: Image.asset(
+                      "assets/images/search_icon.png",
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
+                    alignLabelWithHint: false,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                     onChanged: (String text) => _homeSettingsViewModel.changeSearchText(text),
                   ),
                 ),
               ),
               RawMaterialButton(
                 onPressed: () async {
-                  Navigator.pushNamed(context, Routes.editToken, arguments: {
-                    'homeSettingsViewModel': _homeSettingsViewModel,
-                    if (AddressValidator(type: _homeSettingsViewModel.nativeToken)
-                        .isValid(_searchController.text))
-                      'contractAddress': _searchController.text,
-                  });
+                  Navigator.pushNamed(
+                    context,
+                    Routes.editToken,
+                    arguments: {
+                      'homeSettingsViewModel': _homeSettingsViewModel,
+                      if (AddressValidator(type: _homeSettingsViewModel.nativeToken)
+                          .isValid(_searchController.text))
+                        'contractAddress': _searchController.text,
+                    },
+                  );
                 },
                 elevation: 0,
-                fillColor: Theme.of(context).cardColor,
+                fillColor: Theme.of(context).colorScheme.surfaceContainer,
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   size: 22.0,
                 ),
                 padding: EdgeInsets.all(12),
                 shape: CircleBorder(),
-                splashColor: Theme.of(context).cardColor,
+                splashColor: Theme.of(context).colorScheme.surfaceContainer,
               ),
             ],
           ),
@@ -136,24 +129,27 @@ class HomeSettingsPage extends BasePage {
                               imageUrl: token.iconPath,
                               height: 40,
                               width: 40,
-                              displayOnError: Container(
+                              errorWidget: Container(
                                 height: 30.0,
                                 width: 30.0,
                                 child: Center(
                                   child: Text(
                                     token.title.substring(0, min(token.title.length, 2)),
-                                    style: TextStyle(fontSize: 11),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
                                   ),
                                 ),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.grey.shade400,
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                 ),
                               ),
                             ),
                           ),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
+                            color: Theme.of(context).colorScheme.surfaceContainer,
                             borderRadius: BorderRadius.circular(30),
                           ),
                         );

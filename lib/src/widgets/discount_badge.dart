@@ -18,13 +18,12 @@ class DiscountBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Text(
-       isAmount ? '\$${percentage.toStringAsFixed(2)}' : S.of(context).discount(percentage.toStringAsFixed(2)),
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          fontFamily: 'Lato',
-        ),
+        isAmount
+            ? '\$${percentage.toStringAsFixed(2)}'
+            : S.of(context).discount(percentage.toStringAsFixed(2)),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
       ),
       decoration: BoxDecoration(
         image: DecorationImage(

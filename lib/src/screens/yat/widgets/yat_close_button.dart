@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 
 class YatCloseButton extends StatelessWidget {
@@ -9,20 +8,21 @@ class YatCloseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: onClose,
-        child: Container(
-            height: 28,
-            width: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-                color: Palette.manatee,
-                shape: BoxShape.circle
-            ),
-            child: Icon(
-                Icons.clear,
-                color: Colors.white,
-                size: 20)
-        )
+      onTap: onClose,
+      child: Container(
+        height: 28,
+        width: 28,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.clear,
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          size: 20,
+        ),
+      ),
     );
   }
 }

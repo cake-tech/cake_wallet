@@ -37,8 +37,8 @@ class SettingsSwitcherCell extends StandardListRow {
           }
         },
         style: ButtonStyle(
-          //backgroundColor: MaterialStateProperty.all(Theme.of(context).cardColor),
-          shape: MaterialStateProperty.all(
+          //backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.surfaceContainer),
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10)
               ),

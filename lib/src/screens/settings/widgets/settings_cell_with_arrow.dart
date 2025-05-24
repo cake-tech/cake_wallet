@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class SettingsCellWithArrow extends StandardListRow {
   SettingsCellWithArrow({
@@ -10,6 +9,8 @@ class SettingsCellWithArrow extends StandardListRow {
   }) : super(title: title, isSelected: false, onTap: handler, key: key);
 
   @override
-  Widget buildTrailing(BuildContext context) => Image.asset('assets/images/select_arrow.png',
-      color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor);
+  Widget buildTrailing(BuildContext context) => Image.asset(
+        'assets/images/select_arrow.png',
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      );
 }

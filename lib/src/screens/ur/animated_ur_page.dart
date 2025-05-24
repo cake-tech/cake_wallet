@@ -1,22 +1,14 @@
 import 'dart:async';
 
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
-import 'package:cake_wallet/view_model/dashboard/wallet_balance.dart';
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // ur:xmr-txunsigned - unsigned transaction
@@ -63,8 +55,8 @@ class AnimatedURPage extends BasePage {
               child: PrimaryButton(
                 onPressed: () => _continue(context),
                 text: "Continue",
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ),
@@ -77,7 +69,7 @@ class AnimatedURPage extends BasePage {
                 onPressed: () => _exportAll(context),
                 text: "Export all",
                 color: Theme.of(context).colorScheme.secondary,
-                textColor: Colors.white,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ),

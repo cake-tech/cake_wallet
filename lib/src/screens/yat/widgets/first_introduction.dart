@@ -2,9 +2,7 @@ import 'package:cake_wallet/src/screens/yat/widgets/yat_bar.dart';
 import 'package:cake_wallet/src/screens/yat/widgets/yat_page_indicator.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:lottie/lottie.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -24,7 +22,7 @@ class FirstIntroduction extends StatelessWidget {
     return Container(
         height: screenHeight,
         width: screenWidth,
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(top: 40, bottom: 40),
           content: Column(
@@ -42,11 +40,11 @@ class FirstIntroduction extends StatelessWidget {
                           Text(
                               S.of(context).yat_alert_title,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                fontFamily: 'Lato',
-                                color: Colors.black,
+                                 
+                                color: Theme.of(context).colorScheme.onSurface,
                                 decoration: TextDecoration.none,
                               )
                           ),
@@ -55,11 +53,11 @@ class FirstIntroduction extends StatelessWidget {
                               child: Text(
                                   S.of(context).yat_alert_content,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontSize: 16,
                                     fontWeight: FontWeight.normal,
-                                    fontFamily: 'Lato',
-                                    color: Colors.black,
+                                     
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     decoration: TextDecoration.none,
                                   )
                               )
@@ -75,8 +73,8 @@ class FirstIntroduction extends StatelessWidget {
               children: [
                 PrimaryButton(
                     text: S.of(context).restore_next,
-                    textColor: Colors.white,
-                    color: Palette.protectiveBlue,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                     onPressed: onNext
                 ),
                 Padding(

@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class TextInfoBox extends StatelessWidget {
@@ -15,7 +14,7 @@ class TextInfoBox extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,27 +22,27 @@ class TextInfoBox extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title,
-                  style: TextStyle(
-                      fontSize: 14,
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context)
-                          .extension<CakeTextTheme>()!
-                          .buttonTextColor
-                          .withOpacity(0.5))),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    ),
+              ),
               GestureDetector(
-                  onTap: onCopy != null ? () => onCopy!(context) : null,
-                  child: Icon(Icons.copy,
-                      size: 13,
-                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7))),
+                onTap: onCopy != null ? () => onCopy!(context) : null,
+                child: Icon(Icons.copy, size: 13, color: Theme.of(context).colorScheme.onSurface),
+              ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 16,
+          Text(
+            value,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor)),
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+          ),
         ],
       ),
     );

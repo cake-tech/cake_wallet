@@ -29,11 +29,10 @@ class ClickableLinksText extends StatelessWidget {
         spans.add(
           TextSpan(
             text: url,
-            style: TextStyle(
-              color: Colors.blue,
-              fontSize: 18,
-              fontWeight: FontWeight.w400,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                   fontSize: 18,
+                ),
             recognizer: TapGestureRecognizer()
               ..onTap = () async {
                 if (await canLaunchUrl(Uri.parse(url))) {

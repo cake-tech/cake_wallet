@@ -3,8 +3,6 @@ import 'package:cake_wallet/entities/solana_nft_asset_model.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 
 class SolanaNFTTileWidget extends StatelessWidget {
   const SolanaNFTTileWidget({super.key, required this.nftAsset});
@@ -13,9 +11,6 @@ class SolanaNFTTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final balanceTheme = Theme.of(context).extension<BalancePageTheme>()!;
-    final syncTheme = Theme.of(context).extension<SyncIndicatorTheme>()!;
-
     return InkWell(
       onTap: () {
         Navigator.pushNamed(
@@ -34,10 +29,10 @@ class SolanaNFTTileWidget extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16.0),
           border: Border.all(
-            color: balanceTheme.cardBorderColor,
-            width: 1,
+            color: Theme.of(context).colorScheme.outline,
+            width: 0.0,
           ),
-          color: syncTheme.syncedBackgroundColor,
+          color: Theme.of(context).colorScheme.surfaceContainer,
         ),
         child: Row(
           children: [
@@ -47,12 +42,12 @@ class SolanaNFTTileWidget extends StatelessWidget {
               margin: const EdgeInsets.all(8),
               clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16.0),
+                borderRadius: BorderRadius.circular(24.0),
                 border: Border.all(
-                  color: balanceTheme.cardBorderColor,
-                  width: 1,
+                  color: Theme.of(context).colorScheme.outline,
+                  width: 0.0,
                 ),
-                color: syncTheme.syncedBackgroundColor,
+                color: Theme.of(context).colorScheme.surface,
               ),
               child: CakeImageWidget(
                 imageUrl: nftAsset.imageOriginalUrl,
@@ -65,11 +60,8 @@ class SolanaNFTTileWidget extends StatelessWidget {
                 children: [
                   Text(
                     'Symbol: ${nftAsset.symbol ?? '---'}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w400,
-                      color: balanceTheme.labelTextColor,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1,
                     ),
                   ),
@@ -78,11 +70,9 @@ class SolanaNFTTileWidget extends StatelessWidget {
                     (nftAsset.name?.isNotEmpty ?? false)
                         ? nftAsset.name!
                         : (nftAsset.symbol ?? '---'),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Lato',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w900,
-                      color: balanceTheme.assetTitleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                       height: 1,
                     ),
                   ),

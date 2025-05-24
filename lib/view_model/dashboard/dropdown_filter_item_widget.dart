@@ -1,5 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:flutter/material.dart';
 
 class DropdownFilterList extends StatefulWidget {
@@ -43,11 +42,11 @@ class _DropdownFilterListState extends State<DropdownFilterList> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.arrow_drop_down, color: Theme.of(context).extension<PickerTheme>()!.searchIconColor),
+                Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
               ],
             ),
           ),
-          dropdownColor: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
+          dropdownColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(10),
           items: widget.items
               .map((item) => DropdownMenuItem<String>(

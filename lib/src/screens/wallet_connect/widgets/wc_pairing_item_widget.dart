@@ -1,7 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -29,37 +27,35 @@ class WCPairingItemWidget extends StatelessWidget {
 
     return ListTile(
       leading: CakeImageWidget(
-        imageUrl: metadata.icons.isNotEmpty ?  metadata.icons[0]: null,
-        displayOnError: CircleAvatar(
+        imageUrl: metadata.icons.isNotEmpty ? metadata.icons[0] : null,
+        errorWidget: CircleAvatar(
           backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
         ),
       ),
       title: Text(
         metadata.name,
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w700,
-          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 16.0,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             metadata.url,
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           Text(
             '${S.current.expiresOn}: $expiryDate',
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),
@@ -69,12 +65,12 @@ class WCPairingItemWidget extends StatelessWidget {
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor,
+          color: Theme.of(context).colorScheme.primary,
         ),
         child: Icon(
           Icons.edit,
           size: 14,
-          color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor,
+          color: Theme.of(context).colorScheme.onPrimary,
         ),
       ),
       onTap: onTap,

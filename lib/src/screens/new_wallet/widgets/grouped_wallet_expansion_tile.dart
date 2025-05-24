@@ -1,9 +1,6 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 
 class GroupedWalletExpansionTile extends StatelessWidget {
   GroupedWalletExpansionTile({
@@ -54,16 +51,16 @@ class GroupedWalletExpansionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = color ?? (isSelected ? Colors.green : Theme.of(context).cardColor);
+    final backgroundColor = color ?? (isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer);
     final effectiveTextColor = textColor ??
         (isSelected
-            ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-            : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSecondaryContainer);
 
     final effectiveArrowColor = arrowColor ??
         (isSelected
-            ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-            : Theme.of(context).extension<FilterTheme>()!.titlesColor);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSecondaryContainer);
     return Container(
       decoration: BoxDecoration(
         borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(30)),
@@ -91,7 +88,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             onTap: onTitleTapped,
             child: Text(
               title,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: effectiveTextColor,
@@ -102,10 +99,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           children: childWallets.map(
             (item) {
               final currentColor = item.isCurrent
-                  ? Theme.of(context)
-                      .extension<WalletListTheme>()!
-                      .createNewWalletButtonBackgroundColor
-                  : Theme.of(context).colorScheme.background;
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surface;
               final walletTypeToCrypto = walletTypeToCryptoCurrency(item.type);
               return ListTile(
                 contentPadding: EdgeInsets.zero,
@@ -141,7 +136,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 title: Text(
                   item.name,
                   maxLines: 2,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
                     color: effectiveTextColor,

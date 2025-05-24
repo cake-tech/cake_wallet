@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/entities/service_status.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -20,9 +21,9 @@ class ServiceStatusTile extends StatelessWidget {
             Expanded(
               child: AutoSizeText(
                 "${status.title}${status.status != null ? " - ${status.status}" : ""}",
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 16,
-                  fontFamily: 'Lato',
+                   
                   fontWeight: FontWeight.w800,
                   height: 1,
                 ),
@@ -32,7 +33,7 @@ class ServiceStatusTile extends StatelessWidget {
             ),
             Text(
               _getTimeString(status.date),
-              style: TextStyle(fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ),
@@ -40,7 +41,9 @@ class ServiceStatusTile extends StatelessWidget {
       leading: RotatedBox(
         child: Icon(
           Icons.info,
-          color: status.status == "resolved" ? Colors.green : Colors.red,
+          color: status.status == "resolved"
+              ? CustomThemeColors.syncGreen
+              : Theme.of(context).colorScheme.errorContainer,
         ),
         quarterTurns: 2,
       ),

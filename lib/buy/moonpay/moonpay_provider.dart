@@ -14,8 +14,8 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -26,12 +26,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MoonPayProvider extends BuyProvider {
   MoonPayProvider({
-    required SettingsStore settingsStore,
+    required AppStore appStore,
     required WalletBase wallet,
     bool isTestEnvironment = false,
   })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
-        this._settingsStore = settingsStore,
+        this._appStore = appStore,
         super(
           wallet: wallet,
           isTestEnvironment: isTestEnvironment,
@@ -41,7 +41,7 @@ class MoonPayProvider extends BuyProvider {
           supportedFiatList: supportedFiatToCryptoPairs(
               notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
 
-  final SettingsStore _settingsStore;
+  final AppStore _appStore;
 
   static const _baseSellTestUrl = 'sell-sandbox.moonpay.com';
   static const _baseSellProductUrl = 'sell.moonpay.com';
@@ -86,14 +86,11 @@ class MoonPayProvider extends BuyProvider {
 
   static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
 
-  static String themeToMoonPayTheme(ThemeBase theme) {
+  static String themeToMoonPayTheme(MaterialThemeBase theme) {
     switch (theme.type) {
-      case ThemeType.bright:
       case ThemeType.light:
         return 'light';
       case ThemeType.dark:
-        return 'dark';
-      case ThemeType.oled:
         return 'dark';
     }
   }
@@ -237,9 +234,9 @@ class MoonPayProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     final Map<String, String> params = {
-      'theme': themeToMoonPayTheme(_settingsStore.currentTheme),
-      'language': _settingsStore.languageCode,
-      'colorCode': _settingsStore.currentTheme.type == ThemeType.dark
+      'theme': themeToMoonPayTheme(_appStore.themeStore.currentTheme),
+      'language': _appStore.settingsStore.languageCode,
+      'colorCode': _appStore.themeStore.currentTheme.type == ThemeType.dark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
       'baseCurrencyCode': isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
@@ -260,7 +257,6 @@ class MoonPayProvider extends BuyProvider {
     try {
       final uri = await requestMoonPayUrl(
           walletAddress: cryptoCurrencyAddress,
-          settingsStore: _settingsStore,
           isBuyAction: isBuyAction,
           amount: amount.toString(),
           params: params);
@@ -289,7 +285,6 @@ class MoonPayProvider extends BuyProvider {
 
   Future<Uri> requestMoonPayUrl({
     required String walletAddress,
-    required SettingsStore settingsStore,
     required bool isBuyAction,
     required Map<String, String> params,
     String? amount,

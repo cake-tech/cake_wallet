@@ -1,16 +1,13 @@
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_tile.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class FilterWidget extends StatefulWidget {
   const FilterWidget({required this.filterItems, this.onClose, Key? key}) : super(key: key);
@@ -75,7 +72,7 @@ class _FilterWidgetState extends State<FilterWidget> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: Container(
-                color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
+                color: Theme.of(context).colorScheme.surface,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -83,13 +80,9 @@ class _FilterWidgetState extends State<FilterWidget> {
                       padding: const EdgeInsets.all(24.0),
                       child: Text(
                         S.of(context).filter_by,
-                        style: TextStyle(
-                          color: Theme.of(context)
-                              .extension<TransactionTradeTheme>()!
-                              .detailsTitlesColor,
-                          fontSize: 16,
-                          fontFamily: 'Lato',
-                          decoration: TextDecoration.none,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -125,8 +118,8 @@ class _FilterWidgetState extends State<FilterWidget> {
                                 value: item.value(),
                                 caption: item.caption,
                                 gradientBackground: true,
-                                borderColor: Theme.of(context).dividerColor,
-                                iconColor: Colors.white,
+                                borderColor: Theme.of(context).colorScheme.outlineVariant,
+                                iconColor: Theme.of(context).colorScheme.onSurface,
                                 onChanged: (value) => item.onChanged(),
                               ),
                             );
@@ -143,10 +136,8 @@ class _FilterWidgetState extends State<FilterWidget> {
                               padding: const EdgeInsets.only(top: 20, left: 24, right: 24),
                               child: Text(
                                 title,
-                                style: TextStyle(
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                                  fontSize: 16,
-                                  fontFamily: 'Lato',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.none,
                                 ),

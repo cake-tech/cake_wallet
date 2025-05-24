@@ -38,7 +38,7 @@ class MwebLogsPage extends BasePage {
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     snapshot.data!,
-                    style: TextStyle(fontFamily: 'Monospace'),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontFamily: 'Monospace'),
                   ),
                 ),
               );
@@ -49,8 +49,8 @@ class MwebLogsPage extends BasePage {
           child: LoadingPrimaryButton(
             onPressed: () => onExportLogs(context),
             text: S.of(context).export_logs,
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
           ),
           bottom: 24,
           left: 24,

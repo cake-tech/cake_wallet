@@ -1,12 +1,7 @@
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class TrailButton extends StatelessWidget {
-  TrailButton({
-    required this.caption,
-    required this.onPressed,
-    this.textColor});
+  TrailButton({required this.caption, required this.onPressed, this.textColor});
 
   final String caption;
   final VoidCallback onPressed;
@@ -19,17 +14,18 @@ class TrailButton extends StatelessWidget {
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       child: TextButton(
-          // FIX-ME: ignored padding
-          //padding: EdgeInsets.all(0),
-          child: Text(
-            caption,
-            style: TextStyle(
-                color: textColor ??
-                    Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor,
+        // FIX-ME: ignored padding
+        //padding: EdgeInsets.all(0),
+        child: Text(
+          caption,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontWeight: FontWeight.w600,
-                fontSize: 14),
-          ),
-          onPressed: onPressed),
+                color: textColor ?? Theme.of(context).colorScheme.primary,
+                height: 1.8,
+              ),
+        ),
+        onPressed: onPressed,
+      ),
     );
   }
 }

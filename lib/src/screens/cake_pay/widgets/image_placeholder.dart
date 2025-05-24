@@ -13,15 +13,14 @@ class CakePayCardImagePlaceholder extends StatelessWidget {
         child: Center(
           child: Text(
             text ?? 'Image not found!',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.w900,
+                ),
           ),
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surfaceContainer,
         ),
       ),
     );

@@ -3,8 +3,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 abstract class SelectOptionsPage extends BasePage {
@@ -45,13 +43,14 @@ abstract class SelectOptionsPage extends BasePage {
   Widget body(BuildContext context) {
     return ScrollableWithBottomSection(
       content: BodySelectOptionsPage(
-          items: items,
-          onOptionTap: onOptionTap,
-          tilePadding: tilePadding,
-          tileBorderRadius: tileBorderRadius,
-          imageHeight: imageHeight,
-          imageWidth: imageWidth,
-          innerPadding: innerPadding),
+        items: items,
+        onOptionTap: onOptionTap,
+        tilePadding: tilePadding,
+        tileBorderRadius: tileBorderRadius,
+        imageHeight: imageHeight,
+        imageWidth: imageWidth,
+        innerPadding: innerPadding,
+      ),
       bottomSection: Padding(
         padding: contentPadding ?? EdgeInsets.zero,
         child: Column(
@@ -59,24 +58,23 @@ abstract class SelectOptionsPage extends BasePage {
             Text(
               bottomSectionText,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
             if (primaryButtonEnabled)
               LoadingPrimaryButton(
-                  text: primaryButtonText,
-                  onPressed: () {
-                    primaryButtonAction != null
-                        ? primaryButtonAction!(context)
-                        : Navigator.pop(context);
-                  },
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  isDisabled: false,
-                  isLoading: false)
+                text: primaryButtonText,
+                onPressed: () {
+                  primaryButtonAction != null
+                      ? primaryButtonAction!(context)
+                      : Navigator.pop(context);
+                },
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
+                isDisabled: false,
+                isLoading: false,
+              )
           ],
         ),
       ),
@@ -130,10 +128,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
-
-    Color titleColor =
-        isLightMode ? Theme.of(context).appBarTheme.titleTextStyle!.color! : Colors.white;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Center(
       child: ConstrainedBox(
@@ -148,7 +143,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: titleColor,
+                        color: Theme.of(context).colorScheme.onSurface,
                         width: 1,
                       ),
                     ),
@@ -157,10 +152,9 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(
                       item.title,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: titleColor,
                       ),
                     ),
                   ),
@@ -185,7 +179,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                   badges: item.badges,
                   isSelected: item.isOptionSelected,
                   borderRadius: widget.tileBorderRadius,
-                  isLightMode: isLightMode,
+                  isLightMode: !isDarkMode,
                   onPressed: () => _handleOptionTap(item),
                 ),
               );

@@ -37,29 +37,31 @@ class MoneroAccountListPage extends StatelessWidget {
                 final account = accounts[index];
 
                 return AccountTile(
-                    isCurrent: account.isSelected,
-                    accountName: account.label,
-                    accountBalance: account.balance ?? '0.00',
-                    currency: accountListViewModel.currency.toString(),
-                    onTap: () {
-                      if (account.isSelected) {
-                        return;
-                      }
+                  isCurrent: account.isSelected,
+                  accountName: account.label,
+                  accountBalance: account.balance ?? '0.00',
+                  currency: accountListViewModel.currency.toString(),
+                  onTap: () {
+                    if (account.isSelected) {
+                      return;
+                    }
 
-                      accountListViewModel.select(account);
-                      Navigator.of(context).pop();
-                    },
-                    onEdit: () async => await Navigator.of(context)
-                        .pushNamed(Routes.accountCreation, arguments: account));
+                    accountListViewModel.select(account);
+                    Navigator.of(context).pop();
+                  },
+                  onEdit: () async => await Navigator.of(context).pushNamed(
+                    Routes.accountCreation,
+                    arguments: account,
+                  ),
+                );
               },
             ),
           )),
           GestureDetector(
-            onTap: () async =>
-                await Navigator.of(context).pushNamed(Routes.accountCreation),
+            onTap: () async => await Navigator.of(context).pushNamed(Routes.accountCreation),
             child: Container(
               height: buttonHeight,
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).colorScheme.primary,
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Center(
                 child: Row(
@@ -67,19 +69,18 @@ class MoneroAccountListPage extends StatelessWidget {
                   children: <Widget>[
                     Icon(
                       Icons.add,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 5),
                       child: Text(
                         S.of(context).create_new_account,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Lato',
-                          color: Colors.white,
-                          decoration: TextDecoration.none,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              decoration: TextDecoration.none,
+                            ),
                       ),
                     )
                   ],

@@ -1,7 +1,4 @@
-import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class CakePayTile extends StatelessWidget {
   const CakePayTile({
@@ -17,30 +14,34 @@ class CakePayTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return GestureDetector(
       onTap: onTap,
       child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: textXSmall(
-                color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              subTitle,
-              style: textMediumBold(
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              SizedBox(height: 8),
+              Text(
+                subTitle,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
-        )
-      ],
-    ));
+            ],
+          )
+        ],
+      ),
+    );
   }
 }

@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -69,13 +68,12 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
   @override
   Widget buildTrailing(BuildContext context) {
     return Text(
-      displayItem?.call(selectedItem,customValue?.round() ?? 0) ?? selectedItem.toString(),
+      displayItem?.call(selectedItem, customValue?.round() ?? 0) ?? selectedItem.toString(),
       textAlign: TextAlign.right,
-      style: TextStyle(
-        fontSize: 14.0,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-      ),
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
     );
   }
 }

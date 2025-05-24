@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
@@ -25,9 +24,7 @@ class Setup2FAQRPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_content.png',
-        height: 16,
-        width: 16,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+        height: 16, width: 16, color: Theme.of(context).colorScheme.onSurface);
     final cake2FAHowToUseUrl = Uri.parse(
         'https://docs.cakewallet.com/features/advanced/authentication/#enabling-cake-2fa');
     return Padding(
@@ -37,17 +34,14 @@ class Setup2FAQRPage extends BasePage {
           Spacer(),
           Text(
             S.current.scan_qr_on_device,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              height: 1.5714,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  height: 1.5714,
+                ),
           ),
           SizedBox(height: 10),
           ConstrainedBox(
-            constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.4),
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
             child: AspectRatio(
               aspectRatio: 1.0,
               child: Container(
@@ -55,17 +49,14 @@ class Setup2FAQRPage extends BasePage {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 3,
-                    color: Theme.of(context)
-                        .extension<CakeTextTheme>()!
-                        .titleColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 child: Container(
                     child: QrImage(
                   data: setup2FAViewModel.totpVersionOneLink,
                   version: qr.QrVersions.auto,
-                  foregroundColor:
-                      Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
                   backgroundColor: Colors.transparent,
                 )),
               ),
@@ -74,12 +65,10 @@ class Setup2FAQRPage extends BasePage {
           SizedBox(height: 26),
           Text(
             S.current.add_secret_code,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              height: 1.5714,
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  height: 1.5714,
+                ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -92,23 +81,19 @@ class Setup2FAQRPage extends BasePage {
                   children: [
                     Text(
                       S.current.totp_secret_code,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .secondaryTextColor,
-                        height: 1.8333,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            height: 1.8333,
+                          ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       '${setup2FAViewModel.totpSecretKey}',
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Theme.of(context)
-                              .extension<CakeTextTheme>()!
-                              .titleColor),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontSize: 18, color: Theme.of(context).colorScheme.onSurface),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -121,8 +106,8 @@ class Setup2FAQRPage extends BasePage {
                 height: 32,
                 child: InkWell(
                   onTap: () {
-                    ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(
-                        text: '${setup2FAViewModel.totpSecretKey}'));
+                    ClipboardUtil.setSensitiveDataToClipboard(
+                        ClipboardData(text: '${setup2FAViewModel.totpSecretKey}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(
@@ -146,23 +131,19 @@ class Setup2FAQRPage extends BasePage {
                   children: [
                     Text(
                       S.current.totp_auth_url,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .extension<CakeTextTheme>()!
-                            .secondaryTextColor,
-                        height: 1.8333,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            height: 1.8333,
+                          ),
                     ),
                     SizedBox(height: 8),
                     Text(
                       '${setup2FAViewModel.totpVersionOneLink}',
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Theme.of(context)
-                              .extension<CakeTextTheme>()!
-                              .titleColor),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontSize: 18, color: Theme.of(context).colorScheme.onSurface),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -175,8 +156,8 @@ class Setup2FAQRPage extends BasePage {
                 height: 32,
                 child: InkWell(
                   onTap: () {
-                    ClipboardUtil.setSensitiveDataToClipboard(ClipboardData(
-                        text: '${setup2FAViewModel.totpVersionOneLink}'));
+                    ClipboardUtil.setSensitiveDataToClipboard(
+                        ClipboardData(text: '${setup2FAViewModel.totpVersionOneLink}'));
                     showBar<void>(context, S.of(context).copied_to_clipboard);
                   },
                   child: Container(
@@ -196,32 +177,25 @@ class Setup2FAQRPage extends BasePage {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(S.current.how_to_use,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           decoration: TextDecoration.underline,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Theme.of(context)
-                              .extension<CakeTextTheme>()!
-                              .titleColor)),
-                  Icon(Icons.info_outline,
-                      size: 20,
-                      color: Theme.of(context)
-                          .extension<CakeTextTheme>()!
-                          .titleColor)
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  Icon(Icons.info_outline, size: 20, color: Theme.of(context).colorScheme.onSurface)
                 ],
               )),
           Spacer(flex: 5),
           PrimaryButton(
             onPressed: () {
-              Navigator.of(context)
-                  .pushReplacementNamed(Routes.totpAuthCodePage,
-                      arguments: TotpAuthArgumentsModel(
-                        isForSetup: true,
-                      ));
+              Navigator.of(context).pushReplacementNamed(Routes.totpAuthCodePage,
+                  arguments: TotpAuthArgumentsModel(
+                    isForSetup: true,
+                  ));
             },
             text: S.current.continue_text,
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
           ),
           SizedBox(height: 24),
         ],

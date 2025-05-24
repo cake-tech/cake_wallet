@@ -1,8 +1,7 @@
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../themes/utils/custom_theme_colors.dart';
 
 class DashBoardRoundedCardWidget extends StatelessWidget {
   DashBoardRoundedCardWidget({
@@ -41,11 +40,22 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          margin: EdgeInsets.symmetric(horizontal: marginH ?? 20, vertical: marginV ?? 8),
-          //padding: EdgeInsets.all(20),
+          margin: EdgeInsets.symmetric(horizontal: marginH ?? 20, vertical: marginV ?? 5),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(customBorder ?? 20),
+            borderRadius: BorderRadius.circular(15),
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).brightness == Brightness.dark
+                    ? CustomThemeColors.cardGradientColorPrimaryDark
+                    : CustomThemeColors.cardGradientColorPrimaryLight,
+                Theme.of(context).brightness == Brightness.dark
+                    ? CustomThemeColors.cardGradientColorSecondaryDark
+                    : CustomThemeColors.cardGradientColorSecondaryLight,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
             // border: Border.all(
             //   color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
             //     width: 1
@@ -59,15 +69,14 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             //   )
             // ],
           ),
-          child: OutlinedButton(
+          child: TextButton(
             onPressed: onTap,
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(width: 1, color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor),
-                backgroundColor:
-                    Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(customBorder ?? 20)),
-                padding: EdgeInsets.all(24)),
+            style: TextButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              padding: EdgeInsets.only(left: 24, top: 24, right: 20, bottom: 24),
+            ),
             child: Column(
               children: [
                 Row(
@@ -79,24 +88,20 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .extension<DashboardPageTheme>()!
-                                  .cardTextColor,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                            ),
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 24,
+                                ),
                             softWrap: true,
                           ),
                           SizedBox(height: 5),
                           Text(
                             subTitle,
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .extension<DashboardPageTheme>()!
-                                    .cardTextColor,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Lato'),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             softWrap: true,
                           ),
                         ],
@@ -121,7 +126,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             child: IconButton(
               icon: Icon(Icons.close),
               onPressed: onClose,
-              color: Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor,
+              //color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
       ],

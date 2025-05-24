@@ -1,7 +1,7 @@
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 
@@ -14,15 +14,19 @@ abstract class InfoPage extends BasePage {
   final String imageLightPath;
   final String imageDarkPath;
 
-  Image get imageLight => Image.asset(imageLightPath);
-  Image get imageDark => Image.asset(imageDarkPath);
-
   bool get onWillPop => true;
   String get pageTitle;
   String get pageDescription;
   String get buttonText;
   Key? get buttonKey;
   void Function(BuildContext) get onPressed;
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget? leading(BuildContext context) => null;
@@ -32,10 +36,10 @@ abstract class InfoPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
+    final image = currentTheme.isDark ? imageDarkPath : imageLightPath;
 
-    return WillPopScope(
-      onWillPop: () async => onWillPop,
+    return PopScope(
+      canPop: onWillPop,
       child: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.all(24),
@@ -47,8 +51,13 @@ abstract class InfoPage extends BasePage {
             children: <Widget>[
               Expanded(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
-                  child: AspectRatio(aspectRatio: 1, child: image),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.3,
+                  ),
+                  child: AspectRatio(
+                    aspectRatio: 0.9,
+                    child: CakeImageWidget(imageUrl: image),
+                  ),
                 ),
               ),
               Expanded(
@@ -57,12 +66,7 @@ abstract class InfoPage extends BasePage {
                   child: Text(
                     pageDescription,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      height: 1.7,
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
                   ),
                 ),
               ),
@@ -70,8 +74,8 @@ abstract class InfoPage extends BasePage {
                 key: buttonKey,
                 onPressed: () => onPressed(context),
                 text: buttonText,
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               ),
             ],
           ),
