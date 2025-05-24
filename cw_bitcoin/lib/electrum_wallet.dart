@@ -2600,7 +2600,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
     }
 
     // Initial status UI update, send how many blocks in total to scan
-    scanData.sendPort.send(StartingScanSyncStatus(syncHeight));
+    scanData.sendPort.send(SyncResponse(syncHeight, StartingScanSyncStatus(syncHeight)));
 
     final req = ElectrumTweaksSubscribe(
       height: syncHeight,
@@ -2699,6 +2699,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               confirmations: scanData.chainTip - tweakHeight + 1,
               isReceivedSilentPayment: true,
               isPending: false,
+              unspents: [],
             );
 
             List<BitcoinUnspent> unspents = [];
@@ -2748,6 +2749,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                   );
 
                   unspents.add(unspent);
+                  txInfo.unspents!.add(unspent);
                   txInfo.amount += unspent.value;
                 });
               });
