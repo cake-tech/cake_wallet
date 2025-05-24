@@ -321,12 +321,23 @@ class BalanceRowWidget extends StatelessWidget {
           ),
         ),
         if (hasSecondAdditionalBalance || hasSecondAvailableBalance) ...[
-          SizedBox(height: 16),
+          SizedBox(height: 10),
           Container(
             margin: const EdgeInsets.only(left: 16, right: 16),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30.0),
-              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).brightness == Brightness.dark
+                      ? CustomThemeColors.cardGradientColorPrimaryDark
+                      : CustomThemeColors.cardGradientColorPrimaryLight,
+                  Theme.of(context).brightness == Brightness.dark
+                      ? CustomThemeColors.cardGradientColorSecondaryDark
+                      : CustomThemeColors.cardGradientColorSecondaryLight,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
               // boxShadow: [
               //   BoxShadow(
               //       color: Theme.of(context)
@@ -347,7 +358,7 @@ class BalanceRowWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    margin: const EdgeInsets.only(top: 10, left: 12, right: 12, bottom: 10),
+                    margin: const EdgeInsets.only(top: 10, left: 12, right: 8, bottom: 10),
                     child: Stack(
                       children: [
                         if (currency == CryptoCurrency.ltc)

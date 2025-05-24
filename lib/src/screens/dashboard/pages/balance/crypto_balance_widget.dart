@@ -23,6 +23,8 @@ class CryptoBalanceWidget extends StatelessWidget {
   });
 
   final DashboardViewModel dashboardViewModel;
+  final btcLockLight = 'assets/images/btc_lock_light.png';
+  final btcLockDark = 'assets/images/btc_lock_dark.png';
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +104,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                         padding: const EdgeInsets.all(8.0),
                                         child: Image.asset(
                                           'assets/images/home_screen_settings_icon.png',
-                                          color: Theme.of(context).colorScheme.secondary,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                     ),
@@ -202,9 +204,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                       ))
                 ],
                 if (dashboardViewModel.showSilentPaymentsCard) ...[
-                  SizedBox(height: 16),
+                  SizedBox(height: 10),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                     child: DashBoardRoundedCardWidget(
                       shadowBlur: dashboardViewModel.getShadowBlur(),
                       shadowSpread: dashboardViewModel.getShadowSpread(),
@@ -255,11 +257,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ],
                       ),
                       onTap: () => _toggleSilentPaymentsScanning(context),
-                      icon: Icon(
-                        Icons.lock,
-                        color: Theme.of(context).colorScheme.onSurface,
-                        size: 50,
-                      ),
+                      image: Theme.of(context).brightness == Brightness.light ? Image.asset(btcLockLight, height: 48) : Image.asset(btcLockDark, height: 48),
                     ),
                   ),
                 ],
