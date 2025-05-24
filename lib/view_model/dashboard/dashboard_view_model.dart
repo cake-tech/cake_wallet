@@ -33,7 +33,6 @@ import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.d
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
@@ -559,6 +558,12 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showDecredInfoCard;
 
+  @computed
+  bool get showPayjoinCard =>
+      wallet.type == WalletType.bitcoin &&
+      settingsStore.showPayjoinCard &&
+      !settingsStore.usePayjoin;
+
   @observable
   bool backgroundSyncEnabled = false;
 
@@ -762,6 +767,18 @@ abstract class DashboardViewModelBase with Store {
   void dismissDecredInfoCard() {
     showDecredInfoCard = false;
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
+  }
+
+  @action
+  void dismissPayjoin() {
+    settingsStore.showPayjoinCard = false;
+  }
+
+  @action
+  void enablePayjoin() {
+    settingsStore.usePayjoin = true;
+    settingsStore.showPayjoinCard = false;
+    bitcoin!.updatePayjoinState(wallet, true);
   }
 
   BalanceViewModel balanceViewModel;
