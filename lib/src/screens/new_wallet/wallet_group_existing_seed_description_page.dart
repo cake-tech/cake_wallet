@@ -1,11 +1,19 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 
 class WalletGroupExistingSeedDescriptionPage extends BasePage {
   WalletGroupExistingSeedDescriptionPage();
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.wallet_group;
@@ -48,7 +56,7 @@ class WalletGroupExistingSeedDescriptionPage extends BasePage {
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Theme.of(context).colorScheme.surface,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],

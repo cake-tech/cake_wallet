@@ -30,8 +30,8 @@ class Setup2FAPage extends BasePage {
           child: ConstrainedBox(
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
             child: AspectRatio(
-              aspectRatio: 0.672,
-              child: CakeImageWidget(imageUrl: 'assets/images/2fa_setup_dark.svg'),
+              aspectRatio: 0.764,
+              child: CakeImageWidget(imageUrl: 'assets/images/2fa.png'),
             ),
           ),
         ),

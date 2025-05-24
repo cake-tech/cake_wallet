@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,13 @@ class WalletGroupDescriptionPage extends BasePage {
   WalletGroupDescriptionPage({required this.selectedWalletType});
 
   final WalletType selectedWalletType;
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.wallet_group;

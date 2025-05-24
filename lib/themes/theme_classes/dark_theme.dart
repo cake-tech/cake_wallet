@@ -49,8 +49,8 @@ class DarkTheme extends MaterialThemeBase {
         surfaceContainer: Color(0xFF24335B),
         surfaceContainerHigh: Color(0xFF212C47),
         surfaceContainerHighest: Color(0xFF2A3B67),
-        outline: const Color(0xFF958F95),
-        outlineVariant: const Color(0xFF49454B),
+        outline: const Color(0xFF9EACC1),
+        outlineVariant: const Color(0xFF3E5579),
       );
   static const String fontFamily = 'Lato';
   @override

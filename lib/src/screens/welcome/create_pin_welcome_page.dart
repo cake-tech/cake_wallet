@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -7,6 +8,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import '../../widgets/gradient_background.dart';
 
 class CreatePinWelcomePage extends BasePage {
   CreatePinWelcomePage(this.isWalletPasswordDirectInput);
@@ -37,13 +39,40 @@ class CreatePinWelcomePage extends BasePage {
   }
 
   @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       resizeToAvoidBottomInset: false,
-      body: body(context),
+      body: Builder(
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.surface,
+                  Theme.of(context).brightness == Brightness.dark
+                      ? CustomThemeColors.backgroundGradientColorDark
+                      : CustomThemeColors.backgroundGradientColorLight,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: body(context),
+          );
+        }
+      ),
     );
   }
+
 
   @override
   Widget body(BuildContext context) {

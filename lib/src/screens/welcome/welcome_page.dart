@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.5;
@@ -16,6 +17,13 @@ class WelcomePage extends BasePage {
 
   @override
   String? get title => S.current.wallet;
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   bool get resizeToAvoidBottomInset => false;

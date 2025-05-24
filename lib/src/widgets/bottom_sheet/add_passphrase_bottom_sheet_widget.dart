@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +38,15 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
     super.dispose();
   }
 
+  final passphraseImageLight = 'assets/images/passphrase_light.png';
+  final passphraseImageDark = 'assets/images/passphrase_dark.png';
+
   bool obscurePassphrase = true;
   @override
   Widget build(BuildContext context) {
+
+    final passphraseImage = Theme.of(context).brightness == Brightness.dark ? passphraseImageDark : passphraseImageLight;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30.0)),
@@ -76,7 +83,9 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                     decoration: TextDecoration.none,
                   ),
             ),
-            SvgPicture.asset('assets/images/passphrase_key.svg'),
+            SizedBox(height: 20),
+            CakeImageWidget(imageUrl: passphraseImage, height: 85),
+            SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text.rich(

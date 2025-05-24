@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -37,6 +38,13 @@ class NewWalletPage extends BasePage {
 
   final welcomeImageLight = 'assets/images/wallet_type_wallet_light.png';
   final welcomeImageDark = 'assets/images/wallet_type_wallet_dark.png';
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.new_wallet;

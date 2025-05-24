@@ -621,7 +621,7 @@ class SendPage extends BasePage {
                       showDontAskMeCheckbox: true,
                       onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
                       titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: 'assets/images/contact_icon.svg',
+                      contentImage: 'assets/images/contact.png',
                       contentImageColor: Theme.of(context).colorScheme.onSurface,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
                       isTwoAction: true,
@@ -649,7 +649,7 @@ class SendPage extends BasePage {
                   : InfoBottomSheet(
                       currentTheme: currentTheme,
                       titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: 'assets/images/birthday_cake.svg',
+                      contentImage: 'assets/images/birthday_cake.png',
                       actionButtonText: S.of(bottomSheetContext).close,
                       actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
                       actionButton: () {

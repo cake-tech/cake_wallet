@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,13 @@ abstract class InfoPage extends BasePage {
   String get buttonText;
   Key? get buttonKey;
   void Function(BuildContext) get onPressed;
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget? leading(BuildContext context) => null;
