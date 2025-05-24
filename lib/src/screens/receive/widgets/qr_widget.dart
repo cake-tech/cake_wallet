@@ -4,23 +4,25 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget({
     required this.addressListViewModel,
-    required this.isLight,
+    required this.currentTheme,
     this.qrVersion,
     this.heroTag,
     required this.amountController,
@@ -32,7 +34,7 @@ class QRWidget extends StatelessWidget {
   final TextEditingController amountController;
   final FocusNode? amountTextFieldFocusNode;
   final GlobalKey<FormState> formKey;
-  final bool isLight;
+  final MaterialThemeBase currentTheme;
   final int? qrVersion;
   final String? heroTag;
 
@@ -111,6 +113,54 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ),
+                                    if (addressListViewModel.isPayjoinUnavailable &&
+                                        !addressListViewModel.isSilentPayments) ...[
+                                      GestureDetector(
+                                        onTap: () => _onPayjoinInactivePressed(context),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: 4,
+                                                bottom: 4,
+                                                right: 4,
+                                              ),
+                                              child: Image.asset(
+                                                'assets/images/payjoin.png',
+                                                width: 20,
+                                              ),
+                                            ),
+                                            Text(
+                                              S.of(context).payjoin_unavailable,
+                                              style:
+                                                  Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurfaceVariant,
+                                                      ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: 4,
+                                                bottom: 4,
+                                                left: 4,
+                                              ),
+                                              child: CircleAvatar(
+                                                radius: 7,
+                                                backgroundColor: Colors.black,
+                                                child: Icon(
+                                                  Icons.question_mark,
+                                                  size: 10,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                     if (addressListViewModel.payjoinEndpoint.isNotEmpty &&
                                         !addressListViewModel.isSilentPayments) ...[
                                       Row(
@@ -150,34 +200,31 @@ class QRWidget extends StatelessWidget {
               ],
             ),
             Observer(
-              builder: (_) {
-                return Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Form(
-                          key: formKey,
-                          child: CurrencyAmountTextField(
-                            hasUnderlineBorder: true,
-                            borderWidth: 0.0,
-                            selectedCurrency: _currencyName,
-                            amountFocusNode: amountTextFieldFocusNode,
-                            amountController: amountController,
-                            padding: EdgeInsets.only(top: 20, left: _width / 4),
-                            currentTheme: isLight ? ThemeType.light : ThemeType.dark,
-                            isAmountEditable: true,
-                            tag: addressListViewModel.selectedCurrency.tag,
-                            onTapPicker: () => _presentPicker(context),
-                            isPickerEnable: true,
+                builder: (_) => Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Form(
+                              key: formKey,
+                              child: CurrencyAmountTextField(
+                                hasUnderlineBorder: true,
+                                borderWidth: 0.0,
+                                selectedCurrency: _currencyName,
+                                amountFocusNode: amountTextFieldFocusNode,
+                                amountController: amountController,
+                                padding: EdgeInsets.only(top: 20, left: _width / 4),
+                                currentTheme: currentTheme.type,
+                                isAmountEditable: true,
+                                tag: addressListViewModel.selectedCurrency.tag,
+                                onTapPicker: () => _presentPicker(context),
+                                isPickerEnable: true,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                    )),
             Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
             Padding(
               padding: EdgeInsets.only(top: 12, bottom: 8),
@@ -261,5 +308,24 @@ class QRWidget extends StatelessWidget {
     );
     // update amount if currency changed
     addressListViewModel.changeAmount(amountController.text);
+  }
+
+  void _onPayjoinInactivePressed(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => InfoBottomSheet(
+        titleText: S.of(context).payjoin_unavailable_sheet_title,
+        content: S.of(context).payjoin_unavailable_sheet_content,
+        currentTheme: currentTheme,
+        isTwoAction: true,
+        leftButtonText: S.of(context).learn_more,
+        actionLeftButton: () => launchUrl(
+          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+          mode: LaunchMode.externalApplication,
+        ),
+        rightButtonText: S.of(context).ok,
+        actionRightButton: () => Navigator.of(context).pop(),
+      ),
+    );
   }
 }

@@ -554,6 +554,12 @@ abstract class DashboardViewModelBase with Store {
   @observable
   late bool showDecredInfoCard;
 
+  @computed
+  bool get showPayjoinCard =>
+      wallet.type == WalletType.bitcoin &&
+      settingsStore.showPayjoinCard &&
+      !settingsStore.usePayjoin;
+
   @observable
   bool backgroundSyncEnabled = false;
 
@@ -749,6 +755,18 @@ abstract class DashboardViewModelBase with Store {
   void dismissDecredInfoCard() {
     showDecredInfoCard = false;
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
+  }
+
+  @action
+  void dismissPayjoin() {
+    settingsStore.showPayjoinCard = false;
+  }
+
+  @action
+  void enablePayjoin() {
+    settingsStore.usePayjoin = true;
+    settingsStore.showPayjoinCard = false;
+    bitcoin!.updatePayjoinState(wallet, true);
   }
 
   BalanceViewModel balanceViewModel;

@@ -152,8 +152,7 @@ class AddressPage extends BasePage {
                   addressListViewModel: addressListViewModel,
                   amountTextFieldFocusNode: _cryptoAmountFocus,
                   amountController: _amountController,
-                  isLight:
-                      dashboardViewModel.appStore.themeStore.currentTheme.type == ThemeType.light,
+                  currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                 ),
               ),
             ),

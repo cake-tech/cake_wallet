@@ -1,13 +1,12 @@
 import 'package:cake_wallet/src/screens/receive/widgets/address_list.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ReceivePage extends BasePage {
@@ -66,12 +65,10 @@ class ReceivePage extends BasePage {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           iconSize: 25,
-          onPressed: () {
-            ShareUtil.share(
-              text: addressListViewModel.uri.toString(),
-              context: context,
-            );
-          },
+          onPressed: () => ShareUtil.share(
+            text: addressListViewModel.uri.toString(),
+            context: context,
+          ),
           icon: Icon(
             Icons.share,
             size: 20,
@@ -83,8 +80,7 @@ class ReceivePage extends BasePage {
   }
 
   @override
-  Widget body(BuildContext context) {
-    return KeyboardActions(
+  Widget body(BuildContext context) => KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor: Theme.of(context).colorScheme.surface,
@@ -106,7 +102,7 @@ class ReceivePage extends BasePage {
                   heroTag: _heroTag,
                   amountTextFieldFocusNode: _cryptoAmountFocus,
                   amountController: _amountController,
-                  isLight: currentTheme.type == ThemeType.light,
+                  currentTheme: currentTheme,
                 ),
               ),
               AddressList(addressListViewModel: addressListViewModel, currentTheme: currentTheme),
@@ -125,6 +121,6 @@ class ReceivePage extends BasePage {
               ),
             ],
           ),
-        ));
-  }
+        ),
+      );
 }

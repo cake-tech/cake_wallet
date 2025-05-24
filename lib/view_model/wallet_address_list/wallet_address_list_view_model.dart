@@ -311,6 +311,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       : "";
 
   @computed
+  bool get isPayjoinUnavailable =>
+      wallet.type == WalletType.bitcoin &&
+      _settingsStore.usePayjoin &&
+      payjoinEndpoint.isEmpty;
+
+  @computed
   PaymentURI get uri {
     switch (wallet.type) {
       case WalletType.monero:
