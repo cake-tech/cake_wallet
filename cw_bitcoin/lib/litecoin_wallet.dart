@@ -464,7 +464,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
-      await mwebUtxosBox.put(key, oldBox.get(key)!);
+      final value = oldBox.get(key);
+      await oldBox.delete(key);
+      await mwebUtxosBox.put(key, value!);
     }
     oldBox.deleteFromDisk();
 
