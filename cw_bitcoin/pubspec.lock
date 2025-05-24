@@ -79,20 +79,20 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v9
-      resolved-ref: "86969a14e337383e14965f5fb45a72a63e5009bc"
+      ref: cake-update-v15
+      resolved-ref: "29160733cbc4ef2c7b8c8fe9ed0297c9bffecfe2"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
-    version: "4.7.0"
+    version: "6.1.0"
   blockchain_utils:
     dependency: "direct main"
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      ref: cake-update-v4
+      resolved-ref: "437dadd0bd9bf73ec6a551299577799341f6486a"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "3.3.0"
+    version: "4.3.0"
   bluez:
     dependency: transitive
     description:
@@ -681,11 +681,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
+      ref: cake-update-v4
+      resolved-ref: "084fb7bf13ec42d74f26ac08c883ce07c10fca7e"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "3.7.0"
+    version: "6.2.0"
   package_config:
     dependency: transitive
     description:
@@ -968,8 +968,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v4.0.0"
-      resolved-ref: "2554cb8bd3ee1d026bc63e76a30d1226960c7cb4"
+      ref: cake-update-v4
+      resolved-ref: f3c172a7dc5155f5e745e4630b05f197e098a5cd
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"

@@ -19,7 +19,7 @@ import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {
   final httpClient = http.Client();
-  SolanaRPC? _provider;
+  SolanaProvider? _provider;
 
   bool connect(Node node) {
     try {
@@ -38,7 +38,7 @@ class SolanaWalletClient {
         formattedUrl = '$protocolUsed://${node.uriRaw}';
       }
 
-      _provider = SolanaRPC(SolanaRPCHTTPService(url: formattedUrl));
+      _provider = SolanaProvider(SolanaRPCHTTPService(url: formattedUrl));
 
       return true;
     } catch (e) {
@@ -49,7 +49,7 @@ class SolanaWalletClient {
   Future<double> getBalance(String walletAddress) async {
     try {
       final balance = await _provider!.requestWithContext(
-        SolanaRPCGetBalance(
+        SolanaRequestGetBalance(
           account: SolAddress(walletAddress),
         ),
       );
@@ -68,11 +68,11 @@ class SolanaWalletClient {
       String mintAddress, String publicKey) async {
     try {
       final result = await _provider!.request(
-        SolanaRPCGetTokenAccountsByOwner(
+        SolanaRequestGetTokenAccountsByOwner(
           account: SolAddress(publicKey),
           mint: SolAddress(mintAddress),
           commitment: Commitment.confirmed,
-          encoding: SolanaRPCEncoding.base64,
+          encoding: SolanaRequestEncoding.base64,
         ),
       );
 
@@ -96,7 +96,7 @@ class SolanaWalletClient {
 
     for (var tokenAccount in tokenAccounts) {
       final tokenAmountResult = await _provider!.request(
-        SolanaRPCGetTokenAccountBalance(account: tokenAccount.pubkey),
+        SolanaRequestGetTokenAccountBalance(account: tokenAccount.pubkey),
       );
 
       final balance = tokenAmountResult.uiAmountString;
@@ -112,7 +112,7 @@ class SolanaWalletClient {
   Future<double> getFeeForMessage(String message, Commitment commitment) async {
     try {
       final feeForMessage = await _provider!.request(
-        SolanaRPCGetFeeForMessage(
+        SolanaRequestGetFeeForMessage(
           encodedMessage: message,
           commitment: commitment,
         ),
@@ -342,7 +342,7 @@ class SolanaWalletClient {
     List<SolanaTransactionModel> transactions = [];
     try {
       final signatures = await _provider!.request(
-        SolanaRPCGetSignaturesForAddress(
+        SolanaRequestGetSignaturesForAddress(
           account: address,
           commitment: commitment,
         ),
@@ -357,9 +357,9 @@ class SolanaWalletClient {
         final batchResponses = await Future.wait(batch.map((signature) async {
           try {
             return await _provider!.request(
-              SolanaRPCGetTransaction(
+              SolanaRequestGetTransaction(
                 transactionSignature: signature['signature'],
-                encoding: SolanaRPCEncoding.jsonParsed,
+                encoding: SolanaRequestEncoding.jsonParsed,
                 maxSupportedTransactionVersion: 0,
               ),
             );
@@ -482,7 +482,7 @@ class SolanaWalletClient {
 
   void stop() {}
 
-  SolanaRPC? get getSolanaProvider => _provider;
+  SolanaProvider? get getSolanaProvider => _provider;
 
   Future<PendingSolanaTransaction> signSolanaTransaction({
     required String tokenTitle,
@@ -523,7 +523,7 @@ class SolanaWalletClient {
 
   Future<SolAddress> _getLatestBlockhash(Commitment commitment) async {
     final latestBlockhash = await _provider!.request(
-      const SolanaRPCGetLatestBlockhash(),
+      const SolanaRequestGetLatestBlockhash(),
     );
 
     return latestBlockhash.blockhash;
@@ -599,7 +599,7 @@ class SolanaWalletClient {
     required double fee,
   }) async {
     final rent = await _provider!.request(
-      SolanaRPCGetMinimumBalanceForRentExemption(
+      SolanaRequestGetMinimumBalanceForRentExemption(
         size: SolanaTokenAccountUtils.accountSize,
       ),
     );
@@ -732,7 +732,7 @@ class SolanaWalletClient {
     SolanaAccountInfo? accountInfo;
     try {
       accountInfo = await _provider!.request(
-        SolanaRPCGetAccountInfo(account: associatedTokenAccount.address),
+        SolanaRequestGetAccountInfo(account: associatedTokenAccount.address),
       );
     } catch (e) {
       accountInfo = null;
@@ -890,7 +890,7 @@ class SolanaWalletClient {
   }) async {
     /// Sign the transaction with the owner's private key.
     final ownerSignature = ownerPrivateKey.sign(transaction.serializeMessage());
-    
+
     transaction.addSignature(ownerPrivateKey.publicKey().toAddress(), ownerSignature);
 
     /// Serialize the transaction.
@@ -906,7 +906,7 @@ class SolanaWalletClient {
     try {
       /// Send the transaction to the Solana network.
       final signature = await _provider!.request(
-        SolanaRPCSendTransaction(
+        SolanaRequestSendTransaction(
           encodedTransaction: serializedTransaction,
           commitment: commitment,
         ),
