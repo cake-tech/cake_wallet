@@ -4,6 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
@@ -49,14 +50,11 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-        color: Theme.of(context)
-            .extension<QRCodeTheme>()!
-            .qrWidgetCopyButtonColor);
+        color: Theme.of(context).extension<QRCodeTheme>()!.qrWidgetCopyButtonColor);
 
     // This magic number for wider screen sets the text input focus at center of the inputfield
-    final _width = responsiveLayoutUtil.shouldRenderMobileUI
-        ? MediaQuery.of(context).size.width
-        : 500;
+    final _width =
+        responsiveLayoutUtil.shouldRenderMobileUI ? MediaQuery.of(context).size.width : 500;
 
     return Center(
       child: SingleChildScrollView(
@@ -74,9 +72,7 @@ class QRWidget extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Theme.of(context)
-                            .extension<DashboardPageTheme>()!
-                            .textColor),
+                        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
                   ),
                 ),
                 Row(
@@ -89,8 +85,7 @@ class QRWidget extends StatelessWidget {
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
                               () async {
-                                await Navigator.pushNamed(
-                                    context, Routes.fullscreenQR,
+                                await Navigator.pushNamed(context, Routes.fullscreenQR,
                                     arguments: QrViewData(
                                       data: addressUri.toString(),
                                       heroTag: heroTag,
@@ -105,8 +100,7 @@ class QRWidget extends StatelessWidget {
                                 padding: EdgeInsets.zero,
                                 decoration: BoxDecoration(
                                   border: Border(top: BorderSide.none),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: BorderRadius.all(Radius.circular(5)),
                                   color: Colors.white,
                                 ),
                                 child: Column(
@@ -120,16 +114,12 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    if (addressListViewModel
-                                            .isPayjoinUnavailable &&
-                                        !addressListViewModel
-                                            .isSilentPayments) ...[
+                                    if (addressListViewModel.isPayjoinUnavailable &&
+                                        !addressListViewModel.isSilentPayments) ...[
                                       GestureDetector(
-                                        onTap: () =>
-                                            _onPayjoinInactivePressed(context),
+                                        onTap: () => _onPayjoinInactivePressed(context),
                                         child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Padding(
                                               padding: EdgeInsets.only(
@@ -147,8 +137,7 @@ class QRWidget extends StatelessWidget {
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
-                                                color: Color.fromARGB(
-                                                    255, 139, 137, 139),
+                                                color: Color.fromARGB(255, 139, 137, 139),
                                               ),
                                             ),
                                             Padding(
@@ -171,13 +160,10 @@ class QRWidget extends StatelessWidget {
                                         ),
                                       ),
                                     ],
-                                    if (addressListViewModel
-                                            .payjoinEndpoint.isNotEmpty &&
-                                        !addressListViewModel
-                                            .isSilentPayments) ...[
+                                    if (addressListViewModel.payjoinEndpoint.isNotEmpty &&
+                                        !addressListViewModel.isSilentPayments) ...[
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Padding(
                                             padding: EdgeInsets.only(
@@ -226,8 +212,7 @@ class QRWidget extends StatelessWidget {
                                 selectedCurrency: _currencyName,
                                 amountFocusNode: amountTextFieldFocusNode,
                                 amountController: amountController,
-                                padding:
-                                    EdgeInsets.only(top: 20, left: _width / 4),
+                                padding: EdgeInsets.only(top: 20, left: _width / 4),
                                 currentTheme: currentTheme.type,
                                 isAmountEditable: true,
                                 tag: addressListViewModel.selectedCurrency.tag,
@@ -239,18 +224,14 @@ class QRWidget extends StatelessWidget {
                         ],
                       ),
                     )),
-            Divider(
-                height: 1,
-                color:
-                    Theme.of(context).extension<PickerTheme>()!.dividerColor),
+            Divider(height: 1, color: Theme.of(context).extension<PickerTheme>()!.dividerColor),
             Padding(
               padding: EdgeInsets.only(top: 20, bottom: 8),
               child: Builder(
                 builder: (context) => Observer(
                   builder: (context) => GestureDetector(
                     onTap: () {
-                      Clipboard.setData(
-                          ClipboardData(text: addressUri.address));
+                      Clipboard.setData(ClipboardData(text: addressUri.address));
                       showBar<void>(context, S.of(context).copied_to_clipboard);
                     },
                     child: Row(
@@ -286,8 +267,7 @@ class QRWidget extends StatelessWidget {
                   padding: EdgeInsets.only(top: 12),
                   child: PrimaryImageButton(
                     onPressed: () {
-                      Clipboard.setData(
-                          ClipboardData(text: addressUri.toString()));
+                      Clipboard.setData(ClipboardData(text: addressUri.toString()));
                       showBar<void>(context, S.of(context).copied_to_clipboard);
                     },
                     image: Image.asset(
@@ -296,9 +276,7 @@ class QRWidget extends StatelessWidget {
                     ),
                     text: S.of(context).copy_payjoin_address,
                     color: Theme.of(context).cardColor,
-                    textColor: Theme.of(context)
-                        .extension<CakeTextTheme>()!
-                        .buttonTextColor,
+                    textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
                   ),
                 ),
               ),
@@ -311,9 +289,7 @@ class QRWidget extends StatelessWidget {
 
   String get _currencyName {
     if (addressListViewModel.selectedCurrency is CryptoCurrency) {
-      return (addressListViewModel.selectedCurrency as CryptoCurrency)
-          .title
-          .toUpperCase();
+      return (addressListViewModel.selectedCurrency as CryptoCurrency).title.toUpperCase();
     }
     return addressListViewModel.selectedCurrency.name.toUpperCase();
   }
@@ -339,14 +315,13 @@ class QRWidget extends StatelessWidget {
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
         currentTheme: currentTheme,
-        isTwoAction: true,
-        leftButtonText: S.of(context).learn_more,
-        actionLeftButton: () => launchUrl(
-          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
-          mode: LaunchMode.externalApplication,
-        ),
-        rightButtonText: S.of(context).ok,
-        actionRightButton: () => Navigator.of(context).pop(),
+        footerType: FooterType.doubleActionButton,
+        doubleActionLeftButtonText: S.of(context).learn_more,
+        onLeftActionButtonPressed: () => launchUrl(
+            Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+            mode: LaunchMode.externalApplication),
+        doubleActionRightButtonText: S.of(context).ok,
+        onRightActionButtonPressed: () => Navigator.of(context).pop(),
       ),
     );
   }
