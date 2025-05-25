@@ -27,7 +27,7 @@ class StandardCheckbox extends StatelessWidget {
 
     final boxBorder = Border.all(
       color: borderColor ?? Theme.of(context).colorScheme.outline,
-      width: 1.0,
+      width: 2.0,
     );
 
     final checkedBoxDecoration = BoxDecoration(

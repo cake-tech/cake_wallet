@@ -121,7 +121,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                         child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: buttonColor ?? Theme.of(context).colorScheme.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.all(Radius.circular(6)),
                           ),
                           child: Image.asset(
@@ -147,7 +147,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                         child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: buttonColor ?? Theme.of(context).colorScheme.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.all(
                               Radius.circular(6),
                             ),
@@ -174,7 +174,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                         child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: buttonColor ?? Theme.of(context).colorScheme.surface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.all(
                               Radius.circular(6),
                             ),

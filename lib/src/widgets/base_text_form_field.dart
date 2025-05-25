@@ -114,7 +114,7 @@ class BaseTextFormField extends StatelessWidget {
       onFieldSubmitted: onSubmit,
       style: textStyle ??
           Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurface),
+              fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurfaceVariant),
       decoration: InputDecoration(
         isDense: isDense,
         alignLabelWithHint: alignLabelWithHint,

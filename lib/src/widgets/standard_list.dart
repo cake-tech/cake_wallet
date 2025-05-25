@@ -58,6 +58,7 @@ class StandardListRow extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: titleColor(context),
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
                   ),
             ),
           )

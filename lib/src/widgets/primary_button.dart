@@ -67,7 +67,7 @@ class PrimaryButton extends StatelessWidget {
             dashPattern: [6, 4],
             color: borderColor,
             strokeWidth: 2,
-            radius: Radius.circular(26),
+            radius: Radius.circular(15),
             child: content)
         : content;
   }
