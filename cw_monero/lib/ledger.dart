@@ -8,6 +8,7 @@ import 'package:ffi/ffi.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
 import 'package:monero/src/wallet2.dart';
+import 'package:monero/src/monero.dart' as api;
 
 LedgerConnection? gLedger;
 
@@ -17,15 +18,15 @@ Timer? _ledgerKeepAlive;
 void enableLedgerExchange(Wallet2Wallet wallet, LedgerConnection connection) {
   _ledgerExchangeTimer?.cancel();
   _ledgerExchangeTimer = Timer.periodic(Duration(milliseconds: 1), (_) async {
-    final ledgerRequestLength = wallet.getSendToDeviceLength();
-    final ledgerRequest = wallet.getSendToDevice()
+    final ledgerRequestLength = api.MoneroWallet.getSendToDeviceLength();
+    final ledgerRequest = api.MoneroWallet.getSendToDevice()
         .cast<Uint8>()
         .asTypedList(ledgerRequestLength);
     if (ledgerRequestLength > 0) {
       _ledgerKeepAlive?.cancel();
 
       final Pointer<Uint8> emptyPointer = malloc<Uint8>(0);
-      wallet.setDeviceSendData(
+      api.MoneroWallet.setDeviceSendData(
           emptyPointer.cast<UnsignedChar>(), 0);
       malloc.free(emptyPointer);
 
@@ -44,8 +45,7 @@ void enableLedgerExchange(Wallet2Wallet wallet, LedgerConnection connection) {
       for (var i = 0; i < response.length; i++) {
         result.asTypedList(response.length)[i] = response[i];
       }
-
-      wallet.setDeviceReceivedData(
+      api.MoneroWallet.setDeviceReceivedData(
           result.cast<UnsignedChar>(), response.length);
       malloc.free(result);
       keepAlive(connection);
