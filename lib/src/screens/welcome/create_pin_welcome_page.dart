@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import '../../widgets/gradient_background.dart';
+import '../../widgets/animated_typing_text.dart';
 
 class CreatePinWelcomePage extends BasePage {
   CreatePinWelcomePage(this.isWalletPasswordDirectInput);
@@ -43,7 +44,7 @@ class CreatePinWelcomePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget build(BuildContext context) {
@@ -68,11 +69,10 @@ class CreatePinWelcomePage extends BasePage {
             ),
             child: body(context),
           );
-        }
+        },
       ),
     );
   }
-
 
   @override
   Widget body(BuildContext context) {
@@ -152,14 +152,38 @@ class CreatePinWelcomePage extends BasePage {
                         ],
                       ),
                       SizedBox(height: 48),
-                      Text(
-                        appDescription(context),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(fontWeight: FontWeight.w500),
-                        textAlign: TextAlign.center,
-                      ),
+                      if (isMoneroOnly)
+                        Text(
+                          appDescription(context),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w500),
+                          textAlign: TextAlign.center,
+                        ),
+                      if (!isMoneroOnly)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            AnimatedTypingText(
+                              words: [S.current.payments, S.current.privacy, S.current.security],
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                              cursorColor: Theme.of(context).colorScheme.primary,
+                              cursorHeight: 24,
+                              cursorWidth: 4,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              S.current.made_easy,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
