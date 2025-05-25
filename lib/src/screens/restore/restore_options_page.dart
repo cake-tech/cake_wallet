@@ -15,9 +15,7 @@ import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/info_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
 class RestoreOptionsPage extends BasePage {
   RestoreOptionsPage({required this.isNewInstall});
@@ -61,9 +59,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final mainImageColor = Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor;
-    final brightImageColor = Theme.of(context).extension<InfoTheme>()!.textColor;
-    final imageColor = widget.themeType == ThemeType.bright ? brightImageColor : mainImageColor;
+    final imageColor = Theme.of(context).colorScheme.primary;
     final imageLedger = Image.asset('assets/images/hardware_wallet/ledger_nano_x.png',
         width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);

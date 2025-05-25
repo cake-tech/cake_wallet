@@ -1,10 +1,4 @@
-import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
 
 class SettingActionButton extends StatelessWidget {
   final bool isLastTile;
@@ -33,19 +27,20 @@ class SettingActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLightMode = Theme.of(context).extension<OptionTileTheme>()?.useDarkImage ?? false;
     Color? color = isSelected
-        ? Theme.of(context).extension<CakeMenuTheme>()!.settingTitleColor
+        ? Theme.of(context).colorScheme.primary
         : selectionActive
-        ? Palette.darkBlue
-        : Theme.of(context).extension<CakeMenuTheme>()!.settingTitleColor;
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurface;
     return Container(
       //padding: EdgeInsets.only(top: 5, left: 15, bottom: 5),
       margin: EdgeInsets.only(top: 10, left: 20, bottom: 0, right: 20),
       child: TextButton(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(isLightMode ? Theme.of(context).cardColor : Colors.black12),
-          shape: MaterialStateProperty.all(
+          backgroundColor: WidgetStateProperty.all(
+            Theme.of(context).colorScheme.surfaceContainer,
+          ),
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
@@ -66,25 +61,23 @@ class SettingActionButton extends StatelessWidget {
                 image,
                 height: 16,
                 width: 16,
-                color: Theme.of(context)
-                    .extension<CakeMenuTheme>()!
-                    .settingActionsIconColor,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(width: 16),
               Expanded(
                 child: Text(
                   title,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: color,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
                 ),
               ),
-              if(isArrowVisible)
+              if (isArrowVisible)
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.primary,
                   size: 16,
                 )
             ],

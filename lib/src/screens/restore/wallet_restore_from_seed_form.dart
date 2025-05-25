@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -49,20 +48,17 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
 
   @override
   WalletRestoreFromSeedFormState createState() =>
-      WalletRestoreFromSeedFormState('English',
-          displayWalletPassword: displayWalletPassword);
+      WalletRestoreFromSeedFormState('English', displayWalletPassword: displayWalletPassword);
 }
 
 class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
-  WalletRestoreFromSeedFormState(this.language,
-      {required bool displayWalletPassword})
+  WalletRestoreFromSeedFormState(this.language, {required bool displayWalletPassword})
       : seedWidgetStateKey = GlobalKey<SeedWidgetState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
         formKey = GlobalKey<FormState>(),
         languageController = TextEditingController(),
         nameTextEditingController = TextEditingController(),
-        passwordTextEditingController =
-            displayWalletPassword ? TextEditingController() : null,
+        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
         repeatedPasswordTextEditingController =
             displayWalletPassword ? TextEditingController() : null,
         seedTypeController = TextEditingController();
@@ -90,21 +86,18 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     _setLanguageLabel(language);
 
     if (passwordTextEditingController != null) {
-      passwordListener = () =>
-          widget.onPasswordChange?.call(passwordTextEditingController!.text);
+      passwordListener = () => widget.onPasswordChange?.call(passwordTextEditingController!.text);
       passwordTextEditingController?.addListener(passwordListener!);
     }
 
     if (repeatedPasswordTextEditingController != null) {
-      repeatedPasswordListener = () => widget.onRepeatedPasswordChange
-          ?.call(repeatedPasswordTextEditingController!.text);
-      repeatedPasswordTextEditingController
-          ?.addListener(repeatedPasswordListener!);
+      repeatedPasswordListener =
+          () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
+      repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
     }
 
     moneroSeedTypeReaction =
-        reaction((_) => widget.seedSettingsViewModel.moneroSeedType,
-            (MoneroSeedType item) {
+        reaction((_) => widget.seedSettingsViewModel.moneroSeedType, (MoneroSeedType item) {
       _setSeedType(item);
       _changeLanguage('English');
     });
@@ -121,8 +114,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     }
 
     if (repeatedPasswordListener != null) {
-      repeatedPasswordTextEditingController
-          ?.removeListener(repeatedPasswordListener!);
+      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
     }
 
     super.dispose();
@@ -154,52 +146,43 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(left: 24, right: 24),
-        child: Column(children: [
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          SizedBox(height: 8),
           Form(
               key: formKey,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  BaseTextFormField(
-                    key: ValueKey(
-                        'wallet_restore_from_seed_wallet_name_textfield_key'),
-                    controller: nameTextEditingController,
-                    hintText: S.of(context).wallet_name,
-                    suffixIcon: IconButton(
-                      key: ValueKey(
-                          'wallet_restore_from_seed_wallet_name_refresh_button_key'),
-                      onPressed: () async {
-                        final rName = await generateName();
-                        FocusManager.instance.primaryFocus?.unfocus();
-
-                        setState(() {
-                          nameTextEditingController.text = rName;
-                          nameTextEditingController.selection =
-                              TextSelection.fromPosition(TextPosition(
-                                  offset:
-                                      nameTextEditingController.text.length));
-                        });
-                      },
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: Theme.of(context).hintColor,
-                        ),
-                        width: 34,
-                        height: 34,
-                        child: Image.asset(
-                          'assets/images/refresh_icon.png',
-                          color: Theme.of(context)
-                              .extension<SendPageTheme>()!
-                              .textFieldButtonIconColor,
-                        ),
-                      ),
+              child: BaseTextFormField(
+                key: ValueKey('wallet_restore_from_seed_wallet_name_textfield_key'),
+                controller: nameTextEditingController,
+                hintText: S.of(context).wallet_name,
+                suffixIcon: IconButton(
+                  key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
+                  onPressed: () async {
+                    final rName = await generateName();
+                    FocusManager.instance.primaryFocus?.unfocus();
+              
+                    setState(() {
+                      nameTextEditingController.text = rName;
+                      nameTextEditingController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: nameTextEditingController.text.length));
+                    });
+                  },
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.0),
+                      color: Theme.of(context).colorScheme.surface,
                     ),
-                    validator: WalletNameValidator(),
+                    width: 34,
+                    height: 34,
+                    child: Image.asset(
+                      'assets/images/refresh_icon.png',
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ],
+                ),
+                validator: WalletNameValidator(),
               )),
           Container(height: 20),
           SeedWidget(
@@ -208,31 +191,29 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             language: language,
             type: widget.type,
             onSeedChange: onSeedChange,
-            seedTextFieldKey:
-                ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
-            pasteButtonKey: ValueKey(
-                'wallet_restore_from_seed_wallet_seeds_paste_button_key'),
+            seedTextFieldKey: ValueKey('wallet_restore_from_seed_wallet_seeds_textfield_key'),
+            pasteButtonKey: ValueKey('wallet_restore_from_seed_wallet_seeds_paste_button_key'),
           ),
           if ([WalletType.monero, WalletType.wownero].contains(widget.type))
             GestureDetector(
-              key: ValueKey(
-                  'wallet_restore_from_seed_seedtype_picker_button_key'),
+              key: ValueKey('wallet_restore_from_seed_seedtype_picker_button_key'),
               onTap: () async {
                 await showPopUp<void>(
-                    context: context,
-                    builder: (_) => Picker(
-                          items: _getItems(),
-                          selectedAtIndex: isPolyseed
-                              ? 1
-                              : (seedTypeController.value.text.contains("14") &&
-                                          widget.type == WalletType.wownero) ||
-                                      isBip39
-                                  ? 2
-                                  : 0,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          onItemSelected: _changeSeedType,
-                          isSeparated: false,
-                        ));
+                  context: context,
+                  builder: (_) => Picker(
+                    items: _getItems(),
+                    selectedAtIndex: isPolyseed
+                        ? 1
+                        : (seedTypeController.value.text.contains("14") &&
+                                    widget.type == WalletType.wownero) ||
+                                isBip39
+                            ? 2
+                            : 0,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    onItemSelected: _changeSeedType,
+                    isSeparated: false,
+                  ),
+                );
               },
               child: Container(
                 color: Colors.transparent,
@@ -243,36 +224,41 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                     enableInteractiveSelection: false,
                     readOnly: true,
                     suffixIcon: expandIcon,
+                    textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
                 ),
               ),
             ),
           if (widget.displayWalletPassword) ...[
             BaseTextFormField(
-                key: ValueKey('password'),
-                controller: passwordTextEditingController,
-                hintText: S.of(context).password,
-                obscureText: true),
+              key: ValueKey('password'),
+              controller: passwordTextEditingController,
+              hintText: S.of(context).password,
+              obscureText: true,
+            ),
             BaseTextFormField(
-                key: ValueKey('repeat_wallet_password'),
-                controller: repeatedPasswordTextEditingController,
-                hintText: S.of(context).repeat_wallet_password,
-                obscureText: true)
+              key: ValueKey('repeat_wallet_password'),
+              controller: repeatedPasswordTextEditingController,
+              hintText: S.of(context).repeat_wallet_password,
+              obscureText: true,
+            )
           ],
           if (widget.displayLanguageSelector)
-            if (!seedTypeController.value.text.contains("14") &&
-                widget.displayLanguageSelector)
+            if (!seedTypeController.value.text.contains("14") && widget.displayLanguageSelector)
               GestureDetector(
                 onTap: () async {
                   await showPopUp<void>(
-                      context: context,
-                      builder: (_) => SeedLanguagePicker(
-                            selected: language,
-                            onItemSelected: (lang) =>
-                                _changeLanguage(lang, isPolyseed || isBip39),
-                            seedType:
-                                widget.seedSettingsViewModel.moneroSeedType,
-                          ));
+                    context: context,
+                    builder: (_) => SeedLanguagePicker(
+                      selected: language,
+                      onItemSelected: (lang) => _changeLanguage(lang, isPolyseed || isBip39),
+                      seedType: widget.seedSettingsViewModel.moneroSeedType,
+                    ),
+                  );
                 },
                 child: Container(
                   color: Colors.transparent,
@@ -283,6 +269,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                       enableInteractiveSelection: false,
                       readOnly: true,
                       suffixIcon: expandIcon,
+                      textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                   ),
                 ),
@@ -292,13 +283,17 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               focusNode: widget.blockHeightFocusNode,
               key: blockchainHeightKey,
               blockHeightTextFieldKey: ValueKey(
-                  'wallet_restore_from_seed_blockheight_textfield_key'),
+                'wallet_restore_from_seed_blockheight_textfield_key',
+              ),
               onHeightOrDateEntered: widget.onHeightOrDateEntered,
-              hasDatePicker:
-                  [WalletType.monero, WalletType.wownero].contains(widget.type),
+              hasDatePicker: [WalletType.monero, WalletType.wownero].contains(
+                widget.type,
+              ),
               walletType: widget.type,
             ),
-        ]));
+        ],
+      ),
+    );
   }
 
   bool get isPolyseed =>
@@ -316,7 +311,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         child: Image.asset(
           'assets/images/arrow_bottom_purple_icon.png',
           height: 8,
-          color: Theme.of(context).hintColor,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       );
 
@@ -334,8 +329,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     });
   }
 
-  void _setLanguageLabel(String language) => languageController.text =
-      '${language.replaceAll("POLYSEED_", "")} (Seed language)';
+  void _setLanguageLabel(String language) =>
+      languageController.text = '${language.replaceAll("POLYSEED_", "")} (Seed language)';
 
   void _changeSeedType(MoneroSeedType item) {
     widget.seedSettingsViewModel.setMoneroSeedType(item);
@@ -350,17 +345,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   List<MoneroSeedType> _getItems() {
     switch (widget.type) {
       case WalletType.monero:
-        return [
-          MoneroSeedType.legacy,
-          MoneroSeedType.polyseed,
-          MoneroSeedType.bip39
-        ];
+        return [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.bip39];
       case WalletType.wownero:
-        return [
-          MoneroSeedType.legacy,
-          MoneroSeedType.polyseed,
-          MoneroSeedType.wowneroSeed
-        ];
+        return [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.wowneroSeed];
       default:
         return [MoneroSeedType.legacy];
     }
