@@ -325,6 +325,39 @@ class CryptoBalanceWidget extends StatelessWidget {
                     ),
                   ),
                 ],
+                if (dashboardViewModel.showPayjoinCard) ...[
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: InfoCard(
+                      title: "Payjoin",
+                      description: S.of(context).payjoin_card_content,
+                      hintWidget: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          S.of(context).learn_more,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: 'Lato',
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                            height: 1,
+                          ),
+                          softWrap: true,
+                        ),
+                      ),
+                      image: 'assets/images/payjoin.png',
+                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
+                      rightButtonTitle: S.of(context).enable,
+                      leftButtonAction: () => dashboardViewModel.dismissPayjoin(),
+                      rightButtonAction: () => _enablePayjoin(context),
+                    ),
+                  ),
+                ],
               ],
             );
           }),
@@ -363,6 +396,21 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
+  }  
+  
+  void _enablePayjoin(BuildContext context) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+          alertTitle: S.of(context).payjoin_enabling_popup_title,
+          alertContent: S.of(context).payjoin_enabling_popup_content,
+          buttonText: S.of(context).ok,
+          buttonAction: () {
+            Navigator.of(context).pop();
+          },
+        ));
+
+    dashboardViewModel.enablePayjoin();
   }
 
   Future<void> _enableMweb(BuildContext context) async {

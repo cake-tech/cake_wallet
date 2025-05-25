@@ -46,7 +46,7 @@ class PendingMoneroTransaction with PendingTransaction {
   @override
   Future<void> commit() async {
     try {
-      monero_transaction_history.commitTransactionFromPointerAddress(
+      await monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
           useUR: false);
     } catch (e) {
@@ -68,7 +68,7 @@ class PendingMoneroTransaction with PendingTransaction {
   @override
   Future<String?> commitUR() async {
     try {
-      final ret = monero_transaction_history.commitTransactionFromPointerAddress(
+      final ret = await monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
           useUR: true);
       storeSync(force: true);
