@@ -73,9 +73,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           initialBalance: initialBalance,
           seedBytes: seedBytes,
           encryptionFileUtils: encryptionFileUtils,
-          currency: networkParam == BitcoinNetwork.testnet
-              ? CryptoCurrency.tbtc
-              : CryptoCurrency.btc,
+          currency:
+              networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
@@ -94,14 +93,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         mainHd: hd,
         sideHd: accountHD.childKey(Bip32KeyIndex(1)),
         network: networkParam ?? network,
-        masterHd:
-            seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
+        masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
         isHardwareWallet: walletInfo.isHardwareWallet,
         payjoinManager: payjoinManager);
 
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress =
-          this.isEnabledAutoGenerateSubaddress;
+      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
 
@@ -136,8 +133,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes =
-            await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+        seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
         break;
     }
 
@@ -210,10 +206,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     walletInfo.derivationInfo ??= DerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??=
-        snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType ??=
-        snp?.derivationType ?? DerivationType.electrum;
+    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
@@ -222,8 +216,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (mnemonic != null) {
       switch (walletInfo.derivationInfo!.derivationType) {
         case DerivationType.electrum:
-          seedBytes =
-              await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
+          seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
           break;
         case DerivationType.bip39:
         default:
@@ -269,8 +262,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   late final PayjoinManager payjoinManager;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
-      .where((element) =>
-          element.walletId == id && element.isSending && !element.isFrozen)
+      .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
       .isNotEmpty;
 
   Future<PsbtV2> buildPsbt({
@@ -287,10 +279,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }) async {
     final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
     for (final utxo in utxos) {
-      final rawTx =
-          await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
-      final publicKeyAndDerivationPath =
-          publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
       psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
         utxo: utxo.utxo,
@@ -302,8 +292,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       ));
     }
 
-    return PSBTTransactionBuild(
-            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF)
+    return PSBTTransactionBuild(inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF)
         .psbt;
   }
 
@@ -342,8 +331,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<PendingTransaction> createTransaction(Object credentials) async {
     credentials = credentials as BitcoinTransactionCredentials;
 
-    final tx = (await super.createTransaction(credentials))
-        as PendingBitcoinTransaction;
+    final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
     if (payjoinUri == null) return tx;
@@ -366,12 +354,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         publicKeys: tx.publicKeys!,
         masterFingerprint: Uint8List(0));
 
-    final originalPsbt = await signPsbt(
-        base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
+    final originalPsbt =
+        await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
     tx.commitOverride = () async {
-      final sender = await payjoinManager.initSender(
-          payjoinUri, originalPsbt, int.parse(tx.feeRate));
+      final sender =
+          await payjoinManager.initSender(payjoinUri, originalPsbt, int.parse(tx.feeRate));
       payjoinManager.spawnNewSender(
           sender: sender, pjUrl: payjoinUri, amount: BigInt.from(tx.amount));
     };
@@ -387,8 +375,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<void> commitPsbt(String finalizedPsbt) {
     final psbt = PsbtV2()..deserializeV0(base64.decode(finalizedPsbt));
 
-    final btcTx =
-        BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
+    final btcTx = BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extract()));
 
     return PendingBitcoinTransaction(
       btcTx,
@@ -402,12 +389,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     ).commit();
   }
 
-  Future<String> signPsbt(
-      String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
+  Future<String> signPsbt(String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
     final psbt = PsbtV2()..deserializeV0(base64Decode(preProcessedPsbt));
 
     await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
-      return utxo.utxo.isP2tr()
+      return utxo.utxo.isP2tr
           ? key.signTapRoot(
               txDigest,
               sighash: sighash,
@@ -428,17 +414,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<String> signMessage(String message, {String? address = null}) async {
     if (walletInfo.isHardwareWallet) {
       final addressEntry = address != null
-          ? walletAddresses.allAddresses
-              .firstWhere((element) => element.address == address)
+          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
           : null;
       final index = addressEntry?.index ?? 0;
       final isChange = addressEntry?.isHidden == true ? 1 : 0;
       final accountPath = walletInfo.derivationInfo?.derivationPath;
-      final derivationPath =
-          accountPath != null ? "$accountPath/$isChange/$index" : null;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
 
-      final signature = await _bitcoinLedgerApp!.signMessage(
-          message: ascii.encode(message), signDerivationPath: derivationPath);
+      final signature = await _bitcoinLedgerApp!
+          .signMessage(message: ascii.encode(message), signDerivationPath: derivationPath);
       return base64Encode(signature);
     }
 
