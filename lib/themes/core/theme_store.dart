@@ -40,15 +40,20 @@ abstract class ThemeStoreBase with Store {
   }
 
   @action
-  Future<void> setThemeMode(ThemeMode mode, {bool shouldRefreshTheme = true}) async {
+  Future<void> setThemeMode(ThemeMode mode) async {
     if (_themeMode == mode) return;
 
     _themeMode = mode;
-    await sharedPreferences.setString(PreferencesKey.themeMode, mode.toString());
 
-    if (mode == ThemeMode.system && shouldRefreshTheme) {
+    await _saveThemeModeToPrefs(mode);
+
+    if (mode == ThemeMode.system) {
       setTheme(getThemeFromSystem());
     }
+  }
+
+  Future<void> _saveThemeModeToPrefs(ThemeMode mode) async {
+    await sharedPreferences.setString(PreferencesKey.themeMode, mode.toString());
   }
 
   /// Loads the saved theme preferences
@@ -95,7 +100,7 @@ abstract class ThemeStoreBase with Store {
   /// Handles theme loading for mobile platforms
   Future<void> _handleMobileTheme(bool isNewInstall) async {
     if (isNewInstall) {
-      await _setSystemTheme();
+      await _setSystemTheme(isNewInstall: isNewInstall);
     } else {
       await loadSavedTheme();
     }
@@ -112,25 +117,34 @@ abstract class ThemeStoreBase with Store {
 
       final theme = ThemeList.deserialize(raw: savedTheme);
 
-      if (_currentTheme != theme) {
-        await setTheme(theme);
-      }
-
       final newThemeMode = _getThemeModeOnStartUp(theme, isFromBackup);
 
+      if (newThemeMode == ThemeMode.system) {
+        await _setSystemTheme();
+        return;
+      }
+
       if (_themeMode != newThemeMode) {
-        await setThemeMode(newThemeMode, shouldRefreshTheme: false);
+        await setThemeMode(newThemeMode);
+      }
+
+      if (_currentTheme != theme) {
+        await setTheme(theme);
       }
     } catch (e) {
       await _setSystemTheme();
     }
   }
 
-  Future<void> _setSystemTheme() async {
+  Future<void> _setSystemTheme({bool isNewInstall = false}) async {
     final systemTheme = getThemeFromSystem();
 
     if (_currentTheme != systemTheme) {
       await setTheme(systemTheme);
+    }
+
+    if (isNewInstall) {
+      await _saveThemeModeToPrefs(ThemeMode.system);
     }
 
     if (_themeMode != ThemeMode.system) {
@@ -142,7 +156,7 @@ abstract class ThemeStoreBase with Store {
     if (isFromBackup || _themeMode != ThemeMode.system) {
       return theme.isDark ? ThemeMode.dark : ThemeMode.light;
     }
-    
+
     return ThemeMode.system;
   }
 
