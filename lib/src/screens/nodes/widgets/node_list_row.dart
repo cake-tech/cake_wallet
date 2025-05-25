@@ -69,12 +69,12 @@ class NodeListRow extends StandardListRow {
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: Theme.of(context).colorScheme.surface,
         ),
         child: Icon(
           Icons.edit,
           size: 14,
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );

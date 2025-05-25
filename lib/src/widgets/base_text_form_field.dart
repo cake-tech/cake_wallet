@@ -114,17 +114,18 @@ class BaseTextFormField extends StatelessWidget {
       onFieldSubmitted: onSubmit,
       style: textStyle ??
           Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurfaceVariant),
+              fontSize: 16.0, color: textColor ?? Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         isDense: isDense,
         alignLabelWithHint: alignLabelWithHint,
         contentPadding: contentPadding,
-        floatingLabelBehavior: floatingLabelBehavior,
+        floatingLabelBehavior: FloatingLabelBehavior.never,
         prefix: prefix,
         prefixIcon: prefixIcon,
         suffix: suffix,
         suffixIcon: suffixIcon,
         filled: !hasUnderlineBorder,
+        //border: !hasUnderlineBorder ? OutlineInputBorder() : null,
         fillColor:
             hasUnderlineBorder ? null : fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
         hintStyle: placeholderTextStyle ??
@@ -132,7 +133,7 @@ class BaseTextFormField extends StatelessWidget {
                 .textTheme
                 .bodyMedium!
                 .copyWith(color: hintColor ?? Theme.of(context).hintColor, fontSize: 16),
-        hintText: hintText,
+        hintText: hasUnderlineBorder ? hintText : null,
         labelText: !hasUnderlineBorder ? hintText : null,
         labelStyle: !hasUnderlineBorder ? placeholderTextStyle : null,
         focusedBorder: hasUnderlineBorder
@@ -156,11 +157,18 @@ class BaseTextFormField extends StatelessWidget {
             ? UnderlineInputBorder(
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
-                  style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
+                  style: borderWidth == 1 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )
             : null,
+        // OutlineInputBorder(
+        //       borderRadius: BorderRadius.circular(10),
+        //       borderSide: BorderSide(
+        //         color: Theme.of(context).colorScheme.outlineVariant,
+        //         width: 1.5,
+        //       )
+        // ),
         errorBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
                 borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
