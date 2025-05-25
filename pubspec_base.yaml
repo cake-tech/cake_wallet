@@ -107,10 +107,6 @@ dependencies:
     git:
       url: https://github.com/MrCyjaneK/nostr_tools.git
       ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
-  ledger_flutter_plus:
-    git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
   hashlib: ^1.19.2
   on_chain:
     git:
