@@ -133,6 +133,8 @@ class BaseTextFormField extends StatelessWidget {
                 .bodyMedium!
                 .copyWith(color: hintColor ?? Theme.of(context).hintColor, fontSize: 16),
         hintText: hintText,
+        labelText: !hasUnderlineBorder ? hintText : null,
+        labelStyle: !hasUnderlineBorder ? placeholderTextStyle : null,
         focusedBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
                 borderSide: BorderSide(
