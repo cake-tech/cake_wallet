@@ -5,7 +5,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
   final String titleText;
   final String? titleIconPath;
 
-  const BaseBottomSheet({required this.titleText, this.titleIconPath});
+  const BaseBottomSheet({required this.titleText, this.titleIconPath, super.key});
 
   Widget headerWidget(BuildContext context) {
     return Column(

@@ -25,6 +25,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/test_asset_bundles.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -86,8 +87,18 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         ledgerFile.writeAsStringSync("$content\n${event.message}");
       });
     }
+    // Basically when we're running a test
+    if (topLevelKey != null) {
+      runApp(
+        DefaultAssetBundle(
+          bundle: TestAssetBundle(),
+          child: App(key: topLevelKey),
+        ),
+      );
+    } else {
+      runApp(App(key: topLevelKey));
+    }
 
-    runApp(App(key: topLevelKey));
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
