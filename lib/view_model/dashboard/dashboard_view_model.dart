@@ -371,6 +371,8 @@ abstract class DashboardViewModelBase with Store {
   bool isShowThirdYatIntroduction;
 
   @computed
+  bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;
+  @computed
   String get address => wallet.walletAddresses.address;
 
   @computed
@@ -714,18 +716,18 @@ abstract class DashboardViewModelBase with Store {
   @action
   double getShadowSpread() {
     double spread = 0;
-    if (appStore.themeStore.currentTheme.type == ThemeType.light)
+    if (!appStore.themeStore.currentTheme.isDark)
       spread = 0;
-    else if (appStore.themeStore.currentTheme.type == ThemeType.dark) spread = 0;
+    else if (appStore.themeStore.currentTheme.isDark) spread = 0;
     return spread;
   }
 
   @action
   double getShadowBlur() {
     double blur = 0;
-    if (appStore.themeStore.currentTheme.type == ThemeType.light)
+    if (!appStore.themeStore.currentTheme.isDark)
       blur = 0;
-    else if (appStore.themeStore.currentTheme.type == ThemeType.dark) blur = 0;
+    else if (appStore.themeStore.currentTheme.isDark) blur = 0;
     return blur;
   }
 

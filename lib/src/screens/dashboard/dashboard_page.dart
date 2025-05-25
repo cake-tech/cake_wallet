@@ -260,7 +260,10 @@ class _DashboardPageView extends BasePage {
                   ),
                 ),
               ),
-              NavigationDock(dashboardViewModel: dashboardViewModel)
+              NavigationDock(
+                dashboardViewModel: dashboardViewModel,
+                currentTheme: currentTheme,
+              )
             ],
           ),
         ),

@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 abstract class SelectOptionsPage extends BasePage {
@@ -43,6 +44,7 @@ abstract class SelectOptionsPage extends BasePage {
   Widget body(BuildContext context) {
     return ScrollableWithBottomSection(
       content: BodySelectOptionsPage(
+        currentTheme: currentTheme,
         items: items,
         onOptionTap: onOptionTap,
         tilePadding: tilePadding,
@@ -91,6 +93,7 @@ class BodySelectOptionsPage extends StatefulWidget {
     this.imageHeight,
     this.imageWidth,
     this.innerPadding,
+    required this.currentTheme,
   });
 
   final List<SelectableItem> items;
@@ -100,6 +103,7 @@ class BodySelectOptionsPage extends StatefulWidget {
   final double? imageHeight;
   final double? imageWidth;
   final EdgeInsets? innerPadding;
+  final MaterialThemeBase currentTheme;
 
   @override
   _BodySelectOptionsPageState createState() => _BodySelectOptionsPageState();
@@ -128,8 +132,6 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 350),
@@ -153,9 +155,9 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                     child: Text(
                       item.title,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
                     ),
                   ),
                 ),
@@ -179,7 +181,7 @@ class _BodySelectOptionsPageState extends State<BodySelectOptionsPage> {
                   badges: item.badges,
                   isSelected: item.isOptionSelected,
                   borderRadius: widget.tileBorderRadius,
-                  isLightMode: !isDarkMode,
+                  isLightMode: widget.currentTheme.isDark,
                   onPressed: () => _handleOptionTap(item),
                 ),
               );

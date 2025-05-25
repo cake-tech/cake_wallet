@@ -116,8 +116,7 @@ abstract class ThemeStoreBase with Store {
         await setTheme(theme);
       }
 
-      final newThemeMode =
-          isFromBackup ? (theme.isDark ? ThemeMode.dark : ThemeMode.light) : ThemeMode.system;
+      final newThemeMode = _getThemeModeOnStartUp(theme, isFromBackup);
 
       if (_themeMode != newThemeMode) {
         await setThemeMode(newThemeMode, shouldRefreshTheme: false);
@@ -139,7 +138,14 @@ abstract class ThemeStoreBase with Store {
     }
   }
 
-  /// Sets up a reaction to save theme changes to SharedPreferences
+  ThemeMode _getThemeModeOnStartUp(MaterialThemeBase theme, bool isFromBackup) {
+    if (isFromBackup || _themeMode != ThemeMode.system) {
+      return theme.isDark ? ThemeMode.dark : ThemeMode.light;
+    }
+    
+    return ThemeMode.system;
+  }
+
   void _setupThemeReaction() {
     reaction(
       (_) => currentTheme,

@@ -214,7 +214,7 @@ class QRWidget extends StatelessWidget {
                                 amountFocusNode: amountTextFieldFocusNode,
                                 amountController: amountController,
                                 padding: EdgeInsets.only(top: 20, left: _width / 4),
-                                currentTheme: currentTheme.type,
+                                currentThemeType: currentTheme.type,
                                 isAmountEditable: true,
                                 tag: addressListViewModel.selectedCurrency.tag,
                                 onTapPicker: () => _presentPicker(context),

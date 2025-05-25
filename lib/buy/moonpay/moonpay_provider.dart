@@ -236,7 +236,7 @@ class MoonPayProvider extends BuyProvider {
     final Map<String, String> params = {
       'theme': themeToMoonPayTheme(_appStore.themeStore.currentTheme),
       'language': _appStore.settingsStore.languageCode,
-      'colorCode': _appStore.themeStore.currentTheme.type == ThemeType.dark
+      'colorCode': _appStore.themeStore.currentTheme.isDark
           ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
           : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
       'baseCurrencyCode': isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,

@@ -8,25 +8,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class AddressCell extends StatelessWidget {
-  AddressCell(
-      {required this.address,
-      required this.name,
-      required this.isCurrent,
-      required this.isPrimary,
-      required this.backgroundColor,
-      required this.textColor,
-      required this.walletType,
-      required this.currentTheme,
-      this.onTap,
-      this.onEdit,
-      this.onHide,
-      this.isHidden = false,
-      this.onDelete,
-      this.txCount,
-      this.balance,
-      this.isChange = false,
-      this.hasBalance = false,
-      this.hasReceived = false});
+  AddressCell({
+    required this.address,
+    required this.name,
+    required this.isCurrent,
+    required this.isPrimary,
+    required this.backgroundColor,
+    required this.textColor,
+    required this.walletType,
+    required this.currentTheme,
+    this.onTap,
+    this.onEdit,
+    this.onHide,
+    this.isHidden = false,
+    this.onDelete,
+    this.txCount,
+    this.balance,
+    this.isChange = false,
+    this.hasBalance = false,
+    this.hasReceived = false,
+  });
 
   factory AddressCell.fromItem(
     WalletAddressListItem item, {
@@ -158,18 +159,18 @@ class AddressCell extends StatelessWidget {
                             Text(
                               '${hasReceived ? S.of(context).received : S.of(context).balance}: $balance',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
-                              ),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
                             ),
                             Text(
                               '${S.of(context).transactions.toLowerCase()}: $txCount',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
-                              ),
+                                    fontWeight: FontWeight.w600,
+                                    color: textColor,
+                                  ),
                             ),
                           ],
                         ),
@@ -201,7 +202,9 @@ class AddressCell extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) => onHide?.call(),
-            backgroundColor: isHidden ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.errorContainer,
+            backgroundColor: isHidden
+                ? Theme.of(context).colorScheme.primaryContainer
+                : Theme.of(context).colorScheme.errorContainer,
             foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
             icon: isHidden ? CupertinoIcons.arrow_left : CupertinoIcons.arrow_right,
             label: isHidden ? S.of(context).show : S.of(context).hide,

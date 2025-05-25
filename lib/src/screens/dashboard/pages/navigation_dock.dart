@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/main_actions.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -9,9 +10,11 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class NavigationDock extends StatelessWidget {
   const NavigationDock({
     required this.dashboardViewModel,
+    required this.currentTheme,
   });
 
   final DashboardViewModel dashboardViewModel;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +28,7 @@ class NavigationDock extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: _getColors(context),
+                colors: _getColors(context, !currentTheme.isDark),
               ),
             ),
             //color: Colors.transparent,
@@ -35,7 +38,7 @@ class NavigationDock extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: _getColors(context),
+                  colors: _getColors(context, !currentTheme.isDark),
                 ),
               ),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
@@ -93,8 +96,7 @@ class NavigationDock extends StatelessWidget {
     );
   }
 
-  List<Color> _getColors(BuildContext context) {
-    final isBright = !dashboardViewModel.appStore.themeStore.currentTheme.isDark;
+  List<Color> _getColors(BuildContext context, bool isBright) {
     return isBright
         ? <Color>[
             CustomThemeColors.backgroundGradientColorLight.withAlpha(5),

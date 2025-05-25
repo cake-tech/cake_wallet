@@ -31,5 +31,5 @@ abstract class MaterialThemeBase {
 
   ThemeData get themeData;
 
-  bool get isDark => themeData.brightness == Brightness.dark;
+  bool get isDark => brightness == Brightness.dark;
 }

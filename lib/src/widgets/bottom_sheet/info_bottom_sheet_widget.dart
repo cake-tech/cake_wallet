@@ -138,10 +138,10 @@ class InfoBottomSheet extends BaseBottomSheet {
                   key: leftActionButtonKey,
                   onPressed: actionLeftButton,
                   text: leftButtonText ?? '',
-                  color: currentTheme.type == ThemeType.dark
+                  color: currentTheme.isDark
                       ? Theme.of(context).colorScheme.surfaceContainerLow
                       : Theme.of(context).colorScheme.surfaceContainer,
-                  textColor: currentTheme.type == ThemeType.dark
+                  textColor: currentTheme.isDark
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Theme.of(context).colorScheme.onPrimary,
                 ),
@@ -155,7 +155,7 @@ class InfoBottomSheet extends BaseBottomSheet {
                   onPressed: actionRightButton,
                   text: rightButtonText ?? '',
                   color: Theme.of(context).colorScheme.primary,
-                  textColor: currentTheme.type == ThemeType.dark
+                  textColor: currentTheme.isDark
                       ? Theme.of(context).colorScheme.onSurfaceVariant
                       : Theme.of(context).colorScheme.onPrimary,
                 ),

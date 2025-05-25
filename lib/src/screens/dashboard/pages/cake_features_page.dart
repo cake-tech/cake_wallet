@@ -20,63 +20,65 @@ class CakeFeaturesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 24, top: 16),
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 24, top: 16),
             child: Text(
               'Cake ${S.of(context).features}',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            ),
-            Expanded(
-              child: ListView(
-                children: <Widget>[
-                  SizedBox(height: 2),
-                  DashBoardRoundedCardWidget(
-                    shadowBlur: dashboardViewModel.getShadowBlur(),
-                    shadowSpread: dashboardViewModel.getShadowSpread(),
-                    onTap: () {
-                      if (Platform.isMacOS) {
-                        _launchUrl("buy.cakepay.com");
-                      } else {
-                        _navigatorToGiftCardsPage(context);
-                      }
-                    },
-                    title: 'Cake Pay',
-                    subTitle: S.of(context).cake_pay_subtitle,
-                    image: Image.asset(
-                      'assets/images/cards.png',
-                      height: 100,
-                      width: 115,
-                      fit: BoxFit.cover,
-                    ),
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  DashBoardRoundedCardWidget(
-                    shadowBlur: dashboardViewModel.getShadowBlur(),
-                    shadowSpread: dashboardViewModel.getShadowSpread(),
-                    onTap: () => _launchUrl("cake.nano-gpt.com"),
-                    title: "NanoGPT",
-                    subTitle: S.of(context).nanogpt_subtitle,
-                    image: Image.asset(
-                      'assets/images/nanogpt.png',
-                      height: 80,
-                      width: 80,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  SizedBox(height: 125),
-                ],
-              ),
             ),
-          ],
-        ),
-      );
+          ),
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                SizedBox(height: 2),
+                DashBoardRoundedCardWidget(
+                  isDarkTheme: dashboardViewModel.isDarkTheme,
+                  shadowBlur: dashboardViewModel.getShadowBlur(),
+                  shadowSpread: dashboardViewModel.getShadowSpread(),
+                  onTap: () {
+                    if (Platform.isMacOS) {
+                      _launchUrl("buy.cakepay.com");
+                    } else {
+                      _navigatorToGiftCardsPage(context);
+                    }
+                  },
+                  title: 'Cake Pay',
+                  subTitle: S.of(context).cake_pay_subtitle,
+                  image: Image.asset(
+                    'assets/images/cards.png',
+                    height: 100,
+                    width: 115,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                DashBoardRoundedCardWidget(
+                  isDarkTheme: dashboardViewModel.isDarkTheme,
+                  shadowBlur: dashboardViewModel.getShadowBlur(),
+                  shadowSpread: dashboardViewModel.getShadowSpread(),
+                  onTap: () => _launchUrl("cake.nano-gpt.com"),
+                  title: "NanoGPT",
+                  subTitle: S.of(context).nanogpt_subtitle,
+                  image: Image.asset(
+                    'assets/images/nanogpt.png',
+                    height: 80,
+                    width: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 125),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _launchUrl(String url) {

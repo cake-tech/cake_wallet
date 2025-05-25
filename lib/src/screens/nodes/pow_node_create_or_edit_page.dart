@@ -116,7 +116,7 @@ class PowNodeCreateOrEditPage extends BasePage {
     return Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(bottom: 24.0),
+          contentPadding: EdgeInsets.only(bottom: 24.0, top: 8),
           content: NodeForm(
             formKey: _formKey,
             nodeViewModel: nodeCreateOrEditViewModel,

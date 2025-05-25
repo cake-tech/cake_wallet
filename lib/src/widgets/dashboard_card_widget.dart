@@ -19,6 +19,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     super.key,
     this.marginV,
     this.marginH,
+    required this.isDarkTheme,
   });
 
   final VoidCallback? onTap;
@@ -34,6 +35,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final double? marginH;
   final double? shadowSpread;
   final double? shadowBlur;
+  final bool isDarkTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +48,10 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).brightness == Brightness.dark
+                isDarkTheme
                     ? CustomThemeColors.cardGradientColorPrimaryDark
                     : CustomThemeColors.cardGradientColorPrimaryLight,
-                Theme.of(context).brightness == Brightness.dark
+                isDarkTheme
                     ? CustomThemeColors.cardGradientColorSecondaryDark
                     : CustomThemeColors.cardGradientColorSecondaryLight,
               ],

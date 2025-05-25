@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -24,13 +25,14 @@ class TradeDetailsPage extends BasePage {
   final TradeDetailsViewModel tradeDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) => TradeDetailsPageBody(tradeDetailsViewModel);
+  Widget body(BuildContext context) => TradeDetailsPageBody(tradeDetailsViewModel, currentTheme);
 }
 
 class TradeDetailsPageBody extends StatefulWidget {
-  TradeDetailsPageBody(this.tradeDetailsViewModel);
+  TradeDetailsPageBody(this.tradeDetailsViewModel, this.currentTheme);
 
   final TradeDetailsViewModel tradeDetailsViewModel;
+  final MaterialThemeBase currentTheme;
 
   @override
   TradeDetailsPageBodyState createState() => TradeDetailsPageBodyState(tradeDetailsViewModel);
@@ -96,7 +98,7 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
                 extraId: item.extraId,
                 create: item.createdAt,
                 pair: item.pair,
-                currentTheme: tradeDetailsViewModel.appStore.themeStore.currentTheme.type,
+                currentTheme: widget.currentTheme.type,
                 onTap: item.onTap,
               );
 

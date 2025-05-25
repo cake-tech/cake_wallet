@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/add_passphrase_bottom_sheet
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -483,7 +482,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           Expanded(
             child: TabBarView(
               controller: _tabController,

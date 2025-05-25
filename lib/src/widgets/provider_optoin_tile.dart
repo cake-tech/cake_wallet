@@ -56,7 +56,6 @@ class ProviderOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isSelected
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.surfaceContainer;
@@ -74,18 +73,18 @@ class ProviderOptionTile extends StatelessWidget {
         : Theme.of(context).colorScheme.surfaceContainer;
 
     final imagePath = isSelected
-        ? isDarkMode
+        ? !isLightMode
             ? darkImagePath
             : lightImagePath
-        : isDarkMode
+        : !isLightMode
             ? darkImagePath
             : lightImagePath;
 
     final rightSubTitleIconPath = isSelected
-        ? isDarkMode
+        ? !isLightMode
             ? rightSubTitleDarkIconPath
             : rightSubTitleLightIconPath
-        : isDarkMode
+        : !isLightMode
             ? rightSubTitleDarkIconPath
             : rightSubTitleLightIconPath;
 

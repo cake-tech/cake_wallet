@@ -1,22 +1,24 @@
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 
 class WarningBox extends StatelessWidget {
-  const WarningBox({required this.content, Key? key}) : super(key: key);
+  const WarningBox({required this.content, required this.currentTheme, Key? key}) : super(key: key);
 
   final String content;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
+        color: currentTheme.isDark
             ? CustomThemeColors.warningContainerColorDark
             : CustomThemeColors.warningContainerColorLight,
         borderRadius: BorderRadius.all(Radius.circular(12)),
         border: Border.all(
-          color: Theme.of(context).brightness == Brightness.dark
+          color: currentTheme.isDark
               ? CustomThemeColors.warningOutlineColorDark
               : CustomThemeColors.warningOutlineColorLight,
           width: 2.0,

@@ -70,6 +70,7 @@ class WalletSeedPage extends BasePage {
                         SizedBox(height: 16),
                         WarningBox(
                           content: S.current.cake_seeds_save_disclaimer,
+                          currentTheme: currentTheme,
                         ),
                         SizedBox(height: 36),
                         Text(

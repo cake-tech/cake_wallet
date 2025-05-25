@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
 class TradeDetailsStandardListCard extends StatelessWidget {
-  TradeDetailsStandardListCard(
-      {required this.id,
-      this.extraId,
-      required this.create,
-      required this.pair,
-      required this.onTap,
-      required this.currentTheme});
+  TradeDetailsStandardListCard({
+    required this.id,
+    this.extraId,
+    required this.create,
+    required this.pair,
+    required this.onTap,
+    required this.currentTheme,
+  });
 
   final String id;
   final String? extraId;

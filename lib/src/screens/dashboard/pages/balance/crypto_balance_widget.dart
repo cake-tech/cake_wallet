@@ -39,6 +39,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: DashBoardRoundedCardWidget(
+                    isDarkTheme: dashboardViewModel.isDarkTheme,
                     title: "Invalid monero bindings",
                     subTitle: dashboardViewModel.getMoneroError.toString(),
                   ),
@@ -53,6 +54,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: DashBoardRoundedCardWidget(
+                    isDarkTheme: dashboardViewModel.isDarkTheme,
                     title: "Invalid wownero bindings",
                     subTitle: dashboardViewModel.getWowneroError.toString(),
                   ),
@@ -106,10 +108,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                                       ),
                                       child: Container(
                                         child: SvgPicture.asset(
-                                          'assets/images/home_screen_setting_icon.svg',
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          height: 30
-                                        ),
+                                            'assets/images/home_screen_setting_icon.svg',
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 30),
                                       ),
                                     ),
                                 ],
@@ -138,6 +139,7 @@ class CryptoBalanceWidget extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: DashBoardRoundedCardWidget(
+                isDarkTheme: dashboardViewModel.isDarkTheme,
                 title: S.of(context).rep_warning,
                 subTitle: S.of(context).rep_warning_sub,
                 onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
@@ -200,6 +202,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
+                        isDarkTheme: dashboardViewModel.isDarkTheme,
                         customBorder: 30,
                         title: "This wallet has encountered an issue",
                         subTitle: "Here are the things that you should note:\n - " +
@@ -212,6 +215,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                     child: DashBoardRoundedCardWidget(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       shadowBlur: dashboardViewModel.getShadowBlur(),
                       shadowSpread: dashboardViewModel.getShadowSpread(),
                       marginV: 0,
@@ -261,7 +265,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ],
                       ),
                       onTap: () => _toggleSilentPaymentsScanning(context),
-                      image: Theme.of(context).brightness == Brightness.light ? Image.asset(btcLockLight, height: 48) : Image.asset(btcLockDark, height: 48),
+                      image: !dashboardViewModel.appStore.themeStore.currentTheme.isDark
+                          ? Image.asset(btcLockLight, height: 48)
+                          : Image.asset(btcLockDark, height: 48),
                     ),
                   ),
                 ],
@@ -270,6 +276,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       title: S.of(context).litecoin_mweb,
                       description: S.of(context).litecoin_mweb_description,
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
@@ -300,6 +307,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       title: S.of(context).synchronizing,
                       description: S.of(context).decred_info_card_details,
                       image: 'assets/images/dcr_icon.png',
@@ -316,6 +324,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       title: "Payjoin",
                       description: S.of(context).payjoin_card_content,
                       hintWidget: GestureDetector(
@@ -327,9 +336,9 @@ class CryptoBalanceWidget extends StatelessWidget {
                         child: Text(
                           S.of(context).learn_more,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            height: 1,
-                          ),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1,
+                              ),
                           softWrap: true,
                         ),
                       ),
@@ -379,19 +388,19 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
-  }  
-  
+  }
+
   void _enablePayjoin(BuildContext context) {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) => AlertWithOneAction(
-          alertTitle: S.of(context).payjoin_enabling_popup_title,
-          alertContent: S.of(context).payjoin_enabling_popup_content,
-          buttonText: S.of(context).ok,
-          buttonAction: () {
-            Navigator.of(context).pop();
-          },
-        ));
+              alertTitle: S.of(context).payjoin_enabling_popup_title,
+              alertContent: S.of(context).payjoin_enabling_popup_content,
+              buttonText: S.of(context).ok,
+              buttonAction: () {
+                Navigator.of(context).pop();
+              },
+            ));
 
     dashboardViewModel.enablePayjoin();
   }

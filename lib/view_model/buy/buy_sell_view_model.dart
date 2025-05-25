@@ -79,7 +79,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     cryptoCurrency = wallet.currency;
   }
 
-  bool get isDarkTheme => _appStore.themeStore.currentTheme.type == ThemeType.dark;
+  bool get isDarkTheme => _appStore.themeStore.currentTheme.isDark;
 
   double get amount {
     final formattedFiatAmount = double.tryParse(fiatAmount) ?? 200.0;

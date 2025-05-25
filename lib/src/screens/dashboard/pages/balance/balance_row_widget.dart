@@ -72,10 +72,10 @@ class BalanceRowWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(15.0),
             gradient: LinearGradient(
           colors: [
-            Theme.of(context).brightness == Brightness.dark
+            dashboardViewModel.isDarkTheme
                 ? CustomThemeColors.cardGradientColorPrimaryDark
                 : CustomThemeColors.cardGradientColorPrimaryLight,
-                    Theme.of(context).brightness == Brightness.dark
+                    dashboardViewModel.isDarkTheme
                 ? CustomThemeColors.cardGradientColorSecondaryDark
                 : CustomThemeColors.cardGradientColorSecondaryLight,
           ],
@@ -328,10 +328,10 @@ class BalanceRowWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).brightness == Brightness.dark
+                  dashboardViewModel.isDarkTheme
                       ? CustomThemeColors.cardGradientColorPrimaryDark
                       : CustomThemeColors.cardGradientColorPrimaryLight,
-                  Theme.of(context).brightness == Brightness.dark
+                  dashboardViewModel.isDarkTheme
                       ? CustomThemeColors.cardGradientColorSecondaryDark
                       : CustomThemeColors.cardGradientColorSecondaryLight,
                 ],
@@ -638,20 +638,16 @@ class BalanceRowWidget extends StatelessWidget {
 
   //  double getShadowSpread(){
   //   double spread = 3;
-  //   if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) spread = 3;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.light) spread = 3;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.dark) spread = 1;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.oled) spread = 3;
+  //   else if (!dashboardViewModel.settingsStore.currentTheme.isDark) spread = 3;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) spread = 1;
   //   return spread;
   // }
   //
   //
   // double getShadowBlur(){
   //   double blur = 7;
-  //   if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright) blur = 7;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.light) blur = 7;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.dark) blur = 3;
-  //   else if (dashboardViewModel.settingsStore.currentTheme.type == ThemeType.oled) blur = 7;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) blur = 7;
+  //   else if (dashboardViewModel.settingsStore.currentTheme.isDark) blur = 3;
   //   return blur;
   // }
 

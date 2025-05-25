@@ -42,7 +42,7 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
+    final welcomeImage = currentTheme.isDark ? welcomeImageDark : welcomeImageLight;
 
     return ScrollableWithBottomSection(
       content: Container(

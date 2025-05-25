@@ -90,7 +90,7 @@ class SeedWidgetState extends State<SeedWidget> {
             child: Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: EdgeInsets.only(left: 12, right: 8, top: 8, bottom: 8),
                   child: Row(
                     children: [
                       Expanded(

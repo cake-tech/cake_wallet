@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +21,15 @@ class PayjoinDetailsPage extends BasePage {
   final PayjoinDetailsViewModel payjoinDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) => PayjoinDetailsPageBody(payjoinDetailsViewModel);
+  Widget body(BuildContext context) =>
+      PayjoinDetailsPageBody(payjoinDetailsViewModel, currentTheme);
 }
 
 class PayjoinDetailsPageBody extends StatefulWidget {
-  PayjoinDetailsPageBody(this.payjoinDetailsViewModel);
+  PayjoinDetailsPageBody(this.payjoinDetailsViewModel, this.currentTheme);
 
   final PayjoinDetailsViewModel payjoinDetailsViewModel;
+  final MaterialThemeBase currentTheme;
 
   @override
   State<PayjoinDetailsPageBody> createState() => _PayjoinDetailsPageBodyState();
@@ -60,7 +63,7 @@ class _PayjoinDetailsPageBodyState extends State<PayjoinDetailsPageBody> {
               id: item.id,
               create: item.createdAt,
               pair: item.pair,
-              currentTheme: widget.payjoinDetailsViewModel.themeStore.currentTheme.type,
+              currentTheme: widget.currentTheme.type,
               onTap: item.onTap,
             );
           }

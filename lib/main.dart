@@ -327,10 +327,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBi
             ? Routes.welcome
             : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
-        final statusBarBrightness =
-            currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-        final statusBarIconBrightness =
-            currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+        final statusBarBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
+        final statusBarIconBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
             statusBarColor: statusBarColor,
             statusBarBrightness: statusBarBrightness,

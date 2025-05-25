@@ -13,7 +13,7 @@ class CurrencyAmountTextField extends StatelessWidget {
     this.allAmountButton = false,
     this.isPickerEnable = false,
     this.isSelected = false,
-    this.currentTheme = ThemeType.dark,
+    this.currentThemeType = ThemeType.dark,
     this.onTapPicker,
     this.padding,
     this.imageArrow,
@@ -51,7 +51,7 @@ class CurrencyAmountTextField extends StatelessWidget {
   final bool isAmountEditable;
   final FormFieldValidator<String>? currencyValueValidator;
   final bool isPickerEnable;
-  final ThemeType currentTheme;
+  final ThemeType currentThemeType;
   final bool isSelected;
   final bool allAmountButton;
   final VoidCallback? allAmountCallback;

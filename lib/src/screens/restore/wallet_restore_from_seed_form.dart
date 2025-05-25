@@ -149,44 +149,40 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
+          SizedBox(height: 8),
           Form(
               key: formKey,
-              child: Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  BaseTextFormField(
-                    key: ValueKey('wallet_restore_from_seed_wallet_name_textfield_key'),
-                    controller: nameTextEditingController,
-                    hintText: S.of(context).wallet_name,
-                    suffixIcon: IconButton(
-                      key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
-                      onPressed: () async {
-                        final rName = await generateName();
-                        FocusManager.instance.primaryFocus?.unfocus();
-
-                        setState(() {
-                          nameTextEditingController.text = rName;
-                          nameTextEditingController.selection = TextSelection.fromPosition(
-                              TextPosition(offset: nameTextEditingController.text.length));
-                        });
-                      },
-                      icon: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: Theme.of(context).colorScheme.surface,
-                        ),
-                        width: 34,
-                        height: 34,
-                        child: Image.asset(
-                          'assets/images/refresh_icon.png',
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+              child: BaseTextFormField(
+                key: ValueKey('wallet_restore_from_seed_wallet_name_textfield_key'),
+                controller: nameTextEditingController,
+                hintText: S.of(context).wallet_name,
+                suffixIcon: IconButton(
+                  key: ValueKey('wallet_restore_from_seed_wallet_name_refresh_button_key'),
+                  onPressed: () async {
+                    final rName = await generateName();
+                    FocusManager.instance.primaryFocus?.unfocus();
+              
+                    setState(() {
+                      nameTextEditingController.text = rName;
+                      nameTextEditingController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: nameTextEditingController.text.length));
+                    });
+                  },
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.0),
+                      color: Theme.of(context).colorScheme.surface,
                     ),
-                    validator: WalletNameValidator(),
+                    width: 34,
+                    height: 34,
+                    child: Image.asset(
+                      'assets/images/refresh_icon.png',
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ],
+                ),
+                validator: WalletNameValidator(),
               )),
           Container(height: 20),
           SeedWidget(

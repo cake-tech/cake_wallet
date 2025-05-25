@@ -99,8 +99,8 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
           validator: validator,
         ),
         Positioned(
-          top: 2,
-          right: 0,
+          top: 8,
+          right: 6,
           child: SizedBox(
             width: (prefixIconWidth * options.length) + (spaceBetweenPrefixIcons * options.length),
             child: Row(

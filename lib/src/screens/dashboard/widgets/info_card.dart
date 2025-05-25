@@ -8,7 +8,7 @@ class InfoCard extends StatelessWidget {
   final String title;
   final String description;
   final String image;
-
+  final bool isDarkTheme;
   final Function() leftButtonAction;
   final Function() rightButtonAction;
 
@@ -23,12 +23,14 @@ class InfoCard extends StatelessWidget {
     required this.leftButtonAction,
     required this.rightButtonAction,
     required this.image,
+    required this.isDarkTheme,
     this.hintWidget,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DashBoardRoundedCardWidget(
+      isDarkTheme: isDarkTheme,
       marginH: 0,
       marginV: 0,
       customBorder: 30,

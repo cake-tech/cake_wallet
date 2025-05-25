@@ -134,42 +134,38 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         key: formKey,
         child: Column(
           children: <Widget>[
-            Stack(
-              alignment: Alignment.centerRight,
-              children: [
-                BaseTextFormField(
-                  key: ValueKey('wallet_restore_from_keys_wallet_name_textfield_key'),
-                  controller: nameTextEditingController,
-                  hintText: S.of(context).wallet_name,
-                  validator: WalletNameValidator(),
-                  suffixIcon: IconButton(
-                    key: ValueKey('wallet_restore_from_keys_wallet_name_refresh_button_key'),
-                    onPressed: () async {
-                      final rName = await generateName();
-                      FocusManager.instance.primaryFocus?.unfocus();
+            SizedBox(height: 8),
+            BaseTextFormField(
+              key: ValueKey('wallet_restore_from_keys_wallet_name_textfield_key'),
+              controller: nameTextEditingController,
+              hintText: S.of(context).wallet_name,
+              validator: WalletNameValidator(),
+              suffixIcon: IconButton(
+                key: ValueKey('wallet_restore_from_keys_wallet_name_refresh_button_key'),
+                onPressed: () async {
+                  final rName = await generateName();
+                  FocusManager.instance.primaryFocus?.unfocus();
 
-                      setState(() {
-                        nameTextEditingController.text = rName;
-                        nameTextEditingController.selection = TextSelection.fromPosition(
-                            TextPosition(offset: nameTextEditingController.text.length));
-                      });
-                    },
-                    icon: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.0),
-                        color: Theme.of(context).colorScheme.surfaceContainerLow,
-                      ),
-                      width: 34,
-                      height: 34,
-                      child: Image.asset(
-                        'assets/images/refresh_icon.png',
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+                  setState(() {
+                    nameTextEditingController.text = rName;
+                    nameTextEditingController.selection = TextSelection.fromPosition(
+                        TextPosition(offset: nameTextEditingController.text.length));
+                  });
+                },
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6.0),
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                  width: 34,
+                  height: 34,
+                  child: Image.asset(
+                    'assets/images/refresh_icon.png',
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ],
+              ),
             ),
             if (widget.displayWalletPassword) ...[
               Container(

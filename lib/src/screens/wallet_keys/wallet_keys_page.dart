@@ -35,6 +35,7 @@ class WalletKeysPage extends BasePage {
             child: WarningBox(
               key: const ValueKey('wallet_keys_page_share_warning_text_key'),
               content: S.of(context).do_not_share_warning_text.toUpperCase(),
+              currentTheme: currentTheme,
             ),
           ),
           Expanded(

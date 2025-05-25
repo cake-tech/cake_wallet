@@ -47,7 +47,7 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-        walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
+        walletImage: currentTheme.isDark ? walletTypeImage : walletTypeLightImage,
         isCreate: newWalletTypeArguments.isCreate,
         newWalletTypeViewModel: newWalletTypeViewModel,
         onTypeSelected: newWalletTypeArguments.onTypeSelected,

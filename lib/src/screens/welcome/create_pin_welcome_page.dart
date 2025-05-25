@@ -58,7 +58,7 @@ class CreatePinWelcomePage extends BasePage {
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).colorScheme.surface,
-                  Theme.of(context).brightness == Brightness.dark
+                  currentTheme.isDark
                       ? CustomThemeColors.backgroundGradientColorDark
                       : CustomThemeColors.backgroundGradientColorLight,
                 ],

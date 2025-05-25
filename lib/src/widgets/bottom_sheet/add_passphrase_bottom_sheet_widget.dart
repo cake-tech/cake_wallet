@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class AddPassphraseBottomSheet extends StatefulWidget {
   AddPassphraseBottomSheet({
@@ -45,7 +44,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
   @override
   Widget build(BuildContext context) {
 
-    final passphraseImage = Theme.of(context).brightness == Brightness.dark ? passphraseImageDark : passphraseImageLight;
+    final passphraseImage = widget.currentTheme.isDark ? passphraseImageDark : passphraseImageLight;
 
     return Container(
       decoration: BoxDecoration(
