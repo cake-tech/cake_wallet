@@ -465,7 +465,7 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: S.of(context).send,
+                            text: sendViewModel.payjoinUri != null ? S.of(context).send_payjoin : S.of(context).send,
                             color: Theme.of(context).primaryColor,
                             textColor: Colors.white,
                             isLoading: sendViewModel.state is IsExecutingState ||

@@ -1,29 +1,14 @@
-import 'package:cake_wallet/src/screens/nano_accounts/nano_account_list_page.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/address_list.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/src/widgets/gradient_background.dart';
-import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/share_util.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/address_cell.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
-import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
+import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 class ReceivePage extends BasePage {
@@ -55,24 +40,23 @@ class ReceivePage extends BasePage {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Widget middle(BuildContext context) {
-    return Text(
-      title,
-      style: TextStyle(
+  Widget middle(BuildContext context) => Text(
+        title,
+        style: TextStyle(
           fontSize: 18.0,
           fontWeight: FontWeight.bold,
           fontFamily: 'Lato',
-          color: pageIconColor(context)),
-    );
-  }
+          color: pageIconColor(context),
+        ),
+      );
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold);
 
   @override
-  Widget trailing(BuildContext context) {
-    return Material(
+  Widget trailing(BuildContext context) => Material(
         color: Colors.transparent,
         child: Semantics(
           label: S.of(context).share,
@@ -82,27 +66,25 @@ class ReceivePage extends BasePage {
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
             iconSize: 25,
-            onPressed: () {
-              ShareUtil.share(
-                text: addressListViewModel.uri.toString(),
-                context: context,
-              );
-            },
+            onPressed: () => ShareUtil.share(
+              text: addressListViewModel.uri.toString(),
+              context: context,
+            ),
             icon: Icon(
               Icons.share,
               size: 20,
               color: pageIconColor(context),
             ),
           ),
-        ));
-  }
+        ),
+      );
 
   @override
-  Widget body(BuildContext context) {
-    return KeyboardActions(
+  Widget body(BuildContext context) => KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+            keyboardBarColor:
+                Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -121,23 +103,28 @@ class ReceivePage extends BasePage {
                     heroTag: _heroTag,
                     amountTextFieldFocusNode: _cryptoAmountFocus,
                     amountController: _amountController,
-                    isLight: currentTheme.type == ThemeType.light,
-                  ),
+                    currentTheme: currentTheme),
               ),
-              AddressList(addressListViewModel: addressListViewModel, currentTheme: currentTheme),
+              AddressList(
+                  addressListViewModel: addressListViewModel,
+                  currentTheme: currentTheme),
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Text(
-                    addressListViewModel.isSilentPayments
-                        ? S.of(context).silent_payments_disclaimer
-                        : S.of(context).electrum_address_disclaimer,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor)),
+                  addressListViewModel.isSilentPayments
+                      ? S.of(context).silent_payments_disclaimer
+                      : S.of(context).electrum_address_disclaimer,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Theme.of(context)
+                        .extension<BalancePageTheme>()!
+                        .labelTextColor,
+                  ),
+                ),
               ),
             ],
           ),
-        ));
-  }
+        ),
+      );
 }
