@@ -40,6 +40,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     this.change,
     this.isOpenCryptoPay = false,
     this.cakePayBuyCardViewModel,
+    this.quantity,
     Key? key,
   })  : showScrollbar = outputs.length > 3,
         _currentTheme = currentTheme,
@@ -70,6 +71,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final PendingChange? change;
   final bool isOpenCryptoPay;
   final CakePayBuyCardViewModel? cakePayBuyCardViewModel;
+  final String? quantity;
 
   final bool showScrollbar;
   final ScrollController scrollController = ScrollController();
@@ -181,6 +183,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                           walletType: walletType,
                           amount: isCakePayName ? item.fiatAmount : _amount,
                           address: _address,
+                          itemSubTitle: isCakePayName ? quantity : null,
                           itemSubTitleTextStyle: itemSubTitleTextStyle,
                           tileBackgroundColor: tileBackgroundColor,
                         );
@@ -289,6 +292,7 @@ class AddressTile extends StatelessWidget {
     this.applyAddressFormatting = true,
     this.imagePath,
     this.amount,
+    this.itemSubTitle,
   });
 
   final String itemTitle;
@@ -302,6 +306,7 @@ class AddressTile extends StatelessWidget {
   final WalletType walletType;
   final bool applyAddressFormatting;
   final String? imagePath;
+  final String? itemSubTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -318,14 +323,16 @@ class AddressTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                // left side can grow/shrink
                 child: Row(
                   children: [
                     if (imagePath != null)
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: ImageUtil.getImageFromPath(
-                            imagePath: imagePath!, height: 40, width: 40, borderRadius: 10),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: ImageUtil.getImageFromPath(
+                              imagePath: imagePath!, height: 40, width: 40),
+                        ),
                       ),
                     Flexible(
                       child: Padding(
@@ -360,6 +367,14 @@ class AddressTile extends StatelessWidget {
                       address,
                       style: itemTitleTextStyle,
                     ),
+          itemSubTitle == null
+              ? Container()
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(itemSubTitle!, style: itemSubTitleTextStyle),
+                  ],
+                ),
         ],
       ),
     );

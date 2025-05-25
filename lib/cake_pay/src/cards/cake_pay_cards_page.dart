@@ -21,6 +21,7 @@ import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
@@ -48,7 +49,7 @@ class CakePayCardsPage extends BasePage {
     return Text(
       'Cake Pay',
       style: textMediumSemiBold(
-        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+        color: titleColor(context),
       ),
     );
   }
@@ -85,7 +86,7 @@ class CakePayCardsPage extends BasePage {
           backgroundColor: Theme.of(context).primaryColor,
           child: Text(
             letter,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
@@ -98,7 +99,7 @@ class CakePayCardsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return CakePayCardsPageBody(
-        cardsListViewModel: _cardsListViewModel, currentTheme: currentTheme);
+        cardsListViewModel: _cardsListViewModel, currentTheme: currentTheme, titleColor: titleColor);
   }
 }
 
@@ -106,11 +107,12 @@ class CakePayCardsPageBody extends StatefulWidget {
   const CakePayCardsPageBody({
     super.key,
     required CakePayCardsListViewModel cardsListViewModel,
-    required this.currentTheme,
+    required this.currentTheme, required this.titleColor,
   }) : _cardsListViewModel = cardsListViewModel;
 
   final CakePayCardsListViewModel _cardsListViewModel;
   final ThemeBase currentTheme;
+  final Color? Function(BuildContext) titleColor;
 
   @override
   State<CakePayCardsPageBody> createState() => _CakePayCardsPageBodyState();
@@ -163,11 +165,25 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
         );
       }
 
+      final titleColor = widget.titleColor(context);
+
       return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: Column(children: [
             Expanded(
-              child: TabViewWrapper(tabs: const [
+              child: TabViewWrapper(
+                labelStyle: TextStyle(
+                    color: titleColor,
+                    fontFamily: 'Lato',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600),
+                unselectedLabelStyle: TextStyle(
+                    color: titleColor?.withAlpha(150) ?? Colors.white70,
+                    fontFamily: 'Lato',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w400),
+                indicatorColor: titleColor,
+                  tabs: const [
                 Tab(text: 'My Cards'),
                 Tab(text: 'Shop')
               ], views: [
@@ -253,6 +269,8 @@ class _MyCardsTab extends StatefulWidget {
 
 class _MyCardsTabState extends State<_MyCardsTab> {
   static const double _thumbHeight = 72;
+  late final TextEditingController _searchController;
+
 
   late final ScrollController _scrollController;
   double _thumbOffset = 0;
@@ -260,6 +278,11 @@ class _MyCardsTabState extends State<_MyCardsTab> {
   @override
   void initState() {
     super.initState();
+
+    _searchController = TextEditingController(
+      text: widget.cardsListViewModel.searchMyCardsString,
+    );
+
     _scrollController = ScrollController()
       ..addListener(() {
         if (!_scrollController.hasClients) return;
@@ -279,26 +302,28 @@ class _MyCardsTabState extends State<_MyCardsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = widget.cardsListViewModel;
     return Observer(builder: (_) {
-      final viewModel = widget.cardsListViewModel;
-      final cards = viewModel.userCards;
-
-      if (viewModel.userCardState is UserCakePayCardsStateFetching) return const _Loading();
-      if (viewModel.userCardState is UserCakePayCardsStateNoCards)
-        return Expanded (child: Center(child: Text(S.of(context).no_cards_found)));
-
-      final showThumb = cards.length > 3;
-      final bgHeight = MediaQuery.of(context).size.height * 0.75;
       return Column(
         children: [
           Padding(
               padding: const EdgeInsets.fromLTRB(2, 8, 0, 8),
               child: CakePaySearchBar(
-                  initialQuery: viewModel.searchString,
-                  onSearch: (String searchText) {},
-                  onFilter: () async {})),
+                initialQuery: viewModel.searchMyCardsString,
+                controller: _searchController,
+                onSearch: viewModel.setMyCardsQuery,
+                onFilter: () async {},// TODO: implement filter
+              )),
           Expanded(
-            child: Stack(
+            child: Observer(builder: (_) {
+              final cards = viewModel.filteredUserCards;
+              if (viewModel.userCardState is UserCakePayCardsStateFetching) return const _Loading();
+              if (viewModel.userCardState is UserCakePayCardsStateNoCards)
+                return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
+
+              final showThumb = cards.length > 3;
+              final bgHeight = MediaQuery.of(context).size.height * 0.75;
+            return Stack(
               children: [
                 GridView.builder(
                   controller: _scrollController,
@@ -337,7 +362,8 @@ class _MyCardsTabState extends State<_MyCardsTab> {
                         Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
                   ),
               ],
-            ),
+            );
+            }),
           ),
         ],
       );
@@ -475,7 +501,8 @@ class _ShopTabState extends State<_ShopTab> {
             return Expanded(child: const _Loading());
           }
 
-          if (vendors.isEmpty) return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
+          if (vendors.isEmpty)
+            return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
 
           final loadingMore = viewModel.isLoadingNextPage;
           final showThumb = vendors.length > 3;

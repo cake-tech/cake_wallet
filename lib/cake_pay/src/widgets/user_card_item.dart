@@ -45,7 +45,7 @@ class UserCardItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: AspectRatio(
-                    aspectRatio: 1.6,
+                    aspectRatio: 1.65,
                     child: ClipRRect(
                       borderRadius: BorderRadius.all(Radius.circular(13)),
                       child: Image.network(

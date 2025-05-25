@@ -36,6 +36,8 @@ class BaseTextFormField extends StatelessWidget {
       this.isDense = false,
       this.contentPadding,
       this.prefixIconConstraints,
+      this.suffixIconConstraints,
+      this.suffixText,
       super.key});
 
   final TextEditingController? controller;
@@ -68,6 +70,8 @@ class BaseTextFormField extends StatelessWidget {
   final bool isDense;
   final EdgeInsets? contentPadding;
   final BoxConstraints? prefixIconConstraints;
+  final BoxConstraints? suffixIconConstraints;
+  final String? suffixText;
   final void Function(String)? onSubmit;
   final bool obscureText;
 
@@ -98,6 +102,8 @@ class BaseTextFormField extends StatelessWidget {
           isDense: isDense,
           contentPadding: contentPadding,
           prefixIconConstraints: prefixIconConstraints,
+          suffixIconConstraints: suffixIconConstraints,
+          suffixText: suffixText,
           prefix: prefix,
           prefixIcon: prefixIcon,
           suffix: suffix,

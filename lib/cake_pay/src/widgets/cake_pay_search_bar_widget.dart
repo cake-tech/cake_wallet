@@ -13,6 +13,7 @@ class CakePaySearchBar extends StatefulWidget {
       required this.onSearch,
       required this.onFilter,
       this.onCountryPick,
+      this.controller,
       this.selectedCountry});
 
   final String initialQuery;
@@ -20,20 +21,21 @@ class CakePaySearchBar extends StatefulWidget {
   final VoidCallback onFilter;
   final VoidCallback? onCountryPick;
   final Country? selectedCountry;
+  final TextEditingController? controller;
 
   @override
   State<CakePaySearchBar> createState() => _CakePaySearchBarState();
 }
 
 class _CakePaySearchBarState extends State<CakePaySearchBar> {
-  late final TextEditingController _searchController;
+  late final TextEditingController _searchController =
+      widget.controller ?? TextEditingController(text: widget.initialQuery);
   final _searchFocusNode = FocusNode();
   final _debounce = Debounce(const Duration(milliseconds: 500));
 
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController(text: widget.initialQuery);
     _searchController
         .addListener(() => _debounce.run(() => widget.onSearch(_searchController.text)));
   }

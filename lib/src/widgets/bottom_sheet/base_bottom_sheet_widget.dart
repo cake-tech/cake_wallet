@@ -76,11 +76,11 @@ abstract class BaseBottomSheet extends StatelessWidget {
         children: [
           const SizedBox(height: 12),
           Container(
-            width: 40,
-            height: 6,
+            width: 64,
+            height: 5,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(.3),
+              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
             ),
           ),
           const SizedBox(height: 20),

@@ -2,6 +2,7 @@ import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/flip_card_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
@@ -277,29 +278,43 @@ void _showHowToUseCard({required BuildContext context, String? howToUse}) {
       });
 }
 
-Widget _buildCardImage(BuildContext ctx, String path, bool shadow) => Container(
-      decoration: shadow
-          ? BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 8)],
-            )
-          : null,
-      child: ImageUtil.getImageFromPath(
-        imagePath: path,
-        fit: BoxFit.contain,
-        borderRadius: 10,
+Widget _buildCardImage(BuildContext ctx, String path, bool addShadow) {
+  final border = BorderRadius.circular(10);
+
+  return Container(
+    decoration: addShadow
+        ? BoxDecoration(
+      borderRadius: border,
+      boxShadow: [
+        BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 5)
+      ],
+    )
+        : null,
+    child: ClipRRect(
+      borderRadius: border,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(color: Theme.of(ctx).cardColor.withAlpha(200)),
+          ImageUtil.getImageFromPath(
+            imagePath: path,
+            fit: BoxFit.cover,
+          ),
+        ],
       ),
-    );
+    ),
+  );
+}
 
 Widget _buildBarcodeSide(BuildContext ctx, {required String cardNumber, required String pin}) =>
     SizedBox.expand(
       child: Container(
         padding: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 34),
         decoration: BoxDecoration(
-          color: Theme.of(ctx).extension<CakeTextTheme>()!.titleColor.withOpacity(.1),
+          color: Theme.of(ctx).cardColor.withAlpha(200),
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
-            BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 8, offset: const Offset(0, 2))
+            BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 5)
           ],
         ),
         child: Column(
@@ -321,14 +336,16 @@ Widget _buildBarcodeSide(BuildContext ctx, {required String cardNumber, required
                     Text('Gift Card Number',
                         style: TextStyle(
                             fontFamily: 'Lato',
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(ctx).extension<CakeTextTheme>()!.titleColor)),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: Color.fromRGBO(207, 207, 207, 1))),
                     const SizedBox(height: 4),
                     Text(cardNumber,
                         style: TextStyle(
                             fontFamily: 'Lato',
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(ctx).extension<CakeTextTheme>()!.titleColor)),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Color.fromRGBO(146, 146, 146, 1))),
                   ],
                 ),
                 Column(
@@ -336,15 +353,17 @@ Widget _buildBarcodeSide(BuildContext ctx, {required String cardNumber, required
                   children: [
                     Text('PIN Number',
                         style: TextStyle(
-                          fontFamily: 'Lato',
-                          color: Theme.of(ctx).extension<CakeTextTheme>()!.titleColor,
-                        )),
+                            fontFamily: 'Lato',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: Color.fromRGBO(207, 207, 207, 1))),
                     const SizedBox(height: 4),
                     Text(pin,
                         style: TextStyle(
-                          fontFamily: 'Lato',
-                          color: Theme.of(ctx).extension<CakeTextTheme>()!.titleColor,
-                        )),
+                            fontFamily: 'Lato',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: Color.fromRGBO(146, 146, 146, 1))),
                   ],
                 ),
               ],

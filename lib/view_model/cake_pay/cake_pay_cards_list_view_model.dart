@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
@@ -30,6 +32,7 @@ abstract class CakePayCardsListViewModelBase with Store {
         createCardState = CakePayCreateCardState(),
         userCardState = UserCakePayCardsStateInitial(),
         searchString = '',
+        searchMyCardsString = '',
         CakePayVendorList = <CakePayVendor>[] {
     checkAuth();
     initialization();
@@ -90,6 +93,9 @@ abstract class CakePayCardsListViewModelBase with Store {
   List<CakePayCard> userCards;
 
   @observable
+  String searchMyCardsString;
+
+  @observable
   double scrollOffsetFromTop;
 
   @observable
@@ -139,6 +145,16 @@ abstract class CakePayCardsListViewModelBase with Store {
   @computed
   bool get shouldShowCountryPicker =>
       settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
+
+  @computed
+  List<CakePayCard> get filteredUserCards {
+    final query = searchMyCardsString.trim().toLowerCase();
+    if (query.isEmpty) return userCards;
+    return userCards
+        .where((card) => card.name.toLowerCase().contains(query))
+        .toList(growable: false);
+  }
+
 
   bool get hasFiltersChanged {
     return selectedCountry != _initialSelectedCountry ||
@@ -261,6 +277,9 @@ abstract class CakePayCardsListViewModelBase with Store {
     settingsStore.selectedCakePayCountry = null;
     settingsStore.selectedCakePayCountry = country;
   }
+
+  @action
+  void setMyCardsQuery(String text) => searchMyCardsString = text;
 
   @action
   void togglePrepaidCards() => displayPrepaidCards = !displayPrepaidCards;

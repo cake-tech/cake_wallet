@@ -12,7 +12,8 @@ class EnterAmountWidget extends StatelessWidget {
       required this.fiatCurrency,
       required this.amountFieldFocus,
       required this.amountController,
-      required this.onAmountChanged});
+      required this.onAmountChanged,
+      this.titleColor});
 
   final String minValue;
   final String maxValue;
@@ -20,6 +21,7 @@ class EnterAmountWidget extends StatelessWidget {
   final FocusNode amountFieldFocus;
   final TextEditingController amountController;
   final Function(String) onAmountChanged;
+  final Color? titleColor;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class EnterAmountWidget extends StatelessWidget {
           Text(
             S.of(context).enter_amount,
             style: TextStyle(
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: titleColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
               fontSize: 20,
               fontWeight: FontWeight.w700,
             ),
@@ -58,15 +60,42 @@ class EnterAmountWidget extends StatelessWidget {
                 child: Text(
                   '$fiatCurrency: ',
                   style: TextStyle(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: titleColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
               prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+              suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+              suffixIcon: Padding(
+                padding: const EdgeInsets.only(top: 2, right: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'QTY ',
+                      style: TextStyle(
+                        color: titleColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      '1',
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .extension<CakeTextTheme>()!
+                            .secondaryTextColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               textStyle: textMediumSemiBold(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                  color: titleColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor),
               placeholderTextStyle: TextStyle(
                   color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
                   fontSize: 20,

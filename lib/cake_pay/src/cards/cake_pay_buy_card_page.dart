@@ -62,6 +62,9 @@ class CakePayBuyCardPage extends BasePage {
   bool get extendBodyBehindAppBar => true;
 
   @override
+  bool get gradientAll => true;
+
+  @override
   AppBarStyle get appBarStyle => AppBarStyle.completelyTransparent;
 
   @override
@@ -89,6 +92,7 @@ class CakePayBuyCardPage extends BasePage {
 
     final card = cakePayBuyCardViewModel.card;
     final vendor = cakePayBuyCardViewModel.vendor;
+    final baseTitleColor = titleColor(context);
 
     return KeyboardActions(
       disableScroll: true,
@@ -103,7 +107,7 @@ class CakePayBuyCardPage extends BasePage {
             ),
           ]),
       child: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Colors.transparent,
         child: Column(
           children: [
             RoundedOverlayCards(
@@ -112,18 +116,29 @@ class CakePayBuyCardPage extends BasePage {
                     Expanded(flex: 4, child: const SizedBox()),
                     Expanded(
                       flex: 7,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        child: Image.network(
-                          card.cardImageUrl ?? '',
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(child: CircularProgressIndicator());
-                          },
-                          errorBuilder: (context, error, stackTrace) =>
-                              CakePayCardImagePlaceholder(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withAlpha(150),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2))
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            card.cardImageUrl ?? '',
+                            fit: BoxFit.cover,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(child: CircularProgressIndicator());
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                CakePayCardImagePlaceholder(),
+                          ),
                         ),
                       ),
                     ),
@@ -143,7 +158,7 @@ class CakePayBuyCardPage extends BasePage {
                           onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
                           onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
                           cakePayBuyCardViewModel: cakePayBuyCardViewModel,
-                        )
+                          titleColor: baseTitleColor)
                       : EnterAmountWidget(
                           minValue: card.minValue ?? '-',
                           maxValue: card.maxValue ?? '-',
@@ -151,7 +166,7 @@ class CakePayBuyCardPage extends BasePage {
                           amountFieldFocus: _amountFieldFocus,
                           amountController: _amountController,
                           onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                        ),
+                      titleColor: baseTitleColor)
                 )),
             Expanded(
               flex: 2,
@@ -496,6 +511,7 @@ class CakePayBuyCardPage extends BasePage {
                   amount: S.of(bottomSheetContext).send_amount,
                   amountValue:
                       cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                  quantity: 'QTY: ${order?.cards.length.toString()}',
                   fiatAmountValue:
                       cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
