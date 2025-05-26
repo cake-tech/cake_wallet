@@ -61,9 +61,7 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
       ),
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calculateMaxTextWidth();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _calculateMaxTextWidth());
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -81,9 +79,7 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
   void _calculateMaxTextWidth() {
     final textStyle = widget.style ?? DefaultTextStyle.of(context).style;
     double maxWidth = 0;
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
     for (final word in widget.words) {
       textPainter.text = TextSpan(text: word, style: textStyle);
       textPainter.layout();
@@ -157,8 +153,9 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
 
   @override
   Widget build(BuildContext context) {
+    final totalWidth = _maxTextWidth + widget.cursorWidth + 8;
     return SizedBox(
-      width: _maxTextWidth + widget.cursorWidth,
+      width: totalWidth,
       child: Stack(
         clipBehavior: Clip.none,
         children: [

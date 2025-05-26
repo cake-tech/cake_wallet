@@ -164,6 +164,7 @@ class CreatePinWelcomePage extends BasePage {
                       if (!isMoneroOnly)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             AnimatedTypingText(
                               words: [S.current.payments, S.current.privacy, S.current.security],
