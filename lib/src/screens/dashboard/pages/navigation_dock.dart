@@ -1,20 +1,20 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/main_actions.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import '../../../../themes/theme_base.dart';
 
 class NavigationDock extends StatelessWidget {
   const NavigationDock({
     required this.dashboardViewModel,
+    required this.currentTheme,
   });
 
   final DashboardViewModel dashboardViewModel;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +28,19 @@ class NavigationDock extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: _getColors(context),
+                colors: _getColors(context, !currentTheme.isDark),
               ),
             ),
+            //color: Colors.transparent,
             child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: _getColors(context, !currentTheme.isDark),
+                ),
+              ),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
@@ -40,12 +49,7 @@ class NavigationDock extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(50.0),
-                      border: Border.all(
-                        color: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
-                        width: 1,
-                      ),
-                      color:
-                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
                     ),
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 8),
@@ -62,18 +66,10 @@ class NavigationDock extends StatelessWidget {
                                     child: ActionButton(
                                       key: ValueKey(
                                           'dashboard_page_${action.name(context)}_action_button_key'),
-                                      image: Image.asset(
-                                        action.image,
-                                        height: 24,
-                                        width: 24,
-                                        color: action.isEnabled?.call(dashboardViewModel) ?? true
-                                            ? Theme.of(context)
-                                                .extension<DashboardPageTheme>()!
-                                                .mainActionsIconColor
-                                            : Theme.of(context)
-                                                .extension<BalancePageTheme>()!
-                                                .labelTextColor,
-                                      ),
+                                      image: Image.asset(action.image,
+                                          height: 24,
+                                          width: 24,
+                                          color: Theme.of(context).colorScheme.primary),
                                       title: action.name(context),
                                       onClick: (action.isEnabled?.call(dashboardViewModel) ?? true)
                                           ? () async =>
@@ -81,9 +77,7 @@ class NavigationDock extends StatelessWidget {
                                           : null,
                                       textColor: action.isEnabled?.call(dashboardViewModel) ?? true
                                           ? null
-                                          : Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .labelTextColor,
+                                          : Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                 ),
@@ -102,48 +96,25 @@ class NavigationDock extends StatelessWidget {
     );
   }
 
-  List<Color> _getColors(BuildContext context) {
-    final isBright = dashboardViewModel.settingsStore.currentTheme.type == ThemeType.bright;
+  List<Color> _getColors(BuildContext context, bool isBright) {
     return isBright
         ? <Color>[
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(10),
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(75),
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(150),
-            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor,
-            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(5),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(50),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(125),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(150),
+            CustomThemeColors.backgroundGradientColorLight.withAlpha(200),
+            CustomThemeColors.backgroundGradientColorLight,
+            CustomThemeColors.backgroundGradientColorLight
           ]
         : <Color>[
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(5),
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(50),
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(125),
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(150),
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor
-                .withAlpha(200),
-            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor,
-            Theme.of(context).extension<DashboardPageTheme>()!.thirdGradientBackgroundColor
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(5),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(50),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(125),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(150),
+            CustomThemeColors.backgroundGradientColorDark.withAlpha(200),
+            CustomThemeColors.backgroundGradientColorDark,
+            CustomThemeColors.backgroundGradientColorDark
           ];
   }
 }

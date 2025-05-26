@@ -297,13 +297,14 @@ abstract class HomeSettingsViewModelBase with Store {
     required bool isEthereum,
   }) async {
     final uri = Uri.https(
-      isEthereum ? "api.etherscan.io" : "api.polygonscan.com",
-      "/api",
+       "api.etherscan.io",
+      "/v2/api",
       {
+        "chainid": isEthereum ? "1" : "137",
         "module": "token",
         "action": "tokeninfo",
         "contractaddress": contractAddress,
-        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
+        "apikey": secrets.etherScanApiKey,
       },
     );
 
@@ -338,13 +339,14 @@ abstract class HomeSettingsViewModelBase with Store {
     required bool isEthereum,
   }) async {
     final uri = Uri.https(
-      isEthereum ? "api.etherscan.io" : "api.polygonscan.com",
-      "/api",
+      "api.etherscan.io",
+      "/v2/api",
       {
+        "chainid": isEthereum ? "1" : "137",
         "module": "contract",
         "action": "getsourcecode",
         "address": contractAddress,
-        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
+        "apikey": secrets.etherScanApiKey,
       },
     );
 

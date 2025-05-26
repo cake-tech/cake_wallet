@@ -15,9 +15,6 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -60,11 +57,10 @@ class CakePayBuyCardPage extends BasePage {
       title,
       textAlign: TextAlign.center,
       maxLines: 2,
-      style: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Lato',
-          color: titleColor(context)),
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
     );
   }
 
@@ -82,7 +78,7 @@ class CakePayBuyCardPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+          keyboardBarColor: Theme.of(context).colorScheme.surface,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -91,7 +87,7 @@ class CakePayBuyCardPage extends BasePage {
             ),
           ]),
       child: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.zero,
           content: Column(
@@ -103,8 +99,8 @@ class CakePayBuyCardPage extends BasePage {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Theme.of(context).extension<SendPageTheme>()!.firstGradientColor,
-                          Theme.of(context).extension<SendPageTheme>()!.secondGradientColor,
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.secondary,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -145,12 +141,13 @@ class CakePayBuyCardPage extends BasePage {
                     children: [
                       SizedBox(height: 24),
                       Expanded(
-                        child: Text(S.of(context).enter_amount,
-                            style: TextStyle(
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
-                            )),
+                        child: Text(
+                          S.of(context).enter_amount,
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
                       ),
                       card.denominations.isNotEmpty
                           ? Expanded(
@@ -187,16 +184,22 @@ class CakePayBuyCardPage extends BasePage {
                                 padding: const EdgeInsets.only(bottom: 8.0),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor,
+                                    color: Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.white.withOpacity(0.20)),
+                                    border: Border.all(
+                                      color:
+                                          Theme.of(context).colorScheme.onPrimary.withOpacity(0.20),
+                                    ),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
                                       vendor.cakeWarnings!,
                                       textAlign: TextAlign.center,
-                                      style: textSmallSemiBold(color: Colors.white),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onPrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
                                   ),
                                 ),
@@ -205,13 +208,10 @@ class CakePayBuyCardPage extends BasePage {
                               child: SingleChildScrollView(
                                 child: ClickableLinksText(
                                   text: card.description ?? '',
-                                  textStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .extension<CakeTextTheme>()!
-                                        .secondaryTextColor,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400,
-                                  ),
+                                  textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        fontSize: 18,
+                                      ),
                                 ),
                               ),
                             ),
@@ -235,8 +235,8 @@ class CakePayBuyCardPage extends BasePage {
                         : navigateToCakePayBuyCardDetailPage(context, card),
                     text: S.of(context).buy_now,
                     isDisabled: !cakePayBuyCardViewModel.isEnablePurchase,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                 );
               }),
@@ -358,8 +358,7 @@ class _DenominationsAmountWidget extends StatelessWidget {
                   items: denominations,
                   itemPrefix: fiatCurrency,
                   selectedItem: denominations.first,
-                  textStyle: textMediumSemiBold(
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                  textStyle: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurface),
                   onItemSelected: (value) {
                     amountController.text = value;
                     onAmountChanged(value);
@@ -374,14 +373,12 @@ class _DenominationsAmountWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
-                          width: 1.0,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                          width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                   child: Text(S.of(context).choose_card_value + ':',
                       maxLines: 2,
-                      style: textSmall(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                      style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               ),
             ],
@@ -408,14 +405,12 @@ class _DenominationsAmountWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
-                          width: 1.0,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                          width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                   child: Text(S.of(context).quantity + ':',
                       maxLines: 1,
-                      style: textSmall(
-                          color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                      style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               ),
             ],
@@ -434,8 +429,7 @@ class _DenominationsAmountWidget extends StatelessWidget {
                               '$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
                               maxLines: 1,
                               style: textMediumSemiBold(
-                                  color:
-                                      Theme.of(context).extension<CakeTextTheme>()!.titleColor)))),
+                                  color: Theme.of(context).colorScheme.onSurface)))),
                 ),
                 const SizedBox(height: 4),
                 Expanded(
@@ -444,16 +438,12 @@ class _DenominationsAmountWidget extends StatelessWidget {
                     decoration: BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                            width: 1.0,
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+                            width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ),
                     child: Text(S.of(context).total + ':',
                         maxLines: 1,
-                        style: textSmall(
-                            color:
-                                Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                        style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ),
                 ),
               ],
@@ -487,9 +477,7 @@ class _EnterAmountWidget extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(
-                  width: 1.0,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+              bottom: BorderSide(width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
           child: BaseTextFormField(
@@ -497,19 +485,16 @@ class _EnterAmountWidget extends StatelessWidget {
             keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
             hintText: '0.00',
             maxLines: null,
-            borderColor: Colors.transparent,
             prefixIcon: Padding(
               padding: const EdgeInsets.only(top: 12),
               child: Text(
                 '$fiatCurrency: ',
-                style: textMediumSemiBold(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                style: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
-            textStyle:
-                textMediumSemiBold(color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-            placeholderTextStyle: textMediumSemiBold(
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor),
+            textStyle: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurface),
+            placeholderTextStyle:
+                textMediumSemiBold(color: Theme.of(context).colorScheme.onSurfaceVariant),
             inputFormatters: [
               FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
               FilteringTextInputFormatter.allow(
@@ -523,11 +508,9 @@ class _EnterAmountWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
-                style: textSmall(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
-                style: textSmall(
-                    color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor)),
+                style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ],

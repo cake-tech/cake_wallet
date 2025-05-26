@@ -9,13 +9,12 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/src/widgets/introducing_card.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CryptoBalanceWidget extends StatelessWidget {
@@ -25,6 +24,8 @@ class CryptoBalanceWidget extends StatelessWidget {
   });
 
   final DashboardViewModel dashboardViewModel;
+  final btcLockLight = 'assets/images/btc_lock_light.png';
+  final btcLockDark = 'assets/images/btc_lock_dark.png';
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +39,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: DashBoardRoundedCardWidget(
+                    isDarkTheme: dashboardViewModel.isDarkTheme,
                     title: "Invalid monero bindings",
                     subTitle: dashboardViewModel.getMoneroError.toString(),
                   ),
@@ -50,11 +52,13 @@ class CryptoBalanceWidget extends StatelessWidget {
             builder: (_) {
               if (dashboardViewModel.getWowneroError != null) {
                 return Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: DashBoardRoundedCardWidget(
-                      title: "Invalid wownero bindings",
-                      subTitle: dashboardViewModel.getWowneroError.toString(),
-                    ));
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: DashBoardRoundedCardWidget(
+                    isDarkTheme: dashboardViewModel.isDarkTheme,
+                    title: "Invalid wownero bindings",
+                    subTitle: dashboardViewModel.getWowneroError.toString(),
+                  ),
+                );
               }
               return Container();
             },
@@ -74,42 +78,39 @@ class CryptoBalanceWidget extends StatelessWidget {
                                 children: [
                                   Text(
                                     dashboardViewModel.balanceViewModel.asset,
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontFamily: 'Lato',
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .extension<DashboardPageTheme>()!
-                                          .pageTitleTextColor,
-                                      height: 1,
-                                    ),
+                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                          height: 1,
+                                        ),
                                     maxLines: 1,
                                     textAlign: TextAlign.center,
                                   ),
                                   if (dashboardViewModel.wallet.isHardwareWallet)
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                    Container(
                                       child: Image.asset(
                                         'assets/images/hardware_wallet/ledger_nano_x.png',
                                         width: 24,
-                                        color: Theme.of(context)
-                                            .extension<DashboardPageTheme>()!
-                                            .pageTitleTextColor,
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                     ),
                                   if (dashboardViewModel
                                       .balanceViewModel.isHomeScreenSettingsEnabled)
-                                    InkWell(
-                                      onTap: () => Navigator.pushNamed(context, Routes.homeSettings,
-                                          arguments: dashboardViewModel.balanceViewModel),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Image.asset(
-                                          'assets/images/home_screen_settings_icon.png',
-                                          color: Theme.of(context)
-                                              .extension<DashboardPageTheme>()!
-                                              .pageTitleTextColor,
-                                        ),
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                          minimumSize: Size(50, 30),
+                                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          alignment: Alignment.centerLeft),
+                                      onPressed: () => Navigator.pushNamed(
+                                        context,
+                                        Routes.homeSettings,
+                                        arguments: dashboardViewModel.balanceViewModel,
+                                      ),
+                                      child: Container(
+                                        child: SvgPicture.asset(
+                                            'assets/images/home_screen_setting_icon.svg',
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 30),
                                       ),
                                     ),
                                 ],
@@ -125,7 +126,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return IntroducingCard(
                     title: S.of(context).introducing_cake_pay,
                     subTitle: S.of(context).cake_pay_learn_more,
-                    borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,
+                    borderColor: Theme.of(context).colorScheme.outline,
                     closeCard: dashboardViewModel.balanceViewModel.disableIntroCakePayCard);
               }
               return Container();
@@ -138,6 +139,7 @@ class CryptoBalanceWidget extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: DashBoardRoundedCardWidget(
+                isDarkTheme: dashboardViewModel.isDarkTheme,
                 title: S.of(context).rep_warning,
                 subTitle: S.of(context).rep_warning_sub,
                 onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
@@ -152,7 +154,7 @@ class CryptoBalanceWidget extends StatelessWidget {
               return ListView.separated(
                 physics: NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 16)),
+                separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 10)),
                 itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length,
                 itemBuilder: (__, index) {
                   final balance =
@@ -200,6 +202,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
+                        isDarkTheme: dashboardViewModel.isDarkTheme,
                         customBorder: 30,
                         title: "This wallet has encountered an issue",
                         subTitle: "Here are the things that you should note:\n - " +
@@ -208,10 +211,11 @@ class CryptoBalanceWidget extends StatelessWidget {
                       ))
                 ],
                 if (dashboardViewModel.showSilentPaymentsCard) ...[
-                  SizedBox(height: 16),
+                  SizedBox(height: 10),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                     child: DashBoardRoundedCardWidget(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       shadowBlur: dashboardViewModel.getShadowBlur(),
                       shadowSpread: dashboardViewModel.getShadowSpread(),
                       marginV: 0,
@@ -235,24 +239,17 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   children: [
                                     Text(
                                       S.of(context).what_is_silent_payments,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: 'Lato',
-                                        fontWeight: FontWeight.w400,
-                                        color: Theme.of(context)
-                                            .extension<BalancePageTheme>()!
-                                            .labelTextColor,
-                                        height: 1,
-                                      ),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1,
+                                          ),
                                       softWrap: true,
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 4),
                                       child: Icon(Icons.help_outline,
                                           size: 16,
-                                          color: Theme.of(context)
-                                              .extension<BalancePageTheme>()!
-                                              .labelTextColor),
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     )
                                   ],
                                 ),
@@ -268,20 +265,18 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ],
                       ),
                       onTap: () => _toggleSilentPaymentsScanning(context),
-                      icon: Icon(
-                        Icons.lock,
-                        color:
-                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                        size: 50,
-                      ),
+                      image: !dashboardViewModel.appStore.themeStore.currentTheme.isDark
+                          ? Image.asset(btcLockLight, height: 48)
+                          : Image.asset(btcLockDark, height: 48),
                     ),
                   ),
                 ],
                 if (dashboardViewModel.showMwebCard) ...[
-                  SizedBox(height: 16),
+                  SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       title: S.of(context).litecoin_mweb,
                       description: S.of(context).litecoin_mweb_description,
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
@@ -297,13 +292,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                         ),
                         child: Text(
                           S.of(context).learn_more,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                            height: 1,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1,
+                              ),
                           softWrap: true,
                         ),
                       ),
@@ -315,13 +307,46 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
                       title: S.of(context).synchronizing,
                       description: S.of(context).decred_info_card_details,
                       image: 'assets/images/dcr_icon.png',
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
                       rightButtonTitle: S.of(context).learn_more,
                       leftButtonAction: () => dashboardViewModel.dismissDecredInfoCard(),
-                      rightButtonAction: () => launchUrl(Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
+                      rightButtonAction: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/decred/#spv-sync")),
+                    ),
+                  ),
+                ],
+                if (dashboardViewModel.showPayjoinCard) ...[
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: InfoCard(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
+                      title: "Payjoin",
+                      description: S.of(context).payjoin_card_content,
+                      hintWidget: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => launchUrl(
+                          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          S.of(context).learn_more,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                height: 1,
+                              ),
+                          softWrap: true,
+                        ),
+                      ),
+                      image: 'assets/images/payjoin.png',
+                      leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
+                      rightButtonTitle: S.of(context).enable,
+                      leftButtonAction: () => dashboardViewModel.dismissPayjoin(),
+                      rightButtonAction: () => _enablePayjoin(context),
                     ),
                   ),
                 ],
@@ -363,6 +388,21 @@ class CryptoBalanceWidget extends StatelessWidget {
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);
+  }
+
+  void _enablePayjoin(BuildContext context) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) => AlertWithOneAction(
+              alertTitle: S.of(context).payjoin_enabling_popup_title,
+              alertContent: S.of(context).payjoin_enabling_popup_content,
+              buttonText: S.of(context).ok,
+              buttonAction: () {
+                Navigator.of(context).pop();
+              },
+            ));
+
+    dashboardViewModel.enablePayjoin();
   }
 
   Future<void> _enableMweb(BuildContext context) async {

@@ -33,7 +33,6 @@ import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.d
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
@@ -56,7 +55,6 @@ import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../themes/theme_base.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 
 part 'dashboard_view_model.g.dart';
@@ -379,6 +377,8 @@ abstract class DashboardViewModelBase with Store {
   bool isShowThirdYatIntroduction;
 
   @computed
+  bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;
+  @computed
   String get address => wallet.walletAddresses.address;
 
   @computed
@@ -419,16 +419,14 @@ abstract class DashboardViewModelBase with Store {
       ordersStore.orders.where((item) => item.order.walletId == wallet.id).toList();
 
   @computed
-  List<AnonpayTransactionListItem> get anonpayTransactions =>
-      anonpayTransactionsStore.transactions
-          .where((item) => item.transaction.walletId == wallet.id)
-          .toList();
+  List<AnonpayTransactionListItem> get anonpayTransactions => anonpayTransactionsStore.transactions
+      .where((item) => item.transaction.walletId == wallet.id)
+      .toList();
 
   @computed
-  List<PayjoinTransactionListItem> get payjoinTransactions =>
-      payjoinTransactionsStore.transactions
-          .where((item) => item.session.walletId == wallet.id)
-          .toList();
+  List<PayjoinTransactionListItem> get payjoinTransactions => payjoinTransactionsStore.transactions
+      .where((item) => item.session.walletId == wallet.id)
+      .toList();
 
   @computed
   double get price => balanceViewModel.price;
@@ -441,8 +439,8 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items.addAll(transactionFilterStore
-        .filtered(transactions: [...transactions, ...anonpayTransactions]));
+    _items.addAll(
+        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
 
@@ -450,11 +448,9 @@ abstract class DashboardViewModelBase with Store {
       final _payjoinTransactions = payjoinTransactions;
       _items.forEach((e) {
         if (e is TransactionListItem &&
-            _payjoinTransactions
-                .any((t) => t.session.txId == e.transaction.id)) {
-          _payjoinTransactions
-              .firstWhere((t) => t.session.txId == e.transaction.id)
-              .transaction = e.transaction;
+            _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)) {
+          _payjoinTransactions.firstWhere((t) => t.session.txId == e.transaction.id).transaction =
+              e.transaction;
         }
       });
       _items.addAll(_payjoinTransactions);
@@ -565,6 +561,12 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   late bool showDecredInfoCard;
+
+  @computed
+  bool get showPayjoinCard =>
+      wallet.type == WalletType.bitcoin &&
+      settingsStore.showPayjoinCard &&
+      !settingsStore.usePayjoin;
 
   @observable
   bool backgroundSyncEnabled = false;
@@ -720,26 +722,18 @@ abstract class DashboardViewModelBase with Store {
   @action
   double getShadowSpread() {
     double spread = 0;
-    if (settingsStore.currentTheme.type == ThemeType.bright)
+    if (!appStore.themeStore.currentTheme.isDark)
       spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.light)
-      spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.dark)
-      spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled) spread = 0;
+    else if (appStore.themeStore.currentTheme.isDark) spread = 0;
     return spread;
   }
 
   @action
   double getShadowBlur() {
     double blur = 0;
-    if (settingsStore.currentTheme.type == ThemeType.bright)
+    if (!appStore.themeStore.currentTheme.isDark)
       blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.light)
-      blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.dark)
-      blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled) blur = 0;
+    else if (appStore.themeStore.currentTheme.isDark) blur = 0;
     return blur;
   }
 
@@ -769,6 +763,18 @@ abstract class DashboardViewModelBase with Store {
   void dismissDecredInfoCard() {
     showDecredInfoCard = false;
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
+  }
+
+  @action
+  void dismissPayjoin() {
+    settingsStore.showPayjoinCard = false;
+  }
+
+  @action
+  void enablePayjoin() {
+    settingsStore.usePayjoin = true;
+    settingsStore.showPayjoinCard = false;
+    bitcoin!.updatePayjoinState(wallet, true);
   }
 
   BalanceViewModel balanceViewModel;

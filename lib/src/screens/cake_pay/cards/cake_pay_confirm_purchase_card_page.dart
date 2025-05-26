@@ -1,6 +1,6 @@
+import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/cake_pay_alert_modal.dart';
@@ -15,10 +15,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_purchase_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -42,11 +38,10 @@ class CakePayBuyCardDetailPage extends BasePage {
       title,
       textAlign: TextAlign.center,
       maxLines: 2,
-      style: TextStyle(
-          fontSize: 18.0,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'Lato',
-          color: titleColor(context)),
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
     );
   }
 
@@ -72,9 +67,11 @@ class CakePayBuyCardDetailPage extends BasePage {
                   BorderRadius.horizontal(left: Radius.circular(20), right: Radius.circular(20)),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).extension<PickerTheme>()!.searchBackgroundFillColor,
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.20)),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline.withOpacity(0.20),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -104,16 +101,16 @@ class CakePayBuyCardDetailPage extends BasePage {
                             children: [
                               Text(
                                 S.of(context).value + ':',
-                                style: textLarge(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                               ),
                               SizedBox(width: 8),
                               Text(
                                 '${cakePayPurchaseViewModel.amount.toStringAsFixed(2)} ${cakePayPurchaseViewModel.fiatCurrency}',
-                                style: textLarge(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                               ),
                             ],
                           ),
@@ -122,16 +119,16 @@ class CakePayBuyCardDetailPage extends BasePage {
                             children: [
                               Text(
                                 S.of(context).quantity + ':',
-                                style: textLarge(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                               ),
                               SizedBox(width: 8),
                               Text(
                                 '${cakePayPurchaseViewModel.quantity}',
-                                style: textLarge(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                               ),
                             ],
                           ),
@@ -140,16 +137,16 @@ class CakePayBuyCardDetailPage extends BasePage {
                             children: [
                               Text(
                                 S.of(context).total + ':',
-                                style: textLarge(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                               ),
                               SizedBox(width: 8),
                               Text(
                                 '${cakePayPurchaseViewModel.totalAmount.toStringAsFixed(2)} ${cakePayPurchaseViewModel.fiatCurrency}',
-                                style: textLarge(
-                                    color:
-                                        Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
                               ),
                             ],
                           ),
@@ -176,15 +173,17 @@ class CakePayBuyCardDetailPage extends BasePage {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(S.of(context).expiry_and_validity + ':',
-                        style: textMediumSemiBold(
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w600,
+                            )),
                     SizedBox(height: 10),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
                         border: Border(
                           bottom: BorderSide(
-                            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                            color: Theme.of(context).colorScheme.outline.withOpacity(0.20),
                             width: 1,
                           ),
                         ),
@@ -193,9 +192,9 @@ class CakePayBuyCardDetailPage extends BasePage {
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Text(
                           card.expiryAndValidity ?? '',
-                          style: textMedium(
-                            color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                       ),
                     ),
@@ -216,18 +215,21 @@ class CakePayBuyCardDetailPage extends BasePage {
                     cakePayPurchaseViewModel.sendViewModel.state is IsExecutingState,
                 onPressed: () => confirmPurchaseFirst(context),
                 text: S.of(context).purchase_gift_card,
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: Theme.of(context).colorScheme.onPrimary,
               );
             }),
           ),
           SizedBox(height: 8),
           InkWell(
             onTap: () => _showTermsAndCondition(context, card.termsAndConditions),
-            child: Text(S.of(context).settings_terms_and_conditions,
-                style: textMediumSemiBold(
-                  color: Theme.of(context).primaryColor,
-                ).copyWith(fontSize: 12)),
+            child: Text(
+              S.of(context).settings_terms_and_conditions,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
           ),
           SizedBox(height: 16)
         ],
@@ -245,11 +247,14 @@ class CakePayBuyCardDetailPage extends BasePage {
               alignment: Alignment.bottomLeft,
               child: ClickableLinksText(
                 text: termsAndConditions ?? '',
-                textStyle: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
+                textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 18,
+                        ) ??
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 18,
+                        ),
               ),
             ),
             actionTitle: S.of(context).agree,
@@ -311,9 +316,8 @@ class CakePayBuyCardDetailPage extends BasePage {
       } catch (_) {
         await cakePayPurchaseViewModel.cakePayService.logout();
       }
-
-   }
-   cakePayPurchaseViewModel.isPurchasing = false;
+    }
+    cakePayPurchaseViewModel.isPurchasing = false;
   }
 
   void _showHowToUseCard(
@@ -330,23 +334,27 @@ class CakePayBuyCardDetailPage extends BasePage {
                   padding: EdgeInsets.all(10),
                   child: Text(
                     card.name,
-                    style: textLargeSemiBold(
-                      color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
                   )),
               ClickableLinksText(
                 text: card.howToUse ?? '',
-                textStyle: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400,
-                ),
-                linkStyle: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w400,
-                ),
+                textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ) ??
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                linkStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontStyle: FontStyle.italic,
+                        ) ??
+                    Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontStyle: FontStyle.italic,
+                        ),
               ),
             ]),
             actionTitle: S.current.got_it,
@@ -390,10 +398,12 @@ class CakePayBuyCardDetailPage extends BasePage {
           currency: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency,
           amount: S.of(popupContext).send_amount,
           amountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-          fiatAmountValue: cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+          fiatAmountValue:
+              cakePayPurchaseViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
           fee: S.of(popupContext).send_fee,
           feeValue: cakePayPurchaseViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-          feeFiatAmount: cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+          feeFiatAmount:
+              cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
           outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
           onSlideComplete: () async {
             Navigator.of(popupContext).pop();
@@ -532,19 +542,15 @@ class ThreeCheckboxAlert extends BaseAlertDialog {
 
   @override
   String get titleText => alertTitle;
-
   @override
   bool get isDividerExists => true;
 
   @override
   String get leftActionButtonText => leftButtonText;
-
   @override
   String get rightActionButtonText => rightButtonText;
-
   @override
   VoidCallback get actionLeft => actionLeftButton;
-
   @override
   VoidCallback get actionRight => () {
         actionRightButton(checkbox1, checkbox2, checkbox3);
@@ -669,14 +675,12 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 S.of(context).settings_terms_and_conditions,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).primaryColor,
-                  decoration: TextDecoration.none,
-                  height: 1,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                      decoration: TextDecoration.none,
+                      height: 1,
+                    ),
                 softWrap: true,
               ),
             ),
@@ -686,13 +690,10 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 'Please confirm all checkboxes',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 14,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w400,
-                  decoration: TextDecoration.none,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      decoration: TextDecoration.none,
+                    ),
               ),
             ),
         ],

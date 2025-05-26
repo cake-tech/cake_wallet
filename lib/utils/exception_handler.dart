@@ -219,13 +219,14 @@ class ExceptionHandler {
     "invalid password",
     "NetworkImage._loadAsync",
     "SSLV3_ALERT_BAD_RECORD_MAC",
+    "PlatformException(already_active, File picker is already active",
     // Temporary ignored, More context: Flutter secure storage reads the values as null some times
     // probably when the device was locked and then opened on Cake
     // this is solved by a restart of the app
     // just ignoring until we find a solution to this issue or migrate from flutter secure storage
     "core/auth_service.dart:64",
     "core/key_service.dart:14",
-    "core/wallet_loading_service.dart:134",
+    "core/wallet_loading_service.dart:139",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

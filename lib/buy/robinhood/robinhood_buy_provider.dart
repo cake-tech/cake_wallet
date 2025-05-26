@@ -192,6 +192,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     String? paymentMethod;
 
@@ -267,7 +268,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case 'bank_transfer':
         return PaymentType.bankTransfer;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -10,8 +9,6 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
-import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -54,14 +51,14 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       );
 
   Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       );
 
   Flushbar<void>? _progressBar;
@@ -119,8 +116,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         onChanged: (item) {
           item?.onSelected();
         },
-        dropdownColor: themeData.extension<CakeMenuTheme>()!.backgroundColor,
-        style: TextStyle(color: themeData.extension<CakeTextTheme>()!.titleColor),
+        dropdownColor: themeData.colorScheme.surface,
+        style: themeData.textTheme.bodyMedium,
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
         value: selectedItem,
         underline: const SizedBox(),
@@ -256,7 +253,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, duration: null)..show(context);
+    _progressBar = createBar<void>(text,context, duration: null)..show(context);
   }
 
   void hideProgressText() {

@@ -52,7 +52,7 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
             });
           }
           return Material(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.all(Radius.circular(16)),
             child: Padding(
               padding: EdgeInsets.only(
@@ -64,22 +64,25 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        color: Theme.of(context).appBarTheme.titleTextStyle!.color!,
-                        padding: const EdgeInsets.all(0.0),
-                        visualDensity: VisualDensity.compact,
-                        onPressed: () {
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                        },
-                        icon: const Icon(Icons.close_sharp),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.end,
+                  //   children: [
+                  //     IconButton(
+                  //       color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  //       padding: const EdgeInsets.all(0.0),
+                  //       visualDensity: VisualDensity.compact,
+                  //       onPressed: () {
+                  //         if (Navigator.canPop(context)) {
+                  //           Navigator.pop(context);
+                  //         }
+                  //       },
+                  //       icon: Icon(
+                  //         Icons.close_sharp,
+                  //         color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   Flexible(child: item.widget),
                 ],
               ),

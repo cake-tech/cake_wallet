@@ -82,7 +82,7 @@ class BitcoinURI extends PaymentURI {
     final qp = <String, String>{};
 
     if (amount.isNotEmpty) qp['amount'] = amount.replaceAll(',', '.');
-    if (pjUri.isNotEmpty) {
+    if (pjUri.isNotEmpty && !address.startsWith("sp")) {
       qp['pjos'] = '0';
       qp['pj'] = pjUri;
     }
@@ -309,6 +309,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   String get payjoinEndpoint => wallet.type == WalletType.bitcoin
       ? bitcoin!.getPayjoinEndpoint(wallet)
       : "";
+
+  @computed
+  bool get isPayjoinUnavailable =>
+      wallet.type == WalletType.bitcoin &&
+      _settingsStore.usePayjoin &&
+      payjoinEndpoint.isEmpty;
 
   @computed
   PaymentURI get uri {
