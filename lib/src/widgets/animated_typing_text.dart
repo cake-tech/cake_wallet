@@ -33,10 +33,9 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
 
   String _displayText = '';
 
-  double _maxTextWidth = 0;
   int _currentWordIndex = 0;
   int _currentCharIndex = 0;
-  
+
   bool _isTyping = true;
   bool _isPaused = false;
   bool _isWaitingForPause = false;
@@ -61,10 +60,6 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
       ),
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calculateMaxTextWidth();
-    });
-
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _updateText();
@@ -76,24 +71,6 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
     });
 
     _controller.forward();
-  }
-
-  void _calculateMaxTextWidth() {
-    final textStyle = widget.style ?? DefaultTextStyle.of(context).style;
-    double maxWidth = 0;
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
-    for (final word in widget.words) {
-      textPainter.text = TextSpan(text: word, style: textStyle);
-      textPainter.layout();
-      if (textPainter.width > maxWidth) {
-        maxWidth = textPainter.width;
-      }
-    }
-    setState(() {
-      _maxTextWidth = maxWidth;
-    });
   }
 
   void _updateText() {
@@ -157,38 +134,35 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: _maxTextWidth + widget.cursorWidth,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // Fixed cursor position
-          Positioned(
-            right: 0,
-            child: AnimatedBuilder(
-              animation: _cursorAnimation,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _cursorAnimation.value,
-                  child: Container(
-                    width: widget.cursorWidth,
-                    height: widget.cursorHeight,
-                    color: widget.cursorColor,
-                  ),
-                );
-              },
-            ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Fixed cursor position
+        Positioned(
+          right: 0,
+          child: AnimatedBuilder(
+            animation: _cursorAnimation,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _cursorAnimation.value,
+                child: Container(
+                  width: widget.cursorWidth,
+                  height: widget.cursorHeight,
+                  color: widget.cursorColor,
+                ),
+              );
+            },
           ),
-          // Animated text
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              _displayText + ' ',
-              style: widget.style,
-            ),
+        ),
+        // Animated text
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            _displayText + ' ',
+            style: widget.style,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
-} 
+}

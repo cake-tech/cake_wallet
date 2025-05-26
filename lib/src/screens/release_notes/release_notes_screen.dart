@@ -33,9 +33,9 @@ class ReleaseNotesScreen extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).colorScheme.primaryContainer,
-                    Theme.of(context).colorScheme.secondaryContainer,
-                  ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surfaceContainer,
+                  ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Stack(
