@@ -125,7 +125,6 @@ class BaseTextFormField extends StatelessWidget {
         suffix: suffix,
         suffixIcon: suffixIcon,
         filled: !hasUnderlineBorder,
-        //border: !hasUnderlineBorder ? OutlineInputBorder() : null,
         fillColor:
             hasUnderlineBorder ? null : fillColor ?? Theme.of(context).colorScheme.surfaceContainer,
         hintStyle: placeholderTextStyle ??
@@ -162,13 +161,6 @@ class BaseTextFormField extends StatelessWidget {
                 ),
               )
             : null,
-        // OutlineInputBorder(
-        //       borderRadius: BorderRadius.circular(10),
-        //       borderSide: BorderSide(
-        //         color: Theme.of(context).colorScheme.outlineVariant,
-        //         width: 1.5,
-        //       )
-        // ),
         errorBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
                 borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
