@@ -173,7 +173,7 @@ class CreatePinWelcomePage extends BasePage {
                                     color: Theme.of(context).colorScheme.primary,
                                   ),
                               cursorColor: Theme.of(context).colorScheme.primary,
-                              cursorHeight: 24,
+                              cursorHeight: 28,
                               cursorWidth: 4,
                             ),
                             SizedBox(width: 4),
