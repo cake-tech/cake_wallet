@@ -1,8 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'base_bottom_sheet_widget.dart';
@@ -15,7 +13,7 @@ class InfoStep {
 }
 
 class InfoStepsBottomSheet extends BaseBottomSheet {
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final List<InfoStep> steps;
 
   InfoStepsBottomSheet({
@@ -60,25 +58,29 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
                                       children: <Widget>[
                                         Text(
                                           step.title,
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(context)
-                                                .extension<OptionTileTheme>()!
-                                                .titleColor,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .copyWith(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
+                                              ),
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(top: 5),
                                           child: Text(
                                             step.description,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.normal,
-                                              color: Theme.of(context)
-                                                  .extension<OptionTileTheme>()!
-                                                  .descriptionColor,
-                                            ),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
                                           ),
                                         )
                                       ],
@@ -96,12 +98,10 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
               padding: const EdgeInsets.all(16),
               child: PrimaryButton(
                 text: S.of(context).close,
-                color: Theme.of(context)
-                    .extension<WalletListTheme>()!
-                    .createNewWalletButtonBackgroundColor,
-                textColor: Theme.of(context)
-                    .extension<WalletListTheme>()!
-                    .restoreWalletButtonTextColor,
+                color: Theme.of(context).colorScheme.primary,
+                textColor: currentTheme.isDark
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.onPrimary,
                 onPressed: () => Navigator.of(context).pop(),
               ),
             )

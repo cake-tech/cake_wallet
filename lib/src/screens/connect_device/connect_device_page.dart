@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/device_tile.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -65,6 +62,7 @@ class ConnectDevicePage extends BasePage {
         onConnectDevice,
         allowChangeWallet,
         ledgerVM,
+        currentTheme,
       ));
 }
 
@@ -73,12 +71,14 @@ class ConnectDevicePageBody extends StatefulWidget {
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
   final LedgerViewModel ledgerVM;
+  final MaterialThemeBase currentTheme;
 
   const ConnectDevicePageBody(
     this.walletType,
     this.onConnectDevice,
     this.allowChangeWallet,
     this.ledgerVM,
+    this.currentTheme,
   );
 
   @override
@@ -299,10 +299,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
           ),
           PrimaryButton(
             text: S.of(context).how_to_connect,
-            color: Theme.of(context).cardColor,
-            textColor: Theme.of(context)
-                .extension<CakeTextTheme>()!
-                .buttonTextColor,
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            textColor: Theme.of(context).colorScheme.onSecondaryContainer,
             onPressed: () => _onHowToConnect(context),
           )
         ],
@@ -324,7 +322,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       isScrollControlled: true,
       builder: (BuildContext bottomSheetContext) => InfoStepsBottomSheet(
         titleText: S.of(context).how_to_connect,
-        currentTheme: getIt.get<SettingsStore>().currentTheme,
+        currentTheme: widget.currentTheme,
         steps: [
           InfoStep('${S.of(context).step} 1', S.of(context).connect_hw_info_step_1),
           InfoStep('${S.of(context).step} 2', S.of(context).connect_hw_info_step_2),
