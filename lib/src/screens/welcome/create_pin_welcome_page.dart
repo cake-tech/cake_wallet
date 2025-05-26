@@ -176,7 +176,7 @@ class CreatePinWelcomePage extends BasePage {
                               cursorHeight: 24,
                               cursorWidth: 4,
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: 4),
                             Text(
                               S.current.made_easy,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
