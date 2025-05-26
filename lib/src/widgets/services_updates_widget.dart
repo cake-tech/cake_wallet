@@ -43,7 +43,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
         child: SvgPicture.asset(
           "assets/images/notification_icon.svg",
           color: Theme.of(context).colorScheme.onSurface,
-          width: 30,
+          width: 20,
           placeholderBuilder: (_) => Icon(Icons.error),
         ),
       );
