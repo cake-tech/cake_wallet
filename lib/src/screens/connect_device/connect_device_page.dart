@@ -199,12 +199,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       Platform.isIOS
                           ? S.of(context).connect_your_hardware_wallet_ios
                           : S.of(context).connect_your_hardware_wallet,
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context)
-                              .extension<CakeTextTheme>()!
-                              .titleColor),
+                      style:  Theme.of(context)
+                              .textTheme.titleMedium,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -214,12 +210,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: Text(
                         S.of(context).if_you_dont_see_your_device,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .extension<CakeTextTheme>()!
-                                .titleColor),
+                        style:  Theme.of(context)
+                                .textTheme.titleMedium,
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -232,12 +224,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                             EdgeInsets.only(left: 20, right: 20, bottom: 20),
                         child: Text(
                           S.of(context).ledger_please_enable_bluetooth,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .extension<CakeTextTheme>()!
-                                  .titleColor),
+                          style:  Theme.of(context)
+                                  .textTheme.titleMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -250,13 +238,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                         width: double.infinity,
                         child: Text(
                           S.of(context).bluetooth,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context)
-                                .extension<CakeTextTheme>()!
-                                .titleColor,
-                          ),
+                          style:  Theme.of(context)
+                                .textTheme.bodyMedium,
                         ),
                       ),
                     ),
@@ -281,13 +264,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                         width: double.infinity,
                         child: Text(
                           S.of(context).usb,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Theme.of(context)
-                                .extension<CakeTextTheme>()!
-                                .titleColor,
-                          ),
+                          style:  Theme.of(context)
+                                .textTheme.bodyMedium,
                         ),
                       ),
                     ),
@@ -309,11 +287,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                     PrimaryButton(
                       text: S.of(context).wallets,
                       color: Theme.of(context)
-                          .extension<WalletListTheme>()!
-                          .createNewWalletButtonBackgroundColor,
+                          .colorScheme.primary,
                       textColor: Theme.of(context)
-                          .extension<WalletListTheme>()!
-                          .restoreWalletButtonTextColor,
+                          .colorScheme.onPrimary,
                       onPressed: _onChangeWallet,
                     )
                   ],

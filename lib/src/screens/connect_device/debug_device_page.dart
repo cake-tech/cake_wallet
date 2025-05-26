@@ -127,8 +127,8 @@
 //                     child: PrimaryButton(
 //                         text: "Disconnect",
 //                         onPressed: () => disconnectCurrentDevice(),
-//                         color: Theme.of(context).primaryColor,
-//                         textColor: Colors.white),
+//                         color: Theme.of(context).colorScheme.primary,
+//                         textColor: Theme.of(context).colorScheme.onPrimary),
 //                   ),
 //                 ],
 //                 if (selectedDevice == null) ...[
@@ -156,8 +156,8 @@
 //                               devices.add(device);
 //                             }));
 //                       },
-//                       color: Theme.of(context).primaryColor,
-//                       textColor: Colors.white),
+//                       color: Theme.of(context).colorScheme.primary,
+//                       textColor: Theme.of(context).colorScheme.onPrimary),
 //                   Padding(
 //                     padding: EdgeInsets.only(top: 20),
 //                     child: PrimaryButton(
@@ -166,8 +166,8 @@
 //                           final dev = await ledger.listUsbDevices();
 //                           setState(() => devices = dev);
 //                         },
-//                         color: Theme.of(context).primaryColor,
-//                         textColor: Colors.white),
+//                         color: Theme.of(context).colorScheme.primary,
+//                         textColor: Theme.of(context).colorScheme.onPrimary),
 //                   ),
 //                 ],
 //               ],
@@ -229,8 +229,8 @@
 //               printV("${ex.errorCode.toRadixString(16)} ${ex.message}");
 //             }
 //           },
-//           color: Theme.of(context).primaryColor,
-//           textColor: Colors.white),
+//           color: Theme.of(context).colorScheme.primary,
+//           textColor: Theme.of(context).colorScheme.onPrimary),
 //     );
 //   }
 // }

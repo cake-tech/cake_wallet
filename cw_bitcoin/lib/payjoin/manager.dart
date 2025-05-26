@@ -31,8 +31,8 @@ class PayjoinManager {
     'https://ohttp.cakewallet.com',
   ];
 
-  static Future<PayjoinUri.Url> randomOhttpRelayUrl() => PayjoinUri.Url.fromStr(
-      ohttpRelayUrls[Random.secure().nextInt(ohttpRelayUrls.length)]);
+  static Future<PayjoinUri.Url> randomOhttpRelayUrl() =>
+      PayjoinUri.Url.fromStr(ohttpRelayUrls[Random.secure().nextInt(ohttpRelayUrls.length)]);
 
   static const payjoinDirectoryUrl = 'https://payjo.in';
 
@@ -59,8 +59,7 @@ class PayjoinManager {
   Future<Sender> initSender(
       String pjUriString, String originalPsbt, int networkFeesSatPerVb) async {
     try {
-      final pjUri =
-          (await PayjoinUri.Uri.fromStr(pjUriString)).checkPjSupported();
+      final pjUri = (await PayjoinUri.Uri.fromStr(pjUriString)).checkPjSupported();
       final minFeeRateSatPerKwu = BigInt.from(networkFeesSatPerVb * 250);
       final senderBuilder = await SenderBuilder.fromPsbtAndUri(
         psbtBase64: originalPsbt,
@@ -79,8 +78,7 @@ class PayjoinManager {
     bool isTestnet = false,
   }) async {
     final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
-    await _payjoinStorage.insertSenderSession(
-        sender, pjUri, _wallet.id, amount);
+    await _payjoinStorage.insertSenderSession(sender, pjUri, _wallet.id, amount);
 
     return _spawnSender(isTestnet: isTestnet, sender: sender, pjUri: pjUri);
   }
@@ -140,11 +138,9 @@ class PayjoinManager {
     return completer.future;
   }
 
-  Future<Receiver> initReceiver(String address,
-      [bool isTestnet = false]) async {
+  Future<Receiver> initReceiver(String address, [bool isTestnet = false]) async {
     try {
-      final payjoinDirectory =
-          await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
+      final payjoinDirectory = await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
 
       final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
         ohttpRelay: await randomOhttpRelayUrl(),
@@ -199,8 +195,7 @@ class PayjoinManager {
               _payjoinStorage.markReceiverSessionInProgress(receiver.id());
 
               final inputScript = message['input_script'] as Uint8List;
-              final isOwned =
-                  _wallet.isMine(Script.fromRaw(byteData: inputScript));
+              final isOwned = _wallet.isMine(Script.fromRaw(bytes: inputScript));
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': isOwned,
@@ -209,8 +204,7 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.checkIsReceiverOutput:
               final outputScript = message['output_script'] as Uint8List;
-              final isReceiverOutput =
-                  _wallet.isMine(Script.fromRaw(byteData: outputScript));
+              final isReceiverOutput = _wallet.isMine(Script.fromRaw(bytes: outputScript));
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': isReceiverOutput,
@@ -243,15 +237,13 @@ class PayjoinManager {
           }
         } catch (e) {
           _cleanupSession(receiver.id());
-          await _payjoinStorage.markReceiverSessionUnrecoverable(
-              receiver.id(), e.toString());
+          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id(), e.toString());
           completer.completeError(e);
         }
       } else if (message is PayjoinSessionError) {
         _cleanupSession(receiver.id());
         if (message is UnrecoverableError) {
-          await _payjoinStorage.markReceiverSessionUnrecoverable(
-              receiver.id(), message.message);
+          await _payjoinStorage.markReceiverSessionUnrecoverable(receiver.id(), message.message);
           completer.complete();
         } else if (message is RecoverableError) {
           completer.complete();

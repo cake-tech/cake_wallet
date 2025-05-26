@@ -84,7 +84,7 @@ class DevBackgroundSyncLogsPage extends BasePage {
     }
 
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss.SSS');
-    
+
     return ListView.builder(
       itemCount: logs.length,
       itemBuilder: (context, index) {
@@ -92,18 +92,16 @@ class DevBackgroundSyncLogsPage extends BasePage {
         return ListTile(
           title: Text(
             log.message,
-            style: TextStyle(
-              fontSize: 14,
-              fontFamily: 'Monospace',
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontFamily: 'Monospace',
+                ),
           ),
           subtitle: Text(
             '${dateFormat.format(log.timestamp)} | ${log.level}' +
                 (log.sessionId != null ? ' | Session: ${log.sessionId}' : ''),
-            style: TextStyle(
-              fontSize: 12,
-              color: _getLevelColor(log.level),
-            ),
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: _getLevelColor(log.level),
+                ),
           ),
           dense: true,
           onTap: () {
@@ -132,24 +130,24 @@ class DevBackgroundSyncLogsPage extends BasePage {
     }
 
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-    
+
     return ListView.builder(
       itemCount: sessions.length,
       itemBuilder: (context, index) {
         final session = sessions[index];
         final isActive = session.endTime == null;
-        
+
         return ExpansionTile(
           title: Text(
             session.name,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isActive ? Colors.green : null,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: isActive ? Colors.green : null,
+                ),
           ),
           subtitle: Text(
             'ID: ${session.id} | Started: ${dateFormat.format(session.startTime)}',
-            style: TextStyle(fontSize: 12),
+            style: Theme.of(context).textTheme.bodySmall!,
           ),
           children: [
             Padding(
@@ -158,8 +156,7 @@ class DevBackgroundSyncLogsPage extends BasePage {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Start: ${session.startTime.toString()}'),
-                  if (session.endTime != null)
-                    Text('End: ${session.endTime.toString()}'),
+                  if (session.endTime != null) Text('End: ${session.endTime.toString()}'),
                   if (session.duration != null)
                     Text('Duration: ${_formatDuration(session.duration!)}'),
                   SizedBox(height: 8),
@@ -174,19 +171,21 @@ class DevBackgroundSyncLogsPage extends BasePage {
   }
 
   Widget _buildSessionLogs(BuildContext context, int sessionId) {
-    final sessionLogs = viewModel.logs
-        .where((log) => log.sessionId == sessionId)
-        .toList();
-    
+    final sessionLogs = viewModel.logs.where((log) => log.sessionId == sessionId).toList();
+
     if (sessionLogs.isEmpty) {
       return Text('No logs for this session');
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Session Logs (${sessionLogs.length}):',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(
+          'Session Logs (${sessionLogs.length}):',
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
         SizedBox(height: 8),
         Container(
           height: 200,
@@ -202,11 +201,10 @@ class DevBackgroundSyncLogsPage extends BasePage {
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 child: Text(
                   '[${log.level}] ${log.message}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Monospace',
-                    color: _getLevelColor(log.level),
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontFamily: 'Monospace',
+                        color: _getLevelColor(log.level),
+                      ),
                 ),
               );
             },
@@ -248,14 +246,14 @@ class DevBackgroundSyncLogsPage extends BasePage {
 
   void _copyAllLogs(BuildContext context) {
     if (viewModel.logData == null) return;
-    
+
     final buffer = StringBuffer();
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss.SSS');
-    
+
     for (final log in viewModel.logs) {
       buffer.writeln('${dateFormat.format(log.timestamp)} [${log.level}] ${log.message}');
     }
-    
+
     Clipboard.setData(ClipboardData(text: buffer.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('All logs copied to clipboard')),
@@ -311,4 +309,4 @@ class DevBackgroundSyncLogsPage extends BasePage {
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return '${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds';
   }
-} 
+}

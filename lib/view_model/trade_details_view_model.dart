@@ -20,7 +20,7 @@ import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.da
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_provider_unsupported_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
@@ -39,13 +39,13 @@ abstract class TradeDetailsViewModelBase with Store {
   TradeDetailsViewModelBase({
     required Trade tradeForDetails,
     required this.trades,
-    required this.settingsStore,
+    required this.appStore,
   })  : items = ObservableList<StandartListItem>(),
         trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
             tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.changeNow:
-        _provider = ChangeNowExchangeProvider(settingsStore: settingsStore);
+        _provider = ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
         break;
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();
@@ -126,7 +126,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
   Timer? timer;
 
-  final SettingsStore settingsStore;
+  final AppStore appStore;
 
   @action
   Future<void> _updateTrade() async {

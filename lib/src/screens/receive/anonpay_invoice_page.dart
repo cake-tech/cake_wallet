@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
@@ -84,36 +82,28 @@ class AnonPayInvoicePage extends BasePage {
       child: KeyboardActions(
         disableScroll: true,
         config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _amountFocusNode,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
-              ),
-            ]),
+          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+          keyboardBarColor: Theme.of(context).colorScheme.surfaceVariant,
+          nextFocus: false,
+          actions: [
+            KeyboardActionsItem(
+              focusNode: _amountFocusNode,
+              toolbarButtons: [(_) => KeyboardDoneButton()],
+            ),
+          ],
+        ),
         child: Container(
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
           child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 24),
             content: Container(
               decoration: responsiveLayoutUtil.shouldRenderMobileUI
                   ? BoxDecoration(
                       borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context)
-                              .extension<ExchangePageTheme>()!
-                              .firstGradientTopPanelColor,
-                          Theme.of(context)
-                              .extension<ExchangePageTheme>()!
-                              .secondGradientTopPanelColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                        bottomLeft: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
                       ),
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
                     )
                   : null,
               child: Observer(builder: (_) {
@@ -147,12 +137,10 @@ class AnonPayInvoicePage extends BasePage {
                             ? S.of(context).anonpay_description("an invoice", "pay")
                             : S.of(context).anonpay_description("a donation link", "donate"),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Theme.of(context)
-                                .extension<ExchangePageTheme>()!
-                                .receiveAmountColor,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
                       ),
                     ),
                   ),
@@ -179,8 +167,8 @@ class AnonPayInvoicePage extends BasePage {
                         anonInvoicePageViewModel.generateDonationLink();
                       }
                     },
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                     isLoading: anonInvoicePageViewModel.state is IsExecutingState,
                   ),
                 ],
