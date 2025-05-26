@@ -140,6 +140,7 @@ class _AnimatedTypingTextState extends State<AnimatedTypingText> with TickerProv
         // Fixed cursor position
         Positioned(
           right: 0,
+          bottom: 0,
           child: AnimatedBuilder(
             animation: _cursorAnimation,
             builder: (context, child) {
