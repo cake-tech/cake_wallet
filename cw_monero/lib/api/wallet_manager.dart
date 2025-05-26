@@ -418,11 +418,20 @@ Future<void> loadWallet(
   }
 }
 
-void setupBackgroundSync(String password, Wallet2Wallet wallet) {
+Future<void> setupBackgroundSync(String password, Wallet2Wallet wallet) async {
   if (isViewOnlyBySpendKey(wallet)) {
     return;
   }
-  wallet.setupBackgroundSync(backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
+  final wptrAddr = wallet.ffiAddress();
+  await Isolate.run(() {
+    monero.Wallet_setupBackgroundSync(
+      Pointer.fromAddress(wptrAddr),
+      backgroundSyncType: 2,
+      walletPassword: password,
+      backgroundCachePassword: '',
+    );
+  });
+  // wallet.setupBackgroundSync(backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
   if (wallet.status() != 0) {
     // We simply ignore the error.
     printV("setupBackgroundSync: ${wallet.errorString()}");
