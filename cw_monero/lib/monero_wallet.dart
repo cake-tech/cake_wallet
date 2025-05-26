@@ -927,8 +927,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void setLedgerConnection(LedgerConnection connection) {
-    final dummyWPtr = createWalletPointer();
-    enableLedgerExchange(dummyWPtr, connection);
+    enableLedgerExchange(connection);
   }
 
   @override

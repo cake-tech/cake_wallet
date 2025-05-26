@@ -684,27 +684,45 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is IsAwaitingDeviceResponseState) {
+      if (state is IsDeviceSigningResponseState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
 
           showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
-            builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-              currentTheme: currentTheme,
-              titleText: S.of(bottomSheetContext).proceed_on_device,
-              contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-              contentImageColor: Theme.of(context).colorScheme.onSurface,
-              content: S.of(bottomSheetContext).proceed_on_device_description,
-              isTwoAction: false,
-              actionButtonText: S.of(context).cancel,
-              actionButton: () {
-                sendViewModel.state = InitialExecutionState();
-                Navigator.of(bottomSheetContext).pop();
-              },
-            ),
+            builder: (context) {
+              dialogContext = context;
+              return LoadingBottomSheet(titleText: S.of(context).device_is_signing);
+            },
           );
+        });
+      }
+
+      if (state is IsAwaitingDeviceResponseState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+
+          showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (context) {
+                dialogContext = context;
+                return InfoBottomSheet(
+                  currentTheme: currentTheme,
+                  titleText: S.of(context).proceed_on_device,
+                  contentImage:
+                      'assets/images/hardware_wallet/ledger_nano_x.png',
+                  contentImageColor: Theme.of(context).colorScheme.onSurface,
+                  content: S.of(context).proceed_on_device_description,
+                  isTwoAction: false,
+                  actionButtonText: S.of(context).cancel,
+                  actionButton: () {
+                    sendViewModel.state = InitialExecutionState();
+                    Navigator.of(context).pop();
+                  },
+                );
+              });
         });
       }
     });
