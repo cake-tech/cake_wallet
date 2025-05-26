@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
@@ -157,7 +158,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 18,
-                     
                     fontWeight: FontWeight.bold,
                     decoration: TextDecoration.none,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -358,7 +358,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           tag,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 7.0,
-                                 
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                         ),
@@ -430,7 +429,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
                     softWrap: true,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontSize: 16,
-                           
                           fontWeight: FontWeight.w700,
                           color: Theme.of(context).colorScheme.onSurface,
                           decoration: TextDecoration.none,
@@ -448,7 +446,6 @@ class _PickerState<Item> extends State<Picker<Item>> {
                           tag,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 7.0,
-                                 
                                 color: Theme.of(context).colorScheme.primary,
                               ),
                         ),
@@ -522,10 +519,16 @@ class _PickerState<Item> extends State<Picker<Item>> {
   }
 
   Widget buildSlider({required int index, required bool isActivated}) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: <Widget>[
         Expanded(
           child: Slider(
+            activeColor: Theme.of(context).colorScheme.primary,
+            inactiveColor: isDarkMode
+                ? CustomThemeColors.toggleColorOffStateDark
+                : CustomThemeColors.toggleColorOffStateLight,
+            thumbColor: CustomThemeColors.toggleKnobStateColorLight,
             value: widget.sliderValue == null || widget.sliderValue! < 1 ? 1 : widget.sliderValue!,
             onChanged: isActivated ? widget.onSliderChanged : null,
             min: widget.minValue ?? 1,
