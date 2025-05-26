@@ -244,6 +244,7 @@
   "descending": "Descending",
   "description": "Description",
   "destination_tag": "Destination tag:",
+  "device_is_signing": "Device is signing",
   "dfx_option_description": "Buy crypto with EUR & CHF. For retail and corporate customers in Europe",
   "didnt_get_code": "Didn't get code?",
   "digit_pin": "-digit PIN",

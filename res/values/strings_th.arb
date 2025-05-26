@@ -244,6 +244,7 @@
   "descending": "ลงมา",
   "description": "คำอธิบาย",
   "destination_tag": "แท็กปลายทาง:",
+  "device_is_signing": "อุปกรณ์กำลังลงนาม",
   "dfx_option_description": "ซื้อ crypto ด้วย Eur & CHF สำหรับลูกค้ารายย่อยและลูกค้าในยุโรป",
   "didnt_get_code": "ไม่ได้รับรหัส?",
   "digit_pin": "-หลัก PIN",

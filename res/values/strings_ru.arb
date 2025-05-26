@@ -244,6 +244,7 @@
   "descending": "Нисходящий",
   "description": "Описание",
   "destination_tag": "Целевой тег:",
+  "device_is_signing": "Устройство подписывает",
   "dfx_option_description": "Купить крипто с Eur & CHF. Для розничных и корпоративных клиентов в Европе",
   "didnt_get_code": "Не получить код?",
   "digit_pin": "-значный PIN",

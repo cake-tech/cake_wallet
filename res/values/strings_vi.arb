@@ -243,6 +243,7 @@
   "descending": "Giảm dần",
   "description": "Mô tả",
   "destination_tag": "Thẻ đích:",
+  "device_is_signing": "Thiết bị đang ký",
   "dfx_option_description": "Mua tiền điện tử bằng EUR & CHF. Dành cho khách hàng bán lẻ và doanh nghiệp tại Châu Âu",
   "didnt_get_code": "Không nhận được mã?",
   "digit_pin": "Mã PIN - số",

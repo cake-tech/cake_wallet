@@ -244,6 +244,7 @@
   "descending": "Низхідний",
   "description": "опис",
   "destination_tag": "Тег призначення:",
+  "device_is_signing": "Пристрій підписується",
   "dfx_option_description": "Купуйте криптовалюту з EUR & CHF. Для роздрібних та корпоративних клієнтів у Європі",
   "didnt_get_code": "Не отримали код?",
   "digit_pin": "-значний PIN",

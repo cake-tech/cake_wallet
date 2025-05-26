@@ -244,6 +244,7 @@
   "descending": "Descendant",
   "description": "Description",
   "destination_tag": "Tag de destination :",
+  "device_is_signing": "L'appareil signale",
   "dfx_option_description": "Achetez de la crypto avec EUR & CHF. Pour les clients de la vente au détail et des entreprises en Europe",
   "didnt_get_code": "Vous n'avez pas reçu le code ?",
   "digit_pin": " chiffres",

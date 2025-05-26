@@ -244,6 +244,7 @@
   "descending": "Silazni",
   "description": "Opis",
   "destination_tag": "Odredišna oznaka:",
+  "device_is_signing": "Uređaj se potpisuje",
   "dfx_option_description": "Kupite kriptovalute s Eur & CHF. Za maloprodajne i korporativne kupce u Europi",
   "didnt_get_code": "Ne dobivate kod?",
   "digit_pin": "-znamenkasti PIN",

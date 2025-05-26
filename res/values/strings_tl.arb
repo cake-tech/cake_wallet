@@ -244,6 +244,7 @@
   "descending": "Pababang",
   "description": "Paglalarawan",
   "destination_tag": "Tag ng patutunguhan:",
+  "device_is_signing": "Nag -sign ang aparato",
   "dfx_option_description": "Bumili ng crypto kasama ang EUR & CHF. Para sa mga retail customer at corporate customer sa Europe",
   "didnt_get_code": "Hindi nakuha ang code?",
   "digit_pin": "-digit PIN",

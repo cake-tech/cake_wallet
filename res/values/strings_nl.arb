@@ -244,6 +244,7 @@
   "descending": "Aflopend",
   "description": "Beschrijving",
   "destination_tag": "Bestemmingstag:",
+  "device_is_signing": "Apparaat ondertekent",
   "dfx_option_description": "Koop crypto met EUR & CHF. Voor retail- en zakelijke klanten in Europa",
   "didnt_get_code": "Geen code?",
   "digit_pin": "-cijferige PIN",

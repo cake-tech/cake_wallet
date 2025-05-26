@@ -244,6 +244,7 @@
   "descending": "下降",
   "description": "説明",
   "destination_tag": "宛先タグ:",
+  "device_is_signing": "デバイスが署名しています",
   "dfx_option_description": "EUR＆CHFで暗号を購入します。ヨーロッパの小売および企業の顧客向け",
   "didnt_get_code": "コードを取得しませんか？",
   "digit_pin": "桁ピン",

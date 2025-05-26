@@ -10,6 +10,7 @@ import 'package:ledger_flutter_plus/ledger_flutter_plus_dart.dart';
 import 'package:monero/src/monero.dart' as api;
 
 LedgerConnection? gLedger;
+String? latestLedgerCommand;
 
 typedef LedgerCallback = Void Function(Pointer<UnsignedChar>, UnsignedInt);
 NativeCallable<LedgerCallback>? callable;
@@ -29,6 +30,8 @@ void enableLedgerExchange(LedgerConnection connection) {
       result.asTypedList(response.length)[i] = response[i];
     }
 
+    latestLedgerCommand = _ledgerMoneroCommands[ledgerRequest[1]];
+
     api.MoneroWallet.setDeviceReceivedData(
          result.cast<UnsignedChar>(), response.length);
     api.MoneroFree().free(result.cast());
@@ -42,6 +45,7 @@ void disableLedgerExchange() {
   callable?.close();
   gLedger?.disconnect();
   gLedger = null;
+  latestLedgerCommand = null;
 }
 
 Future<Uint8List> exchange(LedgerConnection connection, Uint8List data) async =>

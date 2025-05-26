@@ -434,6 +434,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
   void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
+  void String? getLastLedgerCommand();
   Map<String, List<int>> debugCallLength();
 }
 

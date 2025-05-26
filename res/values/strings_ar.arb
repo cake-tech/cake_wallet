@@ -244,6 +244,7 @@
   "descending": "النزول",
   "description": "ﻒﺻﻭ",
   "destination_tag": "علامة الوجهة:",
+  "device_is_signing": "الجهاز يوقع",
   "dfx_option_description": "شراء التشفير مع EUR & CHF. لعملاء البيع بالتجزئة والشركات في أوروبا",
   "didnt_get_code": "لم تحصل على رمز؟",
   "digit_pin": "-رقم PIN",

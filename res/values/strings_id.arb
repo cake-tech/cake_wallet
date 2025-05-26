@@ -244,6 +244,7 @@
   "descending": "Menurun",
   "description": "Keterangan",
   "destination_tag": "Tag tujuan:",
+  "device_is_signing": "Perangkat sedang menandatangani",
   "dfx_option_description": "Beli crypto dengan EUR & CHF. Untuk pelanggan ritel dan perusahaan di Eropa",
   "didnt_get_code": "Tidak mendapatkan kode?",
   "digit_pin": "-digit PIN",

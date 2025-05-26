@@ -244,6 +244,7 @@
   "descending": "Klesající",
   "description": "Popis",
   "destination_tag": "Destination Tag:",
+  "device_is_signing": "Zařízení se podpisu",
   "dfx_option_description": "Koupit krypto s EUR & CHF. Pro maloobchodní a firemní zákazníky v Evropě",
   "didnt_get_code": "Nepřišel Vám kód?",
   "digit_pin": "-číselný PIN",
