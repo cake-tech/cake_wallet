@@ -8,7 +8,7 @@ class InfoCard extends StatelessWidget {
   final String title;
   final String description;
   final String image;
-
+  final bool isDarkTheme;
   final Function() leftButtonAction;
   final Function() rightButtonAction;
 
@@ -23,12 +23,14 @@ class InfoCard extends StatelessWidget {
     required this.leftButtonAction,
     required this.rightButtonAction,
     required this.image,
+    required this.isDarkTheme,
     this.hintWidget,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DashBoardRoundedCardWidget(
+      isDarkTheme: isDarkTheme,
       marginH: 0,
       marginV: 0,
       customBorder: 30,
@@ -45,11 +47,16 @@ class InfoCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: leftButtonAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   child: Text(
                     leftButtonTitle,
-                    style: TextStyle(color: Colors.white),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondaryContainer,
+                        ),
                   ),
                 ),
               ),
@@ -58,12 +65,17 @@ class InfoCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: rightButtonAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                   child: Text(
                     rightButtonTitle,
                     maxLines: 1,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                   ),
                 ),
               ),
@@ -74,7 +86,7 @@ class InfoCard extends StatelessWidget {
       onTap: () => {},
       icon: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surfaceContainer,
           shape: BoxShape.circle,
         ),
         child: CakeImageWidget(

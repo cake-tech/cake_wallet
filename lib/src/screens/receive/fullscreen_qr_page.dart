@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class FullscreenQRPage extends BasePage {
   FullscreenQRPage({required this.qrViewData});
@@ -20,7 +19,7 @@ class FullscreenQRPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+      color: Theme.of(context).colorScheme.onSurface,
       size: 16,
     );
 
@@ -43,8 +42,7 @@ class FullscreenQRPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) =>
-          GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget body(BuildContext context) {
@@ -58,13 +56,22 @@ class FullscreenQRPage extends BasePage {
             child: Container(
               padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  border: Border.all(
-                      width: 3,
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.textColor)),
+                border: Border.all(
+                  width: 3,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                color: Theme.of(context).colorScheme.surface,
+              ),
               child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(width: 3, color: Colors.white)),
-                  child: QrImage(data: qrViewData.data, version: qrViewData.version)),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 3,
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                ),
+                child: QrImage(data: qrViewData.data, version: qrViewData.version),
+              ),
             ),
           ),
         ),

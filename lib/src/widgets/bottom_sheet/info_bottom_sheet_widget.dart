@@ -1,7 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+
+
 import 'package:cake_wallet/utils/image_utill.dart';
+
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+
 import 'package:flutter/material.dart';
 
 import 'base_bottom_sheet_widget.dart';
@@ -56,7 +60,7 @@ class InfoBottomSheet extends BaseBottomSheet {
             rightActionButtonKey: rightActionButtonKey,
             key: key);
 
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final FooterType footerType;
   final String? contentImage;
   final Color? contentImageColor;
@@ -102,13 +106,13 @@ class InfoBottomSheet extends BaseBottomSheet {
                     child: AutoSizeText(
                       content!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        decoration: TextDecoration.none,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                             
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            decoration: TextDecoration.none,
+                          ),
                     ),
                   ),
                   const Spacer(flex: 2),

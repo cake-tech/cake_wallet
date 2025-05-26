@@ -56,7 +56,7 @@ class _AnonpayDetailsPageBodyState extends State<AnonpayDetailsPageBody> {
               id: item.id,
               create: item.createdAt,
               pair: item.pair,
-              currentTheme: widget.anonpayDetailsViewModel.settingsStore.currentTheme.type,
+              currentTheme: widget.anonpayDetailsViewModel.themeStore.currentTheme.type,
               onTap: item.onTap,
             );
           }

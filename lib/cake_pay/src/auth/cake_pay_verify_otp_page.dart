@@ -7,8 +7,6 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_auth_view_model.dart';
@@ -42,7 +40,7 @@ class CakePayVerifyOtpPage extends BasePage {
     return Text(
       S.current.verification,
       style: textMediumSemiBold(
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -63,7 +61,7 @@ class CakePayVerifyOtpPage extends BasePage {
     return KeyboardActions(
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+          keyboardBarColor: Theme.of(context).colorScheme.surface,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -73,7 +71,7 @@ class CakePayVerifyOtpPage extends BasePage {
           ]),
       child: Container(
         height: 0,
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.all(24),
           content: Column(
@@ -88,7 +86,9 @@ class CakePayVerifyOtpPage extends BasePage {
               SizedBox(height: 14),
               Text(
                 S.of(context).fill_code,
-                style: TextStyle(color: Color(0xff7A93BA), fontSize: 12),
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
               SizedBox(height: 34),
               Row(
@@ -100,7 +100,9 @@ class CakePayVerifyOtpPage extends BasePage {
                     onTap: () => _authViewModel.logIn(_email),
                     child: Text(
                       S.of(context).resend_code,
-                      style: textSmallSemiBold(color: Palette.blueCraiola),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                     ),
                   ),
                 ],
@@ -119,8 +121,8 @@ class CakePayVerifyOtpPage extends BasePage {
                       onPressed: _verify,
                       isDisabled: _authViewModel.otpState is CakePayOtpSendDisabled,
                       isLoading: _authViewModel.otpState is CakePayOtpValidating,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                   SizedBox(height: 20),
@@ -144,6 +146,7 @@ class CakePayVerifyOtpPage extends BasePage {
               buttonAction: () => Navigator.of(context).pop());
         });
   }
+
 
   void _onOtpSuccessful(BuildContext context) =>
       Navigator.pop(context, true);

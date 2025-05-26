@@ -37,8 +37,8 @@ class MwebNodePage extends BasePage {
             builder: (_) => LoadingPrimaryButton(
               onPressed: () => save(context),
               text: S.of(context).save,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
           bottom: 24,

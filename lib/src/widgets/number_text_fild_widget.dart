@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -60,10 +58,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
 
   @override
   Widget build(BuildContext context) => TextField(
-      style: TextStyle(
-          color: widget.titleColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-          fontSize: 16,
-          fontWeight: FontWeight.w600),
+  style: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurfaceVariant),
       enableInteractiveSelection: false,
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.bottom,
@@ -73,6 +68,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
       keyboardType: TextInputType.number,
       maxLength: widget.max.toString().length + (widget.min.isNegative ? 1 : 0),
       decoration: InputDecoration(
+
           border: InputBorder.none,
           contentPadding: EdgeInsets.all(0),
           fillColor: Colors.transparent,
@@ -87,7 +83,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
                   child: Container(
                     width: widget.arrowsWidth,
                       alignment: Alignment.bottomCenter,
-                      child: Icon(Icons.keyboard_arrow_left_outlined ,size: widget.arrowsWidth, color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor)),
+                      child: Icon(Icons.keyboard_arrow_left_outlined ,size: widget.arrowsWidth)),
                   onTap: _canGoDown ? () => _update(false) : null)),
           suffixIcon: Material(
               type: MaterialType.transparency,
@@ -95,7 +91,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
                   child: Container(
                     width: widget.arrowsWidth,
                     alignment: Alignment.bottomCenter,
-                      child: Icon(Icons.keyboard_arrow_right_outlined, size: widget.arrowsWidth,color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor)),
+                      child: Icon(Icons.keyboard_arrow_right_outlined, size: widget.arrowsWidth)),
                   onTap: _canGoUp ? () => _update(true) : null))),
       maxLines: 1,
       onChanged: (value) {

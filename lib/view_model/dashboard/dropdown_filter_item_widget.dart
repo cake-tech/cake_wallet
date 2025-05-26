@@ -1,7 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class DropdownFilterList extends StatelessWidget {
@@ -24,41 +21,40 @@ class DropdownFilterList extends StatelessWidget {
   Widget build(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
-        isDense: true,
-        dropdownColor: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(10),
-        selectedItemBuilder: (context) => items
-            .map(
-              (item) => AutoSizeText(
-                '${itemPrefix ?? ''} $item',
-                style: textStyle,
-                maxLines: 1,
-              ),
-            )
-            .toList(),
-        items: items
-            .map(
-              (item) => DropdownMenuItem<String>(
-                value: item,
-                alignment: Alignment.centerLeft,
-                child: AutoSizeText(
+          isDense: true,
+          dropdownColor: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.circular(10),
+          selectedItemBuilder: (context) => items
+              .map(
+                (item) => AutoSizeText(
                   '${itemPrefix ?? ''} $item',
-                  style: (textStyle ?? const TextStyle()).copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: textStyle,
                   maxLines: 1,
                 ),
-              ),
-            )
-            .toList(),
-        value: selectedItem,
-        onChanged: (value) {
-          if (value != null) onItemSelected(value);
-        },
-        icon: Icon(Icons.keyboard_arrow_down_outlined,
-            color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
-      ),
+              )
+              .toList(),
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  alignment: Alignment.centerLeft,
+                  child: AutoSizeText(
+                    '${itemPrefix ?? ''} $item',
+                    style: (textStyle ?? const TextStyle()).copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedItem,
+          onChanged: (value) {
+            if (value != null) onItemSelected(value);
+          },
+          icon: Icon(Icons.keyboard_arrow_down_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant)),
     );
   }
 }

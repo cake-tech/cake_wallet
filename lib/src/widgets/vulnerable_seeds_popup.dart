@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class VulnerableSeedsPopup extends StatelessWidget {
@@ -23,10 +22,8 @@ class VulnerableSeedsPopup extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).extension<DashboardPageTheme>()!.firstGradientBackgroundColor,
-                    Theme.of(context)
-                        .extension<DashboardPageTheme>()!
-                        .secondGradientBackgroundColor,
+                    Theme.of(context).colorScheme.primaryContainer,
+                    Theme.of(context).colorScheme.secondaryContainer,
                   ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -38,12 +35,12 @@ class VulnerableSeedsPopup extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               decoration: TextDecoration.none,
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Lato',
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                               
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             child: Text("Emergency Notice"),
                           ),
@@ -63,13 +60,12 @@ class VulnerableSeedsPopup extends StatelessWidget {
                                 ),
                                 child: Text(
                                   "Your Bitcoin wallet(s) below use a legacy seed format that is vulnerable, which MAY result in you losing money from these wallet(s) if no action is taken.\nWe recommend that you IMMEDIATELY create wallet(s) in Cake Wallet and immediately transfer the funds to these wallet(s).\nVulnerable wallet name(s):\n\n[${affectedWalletNames.join(", ")}]\n\nFor assistance, please use the in-app support or email support@cakewallet.com",
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     decoration: TextDecoration.none,
                                     fontSize: 16.0,
-                                    fontFamily: 'Lato',
+                                     
                                     color: Theme.of(context)
-                                        .extension<DashboardPageTheme>()!
-                                        .textColor,
+                                        .colorScheme.onSurface,
                                   ),
                                 ),
                               )

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';

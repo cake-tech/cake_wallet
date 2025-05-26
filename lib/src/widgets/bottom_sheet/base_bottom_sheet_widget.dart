@@ -1,8 +1,7 @@
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 enum FooterType { none, slideActionButton, singleActionButton, doubleActionButton }
 
@@ -25,15 +24,12 @@ abstract class BaseBottomSheet extends StatelessWidget {
     this.onRightActionButtonPressed,
     this.leftActionButtonKey,
     this.rightActionButtonKey,
-  }) : assert(
-  footerType == FooterType.none || currentTheme != null,
-  'currentTheme is required unless footerType is none'
-  );
-
+  }) : assert(footerType == FooterType.none || currentTheme != null,
+            'currentTheme is required unless footerType is none');
 
   final String titleText;
   final String? titleIconPath;
-  final ThemeBase? currentTheme;
+  final MaterialThemeBase? currentTheme;
   final FooterType footerType;
   final String? slideActionButtonText;
   final VoidCallback? onSlideActionComplete;
@@ -58,7 +54,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
         borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
         child: Container(
-          color: Theme.of(context).dialogBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -80,7 +76,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
             height: 5,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 20),
@@ -93,11 +89,11 @@ abstract class BaseBottomSheet extends StatelessWidget {
               ],
               Text(
                 titleText,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                ),
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.none,
+                    ),
               ),
             ],
           ),
@@ -107,10 +103,10 @@ abstract class BaseBottomSheet extends StatelessWidget {
 
   Widget _buildFooter(BuildContext context) {
     switch (footerType) {
-    case FooterType.none:
-    return const SizedBox.shrink();
+      case FooterType.none:
+        return const SizedBox.shrink();
 
-    case FooterType.slideActionButton:
+      case FooterType.slideActionButton:
         return Padding(
           padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
           child: StandardSlideButton(
@@ -148,7 +144,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
                   color: currentTheme!.type == ThemeType.dark
                       ? Theme.of(context).cardColor
                       : Theme.of(context).dialogBackgroundColor,
-                  textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                  textColor: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(width: 12),
@@ -158,7 +154,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
                   text: doubleActionRightButtonText ?? '',
                   onPressed: onRightActionButtonPressed,
                   color: Theme.of(context).primaryColor,
-                  textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                  textColor: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],

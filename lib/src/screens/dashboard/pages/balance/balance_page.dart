@@ -2,7 +2,6 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/crypto_balance_widget.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
@@ -37,34 +36,26 @@ class BalancePage extends StatelessWidget {
                     child: TabBar(
                       indicatorSize: TabBarIndicatorSize.label,
                       isScrollable: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      labelStyle: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color:
-                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                        height: 1,
-                      ),
-                      unselectedLabelStyle: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color:
-                            Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                        height: 1,
-                      ),
-                      labelColor:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      physics: const NeverScrollableScrollPhysics(),
+                      labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            height: 1,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                      unselectedLabelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            height: 1,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                      labelColor: Theme.of(context).colorScheme.primary,
                       dividerColor: Colors.transparent,
-                      indicatorColor:
-                          Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                      unselectedLabelColor: Theme.of(context)
-                          .extension<DashboardPageTheme>()!
-                          .pageTitleTextColor
-                          .withOpacity(0.5),
+                      indicatorColor: Theme.of(context).colorScheme.primary,
+                      unselectedLabelColor:
+                          Theme.of(context).colorScheme.secondary.withOpacity(0.7),
                       tabAlignment: TabAlignment.start,
-                      tabs: [
+                      tabs: const [
                         Tab(text: 'My Crypto'),
                         Tab(text: 'My NFTs'),
                       ],
@@ -73,7 +64,7 @@ class BalancePage extends StatelessWidget {
                 ),
               Expanded(
                 child: TabBarView(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
                     CryptoBalanceWidget(dashboardViewModel: dashboardViewModel),
                     if (isNFTActivated) NFTListingPage(nftViewModel: nftViewModel)

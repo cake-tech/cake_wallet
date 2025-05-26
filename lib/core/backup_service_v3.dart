@@ -177,7 +177,7 @@ class BackupServiceV3 extends $BackupService {
         final archive = ZipDecoder().decodeStream(inputStream);
         final metadataFile = archive.findFile('metadata.json');
         if (metadataFile == null) {
-          throw Exception('Invalid v3 backup: missing metadata.json');
+          return BackupVersion.unknown;
         }
         final metadataBytes = metadataFile.rawContent!.readBytes();
         final metadataString = utf8.decode(metadataBytes);
@@ -188,7 +188,7 @@ class BackupServiceV3 extends $BackupService {
         }
       }
 
-      throw Exception('Invalid backup file: unknown version');
+      return BackupVersion.unknown;
     } finally {
       raf.closeSync();
     }

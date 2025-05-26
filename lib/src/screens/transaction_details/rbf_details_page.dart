@@ -105,8 +105,8 @@ class RBFDetailsPage extends BasePage {
                       text: S.of(context).send,
                       isLoading:
                           transactionDetailsViewModel.sendViewModel.state is IsExecutingState,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                     ))),
       ],
     );

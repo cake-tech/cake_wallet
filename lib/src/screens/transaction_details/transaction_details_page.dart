@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -115,10 +114,10 @@ class TransactionDetailsPage extends BasePage {
     required String value,
     required WalletType walletType,
   }) {
-    final textStyle = TextStyle(
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
       fontSize: 16,
       fontWeight: FontWeight.w500,
-      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+      color: Theme.of(context).colorScheme.onSurface,
     );
     final List<Widget> children = [];
     final bool hasDoubleNewline = value.contains('\n\n');

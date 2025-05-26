@@ -41,7 +41,9 @@ class CardItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             border: hideBorder
                 ? Border.all(color: Colors.transparent)
-                : Border.all(color: Colors.white.withOpacity(0.20)),
+                : Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.20),
+                  ),
           ),
           child: Row(
             children: [
@@ -72,7 +74,7 @@ class CardItem extends StatelessWidget {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: titleColor,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -82,7 +84,7 @@ class CardItem extends StatelessWidget {
                         subTitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           color: titleColor,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,

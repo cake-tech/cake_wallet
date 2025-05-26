@@ -1,6 +1,3 @@
-import 'package:cake_wallet/themes/extensions/option_tile_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
-import 'package:cake_wallet/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -60,40 +57,36 @@ class ProviderOptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = isSelected
-        ? isLightMode
-            ? Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor
-            : Theme.of(context).extension<OptionTileTheme>()!.titleColor
-        : Theme.of(context).cardColor;
+        ? Theme.of(context).colorScheme.primary
+        : Theme.of(context).colorScheme.surfaceContainer;
 
     final textColor = isSelected
-        ? isLightMode
-            ? Colors.white
-            : Theme.of(context).cardColor
-        : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+        ? Theme.of(context).colorScheme.onPrimary
+        : Theme.of(context).colorScheme.onSurface;
 
     final badgeColor = isSelected
-        ? Theme.of(context).cardColor
-        : Theme.of(context).extension<OptionTileTheme>()!.titleColor;
+        ? Theme.of(context).colorScheme.surfaceContainer
+        : Theme.of(context).colorScheme.onSurface;
 
     final badgeTextColor = isSelected
-        ? Theme.of(context).extension<OptionTileTheme>()!.titleColor
-        : Theme.of(context).cardColor;
+        ? Theme.of(context).colorScheme.onSurface
+        : Theme.of(context).colorScheme.surfaceContainer;
 
     final imagePath = isSelected
-        ? isLightMode
+        ? !isLightMode
             ? darkImagePath
             : lightImagePath
-        : isLightMode
-            ? lightImagePath
-            : darkImagePath;
+        : !isLightMode
+            ? darkImagePath
+            : lightImagePath;
 
     final rightSubTitleIconPath = isSelected
-        ? isLightMode
+        ? !isLightMode
             ? rightSubTitleDarkIconPath
             : rightSubTitleLightIconPath
-        : isLightMode
-            ? rightSubTitleLightIconPath
-            : rightSubTitleDarkIconPath;
+        : !isLightMode
+            ? rightSubTitleDarkIconPath
+            : rightSubTitleLightIconPath;
 
     return GestureDetector(
       onTap: onPressed,
@@ -112,15 +105,24 @@ class ProviderOptionTile extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  getImage(imagePath, height: imageHeight, width: imageWidth),
+                  getImage(imagePath,
+                      height: imageHeight, width: imageWidth, imageColor: textColor),
                   SizedBox(width: 8),
                   Expanded(
                     child: Container(
                       child: Row(
                         children: [
                           Expanded(
-                              child: Text(title,
-                                  style: titleTextStyle ?? textLargeBold(color: textColor))),
+                            child: Text(
+                              title,
+                              style: titleTextStyle ??
+                                  Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                        color: textColor,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
+                                      ),
+                            ),
+                          ),
                           Row(
                             children: [
                               if (leadingIcon != null)
@@ -142,18 +144,26 @@ class ProviderOptionTile extends StatelessWidget {
                     rightSubTitleIconPath: rightSubTitleIconPath),
               if (bottomLeftSubTitle != null || bottomRightSubTitle != null)
                 subTitleWidget(
-                    leftSubTitle: bottomLeftSubTitle,
-                    textColor: textColor,
-                    subTitleFontSize: 12),
+                  leftSubTitle: bottomLeftSubTitle,
+                  textColor: textColor,
+                  subTitleFontSize: 12,
+                ),
               if (badges != null && badges!.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 12),
-                  child: Row(children: [
-                    ...badges!
-                        .map((badge) => Badge(
-                            title: badge, textColor: badgeTextColor, backgroundColor: badgeColor))
-                        .toList()
-                  ]),
+                  child: Row(
+                    children: [
+                      ...badges!
+                          .map(
+                            (badge) => Badge(
+                              title: badge,
+                              textColor: badgeTextColor,
+                              backgroundColor: badgeColor,
+                            ),
+                          )
+                          .toList()
+                    ],
+                  ),
                 )
             ],
           ),
@@ -188,21 +198,19 @@ class subTitleWidget extends StatelessWidget {
       children: [
         leftSubTitle != null || subTitleIconPath != null
             ? Row(
-              children: [
-                if (subTitleIconPath != null && subTitleIconPath!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: getImage(subTitleIconPath!),
+                children: [
+                  if (subTitleIconPath != null && subTitleIconPath!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: getImage(subTitleIconPath!),
+                    ),
+                  Text(
+                    leftSubTitle ?? '',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: subTitleFontSize, fontWeight: FontWeight.w700, color: textColor),
                   ),
-                Text(
-                  leftSubTitle ?? '',
-                  style: TextStyle(
-                      fontSize: subTitleFontSize,
-                      fontWeight: FontWeight.w700,
-                      color: textColor),
-                ),
-              ],
-            )
+                ],
+              )
             : Offstage(),
         rightSubTitle != null || rightSubTitleIconPath != null
             ? Row(
@@ -214,7 +222,7 @@ class subTitleWidget extends StatelessWidget {
                     ),
                   Text(
                     rightSubTitle ?? '',
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: subTitleFontSize, fontWeight: FontWeight.w700, color: textColor),
                   ),
                 ],
@@ -245,11 +253,10 @@ class Badge extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             title,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
         ),
       ),
@@ -373,8 +380,8 @@ class _OptionTilePlaceholderState extends State<OptionTilePlaceholder>
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = Theme.of(context).cardColor;
-    final titleColor = Theme.of(context).extension<OptionTileTheme>()!.titleColor.withOpacity(0.4);
+    final backgroundColor = Theme.of(context).colorScheme.surfaceContainer;
+    final titleColor = Theme.of(context).colorScheme.onSurface.withOpacity(0.4);
 
     return widget.errorText != null
         ? Container(
@@ -382,25 +389,27 @@ class _OptionTilePlaceholderState extends State<OptionTilePlaceholder>
             padding: widget.padding ?? EdgeInsets.all(16),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius ?? 12)),
+              borderRadius: BorderRadius.all(
+                Radius.circular(widget.borderRadius ?? 12),
+              ),
               color: backgroundColor,
             ),
             child: Column(
               children: [
                 Text(
                   widget.errorText!,
-                  style: TextStyle(
-                    color: titleColor,
-                    fontSize: 16,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: titleColor,
+                        fontSize: 16,
+                      ),
                 ),
                 if (widget.withSubtitle) SizedBox(height: 8),
                 Text(
                   '',
-                  style: TextStyle(
-                    color: titleColor,
-                    fontSize: 16,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: titleColor,
+                        fontSize: 16,
+                      ),
                 ),
               ],
             ),
