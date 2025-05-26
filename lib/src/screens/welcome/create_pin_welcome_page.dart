@@ -164,6 +164,7 @@ class CreatePinWelcomePage extends BasePage {
                       if (!isMoneroOnly)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             AnimatedTypingText(
                               words: [S.current.payments, S.current.privacy, S.current.security],
@@ -175,7 +176,7 @@ class CreatePinWelcomePage extends BasePage {
                               cursorHeight: 24,
                               cursorWidth: 4,
                             ),
-                            SizedBox(width: 8),
+                            SizedBox(width: 4),
                             Text(
                               S.current.made_easy,
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
