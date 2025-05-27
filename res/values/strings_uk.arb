@@ -602,6 +602,7 @@
   "proceed_on_device": "Продовжуйте свій пристрій",
   "proceed_on_device_description": "Будь ласка, дотримуйтесь інструкцій, підказаних на вашому апаратному гаманці",
   "processing": "Обробка",
+  "processing_signed_tx": "Обробка підписана транзакція",
   "profile": "Профіль",
   "provider_error": "${provider} помилка",
   "public_key": "Публічний ключ",

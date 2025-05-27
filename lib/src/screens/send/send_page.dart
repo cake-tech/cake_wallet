@@ -693,7 +693,7 @@ class SendPage extends BasePage {
             isDismissible: false,
             builder: (context) {
               dialogContext = context;
-              return LoadingBottomSheet(titleText: S.of(context).device_is_signing);
+              return LoadingBottomSheet(titleText: S.of(context).processing_signed_tx);
             },
           );
         });

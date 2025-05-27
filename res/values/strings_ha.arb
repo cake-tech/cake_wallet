@@ -604,6 +604,7 @@
   "proceed_on_device": "Ci gaba akan na'urarka",
   "proceed_on_device_description": "Da fatan za a bi umarnin akan walatware",
   "processing": "Aiki",
+  "processing_signed_tx": "Gudanar da Kasuwancin Samfura",
   "profile": "Rabin fuska",
   "provider_error": "${provider} kuskure",
   "public_key": "Maɓallin jama'a",

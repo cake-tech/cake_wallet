@@ -602,6 +602,7 @@
   "proceed_on_device": "Magpatuloy sa iyong hardware wallet",
   "proceed_on_device_description": "Mangyaring sundin ang mga tagubilin na sinenyasan sa iyong hardware wallet",
   "processing": "Pagproseso",
+  "processing_signed_tx": "Pagproseso ng naka -sign transaksyon",
   "profile": "Profile",
   "provider_error": "${provider} error",
   "public_key": "Public key",
