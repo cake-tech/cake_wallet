@@ -643,7 +643,7 @@ class SendPage extends BasePage {
                                 fontSize: 14,
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w500,
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                color: Theme.of(context).textTheme.titleLarge!.color,
                                 decoration: TextDecoration.none,
                               ),
                             ),

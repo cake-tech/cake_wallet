@@ -1,9 +1,5 @@
 import 'package:cake_wallet/entities/country.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:flutter/material.dart';
 
@@ -53,8 +49,7 @@ class _CakePaySearchBarState extends State<CakePaySearchBar> {
       height: 32,
       child: Row(
         children: [
-          Expanded(
-              child: _SearchWidget(controller: _searchController, focusNode: _searchFocusNode)),
+          Expanded(child: SearchBarWidget(searchController: _searchController)),
           const SizedBox(width: 5),
           _CakePayFilterButton(onFilter: widget.onFilter),
           if (widget.selectedCountry != null)
@@ -64,47 +59,6 @@ class _CakePaySearchBarState extends State<CakePaySearchBar> {
             ),
         ],
       ),
-    );
-  }
-}
-
-class _SearchWidget extends StatelessWidget {
-  const _SearchWidget({required this.controller, required this.focusNode});
-
-  final TextEditingController controller;
-  final FocusNode focusNode;
-
-  @override
-  Widget build(BuildContext context) {
-    final searchIcon = ExcludeSemantics(
-        child: Icon(Icons.search,
-            color: Theme.of(context).extension<FilterTheme>()!.iconColor, size: 24));
-
-    return TextField(
-      focusNode: focusNode,
-      style: TextStyle(color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
-      controller: controller,
-      decoration: InputDecoration(
-          filled: true,
-          contentPadding: EdgeInsets.only(top: 8, left: 8),
-          fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-          hintText: S.of(context).search,
-          hintStyle: TextStyle(
-            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-          ),
-          alignLabelWithHint: true,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          suffixIcon: searchIcon,
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.transparent,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
-            borderRadius: BorderRadius.circular(10),
-          )),
     );
   }
 }
@@ -119,15 +73,13 @@ class _CakePayFilterButton extends StatelessWidget {
     return GestureDetector(
       onTap: onFilter,
       child: Container(
-        width: 32,
-        padding: const EdgeInsets.symmetric(vertical: 7),
-        decoration: BoxDecoration(
-          color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Image.asset('assets/images/filter_icon.png',
-            color: Theme.of(context).extension<FilterTheme>()!.iconColor),
-      ),
+          width: 32,
+          padding: const EdgeInsets.symmetric(vertical: 7),
+          decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(10)),
+          child: Image.asset('assets/images/filter_icon.png',
+              color: Theme.of(context).colorScheme.onSurface)),
     );
   }
 }
@@ -148,7 +100,7 @@ class _CountryPickerWidget extends StatelessWidget {
           height: 32,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-              color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              color: Theme.of(context).colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(10)),
           child: Row(
             children: [
@@ -162,7 +114,7 @@ class _CountryPickerWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],

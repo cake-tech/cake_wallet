@@ -14,12 +14,7 @@ import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/tab_view_wrapper_widget.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -83,11 +78,11 @@ class CakePayCardsPage extends BasePage {
         onPressed: _handleOnPressed,
         icon: CircleAvatar(
           radius: 12,
-          backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           child: Text(
             letter,
             style: TextStyle(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -99,7 +94,9 @@ class CakePayCardsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return CakePayCardsPageBody(
-        cardsListViewModel: _cardsListViewModel, currentTheme: currentTheme, titleColor: titleColor);
+        cardsListViewModel: _cardsListViewModel,
+        currentTheme: currentTheme,
+        titleColor: titleColor);
   }
 }
 
@@ -107,11 +104,12 @@ class CakePayCardsPageBody extends StatefulWidget {
   const CakePayCardsPageBody({
     super.key,
     required CakePayCardsListViewModel cardsListViewModel,
-    required this.currentTheme, required this.titleColor,
+    required this.currentTheme,
+    required this.titleColor,
   }) : _cardsListViewModel = cardsListViewModel;
 
   final CakePayCardsListViewModel _cardsListViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final Color? Function(BuildContext) titleColor;
 
   @override
@@ -172,26 +170,27 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
           child: Column(children: [
             Expanded(
               child: TabViewWrapper(
-                labelStyle: TextStyle(
-                    color: titleColor,
-                    fontFamily: 'Lato',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600),
-                unselectedLabelStyle: TextStyle(
-                    color: titleColor?.withAlpha(150) ?? Colors.white70,
-                    fontFamily: 'Lato',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400),
-                indicatorColor: titleColor,
+                  labelStyle: TextStyle(
+                      color: titleColor,
+                      fontFamily: 'Lato',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600),
+                  unselectedLabelStyle: TextStyle(
+                      color: titleColor?.withAlpha(150) ?? Colors.white70,
+                      fontFamily: 'Lato',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400),
+                  indicatorColor: titleColor,
                   tabs: const [
-                Tab(text: 'My Cards'),
-                Tab(text: 'Shop')
-              ], views: [
-                _MyCardsTab(
-                    cardsListViewModel: widget._cardsListViewModel,
-                    currentTheme: widget.currentTheme),
-                _ShopTab(cardsListViewModel: widget._cardsListViewModel)
-              ]),
+                    Tab(text: 'My Cards'),
+                    Tab(text: 'Shop')
+                  ],
+                  views: [
+                    _MyCardsTab(
+                        cardsListViewModel: widget._cardsListViewModel,
+                        currentTheme: widget.currentTheme),
+                    _ShopTab(cardsListViewModel: widget._cardsListViewModel)
+                  ]),
             )
           ]));
     });
@@ -261,19 +260,14 @@ class _MyCardsTab extends StatefulWidget {
   const _MyCardsTab({required this.cardsListViewModel, required this.currentTheme});
 
   final CakePayCardsListViewModel cardsListViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   State<_MyCardsTab> createState() => _MyCardsTabState();
 }
 
 class _MyCardsTabState extends State<_MyCardsTab> {
-  static const double _thumbHeight = 72;
   late final TextEditingController _searchController;
-
-
-  late final ScrollController _scrollController;
-  double _thumbOffset = 0;
 
   @override
   void initState() {
@@ -282,21 +276,10 @@ class _MyCardsTabState extends State<_MyCardsTab> {
     _searchController = TextEditingController(
       text: widget.cardsListViewModel.searchMyCardsString,
     );
-
-    _scrollController = ScrollController()
-      ..addListener(() {
-        if (!_scrollController.hasClients) return;
-        final max = _scrollController.position.maxScrollExtent;
-        final bg = MediaQuery.of(context).size.height * 0.75;
-        setState(() {
-          _thumbOffset = max == 0 ? 0 : _scrollController.offset / max * (bg - _thumbHeight);
-        });
-      });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
   }
 
@@ -307,12 +290,12 @@ class _MyCardsTabState extends State<_MyCardsTab> {
       return Column(
         children: [
           Padding(
-              padding: const EdgeInsets.fromLTRB(2, 8, 0, 8),
+              padding: const EdgeInsets.fromLTRB(2, 6, 0, 6),
               child: CakePaySearchBar(
                 initialQuery: viewModel.searchMyCardsString,
                 controller: _searchController,
                 onSearch: viewModel.setMyCardsQuery,
-                onFilter: () async {},// TODO: implement filter
+                onFilter: () async {}, // TODO: implement filter
               )),
           Expanded(
             child: Observer(builder: (_) {
@@ -321,48 +304,35 @@ class _MyCardsTabState extends State<_MyCardsTab> {
               if (viewModel.userCardState is UserCakePayCardsStateNoCards)
                 return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
 
-              final showThumb = cards.length > 3;
-              final bgHeight = MediaQuery.of(context).size.height * 0.75;
-            return Stack(
-              children: [
-                GridView.builder(
-                  controller: _scrollController,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      childAspectRatio: 1.25,
-                      crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 3 : 2,
-                      crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
-                      mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5),
-                  padding: const EdgeInsets.only(left: 2, right: 22),
-                  itemCount: cards.length,
-                  itemBuilder: (_, i) {
-                    final c = cards[i];
-                    return UserCardItem(
-                      logoUrl: c.cardImageUrl,
-                      title: c.name,
-                      subTitle: '\$100',
-                      backgroundColor:
-                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                      titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                      subtitleColor:
-                          Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                      onTap: () => _showCardInfoBottomSheet(context, c, widget.currentTheme),
-                    );
-                  },
-                ),
-                if (showThumb)
-                  CakeScrollbar(
-                    backgroundHeight: bgHeight,
-                    thumbHeight: _thumbHeight,
-                    fromTop: _thumbOffset,
-                    rightOffset: 1,
-                    width: 3,
-                    backgroundColor:
-                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
-                    thumbColor:
-                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
+              final showThumb = cards.length > 6;
+              final userCardsList = Stack(
+                children: [
+                  GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        childAspectRatio: 1.25,
+                        crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 3 : 2,
+                        crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+                        mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5),
+                    padding: EdgeInsets.only(left: 2, right: showThumb ? 10 : 22),
+                    itemCount: cards.length,
+                    itemBuilder: (_, i) {
+                      final card = cards[i];
+                      return UserCardItem(
+                        logoUrl: card.cardImageUrl,
+                        title: card.name,
+                        subTitle: '\$100',
+                        onTap: () => _showCardInfoBottomSheet(context, card, widget.currentTheme),
+                      );
+                    },
                   ),
-              ],
-            );
+                ],
+              );
+              return showThumb ? Scrollbar(
+                key: ValueKey('cake_pay_my_cards_tab_scrollbar_key'),
+                thumbVisibility: true,
+                trackVisibility: true,
+                child: userCardsList,
+              ) : userCardsList;
             }),
           ),
         ],
@@ -372,7 +342,7 @@ class _MyCardsTabState extends State<_MyCardsTab> {
 }
 
 Future<void> _showCardInfoBottomSheet(
-    BuildContext context, CakePayCard card, ThemeBase currentTheme) async {
+    BuildContext context, CakePayCard card, MaterialThemeBase currentTheme) async {
   bool isReloadable = false; // TODO: replace with real logic
   if (card.name.toLowerCase().contains('prepaid')) {
     isReloadable = true;
@@ -427,10 +397,8 @@ class _ShopTab extends StatefulWidget {
 }
 
 class _ShopTabState extends State<_ShopTab> {
-  static const double _thumbHeight = 72;
-
   late final ScrollController _scroll;
-  double _thumbOffset = 0;
+
 
   @override
   void initState() {
@@ -438,12 +406,7 @@ class _ShopTabState extends State<_ShopTab> {
     _scroll = ScrollController()
       ..addListener(() {
         if (!_scroll.hasClients) return;
-
         final max = _scroll.position.maxScrollExtent;
-        final bg = MediaQuery.of(context).size.height * 0.75;
-        setState(() {
-          _thumbOffset = max == 0 ? 0 : _scroll.offset / max * (bg - _thumbHeight);
-        });
 
         final threshold = 200.0;
         if (_scroll.offset >= max - threshold && !_scroll.position.outOfRange) {
@@ -465,7 +428,7 @@ class _ShopTabState extends State<_ShopTab> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(2, 8, 22, 8),
+          padding: const EdgeInsets.fromLTRB(2, 6, 0, 6),
           child: CakePaySearchBar(
             initialQuery: viewModel.searchString,
             onSearch: (String searchText) {
@@ -494,66 +457,54 @@ class _ShopTabState extends State<_ShopTab> {
             selectedCountry: viewModel.selectedCountry,
           ),
         ),
-        Observer(builder: (_) {
-          final vendors = viewModel.cakePayVendors;
+        Expanded(
+          child: Observer(builder: (_) {
+            final vendors = viewModel.cakePayVendors;
 
-          if (viewModel.vendorsState is! CakePayVendorLoadedState) {
-            return Expanded(child: const _Loading());
-          }
+            if (viewModel.vendorsState is! CakePayVendorLoadedState) {
+              return const _Loading();
+            }
 
-          if (vendors.isEmpty)
-            return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
+            if (vendors.isEmpty)
+              return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
 
-          final loadingMore = viewModel.isLoadingNextPage;
-          final showThumb = vendors.length > 3;
-          final bgHeight = MediaQuery.of(context).size.height * 0.75;
-          return Expanded(
-            child: Stack(
+            final loadingMore = viewModel.isLoadingNextPage;
+            final showThumb = vendors.length > 3;
+            final cardsList = Stack(
               children: [
                 GridView.builder(
                   controller: _scroll,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 2 : 1,
-                    childAspectRatio: 5,
-                    crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
-                    mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
-                  ),
-                  padding: const EdgeInsets.only(left: 2, right: 22),
+                      crossAxisCount: responsiveLayoutUtil.shouldRenderTabletUI ? 2 : 1,
+                      childAspectRatio: 5,
+                      crossAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5,
+                      mainAxisSpacing: responsiveLayoutUtil.shouldRenderTabletUI ? 10 : 5),
+                  padding: EdgeInsets.only(left: 2, right: showThumb ? 10 : 22),
                   itemCount: vendors.length + (loadingMore ? 1 : 0),
                   itemBuilder: (_, i) {
                     if (i >= vendors.length) return const _Loading();
-                    final v = vendors[i];
+                    final vendor = vendors[i];
                     return CardItem(
-                      logoUrl: v.card?.cardImageUrl,
-                      title: v.name,
-                      subTitle: v.card?.description ?? '',
-                      discount: 0,
-                      backgroundColor:
-                          Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                      titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                      subtitleColor:
-                          Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-                      onTap: () =>
-                          Navigator.pushNamed(context, Routes.cakePayBuyCardPage, arguments: [v]),
-                    );
+                        logoUrl: vendor.card?.cardImageUrl,
+                        title: vendor.name,
+                        subTitle: vendor.card?.description ?? '',
+                        onTap: () => Navigator.pushNamed(context, Routes.cakePayBuyCardPage,
+                            arguments: [vendor]));
                   },
                 ),
-                if (showThumb)
-                  CakeScrollbar(
-                    backgroundHeight: bgHeight,
-                    thumbHeight: _thumbHeight,
-                    fromTop: _thumbOffset,
-                    rightOffset: 1,
-                    width: 3,
-                    backgroundColor:
-                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.05),
-                    thumbColor:
-                        Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(.5),
-                  ),
               ],
-            ),
-          );
-        }),
+            );
+            return showThumb
+                ? Scrollbar(
+                    key: ValueKey('cake_pay_shop_tab_scrollbar_key'),
+                    thumbVisibility: true,
+                    trackVisibility: true,
+                    controller: _scroll,
+                    child: cardsList,
+                  )
+                : cardsList;
+          }),
+        ),
       ],
     );
   }
@@ -564,11 +515,6 @@ class _Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: CircularProgressIndicator(
-          backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-          valueColor: AlwaysStoppedAnimation<Color>(
-            Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
-          ),
-        ),
+        child: CircularProgressIndicator(),
       );
 }

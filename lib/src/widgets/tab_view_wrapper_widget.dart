@@ -43,7 +43,7 @@ class _TabViewWrapperState extends State<TabViewWrapper> with SingleTickerProvid
         fontSize: 18,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).appBarTheme.titleTextStyle!.color);
+        color: Theme.of(context).colorScheme.onSurface);
 
     return Column(
       children: [

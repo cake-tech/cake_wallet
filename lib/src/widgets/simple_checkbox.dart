@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class SimpleCheckbox extends StatefulWidget {
@@ -24,11 +23,11 @@ class _SimpleCheckboxState extends State<SimpleCheckbox> {
           initialValue = value!;
           widget.onChanged?.call(value);
         }),
-        checkColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        checkColor: Theme.of(context).textTheme.titleLarge!.color,
         activeColor: Colors.transparent,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
-            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor, width: 1.0)),
+            color: Theme.of(context).textTheme.titleLarge!.color!, width: 1.0)),
       ),
     );
   }

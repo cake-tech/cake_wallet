@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class DropdownFilterList extends StatelessWidget {
@@ -8,13 +7,11 @@ class DropdownFilterList extends StatelessWidget {
     required this.selectedItem,
     required this.onItemSelected,
     this.itemPrefix,
-    this.textStyle,
   }) : super(key: key);
 
   final List<String> items;
   final String selectedItem;
   final String? itemPrefix;
-  final TextStyle? textStyle;
   final ValueChanged<String> onItemSelected;
 
   @override
@@ -26,9 +23,9 @@ class DropdownFilterList extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           selectedItemBuilder: (context) => items
               .map(
-                (item) => AutoSizeText(
+                (item) => Text(
                   '${itemPrefix ?? ''} $item',
-                  style: textStyle,
+                  style: Theme.of(context).textTheme.titleMedium!,
                   maxLines: 1,
                 ),
               )
@@ -38,9 +35,9 @@ class DropdownFilterList extends StatelessWidget {
                 (item) => DropdownMenuItem<String>(
                   value: item,
                   alignment: Alignment.centerLeft,
-                  child: AutoSizeText(
+                  child: Text(
                     '${itemPrefix ?? ''} $item',
-                    style: (textStyle ?? const TextStyle()).copyWith(
+                    style: (const TextStyle()).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),

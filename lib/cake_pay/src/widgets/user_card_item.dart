@@ -5,10 +5,6 @@ class UserCardItem extends StatelessWidget {
   UserCardItem({
     required this.title,
     required this.subTitle,
-    required this.backgroundColor,
-    required this.titleColor,
-    required this.subtitleColor,
-    this.hideBorder = true,
     this.onTap,
     this.logoUrl
   });
@@ -17,10 +13,6 @@ class UserCardItem extends StatelessWidget {
   final String title;
   final String subTitle;
   final String? logoUrl;
-  final bool hideBorder;
-  final Color backgroundColor;
-  final Color titleColor;
-  final Color subtitleColor;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +25,8 @@ class UserCardItem extends StatelessWidget {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: backgroundColor,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(15),
-            border: hideBorder
-                ? Border.all(color: Colors.transparent)
-                : Border.all(color: Colors.white.withOpacity(0.20)),
           ),
           child: Column(
             children: [
@@ -66,28 +55,22 @@ class UserCardItem extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: titleColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: Text(title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
                     SizedBox(width: 8),
-                    Text(
-                      subTitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.clip,
-                      style: TextStyle(
-                        color: titleColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    Text(subTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(fontSize: 16, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),

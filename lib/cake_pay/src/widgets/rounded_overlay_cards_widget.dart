@@ -1,7 +1,3 @@
-import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 
 class RoundedOverlayCards extends StatelessWidget {
@@ -26,15 +22,7 @@ class RoundedOverlayCards extends StatelessWidget {
             bottomLeft: Radius.circular(24),
             bottomRight: Radius.circular(24),
           ),
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor,
-              Theme.of(context).extension<ExchangePageTheme>()!.secondGradientBottomPanelColor,
-            ],
-            stops: [0.35, 1.0],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Theme.of(context).colorScheme.surfaceContainer
         ),
         child: Column(
           children: [
@@ -45,14 +33,7 @@ class RoundedOverlayCards extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Theme.of(context).extension<ExchangePageTheme>()!.firstGradientTopPanelColor,
-                          Theme.of(context).extension<ExchangePageTheme>()!.secondGradientTopPanelColor,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
                     ),
                     height: screenHeight * 0.35,
                     width: double.infinity,

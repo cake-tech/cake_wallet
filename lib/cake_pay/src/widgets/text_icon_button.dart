@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
 class TextIconButton extends StatelessWidget {
@@ -21,14 +20,14 @@ class TextIconButton extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              color: Theme.of(context).textTheme.titleLarge!.color,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
           ),
           Icon(
             Icons.chevron_right_rounded,
-            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+            color: Theme.of(context).textTheme.titleLarge!.color,
           ),
         ],
       ),

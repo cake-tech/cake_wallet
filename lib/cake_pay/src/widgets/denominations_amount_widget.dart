@@ -1,8 +1,5 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dropdown_filter_item_widget.dart';
@@ -19,8 +16,7 @@ class DenominationsAmountWidget extends StatelessWidget {
       required this.quantityController,
       required this.cakePayBuyCardViewModel,
       required this.onAmountChanged,
-      required this.onQuantityChanged,
-      this.titleColor});
+      required this.onQuantityChanged});
 
   final String fiatCurrency;
   final List<String> denominations;
@@ -31,7 +27,6 @@ class DenominationsAmountWidget extends StatelessWidget {
   final CakePayBuyCardViewModel cakePayBuyCardViewModel;
   final Function(String) onAmountChanged;
   final Function(int?) onQuantityChanged;
-  final Color? titleColor;
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +44,6 @@ class DenominationsAmountWidget extends StatelessWidget {
                     items: denominations,
                     itemPrefix: fiatCurrency,
                     selectedItem: denominations.first,
-                    textStyle: TextStyle(
-                        color:
-                            titleColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
                     onItemSelected: (value) {
                       amountController.text = value;
                       onAmountChanged(value);
@@ -63,15 +53,12 @@ class DenominationsAmountWidget extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     border: Border(
-                      top: BorderSide(
-                          width: 1.0,
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
-                    ),
+                        top: BorderSide(
+                            width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ),
                   child: Text(S.of(context).value,
                       maxLines: 2,
-                      style: textSmall(
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor)),
+                      style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               ],
             ),
@@ -83,7 +70,6 @@ class DenominationsAmountWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 NumberTextField(
-                    titleColor: titleColor,
                     controller: quantityController,
                     focusNode: quantityFieldFocus,
                     min: 1,
@@ -95,14 +81,12 @@ class DenominationsAmountWidget extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
-                          width: 1.0,
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
+                          width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                   child: Text(S.of(context).quantity,
                       maxLines: 1,
-                      style: textSmall(
-                          color: Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor)),
+                      style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 ),
               ],
             ),
@@ -115,29 +99,19 @@ class DenominationsAmountWidget extends StatelessWidget {
                 children: [
                   Observer(
                       builder: (_) => Text('$fiatCurrency ${cakePayBuyCardViewModel.totalAmount}',
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: titleColor ??
-                                Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ))),
+                          maxLines: 1, style: Theme.of(context).textTheme.titleMedium!)),
                   const SizedBox(height: 4),
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
                       border: Border(
                         top: BorderSide(
-                            width: 1.0,
-                            color:
-                                Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor),
+                            width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ),
                     child: Text(S.of(context).total,
                         maxLines: 1,
-                        style: textSmall(
-                            color:
-                                Theme.of(context).extension<SendPageTheme>()!.textFieldHintColor)),
+                        style: textSmall(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ),
                 ],
               )),

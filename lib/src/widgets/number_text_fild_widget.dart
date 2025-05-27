@@ -13,7 +13,6 @@ class NumberTextField extends StatefulWidget {
   final EdgeInsets contentPadding;
   final double borderWidth;
   final ValueChanged<int?>? onChanged;
-  final Color? titleColor;
 
   const NumberTextField({
     Key? key,
@@ -27,7 +26,6 @@ class NumberTextField extends StatefulWidget {
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 8),
     this.borderWidth = 2,
     this.onChanged,
-    this.titleColor,
   }) : super(key: key);
 
   @override
@@ -58,7 +56,7 @@ class _NumberTextFieldState extends State<NumberTextField> {
 
   @override
   Widget build(BuildContext context) => TextField(
-  style: textMediumSemiBold(color: Theme.of(context).colorScheme.onSurfaceVariant),
+  style: Theme.of(context).textTheme.titleMedium!,
       enableInteractiveSelection: false,
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.bottom,
@@ -68,7 +66,6 @@ class _NumberTextFieldState extends State<NumberTextField> {
       keyboardType: TextInputType.number,
       maxLength: widget.max.toString().length + (widget.min.isNegative ? 1 : 0),
       decoration: InputDecoration(
-
           border: InputBorder.none,
           contentPadding: EdgeInsets.all(0),
           fillColor: Colors.transparent,

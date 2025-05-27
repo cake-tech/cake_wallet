@@ -3,11 +3,7 @@ import 'package:cake_wallet/cake_pay/src/widgets/flip_card_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +13,7 @@ import 'base_bottom_sheet_widget.dart';
 class CakePayCardInfoBottomSheet extends BaseBottomSheet {
   CakePayCardInfoBottomSheet({
     required String titleText,
-    required ThemeBase currentTheme,
+    required MaterialThemeBase currentTheme,
     required FooterType footerType,
     String? titleIconPath,
     String? singleActionButtonText,
@@ -54,7 +50,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
             key: key);
 
   final VoidCallback onUpdateBalancePressed;
-  final ThemeBase _currentTheme;
+  final MaterialThemeBase _currentTheme;
   final String? contentImage;
   final String? howToUse;
   final bool isReloadable;
@@ -65,28 +61,18 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
 
   @override
   Widget contentWidget(BuildContext context) {
-    final itemTitleTextStyle = TextStyle(
+    final itemTitleTextStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
       fontSize: 16,
-      fontFamily: 'Lato',
       fontWeight: FontWeight.w500,
-      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
       decoration: TextDecoration.none,
     );
-    final itemSubTitleTextStyle = TextStyle(
-      fontSize: 12,
-      fontFamily: 'Lato',
+    final itemSubTitleTextStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
       fontWeight: FontWeight.w600,
-      color: _currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-          : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
       decoration: TextDecoration.none,
     );
 
-    final tileBackgroundColor = _currentTheme.type == ThemeType.light
-        ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
-        : _currentTheme.type == ThemeType.oled
-            ? Colors.black.withAlpha(150)
-            : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+    final tileBackgroundColor = Theme.of(context).colorScheme.surfaceContainer;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -184,13 +170,13 @@ class _HowToUseTile extends StatelessWidget {
                   fontSize: 18,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                  color: Colors.red, //TODO: change to theme color
                   decoration: TextDecoration.none,
                 ),
               ),
               Icon(
                 Icons.chevron_right_rounded,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).textTheme.titleLarge!.color!,
               ),
             ],
           )),
@@ -262,11 +248,11 @@ void _showHowToUseCard({required BuildContext context, String? howToUse}) {
             ClickableLinksText(
               text: howToUse ?? '',
               textStyle: TextStyle(
-                  color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
+                  color: Colors.red, //TODO: change to theme color,
                   fontSize: 18,
                   fontWeight: FontWeight.w400),
               linkStyle: TextStyle(
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                color: Theme.of(context).textTheme.titleLarge!.color!,
                 fontSize: 18,
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w400,
@@ -306,12 +292,12 @@ Widget _buildCardImage(BuildContext ctx, String path, bool addShadow) {
   );
 }
 
-Widget _buildBarcodeSide(BuildContext ctx, {required String cardNumber, required String pin}) =>
+Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, required String pin}) =>
     SizedBox.expand(
       child: Container(
         padding: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 34),
         decoration: BoxDecoration(
-          color: Theme.of(ctx).cardColor.withAlpha(200),
+          color: Theme.of(context).cardColor.withAlpha(200),
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(color: Colors.black.withAlpha(150), blurRadius: 5)
@@ -322,7 +308,7 @@ Widget _buildBarcodeSide(BuildContext ctx, {required String cardNumber, required
           children: [
             Expanded(
               child: Container(
-                color: Theme.of(ctx).extension<CakeTextTheme>()!.titleColor.withOpacity(.1),
+                color: Theme.of(context).textTheme.titleLarge!.color!.withOpacity(.1),
               
               ),
             ),

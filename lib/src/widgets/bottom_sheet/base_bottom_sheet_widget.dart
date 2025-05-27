@@ -141,10 +141,8 @@ abstract class BaseBottomSheet extends StatelessWidget {
                   key: leftActionButtonKey,
                   text: doubleActionLeftButtonText ?? '',
                   onPressed: onLeftActionButtonPressed,
-                  color: currentTheme!.type == ThemeType.dark
-                      ? Theme.of(context).cardColor
-                      : Theme.of(context).dialogBackgroundColor,
-                  textColor: Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer
                 ),
               ),
               const SizedBox(width: 12),
@@ -153,8 +151,8 @@ abstract class BaseBottomSheet extends StatelessWidget {
                   key: rightActionButtonKey,
                   text: doubleActionRightButtonText ?? '',
                   onPressed: onRightActionButtonPressed,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ],

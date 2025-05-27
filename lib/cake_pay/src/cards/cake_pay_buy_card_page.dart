@@ -22,9 +22,6 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
@@ -98,7 +95,7 @@ class CakePayBuyCardPage extends BasePage {
       disableScroll: true,
       config: KeyboardActionsConfig(
           keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-          keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+          keyboardBarColor: Theme.of(context).primaryColor,
           nextFocus: false,
           actions: [
             KeyboardActionsItem(
@@ -146,28 +143,25 @@ class CakePayBuyCardPage extends BasePage {
                   ],
                 ),
                 bottomCardChild: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: card.denominations.isNotEmpty
-                      ? DenominationsAmountWidget(
-                          fiatCurrency: card.fiatCurrency.title,
-                          denominations: card.denominations,
-                          amountFieldFocus: _amountFieldFocus,
-                          amountController: _amountController,
-                          quantityFieldFocus: _quantityFieldFocus,
-                          quantityController: _quantityController,
-                          onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                          onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
-                          cakePayBuyCardViewModel: cakePayBuyCardViewModel,
-                          titleColor: baseTitleColor)
-                      : EnterAmountWidget(
-                          minValue: card.minValue ?? '-',
-                          maxValue: card.maxValue ?? '-',
-                          fiatCurrency: card.fiatCurrency.title,
-                          amountFieldFocus: _amountFieldFocus,
-                          amountController: _amountController,
-                          onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
-                      titleColor: baseTitleColor)
-                )),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: card.denominations.isNotEmpty
+                        ? DenominationsAmountWidget(
+                            fiatCurrency: card.fiatCurrency.title,
+                            denominations: card.denominations,
+                            amountFieldFocus: _amountFieldFocus,
+                            amountController: _amountController,
+                            quantityFieldFocus: _quantityFieldFocus,
+                            quantityController: _quantityController,
+                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,
+                            onQuantityChanged: cakePayBuyCardViewModel.onQuantityChanged,
+                            cakePayBuyCardViewModel: cakePayBuyCardViewModel)
+                        : EnterAmountWidget(
+                            minValue: card.minValue ?? '-',
+                            maxValue: card.maxValue ?? '-',
+                            fiatCurrency: card.fiatCurrency.title,
+                            amountFieldFocus: _amountFieldFocus,
+                            amountController: _amountController,
+                            onAmountChanged: cakePayBuyCardViewModel.onAmountChanged))),
             Expanded(
               flex: 2,
               child: Padding(
@@ -203,7 +197,7 @@ class CakePayBuyCardPage extends BasePage {
                         child: ClickableLinksText(
                           text: card.description ?? '',
                           textStyle: TextStyle(
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                            color: Theme.of(context).textTheme.titleLarge!.color!,
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           ),
@@ -226,16 +220,14 @@ class CakePayBuyCardPage extends BasePage {
                           children: [
                             Text(S.of(context).expiry_and_validity + ':',
                                 style: TextStyle(
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                    color: Theme.of(context).textTheme.titleLarge!.color!,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900)),
                             Expanded(
                                 child: Text(card.expiryAndValidity!,
                                     textAlign: TextAlign.end,
                                     style: TextStyle(
-                                        color: Theme.of(context)
-                                            .extension<CakeTextTheme>()!
-                                            .titleColor,
+                                        color: Theme.of(context).textTheme.titleLarge!.color!,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400))),
                           ],
@@ -271,8 +263,8 @@ class CakePayBuyCardPage extends BasePage {
                       cakePayBuyCardViewModel.isPurchasing,
                   isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
                       cakePayBuyCardViewModel.isPurchasing,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                 ),
               );
             }),
@@ -524,7 +516,7 @@ class CakePayBuyCardPage extends BasePage {
                   accessibleNavigationModeSlideActionButtonText: S.of(context).send,
                   onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
-                    cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
+                   cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
                   },
                   change: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.change,
                   isOpenCryptoPay: cakePayBuyCardViewModel.sendViewModel.ocpRequest != null,
@@ -574,17 +566,17 @@ class CakePayBuyCardPage extends BasePage {
                                 fontSize: 12,
                                 fontFamily: 'Lato',
                                 fontWeight: FontWeight.w600,
-                                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                color: Theme.of(context).textTheme.titleLarge!.color!,
                                 decoration: TextDecoration.none,
                               ),
                             ),
                             SizedBox(height: 6),
                             Text(cakePayBuyCardViewModel.order!.orderId,
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontFamily: 'Lato',
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                                  color: Theme.of(context).textTheme.titleLarge!.color!,
                                   decoration: TextDecoration.none,
                                 )),
                           ],
@@ -612,7 +604,7 @@ class CakePayBuyCardPage extends BasePage {
               footerType: FooterType.singleActionButton,
               titleText: S.of(bottomSheetContext).proceed_on_device,
               contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-              contentImageColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+              contentImageColor: Theme.of(context).textTheme.titleLarge!.color!,
               content: S.of(bottomSheetContext).proceed_on_device_description,
               singleActionButtonText: S.of(context).cancel,
               onSingleActionButtonPressed: () {
@@ -645,25 +637,14 @@ void _showHowToUseCard(BuildContext context, CakePayCard card) {
           content: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
                 padding: EdgeInsets.all(10),
-                child: Text(
-                  card.name,
-                  style: textLargeSemiBold(
-                    color: Theme.of(context).extension<ReceivePageTheme>()!.tilesTextColor,
-                  ),
-                )),
+                child: Text(card.name, style: Theme.of(context).textTheme.headlineSmall)),
             ClickableLinksText(
               text: card.howToUse ?? '',
-              textStyle: TextStyle(
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
-              linkStyle: TextStyle(
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                fontSize: 18,
-                fontStyle: FontStyle.italic,
-                fontWeight: FontWeight.w400,
-              ),
+              textStyle: Theme.of(context).textTheme.bodyMedium!,
+              linkStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontStyle: FontStyle.italic,
+                  ),
             ),
           ]),
           actionTitle: S.current.got_it,
@@ -678,16 +659,12 @@ void _showTermsAndCondition(BuildContext context, String? termsAndConditions) {
         return CakePayAlertModal(
           title: S.of(context).settings_terms_and_conditions,
           content: Align(
-            alignment: Alignment.bottomLeft,
-            child: ClickableLinksText(
-              text: termsAndConditions ?? '',
-              textStyle: TextStyle(
-                color: Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
+              alignment: Alignment.bottomLeft,
+              child: ClickableLinksText(
+                text: termsAndConditions ?? '',
+                textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic),
+              )),
           actionTitle: S.of(context).agree,
           showCloseButton: false,
           heightFactor: 0.6,

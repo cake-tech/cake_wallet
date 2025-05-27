@@ -149,14 +149,14 @@ import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
 
-Route<dynamic> handleRouteWithPlatformAwareness(
+Route<T> handleRouteWithPlatformAwareness<T>(
   Widget Function(BuildContext) builder, {
   bool fullscreenDialog = false,
 }) {
   if (Platform.isIOS) {
-    return CupertinoPageRoute<void>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
   } else {
-    return MaterialPageRoute<void>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
   }
 }
 
@@ -702,19 +702,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.cakePayWelcomePage:
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayWelcomePage>(),
       );
 
     case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayVerifyOtpPage>(param1: args),
       );
 
 
     case Routes.cakePayAccountPage:
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayAccountPage>(),
       );
 

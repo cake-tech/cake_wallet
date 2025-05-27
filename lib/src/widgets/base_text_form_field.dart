@@ -43,7 +43,9 @@ class BaseTextFormField extends StatelessWidget {
     this.onFieldSubmitted,
     this.hasUnderlineBorder = false,
     this.borderWidth = 1.0,
-    super.key,
+    this.prefixIconConstraints,
+    this.suffixIconConstraints,
+    super.key, this.suffixText,
   });
 
   final TextEditingController? controller;
@@ -123,8 +125,12 @@ class BaseTextFormField extends StatelessWidget {
         alignLabelWithHint: alignLabelWithHint,
         contentPadding: contentPadding,
         floatingLabelBehavior: FloatingLabelBehavior.never,
+        prefixIconConstraints: prefixIconConstraints ??
+            const BoxConstraints(minWidth: 0, minHeight: 0),
         prefix: prefix,
         prefixIcon: prefixIcon,
+        suffixIconConstraints: suffixIconConstraints ??
+            const BoxConstraints(minWidth: 0, minHeight: 0),
         suffix: suffix,
         suffixIcon: suffixIcon,
         filled: !hasUnderlineBorder,
