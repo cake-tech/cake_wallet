@@ -33,7 +33,7 @@ class WelcomePage extends BasePage {
     final Uri _url =
         Uri.parse('https://docs.cakewallet.com/get-started/setup/create-first-wallet/');
     return IconButton(
-      icon: Icon(Icons.info_outline),
+      icon: Icon(Icons.info_outline, size: 26,),
       onPressed: () async {
         await launchUrl(_url);
       },
