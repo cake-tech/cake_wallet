@@ -61,6 +61,7 @@ class CakeFeaturesPage extends StatelessWidget {
                 ),
                 if (dashboardViewModel.type == WalletType.ethereum) ...[
                   DashBoardRoundedCardWidget(
+                    isDarkTheme: dashboardViewModel.isDarkTheme,
                     shadowBlur: dashboardViewModel.getShadowBlur(),
                     shadowSpread: dashboardViewModel.getShadowSpread(),
                     onTap: () =>
