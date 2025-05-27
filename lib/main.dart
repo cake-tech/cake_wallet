@@ -29,6 +29,7 @@ import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
@@ -39,6 +40,8 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -86,6 +89,9 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         final content = ledgerFile.readAsStringSync();
         ledgerFile.writeAsStringSync("$content\n${event.message}");
       });
+    }
+    if (FeatureFlag.hasDevOptions) {
+      ProxyWrapper.logger = MemoryProxyLogger();
     }
 
     runApp(App(key: topLevelKey));

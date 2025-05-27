@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:isolate';
 
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:tor/tor.dart';
 
 bool didTorStart = false;
 Future<void> ensureTorStopped({required BuildContext? context}) async {
@@ -30,8 +27,6 @@ Future<void> ensureTorStarted({required BuildContext? context}) async {
   BuildContext? dialogContext;
   if (context != null) dialogContext = await showFullscreenDialog(context);
   didTorStart = true;
-  printV("Initializing tor");
-  await Tor.init();
   printV("Starting tor");
   // var rootToken = RootIsolateToken.instance!;
   // await Isolate.run(() async {
