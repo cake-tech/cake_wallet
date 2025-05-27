@@ -93,15 +93,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
               textColor: isBuySelected
                   ? Theme.of(context).colorScheme.onPrimary
                   : Theme.of(context).colorScheme.onSecondaryContainer,
-              image: Image.asset(
-                'assets/images/buy.png',
-                height: 25,
-                width: 25,
-                color: isBuySelected
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.onSecondaryContainer,
-              ),
-              padding: EdgeInsets.only(left: 10, right: 30),
+              padding: EdgeInsets.only(left: 50, right: 30),
               color: isBuySelected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.surfaceContainer,
@@ -122,15 +114,7 @@ class _BuySellOptionButtonsState extends State<BuySellOptionButtons> {
               textColor: !isBuySelected
                   ? Theme.of(context).colorScheme.onPrimary
                   : Theme.of(context).colorScheme.onSecondaryContainer,
-              image: Image.asset(
-                'assets/images/sell.png',
-                height: 25,
-                width: 25,
-                color: !isBuySelected
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.onSecondaryContainer,
-              ),
-              padding: EdgeInsets.only(left: 10, right: 30),
+              padding: EdgeInsets.only(left: 50, right: 30),
               color: !isBuySelected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.surfaceContainer,
