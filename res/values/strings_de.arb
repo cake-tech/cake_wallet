@@ -603,6 +603,7 @@
   "proceed_on_device": "Fahren Sie auf Ihrem Gerät fort",
   "proceed_on_device_description": "Bitte befolgen Sie die Anweisungen, die auf Ihrer Hardware-Wallet angezeigt werden",
   "processing": "Verarbeitung",
+  "processing_signed_tx": "Verarbeitung unterschriebene Transaktion",
   "profile": "Profil",
   "provider_error": "${provider}-Fehler",
   "public_key": "Öffentlicher Schlüssel",

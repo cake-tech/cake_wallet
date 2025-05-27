@@ -602,6 +602,7 @@
   "proceed_on_device": "Continuez sur votre appareil",
   "proceed_on_device_description": "Veuillez suivre les instructions affichées sur votre portefeuille physique.",
   "processing": "Traitement",
+  "processing_signed_tx": "Traitement de la transaction signée",
   "profile": "Profil",
   "provider_error": "Erreur de ${provider}",
   "public_key": "Clef publique",

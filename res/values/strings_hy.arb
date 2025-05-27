@@ -601,6 +601,7 @@
   "proceed_on_device": "Շարունակեք ձեր սարքի վրա",
   "proceed_on_device_description": "Խնդրում ենք հետևել ձեր սարքի վրա ցուցադրվող հրահանգներին",
   "processing": "Վերամշակում",
+  "processing_signed_tx": "Ստորագրված գործարքի վերամշակում",
   "profile": "Պրոֆիլ",
   "provider_error": "${provider} սխալ",
   "public_key": "Հանրային բանալի",
