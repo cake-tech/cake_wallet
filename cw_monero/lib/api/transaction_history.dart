@@ -251,13 +251,13 @@ Future<PendingTransactionDescription> createTransactionMultDest(
   );
 }
 
-String? commitTransactionFromPointerAddress({required int address, required bool useUR}) =>
+Future<String?> commitTransactionFromPointerAddress({required int address, required bool useUR}) =>
     commitTransaction(tx: MoneroPendingTransaction(Pointer.fromAddress(address)), useUR: useUR);
 
-String? commitTransaction({required Wallet2PendingTransaction tx, required bool useUR}) {
+Future<String?> commitTransaction({required Wallet2PendingTransaction tx, required bool useUR}) async {
   final txCommit = useUR
       ? tx.commitUR(120)
-      : Isolate.run(() {
+      : await Isolate.run(() {
           monero.PendingTransaction_commit(
             Pointer.fromAddress(tx.ffiAddress()),
             filename: '',
@@ -286,9 +286,9 @@ String? commitTransaction({required Wallet2PendingTransaction tx, required bool 
     throw CreationTransactionException(message: error);
   }
   if (useUR) {
-    return txCommit as String?;
+    return Future.value(txCommit as String?);
   } else {
-    return null;
+    return Future.value(null);
   }
 }
 

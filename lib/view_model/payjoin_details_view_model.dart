@@ -5,11 +5,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobx/mobx.dart';
@@ -24,7 +23,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
     this.payjoinSessionId,
     this.transactionInfo, {
     required this.payjoinSessionSource,
-    required this.settingsStore,
+    required this.themeStore,
   })  : items = ObservableList<StandartListItem>(),
         payjoinSession = payjoinSessionSource.get(payjoinSessionId)! {
     listener = payjoinSessionSource.watch().listen((e) {
@@ -34,7 +33,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
   }
 
   final Box<PayjoinSession> payjoinSessionSource;
-  final SettingsStore settingsStore;
+  final ThemeStore themeStore;
   final String payjoinSessionId;
   final TransactionInfo? transactionInfo;
 

@@ -15,8 +15,8 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -293,19 +293,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       .toList();
 
   @computed
-  bool get hasCoinControl =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.wownero ||
-      wallet.type == WalletType.decred ||
-      wallet.type == WalletType.bitcoinCash;
+  bool get hasCoinControl => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.decred,
+        WalletType.bitcoinCash
+      ].contains(wallet.type);
 
   @computed
   bool get isElectrumWallet =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.bitcoinCash;
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
@@ -444,12 +443,23 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  Timer? _ledgerTxStateTimer;
+
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
-      if (wallet.isHardwareWallet) state = IsAwaitingDeviceResponseState();
+      if (wallet.isHardwareWallet) {
+        state = IsAwaitingDeviceResponseState();
+        if (walletType == WalletType.monero)
+          _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+            if (monero!.getLastLedgerCommand() == "INS_CLSAG") {
+              timer.cancel();
+              state = IsDeviceSigningResponseState();
+            }
+          });
+      }
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
@@ -475,6 +485,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
+      _ledgerTxStateTimer?.cancel();
       // if (e is LedgerException) {
       //   final errorCode = e.errorCode.toRadixString(16);
       //   final fallbackMsg =
@@ -592,14 +603,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
               ));
       }
       final sharedPreferences = await SharedPreferences.getInstance();
-      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name), DateTime.now().add(Duration(minutes: 1)).toIso8601String());
-      unawaited(() {
-        try {
-          wallet.fetchTransactions();
-        } catch (e) {
-          printV(e);
-        }
-      }());
+      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
+          DateTime.now().add(Duration(minutes: 1)).toIso8601String());
       state = TransactionCommitted();
     } catch (e) {
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));

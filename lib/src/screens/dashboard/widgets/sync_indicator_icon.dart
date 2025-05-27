@@ -1,14 +1,9 @@
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/extensions/receive_page_theme.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class SyncIndicatorIcon extends StatelessWidget {
   SyncIndicatorIcon(
-      {this.boolMode = true,
-      this.isSynced = false,
-      this.value = waiting,
-      this.size = 6.0});
+      {this.boolMode = true, this.isSynced = false, this.value = waiting, this.size = 6.0});
 
   final bool boolMode;
   final bool isSynced;
@@ -29,36 +24,32 @@ class SyncIndicatorIcon extends StatelessWidget {
 
     if (boolMode) {
       indicatorColor = isSynced
-          ? PaletteDark.brightGreen
-          : Theme.of(context).extension<SyncIndicatorTheme>()!.notSyncedIconColor;
+          ? CustomThemeColors.syncGreen
+          : CustomThemeColors.syncYellow;
     } else {
       switch (value.toLowerCase()) {
-        case waiting:
-          indicatorColor = Colors.red;
-          break;
         case actionRequired:
-          indicatorColor =
-              Theme.of(context).extension<ReceivePageTheme>()!.currentTileBackgroundColor;
+          indicatorColor = Theme.of(context).colorScheme.surfaceContainer;
           break;
         case created:
-          indicatorColor = PaletteDark.brightGreen;
-          break;
-        case fetching:
-          indicatorColor = Colors.red;
-          break;
         case finished:
         case success:
         case complete:
-          indicatorColor = PaletteDark.brightGreen;
+          indicatorColor = CustomThemeColors.syncGreen;
           break;
+        case waiting:
+        case fetching:
         default:
-          indicatorColor = Colors.red;
+          indicatorColor = Theme.of(context).colorScheme.errorContainer;
       }
     }
     return Container(
-        height: size,
-        width: size,
-        decoration:
-            BoxDecoration(shape: BoxShape.circle, color: indicatorColor));
+      height: size,
+      width: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: indicatorColor,
+      ),
+    );
   }
 }
