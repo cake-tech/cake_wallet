@@ -670,6 +670,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -697,7 +698,7 @@ import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_ethereum/ethereum_wallet_service.dart';
 import 'package:cw_ethereum/default_ethereum_erc20_tokens.dart';
-import 'package:cw_ethereum/deuro/deuro_savings.dart' as deuro;
+import 'package:cw_ethereum/deuro/deuro_savings.dart';
 
 import 'package:eth_sig_util/util/utils.dart';
 
@@ -747,6 +748,10 @@ abstract class Ethereum {
   String getTokenAddress(CryptoCurrency asset);
 
   Future<BigInt> getDEuroSavingsBalance(WalletBase wallet);
+  Future<BigInt> getDEuroAccruedInterest(WalletBase wallet);
+  Future<BigInt> getDEuroInterestRate(WalletBase wallet);
+  Future<PendingTransaction> addDEuroSaving(WalletBase wallet, BigInt amount);
+  Future<PendingTransaction> removeDEuroSaving(WalletBase wallet, BigInt amount);
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});

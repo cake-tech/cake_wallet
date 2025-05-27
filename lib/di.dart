@@ -44,6 +44,7 @@ import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
 import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
+import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
@@ -1501,7 +1502,9 @@ Future<void> setup({
   
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
 
-  getIt.registerFactory(() => DEuroSavingsPage());
+  getIt.registerFactory(() => DEuroViewModel(getIt<AppStore>()));
+
+  getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
 
   _isSetupFinished = true;
 }

@@ -1,6 +1,3 @@
-// @dart=3.0
-// coverage:ignore-file
-// GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
 // ignore_for_file: unused_local_variable, unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 // ignore_for_file: no_leading_underscores_for_library_prefixes
@@ -94,43 +91,6 @@ class SavingsGateway extends _i1.GeneratedContract {
       args.targetAmount,
       args.frontendCode,
     ];
-    return write(
-      credentials,
-      transaction,
-      function,
-      params,
-    );
-  }
-
-  /// The optional [transaction] parameter can be used to override parameters
-  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
-  /// set by the contract.
-  Future<String> adjust$2(
-      ({BigInt targetAmount}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[5];
-    assert(checkSignature(function, 'bdc65152'));
-    final params = [args.targetAmount];
-    return write(
-      credentials,
-      transaction,
-      function,
-      params,
-    );
-  }
-
-  /// The optional [transaction] parameter can be used to override parameters
-  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
-  /// set by the contract.
-  Future<String> applyChange({
-    required _i1.Credentials credentials,
-    _i1.Transaction? transaction,
-  }) async {
-    final function = self.abi.functions[6];
-    assert(checkSignature(function, '4e65037e'));
-    final params = [];
     return write(
       credentials,
       transaction,
@@ -253,28 +213,6 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
-  Future<String> proposeChange(
-      ({BigInt newRatePPM_, List<_i1.EthereumAddress> helpers}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[14];
-    assert(checkSignature(function, '1de252e4'));
-    final params = [
-      args.newRatePPM_,
-      args.helpers,
-    ];
-    return write(
-      credentials,
-      transaction,
-      function,
-      params,
-    );
-  }
-
-  /// The optional [transaction] parameter can be used to override parameters
-  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
-  /// set by the contract.
   Future<String> refreshBalance(
       ({_i1.EthereumAddress owner}) args, {
         required _i1.Credentials credentials,
@@ -312,7 +250,7 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
-  Future<String> save(
+  Future<_i2.Uint8List> save(
       ({BigInt amount, _i2.Uint8List frontendCode}) args, {
         required _i1.Credentials credentials,
         _i1.Transaction? transaction,
@@ -323,7 +261,7 @@ class SavingsGateway extends _i1.GeneratedContract {
       args.amount,
       args.frontendCode,
     ];
-    return write(
+    return writeRaw(
       credentials,
       transaction,
       function,
@@ -334,29 +272,7 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
-  Future<String> save$2(
-      ({_i1.EthereumAddress owner, BigInt amount}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[18];
-    assert(checkSignature(function, 'c1983610'));
-    final params = [
-      args.owner,
-      args.amount,
-    ];
-    return write(
-      credentials,
-      transaction,
-      function,
-      params,
-    );
-  }
-
-  /// The optional [transaction] parameter can be used to override parameters
-  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
-  /// set by the contract.
-  Future<String> save$3(
+  Future<_i2.Uint8List> saveTo(
       ({
       _i1.EthereumAddress owner,
       BigInt amount,
@@ -372,26 +288,7 @@ class SavingsGateway extends _i1.GeneratedContract {
       args.amount,
       args.frontendCode,
     ];
-    return write(
-      credentials,
-      transaction,
-      function,
-      params,
-    );
-  }
-
-  /// The optional [transaction] parameter can be used to override parameters
-  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
-  /// set by the contract.
-  Future<String> save$4(
-      ({BigInt amount}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[20];
-    assert(checkSignature(function, 'fd449c14'));
-    final params = [args.amount];
-    return write(
+    return writeRaw(
       credentials,
       transaction,
       function,
@@ -417,58 +314,18 @@ class SavingsGateway extends _i1.GeneratedContract {
     return Savings(response);
   }
 
-  /// The optional [atBlock] parameter can be used to view historical data. When
-  /// set, the function will be evaluated in the specified block. By default, the
-  /// latest on-chain block will be used.
-  Future<BigInt> ticks(
-      ({BigInt timestamp}) args, {
-        _i1.BlockNum? atBlock,
-      }) async {
-    final function = self.abi.functions[22];
-    assert(checkSignature(function, '534cb30d'));
-    final params = [args.timestamp];
-    final response = await read(
-      function,
-      params,
-      atBlock,
-    );
-    return (response[0] as BigInt);
-  }
-
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
-  Future<String> withdraw(
-      ({_i1.EthereumAddress target, BigInt amount}) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
-    final function = self.abi.functions[23];
-    assert(checkSignature(function, '1791dc5e'));
-    final params = [
-      args.target,
-      args.amount,
-    ];
-    return write(
-      credentials,
-      transaction,
-      function,
-      params,
-    );
-  }
-
-  /// The optional [transaction] parameter can be used to override parameters
-  /// like the gas price, nonce and max gas. The `data` and `to` fields will be
-  /// set by the contract.
-  Future<String> withdraw$2(
-      ({
+  Future<_i2.Uint8List> withdraw(
+    ({
       _i1.EthereumAddress target,
       BigInt amount,
       _i2.Uint8List frontendCode
-      }) args, {
-        required _i1.Credentials credentials,
-        _i1.Transaction? transaction,
-      }) async {
+    }) args, {
+    required _i1.Credentials credentials,
+    _i1.Transaction? transaction,
+  }) async {
     final function = self.abi.functions[24];
     assert(checkSignature(function, '829a0476'));
     final params = [
@@ -476,7 +333,7 @@ class SavingsGateway extends _i1.GeneratedContract {
       args.amount,
       args.frontendCode,
     ];
-    return write(
+    return writeRaw(
       credentials,
       transaction,
       function,
