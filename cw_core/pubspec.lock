@@ -50,11 +50,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v2
-      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
+      ref: cake-update-v4
+      resolved-ref: "437dadd0bd9bf73ec6a551299577799341f6486a"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "3.3.0"
+    version: "4.3.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -482,7 +482,7 @@ packages:
       resolved-ref: "01cbbacbb05d2113aafa8b7c4a2bb766f749d8d8"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "3.7.0"
+    version: "6.2.0"
   package_config:
     dependency: transitive
     description:
@@ -636,11 +636,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
-      resolved-ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
-      url: "https://github.com/cake-tech/socks_dart.git"
+      ref: "27ad7c2efae8d7460325c74b90f660085cbd0685"
+      resolved-ref: "27ad7c2efae8d7460325c74b90f660085cbd0685"
+      url: "https://github.com/LacticWhale/socks_dart"
     source: git
-    version: "1.0.4"
+    version: "2.1.0"
   socks_socket:
     dependency: "direct main"
     description:
@@ -730,14 +730,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  tor:
+  tor_binary:
     dependency: "direct main"
     description:
-      name: tor
-      sha256: eeed80e5c912a1806c2f81825c12e84f4dc5a0b50aebedea59e3a8ba53df3142
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.8"
+      path: "."
+      ref: cb811c610871a9517d47134b87c2f590c15c96c5
+      resolved-ref: cb811c610871a9517d47134b87c2f590c15c96c5
+      url: "https://github.com/MrCyjaneK/flutter-tor_binary"
+    source: git
+    version: "4.7.14"
   tuple:
     dependency: transitive
     description:

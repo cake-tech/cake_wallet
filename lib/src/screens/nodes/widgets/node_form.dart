@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:mobx/mobx.dart';
-import 'package:tor/tor.dart';
 
 class NodeForm extends StatelessWidget {
   NodeForm({

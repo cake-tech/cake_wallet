@@ -10,7 +10,6 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:tor/tor.dart';
 
 part 'pow_node_list_view_model.g.dart';
 

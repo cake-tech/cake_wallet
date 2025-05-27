@@ -58,6 +58,7 @@ class StartTorPage extends BasePage {
               ),
               textAlign: TextAlign.center,
             ),
+            if (startTorViewModel.showOptions) _buildOptionsButtons(context),
           ],
         );
       },

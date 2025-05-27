@@ -27,22 +27,21 @@ dependencies:
       version: 1.0.0
   socks5_proxy:
     git:
-      url: https://github.com/cake-tech/socks_dart.git
-      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
+      url: https://github.com/LacticWhale/socks_dart
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
   unorm_dart: ^0.3.0
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-#  tor:
-#    git:
-#      url: https://github.com/cake-tech/tor.git
-#      ref: main
-  tor: any
   socks_socket:
     git:
       url: https://github.com/sneurlax/socks_socket
       ref: e6232c53c1595469931ababa878759a067c02e94
+  tor_binary:
+    git:
+      url: https://github.com/MrCyjaneK/flutter-tor_binary
+      ref: cb811c610871a9517d47134b87c2f590c15c96c5
 
 dev_dependencies:
   flutter_test:

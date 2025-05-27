@@ -42,7 +42,6 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
-import 'package:tor/tor.dart';
 
 part 'monero_wallet.g.dart';
 
