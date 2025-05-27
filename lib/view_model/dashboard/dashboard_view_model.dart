@@ -23,6 +23,7 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -55,8 +56,6 @@ import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:cake_wallet/core/trade_monitor.dart';
-
 part 'dashboard_view_model.g.dart';
 
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
@@ -64,7 +63,6 @@ class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 abstract class DashboardViewModelBase with Store {
   DashboardViewModelBase(
       {required this.balanceViewModel,
-      required this.tradeMonitor,
       required this.appStore,
       required this.tradesStore,
       required this.tradeFilterStore,
@@ -300,10 +298,6 @@ abstract class DashboardViewModelBase with Store {
 
     _checkMweb();
     reaction((_) => settingsStore.mwebAlwaysScan, (bool value) => _checkMweb());
-
-    reaction((_) => tradesStore.trades, (_) => tradeMonitor.monitorActiveTrades(wallet.id));
-
-    tradeMonitor.monitorActiveTrades(wallet.id);
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
@@ -778,8 +772,6 @@ abstract class DashboardViewModelBase with Store {
   }
 
   BalanceViewModel balanceViewModel;
-
-  TradeMonitor tradeMonitor;
 
   AppStore appStore;
 
