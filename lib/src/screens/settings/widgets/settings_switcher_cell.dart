@@ -18,8 +18,10 @@ class SettingsSwitcherCell extends StandardListRow {
   final Widget? leading;
 
   @override
-  Widget buildTrailing(BuildContext context) =>
-      StandardSwitch(value: value, onTaped: () => onValueChange?.call(context, !value));
+  Widget buildTrailing(BuildContext context) => StandardSwitch(
+        value: value,
+        onTapped: () => onValueChange?.call(context, !value),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +42,7 @@ class SettingsSwitcherCell extends StandardListRow {
           //backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.surfaceContainer),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)
-              ),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
           ),
         ),
@@ -56,7 +57,6 @@ class SettingsSwitcherCell extends StandardListRow {
       ),
     );
   }
-
 
   @override
   Widget? buildLeading(BuildContext context) => leading;

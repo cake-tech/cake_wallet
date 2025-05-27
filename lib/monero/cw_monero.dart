@@ -421,6 +421,7 @@ class CWMonero extends Monero {
     moneroWallet.setLedgerConnection(connection);
   }
 
+  @override
   void resetLedgerConnection() {
     disableLedgerExchange();
   }
@@ -428,8 +429,10 @@ class CWMonero extends Monero {
   @override
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
     gLedger = connection;
-    keepAlive(connection);
   }
+
+  @override
+  String? getLastLedgerCommand() => latestLedgerCommand;
 
   bool isViewOnly() {
     return isViewOnlyBySpendKey(null);
@@ -439,5 +442,4 @@ class CWMonero extends Monero {
   Map<String, List<int>> debugCallLength() {
     return monero_wallet_api.debugCallLength();
   }
-  
 }

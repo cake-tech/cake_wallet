@@ -11,9 +11,13 @@ class CustomThemeColors {
 
   static const backgroundGradientColorDark = Color(0xFF0F1A36);
   static const backgroundGradientColorLight = Color(0xFFE7E7FD);
-  
+
   static const cardGradientColorPrimaryDark = Color(0xFF2B3A67);
   static const cardGradientColorPrimaryLight = Color(0xFFFFFFFF);
   static const cardGradientColorSecondaryDark = Color(0xFF1C2A4F);
   static const cardGradientColorSecondaryLight = Color(0xFFF3F3FF);
+
+  static const toggleKnobStateColorLight = Color(0xFFFFFFFF);
+  static const toggleColorOffStateLight = Color(0xFFCACAE7);
+  static const toggleColorOffStateDark = Color(0xFF3A4F88);
 }

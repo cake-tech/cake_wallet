@@ -173,8 +173,19 @@ class RestoreFromBackupPage extends BasePage {
 
       return;
     }
-
-    await restoreFromBackupViewModel.import(textEditingController.text);
+    try {
+      await restoreFromBackupViewModel.import(textEditingController.text);
+    } catch (e) {
+      await showPopUp<void>(
+        context: context,
+        builder: (_) {
+          return AlertWithOneAction(
+              alertTitle: S.current.error,
+              alertContent: e.toString(),
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+    }
     textEditingController.text = '';
   }
 }

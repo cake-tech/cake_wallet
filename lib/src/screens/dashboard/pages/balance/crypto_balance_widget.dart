@@ -247,9 +247,11 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                                      child: Icon(Icons.help_outline,
-                                          size: 16,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                      child: Icon(
+                                        Icons.help_outline,
+                                        size: 16,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
                                     )
                                   ],
                                 ),
@@ -257,7 +259,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                               Observer(
                                 builder: (_) => StandardSwitch(
                                   value: dashboardViewModel.silentPaymentsScanningActive,
-                                  onTaped: () => _toggleSilentPaymentsScanning(context),
+                                  onTapped: () => _toggleSilentPaymentsScanning(context),
                                 ),
                               )
                             ],
@@ -333,13 +335,25 @@ class CryptoBalanceWidget extends StatelessWidget {
                           Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
                           mode: LaunchMode.externalApplication,
                         ),
-                        child: Text(
-                          S.of(context).learn_more,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        child: Row(
+                          children: [
+                            Text(
+                              S.of(context).what_is_payjoin,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    height: 1,
+                                  ),
+                              softWrap: true,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: Icon(
+                                Icons.help_outline,
+                                size: 16,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                height: 1,
                               ),
-                          softWrap: true,
+                            )
+                          ],
                         ),
                       ),
                       image: 'assets/images/payjoin.png',
