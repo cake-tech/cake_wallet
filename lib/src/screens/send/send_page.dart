@@ -17,14 +17,12 @@ import 'package:cake_wallet/src/widgets/adaptable_page_view.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/widgets/simple_checkbox.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
@@ -552,7 +550,6 @@ class SendPage extends BasePage {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
                   titleText: S.of(context).generating_transaction,
-                  footerType: FooterType.none,
                 );
               },
             );
@@ -584,13 +581,11 @@ class SendPage extends BasePage {
                   feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
-                  change: sendViewModel.pendingTransaction!.change,
-                  footerType: FooterType.slideActionButton,
-                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
-                  onSlideActionComplete: () async {
+                  onSlideComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
+                  change: sendViewModel.pendingTransaction!.change,
                   isOpenCryptoPay: sendViewModel.ocpRequest != null,
                 );
               },
@@ -623,36 +618,16 @@ class SendPage extends BasePage {
               return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
-                      footerType: FooterType.doubleActionButton,
+                      showDontAskMeCheckbox: true,
+                      onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/contact.png',
                       contentImageColor: Theme.of(context).colorScheme.onSurface,
                       content: S.of(bottomSheetContext).add_contact_to_address_book,
-                      bottomActionPanel: Padding(
-                        padding: const EdgeInsets.only(left: 34.0),
-                        child: Row(
-                          children: [
-                            SimpleCheckbox(
-                                onChanged: (value) =>
-                                    sendViewModel.setShowAddressBookPopup(!value)),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Don’t ask me next time',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).textTheme.titleLarge!.color,
-                                decoration: TextDecoration.none,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      doubleActionLeftButtonText: 'No',
-                      doubleActionRightButtonText: 'Yes',
-                      onLeftActionButtonPressed: () {
+                      isTwoAction: true,
+                      leftButtonText: 'No',
+                      rightButtonText: 'Yes',
+                      actionLeftButton: () {
                         Navigator.of(bottomSheetContext).pop();
                         if (context.mounted) {
                           Navigator.of(context)
@@ -661,7 +636,7 @@ class SendPage extends BasePage {
                         RequestReviewHandler.requestReview();
                         newContactAddress = null;
                       },
-                      onRightActionButtonPressed: () {
+                      actionRightButton: () {
                         Navigator.of(bottomSheetContext).pop();
                         RequestReviewHandler.requestReview();
                         if (context.mounted) {
@@ -673,12 +648,11 @@ class SendPage extends BasePage {
                     )
                   : InfoBottomSheet(
                       currentTheme: currentTheme,
-                      footerType: FooterType.singleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: 'assets/images/birthday_cake.svg',
-                      singleActionButtonText: S.of(bottomSheetContext).close,
-                      singleActionButtonKey: const ValueKey('send_page_sent_dialog_ok_button_key'),
-                      onSingleActionButtonPressed: () {
+                      contentImage: 'assets/images/birthday_cake.png',
+                      actionButtonText: S.of(bottomSheetContext).close,
+                      actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                      actionButton: () {
                         Navigator.of(bottomSheetContext).pop();
                         Future.delayed(Duration.zero, () {
                           if (context.mounted) {
@@ -710,27 +684,45 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is IsAwaitingDeviceResponseState) {
+      if (state is IsDeviceSigningResponseState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
 
           showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
-            builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-              currentTheme: currentTheme,
-              footerType: FooterType.singleActionButton,
-              titleText: S.of(bottomSheetContext).proceed_on_device,
-              contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-              contentImageColor: Theme.of(context).colorScheme.onSurface,
-              content: S.of(bottomSheetContext).proceed_on_device_description,
-              singleActionButtonText: S.of(context).cancel,
-              onSingleActionButtonPressed: () {
-                sendViewModel.state = InitialExecutionState();
-                Navigator.of(bottomSheetContext).pop();
-              },
-            ),
+            builder: (context) {
+              dialogContext = context;
+              return LoadingBottomSheet(titleText: S.of(context).processing_signed_tx);
+            },
           );
+        });
+      }
+
+      if (state is IsAwaitingDeviceResponseState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+
+          showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (context) {
+                dialogContext = context;
+                return InfoBottomSheet(
+                  currentTheme: currentTheme,
+                  titleText: S.of(context).proceed_on_device,
+                  contentImage:
+                      'assets/images/hardware_wallet/ledger_nano_x.png',
+                  contentImageColor: Theme.of(context).colorScheme.onSurface,
+                  content: S.of(context).proceed_on_device_description,
+                  isTwoAction: false,
+                  actionButtonText: S.of(context).cancel,
+                  actionButton: () {
+                    sendViewModel.state = InitialExecutionState();
+                    Navigator.of(context).pop();
+                  },
+                );
+              });
         });
       }
     });

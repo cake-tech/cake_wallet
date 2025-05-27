@@ -144,6 +144,15 @@ class BaseTextFormField extends StatelessWidget {
         hintText: hasUnderlineBorder ? hintText : null,
         labelText: !hasUnderlineBorder ? hintText : null,
         labelStyle: !hasUnderlineBorder ? placeholderTextStyle : null,
+        border: hasUnderlineBorder
+            ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
+                  width: borderWidth,
+                ),
+              )
+            : null,
         focusedBorder: hasUnderlineBorder
             ? UnderlineInputBorder(
                 borderSide: BorderSide(
@@ -165,7 +174,7 @@ class BaseTextFormField extends StatelessWidget {
             ? UnderlineInputBorder(
                 borderSide: BorderSide(
                   color: Theme.of(context).colorScheme.outlineVariant,
-                  style: borderWidth == 1 ? BorderStyle.none : BorderStyle.solid,
+                  style: borderWidth == 0.0 ? BorderStyle.none : BorderStyle.solid,
                   width: borderWidth,
                 ),
               )

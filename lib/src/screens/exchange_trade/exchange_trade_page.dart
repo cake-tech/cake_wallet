@@ -3,7 +3,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
@@ -211,131 +210,133 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       return;
     }
 
-    _exchangeStateReaction = reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
-        (ExecutionState state) async {
-      if (dialogContext != null && dialogContext?.mounted == true) {
-        Navigator.of(dialogContext!).pop();
-      }
-
-      if (state is! IsExecutingState &&
-          loadingBottomSheetContext != null &&
-          loadingBottomSheetContext!.mounted) {
-        Navigator.of(loadingBottomSheetContext!).pop();
-      }
-
-      if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext popupContext) {
-                return AlertWithOneAction(
-                    key: ValueKey('exchange_trade_page_send_failure_dialog_key'),
-                    buttonKey: ValueKey('exchange_trade_page_send_failure_dialog_button_key'),
-                    alertTitle: S.of(popupContext).error,
-                    alertContent: state.error,
-                    buttonText: S.of(popupContext).ok,
-                    buttonAction: () => Navigator.of(popupContext).pop());
-              });
-        });
-      }
-
-      if (state is IsExecutingState) {
-        // wait a bit to avoid showing the loading dialog if transaction is failed
-        await Future.delayed(const Duration(milliseconds: 300));
-        final currentState = widget.exchangeTradeViewModel.sendViewModel.state;
-        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
-          return;
+    _exchangeStateReaction = reaction(
+      (_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
+      (ExecutionState state) async {
+        if (dialogContext != null && dialogContext?.mounted == true) {
+          Navigator.of(dialogContext!).pop();
         }
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            showModalBottomSheet<void>(
-              context: context,
-              isDismissible: false,
-              builder: (BuildContext context) {
-                loadingBottomSheetContext = context;
-                return LoadingBottomSheet(
-                  titleText: S.of(context).generating_transaction,
-                  footerType: FooterType.none,
-                );
-              },
-            );
+        if (state is! IsExecutingState &&
+            loadingBottomSheetContext != null &&
+            loadingBottomSheetContext!.mounted) {
+          Navigator.of(loadingBottomSheetContext!).pop();
+        }
+
+        if (state is FailureState) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showPopUp<void>(
+                context: context,
+                builder: (BuildContext popupContext) {
+                  return AlertWithOneAction(
+                      key: ValueKey('exchange_trade_page_send_failure_dialog_key'),
+                      buttonKey: ValueKey('exchange_trade_page_send_failure_dialog_button_key'),
+                      alertTitle: S.of(popupContext).error,
+                      alertContent: state.error,
+                      buttonText: S.of(popupContext).ok,
+                      buttonAction: () => Navigator.of(popupContext).pop());
+                });
+          });
+        }
+
+        if (state is IsExecutingState) {
+          // wait a bit to avoid showing the loading dialog if transaction is failed
+          await Future.delayed(const Duration(milliseconds: 300));
+          final currentState = widget.exchangeTradeViewModel.sendViewModel.state;
+          if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
+            return;
           }
-        });
-      }
 
-      if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            showModalBottomSheet<void>(
-              context: context,
-              isDismissible: false,
-              isScrollControlled: true,
-              builder: (BuildContext bottomSheetContext) {
-                return ConfirmSendingBottomSheet(
-                  key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
-                  currentTheme: widget.currentTheme,
-                  walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
-                  titleText: S.of(bottomSheetContext).confirm_transaction,
-                  titleIconPath:
-                      widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
-                  currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
-                  amount: S.of(bottomSheetContext).send_amount,
-                  amountValue: widget
-                      .exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  fiatAmountValue: widget
-                      .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-                  fee: isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
-                      ? S.of(bottomSheetContext).send_estimated_fee
-                      : S.of(bottomSheetContext).send_fee,
-                  feeValue:
-                      widget.exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                  feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
-                      .pendingTransactionFeeFiatAmountFormatted,
-                  outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
-                  footerType: FooterType.slideActionButton,
-                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
-                  onSlideActionComplete: () async {
-                    Navigator.of(bottomSheetContext).pop();
-                    widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
-                  },
-                );
-              },
-            );
-          }
-        });
-      }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              showModalBottomSheet<void>(
+                context: context,
+                isDismissible: false,
+                builder: (BuildContext context) {
+                  loadingBottomSheetContext = context;
+                  return LoadingBottomSheet(
+                    titleText: S.of(context).generating_transaction,
+                  );
+                },
+              );
+            }
+          });
+        }
 
-      if (state is TransactionCommitted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!mounted) return;
+        if (state is ExecutedSuccessfullyState) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              showModalBottomSheet<void>(
+                context: context,
+                isDismissible: false,
+                isScrollControlled: true,
+                builder: (BuildContext bottomSheetContext) {
+                  return ConfirmSendingBottomSheet(
+                    key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
+                    currentTheme: widget.currentTheme,
+                    walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
+                    titleText: S.of(bottomSheetContext).confirm_transaction,
+                    titleIconPath:
+                        widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
+                    currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
+                    amount: S.of(bottomSheetContext).send_amount,
+                    amountValue: widget
+                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                    fiatAmountValue: widget
+                        .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                    fee:
+                        isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
+                            ? S.of(bottomSheetContext).send_estimated_fee
+                            : S.of(bottomSheetContext).send_fee,
+                    feeValue: widget
+                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
+                        .pendingTransactionFeeFiatAmountFormatted,
+                    outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
+                    onSlideComplete: () async {
+                      Navigator.of(bottomSheetContext).pop();
+                      widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
+                    },
+                  );
+                },
+              );
+            }
+          });
+        }
 
-          await showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            builder: (BuildContext bottomSheetContext) {
-              return InfoBottomSheet(
-                  currentTheme: widget.currentTheme,
-                  footerType: FooterType.singleActionButton,
-                  titleText: S.of(bottomSheetContext).transaction_sent,
-                  contentImage: 'assets/images/birthday_cake.svg',
-                  singleActionButtonText: S.of(bottomSheetContext).close,
-                  singleActionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                  onSingleActionButtonPressed: () {
-                    Navigator.of(bottomSheetContext).pop();
-                    if (mounted) {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        Routes.dashboard,
-                        (route) => false,
-                      );
-                    }
-                    RequestReviewHandler.requestReview();
-                  });
+        if (state is TransactionCommitted) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) async {
+              if (!mounted) return;
+
+              await showModalBottomSheet<void>(
+                context: context,
+                isScrollControlled: true,
+                builder: (BuildContext bottomSheetContext) {
+                  return InfoBottomSheet(
+                    currentTheme: widget.currentTheme,
+                    titleText: S.of(bottomSheetContext).transaction_sent,
+                    contentImage: 'assets/images/birthday_cake.png',
+                    actionButtonText: S.of(bottomSheetContext).close,
+                    actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                    actionButton: () {
+                      Navigator.of(bottomSheetContext).pop();
+                      if (mounted) {
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          Routes.dashboard,
+                          (route) => false,
+                        );
+                      }
+                      RequestReviewHandler.requestReview();
+                    },
+                  );
+                },
+              );
             },
           );
-        });
-      }
-    });
+        }
+      },
+    );
 
     _effectsInstalled = true;
   }
