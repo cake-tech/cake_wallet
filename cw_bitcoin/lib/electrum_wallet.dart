@@ -1120,7 +1120,8 @@ abstract class ElectrumWalletBase
           network: network,
           hasChange: estimatedTx.hasChange,
           isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
+          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot,
+          isViewOnly: false,
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);
             await updateBalance();
@@ -1203,7 +1204,8 @@ abstract class ElectrumWalletBase
         isSendAll: estimatedTx.isSendAll,
         hasTaprootInputs: hasTaprootInputs,
         utxos: estimatedTx.utxos,
-        publicKeys: estimatedTx.publicKeys
+        publicKeys: estimatedTx.publicKeys,
+        isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {
@@ -1865,6 +1867,7 @@ abstract class ElectrumWalletBase
         network: network,
         hasChange: changeOutputs.isNotEmpty,
         feeRate: newFee.toString(),
+        isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
           transactionHistory.transactions.values.forEach((tx) {
             if (tx.id == hash) {
