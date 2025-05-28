@@ -446,7 +446,6 @@ class CakePayBuyCardPage extends BasePage {
                 loadingBottomSheetContext = context;
                 return LoadingBottomSheet(
                   titleText: S.of(context).generating_transaction,
-                  footerType: FooterType.none,
                 );
               },
             );

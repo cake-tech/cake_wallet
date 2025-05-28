@@ -12,8 +12,8 @@ import 'base_bottom_sheet_widget.dart';
 
 class LoadingBottomSheet extends BaseBottomSheet {
   LoadingBottomSheet(
-      {required String titleText, required FooterType footerType, String? titleIconPath})
-      : super(titleText: titleText, titleIconPath: titleIconPath, footerType: footerType);
+      {required String titleText, String? titleIconPath})
+      : super(titleText: titleText, titleIconPath: titleIconPath, footerType: FooterType.none);
 
   @override
   Widget contentWidget(BuildContext context) {
