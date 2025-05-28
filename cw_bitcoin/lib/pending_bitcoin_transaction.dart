@@ -34,6 +34,8 @@ class PendingBitcoinTransaction with PendingTransaction {
     this.utxos = const [],
     this.publicKeys,
     this.commitOverride,
+    this.unsignedPsbt,
+    required this.isViewOnly,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -46,6 +48,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final bool isSendAll;
   final bool hasChange;
   final bool hasTaprootInputs;
+  final bool isViewOnly;
   List<UtxoWithAddress> utxos;
   bool isMweb;
   String? changeAddressOverride;
@@ -54,6 +57,8 @@ class PendingBitcoinTransaction with PendingTransaction {
   List<String>? outputAddresses;
   final Map<String, PublicKeyWithDerivationPath>? publicKeys;
   Future<void> Function()? commitOverride;
+
+  Uint8List? unsignedPsbt;
 
   @override
   String get id => idOverride ?? _tx.txId();
@@ -95,9 +100,11 @@ class PendingBitcoinTransaction with PendingTransaction {
     try {
       final change = _tx.outputs.firstWhere((out) => out.isChange);
       if (changeAddressOverride != null) {
-        return PendingChange(changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
+        return PendingChange(
+            changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
       }
-      return PendingChange(change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
+      return PendingChange(
+          change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
     } catch (_) {
       return null;
     }
@@ -146,12 +153,14 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   Future<void> _ltcCommit() async {
     try {
-      final resp = await CwMweb.broadcast(BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
+      final resp = await CwMweb.broadcast(
+          BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
       idOverride = resp.txid;
     } on GrpcError catch (e) {
       throw BitcoinTransactionCommitFailed(errorMessage: e.message);
     } catch (e) {
-      throw BitcoinTransactionCommitFailed(errorMessage: "Unknown error: ${e.toString()}");
+      throw BitcoinTransactionCommitFailed(
+          errorMessage: "Unknown error: ${e.toString()}");
     }
   }
 
@@ -170,7 +179,8 @@ class PendingBitcoinTransaction with PendingTransaction {
     _listeners.forEach((listener) => listener(transactionInfo()));
   }
 
-  void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
+  void addListener(
+          void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
   ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
@@ -185,10 +195,10 @@ class PendingBitcoinTransaction with PendingTransaction {
       inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
       outputAddresses: outputAddresses,
       fee: fee);
-      
+
   @override
   Future<String?> commitUR() {
-    var sourceBytes = Uint8List.fromList(utf8.encode(hex));
+    var sourceBytes = unsignedPsbt!;
     var cborEncoder = CBOREncoder();
     cborEncoder.encodeBytes(sourceBytes);
     var ur = UR("psbt", cborEncoder.getBytes());
