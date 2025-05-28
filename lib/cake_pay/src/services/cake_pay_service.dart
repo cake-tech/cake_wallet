@@ -1,7 +1,7 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/country.dart';
 
@@ -97,6 +97,8 @@ class CakePayService {
     required bool confirmsNoVpn,
     required bool confirmsVoidedRefund,
     required bool confirmsTermsAgreed,
+    String? cardName,
+    String? cardImagePath,
   }) async {
     final userEmail = (await secureStorage.read(key: cakePayEmailStorageKey))!;
     final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
@@ -110,6 +112,8 @@ class CakePayService {
       confirmsNoVpn: confirmsNoVpn,
       confirmsVoidedRefund: confirmsVoidedRefund,
       confirmsTermsAgreed: confirmsTermsAgreed,
+      cardName: cardName,
+      cardImagePath: cardImagePath,
     );
   }
 
