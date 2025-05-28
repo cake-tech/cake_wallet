@@ -1119,7 +1119,8 @@ abstract class ElectrumWalletBase
           network: network,
           hasChange: estimatedTx.hasChange,
           isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
+          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot,
+          isViewOnly: false,
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);
             await updateBalance();
@@ -1190,18 +1191,21 @@ abstract class ElectrumWalletBase
         }
       });
 
-      return PendingBitcoinTransaction(transaction, type,
-          electrumClient: electrumClient,
-          amount: estimatedTx.amount,
-          fee: estimatedTx.fee,
-          feeRate: feeRateInt.toString(),
-          network: network,
-          hasChange: estimatedTx.hasChange,
-          isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: hasTaprootInputs,
-          utxos: estimatedTx.utxos,
-          publicKeys: estimatedTx.publicKeys)
-        ..addListener((transaction) async {
+      return PendingBitcoinTransaction(
+        transaction,
+        type,
+        electrumClient: electrumClient,
+        amount: estimatedTx.amount,
+        fee: estimatedTx.fee,
+        feeRate: feeRateInt.toString(),
+        network: network,
+        hasChange: estimatedTx.hasChange,
+        isSendAll: estimatedTx.isSendAll,
+        hasTaprootInputs: hasTaprootInputs,
+        utxos: estimatedTx.utxos,
+        publicKeys: estimatedTx.publicKeys,
+        isViewOnly: keys.privateKey.isEmpty,
+      )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {
             transactionHistory.transactions.values.forEach((tx) {
@@ -1862,6 +1866,7 @@ abstract class ElectrumWalletBase
         network: network,
         hasChange: changeOutputs.isNotEmpty,
         feeRate: newFee.toString(),
+        isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
           transactionHistory.transactions.values.forEach((tx) {
             if (tx.id == hash) {
