@@ -372,8 +372,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         publicKeys: tx.publicKeys!,
         masterFingerprint: Uint8List(0));
 
-    final originalPsbt = await signPsbt(
-        base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
+    if (tx.isViewOnly) {
+     tx.unsignedPsbt = transaction.serialize();
+     return tx;
+    }
+
+    final originalPsbt =
+        await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
     tx.commitOverride = () async {
       final sender = await payjoinManager.initSender(
@@ -405,6 +410,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       feeRate: "",
       network: network,
       hasChange: true,
+      isViewOnly: false,
     ).commit();
   }
 
