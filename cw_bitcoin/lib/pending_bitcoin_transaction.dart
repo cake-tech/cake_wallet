@@ -34,6 +34,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     this.utxos = const [],
     this.publicKeys,
     this.commitOverride,
+    this.unsignedPsbt,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -54,6 +55,8 @@ class PendingBitcoinTransaction with PendingTransaction {
   List<String>? outputAddresses;
   final Map<String, PublicKeyWithDerivationPath>? publicKeys;
   Future<void> Function()? commitOverride;
+
+  Uint8List? unsignedPsbt;
 
   @override
   String get id => idOverride ?? _tx.txId();
@@ -168,10 +171,10 @@ class PendingBitcoinTransaction with PendingTransaction {
       inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
       outputAddresses: outputAddresses,
       fee: fee);
-      
+
   @override
   Future<String?> commitUR() {
-    var sourceBytes = Uint8List.fromList(utf8.encode(hex));
+    var sourceBytes = unsignedPsbt!;
     var cborEncoder = CBOREncoder();
     cborEncoder.encodeBytes(sourceBytes);
     var ur = UR("psbt", cborEncoder.getBytes());

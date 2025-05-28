@@ -354,6 +354,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         publicKeys: tx.publicKeys!,
         masterFingerprint: Uint8List(0));
 
+    if (isCupcake) {
+     tx.unsignedPsbt = transaction.serialize();
+     return tx;
+    }
+
     final originalPsbt =
         await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
