@@ -35,9 +35,6 @@ import 'package:cw_core/wallet_keys_file.dart';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
 
-import 'package:path/path.dart' as p;
-import 'package:localstorage/localstorage.dart';
-
 part 'xelis_wallet.g.dart';
 
 class XelisWallet = XelisWalletBase with _$XelisWallet;
