@@ -66,7 +66,6 @@ class TradeMonitor {
   void monitorActiveTrades(String walletId) {
     // Checks if the trade monitoring is permitted
     // i.e the user has not disabled the exchange api mode or the status updates
-    // If not, we return early
     final isTradeMonitoringPermitted = _isTradeMonitoringPermitted();
     if (!isTradeMonitoringPermitted) {
       return;
