@@ -351,7 +351,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
-    if (payjoinUri == null) return tx;
+    if (payjoinUri == null && !tx.shouldCommitUR()) return tx;
 
     final transaction = await buildPsbt(
         utxos: tx.utxos,
@@ -371,7 +371,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         publicKeys: tx.publicKeys!,
         masterFingerprint: Uint8List(0));
 
-    if (tx.isViewOnly) {
+    if (tx.shouldCommitUR()) {
      tx.unsignedPsbt = transaction.serialize();
      return tx;
     }
@@ -380,8 +380,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
     tx.commitOverride = () async {
-      final sender = await payjoinManager.initSender(
-          payjoinUri, originalPsbt, int.parse(tx.feeRate));
+      final sender =
+          await payjoinManager.initSender(payjoinUri!, originalPsbt, int.parse(tx.feeRate));
       payjoinManager.spawnNewSender(
           sender: sender, pjUrl: payjoinUri, amount: BigInt.from(tx.amount));
     };

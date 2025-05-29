@@ -197,12 +197,20 @@ class PendingBitcoinTransaction with PendingTransaction {
       fee: fee);
 
   @override
+  bool shouldCommitUR() => isViewOnly;
+
+  @override
   Future<String?> commitUR() {
     var sourceBytes = unsignedPsbt!;
     var cborEncoder = CBOREncoder();
     cborEncoder.encodeBytes(sourceBytes);
-    var ur = UR("psbt", cborEncoder.getBytes());
-    var encoded = UREncoder.encode(ur);
-    return Future.value(encoded);
+    var ur = UR("psbt", cborEncoder.getBytes());    
+    // var ur = UR("psbt", Uint8List.fromList(List.generate(64*1024, (int x) => x % 256)));    
+    var encoded = UREncoder(ur, 120);
+    List<String> values = [];
+    while (!encoded.isComplete) {
+      values.add(encoded.nextPart());
+    }
+    return Future.value(values.join("\n"));
   }
 }
