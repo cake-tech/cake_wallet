@@ -322,6 +322,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBi
         final appStore = getIt.get<AppStore>();
         final authService = getIt.get<AuthService>();
         final linkViewModel = getIt.get<LinkViewModel>();
+        final tradeMonitor = getIt.get<TradeMonitor>();
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
@@ -342,6 +343,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBi
           navigatorKey: navigatorKey,
           authService: authService,
           linkViewModel: linkViewModel,
+          tradeMonitor: tradeMonitor,
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(

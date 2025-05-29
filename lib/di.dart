@@ -524,8 +524,8 @@ Future<void> setup({
   getIt.registerSingleton(
     TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
-      settingsStore: getIt.get<SettingsStore>(),
-      trades: _tradesSource
+      trades: _tradesSource,
+      appStore: getIt.get<AppStore>(),
     ),
   );
 
