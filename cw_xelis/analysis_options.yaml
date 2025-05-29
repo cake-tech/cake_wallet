@@ -1,4 +1,13 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    - "lib/src/api/generated/**"
+    - "**/*.g.dart"
+    - "**/*frb_generated*.dart"
+  errors:
+    # Ignore specific errors that might come from generated code
+    invalid_annotation_target: ignore
+
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

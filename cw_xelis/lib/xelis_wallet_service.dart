@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:system_info2/system_info2.dart';
+
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -8,12 +10,15 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 import 'package:cw_xelis/xelis_wallet.dart';
 import 'package:cw_xelis/src/api/network.dart';
 import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
 import 'package:cw_xelis/xelis_wallet_creation_credentials.dart';
 import 'package:cw_xelis/xelis_store_utils.dart';
+import 'package:cw_xelis/src/api/logger.dart' as x_logger;
+import 'package:cw_xelis/src/api/api.dart' as x_api;
 
 import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
@@ -21,21 +26,75 @@ import 'package:flutter/foundation.dart';
 
 import 'package:mutex/mutex.dart';
 
-enum XelisTableSize {
-  low,
-  full,
-  none;
+class MemoryTierCalculator {   
+  Future<int> getDeviceRAMInGB() async {
+    if (kIsWeb) return 2; // Default for web
 
-  bool get isFull => this == XelisTableSize.full;
-  bool get isLow => this == XelisTableSize.low;
-
-  static XelisTableSize get platformDefault {
-    if (kIsWeb) {
-      return XelisTableSize.low;
+    try {
+      final totalRAM = SysInfo.getTotalPhysicalMemory();
+      // Convert bytes to GB (1 GB = 1024³ bytes)
+      final ramGB = totalRAM / (1024 * 1024 * 1024);
+      return ramGB.round();
+    } catch (e) {
+      print('Error getting RAM info: $e');
+      return 4; // Default fallback
     }
-    return XelisTableSize.full;
   }
 }
+
+enum XelisTableSize {
+  initial,
+  web,
+  low,
+  medium,
+  high;
+
+  BigInt get l1Size {
+    switch (this) {
+      case XelisTableSize.initial:
+      case XelisTableSize.web:
+        return BigInt.from(23);
+      case XelisTableSize.low:
+        return BigInt.from(24);
+      case XelisTableSize.medium:
+        return BigInt.from(25);
+      case XelisTableSize.high:
+        return BigInt.from(26);
+    }
+  }
+
+  static Future<XelisTableSize> getPlatformDefault() async {
+    if (kIsWeb) {
+      return XelisTableSize.web;
+    }
+
+    final calculator = MemoryTierCalculator();
+    final ramInGB = await calculator.getDeviceRAMInGB();
+
+    if (ramInGB <= 2) {
+      return XelisTableSize.web;
+    } else if (ramInGB <= 4) {
+      return XelisTableSize.low;
+    } else if (ramInGB <= 8) {
+      return XelisTableSize.medium;
+    } else {
+      return XelisTableSize.high;
+    }
+  }
+}
+
+
+bool get kIsMobile {
+  if (kIsWeb) return false;
+  return Platform.isAndroid || Platform.isIOS;
+}
+
+
+Future<BigInt> getTableSize() async {
+  final tableSize = await XelisTableSize.getPlatformDefault();
+  return tableSize.l1Size;
+}
+
 
 class XelisTableState {
   final XelisTableSize currentSize;
@@ -48,11 +107,9 @@ class XelisTableState {
     return _desiredSize;
   }
 
-  get isFull => currentSize == XelisTableSize.full;
-
   const XelisTableState({
     this.currentSize = XelisTableSize.low,
-    XelisTableSize desiredSize = XelisTableSize.full,
+    XelisTableSize desiredSize = XelisTableSize.high,
   }) : _desiredSize = desiredSize;
 
   XelisTableState copyWith({
@@ -61,7 +118,7 @@ class XelisTableState {
   }) {
     return XelisTableState(
       currentSize: currentSize ?? this.currentSize,
-      desiredSize: kIsWeb ? XelisTableSize.low : (desiredSize ?? _desiredSize),
+      desiredSize: kIsWeb ? XelisTableSize.low : (desiredSize ?? this._desiredSize),
     );
   }
 
@@ -84,7 +141,21 @@ class XelisWalletService extends WalletService<
   XelisNewWalletCredentials,
   XelisNewWalletCredentials
 > {
-  XelisWalletService(this.walletInfoSource, {required this.isDirect});
+  XelisWalletService(this.walletInfoSource, {required this.isDirect}) {
+    setupRustLogger();
+  }
+  static const LOG_LEVEL = 3;
+  /*
+  Log level for FFI Rust outputs in xelis_flutter
+
+  0: None
+  1: Error
+  2: Warn
+  3: Info
+  4: Debug
+  5: Trace
+
+  */
 
   final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
@@ -93,6 +164,45 @@ class XelisWalletService extends WalletService<
   static final _tableUpgradeMutex = Mutex();
   static Completer<void>? _tableUpgradeCompleter;
   static XelisWallet? _activeWallet;
+
+  void setupRustLogger() async {
+    await x_api.setUpRustLogger();
+
+    x_api.createLogStream().listen((entry) {
+      final logLine = 'XELIS LOG | [${entry.level.name}] ${entry.tag}: ${entry.msg}';
+
+      switch (entry.level) {
+        case x_logger.Level.error:
+          if (LOG_LEVEL > 0) {
+            printV('❌ $logLine');
+          }
+          break;
+        case x_logger.Level.warn:
+          if (LOG_LEVEL > 1) {
+            printV('⚠️ $logLine');
+          }
+          break;
+        case x_logger.Level.info:
+          if (LOG_LEVEL > 2) {
+            printV('ℹ️ $logLine');
+          }
+          break;
+        case x_logger.Level.debug:
+          if (LOG_LEVEL > 3) {
+            printV('🐛 $logLine');
+          }
+          break;
+        case x_logger.Level.trace:
+          if (LOG_LEVEL > 4) {
+            printV('🔍 $logLine');
+          }
+          break;
+      }
+    },
+    onError: (dynamic e) {
+      printV("Error receiving Xelis Rust logs: $e");
+    });
+  }
 
   @override
   WalletType getType() => WalletType.xelis;
@@ -115,18 +225,24 @@ class XelisWalletService extends WalletService<
   Future<XelisTableState> _getTableState() async {
     final tablesPath = await _getTablePath();
     final tablesDir = Directory(tablesPath);
+    final desiredSize = await XelisTableSize.getPlatformDefault();
 
     final files = await tablesDir.list().toList();
-    final hasFullTables = files.any((file) => file.path.contains('full')); // Adjust based on your file naming
+    
+    // Check for the device-appropriate full table
+    final expectedFullTableName = 'tables_${desiredSize.l1Size}.bin';
+
+    final hasFullTables = files.any((file) => 
+      file is File && file.path.contains(expectedFullTableName)
+    );
+
     final hasLowTables = files.isNotEmpty;
 
     final currentSize = hasFullTables
-        ? XelisTableSize.full
+        ? desiredSize
         : hasLowTables
-            ? XelisTableSize.low
-            : XelisTableSize.none;
-
-    final desiredSize = isGenerating ? XelisTableSize.full : currentSize;
+            ? XelisTableSize.initial
+            : XelisTableSize.initial;
 
     return XelisTableState(
       currentSize: currentSize,
@@ -137,7 +253,7 @@ class XelisWalletService extends WalletService<
   Future<String> _getTablePath() async {
     final root = await getAppDir();
     final prefix = walletTypeToString(getType()).toLowerCase();
-    final tablesDir = Directory('${root.path}/wallets/$prefix/tables');
+    final tablesDir = Directory('${root.path}/wallets/$prefix/tables/');
 
     if (!await tablesDir.exists()) {
       await tablesDir.create(recursive: true);
@@ -151,9 +267,6 @@ class XelisWalletService extends WalletService<
     final fullPath = await pathForWalletDir(name: credentials.name, type: getType());
     final tableState = await _getTableState();
     final tablesRoot = await _getTablePath();
-
-    final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
-    final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     
     final network = isTestnet == true ? Network.testnet : Network.mainnet;
 
@@ -163,8 +276,8 @@ class XelisWalletService extends WalletService<
       directory: "",
       password: credentials.password ?? "x",
       network: network,
-      precomputedTablesPath: selectedTablePath,
-      l1Low: !tableState.currentSize.isFull,
+      precomputedTablesPath: tablesRoot,
+      l1Size: (await _getTableState()).currentSize.l1Size,
     );
 
     credentials.walletInfo!.address = frbWallet.getAddressStr();
@@ -177,9 +290,9 @@ class XelisWalletService extends WalletService<
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    unawaited(_upgradeTablesIfNeeded());
     await wallet.init();
     await wallet.save();
+    unawaited(_upgradeTablesIfNeeded());
     _activeWallet = wallet;
     return wallet;
   }
@@ -192,9 +305,6 @@ class XelisWalletService extends WalletService<
     final fullPath = await pathForWalletDir(name: name, type: getType());
     final tableState = await _getTableState();
     final tablesRoot = await _getTablePath();
-
-    final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
-    final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     
     late final Network network;
 
@@ -213,8 +323,8 @@ class XelisWalletService extends WalletService<
         directory: "",
         password: password,
         network: network,
-        precomputedTablesPath: selectedTablePath,
-        l1Low: !tableState.currentSize.isFull,
+        precomputedTablesPath: tablesRoot,
+        l1Size: (await _getTableState()).currentSize.l1Size,
       );
     } catch (_) {
       try {
@@ -224,8 +334,8 @@ class XelisWalletService extends WalletService<
           directory: "",
           password: password,
           network: network,
-          precomputedTablesPath: selectedTablePath,
-          l1Low: !tableState.currentSize.isFull,
+          precomputedTablesPath: tablesRoot,
+          l1Size: (await _getTableState()).currentSize.l1Size,
         );
       } catch(_) {
         rethrow;
@@ -238,10 +348,10 @@ class XelisWalletService extends WalletService<
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    unawaited(_upgradeTablesIfNeeded());
     saveBackup(name);
     await wallet.init();
     await wallet.save();
+    unawaited(_upgradeTablesIfNeeded());
     _activeWallet = wallet;
     return wallet;
   }
@@ -287,8 +397,6 @@ class XelisWalletService extends WalletService<
     final tableState = await _getTableState();
     final tablesRoot = await _getTablePath();
 
-    final selectedTableSubdir = tableState.isFull ? 'full' : 'low';
-    final selectedTablePath = '$tablesRoot/$selectedTableSubdir/';
     final network = isTestnet == true ? Network.testnet : Network.mainnet;
 
     await _closeActiveWalletIfNeeded();
@@ -298,8 +406,8 @@ class XelisWalletService extends WalletService<
       password: credentials.password ?? "x",
       seed: credentials.mnemonic,
       network: network,
-      precomputedTablesPath: selectedTablePath,
-      l1Low: !tableState.currentSize.isFull,
+      precomputedTablesPath: tablesRoot,
+      l1Size: (await _getTableState()).currentSize.l1Size,
     );
 
     credentials.walletInfo!.address = frbWallet.getAddressStr();
@@ -312,9 +420,9 @@ class XelisWalletService extends WalletService<
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
-    unawaited(_upgradeTablesIfNeeded());
     await wallet.init();
     await wallet.save();
+    unawaited(_upgradeTablesIfNeeded());
     _activeWallet = wallet;
     return wallet;
   }
@@ -346,20 +454,19 @@ class XelisWalletService extends WalletService<
       isGenerating = true;
 
       try {
-        // Logger.info("Xelis: Starting background table generation...");
+        printV("Xelis: Starting background table generation...");
 
         final tablesPath = await _getTablePath();
-        final outputPath = '$tablesPath/${state.desiredSize.isLow ? 'low' : 'full'}';
 
         await x_wallet.updateTables(
-          precomputedTablesPath: outputPath,
-          l1Low: state.desiredSize.isLow,
+          precomputedTablesPath: tablesPath,
+          l1Size: await getTableSize(),
         );
 
-        // Logger.info("Xelis: Table upgrade to ${state.desiredSize.name} complete");
+        printV("Xelis: Table upgrade to ${state.desiredSize.name} complete");
         _tableUpgradeCompleter?.complete();
       } catch (e, s) {
-        // Logger.error("Xelis: Failed to generate tables", e, s);
+        printV("Xelis: Failed to generate tables, $e, $s");
         _tableUpgradeCompleter?.completeError(e);
       } finally {
         isGenerating = false;

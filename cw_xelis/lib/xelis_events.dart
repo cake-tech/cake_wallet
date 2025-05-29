@@ -5,8 +5,8 @@ abstract class Event {
 }
 
 class NewTopoheight extends Event {
-  final int height;
-  const NewTopoheight(this.height);
+  final int topoheight;
+  const NewTopoheight(this.topoheight);
 }
 
 class NewTransaction extends Event {
@@ -55,4 +55,10 @@ class NewAsset extends Event {
     this.ticker,
     this.topoheight
   );
+}
+
+class SyncError extends Event {
+  final String message;
+  
+  const SyncError(this.message);
 }

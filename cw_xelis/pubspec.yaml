@@ -5,7 +5,7 @@ homepage:
 publish_to: none
 
 environment:
-  sdk: '>=3.0.6 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
@@ -14,6 +14,7 @@ dependencies:
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.0.7+4
+  shared_preferences: ^2.0.15
   flutter_mobx: ^2.0.6+1
   intl: ^0.19.0
   cw_core:
@@ -21,19 +22,23 @@ dependencies:
   xelis_flutter:
     git:
       url: https://github.com/xelis-project/xelis-flutter-ffi.git
-      ref: 24ae379b99c38fe65fdbd718216e58bc8a6b398e
-  xelis_dart_sdk:
+      ref: 59bca683262759b4b556f8e09567fa0ceea52494
+    # path: ./xelis-flutter-ffi
+  xelis_dart_sdk: ^0.28.0
   mutex: ^3.1.0
   hive: ^2.2.3
+  system_info2: ^4.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   build_runner: ^2.4.7
-  build_resolvers: ^2.0.9
-  mobx_codegen: ^2.0.7
-  hive_generator: ^1.1.3
+  mobx_codegen: ^2.3.0
+  hive_generator: ^2.0.1
+  build: ^2.4.0
+  path: ^1.8.3
+  analyzer: ^6.2.0
 
 dependency_overrides:
   watcher: ^1.1.0

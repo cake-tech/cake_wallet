@@ -11,7 +11,7 @@ class XelisPendingTransaction with PendingTransaction {
         required this.send,
       });
 
-  final int amount;
+  final String amount;
   final int fee;
   final String txid;
   final int decimals;
@@ -21,7 +21,7 @@ class XelisPendingTransaction with PendingTransaction {
   String get id => txid;
 
   @override
-  String get amountFormatted => formatXelisAmount(amount, decimals: decimals);
+  String get amountFormatted => amount.toString();
 
   @override
   String get feeFormatted => formatXelisAmount(fee, decimals: 8);

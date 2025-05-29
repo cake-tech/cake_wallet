@@ -111,7 +111,7 @@ abstract class HomeSettingsViewModelBase with Store {
       }
 
       if (_balanceViewModel.wallet.type == WalletType.xelis) {
-        await xelis!.addAsset(
+        await xelis!.updateAssetState(
           _balanceViewModel.wallet,
           token,
           contractAddress,
@@ -450,7 +450,8 @@ abstract class HomeSettingsViewModelBase with Store {
 
     if (_balanceViewModel.wallet.type == WalletType.xelis) {
       final id = xelis!.getAssetId(token);
-      xelis!.addAsset(_balanceViewModel.wallet, token, id);
+      xelis!.updateAssetState(_balanceViewModel.wallet, token, id);
+      if (!value) await xelis!.removeAssetTransactionsInHistory(_balanceViewModel.wallet, token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.tron) {

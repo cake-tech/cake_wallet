@@ -30,4 +30,9 @@ migrate_working_dir/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+flutter_rust_bridge_local.yaml
 build/
+rust_temp/
+rust_src/
+lib/src/** 
+xelis-flutter-ffi/

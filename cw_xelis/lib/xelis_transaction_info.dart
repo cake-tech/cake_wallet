@@ -67,6 +67,7 @@ class XelisTransactionInfo extends TransactionInfo {
   final List<String> assetIds;
   final String? to;
   final String? from;
+  final int confirmations = 3; // static/unused atm, purely for compatibility
 
   String? _fiatAmount;
 

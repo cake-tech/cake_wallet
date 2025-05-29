@@ -126,7 +126,7 @@ class CWXelis extends Xelis {
   }
 
   @override
-  Future<void> addAsset(
+  Future<void> updateAssetState(
     WalletBase wallet,
     CryptoCurrency asset,
     String id,
@@ -136,13 +136,17 @@ class CWXelis extends Xelis {
       symbol: asset.title,
       id: id,
       decimals: asset.decimals,
-      enabled: true,
+      enabled: asset.enabled,
       iconPath: asset.iconPath,
       isPotentialScam: asset.isPotentialScam,
     );
 
-    await (wallet as XelisWallet).addAsset(xelAsset);
+    await (wallet as XelisWallet).updateAssetState(xelAsset);
   }
+
+  @override
+  Future<void> removeAssetTransactionsInHistory(WalletBase wallet, CryptoCurrency token) async =>
+      await (wallet as XelisWallet).removeAssetTransactionsInHistory(token as XelisAsset);
 
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {

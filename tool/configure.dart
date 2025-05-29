@@ -1409,9 +1409,9 @@ import 'package:hive/hive.dart';
 """;
   const xelisCWHeaders = """
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
-import 'package:xelis_flutter/src/api/wallet.dart' as x_wallet;
-import 'package:xelis_flutter/src/api/utils.dart';
 
+import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
+import 'package:cw_xelis/src/api/utils.dart';
 import 'package:cw_xelis/xelis_asset.dart';
 import 'package:cw_xelis/xelis_wallet_service.dart';
 import 'package:cw_xelis/xelis_wallet.dart';
@@ -1447,6 +1447,7 @@ abstract class Xelis {
   TransactionPriority deserializeXelisTransactionPriority(int raw);
 
   Object createXelisTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, required CryptoCurrency currency});
+  Future<void> removeAssetTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
 
   double formatterXelisAmountToDouble({TransactionInfo? transaction, BigInt? amount, int decimals = 8});
@@ -1456,7 +1457,7 @@ abstract class Xelis {
   double? getEstimateFees(WalletBase wallet);
 
   List<CryptoCurrency> getXelisAssets(WalletBase wallet);
-  Future<void> addAsset(
+  Future<void> updateAssetState(
     WalletBase wallet,
     CryptoCurrency asset,
     String id,
