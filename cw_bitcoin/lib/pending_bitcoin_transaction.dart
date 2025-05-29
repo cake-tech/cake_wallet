@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
@@ -11,6 +14,9 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_mweb/cw_mweb.dart';
 import 'package:cw_mweb/mwebd.pb.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_encoder.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
@@ -28,6 +34,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     this.utxos = const [],
     this.publicKeys,
     this.commitOverride,
+    this.unsignedPsbt,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -48,6 +55,8 @@ class PendingBitcoinTransaction with PendingTransaction {
   List<String>? outputAddresses;
   final Map<String, PublicKeyWithDerivationPath>? publicKeys;
   Future<void> Function()? commitOverride;
+
+  Uint8List? unsignedPsbt;
 
   @override
   String get id => idOverride ?? _tx.txId();
@@ -162,9 +171,14 @@ class PendingBitcoinTransaction with PendingTransaction {
       inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
       outputAddresses: outputAddresses,
       fee: fee);
-      
+
   @override
   Future<String?> commitUR() {
-    throw UnimplementedError();
+    var sourceBytes = unsignedPsbt!;
+    var cborEncoder = CBOREncoder();
+    cborEncoder.encodeBytes(sourceBytes);
+    var ur = UR("psbt", cborEncoder.getBytes());
+    var encoded = UREncoder.encode(ur);
+    return Future.value(encoded);
   }
 }
