@@ -51,17 +51,22 @@ class TransactionRow extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Row(
-                        children: [
-                          Text(
-                            title,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                          ...tags
-                              .map((tag) => Row(children: [SizedBox(width: 8), TxTag(tag: tag)])),
-                        ],
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                title,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                  overflow: TextOverflow.fade,
+                                    ),
+                              ),
+                            ),
+                            ...tags
+                                .map((tag) => Row(children: [SizedBox(width: 8), TxTag(tag: tag)])),
+                          ],
+                        ),
                       ),
                       Text(
                         formattedAmount,

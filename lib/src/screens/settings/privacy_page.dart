@@ -82,7 +82,7 @@ class PrivacyPage extends BasePage {
                   },
                 ),
               SettingsSwitcherCell(
-                title: S.current.disable_buy_option,
+                title: S.current.disable_buy,
                 value: _privacySettingsViewModel.disableTradeOption,
                 onValueChange: (BuildContext _, bool value) {
                   _privacySettingsViewModel.setDisableTradeOption(value);
