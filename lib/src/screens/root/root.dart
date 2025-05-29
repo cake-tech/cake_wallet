@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -162,10 +163,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
-      final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
-      if (widget.appStore.themeStore.currentTheme != systemTheme) {
-        widget.appStore.themeStore.setTheme(systemTheme);
-      }
+      Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0), () {
+        final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
+        if (widget.appStore.themeStore.currentTheme != systemTheme) {
+          widget.appStore.themeStore.setTheme(systemTheme);
+        }
+      });
     }
   }
 
