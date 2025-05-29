@@ -160,6 +160,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangePlatformBrightness() {
+    if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
+      final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
+      if (widget.appStore.themeStore.currentTheme != systemTheme) {
+        widget.appStore.themeStore.setTheme(systemTheme);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // this only happens when the app has been in the background for some time
     // this does NOT trigger when the app is started from the "closed" state!
