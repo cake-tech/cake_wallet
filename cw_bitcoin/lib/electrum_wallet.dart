@@ -681,7 +681,7 @@ abstract class ElectrumWalletBase
         );
         spendsSilentPayment = true;
         isSilentPayment = true;
-      } else if (!isHardwareWallet) {
+      } else if (!isHardwareWallet && false) {
         privkey =
             generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
       }
@@ -1154,6 +1154,7 @@ abstract class ElectrumWalletBase
       bool hasTaprootInputs = false;
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
+        return "";
         String error = "Cannot find private key.";
 
         ECPrivateInfo? key;
