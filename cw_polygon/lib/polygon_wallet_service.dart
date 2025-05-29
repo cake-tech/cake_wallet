@@ -55,6 +55,7 @@ class PolygonWalletService extends EVMChainWalletService<PolygonWallet> {
       );
 
       await wallet.init();
+      wallet.addInitialTokens(true);
       await wallet.save();
       saveBackup(name);
       return wallet;

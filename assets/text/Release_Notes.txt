@@ -1,5 +1,4 @@
-Background sync improvements
-Payment notifications
-WalletConnect enhancements
-UI/UX improvements
+New themes and UI/UX improvements
+Payjoin enhancements
+Ledger flow enhancements
 Bug fixes

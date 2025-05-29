@@ -49,6 +49,14 @@ class PrivacyPage extends BasePage {
                       _privacySettingsViewModel.setExchangeApiMode(mode),
                 ),
               ),
+              if (_privacySettingsViewModel.canUsePayjoin)
+                SettingsSwitcherCell(
+                  title: S.of(context).use_payjoin,
+                  value: _privacySettingsViewModel.usePayjoin,
+                  onValueChange: (BuildContext _, bool value) {
+                    _privacySettingsViewModel.setUsePayjoin(value);
+                  },
+                ),
               SettingsSwitcherCell(
                   title: S.current.settings_save_recipient_address,
                   value: _privacySettingsViewModel.shouldSaveRecipientAddress,
@@ -73,7 +81,7 @@ class PrivacyPage extends BasePage {
                       _privacySettingsViewModel.setIsAppSecure(value);
                     }),
               SettingsSwitcherCell(
-                  title: S.current.disable_exchange_option,
+                  title: S.current.disable_buy,
                   value: _privacySettingsViewModel.disableTradeOption,
                   onValueChange: (BuildContext _, bool value) {
                     _privacySettingsViewModel.setDisableTradeOption(value);

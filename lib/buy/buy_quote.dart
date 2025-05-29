@@ -50,6 +50,7 @@ class Quote extends SelectableOption {
     this.rampName,
     this.rampIconPath,
     this.limits,
+    this.customPaymentMethodType,
   }) : super(title: provider.isAggregator ? rampName ?? '' : provider.title);
 
   final double rate;
@@ -68,6 +69,7 @@ class Quote extends SelectableOption {
   bool _isBestRate = false;
   bool isBuyAction;
   Limits? limits;
+  String? customPaymentMethodType;
 
   late FiatCurrency _fiatCurrency;
   late CryptoCurrency _cryptoCurrency;
@@ -130,7 +132,7 @@ class Quote extends SelectableOption {
   set setLimits(Limits limits) => this.limits = limits;
 
   factory Quote.fromOnramperJson(Map<String, dynamic> json, bool isBuyAction,
-      Map<String, dynamic> metaData, PaymentType paymentType) {
+      Map<String, dynamic> metaData, PaymentType paymentType, String? customPaymentMethodType) {
     final rate = _toDouble(json['rate']) ?? 0.0;
     final networkFee = _toDouble(json['networkFee']) ?? 0.0;
     final transactionFee = _toDouble(json['transactionFee']) ?? 0.0;
@@ -183,6 +185,7 @@ class Quote extends SelectableOption {
       rampName: rampName,
       rampIconPath: rampIconPath,
       paymentType: paymentType,
+      customPaymentMethodType: customPaymentMethodType,
       quoteId: json['quoteId'] as String? ?? '',
       recommendations: enumRecommendations,
       provider: ProvidersHelper.getProviderByType(ProviderType.onramper)!,

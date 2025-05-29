@@ -39,14 +39,14 @@ class CWMoneroAccountList extends MoneroAccountList {
   @override
   Future<void> addAccount(Object wallet, {required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.accountList.addAccount(label: label);
+    moneroWallet.walletAddresses.accountList.addAccount(label: label);
   }
 
   @override
   Future<void> setLabelAccount(Object wallet,
       {required int accountIndex, required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.accountList
+    moneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
   }
 }
@@ -421,6 +421,7 @@ class CWMonero extends Monero {
     moneroWallet.setLedgerConnection(connection);
   }
 
+  @override
   void resetLedgerConnection() {
     disableLedgerExchange();
   }
@@ -428,8 +429,10 @@ class CWMonero extends Monero {
   @override
   void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
     gLedger = connection;
-    keepAlive(connection);
   }
+
+  @override
+  String? getLastLedgerCommand() => latestLedgerCommand;
 
   bool isViewOnly() {
     return isViewOnlyBySpendKey(null);
@@ -439,5 +442,4 @@ class CWMonero extends Monero {
   Map<String, List<int>> debugCallLength() {
     return monero_wallet_api.debugCallLength();
   }
-  
 }

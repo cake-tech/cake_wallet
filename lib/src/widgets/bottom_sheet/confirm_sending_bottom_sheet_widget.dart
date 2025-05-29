@@ -1,10 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -16,7 +12,7 @@ import 'base_bottom_sheet_widget.dart';
 
 class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final CryptoCurrency currency;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final String? paymentId;
   final String? paymentIdValue;
   final String? expirationTime;
@@ -60,28 +56,18 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
 
   @override
   Widget contentWidget(BuildContext context) {
-    final itemTitleTextStyle = TextStyle(
-      fontSize: 16,
-      fontFamily: 'Lato',
-      fontWeight: FontWeight.w500,
-      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-      decoration: TextDecoration.none,
-    );
-    final itemSubTitleTextStyle = TextStyle(
-      fontSize: 12,
-      fontFamily: 'Lato',
-      fontWeight: FontWeight.w600,
-      color: currentTheme.type == ThemeType.bright
-          ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-          : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-      decoration: TextDecoration.none,
-    );
+    final itemTitleTextStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.none,
+        );
+    final itemSubTitleTextStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          decoration: TextDecoration.none,
+        );
 
-    final tileBackgroundColor = currentTheme.type == ThemeType.light
-        ? Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor
-        : currentTheme.type == ThemeType.oled
-        ? Colors.black.withOpacity(0.5)
-        : Theme.of(context).extension<FilterTheme>()!.buttonColor;
+    final tileBackgroundColor = Theme.of(context).colorScheme.surfaceContainer;
 
     Widget content = Padding(
       padding: EdgeInsets.fromLTRB(8, 0, showScrollbar ? 16 : 8, 8),
@@ -92,7 +78,6 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
               padding: const EdgeInsets.only(bottom: 8),
               child: AddressTile(
                 itemTitle: paymentId!,
-                currentTheme: currentTheme,
                 itemTitleTextStyle: itemTitleTextStyle,
                 walletType: walletType,
                 isBatchSending: false,
@@ -139,7 +124,6 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   return isBatchSending || contactName.isNotEmpty
                       ? AddressExpansionTile(
                           contactType: isOpenCryptoPay ? 'Open CryptoPay' : S.of(context).contact,
-                          currentTheme: currentTheme,
                           name: isBatchSending ? batchContactTitle : contactName,
                           address: _address,
                           amount: _amount,
@@ -151,7 +135,6 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                         )
                       : AddressTile(
                           itemTitle: S.of(context).address,
-                          currentTheme: currentTheme,
                           itemTitleTextStyle: itemTitleTextStyle,
                           isBatchSending: isBatchSending,
                           walletType: walletType,
@@ -167,7 +150,6 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                   padding: const EdgeInsets.only(top: 8),
                   child: AddressExpansionTile(
                     contactType: 'Change',
-                    currentTheme: currentTheme,
                     name: S.of(context).send_change_to_you,
                     address: change!.address,
                     amount: change!.amount + ' ${currency.title}',
@@ -208,11 +190,11 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     return Container(
       padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
       decoration: BoxDecoration(
-        color: Theme.of(context).dialogBackgroundColor,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           if (showScrollbar)
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.outlineVariant,
               spreadRadius: 2,
               blurRadius: 10,
               offset: const Offset(0, 0),
@@ -254,8 +236,10 @@ class StandardTile extends StatelessWidget {
       label: itemTitle,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration:
-            BoxDecoration(borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: tileBackgroundColor,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -280,7 +264,6 @@ class AddressTile extends StatelessWidget {
   const AddressTile({
     super.key,
     required this.itemTitle,
-    required this.currentTheme,
     required this.itemTitleTextStyle,
     required this.isBatchSending,
     required this.amount,
@@ -291,7 +274,6 @@ class AddressTile extends StatelessWidget {
   });
 
   final String itemTitle;
-  final ThemeBase currentTheme;
   final TextStyle itemTitleTextStyle;
   final bool isBatchSending;
   final String amount;
@@ -321,12 +303,10 @@ class AddressTile extends StatelessWidget {
           AddressFormatter.buildSegmentedAddress(
             address: address,
             walletType: walletType,
-            evenTextStyle: TextStyle(
-                fontSize: 12,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                decoration: TextDecoration.none)
+            evenTextStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.none,
+                ),
           ),
         ],
       ),
@@ -338,7 +318,6 @@ class AddressExpansionTile extends StatelessWidget {
   const AddressExpansionTile({
     super.key,
     required this.contactType,
-    required this.currentTheme,
     required this.name,
     required this.address,
     required this.amount,
@@ -350,7 +329,6 @@ class AddressExpansionTile extends StatelessWidget {
   });
 
   final String contactType;
-  final ThemeBase currentTheme;
   final String name;
   final String address;
   final String amount;
@@ -378,21 +356,25 @@ class AddressExpansionTile extends StatelessWidget {
               childrenPadding: isBatchSending ? const EdgeInsets.only(bottom: 8) : EdgeInsets.zero,
               tilePadding: EdgeInsets.zero,
               dense: true,
+              iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
               visualDensity: VisualDensity.compact,
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                      child: Text(isBatchSending ? name : contactType,
-                          style: itemTitleTextStyle, softWrap: true)),
-                  Text(isBatchSending ? amount : name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        decoration: TextDecoration.none,
-                      )),
+                    child: Text(
+                      isBatchSending ? name : contactType,
+                      style: itemTitleTextStyle,
+                      softWrap: true,
+                    ),
+                  ),
+                  Text(
+                    isBatchSending ? amount : name,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.none,
+                        ),
+                  ),
                 ],
               ),
               children: [
@@ -400,14 +382,12 @@ class AddressExpansionTile extends StatelessWidget {
                   children: [
                     Expanded(
                       child: AddressFormatter.buildSegmentedAddress(
-                          address: address,
-                          walletType: walletType,
-                          evenTextStyle: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
+                        address: address,
+                        walletType: walletType,
+                        evenTextStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                              decoration: TextDecoration.none)
+                              decoration: TextDecoration.none,
+                            ),
                       ),
                     ),
                   ],

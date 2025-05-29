@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/pin_code_theme.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -103,7 +101,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
 
   void changeProcessText(String text) {
     hideProgressText();
-    _progressBar = createBar<void>(text, duration: null)..show(_key.currentContext!);
+    _progressBar = createBar<void>(text, context, duration: null)..show(_key.currentContext!);
   }
 
   void close() {
@@ -123,11 +121,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   Widget body(BuildContext context) {
     final deleteIconImage = Image.asset(
       'assets/images/delete_icon.png',
-      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-    );
-    final faceImage = Image.asset(
-      'assets/images/face.png',
-      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+      color: Theme.of(context).colorScheme.primary,
     );
 
     return KeyboardListener(
@@ -146,17 +140,20 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
         }
       },
       child: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 60.0),
         child: Column(
           children: <Widget>[
             Spacer(flex: 2),
-            Text(title,
-                style: TextStyle(
-                    fontSize: 20,
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor)),
-            Spacer(flex: 8),
+                    fontSize: 20,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+            ),
+            Spacer(flex: 3),
             Container(
               width: 180,
               child: Row(
@@ -171,11 +168,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: isFilled
-                            ? Theme.of(context).extension<CakeTextTheme>()!.titleColor
-                            : Theme.of(context)
-                                .extension<PinCodeTheme>()!
-                                .indicatorsColor
-                                .withOpacity(0.25),
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
                       ));
                 }),
               ),
@@ -190,10 +184,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 },
                 child: Text(
                   _changePinLengthText(),
-                  style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<PinCodeTheme>()!.switchColor),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                 ),
               )
             ],
@@ -237,8 +230,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                         child: TextButton(
                                           onPressed: () => _pop(),
                                           style: TextButton.styleFrom(
-                                            backgroundColor:
-                                                Theme.of(context).colorScheme.background,
+                                            backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                                             shape: CircleBorder(),
                                           ),
                                           child: deleteIconImage,
@@ -256,16 +248,15 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                     key: ValueKey('pin_code_button_${index}_key'),
                                     onPressed: () => _push(index),
                                     style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).cardColor,
+                                      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                                       shape: CircleBorder(),
                                     ),
                                     child: Text('$index',
-                                        style: TextStyle(
-                                            fontSize: 25.0,
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(context)
-                                                .extension<CakeTextTheme>()!
-                                                .titleColor)),
+                                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 30,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            )),
                                   ),
                                 );
                               }),

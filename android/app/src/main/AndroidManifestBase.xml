@@ -111,6 +111,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="nano-gpt" />
             </intent-filter>
+
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
         </activity>
         <meta-data
                 android:name="flutterEmbedding"

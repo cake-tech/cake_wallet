@@ -1,4 +1,3 @@
-Background sync improvements
-Payment notifications
-UI/UX improvements
+New themes and UI/UX improvements
+Ledger flow enhancements
 Bug fixes

@@ -5,8 +5,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/service_status_tile.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -44,14 +42,14 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
         },
         child: SvgPicture.asset(
           "assets/images/notification_icon.svg",
-          color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-          width: 30,
+          color: Theme.of(context).colorScheme.onSurface,
+          width: 20,
           placeholderBuilder: (_) => Icon(Icons.error),
         ),
       );
     }
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(left: 16, top: 12, right: 8, bottom: 8),
       child: FutureBuilder<ServicesResponse>(
         future: widget.servicesResponse,
         builder: (context, state) {
@@ -66,6 +64,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                     setState(() => wasOpened = true);
 
                     showModalBottomSheet(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       context: context,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.only(
@@ -81,14 +80,18 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                         Widget body;
                         if (state.data!.servicesStatus.isEmpty) {
                           body = Center(
-                            child: Text("Everything is up and running as expected"),
+                            child: Text(
+                              "Everything is up and running as expected",
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                           );
                         } else {
                           body = SingleChildScrollView(
                             child: Column(
-                                children: state.data!.servicesStatus
-                                    .map((status) => ServiceStatusTile(status))
-                                    .toList()),
+                              children: state.data!.servicesStatus
+                                  .map((status) => ServiceStatusTile(status))
+                                  .toList(),
+                            ),
                           );
                         }
                         return Padding(
@@ -100,29 +103,26 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                                 alignment: Alignment.bottomCenter,
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: MediaQuery.of(context).size.width / 8,
+                                    horizontal: 24,
                                     vertical: 20,
                                   ),
                                   child: PrimaryImageButton(
                                     onPressed: () {
                                       try {
-                                        launchUrl(Uri.parse("https://status.cakewallet.com/"),
+                                        launchUrl(
+                                            Uri.parse(
+                                              "https://status.cakewallet.com/",
+                                            ),
                                             mode: LaunchMode.externalApplication);
                                       } catch (_) {}
                                     },
                                     image: Image.asset(
                                       "assets/images/status_website_image.png",
-                                      color: Theme.of(context).brightness == Brightness.light
-                                          ? Colors.white
-                                          : null,
+                                      color: Theme.of(context).colorScheme.onPrimary,
                                     ),
                                     text: "Status Website",
-                                    color: Theme.of(context)
-                                        .extension<WalletListTheme>()!
-                                        .createNewWalletButtonBackgroundColor,
-                                    textColor: Theme.of(context)
-                                        .extension<WalletListTheme>()!
-                                        .restoreWalletButtonTextColor,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    textColor: Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 ),
                               )
@@ -137,8 +137,8 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
               children: [
                 SvgPicture.asset(
                   "assets/images/notification_icon.svg",
-                  color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-                  width: 30,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  width: 20,
                   placeholderBuilder: (_) => Icon(Icons.error),
                 ),
                 if (state.hasData && state.data!.hasUpdates && !wasOpened)
@@ -147,7 +147,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                     width: 7,
                     margin: EdgeInsetsDirectional.only(start: 15),
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.errorContainer,
                       shape: BoxShape.circle,
                     ),
                   ),

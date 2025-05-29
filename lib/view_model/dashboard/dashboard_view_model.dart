@@ -13,25 +13,28 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -53,8 +56,6 @@ import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../themes/theme_base.dart';
-
 part 'dashboard_view_model.g.dart';
 
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
@@ -70,6 +71,7 @@ abstract class DashboardViewModelBase with Store {
       required this.yatStore,
       required this.ordersStore,
       required this.anonpayTransactionsStore,
+      required this.payjoinTransactionsStore,
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = true,
@@ -271,10 +273,20 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    _transactionDisposer = reaction(
-      (_) => appStore.wallet!.transactionHistory.transactions.length,
-      _transactionDisposerCallback,
-    );
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations =
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -359,6 +371,8 @@ abstract class DashboardViewModelBase with Store {
   bool isShowThirdYatIntroduction;
 
   @computed
+  bool get isDarkTheme => appStore.themeStore.currentTheme.isDark;
+  @computed
   String get address => wallet.walletAddresses.address;
 
   @computed
@@ -399,8 +413,13 @@ abstract class DashboardViewModelBase with Store {
       ordersStore.orders.where((item) => item.order.walletId == wallet.id).toList();
 
   @computed
-  List<AnonpayTransactionListItem> get anonpayTransactons => anonpayTransactionsStore.transactions
+  List<AnonpayTransactionListItem> get anonpayTransactions => anonpayTransactionsStore.transactions
       .where((item) => item.transaction.walletId == wallet.id)
+      .toList();
+
+  @computed
+  List<PayjoinTransactionListItem> get payjoinTransactions => payjoinTransactionsStore.transactions
+      .where((item) => item.session.walletId == wallet.id)
       .toList();
 
   @computed
@@ -415,9 +434,23 @@ abstract class DashboardViewModelBase with Store {
     final _items = <ActionListItem>[];
 
     _items.addAll(
-        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactons]));
+        transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
     _items.addAll(orders);
+
+    if (payjoinTransactions.isNotEmpty) {
+      final _payjoinTransactions = payjoinTransactions;
+      _items.forEach((e) {
+        if (e is TransactionListItem &&
+            _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)) {
+          _payjoinTransactions.firstWhere((t) => t.session.txId == e.transaction.id).transaction =
+              e.transaction;
+        }
+      });
+      _items.addAll(_payjoinTransactions);
+      _items.removeWhere((e) => (e is TransactionListItem &&
+          _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)));
+    }
 
     return formattedItemsList(_items);
   }
@@ -522,6 +555,12 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   late bool showDecredInfoCard;
+
+  @computed
+  bool get showPayjoinCard =>
+      wallet.type == WalletType.bitcoin &&
+      settingsStore.showPayjoinCard &&
+      !settingsStore.usePayjoin;
 
   @observable
   bool backgroundSyncEnabled = false;
@@ -677,26 +716,18 @@ abstract class DashboardViewModelBase with Store {
   @action
   double getShadowSpread() {
     double spread = 0;
-    if (settingsStore.currentTheme.type == ThemeType.bright)
+    if (!appStore.themeStore.currentTheme.isDark)
       spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.light)
-      spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.dark)
-      spread = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled) spread = 0;
+    else if (appStore.themeStore.currentTheme.isDark) spread = 0;
     return spread;
   }
 
   @action
   double getShadowBlur() {
     double blur = 0;
-    if (settingsStore.currentTheme.type == ThemeType.bright)
+    if (!appStore.themeStore.currentTheme.isDark)
       blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.light)
-      blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.dark)
-      blur = 0;
-    else if (settingsStore.currentTheme.type == ThemeType.oled) blur = 0;
+    else if (appStore.themeStore.currentTheme.isDark) blur = 0;
     return blur;
   }
 
@@ -728,6 +759,18 @@ abstract class DashboardViewModelBase with Store {
     sharedPreferences.setBool(PreferencesKey.showDecredInfoCard, false);
   }
 
+  @action
+  void dismissPayjoin() {
+    settingsStore.showPayjoinCard = false;
+  }
+
+  @action
+  void enablePayjoin() {
+    settingsStore.usePayjoin = true;
+    settingsStore.showPayjoinCard = false;
+    bitcoin!.updatePayjoinState(wallet, true);
+  }
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
@@ -745,6 +788,8 @@ abstract class DashboardViewModelBase with Store {
   AnonpayTransactionsStore anonpayTransactionsStore;
 
   TransactionFilterStore transactionFilterStore;
+
+  PayjoinTransactionsStore payjoinTransactionsStore;
 
   Map<String, List<FilterItem>> filterItems;
 
@@ -891,8 +936,20 @@ abstract class DashboardViewModelBase with Store {
 
     _transactionDisposer?.reaction.dispose();
 
-    _transactionDisposer = reaction((_) => appStore.wallet!.transactionHistory.transactions.length,
-        _transactionDisposerCallback);
+    _transactionDisposer = reaction((_) {
+      final length = appStore.wallet!.transactionHistory.transactions.length;
+      if (length == 0) {
+        return 0;
+      }
+      int confirmations = 1;
+      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
+        try {
+          confirmations =
+              appStore.wallet!.transactionHistory.transactions.values.first.confirmations + 1;
+        } catch (_) {}
+      }
+      return length * confirmations;
+    }, _transactionDisposerCallback);
   }
 
   @action

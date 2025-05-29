@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -136,6 +137,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
+        if (widget.appStore.wallet?.type == WalletType.bitcoin) {
+          bitcoin!.stopPayjoinSessions(widget.appStore.wallet!);
+        }
+
         break;
       case AppLifecycleState.resumed:
         widget.authService.requireAuth().then((value) {
@@ -145,9 +150,25 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
+        if (widget.appStore.wallet?.type == WalletType.bitcoin &&
+            widget.appStore.settingsStore.usePayjoin) {
+          bitcoin!.resumePayjoinSessions(widget.appStore.wallet!);
+        }
         break;
       default:
         break;
+    }
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
+      Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0), () {
+        final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
+        if (widget.appStore.themeStore.currentTheme != systemTheme) {
+          widget.appStore.themeStore.setTheme(systemTheme);
+        }
+      });
     }
   }
 

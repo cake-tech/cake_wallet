@@ -6,7 +6,6 @@ import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 final _settingsNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -34,7 +33,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         height: MediaQuery.of(context).size.height,
         child: Row(
           children: [
@@ -87,8 +86,8 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                         );
                       },
                       separatorBuilder: (_, index) => Container(
-                        height: 1,
-                        color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
+                        height: 0.0,
+                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       itemCount: itemCount,
                     ),
