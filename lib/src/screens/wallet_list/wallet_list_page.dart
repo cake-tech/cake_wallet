@@ -296,7 +296,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 ],
                               ),
                             ),
-                            title: wallet.name,
+                            title: '${wallet.name} ${wallet.hashId}',
                             isSelected: false,
                             borderRadius: BorderRadius.all(Radius.circular(16)),
                             margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
