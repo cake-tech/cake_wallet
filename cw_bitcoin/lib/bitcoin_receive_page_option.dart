@@ -36,9 +36,9 @@ class BitcoinReceivePageOption implements ReceivePageOption {
   BitcoinAddressType toType() {
     switch (this) {
       case BitcoinReceivePageOption.p2tr:
-        return SegwitAddressType.p2tr;
+        return SegwitAddresType.p2tr;
       case BitcoinReceivePageOption.p2wsh:
-        return SegwitAddressType.p2wsh;
+        return SegwitAddresType.p2wsh;
       case BitcoinReceivePageOption.p2pkh:
         return P2pkhAddressType.p2pkh;
       case BitcoinReceivePageOption.p2sh:
@@ -46,20 +46,20 @@ class BitcoinReceivePageOption implements ReceivePageOption {
       case BitcoinReceivePageOption.silent_payments:
         return SilentPaymentsAddresType.p2sp;
       case BitcoinReceivePageOption.mweb:
-        return SegwitAddressType.mweb;
+        return SegwitAddresType.mweb;
       case BitcoinReceivePageOption.p2wpkh:
       default:
-        return SegwitAddressType.p2wpkh;
+        return SegwitAddresType.p2wpkh;
     }
   }
 
   factory BitcoinReceivePageOption.fromType(BitcoinAddressType type) {
     switch (type) {
-      case SegwitAddressType.p2tr:
+      case SegwitAddresType.p2tr:
         return BitcoinReceivePageOption.p2tr;
-      case SegwitAddressType.p2wsh:
+      case SegwitAddresType.p2wsh:
         return BitcoinReceivePageOption.p2wsh;
-      case SegwitAddressType.mweb:
+      case SegwitAddresType.mweb:
         return BitcoinReceivePageOption.mweb;
       case P2pkhAddressType.p2pkh:
         return BitcoinReceivePageOption.p2pkh;
@@ -67,7 +67,7 @@ class BitcoinReceivePageOption implements ReceivePageOption {
         return BitcoinReceivePageOption.p2sh;
       case SilentPaymentsAddresType.p2sp:
         return BitcoinReceivePageOption.silent_payments;
-      case SegwitAddressType.p2wpkh:
+      case SegwitAddresType.p2wpkh:
       default:
         return BitcoinReceivePageOption.p2wpkh;
     }
