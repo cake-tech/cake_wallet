@@ -951,8 +951,10 @@ Future<void> setup({
       (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) =>
-          ContactListViewModel(_contactSource, _walletInfoSource, cur, getIt.get<SettingsStore>()));
+          (CryptoCurrency? cur, _) =>
+          ContactListViewModel(_contactSource, _walletInfoSource, getIt
+              .get<AppStore>()
+              .wallet!, cur, getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
       ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
@@ -1354,10 +1356,12 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolver(
-      yatService: getIt.get<YatService>(),
-      wallet: getIt.get<AppStore>().wallet!,
-      settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerLazySingleton<AddressResolverService>(
+        () => AddressResolverService(
+      yatService: getIt<YatService>(),
+      settingsStore: getIt<SettingsStore>(),
+    ),
+  );
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));

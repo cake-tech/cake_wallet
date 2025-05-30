@@ -33,7 +33,6 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.contentImage,
     this.contentImageColor,
     this.content,
-    this.bottomActionPanel,
     this.singleActionButtonText,
     this.onSingleActionButtonPressed,
     this.singleActionButtonKey,
@@ -43,8 +42,10 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.onRightActionButtonPressed,
     this.leftActionButtonKey,
     this.rightActionButtonKey,
+    Widget? actionPanel,
     Key? key,
-  }) : super(
+  }) :  _actionPanel = actionPanel,
+  super(
       titleText: titleText,
       titleIconPath: titleIconPath,
       currentTheme: currentTheme,
@@ -65,7 +66,7 @@ class InfoBottomSheet extends BaseBottomSheet {
   final String? contentImage;
   final Color? contentImageColor;
   final String? content;
-  final Widget? bottomActionPanel;
+  final Widget? _actionPanel;
   final String? singleActionButtonText;
   final VoidCallback? onSingleActionButtonPressed;
   final Key? singleActionButtonKey;
@@ -75,6 +76,9 @@ class InfoBottomSheet extends BaseBottomSheet {
   final VoidCallback? onRightActionButtonPressed;
   final Key? rightActionButtonKey;
   final Key? leftActionButtonKey;
+
+  Widget get defaultActionPanel => const SizedBox();
+  Widget get actionPanel => _actionPanel ?? defaultActionPanel;
 
   @override
   Widget contentWidget(BuildContext context) {
@@ -118,7 +122,7 @@ class InfoBottomSheet extends BaseBottomSheet {
                 ],
               ),
             ),
-          bottomActionPanel ?? const SizedBox(),
+          actionPanel ?? const SizedBox(),
         ],
       ),
     );

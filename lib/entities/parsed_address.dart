@@ -1,21 +1,82 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 
-enum ParseFrom {
-  unstoppableDomains,
-  openAlias,
-  yatRecord,
-  fio,
-  notParsed,
-  twitter,
-  ens,
-  contact,
-  mastodon,
-  nostr,
-  thorChain,
-  wellKnown,
-  zanoAlias,
-  bip353
+enum AddressSource {
+  twitter(
+    label: 'X',
+    iconPath: 'assets/images/x_social.png',
+    alias: '@username'
+  ),
+  unstoppableDomains(
+    label: 'Unstoppable Domains',
+    iconPath: 'assets/images/ud.png',
+    alias: 'domain.tld',
+  ),
+  openAlias(
+    label: 'OpenAlias',
+    iconPath: 'assets/images/open_alias.png',
+    alias: 'oa',
+  ),
+  yatRecord(
+    label: 'Yat',
+    iconPath: 'assets/images/yat_mini_logo.png',
+  ),
+  fio(
+    label: 'FIO',
+    iconPath: 'assets/images/fio.png',
+  ),
+  ens(
+    label: 'Ethereum Name Service',
+    iconPath: 'assets/images/ens_icon.png',
+  ),
+  mastodon(
+    label: 'Mastodon',
+    iconPath: 'assets/images/mastodon.svg',
+    alias: 'user@domain.tld'
+  ),
+  nostr(
+    label: 'Nostr',
+    iconPath: 'assets/images/nostr.png',
+  ),
+  thorChain(
+    label: 'ThorChain',
+    iconPath: 'assets/images/thorchain.png',
+  ),
+  wellKnown(
+    label: '.well-known',
+    iconPath: 'assets/icons/wk.svg',
+  ),
+  zanoAlias(
+    label: 'Zano Alias',
+    iconPath: 'assets/images/zano_icon.png',
+  ),
+  bip353(
+    label: 'BIP-353',
+    iconPath: 'assets/images/bip353.svg',
+  ),
+  contact(
+    label: 'Contact',
+    iconPath: '',
+  ),
+  notParsed(
+    label: 'Unknown',
+    iconPath: '',
+  );
+
+  const AddressSource({
+    required this.label,
+    required this.iconPath,
+    this.alias = '',
+  });
+
+  final String label;
+  final String iconPath;
+  final String alias;
+
+  static List<AddressSource> supported({
+    Set<AddressSource> exclude = const {AddressSource.notParsed, AddressSource.contact},
+  }) =>
+      values.where((src) => !exclude.contains(src)).toList();
 }
 
 class ParsedAddress {
@@ -25,7 +86,7 @@ class ParsedAddress {
     this.description = '',
     this.profileImageUrl = '',
     this.profileName = '',
-    this.parseFrom = ParseFrom.notParsed,
+    this.parseFrom = AddressSource.notParsed,
   });
 
   factory ParsedAddress.fetchEmojiAddress({
@@ -33,12 +94,12 @@ class ParsedAddress {
     required String name,
   }) {
     if (addresses?.isEmpty ?? true) {
-      return ParsedAddress(addresses: [name], parseFrom: ParseFrom.yatRecord);
+      return ParsedAddress(addresses: [name], parseFrom: AddressSource.yatRecord);
     }
     return ParsedAddress(
       addresses: addresses!.map((e) => e.address).toList(),
       name: name,
-      parseFrom: ParseFrom.yatRecord,
+      parseFrom: AddressSource.yatRecord,
     );
   }
 
@@ -52,18 +113,18 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address!],
       name: name,
-      parseFrom: ParseFrom.unstoppableDomains,
+      parseFrom: AddressSource.unstoppableDomains,
     );
   }
 
-  factory ParsedAddress.fetchBip353AddressAddress ({
+  factory ParsedAddress.fetchBip353AddressAddress({
     required String address,
     required String name,
   }) {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.bip353,
+      parseFrom: AddressSource.bip353,
     );
   }
 
@@ -76,7 +137,7 @@ class ParsedAddress {
       addresses: [record.address],
       name: record.name,
       description: record.description,
-      parseFrom: ParseFrom.openAlias,
+      parseFrom: AddressSource.openAlias,
     );
   }
 
@@ -84,7 +145,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.fio,
+      parseFrom: AddressSource.fio,
     );
   }
 
@@ -100,7 +161,7 @@ class ParsedAddress {
       description: description ?? '',
       profileImageUrl: profileImageUrl,
       profileName: profileName,
-      parseFrom: ParseFrom.twitter,
+      parseFrom: AddressSource.twitter,
     );
   }
 
@@ -112,7 +173,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.mastodon,
+      parseFrom: AddressSource.mastodon,
       profileImageUrl: profileImageUrl,
       profileName: profileName,
     );
@@ -122,7 +183,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.contact,
+      parseFrom: AddressSource.contact,
     );
   }
 
@@ -130,7 +191,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.ens,
+      parseFrom: AddressSource.ens,
     );
   }
 
@@ -142,7 +203,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.nostr,
+      parseFrom: AddressSource.nostr,
       profileImageUrl: profileImageUrl,
       profileName: profileName,
     );
@@ -152,7 +213,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.thorChain,
+      parseFrom: AddressSource.thorChain,
     );
   }
 
@@ -160,7 +221,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.zanoAlias,
+      parseFrom: AddressSource.zanoAlias,
     );
   }
 
@@ -168,7 +229,7 @@ class ParsedAddress {
     return ParsedAddress(
       addresses: [address],
       name: name,
-      parseFrom: ParseFrom.wellKnown,
+      parseFrom: AddressSource.wellKnown,
     );
   }
 
@@ -177,5 +238,5 @@ class ParsedAddress {
   final String description;
   final String profileImageUrl;
   final String profileName;
-  final ParseFrom parseFrom;
+  final AddressSource parseFrom;
 }

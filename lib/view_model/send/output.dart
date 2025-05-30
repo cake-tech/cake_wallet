@@ -79,7 +79,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
+      parsedAddress.parseFrom != AddressSource.notParsed && parsedAddress.name.isNotEmpty;
 
   @observable
   String? stealthAddress;
@@ -323,8 +323,9 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final currency = cryptoCurrencyHandler();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    extractedAddress = await extractAddressFromParsed(context, parsedAddress);
+    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: _wallet);
+    parsedAddress = parsedAddresses.first;
+    extractedAddress = await extractAddressFromParsed(context, parsedAddress); //TODO handle multiple addresses
     note = parsedAddress.description;
   }
 

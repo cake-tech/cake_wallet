@@ -641,8 +641,8 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
+    final parsedAddress = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: exchangeViewModel.wallet);
+    final address = await extractAddressFromParsed(context, parsedAddress.first);  //TODO handle multiple addresses
     return address;
   }
 

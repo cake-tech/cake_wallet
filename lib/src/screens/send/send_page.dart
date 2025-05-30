@@ -626,7 +626,7 @@ class SendPage extends BasePage {
                 contentImage: 'assets/images/contact.png',
                 contentImageColor: Theme.of(context).colorScheme.onSurface,
                 content: S.of(bottomSheetContext).add_contact_to_address_book,
-                bottomActionPanel: Padding(
+                actionPanel: Padding(
                   padding: const EdgeInsets.only(left: 34.0),
                   child: Row(
                     children: [

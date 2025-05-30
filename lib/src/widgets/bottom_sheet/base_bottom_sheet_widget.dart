@@ -44,6 +44,29 @@ abstract class BaseBottomSheet extends StatelessWidget {
   final Key? leftActionButtonKey;
   final Key? rightActionButtonKey;
 
+  Widget _buildDragHandle(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        children: [
+          const Spacer(flex: 4),
+          Expanded(
+            flex: 2,
+            child: Container(
+              height: 6,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+          const Spacer(flex: 4),
+        ],
+      ),
+    );
+  }
+
+
   Widget contentWidget(BuildContext context);
 
   @override
@@ -58,7 +81,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              _buildHeader(context),
+              buildHeader(context) ?? _buildDragHandle(context),
               contentWidget(context),
               _buildFooter(context),
             ],
@@ -68,18 +91,9 @@ abstract class BaseBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) => Column(
+  Widget? buildHeader(BuildContext context) => Column(
     children: [
-      const SizedBox(height: 12),
-      Container(
-        width: 64,
-        height: 5,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-      const SizedBox(height: 20),
+      _buildDragHandle(context),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -124,8 +138,8 @@ abstract class BaseBottomSheet extends StatelessWidget {
             key: singleActionButtonKey,
             text: singleActionButtonText ?? '',
             onPressed: onSingleActionButtonPressed ?? () {},
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
+            color: Theme.of(context).colorScheme.primary,
+            textColor: Theme.of(context).colorScheme.onPrimary,
             isLoading: false,
             isDisabled: false,
           ),

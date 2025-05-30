@@ -15,68 +15,68 @@ Future<String> extractAddressFromParsed(
   var profileName = '';
 
   switch (parsedAddress.parseFrom) {
-    case ParseFrom.unstoppableDomains:
+    case AddressSource.unstoppableDomains:
       title = S.of(context).address_detected;
       content = S.of(context).address_from_domain(parsedAddress.name);
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.ens:
+    case AddressSource.ens:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (ENS)');
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.openAlias:
+    case AddressSource.openAlias:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (OpenAlias)');
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.wellKnown:
+    case AddressSource.wellKnown:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Well-Known)');
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.fio:
+    case AddressSource.fio:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (FIO)');
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.twitter:
+    case AddressSource.twitter:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Twitter)');
       address = parsedAddress.addresses.first;
       profileImageUrl = parsedAddress.profileImageUrl;
       profileName = parsedAddress.profileName;
       break;
-    case ParseFrom.mastodon:
+    case AddressSource.mastodon:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Mastodon)');
       address = parsedAddress.addresses.first;
       profileImageUrl = parsedAddress.profileImageUrl;
       profileName = parsedAddress.profileName;
       break;
-    case ParseFrom.nostr:
+    case AddressSource.nostr:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Nostr NIP-05)');
       address = parsedAddress.addresses.first;
       profileImageUrl = parsedAddress.profileImageUrl;
       profileName = parsedAddress.profileName;
       break;
-    case ParseFrom.thorChain:
+    case AddressSource.thorChain:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (ThorChain)');
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.zanoAlias:
+    case AddressSource.zanoAlias:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (Zano Alias)');
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.bip353:
+    case AddressSource.bip353:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (BIP-353)');
       address = parsedAddress.addresses.first;
       break;
-    case ParseFrom.yatRecord:
+    case AddressSource.yatRecord:
       if (parsedAddress.name.isEmpty) {
         title = S.of(context).yat_error;
         content = S.of(context).yat_error_content;
@@ -111,8 +111,8 @@ Future<String> extractAddressFromParsed(
       }
 
       return address;
-    case ParseFrom.contact:
-    case ParseFrom.notParsed:
+    case AddressSource.contact:
+    case AddressSource.notParsed:
       address = parsedAddress.addresses.first;
       return address;
   }

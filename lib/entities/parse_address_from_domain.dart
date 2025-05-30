@@ -21,13 +21,12 @@ import 'package:flutter/cupertino.dart';
 
 import 'bip_353_record.dart';
 
-class AddressResolver {
-  AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})
-      : walletType = wallet.type;
+class AddressResolverService {
+  AddressResolverService({required this.yatService, required this.settingsStore}) {
+    _buildLookupTable();
+  }
 
   final YatService yatService;
-  final WalletType walletType;
-  final WalletBase wallet;
   final SettingsStore settingsStore;
 
   static const unstoppableDomains = [
@@ -165,6 +164,115 @@ class AddressResolver {
     "zone"
   ];
 
+  late final List<LookupEntry> _lookupTable;
+
+  void _buildLookupTable() {
+    _lookupTable = [
+      LookupEntry(
+        source: AddressSource.twitter,
+        currencies: [CryptoCurrency.xmr],
+        applies: (q) => settingsStore.lookupsTwitter && q.startsWith('@'),
+        // x handle example: @username
+        run: _lookupTwitter,
+      ),
+      LookupEntry(
+        source: AddressSource.zanoAlias,
+        currencies: [CryptoCurrency.zano],
+        applies: (q) => settingsStore.lookupsZanoAlias && q.startsWith('@'),
+        // zano handle example: @username
+        run: _lookupZano,
+      ),
+      LookupEntry(
+        source: AddressSource.mastodon,
+        currencies: [CryptoCurrency.btc],
+        applies: (q) =>
+            settingsStore.lookupsMastodon &&
+            q.startsWith('@') &&
+            q.contains('@', 1) &&
+            q.contains('.', 1),
+        // Mastodon handle example: @username@hostname.xxx
+        run: _lookupMastodon,
+      ),
+      LookupEntry(
+        source: AddressSource.wellKnown,
+        currencies: [CryptoCurrency.btc],
+        applies: (q) => settingsStore.lookupsWellKnown && q.contains('.') && q.contains('@'),
+        // .well-known handle example:
+        run: _lookupWellKnown,
+      ),
+      LookupEntry(
+        source: AddressSource.fio,
+        currencies: [CryptoCurrency.btc],
+        applies: (q) => !q.startsWith('@') && q.contains('@') && !q.contains('.'),
+        // TODO: Add condition for FIO lookups
+        // FIO handle example: username@domain
+        run: _lookupFio,
+      ),
+      LookupEntry(
+        source: AddressSource.yatRecord,
+        currencies: [CryptoCurrency.btc],
+        applies: (q) => settingsStore.lookupsYatService && q.hasOnlyEmojis,
+        // Yat handle example: 🐶🐾
+        run: _lookupYatService,
+      ),
+      LookupEntry(
+        source: AddressSource.thorChain,
+        currencies: [CryptoCurrency.rune],
+        applies: (q) => true,
+        // ThorChain handles can be any string //TODO: Add condition for ThorChain lookups
+        run: _lookupThorChain,
+      ),
+      LookupEntry(
+        source: AddressSource.unstoppableDomains,
+        currencies: [CryptoCurrency.btc],
+        applies: (q) {
+          if (settingsStore.lookupsUnstoppableDomains) return false;
+
+          // Unstoppable Domains handle example: name.crypto
+          final formattedName = OpenaliasRecord.formatDomainName(q);
+          final domainParts = formattedName.split('.');
+          final name = domainParts.last;
+          return domainParts.length > 1 &&
+              domainParts.first.isNotEmpty &&
+              name.isNotEmpty &&
+              unstoppableDomains.any((domain) => name.trim() == domain);
+        },
+        run: _lookupsUnstoppableDomains,
+      ),
+      LookupEntry(
+        source: AddressSource.bip353,
+        currencies: [CryptoCurrency.btc, CryptoCurrency.xmr],
+        applies: (q) => true, //TODO: Add condition for BIP-353 lookups
+        run: _lookupsBip353,
+      ),
+      LookupEntry(
+        source: AddressSource.ens,
+        currencies: [CryptoCurrency.eth],
+        applies: (q) => settingsStore.lookupsENS && q.endsWith('.eth'),
+        // ENS handle example: name.eth
+        run: _lookupEns,
+      ),
+      LookupEntry(
+        source: AddressSource.openAlias,
+        currencies: [CryptoCurrency.btc],
+        applies: (q) {
+          if (settingsStore.lookupsOpenAlias) return false;
+          // OpenAlias handle example:
+          final formattedName = OpenaliasRecord.formatDomainName(q);
+          return formattedName.contains(".");
+        },
+        run: _lookupsOpenAlias,
+      ),
+      LookupEntry(
+        source: AddressSource.nostr,
+        currencies: [CryptoCurrency.btc],
+        applies: (q) => isEmailFormat(q),
+        // Nostr handle example: name@domain //TODO: Add condition for Nostr lookups
+        run: _lookupsNostr,
+      ),
+    ];
+  }
+
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
     final addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
@@ -193,197 +301,227 @@ class AddressResolver {
     return emailRegex.hasMatch(address);
   }
 
-  Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
-    final ticker = currency.title;
-    try {
-      // twitter handle example: @username
-      if (text.startsWith('@') && !text.substring(1).contains('@')) {
-        if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
-          final formattedName = text.substring(1);
-          final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
-          if (zanoAddress != null && zanoAddress.isNotEmpty) {
-            return ParsedAddress.zanoAddress(
-              address: zanoAddress,
-              name: text,
-            );
-          }
-        }
-        if (settingsStore.lookupsTwitter) {
-          final formattedName = text.substring(1);
-          final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
-          final addressFromBio = extractAddressByType(
-              raw: twitterUser.description,
-              type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
-          if (addressFromBio != null && addressFromBio.isNotEmpty) {
-            return ParsedAddress.fetchTwitterAddress(
-                address: addressFromBio,
-                name: text,
-                profileImageUrl: twitterUser.profileImageUrl,
-                profileName: twitterUser.name);
-          }
+  Future<List<ParsedAddress>> resolve(
+      {required String query, required WalletBase wallet, CryptoCurrency? currency}) async {
+    final List<ParsedAddress> out = [];
+    final List<Future<void>> tasks = [];
 
-          final pinnedTweet = twitterUser.pinnedTweet?.text;
-          if (pinnedTweet != null) {
-            final addressFromPinnedTweet = extractAddressByType(
-                raw: pinnedTweet,
-                type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
-            if (addressFromPinnedTweet != null) {
-              return ParsedAddress.fetchTwitterAddress(
-                  address: addressFromPinnedTweet,
-                  name: text,
-                  profileImageUrl: twitterUser.profileImageUrl,
-                  profileName: twitterUser.name);
-            }
-          }
-        }
+    for (final entry in _lookupTable) {
+      if (!entry.applies(query)) continue;
+
+      final Iterable<CryptoCurrency> coins = currency == null
+          ? entry.currencies
+          : (entry.currencies.contains(currency) ? [currency] : const <CryptoCurrency>[]);
+
+      for (final cur in coins) {
+        tasks.add(entry.run(query, cur, wallet).then((res) {
+          if (res != null) out.add(res);
+        }));
       }
-
-      // Mastodon example: @username@hostname.xxx
-      if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
-        if (settingsStore.lookupsMastodon) {
-          final subText = text.substring(1);
-          final hostNameIndex = subText.indexOf('@');
-          final hostName = subText.substring(hostNameIndex + 1);
-          final userName = subText.substring(0, hostNameIndex);
-
-          final mastodonUser =
-              await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
-
-          if (mastodonUser != null) {
-            String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
-
-            if (addressFromBio != null && addressFromBio.isNotEmpty) {
-              return ParsedAddress.fetchMastodonAddress(
-                  address: addressFromBio,
-                  name: text,
-                  profileImageUrl: mastodonUser.profileImageUrl,
-                  profileName: mastodonUser.username);
-            } else {
-              final pinnedPosts =
-                  await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
-
-              if (pinnedPosts.isNotEmpty) {
-                final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
-                String? addressFromPinnedPost =
-                    extractAddressByType(raw: userPinnedPostsText, type: currency);
-
-                if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
-                  return ParsedAddress.fetchMastodonAddress(
-                      address: addressFromPinnedPost,
-                      name: text,
-                      profileImageUrl: mastodonUser.profileImageUrl,
-                      profileName: mastodonUser.username);
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // .well-known scheme:
-      if (text.contains('.') && text.contains('@')) {
-        if (settingsStore.lookupsWellKnown) {
-          final record =
-              await WellKnownRecord.fetchAddressAndName(formattedName: text, currency: currency);
-          if (record != null) {
-            return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
-          }
-        }
-      }
-
-      if (!text.startsWith('@') && text.contains('@') && !text.contains('.')) {
-        final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
-        if (isFioRegistered) {
-          final address = await FioAddressProvider.getPubAddress(text, ticker);
-          return ParsedAddress.fetchFioAddress(address: address, name: text);
-        }
-      }
-      if (text.hasOnlyEmojis) {
-        if (settingsStore.lookupsYatService) {
-          if (walletType != WalletType.haven) {
-            final addresses = await yatService.fetchYatAddress(text, ticker);
-            return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
-          }
-        }
-      }
-
-      final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
-      if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
-        String? address =
-            thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
-        if (address != null) {
-          return ParsedAddress.thorChainAddress(address: address, name: text);
-        }
-      }
-
-      final formattedName = OpenaliasRecord.formatDomainName(text);
-      final domainParts = formattedName.split('.');
-      final name = domainParts.last;
-
-      if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
-        return ParsedAddress(addresses: [text]);
-      }
-
-      if (unstoppableDomains.any((domain) => name.trim() == domain)) {
-        if (settingsStore.lookupsUnstoppableDomains) {
-          final address = await fetchUnstoppableDomainAddress(text, ticker);
-          if (address.isNotEmpty) {
-            return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
-          }
-        }
-      }
-
-      final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, ticker);
-
-      if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
-        final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
-        if (chosenAddress != null) {
-          return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
-        }
-      }
-
-      if (text.endsWith(".eth")) {
-        if (settingsStore.lookupsENS) {
-          final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
-          if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
-            return ParsedAddress.fetchEnsAddress(name: text, address: address);
-          }
-        }
-      }
-
-      if (formattedName.contains(".")) {
-        if (settingsStore.lookupsOpenAlias) {
-          final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
-
-          if (txtRecord != null) {
-            final record = await OpenaliasRecord.fetchAddressAndName(
-                formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
-            return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
-          }
-        }
-      }
-      if (isEmailFormat(text)) {
-        final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
-        if (nostrProfile?.relays != null) {
-          final nostrUserData =
-              await NostrProfileHandler.processRelays(context, nostrProfile!, text);
-
-          if (nostrUserData != null) {
-            String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
-            if (addressFromBio != null && addressFromBio.isNotEmpty) {
-              return ParsedAddress.nostrAddress(
-                  address: addressFromBio,
-                  name: text,
-                  profileImageUrl: nostrUserData.picture,
-                  profileName: nostrUserData.name);
-            }
-          }
-        }
-      }
-    } catch (e) {
-      printV(e.toString());
     }
 
-    return ParsedAddress(addresses: [text]);
+    await Future.wait(tasks);
+
+    if (out.isEmpty) out.add(ParsedAddress(addresses: [query]));
+    return out;
   }
+
+  Future<ParsedAddress?> _lookupTwitter(
+      String text, CryptoCurrency currency, WalletBase wallet) async {
+    final formattedName = text.substring(1);
+    final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
+    final addressFromBio = extractAddressByType(
+        raw: twitterUser.description,
+        type: CryptoCurrency.fromString(currency.title, walletCurrency: wallet.currency));
+    if (addressFromBio != null && addressFromBio.isNotEmpty) {
+      return ParsedAddress.fetchTwitterAddress(
+          address: addressFromBio,
+          name: text,
+          profileImageUrl: twitterUser.profileImageUrl,
+          profileName: twitterUser.name);
+    }
+
+    final pinnedTweet = twitterUser.pinnedTweet?.text;
+    if (pinnedTweet != null) {
+      final addressFromPinnedTweet = extractAddressByType(
+          raw: pinnedTweet,
+          type: CryptoCurrency.fromString(currency.title, walletCurrency: wallet.currency));
+      if (addressFromPinnedTweet != null) {
+        return ParsedAddress.fetchTwitterAddress(
+            address: addressFromPinnedTweet,
+            name: text,
+            profileImageUrl: twitterUser.profileImageUrl,
+            profileName: twitterUser.name);
+      }
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupZano(String text, CryptoCurrency currency, WalletBase _) async {
+    final formattedName = text.substring(1);
+    final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
+    if (zanoAddress != null && zanoAddress.isNotEmpty) {
+      return ParsedAddress.zanoAddress(
+        address: zanoAddress,
+        name: text,
+      );
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupMastodon(String text, CryptoCurrency currency, WalletBase _) async {
+    final subText = text.substring(1);
+    final hostNameIndex = subText.indexOf('@');
+    final hostName = subText.substring(hostNameIndex + 1);
+    final userName = subText.substring(0, hostNameIndex);
+
+    final mastodonUser =
+        await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
+
+    if (mastodonUser != null) {
+      String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
+
+      if (addressFromBio != null && addressFromBio.isNotEmpty) {
+        return ParsedAddress.fetchMastodonAddress(
+            address: addressFromBio,
+            name: text,
+            profileImageUrl: mastodonUser.profileImageUrl,
+            profileName: mastodonUser.username);
+      } else {
+        final pinnedPosts =
+            await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
+
+        if (pinnedPosts.isNotEmpty) {
+          final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
+          String? addressFromPinnedPost =
+              extractAddressByType(raw: userPinnedPostsText, type: currency);
+
+          if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
+            return ParsedAddress.fetchMastodonAddress(
+                address: addressFromPinnedPost,
+                name: text,
+                profileImageUrl: mastodonUser.profileImageUrl,
+                profileName: mastodonUser.username);
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupWellKnown(
+      String text, CryptoCurrency currency, WalletBase _) async {
+    final record =
+        await WellKnownRecord.fetchAddressAndName(formattedName: text, currency: currency);
+    if (record != null) {
+      return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupFio(String text, CryptoCurrency currency, WalletBase _) async {
+    final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
+    if (isFioRegistered) {
+      final address = await FioAddressProvider.getPubAddress(text, currency.title);
+      return ParsedAddress.fetchFioAddress(address: address, name: text);
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupYatService(
+      String text, CryptoCurrency currency, WalletBase _) async {
+    final addresses = await yatService.fetchYatAddress(text, currency.title);
+    return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
+  }
+
+  Future<ParsedAddress?> _lookupThorChain(
+      String text, CryptoCurrency currency, WalletBase _) async {
+    final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
+    if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
+      String? address = thorChainAddress[currency.title] ??
+          (currency.title == 'RUNE' ? thorChainAddress['THOR'] : null);
+      if (address != null) {
+        return ParsedAddress.thorChainAddress(address: address, name: text);
+      }
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupsUnstoppableDomains(
+      String text, CryptoCurrency currency, WalletBase _) async {
+    final address = await fetchUnstoppableDomainAddress(text, currency.title);
+    if (address.isNotEmpty) {
+      return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupsBip353(String text, CryptoCurrency currency, WalletBase _) async {
+    final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, currency.title);
+
+    if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
+      final chosenAddress =
+          await Bip353Record.pickBip353AddressChoice(text, bip353AddressMap); //TODO fix context
+      if (chosenAddress != null) {
+        return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+      }
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupEns(String text, CryptoCurrency currency, WalletBase wallet) async {
+    final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
+    if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
+      return ParsedAddress.fetchEnsAddress(name: text, address: address);
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupsOpenAlias(
+      String text, CryptoCurrency currency, WalletBase _) async {
+    final formattedName = OpenaliasRecord.formatDomainName(text);
+    final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
+
+    if (txtRecord != null) {
+      final record = await OpenaliasRecord.fetchAddressAndName(
+          formattedName: formattedName, ticker: currency.title.toLowerCase(), txtRecord: txtRecord);
+      return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+    }
+    return null;
+  }
+
+  Future<ParsedAddress?> _lookupsNostr(String text, CryptoCurrency currency, WalletBase _) async {
+    //TODO implement Nostr lookup logic
+    // final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
+    // if (nostrProfile?.relays != null) {
+    //   final nostrUserData =
+    //   await NostrProfileHandler.processRelays(context, nostrProfile!, text);
+    //
+    //   if (nostrUserData != null) {
+    //     String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
+    //     if (addressFromBio != null && addressFromBio.isNotEmpty) {
+    //       return ParsedAddress.nostrAddress(
+    //           address: addressFromBio,
+    //           name: text,
+    //           profileImageUrl: nostrUserData.picture,
+    //           profileName: nostrUserData.name);
+    //     }
+    //   }
+    // }
+    return null;
+  }
+}
+
+class LookupEntry {
+  const LookupEntry({
+    required this.source,
+    required this.currencies,
+    required this.applies,
+    required this.run,
+  });
+
+  final AddressSource source;
+  final List<CryptoCurrency> currencies;
+  final bool Function(String query) applies;
+  final Future<ParsedAddress?> Function(String query, CryptoCurrency currenc, WalletBase walle) run;
 }

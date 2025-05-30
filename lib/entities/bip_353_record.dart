@@ -82,7 +82,6 @@ class Bip353Record {
   }
 
   static Future<String?> pickBip353AddressChoice(
-    BuildContext context,
     String bip353Name,
     Map<String, String> addressMap,
   ) async {
@@ -90,13 +89,12 @@ class Bip353Record {
       return addressMap.values.first;
     }
 
-    final chosenAddress = await _showAddressChoiceDialog(context, bip353Name, addressMap);
+    final chosenAddress = await _showAddressChoiceDialog(bip353Name, addressMap);
 
     return chosenAddress;
   }
 
   static Future<String?> _showAddressChoiceDialog(
-    BuildContext context,
     String bip353Name,
     Map<String, String> addressMap,
   ) async {
@@ -118,24 +116,24 @@ class Bip353Record {
 
     String? selectedOriginalValue;
 
-    if (context.mounted) {
-      await showPopUp<void>(
-        context: context,
-        builder: (dialogContext) {
-          return AlertWithPickerOption(
-            alertTitle:  S.of(context).multiple_addresses_detected + '\n$bip353Name',
-            alertTitleTextSize: 14,
-            alertSubtitle: S.of(context).please_choose_one + ':',
-            options: displayItems,
-            onOptionSelected: (Map<String, String> chosenItem) {
-              selectedOriginalValue = chosenItem['originalValue'];
-            },
-            alertBarrierDismissible: true,
-          );
-        },
-      );
-    }
-    return selectedOriginalValue;
+    // if (context.mounted) {
+    //   await showPopUp<void>(
+    //     context: context,
+    //     builder: (dialogContext) {
+    //       return AlertWithPickerOption(
+    //         alertTitle:  S.of(context).multiple_addresses_detected + '\n$bip353Name',
+    //         alertTitleTextSize: 14,
+    //         alertSubtitle: S.of(context).please_choose_one + ':',
+    //         options: displayItems,
+    //         onOptionSelected: (Map<String, String> chosenItem) {
+    //           selectedOriginalValue = chosenItem['originalValue'];
+    //         },
+    //         alertBarrierDismissible: true,
+    //       );
+    //     },
+    //   );
+    // }
+    return selectedOriginalValue = displayItems.first['originalValue'];
   }
 
   static String _truncate(String value, {int front = 6, int back = 6}) {

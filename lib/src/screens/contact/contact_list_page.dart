@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -8,7 +10,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/add_contact_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -64,7 +69,10 @@ class ContactListPage extends BasePage {
                             contactListViewModel.shouldRequireTOTP2FAForAddingContacts,
                       );
                     } else {
-                      await Navigator.of(context).pushNamed(Routes.addressBookAddContact);
+                      //await Navigator.of(context).pushNamed(Routes.addressBookAddContact); //TODO remove old flow
+
+                      await _showAddContactBottomSheet(context, currentTheme, contactListViewModel);
+
                     }
                   },
                   child: Offstage(),
@@ -75,7 +83,33 @@ class ContactListPage extends BasePage {
         ),
       ),
     );
+  }  Future<void> _showAddContactBottomSheet (BuildContext context, MaterialThemeBase currentTheme, ContactListViewModel contactListViewModel) async {
+    await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext bottomSheetContext) {
+          return AddContactBottomSheet(
+            titleText: S.of(context).add_contact,
+            currentTheme: currentTheme,
+            footerType: FooterType.none,
+            contentImage: 'assets/images/add_contact_coins_img.png',
+            content: 'Contacts allows you to create a profile with multiple addresses, as well as detect them automatically from social media profiles.Start by entering a social handle or an address manually',
+            singleActionButtonText: S.of(context).seed_language_next,
+            onHandlerSearch: (query) async {
+              final address = await getIt.get<AddressResolverService>().resolve(query: query,wallet: contactListViewModel.wallet);
+              print('Address resolved: $address');
+              return address;
+            },
+            onSingleActionButtonPressed: () async {
+              await Navigator.of(bottomSheetContext).pushNamed(Routes.addressBookAddContact);
+              Navigator.of(bottomSheetContext).pop();
+            },
+          );
+        });
   }
+
+
+
 
   @override
   Widget body(BuildContext context) => ContactPageBody(contactListViewModel: contactListViewModel);

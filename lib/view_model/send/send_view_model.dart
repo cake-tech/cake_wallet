@@ -312,7 +312,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   List<CryptoCurrency> currencies;
 
   bool get hasYat => outputs
-      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == AddressSource.yatRecord);
 
   WalletType get walletType => wallet.type;
 

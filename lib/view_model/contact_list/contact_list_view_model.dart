@@ -10,6 +10,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -17,11 +18,11 @@ import 'package:mobx/mobx.dart';
 
 part 'contact_list_view_model.g.dart';
 
-class ContactListViewModel = ContactListViewModelBase with _$ContactListViewModel;
+class   ContactListViewModel = ContactListViewModelBase with _$ContactListViewModel;
 
 abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(
-      this.contactSource, this.walletInfoSource, this._currency, this.settingsStore)
+      this.contactSource, this.walletInfoSource,this.wallet, this._currency, this.settingsStore)
       : contacts = ObservableList<ContactRecord>(),
         walletContacts = [],
         isAutoGenerateEnabled =
@@ -100,6 +101,7 @@ abstract class ContactListViewModelBase with Store {
   final ObservableList<ContactRecord> contacts;
   final List<WalletContact> walletContacts;
   final CryptoCurrency? _currency;
+  final WalletBase wallet;
   StreamSubscription<BoxEvent>? _subscription;
   final SettingsStore settingsStore;
 
