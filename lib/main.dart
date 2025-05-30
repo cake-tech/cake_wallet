@@ -25,7 +25,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -291,30 +290,7 @@ class App extends StatefulWidget {
   AppState createState() => AppState();
 }
 
-class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    final appStore = getIt.get<AppStore>();
-    if (appStore.themeStore.themeMode == ThemeMode.system) {
-      final systemTheme = appStore.themeStore.getThemeFromSystem();
-      if (appStore.themeStore.currentTheme != systemTheme) {
-        appStore.themeStore.setTheme(systemTheme);
-      }
-    }
-  }
-
+class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Observer(

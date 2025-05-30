@@ -1,5 +1,4 @@
 New themes and UI/UX improvements
-Silent Payments scanning fix
 Payjoin enhancements
 Ledger flow enhancements
 Bug fixes

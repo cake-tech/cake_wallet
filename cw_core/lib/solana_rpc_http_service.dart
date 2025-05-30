@@ -1,33 +1,26 @@
+import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:on_chain/solana/solana.dart';
 
-class SolanaRPCHTTPService implements SolanaServiceProvider {
+class SolanaRPCHTTPService implements SolanaJSONRPCService {
   SolanaRPCHTTPService(
       {required this.url, Client? client, this.defaultRequestTimeout = const Duration(seconds: 30)})
       : client = client ?? Client();
-
+  @override
   final String url;
   final Client client;
   final Duration defaultRequestTimeout;
 
   @override
-  Future<SolanaServiceResponse<T>> doRequest<T>(SolanaRequestDetails params,
-      {Duration? timeout}) async {
-    if (!params.type.isPostRequest) {
-      final response = await client.get(
-        params.toUri(url),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(timeout ?? defaultRequestTimeout);
-      return params.toResponse(response.bodyBytes, response.statusCode);
-    }
-
-    final response = await client
-        .post(
-          params.toUri(url),
-          headers: {'Content-Type': 'application/json'},
-          body: params.body(),
-        )
-        .timeout(timeout ?? defaultRequestTimeout);
-    return params.toResponse(response.bodyBytes, response.statusCode);
+  Future<Map<String, dynamic>> call(SolanaRequestDetails params, [Duration? timeout]) async {
+    final response = await client.post(
+      Uri.parse(url),
+      body: params.toRequestBody(),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ).timeout(timeout ?? defaultRequestTimeout);
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    return data;
   }
 }
