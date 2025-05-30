@@ -66,7 +66,7 @@ class AddContactBottomSheet extends InfoBottomSheet {
 
   @override
   Widget contentWidget(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height * 0.65;
+    final maxHeight = MediaQuery.of(context).size.height * 0.7;
 
     return SizedBox(
       height: maxHeight,
@@ -182,44 +182,6 @@ class _MainPageState extends State<_MainPage> {
                   style: Theme.of(context).textTheme.bodyLarge!,
                 ),
               ),
-            if (_results.isNotEmpty || _isSearching)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 180),
-                  decoration: BoxDecoration(
-                    color: fillColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: _isSearching
-                      ? const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(24),
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      : ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: _results.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1, thickness: .5),
-                          itemBuilder: (_, i) {
-                            final addr = _results[i];
-                            return ListTile(
-                              dense: true,
-                              title: Text(addr.name.isEmpty ? addr.addresses.first : addr.name),
-                              subtitle: addr.name.isEmpty
-                                  ? null
-                                  : Text(addr.addresses.first,
-                                      style: Theme.of(context).textTheme.bodySmall),
-                              onTap: () {
-                                // pass selection back
-                                Navigator.of(context).pop(addr);
-                              },
-                            );
-                          },
-                        ),
-                ),
-              ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -233,6 +195,38 @@ class _MainPageState extends State<_MainPage> {
                     onChanged: _handleChanged,
                     textStyle: Theme.of(context).textTheme.bodyMedium!,
                   ),
+                  if (_results.isNotEmpty || _isSearching)
+                    Container(
+                      constraints: const BoxConstraints(maxHeight: 90),
+                      decoration: BoxDecoration(
+                          color: fillColor,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                          )),
+                      child: _isSearching
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24),
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : ParsedAddressListWidget(
+                              items: _results,
+                              fillColor: fillColor,
+                              onItemSelected: (selected) {
+                                Navigator.of(context).push(
+                                  _slideLeft(
+                                    _NewDetectedContactPage(
+                                      fillColor: fillColor,
+                                      selectedParsedAddress: selected,
+                                      singleActionButtonText: S.of(context).seed_language_next,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
                   InkWell(
                     onTap: () => Navigator.of(context).push(
                       _slideLeft(_SupportedHandlesPage(fillColor: fillColor)),
@@ -269,6 +263,48 @@ class _MainPageState extends State<_MainPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ParsedAddressListWidget extends StatelessWidget {
+  const ParsedAddressListWidget(
+      {super.key, required this.items, required this.fillColor, this.onItemSelected});
+
+  final List<ParsedAddress> items;
+  final Color fillColor;
+  final ValueChanged<ParsedAddress>? onItemSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      shrinkWrap: true,
+      itemCount: items.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 6),
+      itemBuilder: (context, index) {
+        final src = items[index];
+        return ListTile(
+          title: Text(src.parseFrom.label, style: Theme.of(context).textTheme.bodyLarge),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ImageUtil.getImageFromPath(imagePath: src.profileImageUrl, height: 24, width: 24),
+              const SizedBox(width: 6),
+              Text(src.profileName, style: Theme.of(context).textTheme.bodyLarge),
+            ],
+          ),
+          tileColor: fillColor,
+          dense: true,
+          visualDensity: VisualDensity(horizontal: 0, vertical: -3),
+          contentPadding: EdgeInsets.symmetric(horizontal: 12),
+          leading:
+              ImageUtil.getImageFromPath(imagePath: src.parseFrom.iconPath, height: 24, width: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+          ),
+          onTap: () => onItemSelected?.call(src),
+        );
+      },
     );
   }
 }
@@ -310,30 +346,190 @@ class _SupportedHandlesPage extends StatelessWidget {
         ),
         title: Text('Supported handles', style: Theme.of(context).textTheme.titleLarge),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        itemCount: supportedHandles.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 6),
-        itemBuilder: (context, index) {
-          final src = supportedHandles[index];
-          return ListTile(
-            title: Text(src.label, style: Theme.of(context).textTheme.bodyMedium),
-            trailing: Text(src.alias, style: Theme.of(context).textTheme.bodyMedium),
-            tileColor: fillColor,
-            dense: true,
-            visualDensity: VisualDensity(horizontal: 0, vertical: -3),
-            contentPadding: EdgeInsets.symmetric(horizontal: 12),
-            leading: ImageUtil.getImageFromPath(imagePath: src.iconPath, height: 24, width: 24),
-            shape: RoundedRectangleBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
+      body: HandlesListWidget(items: supportedHandles, fillColor: fillColor),
+    );
+  }
+}
+
+class _NewDetectedContactPage extends StatelessWidget {
+  const _NewDetectedContactPage({
+    required this.fillColor,
+    required this.selectedParsedAddress,
+    this.singleActionButtonText,
+    this.onSingleActionButtonPressed,
+    this.singleActionButtonKey,
+  });
+
+  final Color fillColor;
+  final ParsedAddress selectedParsedAddress;
+  final String? singleActionButtonText;
+  final VoidCallback? onSingleActionButtonPressed;
+  final Key? singleActionButtonKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.surface,
+          elevation: 0,
+          centerTitle: true,
+          leading: MergeSemantics(
+            child: SizedBox(
+              height: 37,
+              width: 37,
+              child: ButtonTheme(
+                minWidth: double.minPositive,
+                child: Semantics(
+                  label: S.of(context).seed_alert_back,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.onSurface,
+                        overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent)),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: backButton(context),
+                  ),
+                ),
+              ),
             ),
-            onTap: () {
-              // Handle tap on the supported handle
-              Navigator.of(context).pop();
-            },
-          );
-        },
-      ),
+          ),
+          title: Text('New Contact', style: Theme.of(context).textTheme.titleLarge),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    'Contact info auto-detected from ${selectedParsedAddress.parseFrom.label}',
+                    style: theme.textTheme.bodyLarge,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: fillColor,
+                            borderRadius: const BorderRadius.all(Radius.circular(12)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 1),
+                            child: Column(
+                              children: [
+                                ImageUtil.getImageFromPath(
+                                  imagePath: selectedParsedAddress.profileImageUrl,
+                                  height: 24,
+                                  width: 24,
+                                ),
+                                const SizedBox(height: 1),
+                                Text('Icon',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      fontSize: 8,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 1),
+                            decoration: BoxDecoration(
+                              color: fillColor,
+                              borderRadius: const BorderRadius.all(Radius.circular(12)),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Address group name',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      fontSize: 8,
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  selectedParsedAddress.profileName,
+                                  style:
+                                  theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 34),
+                child: LoadingPrimaryButton(
+                  key: singleActionButtonKey,
+                  text: singleActionButtonText ?? '',
+                  onPressed: onSingleActionButtonPressed ?? () {},
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                  isLoading: false,
+                  isDisabled: false,
+                ),
+              )
+            ],
+          ),
+        ));
+  }
+}
+
+class HandlesListWidget extends StatelessWidget {
+  const HandlesListWidget({
+    super.key,
+    required this.items,
+    required this.fillColor,
+  });
+
+  final List<AddressSource> items;
+  final Color fillColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      itemCount: items.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 6),
+      itemBuilder: (context, index) {
+        final src = items[index];
+        return ListTile(
+          title: Text(src.label, style: Theme.of(context).textTheme.bodyMedium),
+          trailing: Text(src.alias, style: Theme.of(context).textTheme.bodyMedium),
+          tileColor: fillColor,
+          dense: true,
+          visualDensity: VisualDensity(horizontal: 0, vertical: -3),
+          contentPadding: EdgeInsets.symmetric(horizontal: 12),
+          leading: ImageUtil.getImageFromPath(imagePath: src.iconPath, height: 24, width: 24),
+          shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+          ),
+          onTap: () {
+            // Handle tap on the supported handle
+            Navigator.of(context).pop();
+          },
+        );
+      },
     );
   }
 }

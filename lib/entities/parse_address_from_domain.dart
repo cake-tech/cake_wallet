@@ -170,7 +170,7 @@ class AddressResolverService {
     _lookupTable = [
       LookupEntry(
         source: AddressSource.twitter,
-        currencies: [CryptoCurrency.xmr],
+        currencies: [CryptoCurrency.xmr, CryptoCurrency.btc],
         applies: (q) => settingsStore.lookupsTwitter && q.startsWith('@'),
         // x handle example: @username
         run: _lookupTwitter,
