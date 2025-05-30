@@ -144,7 +144,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           bitcoin!.stopPayjoinSessions(widget.appStore.wallet!);
         }
 
-        widget.tradeMonitor.pauseTradeMonitoring();
+        widget.tradeMonitor.stopTradeMonitoring();
 
         break;
       case AppLifecycleState.resumed:

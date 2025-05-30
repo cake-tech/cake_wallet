@@ -272,6 +272,9 @@ abstract class DashboardViewModelBase with Store {
       _checkMweb();
       showDecredInfoCard = wallet?.type == WalletType.decred &&
           sharedPreferences.getBool(PreferencesKey.showDecredInfoCard) != false;
+
+      tradeMonitor.stopTradeMonitoring();
+      tradeMonitor.monitorActiveTrades(wallet!.id);
     });
 
     _transactionDisposer?.reaction.dispose();

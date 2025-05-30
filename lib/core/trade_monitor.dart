@@ -71,32 +71,27 @@ class TradeMonitor {
       return;
     }
 
-    final now = DateTime.now();
     final trades = tradesStore.trades;
     final tradesToCancel = <String>[];
 
     for (final item in trades) {
       final trade = item.trade;
 
-      // We check to see if the api mode is tor and if the provider supports onion address
       final provider = _getProviderByDescription(trade.provider);
-      if (provider == null || !_isExchangeApiModePermitted(provider)) {
-        printV('Skipping trade ${trade.id} because the provider is not supported');
+
+      // Multiple checks to see if to skip the trade, if yes, we cancel the timer if it exists
+      if (_shouldSkipTrade(trade, walletId, provider)) {
+        printV('Skipping trade ${trade.id}');
+        tradesToCancel.add(trade.id);
         continue;
       }
 
-      // Next, we check to see if there's an ongoing timer monitoring this trade
-      // If yes, we check to see if the trade timer should be cancelled
-      // If yes, we add the timer to the list of timers to cancel
-      // If no, we start a new timer for this trade
       if (_tradeTimers.containsKey(trade.id)) {
-        if (_shouldCancelTradeTimer(trade, walletId, now)) {
-          tradesToCancel.add(trade.id);
-        }
+        printV('Trade ${trade.id} is already being monitored');
         continue;
       } else {
         printV('Starting trade monitoring for ${trade.id}');
-        _startTradeMonitoring(trade, provider);
+        _startTradeMonitoring(trade, provider!);
       }
     }
 
@@ -121,26 +116,35 @@ class TradeMonitor {
     return true;
   }
 
-  bool _isExchangeApiModePermitted(ExchangeProvider provider) {
-    final exchangeApiMode = appStore.settingsStore.exchangeStatus;
-
-    if (exchangeApiMode == ExchangeApiMode.torOnly && !provider.supportsOnionAddress) {
-      printV('Skipping ${provider.description}, no TOR support');
-      return false;
+  bool _shouldSkipTrade(Trade trade, String walletId, ExchangeProvider? provider) {
+    if (trade.walletId != walletId) {
+      printV('Skipping trade ${trade.id} because it\'s not for this wallet');
+      return true;
     }
 
-    return true;
-  }
-
-  bool _shouldCancelTradeTimer(Trade trade, String walletId, DateTime now) {
-    if (trade.walletId != walletId) return true;
-
     final createdAt = trade.createdAt;
-    if (createdAt == null) return true;
+    if (createdAt == null) {
+      printV('Skipping trade ${trade.id} because it has no createdAt');
+      return true;
+    }
 
-    if (now.difference(createdAt).inHours > _maxTradeAgeHours) return true;
+    if (_isFinalState(trade.state)) {
+      printV('Skipping trade ${trade.id} because it\'s in a final state');
+      return true;
+    }
 
-    return _isFinalState(trade.state);
+    if (provider == null) {
+      printV('Skipping trade ${trade.id} because the provider is not supported');
+      return true;
+    }
+
+    if (appStore.settingsStore.exchangeStatus == ExchangeApiMode.torOnly &&
+        !provider.supportsOnionAddress) {
+      printV('Skipping ${provider.description}, no TOR support');
+      return true;
+    }
+
+    return false;
   }
 
   void _startTradeMonitoring(Trade trade, ExchangeProvider provider) {
@@ -191,6 +195,7 @@ class TradeMonitor {
     if (_tradeTimers.containsKey(tradeId)) {
       _tradeTimers[tradeId]?.cancel();
       _tradeTimers.remove(tradeId);
+      printV('Trade timer for ${tradeId} cancelled');
     }
   }
 
@@ -212,7 +217,8 @@ class TradeMonitor {
   /// This helps to reduce the battery usage, network usage and enhance overall privacy.
   ///
   /// This is called when the app is sent to background or when the app is closed.
-  void pauseTradeMonitoring() {
+  void stopTradeMonitoring() {
+    printV('Stopping trade monitoring');
     _cancelMultipleTradeTimers(_tradeTimers.keys.toList());
   }
 }
