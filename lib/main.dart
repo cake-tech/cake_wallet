@@ -26,8 +26,10 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
@@ -38,6 +40,8 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -85,6 +89,9 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         final content = ledgerFile.readAsStringSync();
         ledgerFile.writeAsStringSync("$content\n${event.message}");
       });
+    }
+    if (FeatureFlag.hasDevOptions) {
+      ProxyWrapper.logger = MemoryProxyLogger();
     }
 
     runApp(App(key: topLevelKey));
@@ -278,7 +285,11 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey, loadWallet: loadWallet);
+  await bootstrapOffline();
+  final settingsStore = getIt<SettingsStore>();
+  if (!settingsStore.currentBuiltinTor) {
+    bootstrapOnline(navigatorKey, loadWallet: loadWallet);
+  }
 }
 
 class App extends StatefulWidget {
@@ -292,23 +303,25 @@ class App extends StatefulWidget {
 class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        final appStore = getIt.get<AppStore>();
-        final authService = getIt.get<AuthService>();
-        final linkViewModel = getIt.get<LinkViewModel>();
-        final statusBarColor = Colors.transparent;
-        final authenticationStore = getIt.get<AuthenticationStore>();
-        final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-            ? Routes.welcome
-            : Routes.login;
-        final currentTheme = appStore.themeStore.currentTheme;
-        final statusBarBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
-        final statusBarIconBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
-        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-            statusBarColor: statusBarColor,
-            statusBarBrightness: statusBarBrightness,
-            statusBarIconBrightness: statusBarIconBrightness));
+    return Observer(builder: (BuildContext context) {
+      final appStore = getIt.get<AppStore>();
+      final authService = getIt.get<AuthService>();
+      final linkViewModel = getIt.get<LinkViewModel>();
+      final settingsStore = appStore.settingsStore;
+      final statusBarColor = Colors.transparent;
+      final authenticationStore = getIt.get<AuthenticationStore>();
+      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
+          ? Routes.welcome
+          : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
+      final currentTheme = appStore.themeStore.currentTheme;
+      final statusBarBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      final statusBarIconBrightness =
+          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: statusBarColor,
+          statusBarBrightness: statusBarBrightness,
+          statusBarIconBrightness: statusBarIconBrightness));
 
         return Root(
           key: widget.key ?? rootKey,
