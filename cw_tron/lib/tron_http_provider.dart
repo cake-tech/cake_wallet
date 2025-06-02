@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:on_chain/tron/tron.dart';
 import '.secrets.g.dart' as secrets;
