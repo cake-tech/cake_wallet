@@ -19,7 +19,7 @@ import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {
   final httpClient = ProxyWrapper().getHttpClient();
-  SolanaProvider? _provider;
+  SolanaRPC? _provider;
 
   bool connect(Node node) {
     try {

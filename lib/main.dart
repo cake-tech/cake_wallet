@@ -200,8 +200,8 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final powNodes =
       await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
-      TransactionDescription.boxName,
-      encryptionKey: transactionDescriptionsBoxKey);
+          TransactionDescription.boxName,
+          encryptionKey: transactionDescriptionsBoxKey);
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -304,24 +304,26 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (BuildContext context) {
-      final appStore = getIt.get<AppStore>();
-      final authService = getIt.get<AuthService>();
-      final linkViewModel = getIt.get<LinkViewModel>();
-      final settingsStore = appStore.settingsStore;
-      final statusBarColor = Colors.transparent;
-      final authenticationStore = getIt.get<AuthenticationStore>();
+        final appStore = getIt.get<AppStore>();
+        final authService = getIt.get<AuthService>();
+        final linkViewModel = getIt.get<LinkViewModel>();
+        final settingsStore = appStore.settingsStore;
+        final statusBarColor = Colors.transparent;
+        final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.welcome
+                ? Routes.welcome
           : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
-      final currentTheme = appStore.themeStore.currentTheme;
-      final statusBarBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      final statusBarIconBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-          statusBarColor: statusBarColor,
-          statusBarBrightness: statusBarBrightness,
-          statusBarIconBrightness: statusBarIconBrightness));
+        final currentTheme = appStore.themeStore.currentTheme;
+        final statusBarBrightness = currentTheme.type == currentTheme.isDark
+            ? Brightness.light
+            : Brightness.dark;
+        final statusBarIconBrightness = currentTheme.type == currentTheme.isDark
+            ? Brightness.light
+            : Brightness.dark;
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+            statusBarColor: statusBarColor,
+            statusBarBrightness: statusBarBrightness,
+            statusBarIconBrightness: statusBarIconBrightness));
 
         return Root(
           key: widget.key ?? rootKey,
@@ -332,7 +334,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           linkViewModel: linkViewModel,
           child: ThemeProvider(
             themeStore: appStore.themeStore,
-            materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
+            materialAppBuilder: (context, theme, darkTheme, themeMode) =>
+                MaterialApp(
               navigatorObservers: [routeObserver],
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
@@ -375,8 +378,10 @@ class _HomeState extends State<_Home> {
         SystemChrome.setPreferredOrientations(
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       } else {
-        SystemChrome.setPreferredOrientations(
-            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight
+        ]);
       }
     }
   }
