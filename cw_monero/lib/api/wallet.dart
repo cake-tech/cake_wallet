@@ -245,7 +245,7 @@ void storeSync({bool force = false}) async {
     return monero.Wallet_synchronized(Pointer.fromAddress(addr));
   });
   if (lastStorePointer == addr &&
-      lastStoreHeight + 5000 > currentWallet!.blockChainHeight() &&
+      lastStoreHeight + 75000 > currentWallet!.blockChainHeight() &&
       !synchronized && 
       !force) {
     return;

@@ -10,14 +10,11 @@ class SolanaRPCHTTPService implements SolanaJSONRPCService {
   final String url;
   final Duration defaultRequestTimeout;
 
-  final client = ProxyWrapper().getHttpIOClient();
-
-  @override
   Future<Map<String, dynamic>> call(SolanaRequestDetails params,
       [Duration? timeout]) async {
-    final response = await client.post(
-      Uri.parse(url),
-      body: params.toRequestBody(),
+    final response = await ProxyWrapper().post(
+      clearnetUri: Uri.parse(url),
+      body: json.encode(params.toRequestBody()),
       headers: {
         'Content-Type': 'application/json',
       },
