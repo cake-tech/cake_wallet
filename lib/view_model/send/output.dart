@@ -45,7 +45,7 @@ abstract class OutputBase with Store {
         address = '',
         note = '',
         extractedAddress = '',
-        parsedAddress = ParsedAddress(addresses: []) {
+        parsedAddress = ParsedAddress(addressByCurrencyMap: {}) {
     _setCryptoNumMaximumFractionDigits();
   }
 
@@ -79,7 +79,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != AddressSource.notParsed && parsedAddress.name.isNotEmpty;
+      parsedAddress.addressSource != AddressSource.notParsed && parsedAddress.handle != null;
 
   @observable
   String? stealthAddress;
@@ -241,7 +241,7 @@ abstract class OutputBase with Store {
 
   void resetParsedAddress() {
     extractedAddress = '';
-    parsedAddress = ParsedAddress(addresses: []);
+    parsedAddress = ParsedAddress( addressByCurrencyMap: {});
   }
 
   @action
@@ -325,14 +325,14 @@ abstract class OutputBase with Store {
     final currency = cryptoCurrencyHandler();
     final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: _wallet);
     parsedAddress = parsedAddresses.first;
-    extractedAddress = await extractAddressFromParsed(context, parsedAddress); //TODO handle multiple addresses
-    note = parsedAddress.description;
+    extractedAddress =  ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
+    note = parsedAddress.description ?? '';
   }
 
   void loadContact(ContactBase contact) {
     address = contact.name;
-    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
-    extractedAddress = parsedAddress.addresses.first;
-    note = parsedAddress.description;
+    parsedAddress = ParsedAddress(addressByCurrencyMap: {contact.type : contact.address}, handle: contact.name);
+    extractedAddress = parsedAddress.addressByCurrencyMap[contact.type] ?? '';
+    note = parsedAddress.description ?? '';
   }
 }

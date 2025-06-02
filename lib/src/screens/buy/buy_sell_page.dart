@@ -510,7 +510,7 @@ class BuySellPage extends BasePage {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     final parsedAddress = await getIt.get<AddressResolverService>().resolve(query: domain,wallet: buySellViewModel.wallet, currency: currency);
-    final address = await extractAddressFromParsed(context, parsedAddress.first); //TODO handle multiple addresses
-    return address;
+
+    return ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
   }
 }

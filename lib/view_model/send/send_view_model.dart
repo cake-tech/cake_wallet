@@ -312,7 +312,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   List<CryptoCurrency> currencies;
 
   bool get hasYat => outputs
-      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == AddressSource.yatRecord);
+      .any((out) => out.isParsedAddress && out.parsedAddress.addressSource == AddressSource.yatRecord);
 
   WalletType get walletType => wallet.type;
 
@@ -431,7 +431,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       outputs.first.address = paymentRequest.address;
       outputs.first.parsedAddress =
-          ParsedAddress(addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
+          ParsedAddress(addressByCurrencyMap: {currency:paymentRequest.address}, handle: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -699,7 +699,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     for (var output in outputs) {
       String address;
       if (output.isParsedAddress) {
-        address = output.parsedAddress.addresses.first;
+        address = output.parsedAddress.addressByCurrencyMap[selectedCryptoCurrency] ?? '';
       } else {
         address = output.address;
       }

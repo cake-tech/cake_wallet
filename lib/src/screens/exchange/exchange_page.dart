@@ -642,8 +642,7 @@ class ExchangePage extends BasePage {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     final parsedAddress = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: exchangeViewModel.wallet);
-    final address = await extractAddressFromParsed(context, parsedAddress.first);  //TODO handle multiple addresses
-    return address;
+    return ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
   }
 
   void _showFeeAlert(BuildContext context) async {
