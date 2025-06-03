@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
@@ -255,6 +256,7 @@ abstract class EVMChainWalletBase
     required String? contractAddress,
     required String receivingAddressHex,
     required TransactionPriority priority,
+    Uint8List? data,
   }) async {
     try {
       if (priority is EVMChainTransactionPriority) {
@@ -276,6 +278,7 @@ abstract class EVMChainWalletBase
           gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
           toAddress: EthereumAddress.fromHex(receivingAddressHex),
           maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+          data: data,
         );
 
         final totalGasFee = estimatedGas * maxFeePerGas;

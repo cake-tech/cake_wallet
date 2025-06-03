@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_ethereum/deuro/deuro_savings_contract.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -33,24 +37,63 @@ class DEuro {
   Future<BigInt> get interestRate => _savingsGateway.currentRatePPM();
 
   Future<PendingEVMChainTransaction> depositSavings(BigInt amount) async {
+    final frontendCode =
+        Uint8List.fromList(sha256.convert(utf8.encode("wallet")).bytes);
     final signedTransaction = await _savingsGateway.save(
-      (amount: amount, frontendCode: Uint8List(0)),
+      (amount: amount, frontendCode: frontendCode),
       credentials: _wallet.evmChainPrivateKey,
     );
 
-    final fee = await _wallet.getWeb3Client()!.estimateGas(
-      sender: _wallet.evmChainPrivateKey.address,
-      to: _savingsGateway.self.address,
-      data: _savingsGateway.self.function('save').encodeCall([amount, Uint8List(0)]),
+    final fee = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
+      amount: amount,
+      contractAddress: _savingsGateway.self.address.hexEip55,
+      receivingAddressHex: _savingsGateway.self.address.hexEip55,
+      priority: EVMChainTransactionPriority.medium,
+      data: _savingsGateway.self.abi.functions[17]
+          .encodeCall([amount, frontendCode]),
     );
 
-    final sendTransaction =
-        () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+    final sendTransaction = () async {
+      final txId =
+          await _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+      printV(txId);
+    };
 
     return PendingEVMChainTransaction(
         sendTransaction: sendTransaction,
         signedTransaction: signedTransaction,
-        fee: fee,
+        fee: BigInt.from(fee.estimatedGasFee),
+        amount: amount.toString(),
+        exponent: 18);
+  }
+
+  Future<PendingEVMChainTransaction> withdrawSavings(BigInt amount) async {
+    final frontendCode =
+        Uint8List.fromList(sha256.convert(utf8.encode("wallet")).bytes);
+    final signedTransaction = await _savingsGateway.withdraw(
+      (target: _address, amount: amount, frontendCode: frontendCode),
+      credentials: _wallet.evmChainPrivateKey,
+    );
+
+    final fee = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
+      amount: amount,
+      contractAddress: _savingsGateway.self.address.hexEip55,
+      receivingAddressHex: _savingsGateway.self.address.hexEip55,
+      priority: EVMChainTransactionPriority.medium,
+      data: _savingsGateway.self.abi.functions[17]
+          .encodeCall([amount, frontendCode]),
+    );
+
+    final sendTransaction = () async {
+      final txId =
+          await _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+      printV(txId);
+    };
+
+    return PendingEVMChainTransaction(
+        sendTransaction: sendTransaction,
+        signedTransaction: signedTransaction,
+        fee: BigInt.from(fee.estimatedGasFee),
         amount: amount.toString(),
         exponent: 18);
   }

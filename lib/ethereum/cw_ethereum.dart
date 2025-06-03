@@ -240,5 +240,5 @@ class CWEthereum extends Ethereum {
       DEuro(wallet as EthereumWallet).depositSavings(amount);
 
   Future<PendingTransaction> removeDEuroSaving(WalletBase wallet, BigInt amount) =>
-      throw UnimplementedError();
+      DEuro(wallet as EthereumWallet).withdrawSavings(amount);
 }

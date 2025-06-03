@@ -12,13 +12,18 @@ class SavingsCard extends StatelessWidget {
   final String interestRate;
   final String savingsBalance;
   final CryptoCurrency currency;
+  final VoidCallback onAddSavingsPressed;
+  final VoidCallback onRemoveSavingsPressed;
 
-  const SavingsCard(
-      {super.key,
-      required this.isDarkTheme,
-      required this.interestRate,
-      required this.savingsBalance,
-      required this.currency});
+  const SavingsCard({
+    super.key,
+    required this.isDarkTheme,
+    required this.interestRate,
+    required this.savingsBalance,
+    required this.currency,
+    required this.onAddSavingsPressed,
+    required this.onRemoveSavingsPressed,
+  });
 
   @override
   Widget build(BuildContext context) => Container(
@@ -85,7 +90,7 @@ class SavingsCard extends StatelessWidget {
                     context,
                     label: S.of(context).deuro_savings_add,
                     imagePath: 'assets/images/received.png',
-                    onPressed: () {},
+                    onPressed: onAddSavingsPressed,
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),
@@ -96,7 +101,7 @@ class SavingsCard extends StatelessWidget {
                     context,
                     label: S.of(context).deuro_savings_remove,
                     imagePath: 'assets/images/upload.png',
-                    onPressed: () {},
+                    onPressed: onRemoveSavingsPressed,
                     backgroundColor: Theme.of(context).colorScheme.surface,
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
                   ),

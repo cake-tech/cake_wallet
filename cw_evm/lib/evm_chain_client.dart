@@ -101,6 +101,7 @@ abstract class EVMChainClient {
     String? contractAddress,
     EtherAmount? gasPrice,
     EtherAmount? maxFeePerGas,
+    Uint8List? data,
   }) async {
     try {
       if (contractAddress == null) {
@@ -124,7 +125,7 @@ abstract class EVMChainClient {
         final gasEstimate = await _client!.estimateGas(
           sender: senderAddress,
           to: EthereumAddress.fromHex(contractAddress),
-          data: transfer.encodeCall([
+          data: data ?? transfer.encodeCall([
             toAddress,
             value.getInWei,
           ]),
