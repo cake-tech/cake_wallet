@@ -245,6 +245,7 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  Future<void> commitPsbtUR(Object wallet, List<String> urCodes);
 
   void updatePayjoinState(Object wallet, bool state);
   String getPayjoinEndpoint(Object wallet);

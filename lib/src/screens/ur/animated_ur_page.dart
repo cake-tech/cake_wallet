@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -7,9 +8,12 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // ur:xmr-txunsigned - unsigned transaction
 //     should show a scanner afterwards.
@@ -46,8 +50,8 @@ class AnimatedURPage extends BasePage {
             frames: urQr.trim().split("\n"),
           ),
         ),
+        if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt"].contains(urQrType)) ...{
         SizedBox(height: 32),
-        if (urQrType == "ur:xmr-txunsigned" || urQrType == "ur:xmr-output")
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SizedBox(
@@ -60,8 +64,10 @@ class AnimatedURPage extends BasePage {
               ),
             ),
           ),
-        SizedBox(height: 32),
-        if (urQrType == "ur:xmr-output" && !isAll) Padding(
+        },
+        if (urQrType == "ur:xmr-output" && !isAll) ...{
+          SizedBox(height: 32),
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SizedBox(
               width: double.maxFinite,
@@ -73,6 +79,7 @@ class AnimatedURPage extends BasePage {
               ),
             ),
           ),
+        },
       ],
     );
   }
@@ -106,6 +113,10 @@ class AnimatedURPage extends BasePage {
           Navigator.of(context).pop(true);
         }        
         break;
+      case "ur:psbt": // psbt
+        final ur = await presentQRScanner(context);
+        if (ur == null) return;
+        await bitcoin!.commitPsbtUR(animatedURmodel.wallet, ur.trim().split("\n"));
       default:
         throw UnimplementedError("unable to handle UR: ${urQrType}");
     }
@@ -168,10 +179,21 @@ class _URQRState extends State<URQR> {
       children: [
         Center(
           child: QrImage(
-            data: widget.frames[frame % widget.frames.length], version: -1,
+            data: widget.frames[frame % widget.frames.length],
+            version: -1,
             size: 400,
           ),
         ),
+        if (FeatureFlag.hasDevOptions) ...{
+          TextButton(
+            onPressed: () { 
+              Clipboard.setData(ClipboardData(text: """Current frame (${frame % widget.frames.length}): ${widget.frames[frame % widget.frames.length]},
+All frames:
+ - ${widget.frames.join("\n - ")}"""));
+             },
+            child: Text(widget.frames[frame % widget.frames.length]),
+          ),
+        }
       ],
     );
   }
