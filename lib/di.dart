@@ -526,6 +526,7 @@ Future<void> setup({
       tradesStore: getIt.get<TradesStore>(),
       trades: _tradesSource,
       appStore: getIt.get<AppStore>(),
+      preferences: getIt.get<SharedPreferences>(),
     ),
   );
 

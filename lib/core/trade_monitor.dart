@@ -19,6 +19,7 @@ import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TradeMonitor {
   static const int _tradeCheckIntervalMinutes = 5;
@@ -28,12 +29,14 @@ class TradeMonitor {
     required this.tradesStore,
     required this.trades,
     required this.appStore,
+    required this.preferences,
   });
 
   final TradesStore tradesStore;
   final Box<Trade> trades;
   final AppStore appStore;
   final Map<String, Timer> _tradeTimers = {};
+  final SharedPreferences preferences;
 
   ExchangeProvider? _getProviderByDescription(ExchangeProviderDescription description) {
     switch (description) {
@@ -81,7 +84,6 @@ class TradeMonitor {
 
       // Multiple checks to see if to skip the trade, if yes, we cancel the timer if it exists
       if (_shouldSkipTrade(trade, walletId, provider)) {
-        printV('Skipping trade ${trade.id}');
         tradesToCancel.add(trade.id);
         continue;
       }
@@ -90,7 +92,6 @@ class TradeMonitor {
         printV('Trade ${trade.id} is already being monitored');
         continue;
       } else {
-        printV('Starting trade monitoring for ${trade.id}');
         _startTradeMonitoring(trade, provider!);
       }
     }
@@ -128,6 +129,11 @@ class TradeMonitor {
       return true;
     }
 
+    if (DateTime.now().difference(createdAt).inHours > _maxTradeAgeHours) {
+      printV('Skipping trade ${trade.id} because it\'s older than ${_maxTradeAgeHours} hours');
+      return true;
+    }
+
     if (_isFinalState(trade.state)) {
       printV('Skipping trade ${trade.id} because it\'s in a final state');
       return true;
@@ -159,6 +165,20 @@ class TradeMonitor {
   }
 
   Future<void> _checkTradeStatus(Trade trade, ExchangeProvider provider) async {
+    final lastUpdatedAtFromPrefs = preferences.getString('trade_${trade.id}_updated_at');
+
+    if (lastUpdatedAtFromPrefs != null) {
+      final lastUpdatedAtDateTime = DateTime.parse(lastUpdatedAtFromPrefs);
+      final timeSinceLastUpdate = DateTime.now().difference(lastUpdatedAtDateTime).inMinutes;
+
+      if (timeSinceLastUpdate < _tradeCheckIntervalMinutes) {
+        printV(
+          'Skipping trade ${trade.id} status update check because it was updated less than ${_tradeCheckIntervalMinutes} minutes ago ($timeSinceLastUpdate minutes ago)',
+        );
+        return;
+      }
+    }
+
     try {
       final updated = await provider.findTradeById(id: trade.id);
       trade
@@ -167,6 +187,9 @@ class TradeMonitor {
         ..outputTransaction = updated.outputTransaction ?? trade.outputTransaction;
       printV('Trade ${trade.id} updated: ${trade.state}');
       await trade.save();
+
+      await preferences.setString('trade_${trade.id}_updated_at', DateTime.now().toIso8601String());
+      printV('Trade ${trade.id} updated at: ${DateTime.now().toIso8601String()}');
 
       // If the updated trade is in a final state, we cancel the timer
       if (_isFinalState(updated.state)) {
