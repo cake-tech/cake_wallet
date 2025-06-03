@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_socket/abstract.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -42,7 +44,7 @@ class ElectrumClient {
   static const aliveTimerDuration = Duration(seconds: 4);
 
   bool get isConnected => _isConnected;
-  Socket? socket;
+  ProxySocket? socket;
   void Function(ConnectionStatus)? onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
@@ -72,18 +74,11 @@ class ElectrumClient {
     } catch (_) {}
     socket = null;
 
+    final ssl = !(useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum")));
     try {
-      if (useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum"))) {
-        socket = await Socket.connect(host, port, timeout: connectionTimeout);
-      } else {
-        socket = await SecureSocket.connect(
-          host,
-          port,
-          timeout: connectionTimeout,
-          onBadCertificate: (_) => true,
-        );
-      }
+      socket = await ProxyWrapper().getSocksSocket(ssl, host, port, connectionTimeout: connectionTimeout);
     } catch (e) {
+      printV("connect: $e");
       if (e is HandshakeException) {
         useSSL = !(useSSL ?? false);
       }
@@ -105,7 +100,6 @@ class ElectrumClient {
 
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
-
     socket!.listen(
       (Uint8List event) {
         try {

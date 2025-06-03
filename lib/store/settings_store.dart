@@ -79,6 +79,7 @@ abstract class SettingsStoreBase with Store {
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
       required bool initialSyncAll,
+      required bool initialBuiltinTor,
       // required String initialCurrentLocale,
       required this.appVersion,
       required this.deviceName,
@@ -182,6 +183,7 @@ abstract class SettingsStoreBase with Store {
             initialShouldRequireTOTP2FAForAllSecurityAndBackupSettings,
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
+        currentBuiltinTor = initialBuiltinTor,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -398,6 +400,11 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => currentSyncAll, (bool syncAll) {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
     });
+
+    reaction((_) => currentBuiltinTor, (bool builtinTor) {
+      sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
+    });
+
 
     reaction(
         (_) => exchangeStatus,
@@ -813,6 +820,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool currentSyncAll;
 
+  @observable
+  bool currentBuiltinTor;
+
   String appVersion;
 
   String deviceName;
@@ -1159,6 +1169,7 @@ abstract class SettingsStoreBase with Store {
       return element.type.index == (sharedPreferences.getInt(PreferencesKey.syncModeKey) ?? 2); // default to 2 - daily sync
     });
     final savedSyncAll = sharedPreferences.getBool(PreferencesKey.syncAllKey) ?? true;
+    final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? false;
 
     // migrated to secure:
     final timeOutDuration = await SecureKey.getInt(
@@ -1343,6 +1354,7 @@ abstract class SettingsStoreBase with Store {
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,
       shouldShowRepWarning: shouldShowRepWarning,
+      initialBuiltinTor: builtinTor,
     );
   }
 

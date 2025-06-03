@@ -8,13 +8,13 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class MeldBuyProvider extends BuyProvider {
@@ -71,8 +71,8 @@ class MeldBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, path, params);
 
     try {
-      final response = await http.get(
-        url,
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
         headers: {
           'Authorization': _isProduction ? '' : _testApiKey,
           'Meld-Version': '2023-12-19',
@@ -80,6 +80,7 @@ class MeldBuyProvider extends BuyProvider {
           'content-type': 'application/json',
         },
       );
+      
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
@@ -130,7 +131,12 @@ class MeldBuyProvider extends BuyProvider {
     });
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await ProxyWrapper().post(
+        clearnetUri: url,
+        headers: headers,
+        body: body,
+      );
+      
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
