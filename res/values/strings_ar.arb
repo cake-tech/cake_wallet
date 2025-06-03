@@ -606,6 +606,7 @@
   "proceed_on_device": "تابع جهازك",
   "proceed_on_device_description": "يرجى اتباع الإرشادات المطلوبة على محفظة الأجهزة الخاصة بك",
   "processing": "يعالج",
+  "processing_signed_tx": "معالجة المعاملة الموقعة",
   "profile": "حساب تعريفي",
   "provider_error": "خطأ ${provider}",
   "public_key": "مفتاح عمومي",

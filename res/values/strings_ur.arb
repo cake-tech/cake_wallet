@@ -608,6 +608,7 @@
   "proceed_on_device": "اپنے آلے پر آگے بڑھیں",
   "proceed_on_device_description": "براہ کرم اپنے ہارڈ ویئر پرس پر آنے والی ہدایات پر عمل کریں",
   "processing": "پروسیسنگ",
+  "processing_signed_tx": "پروسیسنگ پر دستخط شدہ لین دین",
   "profile": "پروفائل",
   "provider_error": "${provider} خرابی۔",
   "public_key": "عوامی کلید",

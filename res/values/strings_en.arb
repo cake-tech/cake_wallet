@@ -607,6 +607,7 @@
   "proceed_on_device": "Proceed on your device",
   "proceed_on_device_description": "Please follow the instructions prompted on your hardware wallet",
   "processing": "Processing",
+  "processing_signed_tx": "Processing signed transaction",
   "profile": "Profile",
   "provider_error": "${provider} error",
   "public_key": "Public key",

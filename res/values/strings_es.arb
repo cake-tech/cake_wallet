@@ -607,6 +607,7 @@
   "proceed_on_device": "Continúa con tu dispositivo",
   "proceed_on_device_description": "Sigue las instrucciones solicitadas en su billetera de hardware",
   "processing": "Tratamiento",
+  "processing_signed_tx": "Procesamiento de transacción firmada",
   "profile": "Perfil",
   "provider_error": "${provider} error",
   "public_key": "Clave pública",

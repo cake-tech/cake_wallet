@@ -294,7 +294,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         .pendingTransactionFeeFiatAmountFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
                     onSlideComplete: () async {
-                      Navigator.of(bottomSheetContext).pop();
+                      if (bottomSheetContext.mounted) {
+                        Navigator.of(bottomSheetContext).pop();
+                      }
                       widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
                     },
                   );

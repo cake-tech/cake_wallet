@@ -21,7 +21,7 @@ String getOutputAmountFromPsbt(String psbtV0, BitcoinWalletBase wallet) {
   int amount = 0;
   for (var i = 0; i < psbt.getGlobalOutputCount(); i++) {
     final script = psbt.getOutputScript(i);
-    if (wallet.isMine(Script.fromRaw(bytes: script))) {
+    if (wallet.isMine(Script.fromRaw(byteData: script))) {
       amount += psbt.getOutputAmount(i);
     }
   }

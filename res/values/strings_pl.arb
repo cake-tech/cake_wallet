@@ -606,6 +606,7 @@
   "proceed_on_device": "Kontynuuj swoje urządzenie",
   "proceed_on_device_description": "Postępuj zgodnie z instrukcjami wyświetlonymi w portfelu sprzętowym",
   "processing": "Przetwarzanie",
+  "processing_signed_tx": "Przetwarzanie podpisanej transakcji",
   "profile": "Profil",
   "provider_error": "${provider} błąd",
   "public_key": "Klucz publiczny",

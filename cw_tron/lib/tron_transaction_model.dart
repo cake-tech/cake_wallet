@@ -1,6 +1,5 @@
 import 'package:blockchain_utils/hex/hex.dart';
 import 'package:on_chain/on_chain.dart';
-import 'package:on_chain/solidity/address/core.dart';
 
 class TronTRC20TransactionModel extends TronTransactionModel {
   String? transactionId;
@@ -189,7 +188,7 @@ class Value {
     output = output.replaceFirst('0x', '').substring(8);
     final abiCoder = ABICoder.fromType('address');
     final decoded = abiCoder.decode(AbiParameter.bytes, hex.decode(output));
-    final tronAddress = TronAddress.fromEthAddress((decoded.result as SolidityAddress).toBytes());
+    final tronAddress = TronAddress.fromEthAddress((decoded.result as ETHAddress).toBytes());
 
     return tronAddress.toString();
   }

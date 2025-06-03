@@ -607,6 +607,7 @@
   "proceed_on_device": "Пройдите на свое устройство",
   "proceed_on_device_description": "Пожалуйста, следуйте инструкциям, представленным на вашем аппаратном кошельке",
   "processing": "Обработка",
+  "processing_signed_tx": "Обработка подписанной транзакции",
   "profile": "Профиль",
   "provider_error": "${provider} ошибка",
   "public_key": "Публичный ключ",

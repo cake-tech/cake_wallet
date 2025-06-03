@@ -604,6 +604,7 @@
   "proceed_on_device": "Tiếp tục trên thiết bị của bạn",
   "proceed_on_device_description": "Vui lòng làm theo các hướng dẫn được nhắc trên ví phần cứng của bạn",
   "processing": "Xử lý",
+  "processing_signed_tx": "Xử lý giao dịch đã ký",
   "profile": "Hồ sơ",
   "provider_error": "Lỗi ${provider}",
   "public_key": "Khóa công khai",

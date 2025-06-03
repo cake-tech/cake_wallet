@@ -608,6 +608,7 @@
   "proceed_on_device": "Lanjutkan di perangkat Anda",
   "proceed_on_device_description": "Harap ikuti instruksi yang diminta di dompet perangkat keras Anda",
   "processing": "Pengolahan",
+  "processing_signed_tx": "Memproses transaksi yang ditandatangani",
   "profile": "Profil",
   "provider_error": "${provider} error",
   "public_key": "Kunci publik",

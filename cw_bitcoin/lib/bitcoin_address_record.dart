@@ -82,7 +82,7 @@ class BitcoinAddressRecord extends BaseBitcoinAddressRecord {
       type: decoded['type'] != null && decoded['type'] != ''
           ? BitcoinAddressType.values
               .firstWhere((type) => type.toString() == decoded['type'] as String)
-          : SegwitAddressType.p2wpkh,
+          : SegwitAddresType.p2wpkh,
       scriptHash: decoded['scriptHash'] as String?,
       network: network,
     );

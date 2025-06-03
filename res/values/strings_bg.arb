@@ -606,6 +606,7 @@
   "proceed_on_device": "Продължете на вашето устройство",
   "proceed_on_device_description": "Моля, следвайте инструкциите, подканени на вашия хардуер",
   "processing": "Обработка",
+  "processing_signed_tx": "Обработка подписана транзакция",
   "profile": "Профил",
   "provider_error": "Грешка на ${provider} ",
   "public_key": "Публичен ключ",

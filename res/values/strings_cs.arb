@@ -606,6 +606,7 @@
   "proceed_on_device": "Pokračujte ve svém zařízení",
   "proceed_on_device_description": "Postupujte podle pokynů na výzvu na vaší hardwarové peněžence",
   "processing": "Zpracování",
+  "processing_signed_tx": "Zpracování podepsané transakce",
   "profile": "Profil",
   "provider_error": "${provider} chyba",
   "public_key": "Veřejný klíč",

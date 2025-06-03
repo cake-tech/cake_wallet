@@ -606,6 +606,7 @@
   "proceed_on_device": "Ga verder met uw apparaat",
   "proceed_on_device_description": "Volg de instructies die zijn aangevraagd op uw hardware -portemonnee",
   "processing": "Verwerking",
+  "processing_signed_tx": "Verwerking ondertekende transactie",
   "profile": "Profiel",
   "provider_error": "${provider} fout",
   "public_key": "Publieke sleutel",

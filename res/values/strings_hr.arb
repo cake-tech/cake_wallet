@@ -606,6 +606,7 @@
   "proceed_on_device": "Nastavite na svom uređaju",
   "proceed_on_device_description": "Slijedite upute zatražene na vašem hardverskom novčaniku",
   "processing": "Obrada",
+  "processing_signed_tx": "Obrada potpisana transakcija",
   "profile": "Profil",
   "provider_error": "${provider} greška",
   "public_key": "Javni ključ",

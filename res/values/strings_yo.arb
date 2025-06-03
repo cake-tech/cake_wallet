@@ -607,6 +607,7 @@
   "proceed_on_device": "Tẹsiwaju lori ẹrọ rẹ",
   "proceed_on_device_description": "Jọwọ tẹle awọn ilana ti a ṣe lori apamọwọ ohun elo rẹ",
   "processing": "Iṣaayan",
+  "processing_signed_tx": "Sisọ idunadura fowo si",
   "profile": "profaili",
   "provider_error": "Àṣìṣe ${provider}",
   "public_key": "Kọ́kọ́rọ́ tó kò àdáni",

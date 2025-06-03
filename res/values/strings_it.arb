@@ -607,6 +607,7 @@
   "proceed_on_device": "Procedi sul tuo dispositivo",
   "proceed_on_device_description": "Segui le istruzioni richieste sul portafoglio hardware",
   "processing": "Elaborazione",
+  "processing_signed_tx": "Elaborazione della transazione firmata",
   "profile": "Profilo",
   "provider_error": "${provider} errore",
   "public_key": "Chiave pubblica",

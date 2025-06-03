@@ -606,6 +606,7 @@
   "proceed_on_device": "သင့်စက်ပေါ်တွင်ဆက်လက်ဆောင်ရွက်ပါ",
   "proceed_on_device_description": "သင်၏ hardware ပိုက်ဆံအိတ်ပေါ်ရှိညွှန်ကြားချက်များကိုလိုက်နာပါ",
   "processing": "လုပ်ကိုင်ခြင်း",
+  "processing_signed_tx": "ထုတ်ယူခြင်းလက်မှတ်ရေးထိုးငွေလွှဲလုပ်ငန်း",
   "profile": "ကိုယ်ရေးအကျဉ်း",
   "provider_error": "${provider} အမှား",
   "public_key": "အများသူငှာသော့",

@@ -606,6 +606,7 @@
   "proceed_on_device": "Cihazınıza devam edin",
   "proceed_on_device_description": "Lütfen donanım cüzdanınızda istenen talimatları izleyin",
   "processing": "İşleme",
+  "processing_signed_tx": "İmzalı işlemin işlenmesi",
   "profile": "Profil",
   "provider_error": "${provider} hatası",
   "public_key": "Genel Anahtar",
