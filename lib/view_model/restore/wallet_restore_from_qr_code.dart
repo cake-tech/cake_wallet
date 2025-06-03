@@ -158,6 +158,10 @@ class WalletRestoreFromQRCode {
       throw Exception('Unexpected restore mode: tx_payment_id is invalid');
     }
 
+    if (credentials.containsKey("xpub")) {
+      return WalletRestoreMode.keys;
+    }
+
     if (credentials['seed'] != null) {
       final seedValue = credentials['seed'] as String;
       final words = SeedValidator.getWordList(type: type, language: 'english');
