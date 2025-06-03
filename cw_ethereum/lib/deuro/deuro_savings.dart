@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_ethereum/deuro/deuro_savings_contract.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -53,11 +52,8 @@ class DEuro {
           .encodeCall([amount, frontendCode]),
     );
 
-    final sendTransaction = () async {
-      final txId =
-          await _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
-      printV(txId);
-    };
+    final sendTransaction =
+        () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
 
     return PendingEVMChainTransaction(
         sendTransaction: sendTransaction,
@@ -84,11 +80,8 @@ class DEuro {
           .encodeCall([amount, frontendCode]),
     );
 
-    final sendTransaction = () async {
-      final txId =
-          await _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
-      printV(txId);
-    };
+    final sendTransaction =
+        () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
 
     return PendingEVMChainTransaction(
         sendTransaction: sendTransaction,

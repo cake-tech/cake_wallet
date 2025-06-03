@@ -60,7 +60,6 @@ abstract class DEuroViewModelBase with Store {
   @action
   Future<void> prepareSavingsEdit(String amountRaw, bool isAdding) async {
     final amount = BigInt.from(num.parse(amountRaw) * pow(10, 18));
-    print(amount);
     transaction = await (isAdding
         ? ethereum!.addDEuroSaving(_appStore.wallet!, amount)
         : ethereum!.removeDEuroSaving(_appStore.wallet!, amount));
