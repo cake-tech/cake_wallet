@@ -732,6 +732,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<void> commitPsbtUR(Object wallet, List<String> urCodes) {
+    final _wallet = wallet as BitcoinWalletBase;
+    return _wallet.commitPsbtUR(urCodes);
+  }
+
+  @override
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
     if (!isPayjoinAvailable(wallet)) return '';

@@ -24,6 +24,7 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -32,6 +33,9 @@ import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_decoder.dart';
 
 part 'bitcoin_wallet.g.dart';
 
@@ -372,7 +376,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         masterFingerprint: Uint8List(0));
 
     if (tx.shouldCommitUR()) {
-     tx.unsignedPsbt = transaction.serialize();
+     tx.unsignedPsbt = transaction.asPsbtV0();
      return tx;
     }
 
@@ -433,6 +437,24 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     psbt.finalizeV0();
     return base64Encode(psbt.asPsbtV0());
+  }
+
+  Future<void> commitPsbtUR(List<String> urCodes) async {
+    final ur = URDecoder();
+    for (final inp in urCodes) {
+      ur.receivePart(inp);
+    }
+    final result = (ur.result as UR);
+    final cbor = result.cbor;
+    final cborDecoder = CBORDecoder(cbor);
+    final out = cborDecoder.decodeBytes();
+    final bytes = out.$1;
+    final base64psbt = base64Encode(bytes);
+    final psbt = PsbtV2()..deserializeV0(base64Decode(base64psbt));
+
+    // psbt.finalize();
+    final finalized = base64Encode(psbt.serialize());
+    await commitPsbt(finalized);
   }
 
   @override
