@@ -13,6 +13,7 @@ import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/spl_token.dart';
 import 'package:http/http.dart' as http;
 import 'package:on_chain/solana/solana.dart';
+import 'package:on_chain/solana/src/instructions/associated_token_account/constant.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import '.secrets.g.dart' as secrets;
@@ -169,7 +170,8 @@ class SolanaWalletClient {
       for (final instruction in instructions) {
         final programId = message.accountKeys[instruction.programIdIndex];
 
-        if (programId == SystemProgramConst.programId) {
+        if (programId == SystemProgramConst.programId ||
+            programId == ComputeBudgetConst.programId) {
           // For native solana transactions
 
           if (txResponse.version == TransactionType.legacy) {
@@ -250,7 +252,8 @@ class SolanaWalletClient {
               fee: feeForTx,
             );
           }
-        } else if (programId == SPLTokenProgramConst.tokenProgramId) {
+        } else if (programId == SPLTokenProgramConst.tokenProgramId ||
+            programId == AssociatedTokenAccountProgramConst.associatedTokenProgramId) {
           // For SPL Token transactions
           if (instruction.accounts.length < 2) continue;
 
@@ -732,19 +735,24 @@ class SolanaWalletClient {
     SolanaAccountInfo? accountInfo;
     try {
       accountInfo = await _provider!.request(
-        SolanaRPCGetAccountInfo(account: associatedTokenAccount.address),
+        SolanaRPCGetAccountInfo(
+          account: associatedTokenAccount.address,
+          commitment: Commitment.confirmed,
+        ),
       );
     } catch (e) {
       accountInfo = null;
     }
 
-    // If aacountInfo is null, signifies that the associatedTokenAccount has only been created locally and not been broadcasted to the blockchain.
+    // If account exists, we return the associated token account
     if (accountInfo != null) return associatedTokenAccount;
 
     if (!shouldCreateATA) return null;
 
+    final payerAddress = payerPrivateKey.publicKey().toAddress();
+
     final createAssociatedTokenAccount = AssociatedTokenAccountProgram.associatedTokenAccount(
-      payer: payerPrivateKey.publicKey().toAddress(),
+      payer: payerAddress,
       associatedToken: associatedTokenAccount.address,
       owner: ownerAddress,
       mint: mintAddress,
@@ -753,19 +761,23 @@ class SolanaWalletClient {
     final blockhash = await _getLatestBlockhash(Commitment.confirmed);
 
     final transaction = SolanaTransaction(
-      payerKey: payerPrivateKey.publicKey().toAddress(),
+      payerKey: payerAddress,
       instructions: [createAssociatedTokenAccount],
       recentBlockhash: blockhash,
+      type: TransactionType.v0,
     );
 
-    transaction.sign([payerPrivateKey]);
+    final serializedTransaction = await _signTransactionInternal(
+      ownerPrivateKey: payerPrivateKey,
+      transaction: transaction,
+    );
 
     await sendTransaction(
-      serializedTransaction: transaction.serializeString(),
+      serializedTransaction: serializedTransaction,
       commitment: Commitment.confirmed,
     );
 
-    // Delay for propagation on the blockchain for newly created associated token addresses
+    // Wait for confirmation
     await Future.delayed(const Duration(seconds: 2));
 
     return associatedTokenAccount;
@@ -890,7 +902,7 @@ class SolanaWalletClient {
   }) async {
     /// Sign the transaction with the owner's private key.
     final ownerSignature = ownerPrivateKey.sign(transaction.serializeMessage());
-    
+
     transaction.addSignature(ownerPrivateKey.publicKey().toAddress(), ownerSignature);
 
     /// Serialize the transaction.
