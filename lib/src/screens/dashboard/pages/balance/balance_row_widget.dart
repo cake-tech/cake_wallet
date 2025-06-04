@@ -563,7 +563,7 @@ class BalanceRowWidget extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(width: 24),
+                          SizedBox(width: 16),
                           Expanded(
                             child: Semantics(
                               label: S.of(context).litecoin_mweb_pegout,

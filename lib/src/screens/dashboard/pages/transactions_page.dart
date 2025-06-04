@@ -166,17 +166,19 @@ class TransactionsPage extends StatelessWidget {
 
                               return Observer(
                                 builder: (_) => TradeRow(
-                                    key: item.key,
-                                    onTap: () => Navigator.of(context)
-                                        .pushNamed(Routes.tradeDetails, arguments: trade),
+                                  key: item.key,
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.tradeDetails, arguments: trade),
+                                    swapState: trade.state,
                                     provider: trade.provider,
-                                    from: trade.from,
-                                    to: trade.to,
-                                    createdAtFormattedDate: trade.createdAt != null
-                                        ? DateFormat('HH:mm').format(trade.createdAt!)
-                                        : null,
-                                    formattedAmount: item.tradeFormattedAmount,
-                                    formattedReceiveAmount: item.tradeFormattedReceiveAmount),
+                                  from: trade.from,
+                                  to: trade.to,
+                                  createdAtFormattedDate: trade.createdAt != null
+                                      ? DateFormat('HH:mm').format(trade.createdAt!)
+                                      : null,
+                                  formattedAmount: item.tradeFormattedAmount, 
+                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount
+                                ),
                               );
                             }
                             if (item is OrderListItem) {

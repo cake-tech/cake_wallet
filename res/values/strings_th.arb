@@ -250,6 +250,7 @@
   "digit_pin": "-หลัก PIN",
   "digital_and_physical_card": "บัตรเดบิตดิจิตอลและบัตรพื้นฐาน",
   "disable": "ปิดการใช้งาน",
+  "disable_automatic_exchange_status_updates": "ปิดใช้งานการอัปเดตสถานะการแลกเปลี่ยนอัตโนมัติ",
   "disable_bulletin": "ปิดการใช้งาน Bulletin สถานะบริการ",
   "disable_buy": "ปิดการใช้งานการซื้อ",
   "disable_cake_2fa": "ปิดการใช้งานเค้ก 2FA",

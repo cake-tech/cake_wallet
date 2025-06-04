@@ -611,7 +611,7 @@ abstract class SolanaWalletBase
     );
   }
 
-  SolanaProvider? get solanaProvider => _client.getSolanaProvider;
+  SolanaRPC? get solanaProvider => _client.getSolanaProvider;
 
   @override
   String get password => _password;

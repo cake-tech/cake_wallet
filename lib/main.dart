@@ -25,7 +25,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -51,6 +50,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -290,30 +290,7 @@ class App extends StatefulWidget {
   AppState createState() => AppState();
 }
 
-class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    final appStore = getIt.get<AppStore>();
-    if (appStore.themeStore.themeMode == ThemeMode.system) {
-      final systemTheme = appStore.themeStore.getThemeFromSystem();
-      if (appStore.themeStore.currentTheme != systemTheme) {
-        appStore.themeStore.setTheme(systemTheme);
-      }
-    }
-  }
-
+class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Observer(
@@ -321,6 +298,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBi
         final appStore = getIt.get<AppStore>();
         final authService = getIt.get<AuthService>();
         final linkViewModel = getIt.get<LinkViewModel>();
+        final tradeMonitor = getIt.get<TradeMonitor>();
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
@@ -341,6 +319,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin, WidgetsBi
           navigatorKey: navigatorKey,
           authService: authService,
           linkViewModel: linkViewModel,
+          tradeMonitor: tradeMonitor,
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
