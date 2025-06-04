@@ -230,6 +230,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final providerName = responseJSON['provider'] as String;
     final amount = responseJSON['amount_from']?.toString();
     final receiveAmount = responseJSON['amount_to']?.toString();
+    final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
     return Trade(
       id: id,
@@ -247,6 +248,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
+      extraId: addressProviderMemo,
     );
   }
 
