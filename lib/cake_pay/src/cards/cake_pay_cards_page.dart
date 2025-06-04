@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/widgets/tab_view_wrapper_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
@@ -156,7 +157,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
 
       if (isUserAuthenticated == null) return const _Loading();
 
-      if (isUserAuthenticated == false) {
+      if (isUserAuthenticated == false && !FeatureFlag.isCakePayRedemptionFlowEnabled) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: _ShopTab(cardsListViewModel: widget._cardsListViewModel),
