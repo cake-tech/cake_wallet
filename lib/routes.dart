@@ -119,6 +119,8 @@ class Routes {
   static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
 
+  static const devFileExplorer = '/dev/file_explorer';
+  static const devWalletFuzzer = '/dev/wallet_fuzzer';
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
   static const urqrAnimatedPage = '/urqr/animated_page';
