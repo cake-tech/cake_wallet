@@ -903,6 +903,7 @@
   "token_name": "Token name eg: Tether",
   "token_symbol": "Token symbol eg: USDT",
   "tokenID": "ID",
+  "ton_extra_info": "Please don’t forget to specify the Memo ID while sending the TON transaction for the exchange",
   "tor_connection": "Tor connection",
   "tor_only": "Tor only",
   "total": "Total",

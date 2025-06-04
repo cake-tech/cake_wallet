@@ -903,6 +903,7 @@
   "token_name": "Nome del token, ad esempio: Tether",
   "token_symbol": "Simbolo del token, ad esempio: USDT",
   "tokenID": "ID",
+  "ton_extra_info": "Non dimenticare di specificare l'ID memo durante l'invio della transazione Ton per lo scambio",
   "tor_connection": "Connessione Tor",
   "tor_only": "Solo Tor",
   "total": "Totale",

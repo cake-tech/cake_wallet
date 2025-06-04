@@ -902,6 +902,7 @@
   "token_name": "Pangalan ng token, halimbawa: Tether",
   "token_symbol": "Simbolo ng token, halimbawa: USDT",
   "tokenID": "ID",
+  "ton_extra_info": "Mangyaring huwag kalimutan na tukuyin ang memo ID habang nagpapadala ng toneladang transaksyon para sa palitan",
   "tor_connection": "Koneksyon ng Tor",
   "tor_only": "Tor lamang",
   "total": "Kabuuan",

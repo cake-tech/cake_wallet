@@ -905,6 +905,7 @@
   "token_name": "Nama token misalnya: Tether",
   "token_symbol": "Simbol token misalnya: USDT",
   "tokenID": "PENGENAL",
+  "ton_extra_info": "Harap jangan lupa untuk menentukan ID memo saat mengirim transaksi ton untuk pertukaran",
   "tor_connection": "koneksi Tor",
   "tor_only": "Hanya Tor",
   "total": "Total",

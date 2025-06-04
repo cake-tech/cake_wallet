@@ -902,6 +902,7 @@
   "token_name": "Tokennaam bijv.: Tether",
   "token_symbol": "Tokensymbool bijv.: USDT",
   "tokenID": "ID kaart",
+  "ton_extra_info": "Vergeet niet om de memo -ID op te geven tijdens het verzenden van de ton -transactie voor de uitwisseling",
   "tor_connection": "Tor-verbinding",
   "tor_only": "Alleen Tor",
   "total": "Totaal",

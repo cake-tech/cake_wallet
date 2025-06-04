@@ -903,6 +903,7 @@
   "token_name": "トークン名 例: Tether",
   "token_symbol": "トークンシンボル 例: USDT",
   "tokenID": "ID",
+  "ton_extra_info": "Exchangeのトントランザクションを送信しながら、メモIDを指定することを忘れないでください",
   "tor_connection": "Tor接続",
   "tor_only": "Torのみ",
   "total": "合計",

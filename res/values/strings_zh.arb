@@ -902,6 +902,7 @@
   "token_name": "代币名称例如：Tether",
   "token_symbol": "代币符号例如：USDT",
   "tokenID": "ID",
+  "ton_extra_info": "请不要忘记在发送TON交易时指定备忘录",
   "tor_connection": "Tor连接",
   "tor_only": "仅限 Tor",
   "total": "全部的",

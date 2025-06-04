@@ -900,6 +900,7 @@
   "token_name": "Token-ի անուն, օրինակ՝ Tether",
   "token_symbol": "Token-ի նշան, օրինակ՝ USDT",
   "tokenID": "ID",
+  "ton_extra_info": "Խնդրում ենք մի մոռացեք նշել MEMO ID- ն, երբ փոխանակման համար տոննա գործարքը ուղարկեք",
   "tor_connection": "Tor կապ",
   "tor_only": "Միայն Tor",
   "total": "Ընդհանուր",
