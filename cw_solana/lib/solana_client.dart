@@ -168,6 +168,7 @@ class SolanaWalletClient {
           ? ""
           : Base58Encoder.encode(txResponse.transaction!.signatures.first);
 
+
       for (final instruction in instructions) {
         final programId = message.accountKeys[instruction.programIdIndex];
 
@@ -178,7 +179,7 @@ class SolanaWalletClient {
 
           // Get the fee payer index based on transaction type
           // For legacy transfers, the first account is usually the fee payer
-          // For versioned, the first account in instruction is usually thefee payer
+          // For versioned, the first account in instruction is usually the fee payer
           final feePayerIndex =
               txResponse.version == TransactionType.legacy ? 0 : instruction.accounts[0];
 
@@ -196,8 +197,7 @@ class SolanaWalletClient {
           if (transactionModel != null) {
             return transactionModel;
           }
-        } else if (programId == SPLTokenProgramConst.tokenProgramId ||
-            programId == AssociatedTokenAccountProgramConst.associatedTokenProgramId) {
+        } else if (programId == SPLTokenProgramConst.tokenProgramId) {
           // For SPL Token transactions
           if (instruction.accounts.length < 2) continue;
 
@@ -216,6 +216,31 @@ class SolanaWalletClient {
           if (transactionModel != null) {
             return transactionModel;
           }
+        } else if (programId == AssociatedTokenAccountProgramConst.associatedTokenProgramId) {
+          // For ATA program, we need to check if this is a create account transaction
+          // or if it's part of a normal token transfer
+
+          // We skip this transaction if this is the only instruction (this means that it's a create account transaction)
+          if (instructions.length == 1) {
+            return null;
+          }
+
+          // We look for a token transfer instruction in the same transaction
+          bool hasTokenTransfer = false;
+          for (final otherInstruction in instructions) {
+            final otherProgramId = message.accountKeys[otherInstruction.programIdIndex];
+            if (otherProgramId == SPLTokenProgramConst.tokenProgramId) {
+              hasTokenTransfer = true;
+              break;
+            }
+          }
+
+          // If there's no token transfer instruction, it means this is just an ATA creation transaction
+          if (!hasTokenTransfer) {
+            return null;
+          }
+
+          continue;
         } else {
           return null;
         }
