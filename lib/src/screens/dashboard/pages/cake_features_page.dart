@@ -67,7 +67,7 @@ class CakeFeaturesPage extends StatelessWidget {
                     onTap: () =>
                         Navigator.of(context).pushNamed(Routes.dEuroSavings),
                     title: S.of(context).deuro_savings,
-                    subTitle: "Get loads of monies from saving dEuro", // ToDo: S.of(context).deuro_savings_subtitle,
+                    subTitle: S.of(context).deuro_savings_subtitle,
                     image: Image.asset(
                       'assets/images/deuro_icon.png',
                       height: 80,
