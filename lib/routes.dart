@@ -118,7 +118,10 @@ class Routes {
   static const devSharedPreferences = '/dev/shared_preferences';
   static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
-
+  static const devHashChangeLogs = '/dev/hash_change_logs';
+  static const devPrintVerbose = '/dev/print_verbose';
+  static const devLsof = '/dev/lsof';
+  
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
   static const urqrAnimatedPage = '/urqr/animated_page';

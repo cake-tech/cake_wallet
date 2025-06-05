@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -34,12 +32,8 @@ class WalletManager {
       return walletInfo.hashedWalletIdentifier!;
     }
 
-    // Fallback to old logic
     final address = walletInfo.parentAddress ?? walletInfo.address;
-    if (address.isEmpty) {
-      return Random().nextInt(100000).toString();
-    }
-    return address;
+    return address.isNotEmpty ? address : walletInfo.id;
   }
 
   WalletGroup _getOrCreateGroup(String groupKey) {
@@ -100,56 +94,41 @@ class WalletManager {
     _saveCustomGroupName(groupKey, name);
   }
 
-  // ---------------------------------------------------------------------------
-  // This performs a Group-Based Lazy Migration:
-  // If the user opens a wallet in an old group,
-  // we migrate ALL wallets that share its old group key to a new hash.
-  // ---------------------------------------------------------------------------
-
-  /// When a user opens a wallet, check if it has a real hash.
+  /// When user opens wallet, check if it has a real hash.
+  ///
   /// If not, migrate the ENTIRE old group so they keep the same group name
   /// and end up with the same new hash (preserving grouping).
   Future<void> ensureGroupHasHashedIdentifier(WalletBase openedWallet) async {
-    WalletInfo walletInfo = openedWallet.walletInfo;
+    final info = openedWallet.walletInfo;
 
-    // If the openedWallet already has an hash, then there is nothing to do
-    if (walletInfo.hashedWalletIdentifier != null &&
-        walletInfo.hashedWalletIdentifier!.isNotEmpty) {
-      updateWalletGroups(); // Still skeptical of calling this here. Looking for a better spot.
+    if (info.hashedWalletIdentifier?.isNotEmpty ?? false) {
+      updateWalletGroups();
       return;
     }
 
-    // Identify the old group key for this wallet
-    final oldGroupKey = _resolveGroupKey(walletInfo); // parentAddress fallback
+    final oldGroupKey = info.parentAddress?.isNotEmpty == true ? info.parentAddress! : null;
+    final walletsToMigrate = oldGroupKey != null
+        ? _walletInfoSource.values.where((w) => (w.parentAddress ?? w.address) == oldGroupKey).toList()
+        : [info];
 
-    // Find all wallets that share this old group key (i.e the old group)
-    final oldGroupWallets = _walletInfoSource.values.where((w) {
-      final key = w.hashedWalletIdentifier != null && w.hashedWalletIdentifier!.isNotEmpty
-          ? w.hashedWalletIdentifier
-          : (w.parentAddress ?? w.address);
-      return key == oldGroupKey;
-    }).toList();
+    if (oldGroupKey != null && walletsToMigrate.isEmpty) return;
 
-    if (oldGroupWallets.isEmpty) {
-      // This shouldn't happen, but just in case it does, we return.
-      return;
+    final newHash = createHashedWalletIdentifier(openedWallet);
+
+    if (oldGroupKey != null) {
+      await _migrateGroupName(oldGroupKey, newHash);
     }
 
-    // Next, we determine the new group hash for these wallets
-    // Since they share the same seed, we can assign that group hash
-    // to all the wallets to preserve grouping.
-    final newGroupHash = createHashedWalletIdentifier(openedWallet);
-
-    // Migrate the old group name from oldGroupKey(i.e parentAddress) to newGroupHash
-    await _migrateGroupName(oldGroupKey, newGroupHash);
-
-    // Then we assign this new hash to each wallet in that old group and save them
-    for (final wallet in oldGroupWallets) {
-      wallet.hashedWalletIdentifier = newGroupHash;
-      await wallet.save();
+    // This throttle is here so we don't overwhelm the app when we have a lot of wallets we want to migrate.
+    const maxConcurrent = 3;
+    for (var i = 0; i < walletsToMigrate.length; i += maxConcurrent) {
+      final batch = walletsToMigrate.skip(i).take(maxConcurrent);
+      await Future.wait(batch.map((w) {
+        w.hashedWalletIdentifier = newHash;
+        return w.save();
+      }));
     }
 
-    // Finally, we rebuild the groups so that these wallets are now in the new group
     updateWalletGroups();
   }
 

@@ -5,7 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:hashlib/hashlib.dart';
 
 String createHashedWalletIdentifier(WalletBase wallet) {
-  if (wallet.seed == null) return '';
+  if (wallet.seed == null || wallet.seed!.isEmpty) return '';
 
   final salt = secrets.walletGroupSalt;
   final combined = '$salt.${wallet.seed}';
