@@ -1155,7 +1155,7 @@ abstract class ElectrumWalletBase
       bool hasTaprootInputs = false;
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
-        return "";
+        if (keys.privateKey.isEmpty) return "";
         String error = "Cannot find private key.";
 
         ECPrivateInfo? key;
