@@ -373,7 +373,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
         publicKeys: tx.publicKeys!,
-        masterFingerprint: Uint8List(0));
+        masterFingerprint: Uint8List.fromList([0, 0, 0, 0]));
 
     if (tx.shouldCommitUR()) {
      tx.unsignedPsbt = transaction.asPsbtV0();
