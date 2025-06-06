@@ -81,6 +81,12 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
 
+### Xelis Specific Features
+
+* Store XEL and all native assets/tokens
+* Add custom tokens by asset ID
+* Specify multiple recipients for batch sending
+
 ### Haven Specific Features
 
 * Send, receive, and store XHV and all xAssets like xUSD, xEUR, xAG, etc.
