@@ -209,27 +209,27 @@ abstract class XelisWalletBase
           case xelis_sdk.WalletEvent.newTransaction:
             yield NewTransaction(xelis_sdk.TransactionEntry.fromJson(data['data']) as xelis_sdk.TransactionEntry);
           case xelis_sdk.WalletEvent.balanceChanged:
-            yield BalanceChanged(data['data']['asset'] as String, data['data']['balance'] as int);
+            yield BalanceChanged(data['data']['asset'] as String, (data['data']['balance'] as num).toInt());
           case xelis_sdk.WalletEvent.newTopoHeight:
-            yield NewTopoheight(data['data']['topoheight'] as int);
+            yield NewTopoheight((data['data']['topoheight'] as num).toInt());
           case xelis_sdk.WalletEvent.rescan:
-            yield Rescan(data['data']['start_topoheight'] as int);
+            yield Rescan((data['data']['start_topoheight'] as num).toInt());
           case xelis_sdk.WalletEvent.online:
             yield const Online();
           case xelis_sdk.WalletEvent.offline:
             yield const Offline();
           case xelis_sdk.WalletEvent.historySynced:
-            yield HistorySynced(data['data']['topoheight'] as int);
+            yield HistorySynced((data['data']['topoheight'] as num).toInt());
           case xelis_sdk.WalletEvent.newAsset:
             final owner = data['data']['owner'];
             yield NewAsset(
               data['data']['asset'] as String,
-              data['data']['decimals'] as int,
-              data['data']['max_supply'] as int?,
+              (data['data']['decimals'] as num).toInt(),
+              (data['data']['max_supply'] as num?)?.toInt(),
               data['data']['name'] as String,
               owner is Map ? jsonEncode(owner) : owner as String?,
               data['data']['ticker'] as String,
-              data['data']['topoheight'] as int,
+              (data['data']['topoheight'] as num).toInt(),
             );
           case xelis_sdk.WalletEvent.syncError:
             yield SyncError(data['data']['message'] as String);
@@ -237,7 +237,7 @@ abstract class XelisWalletBase
             continue;
         }
       } catch (e) {
-        printV('Failed to parse wallet event: $e');
+        printV('Failed to parse wallet event $raw: $e');
         continue;
       }
     }
