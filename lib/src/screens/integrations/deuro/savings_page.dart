@@ -67,12 +67,14 @@ class DEuroSavingsPage extends BasePage {
               currency: CryptoCurrency.deuro,
               onAddSavingsPressed: () => _onSavingsAdd(context),
               onRemoveSavingsPressed: () => _onSavingsRemove(context),
+              onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
+              isEnabled: _dEuroViewModel.approvedTokens > BigInt.zero,
             ),
           ),
           Observer(
             builder: (_) => InterestCardWidget(
               isDarkTheme: currentTheme.isDark,
-              title: 'Collected Interest',
+              title: S.of(context).deuro_savings_collect_interest,
               collectedInterest: _dEuroViewModel.accruedInterest,
             ),
           ),
@@ -121,6 +123,37 @@ class DEuroSavingsPage extends BasePage {
           onSlideComplete: () async {
             Navigator.of(bottomSheetContext).pop(true);
             dEuroViewModel.commitTransaction();
+          },
+          change: tx.change,
+        ),
+      );
+
+      if (result == null) dEuroViewModel.dismissTransaction();
+    });
+
+    reaction((_) => dEuroViewModel.approvalTransaction, (PendingTransaction? tx) async {
+      if (tx == null) return;
+      final result = await showModalBottomSheet<bool>(
+        context: context,
+        isDismissible: false,
+        isScrollControlled: true,
+        builder: (BuildContext bottomSheetContext) => ConfirmSendingBottomSheet(
+          key: ValueKey('savings_page_confirm_approval_dialog_key'),
+          titleText: S.of(bottomSheetContext).approve_tokens,
+          currentTheme: currentTheme,
+          walletType: WalletType.ethereum,
+          titleIconPath: CryptoCurrency.deuro.iconPath,
+          currency: CryptoCurrency.deuro,
+          amount: S.of(bottomSheetContext).send_amount,
+          amountValue: tx.amountFormatted,
+          fiatAmountValue: "",
+          fee: S.of(bottomSheetContext).send_estimated_fee,
+          feeValue: tx.feeFormatted,
+          feeFiatAmount: "",
+          outputs: [],
+          onSlideComplete: () {
+            Navigator.of(bottomSheetContext).pop(true);
+            dEuroViewModel.commitApprovalTransaction();
           },
           change: tx.change,
         ),
