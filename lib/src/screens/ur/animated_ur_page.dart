@@ -117,6 +117,7 @@ class AnimatedURPage extends BasePage {
         final ur = await presentQRScanner(context);
         if (ur == null) return;
         await bitcoin!.commitPsbtUR(animatedURmodel.wallet, ur.trim().split("\n"));
+        Navigator.of(context).pop(true);
       default:
         throw UnimplementedError("unable to handle UR: ${urQrType}");
     }
