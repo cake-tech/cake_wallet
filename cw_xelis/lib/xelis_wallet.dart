@@ -140,6 +140,8 @@ abstract class XelisWalletBase
   String _password;
   final EncryptionFileUtils encryptionFileUtils;
 
+  Node? currentNode;
+
   bool connecting = false;
   bool requestedClose = false;
   String persistantPeer = "";
@@ -315,6 +317,7 @@ abstract class XelisWalletBase
         await goOffline();
       }
       await goOnline(addr);
+      currentNode = node;
       unawaited(_fetchPruneHeight());
       await this.startSync();
     } catch(e, s) {
@@ -346,6 +349,7 @@ abstract class XelisWalletBase
     balance.clear();
     await _libWallet.rescan(topoheight: BigInt.from(pruneHeight > height ? pruneHeight : height));
     await walletInfo.save();
+    await connectToNode(node: currentNode!);
     syncStatus = SyncedSyncStatus();
   }
   
@@ -353,7 +357,11 @@ abstract class XelisWalletBase
     switch (event) {
       case NewTransaction():
         if (!isSupportedEntryType(event.tx)) { break; }
-        final transactionInfo = await XelisTransactionInfo.fromTransactionEntry(event.tx, wallet: _libWallet);
+        final transactionInfo = await XelisTransactionInfo.fromTransactionEntry(
+          event.tx, 
+          wallet: _libWallet, 
+          isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset
+        );
         transactionHistory.addOne(transactionInfo);
         await transactionHistory.save();
         break;
@@ -475,6 +483,7 @@ abstract class XelisWalletBase
     }
   }
 
+  @override
   XelisAsset? findTrackedAssetById(String assetId) {
     try {
       return xelAssetsBox.values.firstWhere((asset) => asset.id == assetId);
@@ -906,7 +915,13 @@ abstract class XelisWalletBase
 
     for (var entry in txList) {
       if (!isSupportedEntryType(entry)) { continue; }
-      result[entry.hash] = await XelisTransactionInfo.fromTransactionEntry(entry, wallet: _libWallet);
+      final info = await XelisTransactionInfo.fromTransactionEntry(
+        entry, 
+        wallet: _libWallet, 
+        isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset
+      );
+      if (entry.txEntryType is! xelis_sdk.InvokeContractEntry && info.assetAmounts.isEmpty) { continue; }
+      result[entry.hash] = info;
     }
 
     return result;

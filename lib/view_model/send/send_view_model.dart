@@ -423,6 +423,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
+      if (wallet.type == WalletType.xelis) {
+        final outputCount = pendingTransaction?.outputCount ?? 0;
+        if (outputCount > 255) {
+          throw Exception("Xelis does not support more than 255 outputs");
+        }
+      }
+
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
@@ -474,17 +481,36 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  String normalizeAmount(String amount) {
+    if (amount.contains('.')) return amount;
+    return '$amount.0';
+  }
+
   @action
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
-    String address = outputs.fold('', (acc, value) {
-      return value.isParsedAddress
-          ? '$acc${value.address}\n${value.extractedAddress}\n\n'
-          : '$acc${value.address}\n\n';
-    });
+    late String address;
+
+    if (walletType == WalletType.xelis) {
+      address = outputs.fold('', (acc, value) {
+        final nameLine = value.isParsedAddress ? '${value.address}\n' : '';
+        final realAddress = value.isParsedAddress ? value.extractedAddress : value.address;
+        final amount = normalizeAmount(value.cryptoAmount ?? '0.0');
+        final symbol = value.cryptoCurrencyHandler().title ?? '';
+        final amountPart = outputs.length > 1 ? ' ($amount $symbol)' : '';
+
+        return '$acc$nameLine$realAddress$amountPart\n\n';
+      });
+    } else {
+      address = outputs.fold('', (acc, value) {
+        return value.isParsedAddress
+            ? '$acc${value.address}\n${value.extractedAddress}\n\n'
+            : '$acc${value.address}\n\n';
+      });
+    }
 
     address = address.trim();
 

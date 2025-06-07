@@ -78,7 +78,7 @@ class XelisTransactionInfo extends TransactionInfo {
     if (formattedAssets.length > 1) return ":MULTI:" + multiFormatted();
 
     final amount = (assetAmounts[0] / BigInt.from(10).pow(decimals[0])).toString();
-    return '${formatAmount(amount)} ${assetSymbols[0]}';
+    return '$amount ${assetSymbols[0]}';
   }
 
   String multiFormatted() {
@@ -86,7 +86,7 @@ class XelisTransactionInfo extends TransactionInfo {
 
     for (int i = 0; i < assetSymbols.length; i++) {
       final amount = (assetAmounts[i] / BigInt.from(10).pow(decimals[i])).toString();
-      formattedAssets.add('${formatAmount(amount)} ${assetSymbols[i]}');
+      formattedAssets.add('$amount ${assetSymbols[i]}');
     }
 
     return formattedAssets.join('\n\n');
@@ -105,7 +105,7 @@ class XelisTransactionInfo extends TransactionInfo {
   }
 
   static Future<XelisTransactionInfo> fromTransactionEntry(
-    xelis_sdk.TransactionEntry entry, {required x_wallet.XelisWallet wallet}
+    xelis_sdk.TransactionEntry entry, {required x_wallet.XelisWallet wallet, required bool Function(String assetId) isAssetEnabled}
   ) async {
     final txType = entry.txEntryType;
 
@@ -127,6 +127,10 @@ class XelisTransactionInfo extends TransactionInfo {
 
         for (final transfer in txType.transfers) {
           final asset = transfer.asset;
+          if (!isAssetEnabled(asset)) {
+            continue;
+          }
+
           assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
 
           final meta = await wallet.getAssetMetadata(asset: asset);
@@ -144,6 +148,10 @@ class XelisTransactionInfo extends TransactionInfo {
 
         for (final transfer in txType.transfers) {
           final asset = transfer.asset;
+          if (!isAssetEnabled(asset)) {
+            continue;
+          }
+
           assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
 
           final meta = await wallet.getAssetMetadata(asset: asset);
@@ -181,6 +189,10 @@ class XelisTransactionInfo extends TransactionInfo {
         final asset = txType.asset;
         final meta = await wallet.getAssetMetadata(asset: asset);
 
+        if (!isAssetEnabled(asset)) {
+          break;
+        }
+
         assetAmounts[asset] = BigInt.from(txType.amount);
         assetDecimals[asset] = meta.decimals;
         assetSymbolsMap[asset] = meta.ticker;
@@ -205,6 +217,10 @@ class XelisTransactionInfo extends TransactionInfo {
         for (final entry in txType.deposits.entries) {
           final asset = entry.key;
           final amount = entry.value;
+
+          if (!isAssetEnabled(asset)) {
+            continue;
+          }
 
           assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(amount);
 
