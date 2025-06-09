@@ -250,6 +250,7 @@
   "digit_pin": "-dígito PIN",
   "digital_and_physical_card": " tarjeta de débito prepago digital y física",
   "disable": "Desactivar",
+  "disable_automatic_exchange_status_updates": "Deshabilitar actualizaciones de estado de intercambio automático",
   "disable_bulletin": "Desactivar el boletín de estado del servicio",
   "disable_buy": "Desactivar acción de compra",
   "disable_cake_2fa": "Desactivar 2FA",

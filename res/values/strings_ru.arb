@@ -250,6 +250,7 @@
   "digit_pin": "-значный PIN",
   "digital_and_physical_card": "цифровая и физическая предоплаченная дебетовая карта",
   "disable": "Запрещать",
+  "disable_automatic_exchange_status_updates": "Отключить обновления автоматического статуса обмена",
   "disable_bulletin": "Отключить бюллетень статуса обслуживания",
   "disable_buy": "Отключить действие покупки",
   "disable_cake_2fa": "Отключить торт 2FA",
