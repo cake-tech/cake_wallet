@@ -139,7 +139,7 @@ class CakePayApi {
   }
 
   ///Simulate Payment
-  Future<void> simulatePayment(
+  Future<String> simulatePayment(
       {required String CSRFToken, required String authorization, required String orderId}) async {
     final uri = Uri.https(baseCakePayUri, simulatePaymentPath + '/$orderId');
 
@@ -159,7 +159,8 @@ class CakePayApi {
 
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
-    throw Exception('You just bot a gift card with id: ${bodyJson['order_id']}');
+    return 'You just SIMULATED a buying of a gift card with ID: ${bodyJson['order_id']}';
+
   }
 
   /// Logout

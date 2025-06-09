@@ -6,6 +6,7 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -40,6 +41,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool confirmsNoVpn = false;
   bool confirmsVoidedRefund = false;
   bool confirmsTermsAgreed = false;
+
+  String simulatedResponse = '';
 
   bool get isDenominationSelected => card.denominations.isNotEmpty;
 
@@ -138,6 +141,22 @@ abstract class CakePayBuyCardViewModelBase with Store {
       await sendViewModel.createTransaction();
     } catch (e) {
       throw e;
+    }
+  }
+
+  @action
+  Future<void> simulatePayment() async {
+    if (order == null) {
+      throw Exception('Order is not created yet.');
+    }
+
+    try {
+      simulatedResponse = await cakePayService.simulatePayment(orderId: order!.orderId);
+      sendViewModel.state = TransactionCommitted();
+
+    } catch (e) {
+      sendViewModel.state = FailureState(
+          sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
     }
   }
 

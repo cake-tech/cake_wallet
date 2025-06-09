@@ -23,6 +23,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.da
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -263,8 +264,8 @@ class CakePayBuyCardPage extends BasePage {
                       cakePayBuyCardViewModel.isPurchasing,
                   isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
                       cakePayBuyCardViewModel.isPurchasing,
-                    color: Theme.of(context).colorScheme.primary,
-                    textColor: Theme.of(context).colorScheme.onPrimary,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                 ),
               );
             }),
@@ -515,7 +516,9 @@ class CakePayBuyCardPage extends BasePage {
                   accessibleNavigationModeSlideActionButtonText: S.of(context).send,
                   onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
-                   cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
+                    FeatureFlag.hasDevOptions
+                        ? cakePayBuyCardViewModel.simulatePayment()
+                        : cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
                   },
                   change: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.change,
                   isOpenCryptoPay: cakePayBuyCardViewModel.sendViewModel.ocpRequest != null,
@@ -560,7 +563,9 @@ class CakePayBuyCardPage extends BasePage {
                           children: [
                             Text(
                               textAlign: TextAlign.center,
-                              S.of(bottomSheetContext).cake_pay_save_order,
+                              FeatureFlag.hasDevOptions
+                                  ? cakePayBuyCardViewModel.simulatedResponse
+                                  : S.of(bottomSheetContext).cake_pay_save_order,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontFamily: 'Lato',

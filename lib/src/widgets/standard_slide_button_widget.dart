@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 
 class StandardSlideButton extends StatefulWidget {
@@ -29,7 +30,9 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
   Widget build(BuildContext context) {
     final bool accessible = MediaQuery.of(context).accessibleNavigation;
 
-    final tileBackgroundColor = Theme.of(context).colorScheme.surfaceContainer;
+    final tileBackgroundColor = widget.currentTheme.isDark
+        ? CustomThemeColors.backgroundGradientColorDark
+        : CustomThemeColors.backgroundGradientColorLight;
 
     return accessible
         ? PrimaryButton(
@@ -87,7 +90,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                           height: widget.height - 8,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.surface,
                           ),
                           alignment: Alignment.center,
                           child: Icon(

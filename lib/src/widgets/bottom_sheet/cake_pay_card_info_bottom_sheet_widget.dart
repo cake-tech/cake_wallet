@@ -166,14 +166,7 @@ class _HowToUseTile extends StatelessWidget {
             children: [
               Text(
                 S.of(context).how_to_use_card,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w700,
-                  color: Colors.red, //TODO: change to theme color
-                  decoration: TextDecoration.none,
-                ),
-              ),
+                style: Theme.of(context).textTheme.bodyLarge),
               Icon(
                 Icons.chevron_right_rounded,
                 color: Theme.of(context).textTheme.titleLarge!.color!,
@@ -247,10 +240,7 @@ void _showHowToUseCard({required BuildContext context, String? howToUse}) {
           content: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             ClickableLinksText(
               text: howToUse ?? '',
-              textStyle: TextStyle(
-                  color: Colors.red, //TODO: change to theme color,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400),
+              textStyle: Theme.of(context).textTheme.bodyMedium!,
               linkStyle: TextStyle(
                 color: Theme.of(context).textTheme.titleLarge!.color!,
                 fontSize: 18,

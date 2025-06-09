@@ -157,7 +157,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
 
       if (isUserAuthenticated == null) return const _Loading();
 
-      if (isUserAuthenticated == false && !FeatureFlag.isCakePayRedemptionFlowEnabled) {
+      if (isUserAuthenticated == false || !FeatureFlag.isCakePayRedemptionFlowEnabled) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           child: _ShopTab(cardsListViewModel: widget._cardsListViewModel),
