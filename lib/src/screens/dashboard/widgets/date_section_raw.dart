@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 
 class DateSectionRaw extends StatelessWidget {
@@ -17,9 +16,8 @@ class DateSectionRaw extends StatelessWidget {
       color: Colors.transparent,
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: 12,
-          color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );

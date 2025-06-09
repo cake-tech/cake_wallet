@@ -25,7 +25,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -50,6 +50,7 @@ import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -206,8 +207,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 
   final havenSeedStoreBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
-  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(
-      HavenSeedStore.boxName,
+  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(HavenSeedStore.boxName,
       encryptionKey: havenSeedStoreBoxKey);
 
   await initialSetup(
@@ -232,25 +232,26 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   );
 }
 
-Future<void> initialSetup(
-    {required bool loadWallet,
-    required SharedPreferences sharedPreferences,
-    required Box<Node> nodes,
-    required Box<Node> powNodes,
-    required Box<WalletInfo> walletInfoSource,
-    required Box<Contact> contactSource,
-    required Box<Trade> tradesSource,
-    required Box<Order> ordersSource,
-    // required FiatConvertationService fiatConvertationService,
-    required Box<Template> templates,
-    required Box<ExchangeTemplate> exchangeTemplates,
-    required Box<TransactionDescription> transactionDescriptions,
-    required SecureStorage secureStorage,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    required Box<PayjoinSession> payjoinSessionSource,
-    required Box<HavenSeedStore> havenSeedStore,
-    int initialMigrationVersion = 15, }) async {
+Future<void> initialSetup({
+  required bool loadWallet,
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+  required Box<Node> powNodes,
+  required Box<WalletInfo> walletInfoSource,
+  required Box<Contact> contactSource,
+  required Box<Trade> tradesSource,
+  required Box<Order> ordersSource,
+  // required FiatConvertationService fiatConvertationService,
+  required Box<Template> templates,
+  required Box<ExchangeTemplate> exchangeTemplates,
+  required Box<TransactionDescription> transactionDescriptions,
+  required SecureStorage secureStorage,
+  required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
+  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+  required Box<PayjoinSession> payjoinSessionSource,
+  required Box<HavenSeedStore> havenSeedStore,
+  int initialMigrationVersion = 15,
+}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -292,47 +293,54 @@ class App extends StatefulWidget {
 class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (BuildContext context) {
-      final appStore = getIt.get<AppStore>();
-      final authService = getIt.get<AuthService>();
-      final linkViewModel = getIt.get<LinkViewModel>();
-      final settingsStore = appStore.settingsStore;
-      final statusBarColor = Colors.transparent;
-      final authenticationStore = getIt.get<AuthenticationStore>();
-      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.welcome
-          : Routes.login;
-      final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      final statusBarIconBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-          statusBarColor: statusBarColor,
-          statusBarBrightness: statusBarBrightness,
-          statusBarIconBrightness: statusBarIconBrightness));
+    return Observer(
+      builder: (BuildContext context) {
+        final appStore = getIt.get<AppStore>();
+        final authService = getIt.get<AuthService>();
+        final linkViewModel = getIt.get<LinkViewModel>();
+        final tradeMonitor = getIt.get<TradeMonitor>();
+        final statusBarColor = Colors.transparent;
+        final authenticationStore = getIt.get<AuthenticationStore>();
+        final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
+            ? Routes.welcome
+            : Routes.login;
+        final currentTheme = appStore.themeStore.currentTheme;
+        final statusBarBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
+        final statusBarIconBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+            statusBarColor: statusBarColor,
+            statusBarBrightness: statusBarBrightness,
+            statusBarIconBrightness: statusBarIconBrightness));
 
-      return Root(
+        return Root(
           key: widget.key ?? rootKey,
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
           linkViewModel: linkViewModel,
-          child: MaterialApp(
-            navigatorObservers: [routeObserver],
-            navigatorKey: navigatorKey,
-            debugShowCheckedModeBanner: false,
-            theme: settingsStore.theme,
-            localizationsDelegates: localizationDelegates,
-            supportedLocales: S.delegate.supportedLocales,
-            locale: Locale(settingsStore.languageCode),
-            onGenerateRoute: (settings) => Router.createRoute(settings),
-            initialRoute: initialRoute,
-            scrollBehavior: AppScrollBehavior(),
-            home: _Home(),
-          ));
-    });
+          tradeMonitor: tradeMonitor,
+          child: ThemeProvider(
+            themeStore: appStore.themeStore,
+            materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
+              navigatorObservers: [routeObserver],
+              navigatorKey: navigatorKey,
+              debugShowCheckedModeBanner: false,
+              theme: theme,
+              darkTheme: darkTheme,
+              themeMode: themeMode,
+              localizationsDelegates: localizationDelegates,
+              supportedLocales: S.delegate.supportedLocales,
+              locale: Locale(appStore.settingsStore.languageCode),
+              onGenerateRoute: (settings) => Router.createRoute(settings),
+              initialRoute: initialRoute,
+              scrollBehavior: AppScrollBehavior(),
+              home: _Home(),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -392,11 +400,15 @@ class TopLevelErrorWidget extends StatelessWidget {
               children: [
                 Text(
                   'Error:\n${error.toString()}',
-                  style: TextStyle(fontSize: 22),
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: 22,
+                      ),
                 ),
                 Text(
                   'Stack trace:\n${stackTrace.toString()}',
-                  style: TextStyle(fontSize: 16),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                      ),
                 ),
               ],
             ),

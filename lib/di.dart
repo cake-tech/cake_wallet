@@ -39,6 +39,7 @@ import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
 import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
@@ -154,11 +155,9 @@ import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
@@ -278,6 +277,7 @@ import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 final getIt = GetIt.instance;
 
@@ -327,6 +327,11 @@ Future<void> setup({
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
     getIt.registerSingleton<SecureStorage>(secureStorage);
+    getIt.registerSingletonAsync<ThemeStore>(() async {
+      final store = ThemeStore();
+      await store.loadThemePreferences();
+      return store;
+    });
   }
 
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
@@ -337,10 +342,6 @@ Future<void> setup({
     nodeSource: _nodeSource,
     powNodeSource: _powNodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-    // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
-    initialTheme: responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile
-        ? null
-        : ThemeList.darkTheme,
   );
 
   if (_isSetupFinished) {
@@ -358,7 +359,8 @@ Future<void> setup({
       authenticationStore: getIt.get<AuthenticationStore>(),
       walletList: getIt.get<WalletListStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      nodeListStore: getIt.get<NodeListStore>()));
+      nodeListStore: getIt.get<NodeListStore>(),
+      themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
       TradesStore(tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<OrdersStore>(
@@ -508,19 +510,42 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory(() => DashboardViewModel(
-      balanceViewModel: getIt.get<BalanceViewModel>(),
-      appStore: getIt.get<AppStore>(),
+  getIt.registerFactory(
+    () => ExchangeViewModel(
+      getIt.get<AppStore>(),
+      _tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>(),
+      getIt.get<FeesViewModel>(),
+    ),
+  );
+
+  getIt.registerSingleton(
+    TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
-      settingsStore: settingsStore,
-      yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+      trades: _tradesSource,
+      appStore: getIt.get<AppStore>(),
+      preferences: getIt.get<SharedPreferences>(),
+    ),
+  );
+
+  getIt.registerFactory(() => DashboardViewModel(
+    tradeMonitor: getIt.get<TradeMonitor>(),
+    balanceViewModel: getIt.get<BalanceViewModel>(),
+    appStore: getIt.get<AppStore>(),
+    tradesStore: getIt.get<TradesStore>(),
+    tradeFilterStore: getIt.get<TradeFilterStore>(),
+    transactionFilterStore: getIt.get<TransactionFilterStore>(),
+    settingsStore: settingsStore,
+    yatStore: getIt.get<YatStore>(),
+    ordersStore: getIt.get<OrdersStore>(),
+    anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+    payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
+    sharedPreferences: getIt.get<SharedPreferences>(),
+    keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -903,7 +928,7 @@ Future<void> setup({
               getIt.get<NanoAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() =>
-      DisplaySettingsViewModel(getIt.get<SettingsStore>()));
+      DisplaySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<ThemeStore>()));
 
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
@@ -1032,13 +1057,13 @@ Future<void> setup({
           getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
-        settingsStore: getIt.get<AppStore>().settingsStore,
+        appStore: getIt.get<AppStore>(),
         wallet: getIt.get<AppStore>().wallet!,
         isTestEnvironment: kDebugMode,
       ));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        getIt.get<AppStore>().settingsStore,
+        getIt.get<ThemeStore>(),
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
@@ -1051,19 +1076,6 @@ Future<void> setup({
   ));
 
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
-
-  getIt.registerFactory(
-    () => ExchangeViewModel(
-      getIt.get<AppStore>(),
-      _tradesSource,
-      getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore,
-      getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>(),
-      getIt.get<FeesViewModel>(),
-    ),
-  );
 
   getIt.registerFactory<FeesViewModel>(
     () => FeesViewModel(
@@ -1245,7 +1257,7 @@ Future<void> setup({
       TradeDetailsViewModel(
           tradeForDetails: trade,
           trades: _tradesSource,
-          settingsStore: getIt.get<SettingsStore>()));
+          appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
@@ -1440,7 +1452,7 @@ Future<void> setup({
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsViewModel(
             anonPayApi: getIt.get<AnonPayApi>(),
             anonpayInvoiceInfo: anonpayInvoiceInfo,
-            settingsStore: getIt.get<SettingsStore>(),
+            themeStore: getIt.get<ThemeStore>(),
           ));
 
   getIt.registerFactoryParam<PayjoinDetailsViewModel, String, TransactionInfo?>(
@@ -1449,7 +1461,7 @@ Future<void> setup({
             sessionId,
             transactionInfo,
             payjoinSessionSource: _payjoinSessionSource,
-            settingsStore: getIt.get<SettingsStore>(),
+            themeStore: getIt.get<ThemeStore>(),
           ));
 
   getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInfoBase, void>(

@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:flutter/material.dart';
 
 class HavenWalletRemovalPopup extends StatelessWidget {
@@ -23,10 +22,8 @@ class HavenWalletRemovalPopup extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).extension<DashboardPageTheme>()!.firstGradientBackgroundColor,
-                    Theme.of(context)
-                        .extension<DashboardPageTheme>()!
-                        .secondGradientBackgroundColor,
+                    Theme.of(context).colorScheme.primaryContainer,
+                    Theme.of(context).colorScheme.secondaryContainer,
                   ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -38,12 +35,12 @@ class HavenWalletRemovalPopup extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               decoration: TextDecoration.none,
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Lato',
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                               
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                             child: Text("Emergency Notice"),
                           ),
@@ -63,13 +60,11 @@ class HavenWalletRemovalPopup extends StatelessWidget {
                                 ),
                                 child: Text(
                                   "It looks like you have Haven wallets in your list. Haven is getting removed in next release of Cake Wallet, and you currently have Haven in the following wallets:\n\n[${affectedWalletNames.join(", ")}]\n\nPlease move your funds to other wallet, as you will lose access to your Haven funds in next update.\n\nFor assistance, please use the in-app support or email support@cakewallet.com",
-                                  style: TextStyle(
+                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     decoration: TextDecoration.none,
                                     fontSize: 16.0,
-                                    fontFamily: 'Lato',
-                                    color: Theme.of(context)
-                                        .extension<DashboardPageTheme>()!
-                                        .textColor,
+                                     
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                               )
