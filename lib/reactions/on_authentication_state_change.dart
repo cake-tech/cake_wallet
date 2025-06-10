@@ -9,6 +9,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
@@ -61,16 +62,49 @@ void startAuthenticationStateChange(
             walletType: WalletType.monero,
             onConnectDevice: (context, ledgerVM) async {
               monero!.setGlobalLedgerConnection(ledgerVM.connection);
+              BuildContext popUpContext;
+
               showPopUp<void>(
                 context: context,
-                builder: (BuildContext context) => AlertWithOneAction(
-                    alertTitle: S.of(context).proceed_on_device,
-                    alertContent: S.of(context).proceed_on_device_description,
-                    buttonText: S.of(context).cancel,
-                    alertBarrierDismissible: false,
-                    buttonAction: () => Navigator.of(context).pop()),
+                builder: (context) {
+                  popUpContext = context;
+                  return AlertWithOneAction(
+                      alertTitle: S.of(context).proceed_on_device,
+                      alertContent: S.of(context).proceed_on_device_description,
+                      buttonText: S.of(context).cancel,
+                      alertBarrierDismissible: false,
+                      buttonAction: () => Navigator.of(context).pop(),
+                  );
+                },
               );
-              await loadCurrentWallet();
+              bool tryOpening = true;
+              while (tryOpening) {
+                try {
+                  await loadCurrentWallet();
+                  tryOpening = false;
+                } on Exception catch (e) {
+                  if (e.toString().contains('0x5515')) {
+                    await showPopUp<void>(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          AlertWithTwoActions(
+                            alertTitle: "Device locked",
+                            alertContent: S
+                                .of(context)
+                                .proceed_on_device_description,
+                            leftButtonText: "Try again",
+                            alertBarrierDismissible: false,
+                            actionLeftButton: () => Navigator.of(context).pop(),
+                            rightButtonText: 'Cancel',
+                            actionRightButton: () {
+                              tryOpening = false;
+                              Navigator.of(context).pop();
+                            },),
+                    );
+                  }
+                }
+              }
+
               getIt.get<BottomSheetService>().showNext();
               await navigatorKey.currentState!
                   .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);

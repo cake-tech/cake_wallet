@@ -4,8 +4,10 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/root_dir.dart';
@@ -15,7 +17,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
-import 'package:cake_wallet/utils/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
@@ -113,6 +114,8 @@ class ExceptionHandler {
   }
 
   static Future<void> onError(FlutterErrorDetails errorDetails) async {
+    if (await onLedgerError(errorDetails)) return;
+
     if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
       printV(errorDetails.toString());
@@ -183,6 +186,56 @@ class ExceptionHandler {
     _hasError = false;
   }
 
+  static const List<String> _ledgerErrors = [
+    'Wrong Device Status',
+    'PlatformException(133, Failed to write: (Unknown Error: 133), null, null)',
+    'ServiceNotSupportedException(ConnectionType.ble, Required service not supported. Write characteristic: false, Notify characteristic: false)',
+  ];
+
+  static bool isLedgerError(Object exception) =>
+      _ledgerErrors.any((element) => exception.toString().contains(element));
+
+  static Future<bool> onLedgerError(FlutterErrorDetails errorDetails) async {
+    if (!isLedgerError(errorDetails.exception)) return false;
+
+    String? interpretErrorCode(String errorCode) {
+      switch (errorCode.replaceFirst("0x", "")) {
+        case "6985":
+          return S.current.ledger_error_tx_rejected_by_user;
+        case "5515":
+          return S.current.ledger_error_device_locked;
+        case "6e01": // UNKNOWN_APDU
+        case "6d02": // UNKNOWN_APDU
+        case "6511":
+        case "6e00":
+          return S.current.ledger_error_wrong_app;
+        default:
+          return null;
+      }
+    }
+
+
+    // Find the first match
+    Match? errorCode = RegExp(r'0x\S*?(?= )').firstMatch(errorDetails.exception.toString());
+
+    if (navigatorKey.currentContext != null) {
+      await showPopUp<void>(
+        context: navigatorKey.currentContext!,
+        builder: (context) {
+          return AlertWithOneAction(
+            alertTitle: "Ledger Error",
+            alertContent: interpretErrorCode(errorCode?.group(0).toString() ?? '') ?? "Lol whut?",
+            buttonText: S.of(context).send,
+            buttonAction: () => Navigator.of(context).pop(),
+          );
+        },
+      );
+    }
+
+    _hasError = false;
+    return true;
+  }
+
   /// Ignore User related errors or system errors
   static bool _ignoreError(String error) =>
       _ignoredErrors.any((element) => error.contains(element));
@@ -227,6 +280,7 @@ class ExceptionHandler {
     "core/auth_service.dart:64",
     "core/key_service.dart:14",
     "core/wallet_loading_service.dart:139",
+    "Wrong Device Status: 0x5515 (UNKNOWN)",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {

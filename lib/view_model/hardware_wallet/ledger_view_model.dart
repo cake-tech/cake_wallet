@@ -97,6 +97,7 @@ abstract class LedgerViewModelBase with Store {
   }
 
   Future<bool> connectLedger(sdk.LedgerDevice device, WalletType type) async {
+    if (_isConnecting) return false;
     _isConnecting = true;
     _connectingWalletType = type;
     if (isConnected) {
@@ -117,6 +118,7 @@ abstract class LedgerViewModelBase with Store {
 
     try {
       _connection = await ledger.connect(device);
+      _isConnecting = false;
       return true;
     } catch (e) {
       printV(e);
@@ -127,7 +129,7 @@ abstract class LedgerViewModelBase with Store {
 
   StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   sdk.LedgerConnection? _connection;
-  bool _isConnecting = true;
+  bool _isConnecting = false;
   WalletType? _connectingWalletType;
 
   void _connectionChangeListener(sdk.BleConnectionState event) {
