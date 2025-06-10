@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
@@ -159,8 +160,34 @@ class DigibyteWalletService extends WalletService<
   }
 
   @override
-  Future<DigibyteWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials, {bool? isTestnet}) async =>
-      throw UnimplementedError();
+  Future<DigibyteWallet> restoreFromKeys(
+      BitcoinRestoreWalletFromWIFCredentials credentials,
+      {bool? isTestnet}) async {
+    final network =
+        isTestnet == true ? DigibyteNetwork.testnet : DigibyteNetwork.mainnet;
+
+    credentials.walletInfo?.network = network.value;
+    credentials.walletInfo?.derivationInfo ??= DerivationInfo(
+      derivationType: DerivationType.electrum,
+      derivationPath: electrum_path,
+    );
+
+    final ecPrivate =
+        ECPrivate.fromWif(credentials.wif, netVersion: network.wifNetVer);
+
+    final wallet = DigibyteWallet(
+      password: credentials.password!,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      seedBytes: Uint8List.fromList(ecPrivate.toBytes()),
+    );
+
+    await wallet.save();
+    await wallet.init();
+
+    return wallet;
+  }
 
   @override
   Future<DigibyteWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials, {bool? isTestnet}) async {
