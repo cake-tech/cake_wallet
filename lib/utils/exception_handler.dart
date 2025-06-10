@@ -221,14 +221,14 @@ class ExceptionHandler {
     if (navigatorKey.currentContext != null) {
       await showPopUp<void>(
         context: navigatorKey.currentContext!,
-        builder: (context) {
-          return AlertWithOneAction(
-            alertTitle: "Ledger Error",
-            alertContent: interpretErrorCode(errorCode?.group(0).toString() ?? '') ?? "Lol whut?",
-            buttonText: S.of(context).send,
-            buttonAction: () => Navigator.of(context).pop(),
-          );
-        },
+        builder: (context) => AlertWithOneAction(
+          alertTitle: "Ledger Error",
+          alertContent:
+              interpretErrorCode(errorCode?.group(0).toString() ?? '') ??
+                  S.of(context).ledger_connection_error,
+          buttonText: S.of(context).close,
+          buttonAction: () => Navigator.of(context).pop(),
+        ),
       );
     }
 
