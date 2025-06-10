@@ -61,7 +61,8 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
 
   @override
   void setLedgerConnection(LedgerConnection connection) {
-    // DigiByte hardware wallet support is not implemented
+    throw UnimplementedError(
+        'Hardware wallet support for DigiByte is not implemented');
   }
 
   @override
@@ -76,7 +77,8 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
   }) =>
-      throw UnimplementedError();
+      throw UnimplementedError(
+          'Hardware wallet support for DigiByte is not implemented');
 
   static Future<DigibyteWallet> create({
     required String mnemonic,

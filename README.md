@@ -57,6 +57,8 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Create donation links and invoices in the receive screen
 * Robust privacy settings (eg: Tor-only connections)
 * Robust security settings (eg: Cake 2FA)
+* Ledger hardware wallet support for Bitcoin, Litecoin, and Ethereum
+  (DigiByte hardware wallets are currently unsupported)
 
 ### Monero Specific Features
 
