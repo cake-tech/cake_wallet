@@ -22,6 +22,12 @@ dependencies:
   flutter_mobx: ^2.0.6+1
   intl: ^0.19.0
   shared_preferences: ^2.0.15
+  ledger_flutter_plus: ^1.4.1
+  ledger_bitcoin:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      path: packages/ledger-bitcoin
+      ref: trunk
 
 dev_dependencies:
   flutter_test:

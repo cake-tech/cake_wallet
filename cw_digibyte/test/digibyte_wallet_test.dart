@@ -10,6 +10,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'dart:typed_data';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
 void main() {
   group('DigibyteWallet', () {
@@ -102,5 +103,42 @@ void main() {
       await walletInfoBox.close();
       await unspentCoinsBox.close();
     });
+
+    test('Set ledger connection', () async {
+      final walletInfoBox = await Hive.openBox<WalletInfo>('walletInfoHW');
+      final unspentCoinsBox = await Hive.openBox<UnspentCoinsInfo>('unspentHW');
+
+      final walletInfo = WalletInfo.external(
+        id: WalletBase.idFor('hw_wallet', WalletType.digibyte),
+        name: 'hw_wallet',
+        type: WalletType.digibyte,
+        isRecovery: false,
+        restoreHeight: 0,
+        date: DateTime.now(),
+        path: '',
+        dirPath: '',
+        address: '',
+      );
+
+      final wallet = await DigibyteWallet.create(
+        mnemonic: 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        password: 'test',
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsBox,
+        encryptionFileUtils: encryptionFileUtilsFor(true),
+      );
+
+      final connection = _FakeLedgerConnection();
+
+      expect(() => wallet.setLedgerConnection(connection), returnsNormally);
+
+      await walletInfoBox.close();
+      await unspentCoinsBox.close();
+    });
   });
+}
+
+class _FakeLedgerConnection implements LedgerConnection {
+  @override
+  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
