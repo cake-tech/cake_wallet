@@ -418,6 +418,7 @@
   "insufficient_lamport_for_tx": "İşlemi ve işlem ücretini karşılamak için yeterli SOL'unuz yok. Lütfen cüzdanınıza daha fazla SOL ekleyin veya gönderdiğiniz sol miktarını azaltın.",
   "insufficient_lamports": "İşlemi ve işlem ücretini karşılamak için yeterli SOL'unuz yok. En az ${solValueNeeded} Sol'a ihtiyacınız var. Lütfen cüzdanınıza daha fazla sol ekleyin veya gönderdiğiniz sol miktarını azaltın",
   "insufficientFundsForRentError": "İşlem ücretini karşılamak ve hesap için kiralamak için yeterli SOL'nuz yok. Lütfen cüzdanınıza daha fazla sol ekleyin veya gönderdiğiniz sol miktarını azaltın",
+  "insufficientFundsForRentErrorReceiver": "Alıcının hesabının kirayı karşılamak için yeterli SOL yoktur. Lütfen alıcıdan hesaplarına daha fazla SOL eklemesini isteyin.",
   "introducing_cake_pay": "Cake Pay ile tanışın!",
   "invalid_input": "Geçersiz Giriş",
   "invalid_password": "Geçersiz şifre",

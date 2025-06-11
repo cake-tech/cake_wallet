@@ -441,11 +441,13 @@ class SolanaWalletClient {
 
         transactions.addAll(parsedTransactions.whereType<SolanaTransactionModel>().toList());
 
-        // Calling the callback after each batch is processed, therefore passing the current list of transactions.
-        onUpdate(List<SolanaTransactionModel>.from(transactions));
+        // Only update UI if we have new valid transactions
+        if (parsedTransactions.isNotEmpty) {
+          onUpdate(List<SolanaTransactionModel>.from(transactions));
+        }
 
         if (i + batchSize < signatures.length) {
-          await Future.delayed(const Duration(milliseconds: 500));
+          await Future.delayed(const Duration(milliseconds: 300));
         }
       }
 

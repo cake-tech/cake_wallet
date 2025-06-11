@@ -767,8 +767,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.solana_no_associated_token_account_exception;
       }
 
-      if (errorMessage.contains('insufficient funds for rent')) {
-        return S.current.insufficientFundsForRentError;
+      if (errorMessage.contains('insufficient funds for rent') && 
+          errorMessage.contains('Transaction simulation failed') && 
+          errorMessage.contains('account_index')) {
+        final accountIndexMatch = RegExp(r'account_index: (\d+)').firstMatch(errorMessage);
+        if (accountIndexMatch != null) {
+          return int.parse(accountIndexMatch.group(1)!) == 0 
+              ? S.current.insufficientFundsForRentError
+              : S.current.insufficientFundsForRentErrorReceiver;
+        }
       }
 
       return errorMessage;

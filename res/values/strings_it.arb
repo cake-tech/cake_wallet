@@ -418,6 +418,7 @@
   "insufficient_lamport_for_tx": "Non hai abbastanza SOL per coprire la transazione e la sua quota di transazione. Aggiungi più SOL al tuo portafoglio, o riduci l'importo di SOL che stai inviando.",
   "insufficient_lamports": "Non hai abbastanza SOL per coprire la transazione e la sua quota di transazione. Hai bisogno di almeno ${solValueNeeded} SOL. Aggiungi più SOL al tuo portafoglio, o riduci l'importo di SOL che stai inviando",
   "insufficientFundsForRentError": "Non hai abbastanza SOL per coprire la tassa di transazione e l'affitto per il conto. Aggiungi più SOL al tuo portafoglio, o riduci l'importo di SOL che stai inviando",
+  "insufficientFundsForRentErrorReceiver": "L'account del destinatario non ha abbastanza SOL per coprire l'affitto. Si prega di chiedere al destinatario di aggiungere più SOL al loro account.",
   "introducing_cake_pay": "Vi presentiamo Cake Pay!",
   "invalid_input": "Inserimento non valido",
   "invalid_password": "Password non valida",
