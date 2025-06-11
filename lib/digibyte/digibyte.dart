@@ -10,7 +10,7 @@ import 'package:hive/hive.dart';
 import 'package:cw_digibyte/cw_digibyte.dart';
 // Removed restricted imports of `cw_bitcoin/bitcoin_transaction_credentials.dart`
 // and `cw_bitcoin/bitcoin_transaction_priority.dart`.
-import '../../src/bitcoin_utilities.dart';
+import '../src/bitcoin_utilities.dart';
 
 part 'cw_digibyte.dart';
 
