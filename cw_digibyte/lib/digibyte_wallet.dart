@@ -15,7 +15,11 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:hive/hive.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import 'package:ledger_bitcoin/ledger_bitcoin.dart';
+import 'package:ledger_bitcoin/psbt.dart';
+import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:mobx/mobx.dart';
 
 part 'digibyte_wallet.g.dart';
@@ -53,6 +57,9 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
           alwaysScan: alwaysScan,
         );
 
+  LedgerConnection? _ledgerConnection;
+  BitcoinLedgerApp? _bitcoinLedgerApp;
+
   @override
   String formatCryptoAmount(String amount) {
     final amountInt = int.parse(amount);
@@ -61,8 +68,11 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
 
   @override
   void setLedgerConnection(LedgerConnection connection) {
-    throw UnimplementedError(
-        'Hardware wallet support for DigiByte is not implemented');
+    _ledgerConnection = connection;
+    _bitcoinLedgerApp = BitcoinLedgerApp(
+      _ledgerConnection!,
+      derivationPath: walletInfo.derivationInfo!.derivationPath!,
+    );
   }
 
   @override
@@ -76,9 +86,35 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
     bool enableRBF = false,
     BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
     BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
-  }) =>
-      throw UnimplementedError(
-          'Hardware wallet support for DigiByte is not implemented');
+  }) async {
+    final masterFingerprint = await _bitcoinLedgerApp!.getMasterFingerprint();
+
+    final psbtReadyInputs = <PSBTReadyUtxoWithAddress>[];
+    for (final utxo in utxos) {
+      final rawTx = await electrumClient.getTransactionHex(
+        hash: utxo.utxo.txHash,
+      );
+      final pubKeyInfo = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+
+      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
+        utxo: utxo.utxo,
+        rawTx: rawTx,
+        ownerDetails: utxo.ownerDetails,
+        ownerDerivationPath: pubKeyInfo.derivationPath,
+        ownerMasterFingerprint: masterFingerprint,
+        ownerPublicKey: pubKeyInfo.publicKey,
+      ));
+    }
+
+    final psbt = PSBTTransactionBuild(
+      inputs: psbtReadyInputs,
+      outputs: outputs,
+      enableRBF: enableRBF,
+    ).psbt;
+
+    final rawHex = await _bitcoinLedgerApp!.signPsbt(psbt: psbt);
+    return BtcTransaction.fromRaw(BytesUtils.toHexString(rawHex));
+  }
 
   static Future<DigibyteWallet> create({
     required String mnemonic,
