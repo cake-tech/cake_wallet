@@ -156,7 +156,7 @@ class PayjoinManager {
     if (session != null) {
       await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
 
-      return Receiver.fromJson(session.receiver!);
+      return Receiver.fromJson(json: session.receiver!);
     }
 
     return initReceiver(address);
