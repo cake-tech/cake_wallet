@@ -71,7 +71,7 @@ class NumberPad extends StatelessWidget {
                         onPressed: onDeletePressed,
                         style: TextButton.styleFrom(
                           backgroundColor:
-                              Theme.of(context).colorScheme.surfaceContainer,
+                              Colors.transparent,
                           shape: CircleBorder(),
                         ),
                         child: Image.asset(

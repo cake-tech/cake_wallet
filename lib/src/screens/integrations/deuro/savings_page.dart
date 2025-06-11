@@ -18,7 +18,11 @@ import 'package:mobx/mobx.dart';
 class DEuroSavingsPage extends BasePage {
   final DEuroViewModel _dEuroViewModel;
 
+
   DEuroSavingsPage(this._dEuroViewModel);
+
+  @override
+  bool get gradientBackground => true;
 
   @override
   String get title => S.current.deuro_savings;
@@ -55,7 +59,6 @@ class DEuroSavingsPage extends BasePage {
         .addPostFrameCallback((_) => _setReactions(context, _dEuroViewModel));
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       width: double.infinity,
       child: Column(
         children: <Widget>[

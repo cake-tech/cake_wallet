@@ -48,12 +48,7 @@ class SavingsCard extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.only(
-          top: 10,
-          left: 12,
-          right: 12,
-          bottom: 10,
-        ),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             getAssetBalanceRow(context,
@@ -186,7 +181,7 @@ class SavingsCard extends StatelessWidget {
     required String title,
     required String subtitle,
     required CryptoCurrency currency,
-    bool hideSymbol = false,
+    bool hideSymbol = true,
   }) =>
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
