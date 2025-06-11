@@ -155,10 +155,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
-        if (widget.appStore.wallet?.type == WalletType.bitcoin &&
-            widget.appStore.settingsStore.usePayjoin) {
-          bitcoin!.resumePayjoinSessions(widget.appStore.wallet!);
-        }
 
         widget.tradeMonitor.resumeTradeMonitoring();
         break;

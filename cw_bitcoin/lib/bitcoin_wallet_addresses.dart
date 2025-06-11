@@ -60,15 +60,18 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   Future<void> initPayjoin() async {
-    currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
-    
-    payjoinManager.resumeSessions();
+    payjoinManager.cleanupSessions();
+    currentPayjoinReceiver =
+        await payjoinManager.getUnusedReceiver(primaryAddress);
+
+    await payjoinManager.resumeSessions();
   }
 
   Future<void> newPayjoinReceiver() async {
-    currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
+    currentPayjoinReceiver =
+        await payjoinManager.getUnusedReceiver(primaryAddress);
 
     printV("Initializing new Payjoin Receiver");
-    payjoinManager.spawnNewReceiver(receiver: currentPayjoinReceiver!);
+    payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);
   }
 }

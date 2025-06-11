@@ -23,6 +23,14 @@ class PayjoinStorage {
         ),
       );
 
+  PayjoinSession? getUnusedActiveReceiverSession(String walletId) =>
+      _payjoinSessionSources.values
+          .where((session) =>
+              session.walletId == walletId &&
+              session.status == PayjoinSessionStatus.created.name &&
+              !session.isSenderSession)
+          .firstOrNull;
+
   Future<void> markReceiverSessionComplete(
       String sessionId, String txId, String amount) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
