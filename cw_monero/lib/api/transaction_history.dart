@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 
@@ -194,14 +195,12 @@ Future<PendingTransactionDescription> createTransactionSync(
   final rFee = pendingTx.fee();
   final rHash = pendingTx.txid('');
   final rHex = pendingTx.hex('');
-  final rTxKey = rHash;
 
   return PendingTransactionDescription(
       amount: rAmt,
       fee: rFee,
       hash: rHash,
       hex: rHex,
-      txKey: rTxKey,
       pointerAddress: pendingTx.ffiAddress(),
     );
 }
@@ -246,7 +245,6 @@ Future<PendingTransactionDescription> createTransactionMultDest(
     fee: tx.fee(),
     hash: tx.txid(''),
     hex: tx.hex(''),
-    txKey: tx.txid(''),
     pointerAddress: tx.ffiAddress(),
   );
 }
@@ -263,6 +261,7 @@ Future<String?> commitTransaction({required Wallet2PendingTransaction tx, requir
             filename: '',
             overwrite: false,
           );
+          return null;
         });
 
   String? error = (() {
@@ -285,11 +284,12 @@ Future<String?> commitTransaction({required Wallet2PendingTransaction tx, requir
   if (error != null && error != "no tx keys found for this txid") {
     throw CreationTransactionException(message: error);
   }
-  if (useUR) {
-    return Future.value(txCommit as String?);
-  } else {
-    return Future.value(null);
-  }
+  unawaited(() async {
+    storeSync(force: true);
+    await Future.delayed(Duration(seconds: 5));
+    storeSync(force: true);
+  }());
+  return Future.value(txCommit);
 }
 
 class Transaction {
