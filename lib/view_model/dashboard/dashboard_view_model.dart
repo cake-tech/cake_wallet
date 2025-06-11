@@ -856,6 +856,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.tron:
       case WalletType.wownero:
       case WalletType.decred:
+      case WalletType.digibyte:
         return true;
       case WalletType.zano:
       case WalletType.haven:

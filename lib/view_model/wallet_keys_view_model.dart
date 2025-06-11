@@ -159,6 +159,9 @@ abstract class WalletKeysViewModelBase with Store {
           StandartListItem(title: S.current.view_key_public, value: pubkey),
         ]);
         break;
+      case WalletType.digibyte:
+        // Keys for digibyte wallets are handled via the bitcoin module.
+        break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -240,6 +243,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'nano-wallet';
       case WalletType.banano:
         return 'banano-wallet';
+      case WalletType.digibyte:
+        return 'digibyte-wallet';
       case WalletType.polygon:
         return 'polygon-wallet';
       case WalletType.solana:
