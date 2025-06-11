@@ -647,7 +647,6 @@ Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
       case cakeWalletDigibyteElectrumUri:
       case cakeWalletBitcoinElectrumUri:
       case newCakeWalletBitcoinUri:
-      case cakeWalletDigibyteElectrumUri:
       case newCakeWalletMoneroUri:
         node.useSSL = true;
         node.trusted = true;
