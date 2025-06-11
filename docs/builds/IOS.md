@@ -101,7 +101,9 @@ Build the necessary libraries and their dependencies:
 ```zsh
 ./build_monero_all.sh
 ./build_mwebd.sh
+# Optional: generate Decred bindings if support is needed
 ./build_decred.sh
+# If skipping Decred, remove or comment the `cw_decred` dependency from the generated pubspec.yaml
 ```
 
 NOTE: This step will take quite a while, so be sure you grab a cup of coffee or a good book!

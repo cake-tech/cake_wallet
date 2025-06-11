@@ -26,7 +26,9 @@ pushd scripts/android
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh
     ./build_monero_all.sh
+    # Optional: generate Decred bindings if support is needed
     ./build_decred.sh
+    # If skipping Decred, remove or comment the `cw_decred` dependency from the generated pubspec.yaml
     ./build_mwebd.sh --dont-install
 popd
 pushd android/app
