@@ -252,6 +252,7 @@
   "deuro_savings_remove": "ينسحب",
   "deuro_savings_set_approval": "تعيين الموافقة",
   "deuro_savings_subtitle": "كسب ما يصل إلى 10 ٪ فائدة على مقتنيات Deuro Stablecoin",
+  "deuro_tx_commited_content": "قد يستغرق الأمر بضع ثوانٍ حتى يتم تأكيد المعاملة وينعكس على الشاشة",
   "device_is_signing": "الجهاز يوقع",
   "dfx_option_description": "شراء التشفير مع EUR & CHF. لعملاء البيع بالتجزئة والشركات في أوروبا",
   "didnt_get_code": "لم تحصل على رمز؟",

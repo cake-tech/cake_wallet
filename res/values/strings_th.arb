@@ -252,6 +252,7 @@
   "deuro_savings_remove": "ถอน",
   "deuro_savings_set_approval": "ตั้งค่าการอนุมัติ",
   "deuro_savings_subtitle": "รับดอกเบี้ยมากถึง 10% สำหรับ Deuro Stablecoin Holdings ของคุณ",
+  "deuro_tx_commited_content": "อาจใช้เวลาสองสามวินาทีในการทำธุรกรรมเพื่อยืนยันและสะท้อนบนหน้าจอ",
   "device_is_signing": "อุปกรณ์กำลังลงนาม",
   "dfx_option_description": "ซื้อ crypto ด้วย Eur & CHF สำหรับลูกค้ารายย่อยและลูกค้าในยุโรป",
   "didnt_get_code": "ไม่ได้รับรหัส?",

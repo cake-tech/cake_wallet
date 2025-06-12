@@ -181,6 +181,7 @@ class DEuroSavingsPage extends BasePage {
               currentTheme: currentTheme,
               titleText: S.of(bottomSheetContext).transaction_sent,
               contentImage: 'assets/images/birthday_cake.png',
+              content: S.of(bottomSheetContext).deuro_tx_commited_content,
               actionButtonText: S.of(bottomSheetContext).close,
               actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
               actionButton: () => Navigator.of(bottomSheetContext).pop(),

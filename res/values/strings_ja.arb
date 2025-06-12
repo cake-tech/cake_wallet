@@ -252,6 +252,7 @@
   "deuro_savings_remove": "撤回する",
   "deuro_savings_set_approval": "承認を設定します",
   "deuro_savings_subtitle": "Deuro Stablecoin Holdingsで最大10％の利息を稼ぐ",
+  "deuro_tx_commited_content": "トランザクションが確認され、画面に反映されるまでに数秒かかる場合があります",
   "device_is_signing": "デバイスが署名しています",
   "dfx_option_description": "EUR＆CHFで暗号を購入します。ヨーロッパの小売および企業の顧客向け",
   "didnt_get_code": "コードを取得しませんか？",

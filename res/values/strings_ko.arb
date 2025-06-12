@@ -252,6 +252,7 @@
   "deuro_savings_remove": "철회하다",
   "deuro_savings_set_approval": "승인을 설정하십시오",
   "deuro_savings_subtitle": "Deuro Stablecoin Holdings에 최대 10%의이자를 받으십시오.",
+  "deuro_tx_commited_content": "트랜잭션이 확인하고 화면에 반영되는 데 몇 초가 걸릴 수 있습니다.",
   "device_is_signing": "장치가 서명 중입니다",
   "dfx_option_description": "EUR 및 CHF로 암호화폐 구매. 유럽의 개인 및 기업 고객 대상",
   "didnt_get_code": "코드를 받지 못했나요?",
