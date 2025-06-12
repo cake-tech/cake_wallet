@@ -33,9 +33,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setAutoGenerateSubaddresses(bool value) {
     _wallet.isEnabledAutoGenerateSubaddress = value;
-    _settingsStore.autoGenerateSubaddressStatus = value
-        ? AutoGenerateSubaddressStatus.enabled
-        : AutoGenerateSubaddressStatus.disabled;
+    _settingsStore.autoGenerateSubaddressStatus =
+        value ? AutoGenerateSubaddressStatus.enabled : AutoGenerateSubaddressStatus.disabled;
   }
 
   bool get isAutoGenerateSubaddressesVisible => [
@@ -60,6 +59,10 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @computed
   bool get disableTradeOption => _settingsStore.disableTradeOption;
+
+  @computed
+  bool get disableAutomaticExchangeStatusUpdates =>
+      _settingsStore.disableAutomaticExchangeStatusUpdates;
 
   @computed
   bool get disableBulletin => _settingsStore.disableBulletin;
@@ -130,6 +133,10 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setDisableTradeOption(bool value) => _settingsStore.disableTradeOption = value;
 
   @action
+  void setDisableAutomaticExchangeStatusUpdates(bool value) =>
+      _settingsStore.disableAutomaticExchangeStatusUpdates = value;
+
+  @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
@@ -146,7 +153,7 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
-  
+
   @action
   void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
 
@@ -175,8 +182,7 @@ abstract class PrivacySettingsViewModelBase with Store {
   }
 
   @action
-  void setUseMempoolFeeAPI(bool value) =>
-      _settingsStore.useMempoolFeeAPI = value;
+  void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;
 
   @action
   void setUsePayjoin(bool value) {

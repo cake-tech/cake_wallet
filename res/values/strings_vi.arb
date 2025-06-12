@@ -258,6 +258,7 @@
   "digit_pin": "Mã PIN - số",
   "digital_and_physical_card": "thẻ ghi nợ trả trước kỹ thuật số và vật lý",
   "disable": "Vô hiệu hóa",
+  "disable_automatic_exchange_status_updates": "Tắt các bản cập nhật trạng thái trao đổi tự động",
   "disable_bulletin": "Vô hiệu hóa bản tin tình trạng dịch vụ",
   "disable_buy": "Vô hiệu hóa chức năng mua",
   "disable_cake_2fa": "Vô hiệu hóa 2FA Cake",

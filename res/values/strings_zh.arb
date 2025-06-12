@@ -259,6 +259,7 @@
   "digit_pin": "位 PIN",
   "digital_and_physical_card": "数字和物理预付借记卡",
   "disable": "停用",
+  "disable_automatic_exchange_status_updates": "禁用自动交换状态更新",
   "disable_bulletin": "禁用服务状态公告",
   "disable_buy": "禁用购买操作",
   "disable_cake_2fa": "禁用蛋糕 2FA",

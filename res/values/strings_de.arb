@@ -259,6 +259,7 @@
   "digit_pin": "-stellige PIN",
   "digital_and_physical_card": "digitale und physische Prepaid-Debitkarte",
   "disable": "Deaktivieren",
+  "disable_automatic_exchange_status_updates": "Deaktivieren Sie die automatischen Austauschstatusaktualisierungen",
   "disable_bulletin": "Deaktivieren Sie das Bulletin des Service Status",
   "disable_buy": "Kaufaktion deaktivieren",
   "disable_cake_2fa": "Cake 2FA deaktivieren",

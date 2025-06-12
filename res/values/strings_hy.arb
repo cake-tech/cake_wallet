@@ -259,6 +259,7 @@
   "digit_pin": "-նիշ ՊԻՆ",
   "digital_and_physical_card": " թվային և ֆիզիկական նախավճարային դեբետային քարտ",
   "disable": "Անջատել",
+  "disable_automatic_exchange_status_updates": "Անջատեք ավտոմատ փոխանակման կարգավիճակի թարմացումները",
   "disable_bulletin": "Անջատել ծառայության վիճակի տեղեկագիրը",
   "disable_buy": "Անջատել գնում գործողությունը",
   "disable_cake_2fa": "Անջատել Cake 2FA",

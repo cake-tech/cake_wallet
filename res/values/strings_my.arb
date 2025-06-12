@@ -259,6 +259,7 @@
   "digit_pin": "-ဂဏန်း PIN",
   "digital_and_physical_card": "  ဒစ်ဂျစ်တယ်နှင့် ရုပ်ပိုင်းဆိုင်ရာ ကြိုတင်ငွေပေးချေသော ဒက်ဘစ်ကတ်",
   "disable": "ပိတ်ပါ။",
+  "disable_automatic_exchange_status_updates": "အလိုအလျောက်လဲလှယ် status ကို updates များကို disable လုပ်ပါ",
   "disable_bulletin": "ဝန်ဆောင်မှုအခြေအနေစာစောင်ကိုပိတ်ပါ",
   "disable_buy": "ဝယ်ယူမှု လုပ်ဆောင်ချက်ကို ပိတ်ပါ။",
   "disable_cake_2fa": "ကိတ်မုန့် 2FA ကို ပိတ်ပါ။",
