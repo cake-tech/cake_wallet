@@ -28,7 +28,7 @@ class WCPairingItemWidget extends StatelessWidget {
     return ListTile(
       leading: CakeImageWidget(
         borderRadius: 8,
-        width: 50,
+        width: 60,
         imageUrl: metadata.icons.isNotEmpty ? metadata.icons[0] : null,
         errorWidget: CircleAvatar(
           backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
