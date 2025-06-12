@@ -323,18 +323,26 @@ class BackupServiceV3 extends $BackupService {
     final decryptedKeychainDumpFileData = await decryptV2(
         keychainDumpFile.readAsBytesSync(), '$keychainSalt$password');
     final keychainJSON = json.decode(utf8.decode(decryptedKeychainDumpFileData))
-    as Map<String, dynamic>;
+        as Map<String, dynamic>;
     final keychainWalletsInfo = keychainJSON['wallets'] as List;
 
-    final expectedHardwareWallets = keychainWalletsInfo.where((e) =>
-    (e as Map<String, dynamic>).containsKey("hardwareWalletType") &&
-        e["hardwareWalletType"] != null).toList();
+    final expectedHardwareWallets = keychainWalletsInfo
+        .where((e) =>
+            (e as Map<String, dynamic>).containsKey("hardwareWalletType") &&
+            e["hardwareWalletType"] != null)
+        .toList();
 
     for (final expectedHardwareWallet in expectedHardwareWallets) {
       final info = expectedHardwareWallet as Map<String, dynamic>;
-      final actualWalletInfo = walletInfoSource.values.where((e) => e.name == info['name'] && e.type.toString() == info['type']).firstOrNull;
-      if (actualWalletInfo != null && info["hardwareWalletType"] != actualWalletInfo.hardwareWalletType?.index) {
-        actualWalletInfo.hardwareWalletType = HardwareWalletType.values[info["hardwareWalletType"] as int];
+      final actualWalletInfo = walletInfoSource.values
+          .where((e) =>
+              e.name == info['name'] && e.type.toString() == info['type'])
+          .firstOrNull;
+      if (actualWalletInfo != null &&
+          info["hardwareWalletType"] !=
+              actualWalletInfo.hardwareWalletType?.index) {
+        actualWalletInfo.hardwareWalletType =
+            HardwareWalletType.values[info["hardwareWalletType"] as int];
         await actualWalletInfo.save();
       }
     }
