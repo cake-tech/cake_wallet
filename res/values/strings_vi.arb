@@ -964,6 +964,7 @@
   "transport_type": "Loại vận chuyển",
   "trongrid_history": "Lịch sử TronGrid",
   "trusted": "Đã tin cậy",
+  "try_again": "Hãy thử lại",
   "tx_commit_exception_no_dust_on_change": "Giao dịch bị từ chối với số tiền này. Với số tiền này bạn có thể gửi ${min} mà không cần đổi tiền lẻ hoặc ${max} trả lại tiền lẻ.",
   "tx_commit_failed": "Giao dịch không thành công. Vui lòng liên hệ với hỗ trợ.",
   "tx_commit_failed_no_peers": "Giao dịch không phát sóng, vui lòng thử lại trong một giây hoặc lâu hơn",

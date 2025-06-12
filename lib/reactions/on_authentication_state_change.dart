@@ -62,20 +62,15 @@ void startAuthenticationStateChange(
             walletType: WalletType.monero,
             onConnectDevice: (context, ledgerVM) async {
               monero!.setGlobalLedgerConnection(ledgerVM.connection);
-              BuildContext popUpContext;
-
               showPopUp<void>(
                 context: context,
-                builder: (context) {
-                  popUpContext = context;
-                  return AlertWithOneAction(
-                      alertTitle: S.of(context).proceed_on_device,
-                      alertContent: S.of(context).proceed_on_device_description,
-                      buttonText: S.of(context).cancel,
-                      alertBarrierDismissible: false,
-                      buttonAction: () => Navigator.of(context).pop(),
-                  );
-                },
+                builder: (context) => AlertWithOneAction(
+                  alertTitle: S.of(context).proceed_on_device,
+                  alertContent: S.of(context).proceed_on_device_description,
+                  buttonText: S.of(context).cancel,
+                  alertBarrierDismissible: false,
+                  buttonAction: () => Navigator.of(context).pop(),
+                ),
               );
               bool tryOpening = true;
               while (tryOpening) {
@@ -83,23 +78,27 @@ void startAuthenticationStateChange(
                   await loadCurrentWallet();
                   tryOpening = false;
                 } on Exception catch (e) {
-                  if (e.toString().contains('0x5515')) {
+                  final errorCode = RegExp(r'0x\S*?(?= )').firstMatch(
+                      e.toString());
+
+                  final errorMessage = ledgerVM.interpretErrorCode(
+                      errorCode?.group(0).toString().replaceAll("0x", "") ??
+                          "");
+                  if (errorMessage != null) {
                     await showPopUp<void>(
                       context: context,
-                      builder: (BuildContext context) =>
-                          AlertWithTwoActions(
-                            alertTitle: "Device locked",
-                            alertContent: S
-                                .of(context)
-                                .proceed_on_device_description,
-                            leftButtonText: "Try again",
-                            alertBarrierDismissible: false,
-                            actionLeftButton: () => Navigator.of(context).pop(),
-                            rightButtonText: 'Cancel',
-                            actionRightButton: () {
-                              tryOpening = false;
-                              Navigator.of(context).pop();
-                            },),
+                      builder: (context) => AlertWithTwoActions(
+                        alertTitle: "Ledger Error",
+                        alertContent: errorMessage,
+                        leftButtonText: S.of(context).try_again,
+                        alertBarrierDismissible: false,
+                        actionLeftButton: () => Navigator.of(context).pop(),
+                        rightButtonText: S.of(context).cancel,
+                        actionRightButton: () {
+                          tryOpening = false;
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     );
                   }
                 }
