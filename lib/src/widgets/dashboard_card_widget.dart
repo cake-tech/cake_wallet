@@ -109,6 +109,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                         ],
                       ),
                     ),
+                    Padding(padding: EdgeInsets.only(left: 10)),
                     if (image != null) image! else if (svgPicture != null) svgPicture!,
                     if (icon != null) icon!
                   ],

@@ -6,7 +6,7 @@ author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
-  sdk: '>=2.18.2 <3.0.0'
+  sdk: ^3.5.0
   flutter: ">=1.17.0"
 
 dependencies:
