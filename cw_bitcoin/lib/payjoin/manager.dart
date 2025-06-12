@@ -234,6 +234,10 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.getCandidateInputs:
               utxos = _wallet.getUtxoWithPrivateKeys();
+              if (utxos.isEmpty) {
+                await _wallet.updateAllUnspents();
+                utxos = _wallet.getUtxoWithPrivateKeys();
+              }
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': utxos,
