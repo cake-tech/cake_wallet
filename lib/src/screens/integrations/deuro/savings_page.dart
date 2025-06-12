@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_edit_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -18,11 +19,14 @@ import 'package:mobx/mobx.dart';
 class DEuroSavingsPage extends BasePage {
   final DEuroViewModel _dEuroViewModel;
 
-
   DEuroSavingsPage(this._dEuroViewModel);
 
   @override
   bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+      (context, scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String get title => S.current.deuro_savings;
@@ -41,7 +45,7 @@ class DEuroSavingsPage extends BasePage {
                   overlayColor: WidgetStateColor.resolveWith(
                       (states) => Colors.transparent),
                 ),
-                onPressed: () => _dEuroViewModel.reloadSavingsUserData(),
+                onPressed: _dEuroViewModel.reloadSavingsUserData,
                 child: Icon(
                   Icons.refresh,
                   color: pageIconColor(context),
@@ -71,7 +75,7 @@ class DEuroSavingsPage extends BasePage {
               onAddSavingsPressed: () => _onSavingsAdd(context),
               onRemoveSavingsPressed: () => _onSavingsRemove(context),
               onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
-              isEnabled: _dEuroViewModel.approvedTokens > BigInt.zero,
+              isEnabled: _dEuroViewModel.isEnabled,
             ),
           ),
           Observer(

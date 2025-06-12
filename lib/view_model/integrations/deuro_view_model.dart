@@ -35,6 +35,9 @@ abstract class DEuroViewModelBase with Store {
   @observable
   BigInt approvedTokens = BigInt.zero;
 
+  @computed
+  bool get isEnabled => approvedTokens > BigInt.zero;
+
   @observable
   PendingTransaction? transaction = null;
 
