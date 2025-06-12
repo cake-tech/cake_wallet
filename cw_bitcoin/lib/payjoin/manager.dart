@@ -53,7 +53,7 @@ class PayjoinManager {
       }
       final receiver = Receiver.fromJson(json: session.receiver!);
       printV("Resuming Payjoin Receiver Session ${receiver.id()}");
-      return _spawnReceiver(receiver: receiver);
+      return spawnReceiver(receiver: receiver);
     });
 
     printV("Resumed ${spawnedSessions.length} Payjoin Sessions");
@@ -149,6 +149,19 @@ class PayjoinManager {
     return completer.future;
   }
 
+  Future<Receiver> getUnusedReceiver(String address,
+      [bool isTestnet = false]) async {
+    final session = _payjoinStorage.getUnusedActiveReceiverSession(_wallet.id);
+
+    if (session != null) {
+      await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
+
+      return Receiver.fromJson(json: session.receiver!);
+    }
+
+    return initReceiver(address);
+  }
+
   Future<Receiver> initReceiver(String address,
       [bool isTestnet = false]) async {
     try {
@@ -176,15 +189,7 @@ class PayjoinManager {
     }
   }
 
-  Future<void> spawnNewReceiver({
-    required Receiver receiver,
-    bool isTestnet = false,
-  }) async {
-    await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
-    return _spawnReceiver(isTestnet: isTestnet, receiver: receiver);
-  }
-
-  Future<void> _spawnReceiver({
+  Future<void> spawnReceiver({
     required Receiver receiver,
     bool isTestnet = false,
   }) async {
@@ -229,6 +234,10 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.getCandidateInputs:
               utxos = _wallet.getUtxoWithPrivateKeys();
+              if (utxos.isEmpty) {
+                await _wallet.updateAllUnspents();
+                utxos = _wallet.getUtxoWithPrivateKeys();
+              }
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': utxos,

@@ -174,7 +174,7 @@ class PayjoinReceiverWorker {
       final listUnspent =
           await _sendRequest(PayjoinReceiverRequestTypes.getCandidateInputs);
       final unspent = listUnspent as List<UtxoWithPrivateKey>;
-      if (unspent.isEmpty) throw Exception('No unspent outputs available');
+      if (unspent.isEmpty) throw RecoverableError('No unspent outputs available');
 
       final selectedUtxo = await _inputPairFromUtxo(unspent[0]);
       final pj6 = await pj5.contributeInputs(replacementInputs: [selectedUtxo]);

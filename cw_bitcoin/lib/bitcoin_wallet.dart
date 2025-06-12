@@ -266,6 +266,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         derivationPath: walletInfo.derivationInfo!.derivationPath!);
   }
 
+  @override
+  Future<void> close({bool shouldCleanup = false}) async {
+    payjoinManager.cleanupSessions();
+    super.close(shouldCleanup: shouldCleanup);
+  }
+
   late final PayjoinManager payjoinManager;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
