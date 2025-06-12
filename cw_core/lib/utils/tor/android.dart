@@ -65,6 +65,7 @@ DataDirectory ${p.join(dir.path, "tor-data")}
         printV(e);
       }
     }
+    printV("path: $torBinPath -f $torrcPath");
     _proc = await Process.start(torBinPath, ["-f", torrcPath]);
     _proc?.stdout.transform(utf8.decoder).forEach(printV);
     _proc?.stderr.transform(utf8.decoder).forEach(printV);

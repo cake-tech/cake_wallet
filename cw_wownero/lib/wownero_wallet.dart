@@ -16,6 +16,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
@@ -183,6 +184,14 @@ abstract class WowneroWalletBase
 
   @override
   Future<void> connectToNode({required Node node}) async {
+    String socksProxy = node.socksProxyAddress ?? '';
+    printV("bootstrapped: ${CakeTor.instance.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance.enabled}");
+    printV("        port: ${CakeTor.instance.port}");
+    printV("     started: ${CakeTor.instance.started}");
+    if (CakeTor.instance.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance.port}";
+    }
     try {
       syncStatus = ConnectingSyncStatus();
       await wownero_wallet.setupNode(
@@ -192,7 +201,7 @@ abstract class WowneroWalletBase
           useSSL: node.isSSL,
           isLightWallet: false,
           // FIXME: hardcoded value
-          socksProxyAddress: node.socksProxyAddress);
+          socksProxyAddress: socksProxy);
 
       wownero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
