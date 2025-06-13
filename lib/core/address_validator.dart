@@ -284,7 +284,7 @@ class AddressValidator extends TextValidator {
   static String get silentPaymentAddressPattern => SilentPaymentAddress.regex.pattern;
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
-  static String? getAddressFromStringPattern(CryptoCurrency type, [bool requireJustAddress = true]) {
+  static String? getAddressFromStringPattern(CryptoCurrency type, [bool requireSurroundingWhitespaces = true]) {
     String? pattern = null;
 
     switch (type) {
@@ -336,7 +336,7 @@ class AddressValidator extends TextValidator {
     }
 
     if (pattern != null) {
-      if (requireJustAddress)
+      if (requireSurroundingWhitespaces)
         return "$BEFORE_REGEX($pattern)$AFTER_REGEX";
       return "($pattern)";
     }
