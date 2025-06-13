@@ -1,4 +1,4 @@
-Add Bitcoin Payjoin
-Monero enhancements
-UI improvements
+New themes and UI/UX improvements
+Payjoin enhancements
+Ledger flow enhancements
 Bug fixes

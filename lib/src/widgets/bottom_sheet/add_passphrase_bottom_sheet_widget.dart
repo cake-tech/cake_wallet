@@ -1,10 +1,9 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class AddPassphraseBottomSheet extends StatefulWidget {
   AddPassphraseBottomSheet({
@@ -14,7 +13,7 @@ class AddPassphraseBottomSheet extends StatefulWidget {
   });
 
   final void Function(String) onRestoreButtonPressed;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   State<AddPassphraseBottomSheet> createState() => _AddPassphraseBottomSheetState();
@@ -38,13 +37,19 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
     super.dispose();
   }
 
+  final passphraseImageLight = 'assets/images/passphrase_light.png';
+  final passphraseImageDark = 'assets/images/passphrase_dark.png';
+
   bool obscurePassphrase = true;
   @override
   Widget build(BuildContext context) {
+
+    final passphraseImage = widget.currentTheme.isDark ? passphraseImageDark : passphraseImageLight;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30.0)),
-        color: Theme.of(context).dialogBackgroundColor,
+        color: Theme.of(context).colorScheme.surface,
       ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -59,8 +64,7 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                     height: 6,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
-                      color:
-                          Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.6),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ),
@@ -71,15 +75,16 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
             Text(
               S.of(context).add_passphrase,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                decoration: TextDecoration.none,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    decoration: TextDecoration.none,
+                  ),
             ),
-            SvgPicture.asset('assets/images/passphrase_key.svg'),
+            SizedBox(height: 20),
+            CakeImageWidget(imageUrl: passphraseImage, height: 85),
+            SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text.rich(
@@ -87,13 +92,12 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                   children: [
                     TextSpan(
                       text: '${S.of(context).warning.toUpperCase()}: ',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w700,
-                        color: Palette.red,
-                        decoration: TextDecoration.none,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            decoration: TextDecoration.none,
+                          ),
                     ),
                     TextSpan(
                       text: S.of(context).add_passphrase_warning_text,
@@ -101,68 +105,51 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                   ],
                 ),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor.withOpacity(0.7),
-                  decoration: TextDecoration.none,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      decoration: TextDecoration.none,
+                    ),
               ),
             ),
             SizedBox(height: 24),
-            TextFormField(
+            BaseTextFormField(
               key: ValueKey('add_passphrase_bottom_sheet_widget_passphrase_textfield_key'),
               controller: passphraseController,
               obscureText: obscurePassphrase,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                filled: true,
-                fillColor: Theme.of(context).cardColor,
-                hintText: S.of(context).required_passphrase,
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      obscurePassphrase = !obscurePassphrase;
-                    });
-                  },
-                  child: Icon(
-                    obscurePassphrase ? Icons.visibility_off : Icons.visibility,
-                    size: 24,
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(16),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12),
+              hintText: S.of(context).required_passphrase,
+              suffixIcon: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    obscurePassphrase = !obscurePassphrase;
+                  });
+                },
+                child: Icon(
+                  obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                  size: 24,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ),
             SizedBox(height: 8),
-            TextFormField(
+            BaseTextFormField(
               key: ValueKey('add_passphrase_bottom_sheet_widget_confirm_passphrase_textfield_key'),
               controller: confirmPassphraseController,
               obscureText: obscurePassphrase,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                filled: true,
-                fillColor: Theme.of(context).cardColor,
-                hintText: S.of(context).confirm_passphrase,
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      obscurePassphrase = !obscurePassphrase;
-                    });
-                  },
-                  child: Icon(
-                    obscurePassphrase ? Icons.visibility_off : Icons.visibility,
-                    size: 24,
-                    color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.6),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(16),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12),
+              hintText: S.of(context).confirm_passphrase,
+              suffixIcon: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    obscurePassphrase = !obscurePassphrase;
+                  });
+                },
+                child: Icon(
+                  obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                  size: 24,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
               validator: (text) {
@@ -188,8 +175,8 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                           Navigator.pop(context);
                         },
                         text: S.of(context).cancel,
-                        color: Theme.of(context).cardColor,
-                        textColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        textColor: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -203,8 +190,8 @@ class _AddPassphraseBottomSheetState extends State<AddPassphraseBottomSheet> {
                           widget.onRestoreButtonPressed(passphraseController.text);
                         },
                         text: S.of(context).restore,
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ),
