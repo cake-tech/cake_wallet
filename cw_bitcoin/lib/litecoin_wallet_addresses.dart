@@ -106,7 +106,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
           .map((e) => BitcoinAddressRecord(
                 e.value,
                 index: e.key,
-                type: SegwitAddressType.mweb,
+                type: SegwitAddresType.mweb,
                 network: network,
               ))
           .toList();
@@ -128,7 +128,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) {
-    if (addressType == SegwitAddressType.mweb) {
+    if (addressType == SegwitAddresType.mweb) {
       return hd == sideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
@@ -140,7 +140,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required Bip32Slip10Secp256k1 hd,
     BitcoinAddressType? addressType,
   }) async {
-    if (addressType == SegwitAddressType.mweb) {
+    if (addressType == SegwitAddresType.mweb) {
       await ensureMwebAddressUpToIndexExists(index);
     }
     return getAddress(index: index, hd: hd, addressType: addressType);
@@ -195,7 +195,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       return BitcoinAddressRecord(
         mwebAddrs[0],
         index: 0,
-        type: SegwitAddressType.mweb,
+        type: SegwitAddresType.mweb,
         network: network,
       );
     }
@@ -207,7 +207,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:
     final addresses = receiveAddresses
-        .where((element) => element.type == SegwitAddressType.p2wpkh && !element.isUsed);
+        .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
     return addresses.first.address;
   }
 }

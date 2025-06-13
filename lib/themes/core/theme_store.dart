@@ -168,7 +168,7 @@ abstract class ThemeStoreBase with Store {
   }
 
   MaterialThemeBase getThemeFromSystem() {
-    final systemBrightness = WidgetsBinding.instance.window.platformBrightness;
+    final systemBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
     return systemBrightness == Brightness.dark ? ThemeList.darkTheme : ThemeList.lightTheme;
   }
 }

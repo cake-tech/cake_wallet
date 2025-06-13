@@ -31,12 +31,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   final PayjoinManager payjoinManager;
 
-  @observable
   payjoin.Receiver? currentPayjoinReceiver;
 
-  @computed
-  String? get payjoinEndpoint =>
-      currentPayjoinReceiver?.pjUriBuilder().build().pjEndpoint();
+  @observable
+  String? payjoinEndpoint = null;
 
   @override
   String getAddress(
@@ -47,10 +45,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     if (addressType == P2pkhAddressType.p2pkh)
       return generateP2PKHAddress(hd: hd, index: index, network: network);
 
-    if (addressType == SegwitAddressType.p2tr)
+    if (addressType == SegwitAddresType.p2tr)
       return generateP2TRAddress(hd: hd, index: index, network: network);
 
-    if (addressType == SegwitAddressType.p2wsh)
+    if (addressType == SegwitAddresType.p2wsh)
       return generateP2WSHAddress(hd: hd, index: index, network: network);
 
     if (addressType == P2shAddressType.p2wpkhInP2sh)
@@ -59,14 +57,19 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
+  @action
   Future<void> initPayjoin() async {
+    await payjoinManager.initPayjoin();
     currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
-    
+    payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+
     payjoinManager.resumeSessions();
   }
 
+  @action
   Future<void> newPayjoinReceiver() async {
     currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
+    payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
 
     printV("Initializing new Payjoin Receiver");
     payjoinManager.spawnNewReceiver(receiver: currentPayjoinReceiver!);

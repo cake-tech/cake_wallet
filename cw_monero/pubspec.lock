@@ -66,11 +66,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v4
-      resolved-ref: "437dadd0bd9bf73ec6a551299577799341f6486a"
+      ref: cake-update-v2
+      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "4.3.0"
+    version: "3.3.0"
   bluez:
     dependency: transitive
     description:
@@ -131,18 +131,18 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: "028819cfb90051c6b5440c7e574d1896f8037e3c96cf17aaeb054c9311cfbf4d"
+      sha256: "058fe9dce1de7d69c4b84fada934df3e0153dd000758c4d65964d0166779aa99"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.13"
+    version: "2.4.15"
   build_runner_core:
     dependency: transitive
     description:
       name: build_runner_core
-      sha256: "6d6ee4276b1c5f34f21fdf39425202712d2be82019983d52f351c94aafbc2c41"
+      sha256: "22e3aa1c80e0ada3722fe5b63fd43d9c8990759d0a2cf489c8c5d7b2bdebc021"
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.10"
+    version: "8.0.0"
   built_collection:
     dependency: transitive
     description:
@@ -598,11 +598,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v4
-      resolved-ref: "084fb7bf13ec42d74f26ac08c883ce07c10fca7e"
+      ref: cake-update-v2
+      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "6.2.0"
+    version: "3.7.0"
   package_config:
     dependency: transitive
     description:

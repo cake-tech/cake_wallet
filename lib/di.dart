@@ -281,6 +281,7 @@ import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 final getIt = GetIt.instance;
 
@@ -513,19 +514,42 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory(() => DashboardViewModel(
-      balanceViewModel: getIt.get<BalanceViewModel>(),
-      appStore: getIt.get<AppStore>(),
+  getIt.registerFactory(
+    () => ExchangeViewModel(
+      getIt.get<AppStore>(),
+      _tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>(),
+      getIt.get<FeesViewModel>(),
+    ),
+  );
+
+  getIt.registerSingleton(
+    TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
-      settingsStore: settingsStore,
-      yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+      trades: _tradesSource,
+      appStore: getIt.get<AppStore>(),
+      preferences: getIt.get<SharedPreferences>(),
+    ),
+  );
+
+  getIt.registerFactory(() => DashboardViewModel(
+    tradeMonitor: getIt.get<TradeMonitor>(),
+    balanceViewModel: getIt.get<BalanceViewModel>(),
+    appStore: getIt.get<AppStore>(),
+    tradesStore: getIt.get<TradesStore>(),
+    tradeFilterStore: getIt.get<TradeFilterStore>(),
+    transactionFilterStore: getIt.get<TransactionFilterStore>(),
+    settingsStore: settingsStore,
+    yatStore: getIt.get<YatStore>(),
+    ordersStore: getIt.get<OrdersStore>(),
+    anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+    payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
+    sharedPreferences: getIt.get<SharedPreferences>(),
+    keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -1086,19 +1110,6 @@ Future<void> setup({
   ));
 
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
-
-  getIt.registerFactory(
-    () => ExchangeViewModel(
-      getIt.get<AppStore>(),
-      _tradesSource,
-      getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>(),
-      getIt.get<SettingsStore>(),
-      getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>(),
-      getIt.get<FeesViewModel>(),
-    ),
-  );
 
   getIt.registerFactory<FeesViewModel>(
     () => FeesViewModel(
