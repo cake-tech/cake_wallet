@@ -100,6 +100,9 @@ void startAuthenticationStateChange(
                         },
                       ),
                     );
+                  } else {
+                    tryOpening = false;
+                    rethrow;
                   }
                 }
               }
