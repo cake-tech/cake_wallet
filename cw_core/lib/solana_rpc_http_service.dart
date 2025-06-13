@@ -14,7 +14,7 @@ class SolanaRPCHTTPService implements SolanaJSONRPCService {
       [Duration? timeout]) async {
     final response = await ProxyWrapper().post(
       clearnetUri: Uri.parse(url),
-      body: json.encode(params.toRequestBody()),
+      body: params.toRequestBody(),
       headers: {
         'Content-Type': 'application/json',
       },
