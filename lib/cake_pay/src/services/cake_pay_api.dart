@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:http/http.dart' as http;
@@ -96,6 +96,8 @@ class CakePayApi {
     required bool confirmsNoVpn,
     required bool confirmsVoidedRefund,
     required bool confirmsTermsAgreed,
+    String? cardName,
+    String? cardImagePath,
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
     final headers = {
@@ -128,6 +130,8 @@ class CakePayApi {
       }
 
       final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+      bodyJson['card_name'] = cardName;
+      bodyJson['card_image_path'] = cardImagePath;
       return CakePayOrder.fromMap(bodyJson);
     } catch (e) {
       throw Exception('${e}');
@@ -135,7 +139,7 @@ class CakePayApi {
   }
 
   ///Simulate Payment
-  Future<void> simulatePayment(
+  Future<String> simulatePayment(
       {required String CSRFToken, required String authorization, required String orderId}) async {
     final uri = Uri.https(baseCakePayUri, simulatePaymentPath + '/$orderId');
 
@@ -155,7 +159,8 @@ class CakePayApi {
 
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
-    throw Exception('You just bot a gift card with id: ${bodyJson['order_id']}');
+    return 'You just SIMULATED a buying of a gift card with ID: ${bodyJson['order_id']}';
+
   }
 
   /// Logout
