@@ -13,6 +13,7 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
+import 'package:cw_tari/callback.dart';
 import 'package:cw_tari/pending_tari_transaction.dart';
 import 'package:cw_tari/tari_balance.dart';
 import 'package:cw_tari/tari_transaction_history.dart';
@@ -101,28 +102,53 @@ abstract class TariWalletBase
 
       _walletFfi.setBaseNode();
 
+      await Future.delayed(Duration(seconds: 10)); // Give it time to connect to the base node
+
+      var isRecovering = true;
       _walletFfi.startRecovery((_, event, arg1, arg2) {
         switch (event) {
+          case 0:
+            print("[Recovery] Connecting to base node...");
+            break;
+          case 1:
+            print("[Recovery] Connection to base node established");
+            break;
           case 2:
-            print("Connection to base node failed. Retry ${arg1}/${arg2}");
+            print("[Recovery] Connection to base node failed. Retry ${arg1}/${arg2}");
             break;
           case 3:
-            print("Scanning progress: ${arg1}/${arg2} blocks");
+            print("[Recovery] Scanning progress: ${arg1}/${arg2} blocks");
+            isRecovering = false;
             break;
           case 4:
             print(
-                "Recovery completed! Recovered ${arg1} UTXOs (${arg2} MicroMinotari)");
+                "[Recovery] Recovery completed! Recovered ${arg1} UTXOs (${arg2} MicroMinotari)");
+            isRecovering = false;
             break;
           case 5:
-            print("Scanning round failed. Retry ${arg1}/${arg2}");
+            print("[Recovery] Scanning round failed. Retry ${arg1}/${arg2}");
             break;
           case 6:
-            print("Recovery failed!");
+            print("[Recovery] Recovery failed!");
+            isRecovering = false;
+            break;
+          default:
+            print("[Recovery] Unknown event: $event ${arg1} ${arg2}");
             break;
         }
       });
+      await Future.delayed(Duration(seconds: 15)); // Give it time to scan the blocks
 
-      log(_walletFfi.isRecovering().toString());
+      while (isRecovering) {
+        await Future.delayed(Duration(seconds: 5)); // Check every 5 seconds
+        final balance = _walletFfi.getBalance();
+        print("Scanned height: ${CallbackPlaceholders.scannedHeight} / ${CallbackPlaceholders.chainTipHeight}");
+        print(
+            "Balance: ${balance.available} ${balance.pendingIncoming} ${balance.pendingOutgoing} ${balance.timeLocked}");
+        if (CallbackPlaceholders.scannedHeight >= CallbackPlaceholders.chainTipHeight && CallbackPlaceholders.chainTipHeight > 0) {
+          break;
+        }
+      }
 
       // syncStatus = SyncedSyncStatus();
     } catch (e) {
