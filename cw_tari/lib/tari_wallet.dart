@@ -88,7 +88,10 @@ abstract class TariWalletBase
 
   @action
   @override
-  Future<void> connectToNode({required Node node}) async {}
+  Future<void> connectToNode({required Node node}) async {
+    syncStatus = ConnectingSyncStatus();
+    syncStatus = ConnectedSyncStatus();
+  }
 
   @action
   @override
@@ -96,23 +99,32 @@ abstract class TariWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
-      _walletFfi.startRecovery((_, int status, int val1, int val2) async {
-        print('recoveryCallback called $status $val1 $val2');
+      _walletFfi.setBaseNode();
 
-        if (status == 0) {
-          syncStatus = ConnectingSyncStatus();
-        } else if (status == 1) {
-          syncStatus = ConnectedSyncStatus();
-        } else if (status == 6 || status == 5) {
-          syncStatus = FailedSyncStatus();
-          final currentWalletPath =
-              await pathForWallet(name: walletInfo.name, type: type);
-          log(currentWalletPath);
-          log(File("$currentWalletPath/logs/wallet.log").readAsStringSync());
+      _walletFfi.startRecovery((_, event, arg1, arg2) {
+        switch (event) {
+          case 2:
+            print("Connection to base node failed. Retry ${arg1}/${arg2}");
+            break;
+          case 3:
+            print("Scanning progress: ${arg1}/${arg2} blocks");
+            break;
+          case 4:
+            print(
+                "Recovery completed! Recovered ${arg1} UTXOs (${arg2} MicroMinotari)");
+            break;
+          case 5:
+            print("Scanning round failed. Retry ${arg1}/${arg2}");
+            break;
+          case 6:
+            print("Recovery failed!");
+            break;
         }
       });
 
-      syncStatus = SyncedSyncStatus();
+      log(_walletFfi.isRecovering().toString());
+
+      // syncStatus = SyncedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
     }

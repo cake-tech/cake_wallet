@@ -1,6 +1,6 @@
 import 'dart:ffi';
 
-import 'package:tari/src/generated_bindings_tari.g.dart';
+import 'package:tari/src/generated_bindings_tari.freeze.g.dart';
 import 'package:tari/tari.dart';
 
 class CallbackPlaceholders {
@@ -165,7 +165,18 @@ class CallbackPlaceholders {
 
   // Placeholder for callback_connectivity_status
   static void callbackConnectivityStatus(Pointer<Void> context, int status) {
-    print('callbackConnectivityStatus called status: $status');
+    // 0: Connecting, 1: Online, 2: Offline
+    switch (status) {
+      case 0:
+        print('Connecting to base node...');
+        break;
+      case 1:
+        print('Connected to base node successfully');
+        break;
+      case 2:
+        print('Connection to base node offline');
+        break;
+    }
   }
 
   static NativeCallable<Void Function(Pointer<Void>, Uint64)>
