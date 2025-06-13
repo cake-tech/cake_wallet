@@ -378,16 +378,21 @@ class EvmChainServiceImpl {
         topic: topic,
         response: response,
       );
+
+      if (session == null) return;
+
       MethodsUtils.handleRedirect(
         topic,
-        session!.peer.metadata.redirect,
+        session.peer.metadata.redirect,
         response.error?.message,
         response.error == null,
       );
     } on ReownSignError catch (error) {
+      if (session == null) return;
+
       MethodsUtils.handleRedirect(
         topic,
-        session!.peer.metadata.redirect,
+        session.peer.metadata.redirect,
         error.message,
       );
     }
@@ -542,7 +547,8 @@ $messageDetails''';
           buffer.writeln('$fieldName: $name ($wallet)');
         } else {
           // For other nested types, format each field
-          final formattedValue = _formatMessageFields(value as Map<String, dynamic>, nestedFields, types);
+          final formattedValue =
+              _formatMessageFields(value as Map<String, dynamic>, nestedFields, types);
           buffer.writeln('$fieldName: $formattedValue');
         }
       } else {
