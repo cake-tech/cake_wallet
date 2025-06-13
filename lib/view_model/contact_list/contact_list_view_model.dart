@@ -154,9 +154,9 @@ abstract class ContactListViewModelBase with Store {
   Future<void> sortGroupByType() async {
     List<Contact> contactsSourceCopy = contactSource.values.toList();
 
-    contactsSourceCopy.sort((a, b) => ascending
-        ? a.type.toString().compareTo(b.type.toString())
-        : b.type.toString().compareTo(a.type.toString()));
+    // contactsSourceCopy.sort((a, b) => ascending //TODO fix sort by type
+    //     ? a.type.toString().compareTo(b.type.toString())
+    //     : b.type.toString().compareTo(a.type.toString()));
 
     await reorderContacts(contactsSourceCopy);
   }

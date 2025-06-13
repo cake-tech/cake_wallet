@@ -35,6 +35,13 @@ class Routes {
   static const pickerAddressBook = '/picker_address_book';
   static const pickerWalletAddress = '/picker_wallet_address';
   static const addressBookAddContact = '/address_book_add_contact';
+  static const newContactWelcomePage = '/new_contact_welcome_page';
+  static const supportedHandlesPage = '/supported_handles_page';
+  static const editNewContactGroupPage = '/edit_new_contact_group_page';
+  static const editAddressesPage = '/edit_addresses_page';
+  static const editAddressPage = '/edit_address_page';
+  static const editNewContactPage = '/edit_new_contact_page';
+  static const editContactPage = '/edit_contact_page';
   static const showKeys = '/show_keys';
   static const exchangeConfirm = '/exchange_confirm';
   static const tradeHistory = '/trade_history';

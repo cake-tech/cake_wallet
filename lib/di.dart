@@ -29,8 +29,16 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_addresses_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
+import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -87,8 +95,6 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
@@ -947,8 +953,13 @@ Future<void> setup({
   getIt.registerFactoryParam<AnimatedURPage, String, void>((String urQr, _) =>
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
-  getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
-      (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
+  getIt.registerFactoryParam<ContactViewModel, ContactRecord?, List<dynamic>?>(
+        (contact, initialContactParams) => ContactViewModel(
+      _contactSource,
+      contact: contact,
+      initialParams: initialContactParams ?? <dynamic>[],
+    ),
+  );
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
           (CryptoCurrency? cur, _) =>
@@ -961,6 +972,29 @@ Future<void> setup({
 
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
+
+  getIt.registerFactoryParam<EditNewContactGroupPage, ParsedAddress, void>(
+          (ParsedAddress parsedAddress, _) => EditNewContactGroupPage(selectedParsedAddress: parsedAddress,contacts: _contactSource));
+
+  getIt.registerFactoryParam<EditAddressesPage, ContactRecord, void>(
+          (ContactRecord contact, _) => EditAddressesPage(contactViewModel: getIt.get<ContactViewModel>(param1: contact)));
+
+  getIt.registerFactoryParam<EditAddressPage, List<dynamic>, void>(
+          (List<dynamic> args, _) {
+        final contact = args.first as ContactRecord?;
+        final currency = args[1] as CryptoCurrency?;
+        final label = args[2] as String?;
+
+        return EditAddressPage(
+          contactViewModel: getIt.get<ContactViewModel>(param1: contact, param2: [currency, label]),
+        );
+      });
+
+  getIt.registerFactoryParam<EditNewContactPage, ContactRecord, void>(
+          (ContactRecord contact, _) => EditNewContactPage(contactViewModel: getIt.get<ContactViewModel>(param1: contact)));
+
+  getIt.registerFactoryParam<EditContactPage, ContactRecord, void>(
+          (ContactRecord contact, _) => EditContactPage(contactViewModel: getIt.get<ContactViewModel>(param1: contact)));
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 

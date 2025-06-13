@@ -45,7 +45,7 @@ abstract class OutputBase with Store {
         address = '',
         note = '',
         extractedAddress = '',
-        parsedAddress = ParsedAddress(addressByCurrencyMap: {}) {
+        parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
     _setCryptoNumMaximumFractionDigits();
   }
 
@@ -241,7 +241,7 @@ abstract class OutputBase with Store {
 
   void resetParsedAddress() {
     extractedAddress = '';
-    parsedAddress = ParsedAddress( addressByCurrencyMap: {});
+    parsedAddress = ParsedAddress( parsedAddressByCurrencyMap: {});
   }
 
   @action
@@ -331,8 +331,8 @@ abstract class OutputBase with Store {
 
   void loadContact(ContactBase contact) {
     address = contact.name;
-    parsedAddress = ParsedAddress(addressByCurrencyMap: {contact.type : contact.address}, handle: contact.name);
-    extractedAddress = parsedAddress.addressByCurrencyMap[contact.type] ?? '';
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {contact.type : contact.address}, handle: contact.name);
+    extractedAddress = parsedAddress.parsedAddressByCurrencyMap[contact.type] ?? '';
     note = parsedAddress.description ?? '';
   }
 }

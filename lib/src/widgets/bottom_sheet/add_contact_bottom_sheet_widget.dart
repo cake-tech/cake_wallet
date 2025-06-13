@@ -1,94 +1,136 @@
 import 'dart:async';
 
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/contact/add_new_contact_page.dart';
-import 'package:cake_wallet/src/screens/contact/new_contact_page.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
-import 'package:cake_wallet/utils/image_utill.dart';
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_addresses_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/new_contact_welcome_page.dart';
+import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
 import 'package:flutter/material.dart';
 
-class AddContactBottomSheet extends InfoBottomSheet {
-  AddContactBottomSheet({
-    required String titleText,
-    String? titleIconPath,
-    required this.currentTheme,
-    required FooterType footerType,
-    this.contentImage,
-    this.contentImageColor,
-    this.content,
+
+class AddressBookBottomSheet extends StatelessWidget {
+  const AddressBookBottomSheet({
+    super.key,
     required this.onHandlerSearch,
-    String? singleActionButtonText,
-    VoidCallback? onSingleActionButtonPressed,
-    Key? singleActionButtonKey,
-    String? doubleActionLeftButtonText,
-    String? doubleActionRightButtonText,
-    VoidCallback? onLeftActionButtonPressed,
-    VoidCallback? onRightActionButtonPressed,
-    Key? leftActionButtonKey,
-    Key? rightActionButtonKey,
-  })  : _onSingleActionButtonPressed = onSingleActionButtonPressed,
-        _singleActionButtonText = singleActionButtonText,
-        _singleActionButtonKey = singleActionButtonKey,
-        super(
-          titleText: titleText,
-          titleIconPath: titleIconPath,
-          currentTheme: currentTheme,
-          footerType: footerType,
-          contentImage: contentImage,
-          contentImageColor: contentImageColor,
-          content: content,
-          singleActionButtonText: singleActionButtonText,
-          onSingleActionButtonPressed: onSingleActionButtonPressed,
-          singleActionButtonKey: singleActionButtonKey,
-          doubleActionLeftButtonText: doubleActionLeftButtonText,
-          doubleActionRightButtonText: doubleActionRightButtonText,
-          onLeftActionButtonPressed: onLeftActionButtonPressed,
-          onRightActionButtonPressed: onRightActionButtonPressed,
-          leftActionButtonKey: leftActionButtonKey,
-          rightActionButtonKey: rightActionButtonKey,
-        );
+    this.initialRoute,
+    this.initialArgs,
+  });
 
-  final MaterialThemeBase currentTheme;
-  final String? contentImage;
-  final Color? contentImageColor;
-  final String? content;
-  final String? _singleActionButtonText;
-  final VoidCallback? _onSingleActionButtonPressed;
-  final Key? _singleActionButtonKey;
-  final Future<List<ParsedAddress>> Function(String query) onHandlerSearch;
+  final Future<List<ParsedAddress>> Function(String q) onHandlerSearch;
+  final String? initialRoute;
+  final Object? initialArgs;
+
 
   @override
-  Widget? buildHeader(BuildContext context) => null;
+  Widget build(BuildContext context) {
 
-  @override
-  Widget contentWidget(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height * 0.7;
-
-    return SizedBox(
-      height: maxHeight,
-      child: Navigator(
-        onPopPage: (route, result) => route.didPop(result),
-        pages: [
-          MaterialPage(
-            child: NewContactPage(
-              currentTheme: currentTheme,
-              contentImage: contentImage,
-              contentImageColor: contentImageColor,
-              contentText: content,
-              singleActionButtonText: _singleActionButtonText,
-              onSingleActionButtonPressed: _onSingleActionButtonPressed,
-              singleActionButtonKey: _singleActionButtonKey,
-              onSearch: (query) async => await onHandlerSearch(query),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDragHandle(context),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * .7,
+              ),
+              child: _AddContactNavigator(
+                onHandlerSearch: onHandlerSearch,
+                initialRoute   : initialRoute ?? Navigator.defaultRouteName,
+                initialArgs    : initialArgs,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+Widget _buildDragHandle(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 16),
+    child: Row(
+      children: [
+        const Spacer(flex: 4),
+        Expanded(
+          flex: 2,
+          child: Container(
+            height: 6,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-        ],
+        ),
+        const Spacer(flex: 4),
+      ],
+    ),
+  );
+}
+
+class _AddContactNavigator extends StatelessWidget {
+  const _AddContactNavigator({
+    required this.onHandlerSearch,
+    required this.initialRoute,
+    this.initialArgs,
+  });
+
+  final Future<List<ParsedAddress>> Function(String) onHandlerSearch;
+  final String initialRoute;
+  final Object? initialArgs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      onGenerateInitialRoutes: (_, __) => [
+        _routeFor(initialRoute, initialArgs),
+      ],
+      onGenerateRoute: (settings) => _routeFor(
+        settings.name ?? Navigator.defaultRouteName,
+        settings.arguments,
       ),
+    );
+  }
+
+  Route<dynamic> _routeFor(String name, Object? args) {
+    late final Widget page;
+
+
+    switch (name) {
+      case Routes.supportedHandlesPage:
+        page = SupportedHandlesPage();
+        break;
+      case Routes.editNewContactGroupPage:
+        page = getIt<EditNewContactGroupPage>(param1: args as ParsedAddress);
+        break;
+      case Routes.editNewContactPage:
+        final list = args as List<dynamic>;
+        page = getIt<EditNewContactPage>(param1: list.first as ContactRecord?);
+        break;
+      case Routes.editAddressesPage:
+        page = getIt<EditAddressesPage>(param1: args as ContactRecord);
+        break;
+      case Routes.editContactPage:
+        page = getIt<EditContactPage>(param1: args as ContactRecord);
+        break;
+      case Routes.editAddressPage:
+        page = getIt<EditAddressPage>(param1: args as List<dynamic>);
+        break;
+      default:
+        page = NewContactWelcomePage(onSearch: onHandlerSearch);
+    }
+
+    return MaterialPageRoute(
+      builder: (_) => page,
+      settings: RouteSettings(name: name, arguments: args),
     );
   }
 }

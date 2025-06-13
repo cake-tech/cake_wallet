@@ -13,6 +13,7 @@ import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
@@ -27,7 +28,6 @@ import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart'
 import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
@@ -145,6 +145,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'entities/parsed_address.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 

@@ -12,12 +12,11 @@ class SupportedHandlesPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final supportedHandles = AddressSource.supported();
     final fillColor = currentTheme.isDark
         ? CustomThemeColors.backgroundGradientColorDark
         : CustomThemeColors.backgroundGradientColorLight;
 
-    return HandlesListWidget(items: supportedHandles, fillColor: fillColor);
+    return HandlesListWidget(items: supportedSources, fillColor: fillColor);
   }
 }
 

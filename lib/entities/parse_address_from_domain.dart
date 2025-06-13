@@ -1,23 +1,20 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/ens_record.dart';
+import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
-import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
-import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/entities/fio_address_provider.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'bip_353_record.dart';
 
@@ -170,21 +167,21 @@ class AddressResolverService {
     _lookupTable = [
       LookupEntry(
         source: AddressSource.twitter,
-        currencies: [CryptoCurrency.xmr, CryptoCurrency.btc],
+        currencies: AddressSource.twitter.supportedCurrencies,
         applies: (q) => settingsStore.lookupsTwitter && q.startsWith('@'),
         // x handle example: @username
         run: _lookupTwitter,
       ),
       LookupEntry(
         source: AddressSource.zanoAlias,
-        currencies: [CryptoCurrency.zano],
+        currencies: AddressSource.zanoAlias.supportedCurrencies,
         applies: (q) => settingsStore.lookupsZanoAlias && q.startsWith('@'),
         // zano handle example: @username
         run: _lookupZano,
       ),
       LookupEntry(
         source: AddressSource.mastodon,
-        currencies: [CryptoCurrency.btc],
+        currencies: AddressSource.mastodon.supportedCurrencies,
         applies: (q) =>
             settingsStore.lookupsMastodon &&
             q.startsWith('@') &&
@@ -195,14 +192,14 @@ class AddressResolverService {
       ),
       LookupEntry(
         source: AddressSource.wellKnown,
-        currencies: [CryptoCurrency.nano],
+        currencies: AddressSource.wellKnown.supportedCurrencies,
         applies: (q) => settingsStore.lookupsWellKnown && q.contains('.') && q.contains('@'),
         // .well-known handle example:
         run: _lookupWellKnown,
       ),
       LookupEntry(
         source: AddressSource.fio,
-        currencies: [CryptoCurrency.btc],
+        currencies: AddressSource.fio.supportedCurrencies,
         applies: (q) => !q.startsWith('@') && q.contains('@') && !q.contains('.'),
         // TODO: Add condition for FIO lookups
         // FIO handle example: username@domain
@@ -210,24 +207,23 @@ class AddressResolverService {
       ),
       LookupEntry(
         source: AddressSource.yatRecord,
-        currencies: [CryptoCurrency.btc],
+        currencies: AddressSource.yatRecord.supportedCurrencies,
         applies: (q) => settingsStore.lookupsYatService && q.hasOnlyEmojis,
         // Yat handle example: 🐶🐾
         run: _lookupYatService,
       ),
       LookupEntry(
         source: AddressSource.thorChain,
-        currencies: [CryptoCurrency.rune],
+        currencies: AddressSource.thorChain.supportedCurrencies,
         applies: (q) => true,
         // ThorChain handles can be any string //TODO: Add condition for ThorChain lookups
         run: _lookupThorChain,
       ),
       LookupEntry(
         source: AddressSource.unstoppableDomains,
-        currencies: [CryptoCurrency.btc],
+        currencies: AddressSource.unstoppableDomains.supportedCurrencies,
         applies: (q) {
-          if (settingsStore.lookupsUnstoppableDomains) return false;
-
+          if (!settingsStore.lookupsUnstoppableDomains) return false;
           // Unstoppable Domains handle example: name.crypto
           final formattedName = OpenaliasRecord.formatDomainName(q);
           final domainParts = formattedName.split('.');
@@ -241,22 +237,22 @@ class AddressResolverService {
       ),
       LookupEntry(
         source: AddressSource.bip353,
-        currencies: [CryptoCurrency.btc, CryptoCurrency.xmr],
+        currencies: AddressSource.bip353.supportedCurrencies,
         applies: (q) => true, //TODO: Add condition for BIP-353 lookups
         run: _lookupsBip353,
       ),
       LookupEntry(
         source: AddressSource.ens,
-        currencies: [CryptoCurrency.eth],
+        currencies: AddressSource.ens.supportedCurrencies,
         applies: (q) => settingsStore.lookupsENS && q.endsWith('.eth'),
         // ENS handle example: name.eth
         run: _lookupEns,
       ),
       LookupEntry(
         source: AddressSource.openAlias,
-        currencies: [CryptoCurrency.btc],
+        currencies: AddressSource.openAlias.supportedCurrencies,
         applies: (q) {
-          if (settingsStore.lookupsOpenAlias) return false;
+          if (!settingsStore.lookupsOpenAlias) return false;
           // OpenAlias handle example:
           final formattedName = OpenaliasRecord.formatDomainName(q);
           return formattedName.contains(".");
@@ -273,24 +269,40 @@ class AddressResolverService {
     ];
   }
 
-  static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
-    final addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
-    if (addressPattern == null) {
-      throw Exception('Unexpected token: $type for getAddressFromStringPattern');
+
+      static  String _cleanInput(String raw) => raw
+      .replaceAll(RegExp(r'[\u2028\u2029]'), '\n')
+      .replaceAll(RegExp(r'<[^>]+>'), ' ');
+
+  static String? extractAddressByType({
+    required String raw,
+    required CryptoCurrency type,
+  }) {
+    final pat = AddressValidator.getAddressFromStringPattern(type);
+    if (pat == null) {
+      throw StateError('Unknown pattern for $type');
     }
 
-    final match = RegExp(addressPattern, multiLine: true).firstMatch(raw);
-    return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),
-        (Match match) {
-      String group = match.group(0)!;
-      if (group.startsWith('bitcoincash:') ||
-          group.startsWith('nano_') ||
-          group.startsWith('ban_')) {
-        return group;
-      }
-      return '';
+    final text = _cleanInput(raw);
+
+    final regex = RegExp(r'(?:^|[^0-9A-Za-z])(' + pat + r')',
+        multiLine: true, caseSensitive: false);
+
+    final m = regex.firstMatch(text);
+    if (m == null) return null;
+
+    // 3.  Strip BCH / NANO prefixes and punctuation just like before
+    final cleaned = m
+        .group(1)!
+        .replaceAllMapped(RegExp(r'[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'), (m) {
+      final g = m.group(0)!;
+      return (g.startsWith('bitcoincash:') || g.startsWith('nano_') || g.startsWith('ban_'))
+          ? g
+          : '';
     });
+
+    return cleaned;
   }
 
   bool isEmailFormat(String address) {
@@ -306,37 +318,39 @@ class AddressResolverService {
     required WalletBase wallet,
     CryptoCurrency? currency,
   }) async {
-    final tasks = <Future<ParsedAddress?>>[];
+    try {
+      final tasks = <Future<ParsedAddress?>>[];
 
-    for (final entry in _lookupTable) {
-      if (!entry.applies(query)) continue;
+      for (final entry in _lookupTable) {
+        if (!supportedSources.contains(entry.source)) continue;
+        if (!entry.applies(query)) continue;
 
-      final coins = currency == null
-          ? entry.currencies.toList()
-          : (entry.currencies.contains(currency) ? [currency] : const <CryptoCurrency>[]);
+        final coins = currency == null
+            ? entry.currencies.toList()
+            : (entry.currencies.contains(currency) ? [currency] : const <CryptoCurrency>[]);
 
       print('Running lookup for ${entry.source.label} with query: $query, coins: $coins');
 
-      if (coins.isEmpty) continue;
-      tasks.add(entry.run(query, coins, wallet));
+        if (coins.isEmpty) continue;
+        tasks.add(entry.run(query, coins, wallet));
+      }
+
+      final results = await Future.wait(tasks);
+
+      return results.whereType<ParsedAddress>().toList();
+    } catch (e) {
+      printV('Error resolving address: $e');
+      return [];
     }
-
-    final results = await Future.wait(tasks);
-    final out = results.whereType<ParsedAddress>().toList();
-
-    if (out.isEmpty)
-      out.add(ParsedAddress(
-        addressByCurrencyMap: {},
-        addressSource: AddressSource.notParsed,
-        handle: query,
-      ));
-    return out;
   }
 
   Future<ParsedAddress?> _lookupTwitter(
       String text, List<CryptoCurrency> currencies, WalletBase wallet) async {
     final formattedName = text.substring(1);
     final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
+
+    if (twitterUser == null) return null;
+
     final Map<CryptoCurrency, String> result = {};
 
     for (final cur in currencies) {
@@ -361,7 +375,7 @@ class AddressResolverService {
 
     if (result.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: result,
+        parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.twitter,
         handle: text,
         profileImageUrl: twitterUser.profileImageUrl,
@@ -378,7 +392,7 @@ class AddressResolverService {
     final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
     if (zanoAddress != null && zanoAddress.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: {CryptoCurrency.zano: zanoAddress},
+        parsedAddressByCurrencyMap: {CryptoCurrency.zano: zanoAddress},
         addressSource: AddressSource.zanoAlias,
         handle: text,
       );
@@ -422,7 +436,7 @@ class AddressResolverService {
 
       if (result.isNotEmpty) {
         return ParsedAddress(
-          addressByCurrencyMap: result,
+          parsedAddressByCurrencyMap: result,
           addressSource: AddressSource.mastodon,
           handle: text,
           profileImageUrl: mastodonUser.profileImageUrl,
@@ -446,7 +460,7 @@ class AddressResolverService {
 
     if (result.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: result,
+        parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.wellKnown,
         handle: text,
       );
@@ -469,7 +483,7 @@ class AddressResolverService {
 
     if (result.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: result,
+        parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.fio,
         handle: text,
       );
@@ -488,7 +502,7 @@ class AddressResolverService {
       }
       if (result.isNotEmpty) {
         return ParsedAddress(
-          addressByCurrencyMap: result,
+          parsedAddressByCurrencyMap: result,
           addressSource: AddressSource.yatRecord,
           handle: text,
         );
@@ -513,7 +527,7 @@ class AddressResolverService {
 
       if (result.isNotEmpty) {
         return ParsedAddress(
-          addressByCurrencyMap: result,
+          parsedAddressByCurrencyMap: result,
           addressSource: AddressSource.thorChain,
           handle: text,
         );
@@ -525,7 +539,6 @@ class AddressResolverService {
   Future<ParsedAddress?> _lookupsUnstoppableDomains(
       String text, List<CryptoCurrency> currency, WalletBase _) async {
     final Map<CryptoCurrency, String> result = {};
-
     for (final cur in currency) {
       final address = await fetchUnstoppableDomainAddress(text, cur.title);
       if (address.isNotEmpty) {
@@ -535,7 +548,9 @@ class AddressResolverService {
 
     if (result.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: result,
+        parsedAddressByCurrencyMap: result,
+        profileImageUrl: 'assets/images/profile.png',
+        profileName: text,
         addressSource: AddressSource.unstoppableDomains,
         handle: text,
       );
@@ -559,7 +574,7 @@ class AddressResolverService {
     }
     if (result.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: result,
+        parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.bip353,
         handle: text,
       );
@@ -589,7 +604,7 @@ class AddressResolverService {
 
     if (result.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: result,
+        parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.ens,
         handle: text,
       );
@@ -614,7 +629,7 @@ class AddressResolverService {
 
     if (result.isNotEmpty) {
       return ParsedAddress(
-        addressByCurrencyMap: result,
+        parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.openAlias,
         handle: text,
       );
@@ -657,5 +672,6 @@ class LookupEntry {
   final AddressSource source;
   final List<CryptoCurrency> currencies;
   final bool Function(String query) applies;
-  final Future<ParsedAddress?> Function(String query, List<CryptoCurrency> currencies, WalletBase wallet) run;
+  final Future<ParsedAddress?> Function(
+      String query, List<CryptoCurrency> currencies, WalletBase wallet) run;
 }

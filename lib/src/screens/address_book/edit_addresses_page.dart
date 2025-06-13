@@ -1,16 +1,19 @@
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/src/screens/address_book/widgets/addresses_expansion_tile_widget.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
-class EditNewContactPage extends BasePage {
-  EditNewContactPage({required this.selectedParsedAddress});
+class EditAddressesPage extends BasePage {
+  EditAddressesPage({required this.contactViewModel});
 
-  final ParsedAddress selectedParsedAddress;
+  final ContactViewModel contactViewModel;
 
   Widget _circleIcon(BuildContext context, IconData icon, VoidCallback onPressed) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -46,12 +49,24 @@ class EditNewContactPage extends BasePage {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ImageUtil.getImageFromPath(
-              imagePath: selectedParsedAddress.profileImageUrl, height: 24, width: 24),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: Image(
+              width: 24,
+              height: 24,
+              image: contactViewModel.avatarProvider,
+              fit: BoxFit.cover,
+            ),
+          ),
           const SizedBox(width: 12),
-          Text('Edit Contact',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: 18.0, fontWeight: FontWeight.w600, color: titleColor(context))),
+          Text(
+            contactViewModel.name,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: titleColor(context),
+                ),
+          ),
         ],
       ),
     );
@@ -75,7 +90,7 @@ class EditNewContactPage extends BasePage {
   Widget body(BuildContext context) {
     final theme = Theme.of(context);
     final fillColor = currentTheme.isDark
-        ? CustomThemeColors.backgroundGradientColorDark
+        ? CustomThemeColors.backgroundGradientColorDark.withAlpha(100)
         : CustomThemeColors.backgroundGradientColorLight;
 
     return Padding(
@@ -83,6 +98,33 @@ class EditNewContactPage extends BasePage {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+
+          // ContactAddressesExpansionTile(
+          //   key: ValueKey(contactViewModel.name),
+          //   manualByCurrency: contact.manualAddresses,
+          //   fillColor: Theme.of(context).colorScheme.surfaceContainer,
+          //   title: _buildContactTitle(
+          //       context: context,
+          //       contact: contact,
+          //       contactListViewModel: widget.contactListViewModel),
+          //   onEditPressed: (cur, lbl) async {
+          //     await _showAddressBookBottomSheet(
+          //       context: context,
+          //       contactListViewModel: widget.contactListViewModel,
+          //       initialRoute: Routes.editAddressPage,
+          //       initialArgs: [contact, cur, lbl],
+          //     );
+          //   },
+          //   onCopyPressed: (addr) => Clipboard.setData(ClipboardData(text: addr)),
+          // ),
+          //
+          //
+          // ContactAddressesExpansionTile(
+          //     key: ValueKey(contactViewModel.name),
+          //     title: Text('Manual Addresses'),
+          //     fillColor: fillColor,
+          //     addresses: contactViewModel.manualAddressesByCurrency),
+          const SizedBox(height: 8),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 1),
@@ -97,13 +139,11 @@ class EditNewContactPage extends BasePage {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ImageUtil.getImageFromPath(
-                        imagePath: selectedParsedAddress.addressSource.iconPath, height: 24, width: 24),
+                        imagePath: contactViewModel.sourceType.iconPath, height: 24, width: 24),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        selectedParsedAddress.addressSource.label +
-                            ' - ' +
-                            selectedParsedAddress.addressSource.alias,
+                        contactViewModel.sourceType.label + ' - ' + contactViewModel.handle,
                         style: theme.textTheme.labelSmall?.copyWith(
                           fontSize: 12,
                           color: theme.colorScheme.onSurfaceVariant,
@@ -121,13 +161,13 @@ class EditNewContactPage extends BasePage {
                     children: [
                       Text('Addresses detected:', style: theme.textTheme.bodyMedium),
                       const SizedBox(width: 8),
-                      Expanded(                                     // take remaining width
+                      Expanded(
                         child: Wrap(
                           spacing: 8,
-                          children: selectedParsedAddress.addressByCurrencyMap.keys
+                          children: contactViewModel.parsedAddressesByCurrency.keys
                               .map((currency) => currency.iconPath != null
-                              ? Image.asset(currency.iconPath!, height: 24, width: 24)
-                              : const SizedBox.shrink())
+                                  ? Image.asset(currency.iconPath!, height: 24, width: 24)
+                                  : const SizedBox.shrink())
                               .toList(),
                         ),
                       ),
@@ -137,79 +177,7 @@ class EditNewContactPage extends BasePage {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          ExpansionContactTile(
-            fillColor: fillColor,
-            selectedParsedAddress: selectedParsedAddress,
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class ExpansionContactTile extends StatelessWidget {
-  const ExpansionContactTile({
-    required this.fillColor,
-    required this.selectedParsedAddress,
-  });
-
-  final Color fillColor;
-  final ParsedAddress selectedParsedAddress;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      container: true,
-      label: 'Contact Details',
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          color: fillColor,
-        ),
-        child: Theme(
-          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            child: ExpansionTile(
-              childrenPadding: EdgeInsets.zero,
-              tilePadding: EdgeInsets.zero,
-              dense: true,
-              iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
-              visualDensity: VisualDensity.compact,
-              title: Text('Manual Addresses'),
-              children: [
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: selectedParsedAddress.addressByCurrencyMap.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 6),
-                  itemBuilder: (context, index) {
-                    final currency = selectedParsedAddress.addressByCurrencyMap.keys.elementAt(index);
-                    final address = selectedParsedAddress.addressByCurrencyMap[currency] ?? '';
-                    return ListTile(
-                      title: Text(currency.title.toLowerCase(), style: Theme.of(context).textTheme.bodyLarge),
-                      subtitle: AddressFormatter.buildSegmentedAddress(
-                        address: address,
-                        walletType: cryptoCurrencyToWalletType(currency),
-                        evenTextStyle: Theme.of(context).textTheme.labelMedium!,
-                        visibleChunks: 4,
-                        shouldTruncate: true,
-                      ),
-                      leading: ImageUtil.getImageFromPath(imagePath: currency.iconPath ?? '', height: 24, width: 24),
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 0, vertical: -3),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(12)),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

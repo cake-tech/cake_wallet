@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
 
 class ImageUtil {
   static Widget getImageFromPath({
@@ -66,4 +71,32 @@ class ImageUtil {
   static Widget _placeholder(double? h, double? w) => (h != null || w != null)
       ? SizedBox(height: h, width: w, child: const Center(child: CircularProgressIndicator()))
       : const Center(child: CircularProgressIndicator());
+
+
+  static Future<String?> saveAvatarLocally(String imageUriOrPath) async {
+    if (imageUriOrPath.isEmpty) return null;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      String ext = p.extension(imageUriOrPath);
+      if (ext.isEmpty) ext = '.png';
+      final file = File('${dir.path}/${DateTime.now().millisecondsSinceEpoch}$ext');
+
+
+      if (imageUriOrPath.startsWith('http')) {
+        final response = await http.get(Uri.parse(imageUriOrPath));
+        if (response.statusCode == 200) {
+          await file.writeAsBytes(response.bodyBytes);
+        } else {
+          return null;
+        }
+      } else {
+        await File(imageUriOrPath).copy(file.path);
+      }
+
+      return file.existsSync() ? file.path : null;
+    } catch (_) {
+      return null;
+    }
+  }
 }

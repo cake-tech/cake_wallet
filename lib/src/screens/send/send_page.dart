@@ -605,12 +605,12 @@ class SendPage extends BasePage {
             return;
           }
 
-          newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
-
-          if (newContactAddress?.address != null &&
-              isRegularElectrumAddress(newContactAddress!.address)) {
-            newContactAddress = null;
-          }
+          // newContactAddress = newContactAddress ?? sendViewModel.newContactAddress(); //TODO: fix this
+          //
+          // if (newContactAddress?.address != null &&
+          //     isRegularElectrumAddress(newContactAddress!.address)) {
+          //   newContactAddress = null;
+          // }
 
           bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
 

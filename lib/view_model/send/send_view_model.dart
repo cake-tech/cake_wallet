@@ -431,7 +431,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       outputs.first.address = paymentRequest.address;
       outputs.first.parsedAddress =
-          ParsedAddress(addressByCurrencyMap: {currency:paymentRequest.address}, handle: ocpRequest!.receiverName);
+          ParsedAddress(parsedAddressByCurrencyMap: {currency:paymentRequest.address}, handle: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -699,7 +699,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     for (var output in outputs) {
       String address;
       if (output.isParsedAddress) {
-        address = output.parsedAddress.addressByCurrencyMap[selectedCryptoCurrency] ?? '';
+        address = output.parsedAddress.parsedAddressByCurrencyMap[selectedCryptoCurrency] ?? '';
       } else {
         address = output.address;
       }
@@ -711,8 +711,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             contactListViewModel.contactSource,
             Contact(
               name: '',
-              address: address,
-              type: selectedCryptoCurrency,
+              parsedAddresses: {3: {'label4':address}
+              },
+              manualAddresses: {3: {'label5':address} //TODO : Fix this hardcoded value
+              },
             ));
       }
     }
