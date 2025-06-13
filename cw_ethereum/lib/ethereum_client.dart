@@ -20,6 +20,7 @@ class EthereumClient extends EVMChainClient {
       {String? contractAddress}) async {
     try {
       final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
+        "chainid": "$chainId",
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
         if (contractAddress != null) "contractaddress": contractAddress,
