@@ -166,7 +166,7 @@ class AddressResolver {
   ];
 
   static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
-    final addressPattern = AddressValidator.getAddressFromStringPattern(type);
+    final addressPattern = AddressValidator.getAddressFromStringPattern(type, false);
 
     if (addressPattern == null) {
       throw Exception('Unexpected token: $type for getAddressFromStringPattern');
