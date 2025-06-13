@@ -73,7 +73,10 @@ class WalletLoadingService {
       return wallet;
     } catch (error, stack) {
       await ExceptionHandler.resetLastPopupDate();
+      final isLedgerError = await ExceptionHandler.isLedgerError(error);
+      if (isLedgerError) rethrow;
       await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+
 
       // try fetching the seeds of the corrupted wallet to show it to the user
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";

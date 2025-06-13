@@ -165,8 +165,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   Future<void> _connectToDevice(LedgerDevice device) async {
-    await widget.ledgerVM.connectLedger(device, widget.walletType);
-    widget.onConnectDevice(context, widget.ledgerVM);
+    final isConnected =
+        await widget.ledgerVM.connectLedger(device, widget.walletType);
+    if (isConnected) widget.onConnectDevice(context, widget.ledgerVM);
   }
 
   String _getDeviceTileLeading(LedgerDeviceType deviceInfo) {

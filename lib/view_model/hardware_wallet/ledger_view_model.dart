@@ -96,7 +96,8 @@ abstract class LedgerViewModelBase with Store {
     if (!Platform.isIOS) await ledgerPlusUSB.stopScanning();
   }
 
-  Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
+  Future<bool> connectLedger(sdk.LedgerDevice device, WalletType type) async {
+    if (_isConnecting) return false;
     _isConnecting = true;
     _connectingWalletType = type;
     if (isConnected) {
@@ -110,17 +111,25 @@ abstract class LedgerViewModelBase with Store {
         : ledgerPlusUSB;
 
     if (_connectionChangeSubscription == null) {
-      _connectionChangeSubscription =
-          ledger.deviceStateChanges.listen(_connectionChangeListener);
+      _connectionChangeSubscription = ledger
+          .deviceStateChanges(device.id)
+          .listen(_connectionChangeListener);
     }
 
-    _connection = await ledger.connect(device);
+    try {
+      _connection = await ledger.connect(device);
+      _isConnecting = false;
+      return true;
+    } catch (e) {
+      printV(e);
+    }
     _isConnecting = false;
+    return false;
   }
 
   StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   sdk.LedgerConnection? _connection;
-  bool _isConnecting = true;
+  bool _isConnecting = false;
   WalletType? _connectingWalletType;
 
   void _connectionChangeListener(sdk.BleConnectionState event) {
