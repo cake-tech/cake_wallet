@@ -680,11 +680,21 @@ packages:
   socks5_proxy:
     dependency: transitive
     description:
-      name: socks5_proxy
-      sha256: "616818a0ea1064a4823b53c9f7eaf8da64ed82dcd51ed71371c7e54751ed5053"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.6"
+      path: "."
+      ref: "27ad7c2efae8d7460325c74b90f660085cbd0685"
+      resolved-ref: "27ad7c2efae8d7460325c74b90f660085cbd0685"
+      url: "https://github.com/LacticWhale/socks_dart"
+    source: git
+    version: "2.1.0"
+  socks_socket:
+    dependency: transitive
+    description:
+      path: "."
+      ref: e6232c53c1595469931ababa878759a067c02e94
+      resolved-ref: e6232c53c1595469931ababa878759a067c02e94
+      url: "https://github.com/sneurlax/socks_socket"
+    source: git
+    version: "1.1.1"
   source_gen:
     dependency: transitive
     description:
@@ -765,6 +775,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  tor_binary:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cb811c610871a9517d47134b87c2f590c15c96c5
+      resolved-ref: cb811c610871a9517d47134b87c2f590c15c96c5
+      url: "https://github.com/MrCyjaneK/flutter-tor_binary"
+    source: git
+    version: "4.7.14"
   tuple:
     dependency: transitive
     description:

@@ -8,11 +8,12 @@ import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:payjoin_flutter/bitcoin_ffi.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
 import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
+import 'package:http/http.dart' as very_insecure_http_do_not_use; // for errors
 
 enum PayjoinReceiverRequestTypes {
   processOriginalTx,
@@ -28,7 +29,7 @@ class PayjoinReceiverWorker {
   final pendingRequests = <String, Completer<dynamic>>{};
 
   PayjoinReceiverWorker._(this.sendPort);
-
+  static final client = ProxyWrapper().getHttpIOClient();
   static Future<void> run(List<Object> args) async {
     await pj.core.init();
 
@@ -42,11 +43,10 @@ class PayjoinReceiverWorker {
     receivePort.listen(worker.handleMessage);
 
     try {
-      final httpClient = http.Client();
       final receiver = Receiver.fromJson(json: receiverJson);
 
       final uncheckedProposal =
-          await worker.receiveUncheckedProposal(httpClient, receiver);
+          await worker.receiveUncheckedProposal(receiver);
 
       final originalTx = await uncheckedProposal.extractTxToScheduleBroadcast();
       sendPort.send({
@@ -57,14 +57,14 @@ class PayjoinReceiverWorker {
       final payjoinProposal = await worker.processPayjoinProposal(
         uncheckedProposal,
       );
-      final psbt = await worker.sendFinalProposal(httpClient, payjoinProposal);
+      final psbt = await worker.sendFinalProposal(payjoinProposal);
       sendPort.send({
         'type': PayjoinReceiverRequestTypes.proposalSent,
         'psbt': psbt,
       });
     } catch (e) {
       if (e is HttpException ||
-          (e is http.ClientException &&
+          (e is very_insecure_http_do_not_use.ClientException &&
               e.message.contains("Software caused connection abort"))) {
         sendPort.send(PayjoinSessionError.recoverable(e.toString()));
       } else {
@@ -98,16 +98,16 @@ class PayjoinReceiverWorker {
     return completer.future;
   }
 
-  Future<UncheckedProposal> receiveUncheckedProposal(
-      http.Client httpClient, Receiver session) async {
+  Future<UncheckedProposal> receiveUncheckedProposal(Receiver session) async {
     while (true) {
       printV("Polling for Proposal (${session.id()})");
       final extractReq = await session.extractReq(
-          ohttpRelay: PayjoinManager.randomOhttpRelayUrl());
+        ohttpRelay: await PayjoinManager.randomOhttpRelayUrl(),
+      );
       final request = extractReq.$1;
 
       final url = Uri.parse(request.url.asString());
-      final httpRequest = await httpClient.post(url,
+      final httpRequest = await client.post(url,
           headers: {'Content-Type': request.contentType}, body: request.body);
 
       final proposal = await session.processRes(
@@ -116,14 +116,14 @@ class PayjoinReceiverWorker {
     }
   }
 
-  Future<String> sendFinalProposal(
-      http.Client httpClient, PayjoinProposal finalProposal) async {
+  Future<String> sendFinalProposal(PayjoinProposal finalProposal) async {
     final req = await finalProposal.extractReq(
-        ohttpRelay: PayjoinManager.randomOhttpRelayUrl());
+      ohttpRelay: await PayjoinManager.randomOhttpRelayUrl(),
+    );
     final proposalReq = req.$1;
     final proposalCtx = req.$2;
 
-    final request = await httpClient.post(
+    final request = await client.post(
       Uri.parse(proposalReq.url.asString()),
       headers: {"Content-Type": proposalReq.contentType},
       body: proposalReq.body,

@@ -1,15 +1,16 @@
 import 'dart:convert';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
   var address = '';
 
   try {
     final uri = Uri.parse("https://api.unstoppabledomains.com/profile/public/${Uri.encodeQueryComponent(domain)}?fields=records");
-    final jsonString = await http.read(uri);
-    final jsonParsed = json.decode(jsonString) as Map<String, dynamic>;
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
+    final jsonParsed = json.decode(response.body) as Map<String, dynamic>;
     if (jsonParsed["records"] == null) {
       throw Exception(".records response from $uri is empty");
     };
