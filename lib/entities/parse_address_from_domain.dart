@@ -329,8 +329,6 @@ class AddressResolverService {
             ? entry.currencies.toList()
             : (entry.currencies.contains(currency) ? [currency] : const <CryptoCurrency>[]);
 
-      print('Running lookup for ${entry.source.label} with query: $query, coins: $coins');
-
         if (coins.isEmpty) continue;
         tasks.add(entry.run(query, coins, wallet));
       }
