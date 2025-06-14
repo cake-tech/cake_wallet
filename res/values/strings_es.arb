@@ -418,6 +418,7 @@
   "insufficient_lamport_for_tx": "No tienes suficiente SOL para cubrir la transacción y su tarifa de transacción. Por favor, agrega más SOL a su billetera o reduce la cantidad de sol que está enviando.",
   "insufficient_lamports": "No tienes suficiente SOL para cubrir la transacción y su tarifa de transacción. Necesita al menos ${solValueNeeded} sol. Por favor, agrega más sol a su billetera o reduzca la cantidad de sol que está enviando",
   "insufficientFundsForRentError": "No tienes suficiente SOL para cubrir la tarifa de transacción y alquilar para la cuenta. Por favor, agrega más sol a su billetera o reduce la cantidad de sol que está enviando",
+  "insufficientFundsForRentErrorReceiver": "La cuenta del receptor no tiene suficiente SOL para cubrir el alquiler. Pida al receptor que agregue más SOL a su cuenta.",
   "introducing_cake_pay": "¡Presentamos Cake Pay!",
   "invalid_input": "Entrada inválida",
   "invalid_password": "Contraseña invalida",

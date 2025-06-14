@@ -417,6 +417,7 @@
   "insufficient_lamport_for_tx": "Bạn không có đủ SOL để thanh toán giao dịch và phí giao dịch. Vui lòng thêm SOL vào ví của bạn hoặc giảm số lượng SOL bạn đang gửi.",
   "insufficient_lamports": "Bạn không có đủ SOL để thanh toán giao dịch và phí giao dịch. Bạn cần ít nhất ${solValueNeeded} SOL. Vui lòng thêm SOL vào ví của bạn hoặc giảm số lượng SOL bạn đang gửi",
   "insufficientFundsForRentError": "Bạn không có đủ SOL để thanh toán phí giao dịch và phí thuê cho tài khoản. Vui lòng thêm SOL vào ví của bạn hoặc giảm số lượng SOL bạn đang gửi",
+  "insufficientFundsForRentErrorReceiver": "Tài khoản của người nhận không có đủ SOL để trang trải tiền thuê nhà. Vui lòng yêu cầu người nhận thêm SOL vào tài khoản của họ.",
   "introducing_cake_pay": "Giới thiệu Cake Pay!",
   "invalid_input": "Nhập không hợp lệ",
   "invalid_password": "Mật khẩu không hợp lệ",
