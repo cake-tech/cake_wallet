@@ -74,7 +74,10 @@ class WalletRestoreFromQRCode {
   static String? _extractAddressFromUrl(String rawString, WalletType type) {
     try {
       return AddressResolver.extractAddressByType(
-          raw: rawString, type: walletTypeToCryptoCurrency(type));
+        raw: rawString,
+        type: walletTypeToCryptoCurrency(type),
+        requireSurroundingWhitespaces: false,
+      );
     } catch (_) {
       return null;
     }
