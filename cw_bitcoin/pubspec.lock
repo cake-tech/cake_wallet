@@ -1082,6 +1082,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
+  ur:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "5738f70d0ec3d50977ac3dd01fed62939600238b"
+      resolved-ref: "5738f70d0ec3d50977ac3dd01fed62939600238b"
+      url: "https://github.com/bukata-sa/bc-ur-dart"
+    source: git
+    version: "0.1.0"
   vector_math:
     dependency: transitive
     description:
