@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -317,14 +318,13 @@ class QRWidget extends StatelessWidget {
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
         currentTheme: currentTheme,
-        isTwoAction: true,
-        leftButtonText: S.of(context).learn_more,
-        actionLeftButton: () => launchUrl(
-          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
-          mode: LaunchMode.externalApplication,
-        ),
-        rightButtonText: S.of(context).ok,
-        actionRightButton: () => Navigator.of(context).pop(),
+        footerType: FooterType.doubleActionButton,
+        doubleActionLeftButtonText: S.of(context).learn_more,
+        onLeftActionButtonPressed: () => launchUrl(
+            Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+            mode: LaunchMode.externalApplication),
+        doubleActionRightButtonText: S.of(context).ok,
+        onRightActionButtonPressed: () => Navigator.of(context).pop(),
       ),
     );
   }

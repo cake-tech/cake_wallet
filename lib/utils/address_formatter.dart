@@ -10,8 +10,8 @@ class AddressFormatter {
     TextStyle? oddTextStyle,
     TextAlign? textAlign,
     bool shouldTruncate = false,
+    int visibleChunks = 2,
   }) {
-
     final cleanAddress = address.replaceAll('bitcoincash:', '');
     final isMWEB = address.startsWith('ltcmweb');
     final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;
@@ -21,8 +21,10 @@ class AddressFormatter {
         address: cleanAddress,
         isMWEB: isMWEB,
         chunkSize: chunkSize,
+        visibleChunks: visibleChunks,
         evenTextStyle: evenTextStyle,
-        oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(150)),
+        oddTextStyle:
+            oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(150)),
         textAlign: textAlign,
       );
     } else {
@@ -31,7 +33,8 @@ class AddressFormatter {
         isMWEB: isMWEB,
         chunkSize: chunkSize,
         evenTextStyle: evenTextStyle,
-        oddTextStyle: oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(128)),
+        oddTextStyle:
+            oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(128)),
         textAlign: textAlign,
       );
     }
@@ -45,7 +48,6 @@ class AddressFormatter {
     required TextStyle oddTextStyle,
     TextAlign? textAlign,
   }) {
-
     final chunks = <String>[];
 
     if (isMWEB) {
@@ -86,40 +88,24 @@ class AddressFormatter {
     required String address,
     required bool isMWEB,
     required int chunkSize,
+    required int visibleChunks,
     required TextStyle evenTextStyle,
     required TextStyle oddTextStyle,
     TextAlign? textAlign,
   }) {
-
     if (isMWEB) {
-      const fixedPrefix = 'ltcmweb';
-      final secondChunkStart = fixedPrefix.length;
-      const chunkSize = 4;
-      final secondChunk = address.substring(
-        secondChunkStart,
-        math.min(secondChunkStart + chunkSize, address.length),
-      );
-      final lastChunk = address.substring(address.length - chunkSize);
+      const prefix = 'ltcmweb';
+      final rest = address.substring(prefix.length);
 
-      final spans = <TextSpan>[
-        TextSpan(text: '$fixedPrefix ', style: evenTextStyle),
-        TextSpan(text: '$secondChunk ', style: oddTextStyle),
-        TextSpan(text: '... ', style: oddTextStyle),
-        TextSpan(text: lastChunk, style: evenTextStyle),
-      ];
+      final chunks = <String>[];
+      for (int i = 0; i < rest.length; i += chunkSize) {
+        chunks.add(rest.substring(i, math.min(i + chunkSize, rest.length)));
+      }
 
-      return RichText(
-        text: TextSpan(children: spans),
-        textAlign: textAlign ?? TextAlign.start,
-        overflow: TextOverflow.visible,
-      );
-    } else {
-      final int digitCount = chunkSize;
-
-      if (address.length <= 2 * digitCount) {
+      if (chunks.length <= visibleChunks + 1) {
         return _buildFullSegmentedAddress(
           address: address,
-          isMWEB: isMWEB,
+          isMWEB: true,
           chunkSize: chunkSize,
           evenTextStyle: evenTextStyle,
           oddTextStyle: oddTextStyle,
@@ -127,18 +113,19 @@ class AddressFormatter {
         );
       }
 
-      final String firstPart = address.substring(0, digitCount);
-      final String secondPart =
-      address.substring(digitCount, digitCount * 2);
-      final String lastPart =
-      address.substring(address.length - digitCount);
-
       final spans = <TextSpan>[
-        TextSpan(text: '$firstPart ', style: evenTextStyle),
-        TextSpan(text: '$secondPart ', style: oddTextStyle),
-        TextSpan(text: '... ', style: oddTextStyle),
-        TextSpan(text: lastPart, style: evenTextStyle),
+        TextSpan(text: '$prefix ', style: evenTextStyle),
       ];
+
+      for (var i = 0; i < visibleChunks; i++) {
+        final style = (i.isEven) ? oddTextStyle : evenTextStyle;
+        spans.add(TextSpan(text: '${chunks[i]} ', style: style));
+      }
+
+      spans.add(TextSpan(text: '... ', style: oddTextStyle));
+
+      final lastStyle = (visibleChunks.isEven) ? evenTextStyle : oddTextStyle;
+      spans.add(TextSpan(text: chunks.last, style: lastStyle));
 
       return RichText(
         text: TextSpan(children: spans),
@@ -146,6 +133,40 @@ class AddressFormatter {
         overflow: TextOverflow.visible,
       );
     }
+
+    final chunks = <String>[];
+    for (int i = 0; i < address.length; i += chunkSize) {
+      chunks.add(address.substring(i, math.min(i + chunkSize, address.length)));
+    }
+
+    if (chunks.length <= visibleChunks + 1) {
+      return _buildFullSegmentedAddress(
+        address: address,
+        isMWEB: false,
+        chunkSize: chunkSize,
+        evenTextStyle: evenTextStyle,
+        oddTextStyle: oddTextStyle,
+        textAlign: textAlign,
+      );
+    }
+
+    final spans = <TextSpan>[];
+
+    for (var i = 0; i < visibleChunks; i++) {
+      final style = (i.isEven) ? evenTextStyle : oddTextStyle;
+      spans.add(TextSpan(text: '${chunks[i]} ', style: style));
+    }
+
+    spans.add(TextSpan(text: '... ', style: oddTextStyle));
+
+    final lastStyle = (visibleChunks.isEven) ? oddTextStyle : evenTextStyle;
+    spans.add(TextSpan(text: chunks.last, style: lastStyle));
+
+    return RichText(
+      text: TextSpan(children: spans),
+      textAlign: textAlign ?? TextAlign.start,
+      overflow: TextOverflow.visible,
+    );
   }
 
   static int _getChunkSize(WalletType walletType) {
