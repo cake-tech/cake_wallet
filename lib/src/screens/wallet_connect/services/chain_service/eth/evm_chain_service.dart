@@ -493,7 +493,7 @@ class EvmChainServiceImpl {
       final typedData = jsonDecode(data[1] as String) as Map<String, dynamic>;
 
       // Extracting domain details.
-      final domain = typedData['domain'] ?? {} as Map<String, dynamic>;
+      final domain = typedData['domain'] as Map<String, dynamic>? ?? {};
       final domainName = domain['name']?.toString() ?? '';
       final version = domain['version']?.toString() ?? '';
       final chainId = domain['chainId']?.toString() ?? '';
@@ -501,8 +501,8 @@ class EvmChainServiceImpl {
 
       // Get the primary type and types
       final primaryType = typedData['primaryType']?.toString() ?? '';
-      final types = typedData['types'] as Map<String, dynamic>;
-      final message = typedData['message'] as Map<String, dynamic>;
+      final types = typedData['types']  as Map<String, dynamic>? ?? {};
+      final message = typedData['message'] as Map<String, dynamic>? ?? {};
 
       // Build a readable message based on the primary type and its structure
       String messageDetails = '';
