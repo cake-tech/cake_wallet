@@ -5,6 +5,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/wallet_connect_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -71,10 +72,13 @@ class ConnectionSyncPage extends BasePage {
             ),
           ],
           if (FeatureFlag.isInAppTorEnabled)
-            SettingsCellWithArrow(
-              title: S.current.tor_connection,
-              handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
-            ),
+            Observer(builder: (context) {
+              return SettingsSwitcherCell(
+                title: S.current.enable_builtin_tor,
+                value: dashboardViewModel.builtinTor,
+                onValueChange: (_, bool value) => dashboardViewModel.setBuiltinTor(value, context),
+              );
+            }),
         ],
       ),
     );
