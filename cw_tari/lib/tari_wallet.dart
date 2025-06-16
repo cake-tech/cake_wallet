@@ -117,6 +117,8 @@ abstract class TariWalletBase
             print("[Recovery] Connection to base node failed. Retry ${arg1}/${arg2}");
             break;
           case 3:
+            final blocksLeft = arg2 - arg1;
+            syncStatus = SyncingSyncStatus(blocksLeft, arg1 / arg2);
             print("[Recovery] Scanning progress: ${arg1}/${arg2} blocks");
             isRecovering = false;
             break;
