@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/gnosis/gnosis.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -40,6 +41,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return nano!.getNanoWordList(language);
       case WalletType.polygon:
         return polygon!.getPolygonWordList(language);
+      case WalletType.gnosis:
+        return gnosis!.getGnosisWordList(language);
       case WalletType.solana:
         return solana!.getSolanaWordList(language);
       case WalletType.tron:

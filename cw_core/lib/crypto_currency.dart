@@ -233,6 +233,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 96, name: 'zano', iconPath: 'assets/images/zano_icon.png', decimals: 12);
   static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 97, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
   static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png', decimals: 18);
+  static const xdai = CryptoCurrency(title: 'XDAI', tag: 'XDAI', fullName: 'xDAI', raw: 99, name: 'xDAI', iconPath: 'assets/images/xdai.png', decimals: 18);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {

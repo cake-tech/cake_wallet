@@ -1,0 +1,4 @@
+-
+  uri: gnosis-rpc.publicnode.com
+  useSSL: true
+  isDefault: true
