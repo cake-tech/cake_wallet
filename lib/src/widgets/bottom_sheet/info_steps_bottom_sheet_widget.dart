@@ -21,7 +21,7 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
     required this.steps,
     String? titleIconPath,
     required this.currentTheme,
-  }) : super(titleText: titleText, titleIconPath: titleIconPath);
+  }) : super(titleText: titleText, titleIconPath: titleIconPath, footerType: FooterType.none);
 
   @override
   Widget contentWidget(BuildContext context) => SizedBox(
@@ -108,7 +108,4 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
           ],
         ),
       );
-
-  @override
-  Widget footerWidget(BuildContext context) => SizedBox.shrink();
 }

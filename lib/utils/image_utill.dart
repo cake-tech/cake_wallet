@@ -1,74 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
 
 class ImageUtil {
-  static Widget getImageFromPath({required String imagePath, double? height, double? width}) {
-    final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
-    final bool isSvg = imagePath.endsWith('.svg');
-    final double _height = height ?? 35;
-    final double _width = width ?? 35;
+  static Widget getImageFromPath({
+    required String imagePath,
+    double? height,
+    double? width,
+    Color? svgImageColor,
+    BoxFit? fit,
+    double? borderRadius,
+  }) {
+    final isNetwork = imagePath.startsWith('http');
+    final isSvg = imagePath.endsWith('.svg');
 
-    if (isNetworkImage) {
-      return isSvg
-          ? SvgPicture.network(
+    final bool ignoreSize = fit != null;
+    final double? _height = ignoreSize ? null : (height ?? 35);
+    final double? _width = ignoreSize ? null : (width ?? 35);
+
+    Widget img;
+    if (isNetwork) {
+      img = isSvg
+          ? SvgPicture.network(imagePath,
               key: ValueKey(imagePath),
-              imagePath,
               height: _height,
               width: _width,
-              placeholderBuilder: (BuildContext context) => Container(
-                height: _height,
-                width: _width,
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-            )
-          : Image.network(
+              fit: fit ?? BoxFit.contain,
+              placeholderBuilder: (_) => _placeholder(_height, _width))
+          : Image.network(imagePath,
               key: ValueKey(imagePath),
-              imagePath,
               height: _height,
               width: _width,
-              loadingBuilder:
-                  (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                }
-                return Container(
-                  height: _height,
-                  width: _width,
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  ),
-                );
-              },
-              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                return Container(
-                  height: _height,
-                  width: _width,
-                );
-              },
-            );
+              fit: fit,
+              loadingBuilder: (_, child, progress) =>
+                  progress == null ? child : _placeholder(_height, _width),
+              errorBuilder: (_, __, ___) => const SizedBox.shrink());
     } else {
-      return isSvg
-          ? SvgPicture.asset(
-              imagePath,
+      img = isSvg
+          ? SvgPicture.asset(imagePath,
+              key: ValueKey(imagePath),
               height: _height,
               width: _width,
-              placeholderBuilder: (_) => Icon(Icons.error),
-              key: ValueKey(imagePath),
-            )
+              fit: fit ?? BoxFit.contain,
+              colorFilter:
+                  svgImageColor != null ? ColorFilter.mode(svgImageColor, BlendMode.srcIn) : null,
+              placeholderBuilder: (_) => const Icon(Icons.error))
           : Image.asset(
               imagePath,
+              key: ValueKey(imagePath),
               height: _height,
               width: _width,
-              errorBuilder: (_, __, ___) => Icon(Icons.error),
-              key: ValueKey(imagePath),
+              fit: fit,
+              errorBuilder: (_, __, ___) => const Icon(Icons.error),
             );
+    }
+
+    if (borderRadius != null && borderRadius > 0) {
+      img = ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: img,
+      );
+    }
+    return img;
+  }
+
+  static Widget _placeholder(double? h, double? w) => (h != null || w != null)
+      ? SizedBox(height: h, width: w, child: const Center(child: CircularProgressIndicator()))
+      : const Center(child: CircularProgressIndicator());
+
+
+  static Future<String?> saveAvatarLocally(String imageUriOrPath) async {
+    if (imageUriOrPath.isEmpty) return null;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      String ext = p.extension(imageUriOrPath);
+      if (ext.isEmpty) ext = '.png';
+      final file = File('${dir.path}/${DateTime.now().millisecondsSinceEpoch}$ext');
+
+
+      if (imageUriOrPath.startsWith('http')) {
+        final response = await http.get(Uri.parse(imageUriOrPath));
+        if (response.statusCode == 200) {
+          await file.writeAsBytes(response.bodyBytes);
+        } else {
+          return null;
+        }
+      } else {
+        await File(imageUriOrPath).copy(file.path);
+      }
+
+      return file.existsSync() ? file.path : null;
+    } catch (_) {
+      return null;
     }
   }
 }

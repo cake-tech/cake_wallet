@@ -1,18 +1,25 @@
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/address_book/widgets/addresses_expansion_tile_widget.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/add_contact_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +71,10 @@ class ContactListPage extends BasePage {
                             contactListViewModel.shouldRequireTOTP2FAForAddingContacts,
                       );
                     } else {
-                      await Navigator.of(context).pushNamed(Routes.addressBookAddContact);
+                      //await Navigator.of(context).pushNamed(Routes.addressBookAddContact); //TODO remove old flow
+
+                      await _showAddressBookBottomSheet(
+                          context: context, contactListViewModel: contactListViewModel);
                     }
                   },
                   child: Offstage(),
@@ -316,6 +326,7 @@ class _ContactListBodyState extends State<ContactListBody> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Container(
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
         child: FilteredList(
           list: contacts,
           updateFunction: widget.contactListViewModel.reorderAccordingToContactList,
@@ -323,31 +334,28 @@ class _ContactListBodyState extends State<ContactListBody> {
           shrinkWrap: true,
           itemBuilder: (context, index) {
             final contact = contacts[index];
-            final contactContent =
-                generateContactRaw(context, contact, contacts.length == index + 1);
-            return GestureDetector(
-              key: Key('${contact.name}'),
-              onTap: () async {
-                if (!widget.contactListViewModel.isEditable) {
-                  Navigator.of(context).pop(contact);
-                  return;
-                }
-
-                final isCopied = await DialogService.showNameAndAddressDialog(context, contact);
-
-                if (isCopied) {
-                  await Clipboard.setData(ClipboardData(text: contact.address));
-                  await showBar<void>(context, S.of(context).copied_to_clipboard);
-                }
-              },
-              behavior: HitTestBehavior.opaque,
-              child: widget.contactListViewModel.isEditable
-                  ? Slidable(
-                      key: Key('${contact.key}'),
-                      endActionPane: _actionPane(context, contact),
-                      child: contactContent,
-                    )
-                  : contactContent,
+            return Padding(
+              key: ValueKey(contact.key),
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ContactAddressesExpansionTile(
+                key: Key(contact.key.toString()),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                manualByCurrency: contact.manualAddresses,
+                fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                title: _buildContactTitle(
+                    context: context,
+                    contact: contact,
+                    contactListViewModel: widget.contactListViewModel),
+                onEditPressed: (cur, lbl) async {
+                  await _showAddressBookBottomSheet(
+                    context: context,
+                    contactListViewModel: widget.contactListViewModel,
+                    initialRoute: Routes.editAddressPage,
+                    initialArgs: [contact, cur, lbl],
+                  );
+                },
+                onCopyPressed: (addr) => Clipboard.setData(ClipboardData(text: addr)),
+              ),
             );
           },
         ),
@@ -358,69 +366,55 @@ class _ContactListBodyState extends State<ContactListBody> {
     );
   }
 
-  Widget generateContactRaw(BuildContext context, ContactRecord contact, bool isLast) {
-    final image = contact.type.iconPath;
-    final currencyIcon = image != null
-        ? Image.asset(image, height: 24, width: 24)
-        : const SizedBox(height: 24, width: 24);
-    return Column(
+  Widget _buildContactTitle(
+      {required BuildContext context,
+      required ContactRecord contact,
+      required ContactListViewModel contactListViewModel}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          key: Key('${contact.name}'),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(8)),
-            color: Theme.of(context).colorScheme.surfaceContainer,
-          ),
-          margin: const EdgeInsets.only(top: 4, bottom: 4, left: 16, right: 16),
-          padding: const EdgeInsets.only(top: 16, bottom: 16, right: 16, left: 16),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              currencyIcon,
-              Expanded(
-                  child: Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: Text(
-                  contact.name,
-                  style: Theme.of(context).textTheme.bodyMedium!,
-                ),
-              ))
-            ],
-          ),
+        Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(5),
+              child: Image(
+                image: contact.avatarProvider,
+                width: 24,
+                height: 24,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(width: 6),
+            Text(
+              contact.name,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _circleIcon(
+                context: context,
+                icon: Icons.add,
+                onPressed: () async => await _showAddressBookBottomSheet(
+                    context: context,
+                    contactListViewModel: contactListViewModel,
+                    initialRoute: Routes.editAddressPage,
+                    initialArgs: [contact, null, null])),
+            const SizedBox(width: 8),
+            _circleIcon(
+                context: context,
+                icon: Icons.edit,
+                onPressed: () async => await _showAddressBookBottomSheet(
+                    context: context,
+                    contactListViewModel: contactListViewModel,
+                    initialRoute: Routes.editContactPage,
+                    initialArgs: contact)),
+          ],
         ),
       ],
     );
-  }
-
-  ActionPane _actionPane(BuildContext context, ContactRecord contact) {
-    return ActionPane(
-        motion: const ScrollMotion(),
-        extentRatio: 0.4,
-        children: [
-          SlidableAction(
-            onPressed: (_) async => await Navigator.of(context)
-                .pushNamed(Routes.addressBookAddContact, arguments: contact),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            icon: Icons.edit,
-            label: S.of(context).edit,
-          ),
-          SlidableAction(
-            onPressed: (_) async {
-              final isDelete = await DialogService.showAlertDialog(context);
-  
-              if (isDelete) {
-                await widget.contactListViewModel.delete(contact);
-              }
-            },
-            backgroundColor: Theme.of(context).colorScheme.error,
-            foregroundColor: Theme.of(context).colorScheme.onSurface,
-            icon: CupertinoIcons.delete,
-            label: S.of(context).delete,
-          ),
-        ],
-      );
   }
 
   Widget filterButtonWidget(BuildContext context, ContactListViewModel contactListViewModel) {
@@ -470,6 +464,46 @@ class _ContactListBodyState extends State<ContactListBody> {
       ),
     );
   }
+
+  Widget _circleIcon(
+      {required BuildContext context,
+      required IconData icon,
+      required VoidCallback onPressed,
+      ShapeBorder? shape}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return RawMaterialButton(
+      onPressed: onPressed,
+      fillColor: colorScheme.surfaceContainerHighest,
+      elevation: 0,
+      constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+      padding: EdgeInsets.zero,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      shape: shape ?? const CircleBorder(),
+      child: Icon(icon, size: 14, color: colorScheme.onSurface),
+    );
+  }
+}
+
+Future<void> _showAddressBookBottomSheet(
+    {required BuildContext context,
+    required ContactListViewModel contactListViewModel,
+    String? initialRoute,
+    Object? initialArgs}) async {
+  await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext bottomSheetContext) {
+        return AddressBookBottomSheet(
+          onHandlerSearch: (query) async {
+            final address = await getIt
+                .get<AddressResolverService>()
+                .resolve(query: query, wallet: contactListViewModel.wallet);
+            return address;
+          },
+          initialRoute: initialRoute,
+          initialArgs: initialArgs,
+        );
+      });
 }
 
 class DialogService {
@@ -500,9 +534,9 @@ class DialogService {
                     textAlign: TextAlign.center,
                     walletType: cryptoCurrencyToWalletType(contact.type),
                     evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      decoration: TextDecoration.none,
-                    ),
+                          fontSize: 16,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                   rightButtonText: S.of(context).copy,
                   leftButtonText: S.of(context).cancel,

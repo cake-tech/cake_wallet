@@ -45,7 +45,7 @@ abstract class OutputBase with Store {
         address = '',
         note = '',
         extractedAddress = '',
-        parsedAddress = ParsedAddress(addresses: []) {
+        parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
     _setCryptoNumMaximumFractionDigits();
   }
 
@@ -79,7 +79,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
+      parsedAddress.addressSource != AddressSource.notParsed && parsedAddress.handle != null;
 
   @observable
   String? stealthAddress;
@@ -241,7 +241,7 @@ abstract class OutputBase with Store {
 
   void resetParsedAddress() {
     extractedAddress = '';
-    parsedAddress = ParsedAddress(addresses: []);
+    parsedAddress = ParsedAddress( parsedAddressByCurrencyMap: {});
   }
 
   @action
@@ -323,15 +323,16 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final currency = cryptoCurrencyHandler();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    extractedAddress = await extractAddressFromParsed(context, parsedAddress);
-    note = parsedAddress.description;
+    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: _wallet);
+    parsedAddress = parsedAddresses.first;
+    extractedAddress =  ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
+    note = parsedAddress.description ?? '';
   }
 
   void loadContact(ContactBase contact) {
     address = contact.name;
-    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
-    extractedAddress = parsedAddress.addresses.first;
-    note = parsedAddress.description;
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {contact.type : contact.address}, handle: contact.name);
+    extractedAddress = parsedAddress.parsedAddressByCurrencyMap[contact.type] ?? '';
+    note = parsedAddress.description ?? '';
   }
 }
