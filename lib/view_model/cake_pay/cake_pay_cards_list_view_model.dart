@@ -1,6 +1,9 @@
-import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'dart:async';
+
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -16,8 +19,8 @@ abstract class CakePayCardsListViewModelBase with Store {
   CakePayCardsListViewModelBase({
     required this.cakePayService,
     required this.settingsStore,
-  })  : cardState = CakePayCardsStateNoCards(),
-        cakePayVendors = [],
+  })  : cakePayVendors = [],
+        userCards = [],
         availableCountries = [],
         page = 1,
         displayPrepaidCards = true,
@@ -27,8 +30,11 @@ abstract class CakePayCardsListViewModelBase with Store {
         scrollOffsetFromTop = 0.0,
         vendorsState = InitialCakePayVendorLoadingState(),
         createCardState = CakePayCreateCardState(),
+        userCardState = UserCakePayCardsStateInitial(),
         searchString = '',
+        searchMyCardsString = '',
         CakePayVendorList = <CakePayVendor>[] {
+    checkAuth();
     initialization();
   }
 
@@ -42,6 +48,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   void initialization() async {
     await getCountries();
     getVendors();
+    getUserCards();
   }
 
   final CakePayService cakePayService;
@@ -73,6 +80,7 @@ abstract class CakePayCardsListViewModelBase with Store {
       };
 
   String searchString;
+  String? username;
   int page;
 
   late Country _initialSelectedCountry;
@@ -82,13 +90,19 @@ abstract class CakePayCardsListViewModelBase with Store {
   late bool _initialDisplayCustomValueCards;
 
   @observable
+  List<CakePayCard> userCards;
+
+  @observable
+  String searchMyCardsString;
+
+  @observable
   double scrollOffsetFromTop;
 
   @observable
   CakePayCreateCardState createCardState;
 
   @observable
-  CakePayCardsState cardState;
+  UserCakePayCardsState userCardState;
 
   @observable
   CakePayVendorState vendorsState;
@@ -117,12 +131,29 @@ abstract class CakePayCardsListViewModelBase with Store {
   @observable
   bool displayCustomValueCards;
 
+  @observable
+  ObservableFuture<bool>? authFuture;
+
+  @computed
+  bool? get isUserAuthenticated =>
+      authFuture?.status == FutureStatus.fulfilled ? authFuture?.value : null;
+
   @computed
   Country get selectedCountry =>
       settingsStore.selectedCakePayCountry ?? _getInitialCountry(settingsStore.fiatCurrency);
 
   @computed
-  bool get shouldShowCountryPicker => settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
+  bool get shouldShowCountryPicker =>
+      settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
+
+  @computed
+  List<CakePayCard> get filteredUserCards {
+    final query = searchMyCardsString.trim().toLowerCase();
+    if (query.isEmpty) return userCards;
+    return userCards
+        .where((card) => card.name.toLowerCase().contains(query))
+        .toList(growable: false);
+  }
 
 
   bool get hasFiltersChanged {
@@ -133,9 +164,46 @@ abstract class CakePayCardsListViewModelBase with Store {
         displayCustomValueCards != _initialDisplayCustomValueCards;
   }
 
-
   Future<void> getCountries() async {
     availableCountries = await cakePayService.getCountries();
+  }
+
+  Future<void> getUserCards() async {
+    //Dummy user cards // TODO: fetch from API
+    userCardState = UserCakePayCardsStateFetching();
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      final vendorsCard = cakePayVendors
+          .where((vendor) => vendor.card != null)
+          .map((vendor) => vendor.card!)
+          .toList();
+      userCards = vendorsCard.sublist(0, 10);
+
+      vendorsCard.forEach((card) {
+        if (card.name.toLowerCase().contains('amazon.com')) {
+          userCards.add(card);
+        }
+      });
+
+      userCardState = UserCakePayCardsStateSuccess();
+      if (userCards.isEmpty) {
+        userCardState = UserCakePayCardsStateNoCards();
+      }
+    } catch (e) {
+      userCardState = UserCakePayCardsStateFailure(
+        error: e.toString(),
+      );
+    }
+  }
+
+  @action
+  Future<void> checkAuth() async {
+    authFuture = ObservableFuture(cakePayService.isLogged());
+
+    final logged = await authFuture!;
+    if (logged) {
+      username = await cakePayService.getUserEmail();
+    }
   }
 
   @action
@@ -209,6 +277,9 @@ abstract class CakePayCardsListViewModelBase with Store {
     settingsStore.selectedCakePayCountry = null;
     settingsStore.selectedCakePayCountry = country;
   }
+
+  @action
+  void setMyCardsQuery(String text) => searchMyCardsString = text;
 
   @action
   void togglePrepaidCards() => displayPrepaidCards = !displayPrepaidCards;

@@ -1,4 +1,4 @@
-import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:mobx/mobx.dart';
 
 part 'cake_features_view_model.g.dart';

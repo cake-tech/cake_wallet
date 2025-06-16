@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'image_placeholder.dart';
 
 class CardItem extends StatelessWidget {
   CardItem({
     required this.title,
     required this.subTitle,
-    required this.backgroundColor,
-    required this.titleColor,
-    required this.subtitleColor,
-    this.hideBorder = true,
-    this.discount = 0.0,
     this.isAmount = false,
-    this.discountBackground,
     this.onTap,
     this.logoUrl,
   });
@@ -21,13 +14,7 @@ class CardItem extends StatelessWidget {
   final String title;
   final String subTitle;
   final String? logoUrl;
-  final double discount;
   final bool isAmount;
-  final bool hideBorder;
-  final Color backgroundColor;
-  final Color titleColor;
-  final Color subtitleColor;
-  final AssetImage? discountBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +27,8 @@ class CardItem extends StatelessWidget {
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            color: backgroundColor,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(10),
-            border: hideBorder
-                ? Border.all(color: Colors.transparent)
-                : Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.20),
-                  ),
           ),
           child: Row(
             children: [
@@ -73,26 +55,20 @@ class CardItem extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: titleColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        subTitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: titleColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      Text(title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+                      Text(subTitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall!
+                              .copyWith(fontSize: 10, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
