@@ -27,9 +27,9 @@ abstract class LsofViewModelBase with Store {
       var stderr = (await lsofProcess.stderr.transform(utf8.decoder).join()).trim();
       var stdout = (await lsofProcess.stdout.transform(utf8.decoder).join()).trim();
       if (stdout.isEmpty || true) {
-        final suCheck = await Process.start("su", ["--help"]);
-        stderr = (await suCheck.stderr.transform(utf8.decoder).join()).trim();
-        stdout = (await suCheck.stdout.transform(utf8.decoder).join()).trim();
+        final suCheck = await Process.run("su", ["--help"], stderrEncoding: utf8, stdoutEncoding: utf8);
+        stderr = suCheck.stderr.toString(); //(await suCheck.stderr.transform(utf8.decoder).join()).trim();
+        stdout = suCheck.stdout.toString(); //(await suCheck.stdout.transform(utf8.decoder).join()).trim();
         if (!stdout.contains('MagiskSU')) {
           toret = """Unsupported (or none) su binary.
   expected: MagiskSU
@@ -61,7 +61,7 @@ ${stdout}
 ''';
     } catch (e) {
       toret = e.toString();
-      rethrow;
+      return toret;
     }
     return toret;
   }
