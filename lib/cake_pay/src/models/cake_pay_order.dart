@@ -1,3 +1,15 @@
+enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB }
+
+extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
+  String get label => switch (this) {
+        CakePayPaymentMethod.BTC => 'Bitcoin',
+        CakePayPaymentMethod.BTC_LN => 'Bitcoin Lightning',
+        CakePayPaymentMethod.XMR => 'Monero',
+        CakePayPaymentMethod.LTC => 'Litecoin',
+        CakePayPaymentMethod.LTC_MWEB => 'Litecoin MWEB',
+      };
+}
+
 class CakePayOrder {
   final String orderId;
   final List<OrderCard> cards;
@@ -65,14 +77,20 @@ class OrderCard {
 
 class PaymentData {
   final CryptoPaymentData btc;
+  final CryptoPaymentData btc_ln;
   final CryptoPaymentData xmr;
+  final CryptoPaymentData ltc;
+  final CryptoPaymentData ltc_mweb;
   final DateTime invoiceTime;
   final DateTime expirationTime;
   final int? commission;
 
   PaymentData({
     required this.btc,
+    required this.btc_ln,
     required this.xmr,
+    required this.ltc,
+    required this.ltc_mweb,
     required this.invoiceTime,
     required this.expirationTime,
     required this.commission,
@@ -81,7 +99,10 @@ class PaymentData {
   factory PaymentData.fromMap(Map<String, dynamic> map) {
     return PaymentData(
       btc: CryptoPaymentData.fromMap(map['BTC'] as Map<String, dynamic>),
+      btc_ln: CryptoPaymentData.fromMap(map['BTC_LN'] as Map<String, dynamic>),
       xmr: CryptoPaymentData.fromMap(map['XMR'] as Map<String, dynamic>),
+      ltc: CryptoPaymentData.fromMap(map['LTC'] as Map<String, dynamic>),
+      ltc_mweb: CryptoPaymentData.fromMap(map['LTC_MWEB'] as Map<String, dynamic>),
       invoiceTime: DateTime.fromMillisecondsSinceEpoch(map['invoice_time'] as int),
       expirationTime: DateTime.fromMillisecondsSinceEpoch(map['expiration_time'] as int),
       commission: map['commission'] as int?,

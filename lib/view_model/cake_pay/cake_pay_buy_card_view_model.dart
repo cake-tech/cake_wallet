@@ -5,6 +5,7 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -24,7 +25,9 @@ abstract class CakePayBuyCardViewModelBase with Store {
         quantity = 1,
         min = double.parse(vendor.card!.minValue ?? '0'),
         max = double.parse(vendor.card!.maxValue ?? '0'),
-        card = vendor.card!;
+        card = vendor.card! {
+    selectedPaymentMethod = availableMethods.isNotEmpty ? availableMethods.first : null;
+  }
 
   final CakePayVendor vendor;
   final SendViewModel sendViewModel;
@@ -56,6 +59,9 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool isPurchasing = false;
 
   @observable
+  bool isSimulatingFlow = false;
+
+  @observable
   bool isOrderExpired = false;
 
   @observable
@@ -65,8 +71,31 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool get isAmountSufficient =>
       (amount >= min && amount <= max) || (isDenominationSelected && quantity > 0);
 
+  @observable
+  CakePayPaymentMethod? selectedPaymentMethod;
+
   @computed
   double get totalAmount => amount * quantity;
+
+  @computed
+  bool get isSimulating => isSimulatingFlow && FeatureFlag.hasDevOptions;
+
+  @computed
+  List<CakePayPaymentMethod> get availableMethods {
+    switch (walletType) {
+      case WalletType.bitcoin:
+        return [CakePayPaymentMethod.BTC];
+      case WalletType.litecoin:
+        return [CakePayPaymentMethod.LTC, CakePayPaymentMethod.LTC_MWEB];
+      case WalletType.monero:
+        return [CakePayPaymentMethod.XMR];
+      default:
+        return const [];
+    }
+  }
+
+  @action
+  void chooseMethod(CakePayPaymentMethod method) => selectedPaymentMethod = method;
 
   @action
   void onQuantityChanged(int? input) => quantity = input ?? 1;
@@ -77,34 +106,39 @@ abstract class CakePayBuyCardViewModelBase with Store {
     amount = double.parse(input.replaceAll(',', '.'));
   }
 
-  CryptoPaymentData? get cryptoPaymentData {
-    if (order == null) return null;
+  CryptoPaymentData? getPaymentDataFor(CakePayPaymentMethod? method) {
+    if (order == null || method == null) return null;
 
-    if (WalletType.monero == walletType) {
-      return order!.paymentData.xmr;
+
+    final data = switch (method) {
+      CakePayPaymentMethod.BTC => order?.paymentData.btc,
+      CakePayPaymentMethod.XMR => order?.paymentData.xmr,
+      CakePayPaymentMethod.LTC => order?.paymentData.ltc,
+      CakePayPaymentMethod.LTC_MWEB => order?.paymentData.ltc_mweb,
+      _ => null
+    };
+
+    if (data == null) return null;
+
+    final bip21 = data.paymentUrls?.bip21;
+    if (bip21 != null && bip21.isNotEmpty) {
+      final uri = Uri.parse(bip21);
+      final addr = uri.path;
+      final price = uri.queryParameters['amount'] ?? data.price;
+
+      return CryptoPaymentData(price: price, address: addr);
     }
 
-    if (WalletType.bitcoin == walletType) {
-      final paymentUrls = order!.paymentData.btc.paymentUrls!.bip21;
-
-      final uri = Uri.parse(paymentUrls!);
-
-      final address = uri.path;
-      final price = uri.queryParameters['amount'];
-
-      return CryptoPaymentData(
-        address: address,
-        price: price ?? '0',
-      );
-    }
-
-    return null;
+    return data;
   }
 
   @action
   Future<void> createOrder() async {
-    if (walletType != WalletType.bitcoin && walletType != WalletType.monero) {
-      sendViewModel.state = FailureState('Unsupported wallet type, please use Bitcoin or Monero.');
+    if (walletType != WalletType.bitcoin &&
+        walletType != WalletType.monero &&
+        walletType != WalletType.litecoin) {
+      sendViewModel.state =
+          FailureState('Unsupported wallet type, please use Bitcoin, Monero, or Litecoin.');
     }
     try {
       order = await cakePayService.createOrder(
@@ -129,10 +163,10 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   Future<void> confirmSending() async {
-    final cryptoPaymentData = this.cryptoPaymentData;
-    try {
-      if (order == null || cryptoPaymentData == null) return;
+    final cryptoPaymentData = getPaymentDataFor(selectedPaymentMethod);
+    if (order == null || cryptoPaymentData == null) return;
 
+    try {
       sendViewModel.clearOutputs();
       final output = sendViewModel.outputs.first;
       output.address = cryptoPaymentData.address;
@@ -190,7 +224,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds
+        .toString().padLeft(2, '0')}';
   }
 
   void disposeExpirationTimer() {

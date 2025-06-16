@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dart';
@@ -90,7 +91,6 @@ class CakePayBuyCardPage extends BasePage {
 
     final card = cakePayBuyCardViewModel.card;
     final vendor = cakePayBuyCardViewModel.vendor;
-    final baseTitleColor = titleColor(context);
 
     return KeyboardActions(
       disableScroll: true,
@@ -248,25 +248,89 @@ class CakePayBuyCardPage extends BasePage {
             ),
             SizedBox(height: 8),
             Observer(builder: (_) {
-              return Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 34, right: 20, left: 20),
-                child: LoadingPrimaryButton(
-                  onPressed: () {
-                    //Request dummy node to get the focus out of the text fields
-                    FocusScope.of(context).requestFocus(FocusNode());
+              final methods = cakePayBuyCardViewModel.availableMethods;
+              final selected = cakePayBuyCardViewModel.selectedPaymentMethod ?? methods.first;
 
-                    isIOSUnavailable(card)
-                        ? alertIOSAvailability(context, card)
-                        : confirmPurchaseFirst(context);
-                  },
-                  text: S.of(context).purchase_gift_card,
-                  isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
-                      cakePayBuyCardViewModel.isPurchasing,
-                  isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
-                      cakePayBuyCardViewModel.isPurchasing,
-                  color: Theme.of(context).colorScheme.primary,
-                  textColor: Theme.of(context).colorScheme.onPrimary,
-                ),
+              return Column(
+                children: [
+                  methods.length <= 1
+                      ? const SizedBox.shrink()
+                      : Row(
+                        children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 24, right: 8),
+                              child: Text(
+                                'Payment Method',
+                                style: TextStyle(
+                                  color: Theme.of(context).textTheme.titleLarge!.color!,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: const SizedBox()),
+                            if (methods.length > 1)
+                          Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+                              child: ToggleButtons(
+                                isSelected: methods.map((m) => m == selected).toList(),
+                                borderRadius: BorderRadius.circular(8),
+                                onPressed: (index) =>
+                                    cakePayBuyCardViewModel.chooseMethod(methods[index]),
+                                children: methods
+                                    .map((m) => Padding(
+                                          padding:
+                                              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          child: Text(m.label),
+                                        ))
+                                    .toList(),
+                              ),
+                            ),
+                        ],
+                      ),
+                  if (FeatureFlag.hasDevOptions)
+                    Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
+                    child: LoadingPrimaryButton(
+                      onPressed: () {
+                        //Request dummy node to get the focus out of the text fields
+                        FocusScope.of(context).requestFocus(FocusNode());
+
+                        cakePayBuyCardViewModel.isSimulatingFlow = true;
+                        isIOSUnavailable(card)
+                            ? alertIOSAvailability(context, card)
+                            : confirmPurchaseFirst(context);
+                      },
+                      text: '(Dev) Simulate Purchasing Gift Card',
+                      isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                          cakePayBuyCardViewModel.isPurchasing,
+                      isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
+                          cakePayBuyCardViewModel.isPurchasing,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 34, right: 20, left: 20),
+                    child: LoadingPrimaryButton(
+                      onPressed: () {
+                        //Request dummy node to get the focus out of the text fields
+                        FocusScope.of(context).requestFocus(FocusNode());
+
+                        isIOSUnavailable(card)
+                            ? alertIOSAvailability(context, card)
+                            : confirmPurchaseFirst(context);
+                      },
+                      text: S.of(context).purchase_gift_card,
+                      isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                          cakePayBuyCardViewModel.isPurchasing,
+                      isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
+                          cakePayBuyCardViewModel.isPurchasing,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ],
               );
             }),
           ],
@@ -317,6 +381,7 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   Future<void> alertIOSAvailability(BuildContext context, CakePayCard card) async {
+    cakePayBuyCardViewModel.isSimulatingFlow = false;
     return await showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
@@ -334,11 +399,13 @@ class CakePayBuyCardPage extends BasePage {
   Future<void> confirmPurchaseFirst(BuildContext context) async {
     bool isLogged = await cakePayBuyCardViewModel.cakePayService.isLogged();
     if (!isLogged) {
+      cakePayBuyCardViewModel.isSimulatingFlow = false;
       Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
     } else {
       cakePayBuyCardViewModel.isPurchasing = true;
       await _showconfirmPurchaseFirstAlert(context);
     }
+
   }
 
   Future<void> _showconfirmPurchaseFirstAlert(BuildContext context) async {
@@ -353,6 +420,7 @@ class CakePayBuyCardPage extends BasePage {
           rightButtonText: S.of(context).confirm,
           actionLeftButton: () {
             cakePayBuyCardViewModel.isPurchasing = false;
+            cakePayBuyCardViewModel.isSimulatingFlow = false;
             Navigator.of(context).pop();
           },
           actionRightButton: (confirmsNoVpn, confirmsVoidedRefund, confirmsTermsAgreed) {
@@ -370,17 +438,22 @@ class CakePayBuyCardPage extends BasePage {
         cakePayBuyCardViewModel.confirmsVoidedRefund &&
         cakePayBuyCardViewModel.confirmsTermsAgreed) {
       await purchaseCard(context);
+    } else {
+      cakePayBuyCardViewModel.isPurchasing = false;
+      cakePayBuyCardViewModel.isSimulatingFlow = false;
     }
   }
 
   Future<void> purchaseCard(BuildContext context) async {
     bool isLogged = await cakePayBuyCardViewModel.cakePayService.isLogged();
     if (!isLogged) {
+      cakePayBuyCardViewModel.isSimulatingFlow = false;
       Navigator.of(context).pushNamed(Routes.cakePayWelcomePage);
     } else {
       try {
         await cakePayBuyCardViewModel.createOrder();
       } catch (_) {
+        cakePayBuyCardViewModel.isSimulatingFlow = false;
         await cakePayBuyCardViewModel.cakePayService.logout();
       }
     }
@@ -512,11 +585,11 @@ class CakePayBuyCardPage extends BasePage {
                       .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
-                  slideActionButtonText: 'Swipe to send',
-                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
+                  slideActionButtonText: cakePayBuyCardViewModel.isSimulating ? 'Swipe to simulate'  : 'Swipe to send',
+                  accessibleNavigationModeSlideActionButtonText: cakePayBuyCardViewModel.isSimulating ? 'Simulate' : S.of(context).send,
                   onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
-                    FeatureFlag.hasDevOptions
+                    cakePayBuyCardViewModel.isSimulating
                         ? cakePayBuyCardViewModel.simulatePayment()
                         : cakePayBuyCardViewModel.sendViewModel.commitTransaction(context);
                   },
@@ -527,6 +600,7 @@ class CakePayBuyCardPage extends BasePage {
             );
 
             confirmBottomSheetContext = null;
+            cakePayBuyCardViewModel.isSimulatingFlow = false;
             _handleDispose(disposer);
             if (result == null) cakePayBuyCardViewModel.sendViewModel.dismissTransaction();
           }
@@ -563,9 +637,7 @@ class CakePayBuyCardPage extends BasePage {
                           children: [
                             Text(
                               textAlign: TextAlign.center,
-                              FeatureFlag.hasDevOptions
-                                  ? cakePayBuyCardViewModel.simulatedResponse
-                                  : S.of(bottomSheetContext).cake_pay_save_order,
+                              S.of(bottomSheetContext).cake_pay_save_order,
                               style: TextStyle(
                                 fontSize: 12,
                                 fontFamily: 'Lato',
