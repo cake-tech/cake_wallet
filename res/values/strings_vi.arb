@@ -901,6 +901,7 @@
   "token_name": "Tên token ví dụ: Tether",
   "token_symbol": "Ký hiệu token ví dụ: USDT",
   "tokenID": "ID",
+  "ton_extra_info": "Xin đừng quên chỉ định ID ghi nhớ trong khi gửi giao dịch tấn cho trao đổi",
   "tor_connection": "Kết nối Tor",
   "tor_only": "Chỉ Tor",
   "total": "Tổng cộng",

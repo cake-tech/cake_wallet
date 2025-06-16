@@ -904,6 +904,7 @@
   "token_name": "Naziv tokena npr.: Tether",
   "token_symbol": "Simbol tokena npr.: USDT",
   "tokenID": "iskaznica",
+  "ton_extra_info": "Ne zaboravite navesti ID memorandu",
   "tor_connection": "Tor veza",
   "tor_only": "Samo Tor",
   "total": "Ukupno",

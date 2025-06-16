@@ -904,6 +904,7 @@
   "token_name": "Název tokenu např.: Tether",
   "token_symbol": "Symbol tokenu, např.: USDT",
   "tokenID": "ID",
+  "ton_extra_info": "Při odeslání TON transakce pro výměnu nezapomeňte zadat ID Memo ID",
   "tor_connection": "Připojení Tor",
   "tor_only": "Pouze Tor",
   "total": "Celkový",

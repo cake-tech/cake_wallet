@@ -904,6 +904,7 @@
   "token_name": "Belirteç adı, örneğin: Tether",
   "token_symbol": "Jeton sembolü, örneğin: USDT",
   "tokenID": "İD",
+  "ton_extra_info": "Lütfen değişim için ton işlemini gönderirken not kimliğini belirtmeyi unutmayın",
   "tor_connection": "Tor bağlantısı",
   "tor_only": "Yalnızca Tor",
   "total": "Toplam",

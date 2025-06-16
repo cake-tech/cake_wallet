@@ -906,6 +906,7 @@
   "token_name": "ٹوکن کا نام جیسے: Tether",
   "token_symbol": "ٹوکن کی علامت جیسے: USDT",
   "tokenID": "ID",
+  "ton_extra_info": "ایکسچینج کے لئے ٹن ٹرانزیکشن بھیجتے وقت براہ کرم میمو آئی ڈی کی وضاحت کرنا نہ بھولیں",
   "tor_connection": "ﻦﺸﮑﻨﮐ ﺭﻮﭨ",
   "tor_only": "صرف Tor",
   "total": "کل",
