@@ -595,7 +595,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           await Future.delayed(Duration(milliseconds: 450));
           await wallet.fetchTransactions();
           final txhistory = monero!.getTransactionHistory(wallet);
-          tx = txhistory.transactions[txhistory.transactions.keys.toList()[txhistory.transactions.keys.length - 1]];
+          tx = txhistory.transactions.values.last;
         }
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
