@@ -239,7 +239,7 @@ class WalletInfo extends HiveObject {
 
       await file.writeAsString(logLine, mode: FileMode.append, flush: true);
     } catch (e) {
-      if (kDebugMode) print('Failed to log hash change: $e');
+      if (kDebugMode) printV('Failed to log hash change: $e');
     }
   }
 
