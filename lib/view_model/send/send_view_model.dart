@@ -590,16 +590,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (pendingTransaction!.id.isNotEmpty) {
+        TransactionInfo? tx;
+        if (walletType == WalletType.monero) {
+          await Future.delayed(Duration(milliseconds: 450));
+          await wallet.fetchTransactions();
+          final txhistory = monero!.getTransactionHistory(wallet);
+          tx = txhistory.transactions.values.last;
+        }
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
                 id: descriptionKey,
                 recipientAddress: address,
                 transactionNote: note,
+                transactionKey: tx?.additionalInfo["key"] as String?,
               ))
             : await transactionDescriptionBox.add(TransactionDescription(
                 id: descriptionKey,
                 transactionNote: note,
+                transactionKey: tx?.additionalInfo["key"] as String?,
               ));
       }
       final sharedPreferences = await SharedPreferences.getInstance();
