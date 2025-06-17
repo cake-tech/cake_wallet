@@ -111,6 +111,7 @@ class $BackupService {
 
   Future<void> verifyWallets() async {
     final walletInfoSource = await reloadHiveWalletInfoBox();
+    printV("WalletInfoSource length (backup service): ${walletInfoSource.length}");
     correctWallets =
         walletInfoSource.values.where((info) => availableWalletTypes.contains(info.type)).toList();
 

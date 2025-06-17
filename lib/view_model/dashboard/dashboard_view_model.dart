@@ -1032,6 +1032,7 @@ abstract class DashboardViewModelBase with Store {
 
   Future<List<String>> checkForHavenWallets() async {
     final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
+    printV("WalletInfoSource length (checkForHavenWallets): ${walletInfoSource.length}");
     return walletInfoSource.values
         .where((element) => element.type == WalletType.haven)
         .map((e) => e.name)
@@ -1046,7 +1047,8 @@ abstract class DashboardViewModelBase with Store {
       final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
       final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
-
+      printV("WalletInfoSource length (checkAffectedWallets): ${walletInfoSource.length}");
+      
       List<String> affectedWallets = [];
       for (var walletInfo in walletInfoSource.values) {
         if (walletInfo.type == WalletType.bitcoin) {

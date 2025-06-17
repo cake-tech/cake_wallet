@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -92,6 +94,24 @@ class OtherSettingsPage extends BasePage {
                   title: '[dev] background sync logs',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] hash change log',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devHashChangeLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] print verbose',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devPrintVerbose),
+                ),
+              if (FeatureFlag.hasDevOptions && Platform.isAndroid)
+                SettingsCellWithArrow(
+                  title: '[dev] lsof',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devLsof),
                 ),
               Spacer(),
               SettingsVersionCell(
