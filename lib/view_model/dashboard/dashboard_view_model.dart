@@ -13,6 +13,8 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
@@ -1034,6 +1036,20 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void setBuiltinTor(bool value, BuildContext context) {
+    if (value) {
+      unawaited(showPopUp<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.of(context).tor_connection,
+              alertContent: S.of(context).tor_experimental,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(true),
+            );
+          },
+        ),
+      );
+    }
     settingsStore.currentBuiltinTor = value;
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {

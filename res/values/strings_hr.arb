@@ -911,6 +911,7 @@
   "ton_extra_info": "Ne zaboravite navesti ID memorandu",
   "tor_connection": "Tor veza",
   "tor_connection_timeout": "TOR TIMPOUCEN",
+  "tor_experimental": "Ovo je eksperimentalna značajka, nisu sve veze napravljene od podrške za kolače za torte - neke veze mogu koristiti ClearNet, kako bi se u potpunosti usmjerio na APP promet s TOR -om s VPN načinom rada.",
   "tor_only": "Samo Tor",
   "total": "Ukupno",
   "total_saving": "Ukupna ušteda",

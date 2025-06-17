@@ -911,6 +911,7 @@
   "ton_extra_info": "Mangyaring huwag kalimutan na tukuyin ang memo ID habang nagpapadala ng toneladang transaksyon para sa palitan",
   "tor_connection": "Koneksyon ng Tor",
   "tor_connection_timeout": "Oras ng koneksyon sa tor",
+  "tor_experimental": "Ito ay isang pang -eksperimentong tampok, hindi lahat ng mga koneksyon na ginawa mula sa cake ng suporta sa wallet ng tor ruta - ang ilang mga koneksyon ay maaaring gumamit ng clearnet, upang ganap na ruta ang paggamit ng trapiko ng trapiko na may mode na VPN.",
   "tor_only": "Tor lamang",
   "total": "Kabuuan",
   "total_saving": "Kabuuang ipon",

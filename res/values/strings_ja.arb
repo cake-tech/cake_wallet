@@ -912,6 +912,7 @@
   "ton_extra_info": "Exchangeのトントランザクションを送信しながら、メモIDを指定することを忘れないでください",
   "tor_connection": "Tor接続",
   "tor_connection_timeout": "TOR接続タイムアウト",
+  "tor_experimental": "これは実験的な機能であり、ケーキウォレットサポートTORルーティングから作成されたすべての接続ではありません。一部の接続では、APPトラフィックをVPNモードで完全にルーティングするために、ClearNetを使用する場合があります。",
   "tor_only": "Torのみ",
   "total": "合計",
   "total_saving": "合計節約額",

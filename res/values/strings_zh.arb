@@ -911,6 +911,7 @@
   "ton_extra_info": "请不要忘记在发送TON交易时指定备忘录",
   "tor_connection": "Tor连接",
   "tor_connection_timeout": "TOR连接超时",
+  "tor_experimental": "这是一个实验功能，并非所有由Cake Wallet Support Tor路由组成的连接 - 某些连接可能会使用Clearnet，以便完全路由App App App Appl使用VPN模式。",
   "tor_only": "仅限 Tor",
   "total": "全部的",
   "total_saving": "总储蓄",

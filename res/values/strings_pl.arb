@@ -1099,5 +1099,6 @@
   "you_will_receive_estimated_amount": "Otrzymasz(oszacowane )",
   "you_will_send": "Konwertuj z",
   "youCanGoBackToYourDapp": "Możesz teraz wrócić do swojego dapp",
-  "yy": "RR"
+  "yy": "RR",
+  "tor_experimental": "Jest to funkcja eksperymentalna. Nie wszystkie połączenia wykonane z Cake Wallet korzystają z Tor, niektóre połączenia mogą korzystać z Clearnet, aby w pełni przekierować ruch skorzystaj z Tor w trybie VPN."
 }

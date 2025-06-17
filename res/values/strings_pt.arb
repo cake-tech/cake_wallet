@@ -913,6 +913,7 @@
   "ton_extra_info": "Não se esqueça de especificar o ID do memorando ao enviar a transação TON para a troca",
   "tor_connection": "Conexão Tor",
   "tor_connection_timeout": "Tor de tempo limite da conexão",
+  "tor_experimental": "Esse é um recurso experimental, nem todas as conexões feitas com o suporte para o suporte para a carteira de bolo - algumas conexões podem usar o ClearNet, a fim de rotear totalmente o tráfego de aplicativos TOR com o modo VPN.",
   "tor_only": "Tor apenas",
   "total": "Total",
   "total_saving": "Economia total",

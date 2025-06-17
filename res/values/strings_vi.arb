@@ -908,6 +908,7 @@
   "ton_extra_info": "Xin đừng quên chỉ định ID ghi nhớ trong khi gửi giao dịch tấn cho trao đổi",
   "tor_connection": "Kết nối Tor",
   "tor_connection_timeout": "Thời gian chờ kết nối tor",
+  "tor_experimental": "Đây là một tính năng thử nghiệm, không phải tất cả các kết nối được làm từ Wake Wallet Hỗ trợ định tuyến TOR - một số kết nối có thể sử dụng ClearNet, để định tuyến đầy đủ về lưu lượng truy cập ứng dụng Tor với chế độ VPN.",
   "tor_only": "Chỉ Tor",
   "total": "Tổng cộng",
   "total_saving": "Tiết kiệm tổng cộng",

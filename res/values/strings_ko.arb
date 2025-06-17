@@ -912,6 +912,7 @@
   "ton_extra_info": "교환을 위해 TON 트랜잭션을 보내는 동안 메모 ID를 지정하는 것을 잊지 마십시오.",
   "tor_connection": "Tor 연결",
   "tor_connection_timeout": "Tor 연결 시간 초과",
+  "tor_experimental": "이것은 케이크 지갑 지원 Tor 라우팅으로 만든 모든 연결을 실험적인 기능입니다. 일부 연결은 Clearnet을 사용할 수 있습니다.",
   "tor_only": "Tor 전용",
   "total": "합계",
   "total_saving": "총 절약액",

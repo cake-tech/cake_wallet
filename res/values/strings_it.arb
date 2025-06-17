@@ -912,6 +912,7 @@
   "ton_extra_info": "Non dimenticare di specificare l'ID memo durante l'invio della transazione Ton per lo scambio",
   "tor_connection": "Connessione Tor",
   "tor_connection_timeout": "Timeout di connessione TOR",
+  "tor_experimental": "Questa è una funzionalità sperimentale, non tutte le connessioni realizzate con il supporto per il portafoglio di torta per routing - alcune connessioni possono utilizzare ClearNet, al fine di instradare completamente il traffico di app per l'uso del traffico con la modalità VPN.",
   "tor_only": "Solo Tor",
   "total": "Totale",
   "total_saving": "Risparmio totale",

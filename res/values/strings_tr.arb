@@ -911,6 +911,7 @@
   "ton_extra_info": "Lütfen değişim için ton işlemini gönderirken not kimliğini belirtmeyi unutmayın",
   "tor_connection": "Tor bağlantısı",
   "tor_connection_timeout": "Tor bağlantı zaman aşımı",
+  "tor_experimental": "Bu deneysel bir özelliktir, kek cüzdanı desteğinden yapılan tüm bağlantılar değil, TOR yönlendirmesinden yapılmıştır - bazı bağlantılar, VPN moduyla uygulama trafik kullanımını tam olarak yönlendirmek için ClearNet kullanabilir.",
   "tor_only": "Yalnızca Tor",
   "total": "Toplam",
   "total_saving": "Toplam Tasarruf",

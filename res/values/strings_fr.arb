@@ -911,6 +911,7 @@
   "ton_extra_info": "N'oubliez pas de spécifier l'identification de la note lors de l'envoi de la transaction TON pour l'échange",
   "tor_connection": "Connexion Tor",
   "tor_connection_timeout": "Tor Connection Timeout",
+  "tor_experimental": "Il s'agit d'une caractéristique expérimentale, toutes les connexions faites à partir du portefeuille du portefeuille de gâteaux TOR ROUTING - Certaines connexions peuvent utiliser ClearNet, afin d'achever entièrement le trafic d'application Utiliser TOR avec le mode VPN.",
   "tor_only": "Tor uniquement",
   "total": "Total",
   "total_saving": "Économies totales",

@@ -914,6 +914,7 @@
   "ton_extra_info": "Harap jangan lupa untuk menentukan ID memo saat mengirim transaksi ton untuk pertukaran",
   "tor_connection": "koneksi Tor",
   "tor_connection_timeout": "Tor Connection Timeout",
+  "tor_experimental": "Ini adalah fitur eksperimental, tidak semua koneksi yang terbuat dari dukungan dompet kue untuk routing - beberapa koneksi dapat menggunakan clearnet, untuk sepenuhnya merutekan aplikasi lalu lintas menggunakan untuk mode VPN.",
   "tor_only": "Hanya Tor",
   "total": "Total",
   "total_saving": "Total Pembayaran",

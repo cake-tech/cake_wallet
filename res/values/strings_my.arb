@@ -911,6 +911,7 @@
   "ton_extra_info": "ငွေလဲလှယ်မှုအတွက်တန်ပြန်ငွေပေးငွေယူကိုပို့နေစဉ် Memo ID ကိုသတ်မှတ်ရန်မမေ့ပါနှင့်",
   "tor_connection": "Tor ချိတ်ဆက်မှု",
   "tor_connection_timeout": "Tor Connection အချိန်ကုန်",
+  "tor_experimental": "၎င်းသည်စမ်းသပ်အင်္ဂါရပ်တစ်ခုဖြစ်ပြီးကိတ်မုန့်ပိုက်ဆံအိတ်ကိုပံ့ပိုးပေးသော Tor Routing မှပြုလုပ်သောဆက်သွယ်မှုအားလုံးမှာ Connections သည် Concernet ကို အသုံးပြု. VPN tor ကို VPN Mode ဖြင့် Tor ကို အသုံးပြု. Concernet ကိုသုံးနိုင်သည်။",
   "tor_only": "Tor သာ",
   "total": "လုံးဝသော",
   "total_saving": "စုစုပေါင်းစုဆောင်းငွေ",

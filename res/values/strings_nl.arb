@@ -911,6 +911,7 @@
   "ton_extra_info": "Vergeet niet om de memo -ID op te geven tijdens het verzenden van de ton -transactie voor de uitwisseling",
   "tor_connection": "Tor-verbinding",
   "tor_connection_timeout": "Tor -verbindingstime -out",
+  "tor_experimental": "Dit is een experimentele functie, niet alle verbindingen gemaakt van Cake Wallet Support Tor Routing - Sommige verbindingen kunnen ClearNet gebruiken, om app -verkeer volledig te routeren Tor met VPN -modus.",
   "tor_only": "Alleen Tor",
   "total": "Totaal",
   "total_saving": "Totale besparingen",

@@ -1,13 +1,16 @@
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ImageUtil {
   static Widget getImageFromPath({required String imagePath, double? height, double? width}) {
+    if (CakeTor.instance.enabled) {
+      imagePath = "assets/images/tor_logo.svg";
+    }
     final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
     final bool isSvg = imagePath.endsWith('.svg');
     final double _height = height ?? 35;
     final double _width = width ?? 35;
-
     if (isNetworkImage) {
       return isSvg
           ? SvgPicture.network(

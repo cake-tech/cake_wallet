@@ -912,6 +912,7 @@
   "ton_extra_info": "Please don’t forget to specify the Memo ID while sending the TON transaction for the exchange",
   "tor_connection": "Tor connection",
   "tor_connection_timeout": "Tor connection timeout",
+  "tor_experimental": "This is an experimental feature, not all connections made from Cake Wallet support Tor routing - some connections may use clearnet, in order to fully route app traffic use Tor with VPN mode.",
   "tor_only": "Tor only",
   "total": "Total",
   "total_saving": "Total Savings",

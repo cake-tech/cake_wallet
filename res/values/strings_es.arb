@@ -912,6 +912,7 @@
   "ton_extra_info": "No olvide especificar el ID de memo mientras envía la transacción TON para el intercambio",
   "tor_connection": "conexión tor",
   "tor_connection_timeout": "Tiempo de espera de conexión de Tor",
+  "tor_experimental": "Esta es una característica experimental, no todas las conexiones hechas con el enrutamiento de soporte para la billetera de pastel: algunas conexiones pueden usar ClearNet, para enrutar completamente el tráfico de aplicaciones Uso Tor con el modo VPN.",
   "tor_only": "solo Tor",
   "total": "Total",
   "total_saving": "Ahorro Total",

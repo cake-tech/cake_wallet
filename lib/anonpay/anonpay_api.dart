@@ -20,8 +20,9 @@ class AnonPayApi {
   final WalletBase wallet;
 
   static const anonpayRef = secrets.anonPayReferralCode;
-  static const onionApiAuthority = 'tqzngtf2hybjbexznel6dhgsvbynjzezoybvtv6iofomx7gchqfssgqd.onion';
   static const clearNetAuthority = 'trocador.app';
+  // static const onionApiAuthority = 'tqzngtf2hybjbexznel6dhgsvbynjzezoybvtv6iofomx7gchqfssgqd.onion';
+  static const onionApiAuthority = clearNetAuthority;
   static const markup = secrets.trocadorExchangeMarkup;
   static const anonPayPath = '/anonpay';
   static const anonPayStatus = '/anonpay/status';

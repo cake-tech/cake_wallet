@@ -52,8 +52,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   ];
 
   static const apiKey = secrets.trocadorApiKey;
-  static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
   static const clearNetAuthority = 'api.trocador.app';
+  static const onionApiAuthority = clearNetAuthority;
+  // static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
   static const markup = secrets.trocadorExchangeMarkup;
   static const newRatePath = '/new_rate';
   static const createTradePath = '/new_trade';

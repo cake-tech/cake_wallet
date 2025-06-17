@@ -912,6 +912,7 @@
   "ton_extra_info": "Bitte vergessen Sie nicht, die Memo -ID anzugeben, während Sie die TON -Transaktion für den Austausch senden",
   "tor_connection": "Tor-Verbindung",
   "tor_connection_timeout": "TOR -Verbindungs ​​-Zeitüberschreitung",
+  "tor_experimental": "Dies ist eine experimentelle Funktion, nicht alle Verbindungen, die aus Kuchen -Wallet -Stütze für die Routing hergestellt werden. Einige Verbindungen können ClearNET verwenden, um den App -Traffic -App -TOR mit dem VPN -Modus vollständig zu verwenden.",
   "tor_only": "Nur Tor",
   "total": "Gesamt",
   "total_saving": "Gesamteinsparungen",

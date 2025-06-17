@@ -911,6 +911,7 @@
   "ton_extra_info": "يرجى عدم نسيان تحديد معرف المذكرة أثناء إرسال معاملة TON للتبادل",
   "tor_connection": "ﺭﻮﺗ ﻝﺎﺼﺗﺍ",
   "tor_connection_timeout": "Tor Torn Connection Timeout",
+  "tor_experimental": "هذه ميزة تجريبية ، وليس جميع الاتصالات المصنوعة من توجيه Cake Wallet Support - قد تستخدم بعض الاتصالات ClearNet ، من أجل توجيه حركة المرور بشكل كامل باستخدام TOR مع وضع VPN.",
   "tor_only": "Tor فقط",
   "total": "المجموع",
   "total_saving": "إجمالي المدخرات",

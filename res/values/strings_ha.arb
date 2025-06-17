@@ -913,6 +913,7 @@
   "ton_extra_info": "Don Allah kar a manta su saka ID na Memo yayin aikawa da ma'amala don musayar",
   "tor_connection": "Tor haɗin gwiwa",
   "tor_connection_timeout": "A lokacin Tor Haɗin",
+  "tor_experimental": "Wannan fasalin gwaji ne, ba duk haɗin da aka yi ba daga Wall Wall Wall Walling goyon baya Tor Routing - don cikakken amfani da hanyar zirga-zirga amfani da tor tare da yanayin vpn.",
   "tor_only": "Tor kawai",
   "total": "Duka",
   "total_saving": "Jimlar Adana",
