@@ -83,6 +83,7 @@ class DEuroSavingsPage extends BasePage {
               isDarkTheme: currentTheme.isDark,
               title: S.of(context).deuro_savings_collect_interest,
               collectedInterest: _dEuroViewModel.accruedInterest,
+              onCollectInterest: _dEuroViewModel.prepareCollectInterest,
             ),
           ),
         ],

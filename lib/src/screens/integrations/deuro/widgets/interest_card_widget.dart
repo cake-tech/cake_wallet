@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -9,11 +10,13 @@ class InterestCardWidget extends StatelessWidget {
     required this.collectedInterest,
     super.key,
     required this.isDarkTheme,
+    required this.onCollectInterest,
   });
 
   final String title;
   final String collectedInterest;
   final bool isDarkTheme;
+  final VoidCallback onCollectInterest;
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +53,8 @@ class InterestCardWidget extends StatelessWidget {
               SizedBox(height: 10),
               SavingsCard.getButton(
                 context,
-                label: "Collect",
-                imagePath: 'assets/images/received.png',
-                onPressed: () {},
+                label: S.of(context).deuro_collect_interest,
+                onPressed: onCollectInterest,
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),

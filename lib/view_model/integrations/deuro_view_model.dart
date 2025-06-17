@@ -85,6 +85,9 @@ abstract class DEuroViewModelBase with Store {
         : ethereum!.removeDEuroSaving(_appStore.wallet!, amount, priority));
   }
 
+  Future<void> prepareCollectInterest() =>
+      prepareSavingsEdit(accruedInterest, false);
+
   @action
   Future<void> commitTransaction() async {
     if (transaction != null) {
