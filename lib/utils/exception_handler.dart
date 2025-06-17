@@ -189,7 +189,9 @@ class ExceptionHandler {
   static const List<String> _ledgerErrors = [
     'Wrong Device Status',
     'PlatformException(133, Failed to write: (Unknown Error: 133), null, null)',
+    'PlatformException(IllegalArgument, Unknown deviceId:',
     'ServiceNotSupportedException(ConnectionType.ble, Required service not supported. Write characteristic: false, Notify characteristic: false)',
+    'Exception: 6e01' // Wrong App
   ];
 
   static bool isLedgerError(Object exception) =>
@@ -199,24 +201,16 @@ class ExceptionHandler {
     if (!isLedgerError(errorDetails.exception)) return false;
 
     String? interpretErrorCode(String errorCode) {
-      switch (errorCode.replaceFirst("0x", "")) {
-        case "6985":
-          return S.current.ledger_error_tx_rejected_by_user;
-        case "5515":
-          return S.current.ledger_error_device_locked;
-        case "6e01": // UNKNOWN_APDU
-        case "6d02": // UNKNOWN_APDU
-        case "6511":
-        case "6e00":
-          return S.current.ledger_error_wrong_app;
-        default:
-          return null;
+      if (errorCode.contains("6985")) {
+        return S.current.ledger_error_tx_rejected_by_user;
+      } else if (errorCode.contains("5515")) {
+        return S.current.ledger_error_device_locked;
+      } else
+      if (["6e01", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+        return S.current.ledger_error_wrong_app;
       }
+      return null;
     }
-
-
-    // Find the first match
-    Match? errorCode = RegExp(r'0x\S*?(?= )').firstMatch(errorDetails.exception.toString());
 
     if (navigatorKey.currentContext != null) {
       await showPopUp<void>(
@@ -224,7 +218,7 @@ class ExceptionHandler {
         builder: (context) => AlertWithOneAction(
           alertTitle: "Ledger Error",
           alertContent:
-              interpretErrorCode(errorCode?.group(0).toString() ?? '') ??
+              interpretErrorCode(errorDetails.exception.toString()) ??
                   S.of(context).ledger_connection_error,
           buttonText: S.of(context).close,
           buttonAction: () => Navigator.of(context).pop(),
