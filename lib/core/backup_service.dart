@@ -110,7 +110,7 @@ class $BackupService {
   }
 
   Future<void> verifyWallets() async {
-    final walletInfoSource = await _reloadHiveWalletInfoBox();
+    final walletInfoSource = await reloadHiveWalletInfoBox();
     correctWallets =
         walletInfoSource.values.where((info) => availableWalletTypes.contains(info.type)).toList();
 
@@ -119,7 +119,7 @@ class $BackupService {
     }
   }
 
-  Future<Box<WalletInfo>> _reloadHiveWalletInfoBox() async {
+  Future<Box<WalletInfo>> reloadHiveWalletInfoBox() async {
     final appDir = await getAppDir();
     await CakeHive.close();
     CakeHive.init(appDir.path);
@@ -288,13 +288,15 @@ class $BackupService {
         return {
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
-          'password': await keyService.getWalletPassword(walletName: walletInfo.name)
+          'password': await keyService.getWalletPassword(walletName: walletInfo.name),
+          'hardwareWalletType': walletInfo.hardwareWalletType?.index,
         };
       } catch (e) {
         return {
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
-          'password': ''
+          'password': '',
+          'hardwareWalletType': walletInfo.hardwareWalletType?.index,
         };
       }
     }));
