@@ -7,7 +7,7 @@ class CakeImageWidget extends StatelessWidget {
     this.imageUrl,
     this.height,
     this.width,
-    this.fit = BoxFit.cover,
+    this.fit,
     this.loadingWidget,
     this.errorWidget,
     this.color,
@@ -16,7 +16,7 @@ class CakeImageWidget extends StatelessWidget {
   final String? imageUrl;
   final double? height;
   final double? width;
-  final BoxFit fit;
+  final BoxFit? fit;
   final Widget? loadingWidget;
   final Widget? errorWidget;
   final Color? color;
@@ -37,8 +37,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
-              fit: fit,
-              color: color,
+              fit: fit ?? BoxFit.contain,
             )
           : Image.asset(
               imageUrl!,
@@ -53,8 +52,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
-              fit: fit,
-              color: color,
+              fit: fit ?? BoxFit.contain,
               placeholderBuilder: (_) {
                 return loadingWidget ?? const Center(child: CircularProgressIndicator());
               },
@@ -64,7 +62,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
-              fit: fit,
+              fit: fit ?? BoxFit.cover,
               color: color,
               loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
                 if (progress == null) return child;
