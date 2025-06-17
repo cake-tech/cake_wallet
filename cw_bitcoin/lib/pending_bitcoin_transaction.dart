@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:bbqrdart/bbqrdart.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
@@ -200,7 +201,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   bool shouldCommitUR() => isViewOnly;
 
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     var sourceBytes = unsignedPsbt!;
     var cborEncoder = CBOREncoder();
     cborEncoder.encodeBytes(sourceBytes);
@@ -211,6 +212,19 @@ class PendingBitcoinTransaction with PendingTransaction {
     while (!encoded.isComplete) {
       values.add(encoded.nextPart());
     }
-    return Future.value(values.join("\n"));
+
+    final bbqrObj = BBQRPsbt.fromUint8List(sourceBytes);
+    List<String> bbqr = [
+      bbqrObj.asString(),
+    ];
+    while (!bbqrObj.isDone) {
+      bbqrObj.next();
+      bbqr.add(bbqrObj.asString());
+    }
+
+    return Future.value({
+      "PSBT (bcur)": values.join("\n"),
+      "PSBT (bbqr)": bbqr.join("\n"),
+    });
   }
 }
