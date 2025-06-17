@@ -17,5 +17,5 @@ mixin PendingTransaction {
   bool shouldCommitUR() => false;
 
   Future<void> commit();
-  Future<String?> commitUR();
+  Future<Map<String, String>> commitUR();
 }
