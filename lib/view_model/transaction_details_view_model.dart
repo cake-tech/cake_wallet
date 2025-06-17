@@ -240,7 +240,13 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addMoneroListItems(TransactionInfo tx, DateFormat dateFormat) {
-    final key = tx.additionalInfo['key'] as String?;
+    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+      (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+      orElse: () => TransactionDescription(id: descriptionKey));
+
+
+    final key = tx.additionalInfo['key'] as String? ?? description.transactionKey;
     final accountIndex = tx.additionalInfo['accountIndex'] as int;
     final addressIndex = tx.additionalInfo['addressIndex'] as int;
     final feeFormatted = tx.feeFormatted();
