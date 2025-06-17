@@ -65,7 +65,7 @@ class PendingMoneroTransaction with PendingTransaction {
   }
 
   @override
-  Future<String?> commitUR() async {
+  Future<Map<String, String>> commitUR() async {
     try {
       final ret = await monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
@@ -75,7 +75,10 @@ class PendingMoneroTransaction with PendingTransaction {
         await Future.delayed(const Duration(milliseconds: 250));
         await wallet.fetchTransactions();
       }());
-      return ret;
+      if (ret == null) return {};
+      return {
+        "xmr-txsigned": ret,
+      };
     } catch (e) {
       final message = e.toString();
 

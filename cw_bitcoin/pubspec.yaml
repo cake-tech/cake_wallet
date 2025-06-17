@@ -62,6 +62,10 @@ dependencies:
     git:
       url: https://github.com/bukata-sa/bc-ur-dart
       ref: 5738f70d0ec3d50977ac3dd01fed62939600238b
+  bbqrdart:
+    git:
+      url: https://github.com/mrcyjanek/bbqrdart
+      ref: b0f3f72911221bafed0ab77359fccd64bc79d524
 
 dev_dependencies:
   flutter_test:
