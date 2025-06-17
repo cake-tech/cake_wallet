@@ -69,7 +69,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
           title: S.current.error,
           value: payjoinSession.error!,
         ),
-      if (payjoinSession.txId?.isNotEmpty == true)
+      if (payjoinSession.txId?.isNotEmpty == true && transactionInfo != null)
         StandartListItem(
           title: S.current.transaction_details_transaction_id,
           value: payjoinSession.txId!,
@@ -107,9 +107,8 @@ abstract class PayjoinDetailsViewModelBase with Store {
   String _getStatusString() {
     switch (payjoinSession.status) {
       case 'success':
-        if (transactionInfo?.isPending == true)
-          return S.current.payjoin_request_awaiting_tx;
-        return S.current.successful;
+        if (transactionInfo?.isPending == false) return S.current.successful;
+        return S.current.payjoin_request_awaiting_tx;
       case 'inProgress':
         return S.current.payjoin_request_in_progress;
       case 'unrecoverable':
