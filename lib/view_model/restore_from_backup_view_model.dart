@@ -45,12 +45,11 @@ abstract class RestoreFromBackupViewModelBase with Store {
 
       try {
         await backupService.importBackupFile(file, password);
-      } catch (e, s) {
+      } catch (e) {
         if (e.toString().contains("unknown_backup_version")) {
-          state = FailureState('This is not a valid backup file, please make sure you selected the correct backup file');
+          state = FailureState('This is not a valid backup file, please make sure you have selected the correct one');
         } else {
-          state = FailureState('Failed to restore backup, please try again');
-          ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s, silent: true));
+          state = FailureState(e.toString());
         }
       }
 
@@ -64,7 +63,7 @@ abstract class RestoreFromBackupViewModelBase with Store {
       final store = getIt.get<AppStore>();
       ReactionDisposer? reaction;
       await store.settingsStore.reload(nodeSource: getIt.get<Box<Node>>());
-
+      await store.themeStore.loadSavedTheme(isFromBackup: true);
       reaction = autorun((_) {
         final wallet = store.wallet;
 

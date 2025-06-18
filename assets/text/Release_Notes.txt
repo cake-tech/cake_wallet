@@ -1,4 +1,4 @@
-New App Logo
-UI/UX enhancements
-Performance improvements
+New themes and UI/UX improvements
+Payjoin enhancements
+Ledger flow enhancements
 Bug fixes

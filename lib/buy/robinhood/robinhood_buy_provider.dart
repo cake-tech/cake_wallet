@@ -35,9 +35,16 @@ class RobinhoodBuyProvider extends BuyProvider {
 
   static const _baseUrl = 'applink.robinhood.com';
   static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
+  static const _apiBaseUrl = 'api.robinhood.com';
+  static const _assetsPath = '/catpay/v1/supported_currencies/';
 
-  static const List<CryptoCurrency> _notSupportedCrypto = [];
-  static const List<FiatCurrency> _notSupportedFiat = [];
+  static List<CryptoCurrency> _supportedCrypto = [];
+  static final List<FiatCurrency> _supportedFiat = [FiatCurrency.usd];
+
+  static final List<CryptoCurrency> _notSupportedCrypto = [];
+
+  static final List<FiatCurrency> _notSupportedFiat =
+      FiatCurrency.all.where((fiat) => !_supportedFiat.contains(fiat)).toList();
 
   @override
   String get title => 'Robinhood Connect';
@@ -57,6 +64,38 @@ class RobinhoodBuyProvider extends BuyProvider {
   String get _applicationId => secrets.robinhoodApplicationId;
 
   String get _apiSecret => secrets.exchangeHelperApiKey;
+
+  Future<List<CryptoCurrency>> getSupportedAssets() async {
+    final uri = Uri.https(_apiBaseUrl, '$_assetsPath', {'applicationId': _applicationId});
+
+    try {
+      final response = await http.get(uri, headers: {'accept': 'application/json'});
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+        final pairs = responseData['cryptoCurrencyPairs'] as List<dynamic>;
+
+        final supportedAssets = <CryptoCurrency>[];
+
+        for (final item in pairs) {
+          String code = item['assetCurrency']['code'] as String;
+          if (code == 'AVAX') code = 'AVAXC';
+          try {
+            final currency = CryptoCurrency.fromString(code);
+            supportedAssets.add(currency);
+          } catch (e) {
+            log('Robinhood: Unknown asset code "$code" - skipped');
+          }
+        }
+        return supportedAssets;
+      } else {
+        return [];
+      }
+    } catch (e) {
+      log('Robinhood: Failed to fetch supported assets: $e');
+      return [];
+    }
+  }
 
   Future<String> getSignature(String message) async {
     switch (wallet.type) {
@@ -153,8 +192,12 @@ class RobinhoodBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     String? paymentMethod;
+
+    if (_supportedCrypto.isEmpty) _supportedCrypto = await getSupportedAssets();
+    if (_supportedCrypto.isNotEmpty && !(_supportedCrypto.contains(cryptoCurrency))) return null;
 
     if (paymentType != null && paymentType != PaymentType.all) {
       paymentMethod = normalizePaymentMethod(paymentType);
@@ -225,7 +268,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case 'bank_transfer':
         return PaymentType.bankTransfer;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 }

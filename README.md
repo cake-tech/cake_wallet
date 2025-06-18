@@ -26,10 +26,13 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Ethereum (ETH)
 * Litecoin (LTC)
 * Bitcoin Cash (BCH)
-* Polygon (Pol)
+* Polygon (POL)
 * Solana (SOL)
+* Tron (TRX)
 * Nano (XNO)
-* Haven (XHV)
+* Zano (ZANO)
+* Decred (DCR)
+* Wownero (WOW)
 
 ## Features
 
@@ -86,10 +89,6 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Store XEL and all native assets/tokens
 * Add custom tokens by asset ID
 * Specify multiple recipients for batch sending
-
-### Haven Specific Features
-
-* Send, receive, and store XHV and all xAssets like xUSD, xEUR, xAG, etc.
 
 # Monero.com by Cake Wallet for Android and iOS
 

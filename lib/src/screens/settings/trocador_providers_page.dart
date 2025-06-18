@@ -38,8 +38,8 @@ class TrocadorProvidersPage extends BasePage {
                 leading: Badge(
                   title: 'KYC \nRATING',
                   subTitle: providerRatings[providerName] ?? 'N/A',
-                  textColor: Colors.white,
-                  backgroundColor: Theme.of(context).primaryColor,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
                 onValueChange: (BuildContext _, value) =>
                     trocadorProvidersViewModel.toggleProviderState(providerName),
@@ -78,7 +78,7 @@ class Badge extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: textColor,
                     fontSize: 7,
                     fontWeight: FontWeight.w600,
@@ -90,9 +90,8 @@ class Badge extends StatelessWidget {
                 ),
                 Text(
                   subTitle,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: textColor,
-                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

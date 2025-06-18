@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_listener_widget.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';
@@ -27,12 +27,12 @@ import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/screens/release_notes/release_notes_screen.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class DashboardPage extends StatefulWidget {
   DashboardPage({
@@ -164,18 +164,19 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final menuButton = Image.asset(
-      'assets/images/menu.png',
-      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
-    );
-
     return Container(
       alignment: Alignment.centerRight,
-      width: 40,
+      width: 42,
       child: TextButton(
         key: ValueKey('dashboard_page_wallet_menu_button_key'),
         onPressed: () => onOpenEndDrawer(),
-        child: Semantics(label: S.of(context).wallet_menu, child: menuButton),
+        child: Semantics(
+          label: S.of(context).wallet_menu,
+          child: SvgPicture.asset(
+            'assets/images/menu.svg',
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
       ),
     );
   }
@@ -250,14 +251,8 @@ class _DashboardPageView extends BasePage {
                             radius: 6.0,
                             dotWidth: 6.0,
                             dotHeight: 6.0,
-                            dotColor: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .indicatorDotTheme
-                                .indicatorColor,
-                            activeDotColor: Theme.of(context)
-                                .extension<DashboardPageTheme>()!
-                                .indicatorDotTheme
-                                .activeIndicatorColor,
+                            dotColor: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                            activeDotColor: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       );
@@ -265,7 +260,10 @@ class _DashboardPageView extends BasePage {
                   ),
                 ),
               ),
-              NavigationDock(dashboardViewModel: dashboardViewModel)
+              NavigationDock(
+                dashboardViewModel: dashboardViewModel,
+                currentTheme: currentTheme,
+              )
             ],
           ),
         ),
@@ -307,7 +305,6 @@ class _DashboardPageView extends BasePage {
 
     rootKey.currentState?.isInactive.listen(
       (inactive) {
-
         if (needToPresentYat) {
           Future<void>.delayed(Duration(milliseconds: 500)).then(
             (_) {

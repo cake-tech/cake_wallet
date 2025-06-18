@@ -18,7 +18,7 @@ class DefaultEthereumErc20Tokens {
       enabled: true,
     ),
     Erc20Token(
-      name: "Digital Euro",
+      name: "Decentralized Euro",
       symbol: "DEURO",
       contractAddress: "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea",
       decimal: 18,

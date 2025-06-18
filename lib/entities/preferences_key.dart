@@ -25,6 +25,7 @@ class PreferencesKey {
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableTradeOption = 'disable_buy';
+  static const disableAutomaticExchangeStatusUpdates = 'disable_automatic_exchange_status_updates';
   static const disableBulletinKey = 'disable_bulletin';
   static const walletListOrder = 'wallet_list_order';
   static const contactListOrder = 'contact_list_order';
@@ -35,6 +36,7 @@ class PreferencesKey {
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
+  static const themeMode = 'theme_mode';
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
@@ -84,6 +86,8 @@ class PreferencesKey {
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const usePayjoin = 'use_payjoin';
+  static const showPayjoinCard = 'show_payjoin_card';
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
 
@@ -107,4 +111,6 @@ class PreferencesKey {
   static const walletConnectPairingTopicsList = 'wallet_connect_pairing_topics_list';
   static String walletConnectPairingTopicsListForWallet(String publicKey) =>
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
+  static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
+  static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
 }

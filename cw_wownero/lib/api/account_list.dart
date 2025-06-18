@@ -48,8 +48,7 @@ void addAccountSync({required String label}) {
 }
 
 void setLabelForAccountSync({required int accountIndex, required String label}) {
-  // TODO(mrcyjanek): this may be wrong function?
-  wownero.Wallet_setSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: 0, label: label);
+  wownero.SubaddressAccount_setLabel(subaddressAccount!, accountIndex: accountIndex, label: label);
 }
 
 void _addAccount(String label) => addAccountSync(label: label);

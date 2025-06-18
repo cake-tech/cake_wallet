@@ -12,10 +12,8 @@ import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -42,7 +40,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         sortedRecommendedQuotes = ObservableList<Quote>(),
         sortedQuotes = ObservableList<Quote>(),
         paymentMethods = ObservableList<PaymentMethod>(),
-        settingsStore = appStore.settingsStore,
+        _appStore = appStore,
         super(appStore: appStore) {
     const excludeFiatCurrencies = [];
     const excludeCryptoCurrencies = [];
@@ -61,21 +59,17 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   late Timer bestRateSync;
 
   List<BuyProvider> get availableBuyProviders {
-    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes(
-        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
+    final providerTypes = ProvidersHelper.getAvailableBuyProviderTypes();
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
         .cast<BuyProvider>()
         .toList();
   }
 
   List<BuyProvider> get availableSellProviders {
-    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes(
-        walletTypeForCurrency(cryptoCurrency) ?? wallet.type);
+    final providerTypes = ProvidersHelper.getAvailableSellProviderTypes();
     return providerTypes
         .map((type) => ProvidersHelper.getProviderByType(type))
-        .where((provider) => provider != null)
         .cast<BuyProvider>()
         .toList();
   }
@@ -85,7 +79,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     cryptoCurrency = wallet.currency;
   }
 
-  bool get isDarkTheme => settingsStore.currentTheme.type == ThemeType.dark;
+  bool get isDarkTheme => _appStore.themeStore.currentTheme.isDark;
 
   double get amount {
     final formattedFiatAmount = double.tryParse(fiatAmount) ?? 200.0;
@@ -95,7 +89,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     return isBuyAction ? formattedFiatAmount : formattedCryptoAmount;
   }
 
-  SettingsStore settingsStore;
+  AppStore _appStore;
 
   Quote? bestRateQuote;
 
@@ -171,7 +165,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
   @action
   void reset() {
     cryptoCurrency = wallet.currency;
-    fiatCurrency = settingsStore.fiatCurrency;
+    fiatCurrency = _appStore.settingsStore.fiatCurrency;
     isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
     _initialize();
   }
@@ -364,14 +358,23 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           onTimeout: () => [],
         )));
 
-    final Map<PaymentType, PaymentMethod> uniquePaymentMethods = {};
+    final List<PaymentMethod> tempPaymentMethods = [];
+
     for (var methods in result) {
       for (var method in methods) {
-        uniquePaymentMethods[method.paymentMethodType] = method;
+        final alreadyExists = tempPaymentMethods.any((m) {
+          return m.paymentMethodType == method.paymentMethodType &&
+              m.customTitle == method.customTitle;
+        });
+
+        if (!alreadyExists) {
+          tempPaymentMethods.add(method);
+        }
       }
     }
 
-    paymentMethods = ObservableList<PaymentMethod>.of(uniquePaymentMethods.values);
+    paymentMethods = ObservableList<PaymentMethod>.of(tempPaymentMethods);
+
     if (paymentMethods.isNotEmpty) {
       paymentMethods.insert(0, PaymentMethod.all());
       selectedPaymentMethod = paymentMethods.first;
@@ -409,6 +412,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
           paymentType: selectedPaymentMethod?.paymentMethodType,
           isBuyAction: isBuyAction,
           walletAddress: wallet.walletAddresses.address,
+          customPaymentMethodType: selectedPaymentMethod?.customPaymentMethodType,
         )
         .timeout(
           Duration(seconds: 10),

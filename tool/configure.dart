@@ -96,6 +96,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -127,10 +128,12 @@ import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
@@ -180,7 +183,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
 
   String getAddress(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
@@ -198,7 +201,7 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-  Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool alwaysScan, bool isDirect);
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
@@ -215,6 +218,7 @@ abstract class Bitcoin {
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   List<ReceivePageOption> getLitecoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
@@ -249,6 +253,11 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+
+  void updatePayjoinState(Object wallet, bool state);
+  String getPayjoinEndpoint(Object wallet);
+  void resumePayjoinSessions(Object wallet);
+  void stopPayjoinSessions(Object wallet);
 }
   """;
 
@@ -415,7 +424,7 @@ abstract class Monero {
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
-  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, required String? passphrase, String? password});
+WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
   Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
@@ -434,6 +443,7 @@ abstract class Monero {
   void setLedgerConnection(Object wallet, ledger.LedgerConnection connection);
   void resetLedgerConnection();
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
+  String? getLastLedgerCommand();
   Map<String, List<int>> debugCallLength();
 }
 
@@ -1775,6 +1785,7 @@ abstract class SecureStorage {
   Future<void> delete({required String key});
   // Legacy
   Future<String?> readNoIOptions({required String key});
+  Future<Map<String, String>> readAll();
  }""";
   const defaultSecureStorage = """
 class DefaultSecureStorage extends SecureStorage {
@@ -1813,6 +1824,11 @@ class DefaultSecureStorage extends SecureStorage {
       iOptions: useNoIOptions ? IOSOptions() : null,
     );
   }
+
+  @override
+  Future<Map<String, String>> readAll() async {
+    return await _secureStorage.readAll();
+  }
  }""";
   const fakeSecureStorage = """
 class FakeSecureStorage extends SecureStorage {
@@ -1824,6 +1840,8 @@ class FakeSecureStorage extends SecureStorage {
   Future<void> delete({required String key}) async {}
   @override
   Future<String?> readNoIOptions({required String key}) async => null;
+  @override
+  Future<Map<String, String>> readAll() async => {};
  }""";
   final outputFile = File(secureStoragePath);
   final header = hasFlutterSecureStorage

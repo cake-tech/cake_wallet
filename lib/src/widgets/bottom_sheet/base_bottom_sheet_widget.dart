@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 abstract class BaseBottomSheet extends StatelessWidget {
   final String titleText;
@@ -21,7 +20,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
                   height: 6,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4),
-                    color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -33,24 +32,22 @@ abstract class BaseBottomSheet extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (titleIconPath != null)
-              Image.asset(titleIconPath!, height: 24, width: 24)
+              Image.asset(titleIconPath!, height: 24, width: 24, excludeFromSemantics: true)
             else
               Container(),
             const SizedBox(width: 6),
             Text(
               titleText,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                decoration: TextDecoration.none,
-              ),
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.none,
+                  ),
             ),
           ],
         ),
-        const SizedBox(height: 13),
+        const SizedBox(height: 24),
       ],
     );
   }
@@ -67,7 +64,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
         borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
         child: Container(
-          color: Theme.of(context).dialogBackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[

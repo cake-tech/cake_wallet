@@ -329,7 +329,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       try {
         await subscribeForUpdates();
       } catch (e) {
-        printV("failed to subcribe for updates: $e");
+        printV("failed to subscribe for updates: $e");
       }
       updateFeeRates();
       _feeRatesTimer?.cancel();
@@ -464,7 +464,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
-      await mwebUtxosBox.put(key, oldBox.get(key)!);
+      final value = oldBox.get(key);
+      await oldBox.delete(key);
+      await mwebUtxosBox.put(key, value!);
     }
     oldBox.deleteFromDisk();
 
@@ -601,7 +603,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     _utxoStream = responseStream.listen(
       (Utxo sUtxo) async {
-        // we're processing utxos, so our balance could still be innacurate:
+        // we're processing utxos, so our balance could still be inaccurate:
         if (mwebSyncStatus is! SyncronizingSyncStatus && mwebSyncStatus is! SyncingSyncStatus) {
           mwebSyncStatus = SyncronizingSyncStatus();
           processingUtxos = true;

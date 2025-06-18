@@ -1,9 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -26,7 +23,7 @@ class LoadingBottomSheet extends BaseBottomSheet {
 }
 
 class InfoBottomSheet extends BaseBottomSheet {
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
   final String? contentImage;
   final Color? contentImageColor;
   final String? content;
@@ -89,13 +86,12 @@ class InfoBottomSheet extends BaseBottomSheet {
                     child: AutoSizeText(
                       content!,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        decoration: TextDecoration.none,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            decoration: TextDecoration.none,
+                          ),
                     ),
                   ),
                   const Spacer(flex: 2),
@@ -112,13 +108,11 @@ class InfoBottomSheet extends BaseBottomSheet {
                   Text(
                     'Don’t ask me next time',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Lato',
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      decoration: TextDecoration.none,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                 ],
               ),
@@ -143,12 +137,8 @@ class InfoBottomSheet extends BaseBottomSheet {
                   key: leftActionButtonKey,
                   onPressed: actionLeftButton,
                   text: leftButtonText ?? '',
-                  color: currentTheme.type == ThemeType.dark
-                      ? Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor
-                      : Theme.of(context).cardColor,
-                  textColor: currentTheme.type == ThemeType.dark
-                      ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                      : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                 ),
               ),
             ),
@@ -159,10 +149,8 @@ class InfoBottomSheet extends BaseBottomSheet {
                   key: rightActionButtonKey,
                   onPressed: actionRightButton,
                   text: rightButtonText ?? '',
-                  color: Theme.of(context).primaryColor,
-                  textColor: currentTheme.type == ThemeType.dark
-                      ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                      : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ),
@@ -176,8 +164,8 @@ class InfoBottomSheet extends BaseBottomSheet {
           key: actionButtonKey,
           onPressed: actionButton ?? () {},
           text: actionButtonText ?? '',
-          color: Theme.of(context).primaryColor,
-          textColor: Colors.white,
+          color: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onPrimary,
           isLoading: false,
           isDisabled: false,
         ),
@@ -221,11 +209,11 @@ class _SimpleCheckboxState extends State<SimpleCheckbox> {
           initialValue = value!;
           widget.onChanged?.call(value);
         }),
-        checkColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        checkColor: Theme.of(context).colorScheme.onSurfaceVariant,
         activeColor: Colors.transparent,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
-            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor, width: 1.0)),
+        side: WidgetStateBorderSide.resolveWith((states) =>
+            BorderSide(color: Theme.of(context).colorScheme.onSurfaceVariant, width: 1.0)),
       ),
     );
   }

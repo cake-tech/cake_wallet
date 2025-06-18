@@ -1,9 +1,29 @@
+import 'dart:async';
+
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/core/amount_validator.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/open_crypto_pay/models.dart';
+import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
+import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/xelis/xelis.dart';
@@ -15,40 +35,32 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/exceptions.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/template.dart';
-import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/core/amount_validator.dart';
-import 'package:cw_core/pending_transaction.dart';
-import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/generated/i18n.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
 
@@ -223,7 +235,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   String get balance {
     if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
-    } else if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+    } else if (walletType == WalletType.litecoin &&
+        coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
     }
     return wallet.balance[selectedCryptoCurrency]!.formattedFullAvailableBalance;
@@ -288,19 +301,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       .toList();
 
   @computed
-  bool get hasCoinControl =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.wownero ||
-      wallet.type == WalletType.decred ||
-      wallet.type == WalletType.bitcoinCash;
+  bool get hasCoinControl => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.decred,
+        WalletType.bitcoinCash
+      ].contains(wallet.type);
 
   @computed
   bool get isElectrumWallet =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.bitcoinCash;
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
@@ -394,13 +406,68 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return conditionsList.contains(true);
   }
 
+  final _ocpService = OpenCryptoPayService();
+
+  @observable
+  OpenCryptoPayRequest? ocpRequest;
+
+  @action
+  Future<void> dismissTransaction() async {
+    state = InitialExecutionState();
+    if (ocpRequest != null) {
+      clearOutputs();
+      _ocpService.cancelOpenCryptoPayRequest(ocpRequest!);
+      ocpRequest = null;
+    }
+  }
+
+  @action
+  Future<PendingTransaction?> createOpenCryptoPayTransaction(String uri) async {
+    state = IsExecutingState();
+
+    try {
+      final originalOCPRequest = await _ocpService.getOpenCryptoPayInvoice(uri.toString());
+      final paymentUri = await _ocpService.getOpenCryptoPayAddress(
+        originalOCPRequest,
+        selectedCryptoCurrency,
+      );
+
+      ocpRequest = originalOCPRequest;
+
+      final paymentRequest = PaymentRequest.fromUri(paymentUri);
+      clearOutputs();
+
+      outputs.first.address = paymentRequest.address;
+      outputs.first.parsedAddress =
+          ParsedAddress(addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
+      outputs.first.setCryptoAmount(paymentRequest.amount);
+      outputs.first.note = ocpRequest!.receiverName;
+
+      return createTransaction();
+    } catch (e) {
+      printV(e);
+      state = FailureState(translateErrorMessage(e, walletType, currency));
+      return null;
+    }
+  }
+
+  Timer? _ledgerTxStateTimer;
+
   @action
   Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
     try {
-      if (wallet.isHardwareWallet)
+      if (!(state is IsExecutingState)) state = IsExecutingState();
+
+      if (wallet.isHardwareWallet) {
         state = IsAwaitingDeviceResponseState();
-      else
-        state = IsExecutingState();
+        if (walletType == WalletType.monero)
+          _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+            if (monero!.getLastLedgerCommand() == "INS_CLSAG") {
+              timer.cancel();
+              state = IsDeviceSigningResponseState();
+            }
+          });
+      }
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
@@ -433,6 +500,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
+      _ledgerTxStateTimer?.cancel();
       // if (e is LedgerException) {
       //   final errorCode = e.errorCode.toRadixString(16);
       //   final fallbackMsg =
@@ -512,6 +580,30 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       });
     }
 
+    if (ocpRequest != null) {
+      state = TransactionCommitting();
+      if (selectedCryptoCurrency == CryptoCurrency.xmr) {
+        await pendingTransaction!.commit();
+      }
+
+      await _ocpService.commitOpenCryptoPayRequest(
+        pendingTransaction!.hex,
+        txId: pendingTransaction!.id,
+        request: ocpRequest!,
+        asset: selectedCryptoCurrency,
+      );
+
+      state = TransactionCommitted();
+
+      return;
+    }
+
+    String address = outputs.fold('', (acc, value) {
+      return value.isParsedAddress
+          ? '$acc${value.address}\n${value.extractedAddress}\n\n'
+          : '$acc${value.address}\n\n';
+    });
+
     address = address.trim();
 
     String note = outputs.fold('', (acc, value) => '$acc${value.note}\n');
@@ -538,14 +630,30 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (pendingTransaction!.id.isNotEmpty) {
+        TransactionInfo? tx;
+        if (walletType == WalletType.monero) {
+          await Future.delayed(Duration(milliseconds: 450));
+          await wallet.fetchTransactions();
+          final txhistory = monero!.getTransactionHistory(wallet);
+          tx = txhistory.transactions.values.last;
+        }
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
             ? await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey, recipientAddress: address, transactionNote: note))
-            : await transactionDescriptionBox
-                .add(TransactionDescription(id: descriptionKey, transactionNote: note));
+                id: descriptionKey,
+                recipientAddress: address,
+                transactionNote: note,
+                transactionKey: tx?.additionalInfo["key"] as String?,
+              ))
+            : await transactionDescriptionBox.add(TransactionDescription(
+                id: descriptionKey,
+                transactionNote: note,
+                transactionKey: tx?.additionalInfo["key"] as String?,
+              ));
       }
-
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
+          DateTime.now().add(Duration(minutes: 1)).toIso8601String());
       state = TransactionCommitted();
     } catch (e) {
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
@@ -571,6 +679,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          payjoinUri: _settingsStore.usePayjoin ? payjoinUri : null,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
@@ -698,7 +807,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       if (error is CreateAssociatedTokenAccountException) {
-        return "${S.current.solana_create_associated_token_account_exception}\n\n${error.errorMessage}";
+        return "${S.current.solana_create_associated_token_account_exception} ${S.current.added_message_for_ata_error}\n\n${error.errorMessage}";
       }
 
       if (error is SignSPLTokenTransactionRentException) {
@@ -709,8 +818,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.solana_no_associated_token_account_exception;
       }
 
-      if (errorMessage.contains('insufficient funds for rent')) {
-        return S.current.insufficientFundsForRentError;
+      if (errorMessage.contains('insufficient funds for rent') && 
+          errorMessage.contains('Transaction simulation failed') && 
+          errorMessage.contains('account_index')) {
+        final accountIndexMatch = RegExp(r'account_index: (\d+)').firstMatch(errorMessage);
+        if (accountIndexMatch != null) {
+          return int.parse(accountIndexMatch.group(1)!) == 0 
+              ? S.current.insufficientFundsForRentError
+              : S.current.insufficientFundsForRentErrorReceiver;
+        }
       }
 
       return errorMessage;
@@ -726,7 +842,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final parsedErrorMessageResult =
             EVMTransactionErrorFeesHandler.parseEthereumFeesErrorMessage(
           errorMessage,
-          _fiatConversationStore.prices[currency]!,
+          _fiatConversationStore.prices[currency] ?? 0.0,
         );
 
         if (parsedErrorMessageResult.error != null) {
@@ -809,4 +925,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return false;
   }
+
+  @computed
+  bool get usePayjoin => _settingsStore.usePayjoin;
+
+  @observable
+  String? payjoinUri;
 }

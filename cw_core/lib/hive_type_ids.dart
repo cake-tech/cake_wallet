@@ -21,4 +21,5 @@ const HARDWARE_WALLET_TYPE_TYPE_ID  = 19;
 const MWEB_UTXO_TYPE_ID             = 20;
 const HAVEN_SEED_STORE_TYPE_ID      = 21;
 const ZANO_ASSET_TYPE_ID            = 22;
-const XELIS_ASSET_TYPE_ID           = 23;
+const PAYJOIN_SESSION_TYPE_ID       = 23;
+const XELIS_ASSET_TYPE_ID           = 24;

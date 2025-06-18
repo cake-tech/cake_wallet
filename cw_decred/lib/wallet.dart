@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_decred/amount_format.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
@@ -222,7 +225,7 @@ abstract class DecredWalletBase
 
   Future<bool> checkSync() async {
     final syncStatusJSON = await _libwallet.syncStatus(walletInfo.name);
-    final decoded = json.decode(syncStatusJSON);
+    final decoded = json.decode(syncStatusJSON.isEmpty ? "{}" : syncStatusJSON);
 
     final syncStatusCode = decoded["syncstatuscode"] ?? 0;
     // final syncStatusStr = decoded["syncstatus"] ?? "";
@@ -306,9 +309,10 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
+      final dirPath = await pathForWalletDir(name: walletInfo.name, type: WalletType.decred);
       final config = {
         "name": walletInfo.name,
-        "datadir": walletInfo.dirPath,
+        "datadir": dirPath,
         "net": network,
         "unsyncedaddrs": true,
       };
@@ -602,7 +606,25 @@ abstract class DecredWalletBase
       throw "wallet already exists at $newDirPath";
     }
 
-    await Directory(currentDirPath).rename(newDirPath);
+    final sourceDir = Directory(currentDirPath);
+    final targetDir = Directory(newDirPath);
+
+    if (!targetDir.existsSync()) {
+      await targetDir.create(recursive: true);
+    }
+
+    await for (final entity in sourceDir.list(recursive: true)) {
+      final relativePath = entity.path.substring(sourceDir.path.length + 1);
+      final targetPath = p.join(targetDir.path, relativePath);
+
+      if (entity is File) {
+        await entity.rename(targetPath);
+      } else if (entity is Directory) {
+        await Directory(targetPath).create(recursive: true);
+      }
+    }
+
+    await sourceDir.delete(recursive: true);
   }
 
   @override
@@ -710,14 +732,18 @@ abstract class DecredWalletBase
   // walletBirthdayBlockHeight checks if the wallet birthday is set and returns
   // it. Returns -1 if not.
   Future<int> walletBirthdayBlockHeight() async {
-    final res = await _libwallet.birthState(walletInfo.name);
-    final decoded = json.decode(res);
-    // Having these values set indicates that sync has not reached the birthday
-    // yet, so no birthday is set.
-    if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
-      return -1;
+    try {
+      final res = await _libwallet.birthState(walletInfo.name);
+      final decoded = json.decode(res);
+      // Having these values set indicates that sync has not reached the birthday
+      // yet, so no birthday is set.
+      if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
+        return -1;
+      }
+      return decoded["height"] ?? 0;
+    } on FormatException catch (_) {
+      return 0;
     }
-    return decoded["height"] ?? 0;
   }
 
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) async {

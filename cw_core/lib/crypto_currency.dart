@@ -234,7 +234,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const ton = CryptoCurrency(title: 'TON', fullName: 'Toncoin', raw: 95, name: 'ton', iconPath: 'assets/images/ton_icon.png', decimals: 8);
   static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 96, name: 'zano', iconPath: 'assets/images/zano_icon.png', decimals: 12);
   static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 97, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
-  static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Digital Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png', decimals: 18);
+  static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png', decimals: 18);
 
   static const xel = CryptoCurrency(title: 'XEL', fullName: 'Xelis', raw: 99, name: 'xel', iconPath: 'assets/images/xelis_icon.png', decimals: 8);
   static const xet = CryptoCurrency(title: 'XET', fullName: 'Testnet Xelis', raw: 100, name: 'xet', iconPath: 'assets/images/xelis_testnet_icon.png', decimals: 8);

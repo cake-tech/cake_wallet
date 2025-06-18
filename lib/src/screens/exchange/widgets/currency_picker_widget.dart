@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'currency_picker_item_widget.dart';
@@ -21,7 +20,7 @@ class CurrencyPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+      color: Theme.of(context).colorScheme.outlineVariant,
       child: Scrollbar(
         controller: _scrollController,
         child: GridView.builder(

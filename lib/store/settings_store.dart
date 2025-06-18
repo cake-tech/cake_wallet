@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
@@ -13,40 +14,33 @@ import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/country.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -71,6 +65,7 @@ abstract class SettingsStoreBase with Store {
       required NanoSeedType initialNanoSeedType,
       required bool initialAppSecure,
       required bool initialDisableTrade,
+      required bool initialDisableAutomaticExchangeStatusUpdates,
       required FilterListOrderType initialWalletListOrder,
       required FilterListOrderType initialContactListOrder,
       required bool initialDisableBulletin,
@@ -82,7 +77,6 @@ abstract class SettingsStoreBase with Store {
       required bool initialUseTOTP2FA,
       required int initialFailedTokenTrial,
       required ExchangeApiMode initialExchangeStatus,
-      required ThemeBase initialTheme,
       required int initialPinLength,
       required String initialLanguageCode,
       required SyncMode initialSyncMode,
@@ -124,6 +118,8 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsOpenAlias,
       required this.lookupsENS,
       required this.lookupsWellKnown,
+      required this.usePayjoin,
+      required this.showPayjoinCard,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
       required this.silentPaymentsAlwaysScan,
@@ -163,6 +159,7 @@ abstract class SettingsStoreBase with Store {
         numberOfFailedTokenTrials = initialFailedTokenTrial,
         isAppSecure = initialAppSecure,
         disableTradeOption = initialDisableTrade,
+        disableAutomaticExchangeStatusUpdates = initialDisableAutomaticExchangeStatusUpdates,
         disableBulletin = initialDisableBulletin,
         walletListOrder = initialWalletListOrder,
         contactListOrder = initialContactListOrder,
@@ -171,7 +168,6 @@ abstract class SettingsStoreBase with Store {
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         exchangeStatus = initialExchangeStatus,
-        currentTheme = initialTheme,
         pinCodeLength = initialPinLength,
         languageCode = initialLanguageCode,
         shouldRequireTOTP2FAForAccessingWallet = initialShouldRequireTOTP2FAForAccessingWallet,
@@ -320,7 +316,10 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => disableTradeOption,
         (bool disableTradeOption) => sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption));
-    
+
+    reaction((_) => disableAutomaticExchangeStatusUpdates,
+        (bool disableAutomaticExchangeStatusUpdates) => sharedPreferences.setBool(PreferencesKey.disableAutomaticExchangeStatusUpdates, disableAutomaticExchangeStatusUpdates));
+
     reaction(
         (_) => disableBulletin,
         (bool disableBulletin) =>
@@ -370,9 +369,6 @@ abstract class SettingsStoreBase with Store {
         (_) => fiatApiMode,
         (FiatApiMode mode) =>
             sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, mode.serialize()));
-
-    reaction((_) => currentTheme,
-        (ThemeBase theme) => sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
 
     reaction(
         (_) => numberOfFailedTokenTrials,
@@ -492,6 +488,16 @@ abstract class SettingsStoreBase with Store {
         (_) => lookupsWellKnown,
         (bool looksUpWellKnown) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
+
+    reaction(
+        (_) => usePayjoin,
+        (bool usePayjoin) =>
+            _sharedPreferences.setBool(PreferencesKey.usePayjoin, usePayjoin));
+
+    reaction(
+        (_) => showPayjoinCard,
+        (bool showPayjoinCard) => _sharedPreferences.setBool(
+            PreferencesKey.showPayjoinCard, showPayjoinCard));
 
     // secure storage keys:
     reaction(
@@ -620,6 +626,8 @@ abstract class SettingsStoreBase with Store {
         _saveCurrentPowNode(change.newValue!, change.key!);
       }
     });
+
+
   }
 
   static const defaultPinLength = 4;
@@ -679,6 +687,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool disableTradeOption;
+
+  @observable
+  bool disableAutomaticExchangeStatusUpdates;
 
   @observable
   FilterListOrderType contactListOrder;
@@ -741,9 +752,6 @@ abstract class SettingsStoreBase with Store {
   ExchangeApiMode exchangeStatus;
 
   @observable
-  ThemeBase currentTheme;
-
-  @observable
   int pinCodeLength;
 
   @observable
@@ -751,9 +759,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   SeedPhraseLength seedPhraseLength;
-
-  @computed
-  ThemeData get theme => currentTheme.themeData;
 
   @observable
   String languageCode;
@@ -811,6 +816,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool lookupsWellKnown;
+
+  @observable
+  bool usePayjoin;
+
+  @observable
+  bool showPayjoinCard;
 
   @observable
   SyncMode currentSyncMode;
@@ -885,8 +896,7 @@ abstract class SettingsStoreBase with Store {
       required Box<Node> powNodeSource,
       required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance,
-      ThemeBase? initialTheme}) async {
+      BalanceDisplayMode initialBalanceDisplayMode = BalanceDisplayMode.availableBalance}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final secureStorage = await getIt.get<SecureStorage>();
     final currentFiatCurrency = FiatCurrency.deserialize(
@@ -968,6 +978,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey) ?? false;
     final isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? false;
     final disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? false;
+    final disableAutomaticExchangeStatusUpdates = sharedPreferences.getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ?? false;
     final disableBulletin = sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? false;
     final walletListOrder =
         FilterListOrderType.values[sharedPreferences.getInt(PreferencesKey.walletListOrder) ?? 0];
@@ -988,16 +999,6 @@ abstract class SettingsStoreBase with Store {
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    final bool isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? true;
-    final int defaultTheme;
-    if (isNewInstall) {
-      defaultTheme = isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw;
-    } else {
-      defaultTheme = ThemeType.bright.index;
-    }
-    final savedTheme = initialTheme ??
-        ThemeList.deserialize(
-            raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? defaultTheme);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
@@ -1025,6 +1026,8 @@ abstract class SettingsStoreBase with Store {
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
+    final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
+    final showPayjoinCard = sharedPreferences.getBool(PreferencesKey.showPayjoinCard) ?? true;
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
@@ -1052,7 +1055,6 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final bitcoinCashElectrumServerId =
         sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
-    final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
@@ -1063,21 +1065,37 @@ abstract class SettingsStoreBase with Store {
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final xelisNodeId = sharedPreferences.getInt(PreferencesKey.currentXelisNodeIdKey);
-    final moneroNode = nodeSource.get(nodeId);
-    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
-    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
-    final havenNode = nodeSource.get(havenNodeId);
-    final ethereumNode = nodeSource.get(ethereumNodeId);
-    final polygonNode = nodeSource.get(polygonNodeId);
-    final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId);
-    final nanoNode = nodeSource.get(nanoNodeId);
-    final decredNode = nodeSource.get(decredNodeId);
-    final xelisNode = nodeSource.get(xelisNodeId);
-    final nanoPowNode = powNodeSource.get(nanoPowNodeId);
-    final solanaNode = nodeSource.get(solanaNodeId);
-    final tronNode = nodeSource.get(tronNodeId);
-    final wowneroNode = nodeSource.get(wowneroNodeId);
-    final zanoNode = nodeSource.get(zanoNodeId);
+
+    /// get the selected node, if null, then use the default
+    final moneroNode = nodeSource.get(nodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == newCakeWalletMoneroUri);
+    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == newCakeWalletBitcoinUri);
+    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletLitecoinElectrumUri);
+    final ethereumNode = nodeSource.get(ethereumNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
+    final polygonNode = nodeSource.get(polygonNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
+    final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
+    final nanoNode = nodeSource.get(nanoNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == nanoDefaultNodeUri);
+    final decredNode = nodeSource.get(decredNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == decredDefaultUri);
+    final xelisNode = nodeSource.get(xelisNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == xelisDefaultUri);
+    final nanoPowNode = powNodeSource.get(nanoPowNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == nanoDefaultPowNodeUri);
+    final solanaNode = nodeSource.get(solanaNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == solanaDefaultNodeUri);
+    final tronNode = nodeSource.get(tronNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == tronDefaultNodeUri);
+    final wowneroNode = nodeSource.get(wowneroNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
+    final zanoNode = nodeSource.get(zanoNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
+
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
     final shouldShowYatPopup = sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -1121,10 +1139,6 @@ abstract class SettingsStoreBase with Store {
 
     if (litecoinElectrumServer != null) {
       nodes[WalletType.litecoin] = litecoinElectrumServer;
-    }
-
-    if (havenNode != null) {
-      nodes[WalletType.haven] = havenNode;
     }
 
     if (ethereumNode != null) {
@@ -1289,6 +1303,7 @@ abstract class SettingsStoreBase with Store {
       initialNanoSeedType: nanoSeedType,
       initialAppSecure: isAppSecure,
       initialDisableTrade: disableTradeOption,
+      initialDisableAutomaticExchangeStatusUpdates: disableAutomaticExchangeStatusUpdates,
       initialDisableBulletin: disableBulletin,
       initialWalletListOrder: walletListOrder,
       initialWalletListAscending: walletListAscending,
@@ -1301,7 +1316,6 @@ abstract class SettingsStoreBase with Store {
       initialTotpSecretKey: totpSecretKey,
       initialFailedTokenTrial: tokenTrialNumber,
       initialExchangeStatus: exchangeStatus,
-      initialTheme: savedTheme,
       actionlistDisplayMode: actionListDisplayMode,
       initialPinLength: pinLength,
       pinTimeOutDuration: pinCodeTimeOutDuration,
@@ -1323,6 +1337,8 @@ abstract class SettingsStoreBase with Store {
       lookupsOpenAlias: lookupsOpenAlias,
       lookupsENS: lookupsENS,
       lookupsWellKnown: lookupsWellKnown,
+      usePayjoin: usePayjoin,
+      showPayjoinCard: showPayjoinCard,
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
@@ -1457,6 +1473,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? numberOfFailedTokenTrials;
     isAppSecure = sharedPreferences.getBool(PreferencesKey.isAppSecureKey) ?? isAppSecure;
     disableTradeOption = sharedPreferences.getBool(PreferencesKey.disableTradeOption) ?? disableTradeOption;
+    disableAutomaticExchangeStatusUpdates = sharedPreferences.getBool(PreferencesKey.disableAutomaticExchangeStatusUpdates) ?? disableAutomaticExchangeStatusUpdates;
     disableBulletin =
         sharedPreferences.getBool(PreferencesKey.disableBulletinKey) ?? disableBulletin;
     walletListOrder =
@@ -1474,9 +1491,6 @@ abstract class SettingsStoreBase with Store {
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
-    currentTheme = ThemeList.deserialize(
-        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
-            (isMoneroOnly ? ThemeList.moneroDarkTheme.raw : ThemeList.brightTheme.raw));
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));

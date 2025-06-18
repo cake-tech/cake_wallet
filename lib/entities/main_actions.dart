@@ -9,8 +9,7 @@ class MainActions {
 
   final bool Function(DashboardViewModel viewModel)? isEnabled;
   final bool Function(DashboardViewModel viewModel)? canShow;
-  final Future<void> Function(
-      BuildContext context, DashboardViewModel viewModel) onTap;
+  final Future<void> Function(BuildContext context, DashboardViewModel viewModel) onTap;
 
   MainActions._({
     required this.name,
@@ -30,15 +29,20 @@ class MainActions {
 
   static MainActions showWalletsAction = MainActions._(
     name: (context) => S.of(context).wallets,
-    image: 'assets/images/wallet_new.png',
+    image: 'assets/images/wallet_icon.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
-      Navigator.pushNamed(context, Routes.walletList);
+      Navigator.pushNamed(
+        context,
+        Routes.walletList,
+        arguments: (BuildContext context) =>
+            Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
+      );
     },
   );
 
   static MainActions receiveAction = MainActions._(
     name: (context) => S.of(context).receive,
-    image: 'assets/images/received.png',
+    image: 'assets/images/receive.png',
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       Navigator.pushNamed(context, Routes.addressPage);
     },
@@ -46,7 +50,7 @@ class MainActions {
 
   static MainActions swapAction = MainActions._(
     name: (context) => S.of(context).swap,
-    image: 'assets/images/transfer.png',
+    image: 'assets/images/swap.png',
     isEnabled: (viewModel) => viewModel.isEnabledSwapAction,
     canShow: (viewModel) => viewModel.hasSwapAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
@@ -58,17 +62,16 @@ class MainActions {
 
   static MainActions sendAction = MainActions._(
     name: (context) => S.of(context).send,
-    image: 'assets/images/upload.png',
+    image: 'assets/images/send2.png',
     isEnabled: (viewModel) => viewModel.canSend,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {
       Navigator.pushNamed(context, Routes.send);
     },
   );
 
-
   static MainActions tradeAction = MainActions._(
-    name: (context) => S.of(context).exchange,
-    image: 'assets/images/buy_sell.png',
+    name: (context) => S.of(context).buy,
+    image: 'assets/images/buy.png',
     isEnabled: (viewModel) => viewModel.isEnabledTradeAction,
     canShow: (viewModel) => viewModel.hasTradeAction,
     onTap: (BuildContext context, DashboardViewModel viewModel) async {

@@ -25,11 +25,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/keyboard_theme.dart';
-import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -87,25 +82,24 @@ class SendPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor(context),
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
-    final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
     return MergeSemantics(
       child: SizedBox(
         height: isMobileView ? 37 : 45,
-        width: isMobileView ? 47: 45,
+        width: isMobileView ? 47 : 45,
         child: ButtonTheme(
           minWidth: double.minPositive,
           child: Semantics(
             label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,
@@ -143,25 +137,29 @@ class SendPage extends BasePage {
   }
 
   @override
-  Widget trailing(context) => Observer(builder: (_) {
-        return sendViewModel.isBatchSending
-            ? TrailButton(
-                caption: S.of(context).remove,
-                onPressed: () {
-                  var pageToJump = (controller.page?.round() ?? 0) - 1;
-                  pageToJump = pageToJump > 0 ? pageToJump : 0;
-                  final output = _defineCurrentOutput();
-                  sendViewModel.removeOutput(output);
-                  controller.jumpToPage(pageToJump);
-                })
-            : TrailButton(
-                caption: S.of(context).clear,
-                onPressed: () {
-                  final output = _defineCurrentOutput();
-                  _formKey.currentState?.reset();
-                  output.reset();
-                });
-      });
+  Widget trailing(context) => Observer(
+        builder: (_) {
+          return sendViewModel.isBatchSending
+              ? TrailButton(
+                  caption: S.of(context).remove,
+                  onPressed: () {
+                    var pageToJump = (controller.page?.round() ?? 0) - 1;
+                    pageToJump = pageToJump > 0 ? pageToJump : 0;
+                    final output = _defineCurrentOutput();
+                    sendViewModel.removeOutput(output);
+                    controller.jumpToPage(pageToJump);
+                  },
+                )
+              : TrailButton(
+                  caption: S.of(context).clear,
+                  onPressed: () {
+                    final output = _defineCurrentOutput();
+                    _formKey.currentState?.reset();
+                    output.reset();
+                  },
+                );
+        },
+      );
 
   @override
   Widget body(BuildContext context) {
@@ -173,26 +171,36 @@ class SendPage extends BasePage {
       for (var output in sendViewModel.outputs) {
         var cryptoAmountFocus = FocusNode();
         var fiatAmountFocus = FocusNode();
-        sendCards.add(SendCard(
-          currentTheme: currentTheme,
-          key: output.key,
-          output: output,
-          sendViewModel: sendViewModel,
-          initialPaymentRequest: initialPaymentRequest,
-          cryptoAmountFocus: cryptoAmountFocus,
-          fiatAmountFocus: fiatAmountFocus,
-        ));
-        keyboardActions.add(KeyboardActionsItem(
-            focusNode: cryptoAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]));
-        keyboardActions.add(KeyboardActionsItem(
-            focusNode: fiatAmountFocus, toolbarButtons: [(_) => KeyboardDoneButton()]));
+        sendCards.add(
+          SendCard(
+            currentTheme: currentTheme,
+            key: output.key,
+            output: output,
+            sendViewModel: sendViewModel,
+            initialPaymentRequest: initialPaymentRequest,
+            cryptoAmountFocus: cryptoAmountFocus,
+            fiatAmountFocus: fiatAmountFocus,
+          ),
+        );
+        keyboardActions.add(
+          KeyboardActionsItem(
+            focusNode: cryptoAmountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          ),
+        );
+        keyboardActions.add(
+          KeyboardActionsItem(
+            focusNode: fiatAmountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          ),
+        );
       }
       return Stack(
         children: [
           KeyboardActions(
             config: KeyboardActionsConfig(
               keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
-              keyboardBarColor: Theme.of(context).extension<KeyboardTheme>()!.keyboardBarColor,
+              keyboardBarColor: Theme.of(context).colorScheme.surface,
               nextFocus: false,
               actions: keyboardActions,
             ),
@@ -236,17 +244,18 @@ class SendPage extends BasePage {
                                           controller: controller,
                                           count: count,
                                           effect: ScrollingDotsEffect(
-                                              spacing: 6.0,
-                                              radius: 6.0,
-                                              dotWidth: 6.0,
-                                              dotHeight: 6.0,
-                                              dotColor: Theme.of(context)
-                                                  .extension<SendPageTheme>()!
-                                                  .indicatorDotColor,
-                                              activeDotColor: Theme.of(context)
-                                                  .extension<SendPageTheme>()!
-                                                  .templateBackgroundColor),
-                                        ))
+                                            spacing: 6.0,
+                                            radius: 6.0,
+                                            dotWidth: 6.0,
+                                            dotHeight: 6.0,
+                                            dotColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withOpacity(0.4),
+                                            activeDotColor: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                      )
                                     : Offstage();
                               },
                             ),
@@ -367,8 +376,7 @@ class SendPage extends BasePage {
                               onPressed: () => presentCurrencyPicker(context),
                               text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                               color: Colors.transparent,
-                              textColor:
-                                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                              textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -385,19 +393,15 @@ class SendPage extends BasePage {
                               },
                               text: S.of(context).add_receiver,
                               color: Colors.transparent,
-                              textColor:
-                                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
+                              textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                               isDottedBorder: true,
-                              borderColor: Theme.of(context)
-                                  .extension<SendPageTheme>()!
-                                  .templateDottedBorderColor,
+                              borderColor: Theme.of(context).colorScheme.outline,
                             )),
                       Observer(
                         builder: (_) {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
-
                               //Request dummy node to get the focus out of the text fields
                               FocusScope.of(context).requestFocus(FocusNode());
 
@@ -464,9 +468,11 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: S.of(context).send,
-                            color: Theme.of(context).primaryColor,
-                            textColor: Colors.white,
+                            text: sendViewModel.payjoinUri != null
+                                ? S.of(context).send_payjoin
+                                : S.of(context).send,
+                            color: Theme.of(context).colorScheme.primary,
+                            textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: sendViewModel.state is IsExecutingState ||
                                 sendViewModel.state is TransactionCommitting ||
                                 sendViewModel.state is IsAwaitingDeviceResponseState ||
@@ -507,25 +513,27 @@ class SendPage extends BasePage {
         Navigator.of(loadingBottomSheetContext!).pop();
       }
 
-
       if (state is FailureState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    key: ValueKey('send_page_send_failure_dialog_key'),
-                    buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
+                  key: ValueKey('send_page_send_failure_dialog_key'),
+                  buttonKey: ValueKey('send_page_send_failure_dialog_button_key'),
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              },
+            );
+          },
+        );
       }
 
       if (state is IsExecutingState) {
-
         // wait a bit to avoid showing the loading dialog if transaction is failed
         await Future.delayed(const Duration(milliseconds: 300));
         final currentState = sendViewModel.state;
@@ -550,9 +558,9 @@ class SendPage extends BasePage {
       }
 
       if (state is ExecutedSuccessfullyState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (context.mounted) {
-            showModalBottomSheet<void>(
+            final result = await showModalBottomSheet<bool>(
               context: context,
               isDismissible: false,
               isScrollControlled: true,
@@ -561,6 +569,7 @@ class SendPage extends BasePage {
                   key: ValueKey('send_page_confirm_sending_dialog_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
+                  walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
@@ -573,18 +582,19 @@ class SendPage extends BasePage {
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
                   onSlideComplete: () async {
-                    Navigator.of(bottomSheetContext).pop();
+                    Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
                   change: sendViewModel.pendingTransaction!.change,
+                  isOpenCryptoPay: sendViewModel.ocpRequest != null,
                 );
               },
             );
+
+            if (result == null) sendViewModel.dismissTransaction();
           }
         });
       }
-
-
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -594,7 +604,8 @@ class SendPage extends BasePage {
 
           newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
 
-          if (newContactAddress?.address != null && isRegularElectrumAddress(newContactAddress!.address)) {
+          if (newContactAddress?.address != null &&
+              isRegularElectrumAddress(newContactAddress!.address)) {
             newContactAddress = null;
           }
 
@@ -604,49 +615,55 @@ class SendPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return showContactSheet
+              return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
-                currentTheme: currentTheme,
-                showDontAskMeCheckbox: true,
-                onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
-                titleText: S.of(bottomSheetContext).transaction_sent,
-                contentImage: 'assets/images/contact_icon.svg',
-                contentImageColor: Theme.of(context)
-                    .extension<CakeTextTheme>()!
-                    .titleColor,
-                content: S.of(bottomSheetContext).add_contact_to_address_book,
-                isTwoAction: true,
-                leftButtonText: 'No',
-                rightButtonText: 'Yes',
-                actionLeftButton: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                  RequestReviewHandler.requestReview();
-                  newContactAddress = null;
-                },
-                actionRightButton: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  RequestReviewHandler.requestReview();
-                  Navigator.of(context)
-                      .pushNamed(Routes.addressBookAddContact, arguments: newContactAddress);
-                  newContactAddress = null;
-                },
-              )
+                      currentTheme: currentTheme,
+                      showDontAskMeCheckbox: true,
+                      onCheckboxChanged: (value) => sendViewModel.setShowAddressBookPopup(!value),
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/contact.png',
+                      contentImageColor: Theme.of(context).colorScheme.onSurface,
+                      content: S.of(bottomSheetContext).add_contact_to_address_book,
+                      isTwoAction: true,
+                      leftButtonText: 'No',
+                      rightButtonText: 'Yes',
+                      actionLeftButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        }
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      },
+                      actionRightButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        if (context.mounted) {
+                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                              arguments: newContactAddress);
+                        }
+                        newContactAddress = null;
+                      },
+                    )
                   : InfoBottomSheet(
-                currentTheme: currentTheme,
-                titleText: S.of(bottomSheetContext).transaction_sent,
-                contentImage: 'assets/images/birthday_cake.svg',
-                actionButtonText: S.of(bottomSheetContext).close,
-                actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                actionButton: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                  RequestReviewHandler.requestReview();
-                  newContactAddress = null;
-                },
-              );
+                      currentTheme: currentTheme,
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/birthday_cake.png',
+                      actionButtonText: S.of(bottomSheetContext).close,
+                      actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                      actionButton: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Future.delayed(Duration.zero, () {
+                          if (context.mounted) {
+                            Navigator.of(context)
+                                .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                          }
+                          RequestReviewHandler.requestReview();
+                          newContactAddress = null;
+                        });
+                      },
+                    );
             },
           );
 
@@ -667,28 +684,45 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is IsAwaitingDeviceResponseState) {
+      if (state is IsDeviceSigningResponseState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
 
           showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
-            builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
-              currentTheme: currentTheme,
-              titleText: S.of(bottomSheetContext).proceed_on_device,
-              contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
-              contentImageColor:
-              Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-              content: S.of(bottomSheetContext).proceed_on_device_description,
-              isTwoAction: false,
-              actionButtonText: S.of(context).cancel,
-              actionButton: () {
-                sendViewModel.state = InitialExecutionState();
-                Navigator.of(bottomSheetContext).pop();
-              },
-            ),
+            builder: (context) {
+              dialogContext = context;
+              return LoadingBottomSheet(titleText: S.of(context).processing_signed_tx);
+            },
           );
+        });
+      }
+
+      if (state is IsAwaitingDeviceResponseState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+
+          showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (context) {
+                dialogContext = context;
+                return InfoBottomSheet(
+                  currentTheme: currentTheme,
+                  titleText: S.of(context).proceed_on_device,
+                  contentImage:
+                      'assets/images/hardware_wallet/ledger_nano_x.png',
+                  contentImageColor: Theme.of(context).colorScheme.onSurface,
+                  content: S.of(context).proceed_on_device_description,
+                  isTwoAction: false,
+                  actionButtonText: S.of(context).cancel,
+                  actionButton: () {
+                    sendViewModel.state = InitialExecutionState();
+                    Navigator.of(context).pop();
+                  },
+                );
+              });
         });
       }
     });
@@ -778,5 +812,4 @@ class SendPage extends BasePage {
 
     return isValid;
   }
-
 }

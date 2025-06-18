@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -84,7 +83,7 @@ class $BackupService {
     outer:
     for (var file in zip.files) {
       final filename = file.name;
-      for (var ignore in ignoreFiles) { 
+      for (var ignore in ignoreFiles) {
         if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
           printV("ignoring backup file: $filename");
           continue outer;
@@ -111,7 +110,7 @@ class $BackupService {
   }
 
   Future<void> verifyWallets() async {
-    final walletInfoSource = await _reloadHiveWalletInfoBox();
+    final walletInfoSource = await reloadHiveWalletInfoBox();
     correctWallets =
         walletInfoSource.values.where((info) => availableWalletTypes.contains(info.type)).toList();
 
@@ -120,7 +119,7 @@ class $BackupService {
     }
   }
 
-  Future<Box<WalletInfo>> _reloadHiveWalletInfoBox() async {
+  Future<Box<WalletInfo>> reloadHiveWalletInfoBox() async {
     final appDir = await getAppDir();
     await CakeHive.close();
     CakeHive.init(appDir.path);
@@ -146,7 +145,7 @@ class $BackupService {
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
     var box = transactionDescriptionBox;
     if (!box.isOpen) {
-      final transactionDescriptionsBoxKey = 
+      final transactionDescriptionsBoxKey =
         await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
       box = await CakeHive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
@@ -164,6 +163,31 @@ class $BackupService {
     }
 
     final data = json.decode(preferencesFile.readAsStringSync()) as Map<String, dynamic>;
+
+    try { // shouldn't throw an error but just in case, so it doesn't stop the backup restore
+      for (var entry in data.entries) {
+        String key = entry.key;
+        dynamic value = entry.value;
+
+        // Check the type of the value and save accordingly
+        if (value is String) {
+          await sharedPreferences.setString(key, value);
+        } else if (value is int) {
+          await sharedPreferences.setInt(key, value);
+        } else if (value is double) {
+          await sharedPreferences.setDouble(key, value);
+        } else if (value is bool) {
+          await sharedPreferences.setBool(key, value);
+        } else if (value is List<String>) {
+          await sharedPreferences.setStringList(key, value);
+        } else {
+          if (kDebugMode) {
+            printV('Skipping individual save for key "$key": Unsupported type (${value.runtimeType}). Value: $value');
+          }
+        }
+      }
+    } catch (_) {}
+
     String currentWalletName = data[PreferencesKey.currentWalletName] as String;
     int currentWalletType = data[PreferencesKey.currentWalletType] as int;
 
@@ -175,150 +199,9 @@ class $BackupService {
       currentWalletType = serializeToInt(correctWallets.first.type);
     }
 
-    final currentNodeId = data[PreferencesKey.currentNodeIdKey] as int?;
-    final currentBalanceDisplayMode = data[PreferencesKey.currentBalanceDisplayModeKey] as int?;
-    final currentFiatCurrency = data[PreferencesKey.currentFiatCurrencyKey] as String?;
-    final shouldSaveRecipientAddress = data[PreferencesKey.shouldSaveRecipientAddressKey] as bool?;
-    final isAppSecure = data[PreferencesKey.isAppSecureKey] as bool?;
-    final disableTradeOption = data[PreferencesKey.disableTradeOption] as bool?;
-    final currentTransactionPriorityKeyLegacy =
-        data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int?;
-    final currentBitcoinElectrumSererId =
-        data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int?;
-    final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
-    final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
-    final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
-    final currentTheme = data[PreferencesKey.currentTheme] as int?;
-    final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
-    final currentDefaultSettingsMigrationVersion =
-        data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int?;
-    final moneroTransactionPriority = data[PreferencesKey.moneroTransactionPriority] as int?;
-    final bitcoinTransactionPriority = data[PreferencesKey.bitcoinTransactionPriority] as int?;
-    final sortBalanceTokensBy = data[PreferencesKey.sortBalanceBy] as int?;
-    final pinNativeTokenAtTop = data[PreferencesKey.pinNativeTokenAtTop] as bool?;
-    final useEtherscan = data[PreferencesKey.useEtherscan] as bool?;
-    final defaultNanoRep = data[PreferencesKey.defaultNanoRep] as String?;
-    final defaultBananoRep = data[PreferencesKey.defaultBananoRep] as String?;
-    final lookupsTwitter = data[PreferencesKey.lookupsTwitter] as bool?;
-    final lookupsMastodon = data[PreferencesKey.lookupsMastodon] as bool?;
-    final lookupsYatService = data[PreferencesKey.lookupsYatService] as bool?;
-    final lookupsUnstoppableDomains = data[PreferencesKey.lookupsUnstoppableDomains] as bool?;
-    final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
-    final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
-    final lookupsWellKnown = data[PreferencesKey.lookupsWellKnown] as bool?;
-    final syncAll = data[PreferencesKey.syncAllKey] as bool?;
-    final syncMode = data[PreferencesKey.syncModeKey] as int?;
-    final autoGenerateSubaddressStatus =
-        data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
-
-    await sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
-
-    if (currentNodeId != null)
-      await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, currentNodeId);
-
-    if (currentBalanceDisplayMode != null)
-      await sharedPreferences.setInt(
-          PreferencesKey.currentBalanceDisplayModeKey, currentBalanceDisplayMode);
-
-    await sharedPreferences.setInt(PreferencesKey.currentWalletType, currentWalletType);
-
-    if (currentFiatCurrency != null)
-      await sharedPreferences.setString(
-          PreferencesKey.currentFiatCurrencyKey, currentFiatCurrency);
-
-    if (shouldSaveRecipientAddress != null)
-      await sharedPreferences.setBool(
-          PreferencesKey.shouldSaveRecipientAddressKey, shouldSaveRecipientAddress);
-
-    if (isAppSecure != null)
-      await sharedPreferences.setBool(PreferencesKey.isAppSecureKey, isAppSecure);
-
-    if (disableTradeOption != null)
-      await sharedPreferences.setBool(PreferencesKey.disableTradeOption, disableTradeOption);
-
-    if (currentTransactionPriorityKeyLegacy != null)
-      await sharedPreferences.setInt(
-          PreferencesKey.currentTransactionPriorityKeyLegacy, currentTransactionPriorityKeyLegacy);
-
-    if (currentBitcoinElectrumSererId != null)
-      await sharedPreferences.setInt(
-          PreferencesKey.currentBitcoinElectrumSererIdKey, currentBitcoinElectrumSererId);
-
-    if (currentLanguageCode != null)
-      await sharedPreferences.setString(PreferencesKey.currentLanguageCode, currentLanguageCode);
-
-    if (displayActionListMode != null)
-      await sharedPreferences.setInt(
-          PreferencesKey.displayActionListModeKey, displayActionListMode);
-
-    if (fiatApiMode != null)
-      await sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
-    if (autoGenerateSubaddressStatus != null)
-      await sharedPreferences.setInt(
-          PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
-
-    if (currentTheme != null && DeviceInfo.instance.isMobile) {
-      await sharedPreferences.setInt(PreferencesKey.currentTheme, currentTheme);
-      // enforce dark theme on desktop platforms until the design is ready:
-    } else if (DeviceInfo.instance.isDesktop) {
+    if (DeviceInfo.instance.isDesktop) {
       await sharedPreferences.setInt(PreferencesKey.currentTheme, ThemeList.darkTheme.raw);
     }
-
-    if (exchangeStatus != null)
-      await sharedPreferences.setInt(PreferencesKey.exchangeStatusKey, exchangeStatus);
-
-    if (currentDefaultSettingsMigrationVersion != null)
-      await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion,
-          currentDefaultSettingsMigrationVersion);
-
-    if (moneroTransactionPriority != null)
-      await sharedPreferences.setInt(
-          PreferencesKey.moneroTransactionPriority, moneroTransactionPriority);
-
-    if (bitcoinTransactionPriority != null)
-      await sharedPreferences.setInt(
-          PreferencesKey.bitcoinTransactionPriority, bitcoinTransactionPriority);
-
-    if (sortBalanceTokensBy != null)
-      await sharedPreferences.setInt(PreferencesKey.sortBalanceBy, sortBalanceTokensBy);
-
-    if (pinNativeTokenAtTop != null)
-      await sharedPreferences.setBool(PreferencesKey.pinNativeTokenAtTop, pinNativeTokenAtTop);
-
-    if (useEtherscan != null)
-      await sharedPreferences.setBool(PreferencesKey.useEtherscan, useEtherscan);
-
-    if (defaultNanoRep != null)
-      await sharedPreferences.setString(PreferencesKey.defaultNanoRep, defaultNanoRep);
-
-    if (defaultBananoRep != null)
-      await sharedPreferences.setString(PreferencesKey.defaultBananoRep, defaultBananoRep);
-
-    if (syncAll != null) await sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
-    if (lookupsTwitter != null)
-      await sharedPreferences.setBool(PreferencesKey.lookupsTwitter, lookupsTwitter);
-
-    if (lookupsMastodon != null)
-      await sharedPreferences.setBool(PreferencesKey.lookupsMastodon, lookupsMastodon);
-
-    if (lookupsYatService != null)
-      await sharedPreferences.setBool(PreferencesKey.lookupsYatService, lookupsYatService);
-
-    if (lookupsUnstoppableDomains != null)
-      await sharedPreferences.setBool(
-          PreferencesKey.lookupsUnstoppableDomains, lookupsUnstoppableDomains);
-
-    if (lookupsOpenAlias != null)
-      await sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, lookupsOpenAlias);
-
-    if (lookupsENS != null) await sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
-
-    if (lookupsWellKnown != null)
-      await sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, lookupsWellKnown);
-
-    if (syncAll != null) await sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
-
-    if (syncMode != null) await sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
 
     await preferencesFile.delete();
   }
@@ -368,6 +251,25 @@ class $BackupService {
       await importWalletKeychainInfo(info);
     });
 
+    if (keychainJSON['_all'] is Map<String, dynamic>) {
+      for (var key in (keychainJSON['_all'] as Map<String, dynamic>).keys) {
+        try {
+          if (!key.startsWith('MONERO_WALLET_')) continue;
+          final decodedPassword = decodeWalletPassword(
+              password: keychainJSON['_all'][key].toString());
+          final walletName = key.split('_WALLET_')[1];
+          final walletType = key.split('_WALLET_')[0].toLowerCase();
+          await importWalletKeychainInfo({
+            'name': walletName,
+            'type': "WalletType.$walletType",
+            'password': decodedPassword,
+          });
+        } catch (e) {
+          printV('Error importing wallet ($key) password: $e');
+        }
+      }
+    }
+
     keychainDumpFile.deleteSync();
   }
 
@@ -378,83 +280,47 @@ class $BackupService {
     await keyService.saveWalletPassword(walletName: name, password: password);
   }
 
-  @Deprecated('Use v2 instead')
-  Future<Uint8List> _exportKeychainDumpV1(String password,
-          {required String nonce, String keychainSalt = secrets.backupKeychainSalt}) async =>
-      throw Exception('Deprecated');
-
   Future<Uint8List> exportKeychainDumpV2(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final wallets = await Future.wait(walletInfoSource.values.map((walletInfo) async {
-      return {
-        'name': walletInfo.name,
-        'type': walletInfo.type.toString(),
-        'password': await keyService.getWalletPassword(walletName: walletInfo.name)
-      };
+      try {
+        return {
+          'name': walletInfo.name,
+          'type': walletInfo.type.toString(),
+          'password': await keyService.getWalletPassword(walletName: walletInfo.name),
+          'hardwareWalletType': walletInfo.hardwareWalletType?.index,
+        };
+      } catch (e) {
+        return {
+          'name': walletInfo.name,
+          'type': walletInfo.type.toString(),
+          'password': '',
+          'hardwareWalletType': walletInfo.hardwareWalletType?.index,
+        };
+      }
     }));
     final backupPasswordKey = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
     final backupPassword = await _secureStorage.read(key: backupPasswordKey);
     final data = utf8.encode(
-        json.encode({'wallets': wallets, backupPasswordKey: backupPassword}));
+        json.encode({'wallets': wallets, backupPasswordKey: backupPassword, '_all': await _secureStorage.readAll()}));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
     return encrypted;
   }
 
+  static const List<String> _excludedPrefsKeys = [
+    PreferencesKey.currentPinLength,
+    PreferencesKey.showCameraConsent,
+    PreferencesKey.lastSeenAppVersion,
+    PreferencesKey.failedTotpTokenTrials,
+  ];
+
   Future<String> exportPreferencesJSON() async {
-    final preferences = <String, dynamic>{
-      PreferencesKey.currentWalletName:
-          sharedPreferences.getString(PreferencesKey.currentWalletName),
-      PreferencesKey.currentNodeIdKey: sharedPreferences.getInt(PreferencesKey.currentNodeIdKey),
-      PreferencesKey.currentBalanceDisplayModeKey:
-          sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey),
-      PreferencesKey.currentWalletType: sharedPreferences.getInt(PreferencesKey.currentWalletType),
-      PreferencesKey.currentFiatCurrencyKey:
-          sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
-      PreferencesKey.shouldSaveRecipientAddressKey:
-          sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
-      PreferencesKey.disableTradeOption: sharedPreferences.getBool(PreferencesKey.disableTradeOption),
-      PreferencesKey.currentTransactionPriorityKeyLegacy:
-          sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
-      PreferencesKey.currentBitcoinElectrumSererIdKey:
-          sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey),
-      PreferencesKey.currentLanguageCode:
-          sharedPreferences.getString(PreferencesKey.currentLanguageCode),
-      PreferencesKey.displayActionListModeKey:
-          sharedPreferences.getInt(PreferencesKey.displayActionListModeKey),
-      PreferencesKey.currentTheme: sharedPreferences.getInt(PreferencesKey.currentTheme),
-      PreferencesKey.exchangeStatusKey: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey),
-      PreferencesKey.currentDefaultSettingsMigrationVersion:
-          sharedPreferences.getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
-      PreferencesKey.bitcoinTransactionPriority:
-          sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority),
-      PreferencesKey.moneroTransactionPriority:
-          sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
-      PreferencesKey.currentFiatApiModeKey:
-          sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
-      PreferencesKey.sortBalanceBy: sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
-      PreferencesKey.pinNativeTokenAtTop:
-          sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),
-      PreferencesKey.useEtherscan: sharedPreferences.getBool(PreferencesKey.useEtherscan),
-      PreferencesKey.defaultNanoRep: sharedPreferences.getString(PreferencesKey.defaultNanoRep),
-      PreferencesKey.defaultBananoRep:
-          sharedPreferences.getString(PreferencesKey.defaultBananoRep),
-      PreferencesKey.lookupsTwitter: sharedPreferences.getBool(PreferencesKey.lookupsTwitter),
-      PreferencesKey.lookupsMastodon: sharedPreferences.getBool(PreferencesKey.lookupsMastodon),
-      PreferencesKey.lookupsYatService:
-          sharedPreferences.getBool(PreferencesKey.lookupsYatService),
-      PreferencesKey.lookupsUnstoppableDomains:
-          sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
-      PreferencesKey.lookupsOpenAlias: sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
-      PreferencesKey.lookupsENS: sharedPreferences.getBool(PreferencesKey.lookupsENS),
-      PreferencesKey.lookupsWellKnown:
-          sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
-      PreferencesKey.syncModeKey: sharedPreferences.getInt(PreferencesKey.syncModeKey),
-      PreferencesKey.syncAllKey: sharedPreferences.getBool(PreferencesKey.syncAllKey),
-      PreferencesKey.autoGenerateSubaddressStatusKey:
-          sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
-    };
+    final preferences = <String, dynamic>{};
+    sharedPreferences.getKeys().forEach((key) => preferences[key] = sharedPreferences.get(key));
+
+    _excludedPrefsKeys.forEach((key) => preferences.remove(key));
 
     return json.encode(preferences);
   }
@@ -465,10 +331,6 @@ class $BackupService {
     final bytes = data.toList()..insert(0, version);
     return Uint8List.fromList(bytes);
   }
-
-  @Deprecated('Use v2 instead')
-  Future<Uint8List> _encryptV1(Uint8List data, String secretKeySource, String nonceBase64) async =>
-      throw Exception('Deprecated');
 
   Future<Uint8List> _decryptV1(Uint8List data, String secretKeySource, String nonceBase64,
       {int macLength = 16}) async {

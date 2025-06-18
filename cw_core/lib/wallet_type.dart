@@ -203,7 +203,7 @@ String walletTypeToDisplayName(WalletType type) {
     case WalletType.banano:
       return 'Banano (BAN)';
     case WalletType.polygon:
-      return 'Polygon (MATIC)';
+      return 'Polygon (POL)';
     case WalletType.solana:
       return 'Solana (SOL)';
     case WalletType.tron:
@@ -262,5 +262,40 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
+  }
+}
+
+WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
+  switch (type) {
+    case CryptoCurrency.xmr:
+      return WalletType.monero;
+    case CryptoCurrency.btc:
+      return WalletType.bitcoin;
+    case CryptoCurrency.ltc:
+      return WalletType.litecoin;
+    case CryptoCurrency.xhv:
+      return WalletType.haven;
+    case CryptoCurrency.eth:
+      return WalletType.ethereum;
+    case CryptoCurrency.bch:
+      return WalletType.bitcoinCash;
+    case CryptoCurrency.nano:
+      return WalletType.nano;
+    case CryptoCurrency.banano:
+      return WalletType.banano;
+    case CryptoCurrency.maticpoly:
+      return WalletType.polygon;
+    case CryptoCurrency.sol:
+      return WalletType.solana;
+    case CryptoCurrency.trx:
+      return WalletType.tron;
+    case CryptoCurrency.wow:
+      return WalletType.wownero;
+    case CryptoCurrency.zano:
+      return WalletType.zano;
+    case CryptoCurrency.dcr:
+      return WalletType.decred;
+    default:
+      return null;
   }
 }

@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/widgets/unspent_coins_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_no_action.dart.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -28,7 +27,7 @@ class UnspentCoinsListPage extends BasePage {
             label: S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
               ),
               onPressed: () async => await handleOnPopInvoked(context),
               child: backButton(context),
@@ -48,7 +47,6 @@ class UnspentCoinsListPage extends BasePage {
     } else {
       unspentCoinsListViewModel.setIsDisposing(true);
       await unspentCoinsListViewModel.dispose();
-      Navigator.of(context).pop();
       Navigator.of(context).pop();
     }
   }
@@ -97,6 +95,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
   void _showSavingDataAlert() {
     showDialog<void>(
       context: context,
+      useRootNavigator: false,
       builder: (BuildContext context) {
         return AlertWithNoAction(
           alertContent: 'Updating, please wait…',
@@ -125,7 +124,9 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
         future: _initialization,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ));
           }
 
           if (snapshot.hasError) return Center(child: Text('Failed to load unspent coins'));
@@ -140,21 +141,33 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                       children: [
                         SizedBox(width: 12),
                         StandardCheckbox(
-                          iconColor: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                          iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
                           value: unspentCoinsListViewModel.isAllSelected,
                           onChanged: (value) => unspentCoinsListViewModel.toggleSelectAll(value),
                         ),
                         SizedBox(width: 12),
                         Text(
                           S.current.all_coins,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       ],
                     ),
                   SizedBox(height: 15),
                   Expanded(
                     child: unspentCoinsListViewModel.items.isEmpty
-                        ? Center(child: Text('No unspent coins available',textAlign: TextAlign.center))
+                        ? Center(
+                            child: Text(
+                              'No unspent coins available',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            )
+                          )
                         : ListView.separated(
                             itemCount: unspentCoinsListViewModel.items.length,
                             separatorBuilder: (_, __) => SizedBox(height: 15),

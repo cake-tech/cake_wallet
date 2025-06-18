@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -26,6 +28,7 @@ class Root extends StatefulWidget {
     required this.navigatorKey,
     required this.authService,
     required this.linkViewModel,
+    required this.tradeMonitor,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -34,6 +37,7 @@ class Root extends StatefulWidget {
   final AuthService authService;
   final Widget child;
   final LinkViewModel linkViewModel;
+  final TradeMonitor tradeMonitor;
 
   @override
   RootState createState() => RootState();
@@ -136,6 +140,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           setState(() => _setInactive(true));
         }
 
+        if (widget.appStore.wallet?.type == WalletType.bitcoin) {
+          bitcoin!.stopPayjoinSessions(widget.appStore.wallet!);
+        }
+
+        widget.tradeMonitor.stopTradeMonitoring();
+
         break;
       case AppLifecycleState.resumed:
         widget.authService.requireAuth().then((value) {
@@ -145,9 +155,27 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             });
           }
         });
+        if (widget.appStore.wallet?.type == WalletType.bitcoin &&
+            widget.appStore.settingsStore.usePayjoin) {
+          bitcoin!.resumePayjoinSessions(widget.appStore.wallet!);
+        }
+
+        widget.tradeMonitor.resumeTradeMonitoring();
         break;
       default:
         break;
+    }
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
+      Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0), () {
+        final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
+        if (widget.appStore.themeStore.currentTheme != systemTheme) {
+          widget.appStore.themeStore.setTheme(systemTheme);
+        }
+      });
     }
   }
 

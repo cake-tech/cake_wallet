@@ -104,8 +104,8 @@ class RBFDetailsPage extends BasePage {
                       text: S.of(context).send,
                       isLoading:
                           transactionDetailsViewModel.sendViewModel.state is IsExecutingState,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                     ))),
       ],
     );
@@ -190,6 +190,7 @@ class RBFDetailsPage extends BasePage {
                   key: ValueKey('rbf_confirm_sending_bottom_sheet'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
+                  walletType: transactionDetailsViewModel.sendViewModel.walletType,
                   titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
                   amount: S.of(bottomSheetContext).send_amount,
