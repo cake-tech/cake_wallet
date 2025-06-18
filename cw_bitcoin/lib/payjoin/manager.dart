@@ -162,31 +162,25 @@ class PayjoinManager {
     return initReceiver(address);
   }
 
-  Future<Receiver> initReceiver(String address,
-      [bool isTestnet = false]) async {
-    try {
-      final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
-        ohttpRelay: await randomOhttpRelayUrl(),
-        payjoinDirectory: payjoinDirectoryUrl,
-      );
+  Future<Receiver> initReceiver(String address, [bool isTestnet = false]) async {
+    final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
+      ohttpRelay: await randomOhttpRelayUrl(),
+      payjoinDirectory: payjoinDirectoryUrl,
+    );
 
-      final newReceiver = await NewReceiver.create(
-        address: address,
-        network: isTestnet ? Network.testnet : Network.bitcoin,
-        directory: payjoinDirectoryUrl,
-        ohttpKeys: ohttpKeys,
-      );
-      final persister = PayjoinReceiverPersister.impl();
-      final receiverToken = await newReceiver.persist(persister: persister);
-      final receiver =
-          await Receiver.load(persister: persister, token: receiverToken);
+    final newReceiver = await NewReceiver.create(
+      address: address,
+      network: isTestnet ? Network.testnet : Network.bitcoin,
+      directory: payjoinDirectoryUrl,
+      ohttpKeys: ohttpKeys,
+    );
+    final persister = PayjoinReceiverPersister.impl();
+    final receiverToken = await newReceiver.persist(persister: persister);
+    final receiver = await Receiver.load(persister: persister, token: receiverToken);
 
-      await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
+    await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
 
-      return receiver;
-    } catch (e) {
-      throw Exception('Error initializing Payjoin Receiver: $e');
-    }
+    return receiver;
   }
 
   Future<void> spawnReceiver({
