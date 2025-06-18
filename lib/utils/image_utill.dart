@@ -4,10 +4,11 @@ import 'package:flutter_svg/svg.dart';
 
 class ImageUtil {
   static Widget getImageFromPath({required String imagePath, double? height, double? width}) {
-    if (CakeTor.instance.enabled) {
+    bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
+    if (CakeTor.instance.enabled && isNetworkImage) {
       imagePath = "assets/images/tor_logo.svg";
+      isNetworkImage = false;
     }
-    final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
     final bool isSvg = imagePath.endsWith('.svg');
     final double _height = height ?? 35;
     final double _width = width ?? 35;

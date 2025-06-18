@@ -266,6 +266,10 @@ class Badge extends StatelessWidget {
 
 Widget getImage(String imagePath, {double? height, double? width, Color? imageColor}) {
   final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
+  if (CakeTor.instance.enabled && isNetworkImage) {
+    imagePath = "assets/images/tor_logo.svg";
+    isNetworkImage = false;
+  }
   final bool isSvg = imagePath.endsWith('.svg');
   final double imageHeight = height ?? 35;
   final double imageWidth = width ?? 35;

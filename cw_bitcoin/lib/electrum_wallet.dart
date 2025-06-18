@@ -493,13 +493,10 @@ abstract class ElectrumWalletBase
   Future<void> updateFeeRates() async {
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
-        final req = await ProxyWrapper()
-            .getHttpClient()
-            .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
-            .timeout(Duration(seconds: 15));
-        final response = await req.close();
-        final stringData = await response.transform(utf8.decoder).join();
-        final result = json.decode(stringData) as Map<String, dynamic>;
+        final response = await ProxyWrapper()  
+            .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))  
+            .timeout(Duration(seconds: 15));  
+        final result = json.decode(response.body) as Map<String, dynamic>;
         final slowFee = (result['economyFee'] as num?)?.toInt() ?? 0;
         int mediumFee = (result['hourFee'] as num?)?.toInt() ?? 0;
         int fastFee = (result['fastestFee'] as num?)?.toInt() ?? 0;
@@ -1880,28 +1877,21 @@ abstract class ElectrumWalletBase
 
       if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
         try {
-          final req = await ProxyWrapper()
-              .getHttpClient()
-              .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/block-height/$height"))
-              .timeout(Duration(seconds: 15));
-          final blockHash = await req.close();
-          final stringData = await blockHash.transform(utf8.decoder).join();
+          final blockHash = await ProxyWrapper()
+            .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/block-height/$height"))  
+            .timeout(Duration(seconds: 15));
 
           if (blockHash.statusCode == 200 &&
-              stringData.isNotEmpty &&
-              jsonDecode(stringData) != null) {
-            final blockResponseReq = await ProxyWrapper()
-                .getHttpClient()
-                .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/block/${stringData}"))
+              blockHash.body.isNotEmpty &&
+              jsonDecode(blockHash.body) != null) {
+            final blockResponse = await ProxyWrapper()
+                .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/block/${blockHash}"))
                 .timeout(Duration(seconds: 15));
 
-            final blockResponseRes = await blockResponseReq.close();
-            final blockResponse = await blockResponseRes.transform(utf8.decoder).join();
-
-            if (blockResponseRes == 200 &&
-                blockResponse.isNotEmpty &&
-                jsonDecode(blockResponse)['timestamp'] != null) {
-              time = int.parse(jsonDecode(blockResponse)['timestamp'].toString());
+            if (blockResponse.statusCode == 200 &&
+                blockResponse.body.isNotEmpty &&
+                jsonDecode(blockResponse.body)['timestamp'] != null) {
+              time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
             }
           }
         } catch (_) {}

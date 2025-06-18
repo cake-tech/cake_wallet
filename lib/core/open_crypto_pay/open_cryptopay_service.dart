@@ -12,9 +12,6 @@ class OpenCryptoPayService {
       value.toLowerCase().contains("lightning=lnurl") ||
       value.toLowerCase().startsWith("lnurl");
 
-  // ignore: deprecated_member_use
-  final _httpClient = ProxyWrapper().getHttpClient();
-
   Future<String> commitOpenCryptoPayRequest(
     String txHex, {
     required String txId,
