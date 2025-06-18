@@ -118,7 +118,7 @@ abstract class OutputBase with Store {
             _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.xelis:
-            _amount = xelis!.formatterStringDoubleToXelisAmount(_cryptoAmount);
+            _amount = xelis!.formatterStringDoubleToAmount(_cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.none:
           case WalletType.haven:

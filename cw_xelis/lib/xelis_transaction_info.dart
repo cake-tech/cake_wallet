@@ -4,6 +4,7 @@ import 'package:cw_xelis/xelis_formatting.dart';
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
 import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
 import 'package:cw_core/format_amount.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 import 'dart:math';
 
@@ -94,7 +95,7 @@ class XelisTransactionInfo extends TransactionInfo {
 
   @override
   String feeFormatted() =>
-    formatXelisAmountWithSymbol(fee, decimals: 8, symbol: 'XEL');
+    XelisFormatter.formatAmountWithSymbol(fee, decimals: 8, symbol: 'XEL');
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -127,9 +128,7 @@ class XelisTransactionInfo extends TransactionInfo {
 
         for (final transfer in txType.transfers) {
           final asset = transfer.asset;
-          if (!isAssetEnabled(asset)) {
-            continue;
-          }
+          if (!isAssetEnabled(asset)) continue;
 
           assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
 
@@ -144,43 +143,27 @@ class XelisTransactionInfo extends TransactionInfo {
       case xelis_sdk.OutgoingEntry():
         direction = TransactionDirection.outgoing;
 
-        List<XelisTransfer> localTransfers = [];
+        final formattedTransfers = <String>[];
 
         for (final transfer in txType.transfers) {
           final asset = transfer.asset;
-          if (!isAssetEnabled(asset)) {
-            continue;
-          }
-
-          assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
+          if (!isAssetEnabled(asset)) continue;
 
           final meta = await wallet.getAssetMetadata(asset: asset);
-          localTransfers.add(
-            XelisTransfer(
-              meta: meta,
-              amount: transfer.amount
-            )
-          );
+          final formatted = XelisTransfer(meta: meta, amount: transfer.amount).format();
+          
           assetDecimals[asset] = meta.decimals;
           assetSymbolsMap[asset] = meta.ticker;
+          assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
+
+          if (txType.transfers.length > 1) {
+            formattedTransfers.add("${transfer.destination} ( $formatted )");
+          } else {
+            formattedTransfers.add("${transfer.destination}");
+          }          
         }
 
-        final formattedTransfers = txType.transfers
-          .asMap()
-          .entries
-          .map((entry) {
-            final index = entry.key;
-            final t = entry.value;
-            if (txType.transfers.length > 1) {
-              return "${t.destination} ( ${localTransfers[index].format()} )";
-            }
-            return "${t.destination}";
-          })
-          .where((transfer) => transfer.isNotEmpty)
-          .toList();
-
         to = formattedTransfers.join('\n\n');
-
         fee = BigInt.from(txType.fee);
         break;
 
@@ -248,12 +231,13 @@ class XelisTransactionInfo extends TransactionInfo {
         break;
     }
 
-    final assetIds = assetAmounts.keys.toList();
+    final filteredAssetIds = assetAmounts.keys.where(isAssetEnabled).toList();
+    final assetIds = filteredAssetIds;
     final assetSymbols = assetIds.map((id) => assetSymbolsMap[id] ?? '???').toList();
     final decimals = assetIds.map((id) => assetDecimals[id] ?? 8).toList();
     final amounts = assetIds.map((id) => assetAmounts[id]!).toList();
 
-    final xelAmount = amounts.isNotEmpty ? amounts[0] : BigInt.zero;
+    final xelAmount = assetAmounts[xelis_sdk.xelisAsset] ?? BigInt.zero;
 
     return XelisTransactionInfo(
       id: entry.hash,
@@ -271,20 +255,42 @@ class XelisTransactionInfo extends TransactionInfo {
     );
   }
 
-  factory XelisTransactionInfo.fromJson(Map<String, dynamic> data) {
+  factory XelisTransactionInfo.fromJson(
+    Map<String, dynamic> data, {
+    required bool Function(String assetId) isAssetEnabled,
+  }) {
+    final allAssetIds = List<String>.from(data['assetIds']);
+    final allAssetSymbols = List<String>.from(data['assetSymbols']);
+    final allAssetAmounts = (data['assetAmounts'] as List)
+        .map<BigInt>((val) => BigInt.parse(val.toString()))
+        .toList();
+    final allDecimals = List<int>.from(data['decimals']);
+
+    final filteredIndices = <int>[];
+    for (int i = 0; i < allAssetIds.length; i++) {
+      if (isAssetEnabled(allAssetIds[i])) {
+        filteredIndices.add(i);
+      }
+    }
+
+    final assetIds = filteredIndices.map((i) => allAssetIds[i]).toList();
+    final assetSymbols = filteredIndices.map((i) => allAssetSymbols[i]).toList();
+    final assetAmounts = filteredIndices.map((i) => allAssetAmounts[i]).toList();
+    final decimals = filteredIndices.map((i) => allDecimals[i]).toList();
+
+    final xelAmount = assetAmounts.isNotEmpty ? assetAmounts[0] : BigInt.zero;
+
     return XelisTransactionInfo(
       id: data['id'] as String,
       height: data['height'] as int,
-      decimals: List<int>.from(data['decimals']),
-      assetAmounts: (data['assetAmounts'] as List)
-          .map<BigInt>((val) => BigInt.parse(val.toString()))
-          .toList(),
-      xelAmount: BigInt.parse(data['xelAmount']),
+      decimals: decimals,
+      assetAmounts: assetAmounts,
+      xelAmount: xelAmount,
       xelFee: BigInt.parse(data['xelFee']),
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
-      assetSymbols: List<String>.from(data['assetSymbols']),
-      assetIds: List<String>.from(data['assetIds']),
+      assetSymbols: assetSymbols,
+      assetIds: assetIds,
       to: data['to'],
       from: data['from'],
     );

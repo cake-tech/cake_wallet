@@ -18,6 +18,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
 
+import 'package:cw_xelis/xelis_formatting.dart';
 import 'package:cw_xelis/xelis_exception.dart';
 import 'package:cw_xelis/xelis_asset_balance.dart';
 import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
@@ -342,28 +343,74 @@ abstract class XelisWalletBase
   }
 
   @override
+  @action
   Future<void> rescan({required int height}) async {
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
     syncStatus = AttemptingSyncStatus();
     balance.clear();
+
+    final curr = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
+    balance[curr] = XelisAssetBalance.zero(symbol: isTestnet ? "XET" : "XEL");
+
     await _libWallet.rescan(topoheight: BigInt.from(pruneHeight > height ? pruneHeight : height));
     await walletInfo.save();
-    await connectToNode(node: currentNode!);
     syncStatus = SyncedSyncStatus();
   }
   
+  List<XelisTransactionInfo> _txBuffer = [];
+  Timer? _txBatchTimer;
+  Timer? _txSaveDebounceTimer;
+
+  void _bufferTransaction(XelisTransactionInfo tx) {
+    _txBuffer.add(tx);
+
+    if (_txBatchTimer == null || !_txBatchTimer!.isActive) {
+      _txBatchTimer = Timer(Duration(seconds: 1), () async {
+        final buffered = List<XelisTransactionInfo>.from(_txBuffer);
+        _txBuffer.clear();
+        _txBatchTimer = null;
+
+        final txMap = {
+          for (var tx in buffered) tx.id: tx
+        };
+        transactionHistory.addMany(txMap);
+      });
+    }
+  }
+
+  Future<void> _flushTransactionBuffer() async {
+    if (_txBuffer.isEmpty) return;
+
+    final toAdd = Map.fromEntries(_txBuffer.map((tx) => MapEntry(tx.id, tx)));
+
+    runInAction(() {
+      transactionHistory.addMany(toAdd);
+    });
+
+    _txBuffer.clear();
+    _txBatchTimer = null;
+  }
+
+  @action
   Future<void> _handleEvent(Event event) async {
     switch (event) {
       case NewTransaction():
-        if (!isSupportedEntryType(event.tx)) { break; }
+        if (!isSupportedEntryType(event.tx)) break;
+
         final transactionInfo = await XelisTransactionInfo.fromTransactionEntry(
           event.tx, 
           wallet: _libWallet, 
           isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset
         );
-        transactionHistory.addOne(transactionInfo);
-        await transactionHistory.save();
+        _bufferTransaction(transactionInfo);
+
+        _txSaveDebounceTimer?.cancel();
+        _txSaveDebounceTimer = Timer(Duration(seconds: 1), () async {
+          await _flushTransactionBuffer();
+          await transactionHistory.save();
+        });
+
         break;
 
       case BalanceChanged():
@@ -452,6 +499,7 @@ abstract class XelisWalletBase
         // _lastSyncError = event.message;
         break;
     }
+    await Future.delayed(Duration.zero);
   }
 
   Future<void> _fetchPruneHeight() async {
@@ -880,7 +928,7 @@ abstract class XelisWalletBase
 
     return XelisPendingTransaction(
       txid: txHash,
-      amount: totalAmountFromCredentials.toString(),
+      amount: XelisFormatter.formatAmount(totalAmountFromCredentials, decimals: balance[transactionCurrency]!.decimals),
       fee: txMap['fee'],
       decimals: balance[transactionCurrency]!.decimals,
       send: send
@@ -906,10 +954,8 @@ abstract class XelisWalletBase
     }
 
     final txList = (await _libWallet.allHistory())
-        .map((jsonStr) => xelis_sdk.TransactionEntry.fromJson(
-            json.decode(jsonStr),
-          ) as xelis_sdk.TransactionEntry)
-        .toList();
+      .map((jsonStr) => xelis_sdk.TransactionEntry.fromJson(json.decode(jsonStr)) as xelis_sdk.TransactionEntry)
+      .toList();
 
     final Map<String, XelisTransactionInfo> result = {};
 
@@ -980,6 +1026,8 @@ abstract class XelisWalletBase
     }
     requestedClose = true;
     _isTransactionUpdating = false;
+    _txSaveDebounceTimer?.cancel();
+    _txBatchTimer?.cancel();
     await _unsubscribeFromWalletEvents();
     await _libWallet.close();
     x_wallet.dropWallet(wallet: _libWallet);

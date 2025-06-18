@@ -110,7 +110,10 @@ class CWXelis extends Xelis {
       );
 
   @override
-  int formatterStringDoubleToXelisAmount(String amount) => XelisFormatter.parseXelisAmount(amount);
+  int formatterStringDoubleToAmount(String amount, {required CryptoCurrency currency}) {
+    if (currency is XelisAsset) return XelisFormatter.parseAmount(amount, currency.decimals);
+    return XelisFormatter.parseXelisAmount(amount);
+  }
 
   @override
   double formatterXelisAmountToDouble(

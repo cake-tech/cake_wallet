@@ -1451,7 +1451,7 @@ abstract class Xelis {
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
 
   double formatterXelisAmountToDouble({TransactionInfo? transaction, BigInt? amount, int decimals = 8});
-  int formatterStringDoubleToXelisAmount(String amount);
+  int formatterStringDoubleToAmount(String amount, {required CryptoCurrency currency});
 
   // CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);  
   double? getEstimateFees(WalletBase wallet);

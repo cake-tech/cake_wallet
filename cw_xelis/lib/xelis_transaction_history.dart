@@ -72,7 +72,7 @@ abstract class XelisTransactionHistoryBase
         final val = entry.value;
 
         if (val is Map<String, dynamic>) {
-          final tx = XelisTransactionInfo.fromJson(val);
+          final tx = XelisTransactionInfo.fromJson(val, isAssetEnabled: (id) => true); // asset filtering needs to happen elsewhere before serializing
           addOne(tx);
         }
       });

@@ -49,7 +49,7 @@ class XelisAssetBalance extends Balance {
   }
 
   @override
-  String get formattedAvailableBalance => formatXelisAmount(balance, decimals: decimals);
+  String get formattedAvailableBalance => XelisFormatter.formatAmount(balance, decimals: decimals);
 
   @override
   String get formattedAdditionalBalance => '0';

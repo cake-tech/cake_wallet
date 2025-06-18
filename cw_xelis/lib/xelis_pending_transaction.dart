@@ -24,7 +24,7 @@ class XelisPendingTransaction with PendingTransaction {
   String get amountFormatted => amount.toString();
 
   @override
-  String get feeFormatted => formatXelisAmount(fee, decimals: 8);
+  String get feeFormatted => XelisFormatter.formatAmount(fee, decimals: 8);
 
   @override
   String get hex => "";
