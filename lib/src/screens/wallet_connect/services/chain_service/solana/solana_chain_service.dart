@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:blockchain_utils/base58/base58.dart';
 import 'package:blockchain_utils/blockchain_utils.dart' as blockchain_utils;
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:on_chain/solana/solana.dart';
@@ -91,8 +90,6 @@ class SolanaChainService {
       );
     }
 
-    await walletKit.respondSessionRequest(topic: topic, response: response);
-
     _handleResponseForTopic(topic, response);
   }
 
@@ -158,8 +155,6 @@ class SolanaChainService {
       );
     }
 
-    await walletKit.respondSessionRequest(topic: topic, response: response);
-
     _handleResponseForTopic(topic, response);
   }
 
@@ -221,8 +216,6 @@ class SolanaChainService {
       );
     }
 
-    await walletKit.respondSessionRequest(topic: topic, response: response);
-
     _handleResponseForTopic(topic, response);
   }
 
@@ -242,21 +235,14 @@ class SolanaChainService {
         topic,
         session!.peer.metadata.redirect,
         response.error?.message,
+        response.error == null,
       );
     } on ReownSignError catch (error) {
-      if (error.message.contains('No matching key')) {
-        MethodsUtils.handleRedirect(
-          topic,
-          session!.peer.metadata.redirect,
-          '${S.current.error_while_processing} ${S.current.youCanGoBackToYourDapp}',
-        );
-      } else {
-        MethodsUtils.handleRedirect(
-          topic,
-          session!.peer.metadata.redirect,
-          error.message,
-        );
-      }
+      MethodsUtils.handleRedirect(
+        topic,
+        session!.peer.metadata.redirect,
+        error.message,
+      );
     }
   }
 }
