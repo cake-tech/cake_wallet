@@ -177,17 +177,14 @@ abstract class LedgerViewModelBase with Store {
   }
 
   String? interpretErrorCode(String errorCode) {
-    switch (errorCode) {
-      case "6985":
-        return S.current.ledger_error_tx_rejected_by_user;
-      case "5515":
-        return S.current.ledger_error_device_locked;
-      case "6d02": // UNKNOWN_APDU
-      case "6511":
-      case "6e00":
-        return S.current.ledger_error_wrong_app;
-      default:
-        return null;
+    if (errorCode.contains("6985")) {
+      return S.current.ledger_error_tx_rejected_by_user;
+    } else if (errorCode.contains("5515")) {
+      return S.current.ledger_error_device_locked;
+    } else
+    if (["6e01", "6a87", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+      return S.current.ledger_error_wrong_app;
     }
+    return null;
   }
 }

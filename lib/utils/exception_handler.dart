@@ -212,6 +212,8 @@ class ExceptionHandler {
       return null;
     }
 
+    printV(errorDetails.exception);
+
     if (navigatorKey.currentContext != null) {
       await showPopUp<void>(
         context: navigatorKey.currentContext!,
