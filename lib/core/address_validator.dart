@@ -38,9 +38,9 @@ class AddressValidator extends TextValidator {
             '|[0-9a-zA-Z]{105}|addr1[0-9a-zA-Z]{98}';
       case CryptoCurrency.btc:
         pattern =
-            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${RegExp(r'(bc|tb)1q[ac-hj-np-z02-9]{25,39}}').pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
+            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
       case CryptoCurrency.ltc:
-        pattern = '^${RegExp(r'ltc1q[ac-hj-np-z02-9]{25,39}').pattern}\$|^${MwebAddress.regex.pattern}\$';
+        pattern = '${P2wpkhAddress.regex.pattern}|${MwebAddress.regex.pattern}';
       case CryptoCurrency.nano:
         pattern = '[0-9a-zA-Z_]+';
       case CryptoCurrency.banano:
@@ -284,7 +284,7 @@ class AddressValidator extends TextValidator {
   static String get silentPaymentAddressPattern => SilentPaymentAddress.regex.pattern;
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
-  static String? getAddressFromStringPattern(CryptoCurrency type, [bool requireSurroundingWhitespaces = true]) {
+  static String? getAddressFromStringPattern(CryptoCurrency type) {
     String? pattern = null;
 
     switch (type) {
@@ -335,12 +335,6 @@ class AddressValidator extends TextValidator {
         }
     }
 
-    if (pattern != null) {
-      if (requireSurroundingWhitespaces)
-        return "$BEFORE_REGEX($pattern)$AFTER_REGEX";
-      return "($pattern)";
-    }
-
-    return null;
+    return pattern != null ? "($pattern)" : null;
   }
 }
