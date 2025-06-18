@@ -55,8 +55,7 @@ class CWEthereum extends Ethereum {
           name: name, hwAccountData: hwAccountData, walletInfo: walletInfo);
 
   @override
-  String getAddress(WalletBase wallet) =>
-      (wallet as EthereumWallet).walletAddresses.address;
+  String getAddress(WalletBase wallet) => (wallet as EthereumWallet).walletAddresses.address;
 
   @override
   String getPrivateKey(WalletBase wallet) {
@@ -122,8 +121,7 @@ class CWEthereum extends Ethereum {
       );
 
   @override
-  int formatterEthereumParseAmount(String amount) =>
-      EVMChainFormatter.parseEVMChainAmount(amount);
+  int formatterEthereumParseAmount(String amount) => EVMChainFormatter.parseEVMChainAmount(amount);
 
   @override
   double formatterEthereumAmountToDouble(
@@ -151,14 +149,11 @@ class CWEthereum extends Ethereum {
       (wallet as EthereumWallet).deleteErc20Token(token as Erc20Token);
 
   @override
-  Future<void> removeTokenTransactionsInHistory(
-          WalletBase wallet, CryptoCurrency token) =>
-      (wallet as EthereumWallet)
-          .removeTokenTransactionsInHistory(token as Erc20Token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token) =>
+      (wallet as EthereumWallet).removeTokenTransactionsInHistory(token as Erc20Token);
 
   @override
-  Future<Erc20Token?> getErc20Token(
-          WalletBase wallet, String contractAddress) =>
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress) =>
       (wallet as EthereumWallet).getErc20Token(contractAddress, 'eth');
 
   @override
@@ -180,19 +175,15 @@ class CWEthereum extends Ethereum {
       (wallet as EthereumWallet).updateScanProviderUsageState(isEnabled);
 
   @override
-  Web3Client? getWeb3Client(WalletBase wallet) =>
-      (wallet as EthereumWallet).getWeb3Client();
+  Web3Client? getWeb3Client(WalletBase wallet) => (wallet as EthereumWallet).getWeb3Client();
 
   @override
-  String getTokenAddress(CryptoCurrency asset) =>
-      (asset as Erc20Token).contractAddress;
+  String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  void setLedgerConnection(
-      WalletBase wallet, ledger.LedgerConnection connection) {
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
     ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials)
-        .setLedgerConnection(
-            connection, wallet.walletInfo.derivationInfo?.derivationPath);
+        .setLedgerConnection(connection, wallet.walletInfo.derivationInfo?.derivationPath);
   }
 
   @override
@@ -209,15 +200,12 @@ class CWEthereum extends Ethereum {
 
   @override
   List<String> getDefaultTokenContractAddresses() =>
-      DefaultEthereumErc20Tokens()
-          .initialErc20Tokens
-          .map((e) => e.contractAddress)
-          .toList();
+      DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
 
-  Future<PendingTransaction> createTokenApproval(WalletBase wallet,
-          BigInt amount, String spender, CryptoCurrency token, TransactionPriority priority) =>
-      (wallet as EVMChainWallet)
-          .createApprovalTransaction(amount, spender, token, priority as EVMChainTransactionPriority);
+  Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
+          CryptoCurrency token, TransactionPriority priority) =>
+      (wallet as EVMChainWallet).createApprovalTransaction(
+          amount, spender, token, priority as EVMChainTransactionPriority);
 
   // Integrations
   @override
@@ -239,15 +227,16 @@ class CWEthereum extends Ethereum {
   @override
   Future<PendingTransaction> addDEuroSaving(
           WalletBase wallet, BigInt amount, TransactionPriority priority) =>
-      DEuro(wallet as EthereumWallet).depositSavings(amount, priority as EVMChainTransactionPriority);
+      DEuro(wallet as EthereumWallet)
+          .depositSavings(amount, priority as EVMChainTransactionPriority);
 
   @override
   Future<PendingTransaction> removeDEuroSaving(
           WalletBase wallet, BigInt amount, TransactionPriority priority) =>
-      DEuro(wallet as EthereumWallet).withdrawSavings(amount, priority as EVMChainTransactionPriority);
+      DEuro(wallet as EthereumWallet)
+          .withdrawSavings(amount, priority as EVMChainTransactionPriority);
 
   @override
-  Future<PendingTransaction> enableDEuroSaving(
-          WalletBase wallet, TransactionPriority priority) =>
+  Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority) =>
       DEuro(wallet as EthereumWallet).enableSavings(priority as EVMChainTransactionPriority);
 }
