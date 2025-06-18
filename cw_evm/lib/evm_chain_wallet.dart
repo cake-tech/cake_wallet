@@ -197,8 +197,8 @@ abstract class EVMChainWalletBase
     for (var token in erc20Currencies) {
       bool isPotentialScam = false;
 
-      bool isWhitelisted =
-          getDefaultTokenContractAddresses.any((element) => element == token.contractAddress);
+      bool isWhitelisted = getDefaultTokenContractAddresses
+          .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
 
       final tokenSymbol = token.title.toUpperCase();
 
@@ -211,6 +211,16 @@ abstract class EVMChainWalletBase
       if (isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
+        await token.save();
+      }
+
+      // For fixing wrongly classified tokens
+      if (!isPotentialScam && token.isPotentialScam) {
+        token.isPotentialScam = false;
+        final iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+        token.iconPath = iconPath;
         await token.save();
       }
     }
@@ -654,6 +664,11 @@ abstract class EVMChainWalletBase
   List<Erc20Token> get erc20Currencies => evmChainErc20TokensBox.values.toList();
 
   Future<void> addErc20Token(Erc20Token token) async {
+    if (evmChainErc20TokensBox.values.any((element) =>
+        element.contractAddress.toLowerCase() == token.contractAddress.toLowerCase())) {
+      throw Exception('Token already exists');
+    }
+
     String? iconPath;
 
     if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {

@@ -200,6 +200,23 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate() &&
                               (!_showDisclaimer || _disclaimerChecked)) {
+                            final isTokenAlreadyAdded = await widget.homeSettingsViewModel
+                                .checkIfTokenIsAlreadyAdded(_contractAddressController.text);
+                            if (isTokenAlreadyAdded) {
+                              showPopUp<void>(
+                                context: context,
+                                builder: (dialogContext) {
+                                  return AlertWithOneAction(
+                                    alertTitle: S.current.warning,
+                                    alertContent: S.of(context).token_already_exists,
+                                    buttonText: S.of(context).ok,
+                                    buttonAction: () => Navigator.of(dialogContext).pop(),
+                                  );
+                                },
+                              );
+                              return;
+                            }
+                            
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 

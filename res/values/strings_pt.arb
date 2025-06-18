@@ -901,6 +901,7 @@
   "tip": "Dica:",
   "to": "Para",
   "today": "Hoje",
+  "token_already_exists": "Token já existe",
   "token_contract_address": "Endereço do contrato de token",
   "token_decimal": "Token decimal",
   "token_name": "Nome do token, por exemplo: Tether",

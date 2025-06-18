@@ -899,6 +899,7 @@
   "tip": "အကြံပြုချက်-",
   "to": "သို့",
   "today": "ဒီနေ့",
+  "token_already_exists": "တိုကင်ရှိပြီးသား",
   "token_contract_address": "တိုကင်စာချုပ်လိပ်စာ",
   "token_decimal": "တိုကင်ဒဿမ",
   "token_name": "တိုကင်အမည် ဥပမာ- Tether",

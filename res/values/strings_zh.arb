@@ -899,6 +899,7 @@
   "tip": "提示:",
   "to": "到",
   "today": "今天",
+  "token_already_exists": "令牌已经存在",
   "token_contract_address": "代币合约地址",
   "token_decimal": "令牌十进制",
   "token_name": "代币名称例如：Tether",

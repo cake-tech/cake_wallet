@@ -899,6 +899,7 @@
   "tip": "Pourboire:",
   "to": "À",
   "today": "Aujourd'hui",
+  "token_already_exists": "Le jeton existe déjà",
   "token_contract_address": "Adresse du contrat de token",
   "token_decimal": "Décimales de token",
   "token_name": "Nom du token, par exemple : Tether",

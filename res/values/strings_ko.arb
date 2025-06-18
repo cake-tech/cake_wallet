@@ -900,6 +900,7 @@
   "tip": "팁:",
   "to": "받는 통화",
   "today": "오늘",
+  "token_already_exists": "토큰이 이미 존재합니다",
   "token_contract_address": "토큰 계약 주소",
   "token_decimal": "토큰 소수 자릿수",
   "token_name": "토큰 이름 (예: Tether)",

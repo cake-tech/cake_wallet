@@ -899,6 +899,7 @@
   "tip": "Tip:",
   "to": "Sa",
   "today": "Ngayon",
+  "token_already_exists": "Mayroon nang token",
   "token_contract_address": "Address ng token contract",
   "token_decimal": "Token decimal",
   "token_name": "Pangalan ng token, halimbawa: Tether",

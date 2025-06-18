@@ -899,6 +899,7 @@
   "tip": "Spropitné:",
   "to": "Na",
   "today": "Dnes",
+  "token_already_exists": "Token již existuje",
   "token_contract_address": "Adresa tokenové smlouvy",
   "token_decimal": "Token v desítkové soustavě",
   "token_name": "Název tokenu např.: Tether",

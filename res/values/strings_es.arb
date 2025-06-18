@@ -900,6 +900,7 @@
   "tip": "Consejo:",
   "to": "A",
   "today": "Hoy",
+  "token_already_exists": "Token ya existe",
   "token_contract_address": "Dirección de contrato de token",
   "token_decimal": "Token decimal",
   "token_name": "Nombre del token, por ejemplo: Tether",

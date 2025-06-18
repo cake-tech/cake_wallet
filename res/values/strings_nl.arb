@@ -899,6 +899,7 @@
   "tip": "Tip:",
   "to": "Naar",
   "today": "Vandaag",
+  "token_already_exists": "Token bestaat al",
   "token_contract_address": "Token contractadres",
   "token_decimal": "Token decimaal",
   "token_name": "Tokennaam bijv.: Tether",

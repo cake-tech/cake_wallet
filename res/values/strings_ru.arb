@@ -900,6 +900,7 @@
   "tip": "Совет:",
   "to": "К",
   "today": "Сегодня",
+  "token_already_exists": "Токен уже существует",
   "token_contract_address": "Адрес контракта токена",
   "token_decimal": "Десятичный токен",
   "token_name": "Имя токена, например: Tether",

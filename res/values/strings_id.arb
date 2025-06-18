@@ -902,6 +902,7 @@
   "tip": "Tip:",
   "to": "Ke",
   "today": "Hari ini",
+  "token_already_exists": "Token sudah ada",
   "token_contract_address": "Alamat kontrak token",
   "token_decimal": "Desimal token",
   "token_name": "Nama token misalnya: Tether",

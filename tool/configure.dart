@@ -748,6 +748,7 @@ abstract class Ethereum {
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
   List<String> getDefaultTokenContractAddresses();
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
   """;
 
@@ -855,6 +856,7 @@ abstract class Polygon {
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
   Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
   List<String> getDefaultTokenContractAddresses();
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
   """;
 
@@ -1141,6 +1143,7 @@ abstract class Solana {
   List<int>? getValidationLength(CryptoCurrency type);
   double? getEstimateFees(WalletBase wallet);
   List<String> getDefaultTokenContractAddresses();
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
 
   """;
@@ -1219,6 +1222,7 @@ abstract class Tron {
   
   void updateTronGridUsageState(WalletBase wallet, bool isEnabled);
   List<String> getDefaultTokenContractAddresses();
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
   """;
 
@@ -1293,6 +1297,7 @@ abstract class Zano {
   String getAddress(WalletBase wallet);
   bool validateAddress(String address);
   Map<String, List<int>> debugCallLength();
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
 """;
   const zanoEmptyDefinition = 'Zano? zano;\n';

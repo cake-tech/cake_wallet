@@ -899,6 +899,7 @@
   "tip": "Tip:",
   "to": "Да",
   "today": "Днес",
+  "token_already_exists": "Токена вече съществува",
   "token_contract_address": "Адрес на токен договор",
   "token_decimal": "Токен десетичен",
   "token_name": "Име на токена, напр.: Tether",

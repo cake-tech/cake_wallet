@@ -897,6 +897,7 @@
   "tip": "Թեյավճար",
   "to": "Դեպի",
   "today": "Այսօր",
+  "token_already_exists": "Նշանն արդեն գոյություն ունի",
   "token_contract_address": "Token-ի պայմանագրի հասցե",
   "token_decimal": "Token-ի տասանիշ",
   "token_name": "Token-ի անուն, օրինակ՝ Tether",

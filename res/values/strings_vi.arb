@@ -896,6 +896,7 @@
   "tip": "Mẹo:",
   "to": "ĐẾN",
   "today": "Hôm nay",
+  "token_already_exists": "Mã thông báo đã tồn tại",
   "token_contract_address": "Địa chỉ hợp đồng token",
   "token_decimal": "Số thập phân của token",
   "token_name": "Tên token ví dụ: Tether",

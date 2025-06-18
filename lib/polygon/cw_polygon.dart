@@ -211,4 +211,10 @@ class CWPolygon extends Polygon {
   List<String> getDefaultTokenContractAddresses() {
     return DefaultPolygonErc20Tokens().initialPolygonErc20Tokens.map((e) => e.contractAddress).toList();
   }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final polygonWallet = wallet as PolygonWallet;
+    return polygonWallet.erc20Currencies.any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
+  }
 }

@@ -212,4 +212,11 @@ class CWEthereum extends Ethereum {
   List<String> getDefaultTokenContractAddresses() {
     return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
   }
+
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final ethereumWallet = wallet as EthereumWallet;
+    return ethereumWallet.erc20Currencies.any((element) => element.contractAddress.toLowerCase() == contractAddress.toLowerCase());
+  }
 }
