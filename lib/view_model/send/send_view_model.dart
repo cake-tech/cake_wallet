@@ -560,6 +560,24 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       throw Exception("Pending transaction doesn't exist. It should not be happened.");
     }
 
+    if (ocpRequest != null) {
+      state = TransactionCommitting();
+      if (selectedCryptoCurrency == CryptoCurrency.xmr) {
+        await pendingTransaction!.commit();
+      }
+
+      await _ocpService.commitOpenCryptoPayRequest(
+        pendingTransaction!.hex,
+        txId: pendingTransaction!.id,
+        request: ocpRequest!,
+        asset: selectedCryptoCurrency,
+      );
+
+      state = TransactionCommitted();
+
+      return;
+    }
+
     late String address;
 
     if (walletType == WalletType.xelis) {
@@ -579,30 +597,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             : '$acc${value.address}\n\n';
       });
     }
-
-    if (ocpRequest != null) {
-      state = TransactionCommitting();
-      if (selectedCryptoCurrency == CryptoCurrency.xmr) {
-        await pendingTransaction!.commit();
-      }
-
-      await _ocpService.commitOpenCryptoPayRequest(
-        pendingTransaction!.hex,
-        txId: pendingTransaction!.id,
-        request: ocpRequest!,
-        asset: selectedCryptoCurrency,
-      );
-
-      state = TransactionCommitted();
-
-      return;
-    }
-
-    String address = outputs.fold('', (acc, value) {
-      return value.isParsedAddress
-          ? '$acc${value.address}\n${value.extractedAddress}\n\n'
-          : '$acc${value.address}\n\n';
-    });
 
     address = address.trim();
 

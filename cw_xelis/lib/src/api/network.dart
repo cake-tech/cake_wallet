@@ -8,8 +8,6 @@ extension NetworkName on Network {
         return 'mainnet';
       case Network.testnet:
         return 'testnet';
-      case Network.dev:
-        return 'dev';
     }
   }
 
@@ -19,8 +17,6 @@ extension NetworkName on Network {
         return Network.mainnet;
       case 'testnet':
         return Network.testnet;
-      case 'dev':
-        return Network.dev;
       default:
         throw ArgumentError('Unknown network name: $name');
     }

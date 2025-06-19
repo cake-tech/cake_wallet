@@ -11,7 +11,103 @@ class AddressFormatter {
     TextAlign? textAlign,
     bool shouldTruncate = false,
   }) {
+    // Check for parentheses in the address
+    final bracketIndex = address.indexOf('[');
+    
+    if (bracketIndex != -1) {
+      // Split address and amount parts
+      final addressPart = address.substring(0, bracketIndex).trim();
+      final amountPart = address.substring(bracketIndex);
+      
+      // For truncated addresses, handle differently
+      if (shouldTruncate) {
+        final addressWidget = _buildAddressWidget(
+          address: addressPart,
+          walletType: walletType,
+          evenTextStyle: evenTextStyle,
+          oddTextStyle: oddTextStyle,
+          textAlign: textAlign,
+          shouldTruncate: shouldTruncate,
+        );
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            addressWidget,
+            Text(amountPart, style: evenTextStyle),
+          ],
+        );
+      }
+      
+      // For full addresses, integrate amount with last line
+      final cleanAddress = addressPart.replaceAll('bitcoincash:', '');
+      final isMWEB = addressPart.startsWith('ltcmweb');
+      final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;
+      
+      // Build chunks
+      final chunks = <String>[];
+      if (isMWEB) {
+        const mwebDisplayPrefix = 'ltcmweb';
+        chunks.add(mwebDisplayPrefix);
+        final startIndex = mwebDisplayPrefix.length;
+        for (int i = startIndex; i < cleanAddress.length; i += chunkSize) {
+          final chunk = cleanAddress.substring(
+            i,
+            math.min(i + chunkSize, cleanAddress.length),
+          );
+          chunks.add(chunk);
+        }
+      } else {
+        for (int i = 0; i < cleanAddress.length; i += chunkSize) {
+          final chunk = cleanAddress.substring(
+            i,
+            math.min(i + chunkSize, cleanAddress.length),
+          );
+          chunks.add(chunk);
+        }
+      }
+      
+      // Build text spans with amount appended to last chunk
+      final spans = <TextSpan>[];
+      for (int i = 0; i < chunks.length; i++) {
+        final style = (i % 2 == 0) ? evenTextStyle : oddTextStyle ?? evenTextStyle.copyWith(color: evenTextStyle.color!.withAlpha(128));
+        
+        if (i == chunks.length - 1) {
+          // Last chunk - append amount
+          spans.add(TextSpan(text: '${chunks[i]} ', style: style));
+          spans.add(TextSpan(text: amountPart, style: evenTextStyle));
+        } else {
+          spans.add(TextSpan(text: '${chunks[i]} ', style: style));
+        }
+      }
+      
+      return RichText(
+        text: TextSpan(children: spans),
+        textAlign: textAlign ?? TextAlign.start,
+        overflow: TextOverflow.visible,
+      );
+    }
+    
+    // No parentheses - use original logic
+    return _buildAddressWidget(
+      address: address,
+      walletType: walletType,
+      evenTextStyle: evenTextStyle,
+      oddTextStyle: oddTextStyle,
+      textAlign: textAlign,
+      shouldTruncate: shouldTruncate,
+    );
+  }
 
+  static Widget _buildAddressWidget({
+    required String address,
+    WalletType? walletType,
+    required TextStyle evenTextStyle,
+    TextStyle? oddTextStyle,
+    TextAlign? textAlign,
+    bool shouldTruncate = false,
+  }) {
     final cleanAddress = address.replaceAll('bitcoincash:', '');
     final isMWEB = address.startsWith('ltcmweb');
     final chunkSize = walletType != null ? _getChunkSize(walletType) : 4;

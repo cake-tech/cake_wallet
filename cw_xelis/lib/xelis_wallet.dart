@@ -35,6 +35,7 @@ import 'package:cw_xelis/xelis_store_utils.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 
 import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
+import 'package:mutex/mutex.dart';
 
 part 'xelis_wallet.g.dart';
 
@@ -190,7 +191,8 @@ abstract class XelisWalletBase
   bool _isTransactionUpdating;
   StreamSubscription<void>? _eventSub;
 
-  void _subscribeToWalletEvents() {
+  Future<void> _subscribeToWalletEvents() async {
+    await _unsubscribeFromWalletEvents();
     _eventSub = _convertRawEvents().listen(_handleEvent);
   }
 
@@ -201,7 +203,6 @@ abstract class XelisWalletBase
 
   Stream<Event> _convertRawEvents() async* {
     final stream = _libWallet.eventsStream();
-    printV("eventsStream init");
 
     await for (final raw in stream) {
       try {
@@ -299,12 +300,14 @@ abstract class XelisWalletBase
     }
     connecting = true;
     try {
-      _subscribeToWalletEvents();
+      await _subscribeToWalletEvents();
       String addr = isTestnet ? "testnet-node.xelis.io" : "us-node.xelis.io";
       if (node.uri.host != addr) {
         addr = node.uri.host;
-        if (node.uri.port != "") {
-          addr += ":" + node.uri.port.toString();
+        if (node.uri.port != null && node.uri.port > 0) {
+          addr += ":${node.uri.port}";
+        } else {
+          addr += ":443";
         }
       }
       if (addr != persistantPeer) {
@@ -347,157 +350,156 @@ abstract class XelisWalletBase
   Future<void> rescan({required int height}) async {
     walletInfo.restoreHeight = height;
     walletInfo.isRecovery = true;
-    syncStatus = AttemptingSyncStatus();
     balance.clear();
 
     final curr = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
     balance[curr] = XelisAssetBalance.zero(symbol: isTestnet ? "XET" : "XEL");
 
     await _libWallet.rescan(topoheight: BigInt.from(pruneHeight > height ? pruneHeight : height));
+    syncStatus = NotConnectedSyncStatus();
+    await connectToNode(node: currentNode!);
     await walletInfo.save();
-    syncStatus = SyncedSyncStatus();
   }
   
   List<XelisTransactionInfo> _txBuffer = [];
   Timer? _txBatchTimer;
   Timer? _txSaveDebounceTimer;
+  final _txBufferLock = Mutex();
 
   void _bufferTransaction(XelisTransactionInfo tx) {
-    _txBuffer.add(tx);
-
-    if (_txBatchTimer == null || !_txBatchTimer!.isActive) {
-      _txBatchTimer = Timer(Duration(seconds: 1), () async {
-        final buffered = List<XelisTransactionInfo>.from(_txBuffer);
-        _txBuffer.clear();
-        _txBatchTimer = null;
-
-        final txMap = {
-          for (var tx in buffered) tx.id: tx
-        };
-        transactionHistory.addMany(txMap);
-      });
-    }
+    _txBufferLock.protect(() async {
+      _txBuffer.add(tx);
+      
+      if (_txBuffer.length > 1000) {
+        _txBatchTimer?.cancel();
+        _txBatchTimer = Timer(Duration.zero, _processTransactionBuffer);
+      } else if (_txBatchTimer == null || !_txBatchTimer!.isActive) {
+        _txBatchTimer = Timer(Duration(seconds: 1), _processTransactionBuffer);
+      }
+    });
   }
 
-  Future<void> _flushTransactionBuffer() async {
-    if (_txBuffer.isEmpty) return;
+  Future<void> _processTransactionBuffer() async {
+    await _txBufferLock.protect(() async {
+      if (_txBuffer.isEmpty) return;
+      
+      final buffered = List<XelisTransactionInfo>.from(_txBuffer);
+      
+      final txMap = {for (var tx in buffered) tx.id: tx};
+      runInAction(() => transactionHistory.addMany(txMap));
+      _txBuffer.clear();
 
-    final toAdd = Map.fromEntries(_txBuffer.map((tx) => MapEntry(tx.id, tx)));
-
-    runInAction(() {
-      transactionHistory.addMany(toAdd);
+      
+      _txSaveDebounceTimer?.cancel();
+      _txSaveDebounceTimer = Timer(Duration(seconds: 2), () async {
+        await transactionHistory.save();
+      });
     });
-
-    _txBuffer.clear();
-    _txBatchTimer = null;
   }
 
   @action
   Future<void> _handleEvent(Event event) async {
-    switch (event) {
-      case NewTransaction():
-        if (!isSupportedEntryType(event.tx)) break;
+    try {
+      switch (event) {
+        case NewTransaction():
+          if (!isSupportedEntryType(event.tx)) break;
 
-        final transactionInfo = await XelisTransactionInfo.fromTransactionEntry(
-          event.tx, 
-          wallet: _libWallet, 
-          isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset
-        );
-        _bufferTransaction(transactionInfo);
-
-        _txSaveDebounceTimer?.cancel();
-        _txSaveDebounceTimer = Timer(Duration(seconds: 1), () async {
-          await _flushTransactionBuffer();
-          await transactionHistory.save();
-        });
-
-        break;
-
-      case BalanceChanged():
-        if (event.asset == xelis_sdk.xelisAsset) {
-          final curr = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
-
-          balance[curr] = XelisAssetBalance(
-            balance: event.balance,
-            decimals: 8,
+          final transactionInfo = await XelisTransactionInfo.fromTransactionEntry(
+            event.tx, 
+            wallet: _libWallet, 
+            isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset
           );
-        } else {
-          final curr = findTrackedAssetById(event.asset);
-          
-          if (curr != null) {
-            if (curr.enabled) {
-              balance[curr] = XelisAssetBalance(
-                balance: event.balance,
-                decimals: curr.decimals,
-                symbol: curr.symbol,
-              );
-            } else {
-              balance.remove(curr);
-            }
+          _bufferTransaction(transactionInfo);
+          break;
+
+        case BalanceChanged():
+          if (event.asset == xelis_sdk.xelisAsset) {
+            final curr = isTestnet ? CryptoCurrency.xet : CryptoCurrency.xel;
+
+            balance[curr] = XelisAssetBalance(
+              balance: event.balance,
+              decimals: 8,
+            );
           } else {
-            try {
-              final metadata = await _libWallet.getAssetMetadata(asset: event.asset);
-              final asset = XelisAsset(
-                name: metadata.name,
-                symbol: metadata.ticker,
-                id: event.asset,
-                decimals: metadata.decimals,
-                enabled: false,
-              );
-              await xelAssetsBox.put(asset.id, asset);
-            } catch (e) {
-              printV("Failed to fetch metadata for asset ${event.asset}: $e");
+            final curr = findTrackedAssetById(event.asset);
+            
+            if (curr != null) {
+              if (curr.enabled) {
+                balance[curr] = XelisAssetBalance(
+                  balance: event.balance,
+                  decimals: curr.decimals,
+                  symbol: curr.symbol,
+                );
+              } else {
+                balance.remove(curr);
+              }
+            } else {
+              try {
+                final metadata = await _libWallet.getAssetMetadata(asset: event.asset);
+                final asset = XelisAsset(
+                  name: metadata.name,
+                  symbol: metadata.ticker,
+                  id: event.asset,
+                  decimals: metadata.decimals,
+                  enabled: false,
+                );
+                await xelAssetsBox.put(asset.id, asset);
+              } catch (e) {
+                printV("Failed to fetch metadata for asset ${event.asset}: $e");
+              }
             }
           }
-        }
-        break;
-
-      case NewTopoheight():
-        topoheight = event.topoheight;
-        break;
-
-      case Online():
-        syncStatus = SyncedSyncStatus();
-        break;
-
-      case Offline():
-        syncStatus = NotConnectedSyncStatus();
-        break;
-
-      case HistorySynced():
-        syncStatus = SyncedSyncStatus();
-        break;
-
-      case Rescan():
-        // optional
-        break;
-      
-      case NewAsset():
-        if (event.asset == xelis_sdk.xelisAsset) {
           break;
-        } 
 
-        final existing = xelAssetsBox.values
-          .cast<XelisAsset?>()
-          .firstWhere((e) => e?.id == event.asset, orElse: () => null);
+        case NewTopoheight():
+          topoheight = event.topoheight;
+          break;
 
-        final newAsset = XelisAsset(
-          name: event.name,
-          symbol: event.ticker,
-          id: event.asset,
-          decimals: event.decimals,
-          enabled: existing?.enabled ?? false,
-        );
+        case Online():
+          syncStatus = SyncedSyncStatus();
+          break;
 
-        await updateAssetState(newAsset);
-        break;
+        case Offline():
+          syncStatus = NotConnectedSyncStatus();
+          break;
 
-      case SyncError():
-        printV("Sync error occurred: ${event.message}");
-        syncStatus = FailedSyncStatus();
-        // TODO: display the error message
-        // _lastSyncError = event.message;
-        break;
+        case HistorySynced():
+          syncStatus = SyncedSyncStatus();
+          break;
+
+        case Rescan():
+          // optional
+          break;
+        
+        case NewAsset():
+          if (event.asset == xelis_sdk.xelisAsset) {
+            break;
+          } 
+
+          final existing = xelAssetsBox.values
+            .cast<XelisAsset?>()
+            .firstWhere((e) => e?.id == event.asset, orElse: () => null);
+
+          final newAsset = XelisAsset(
+            name: event.name,
+            symbol: event.ticker,
+            id: event.asset,
+            decimals: event.decimals,
+            enabled: existing?.enabled ?? false,
+          );
+
+          await updateAssetState(newAsset);
+          break;
+
+        case SyncError():
+          printV("Sync error occurred: ${event.message}");
+          syncStatus = FailedSyncStatus();
+          // TODO: display the error message
+          // _lastSyncError = event.message;
+          break;
+      }
+    } catch (e, s) {
+      printV("Error handling event $event: $e\n$s");
     }
     await Future.delayed(Duration.zero);
   }
@@ -550,14 +552,18 @@ abstract class XelisWalletBase
 
   Future<void> _fetchAssetBalances() async {
     for (final asset in xelAssetsBox.values) {
-      if (asset.id == xelis_sdk.xelisAsset) continue;
-      
-      final isTracked = await _libWallet.isAssetTracked(asset: asset.id);
-      
-      if (asset.enabled && !isTracked) {
-        await _libWallet.trackAsset(asset: asset.id);
-      } else if (!asset.enabled && isTracked) {
-        await _libWallet.untrackAsset(asset: asset.id);
+      try {
+        if (asset.id == xelis_sdk.xelisAsset) continue;
+        
+        final isTracked = await _libWallet.isAssetTracked(asset: asset.id);
+        
+        if (asset.enabled && !isTracked) {
+          await _libWallet.trackAsset(asset: asset.id);
+        } else if (!asset.enabled && isTracked) {
+          await _libWallet.untrackAsset(asset: asset.id);
+        }
+      } catch (e) {
+        printV("Failed to sync tracking for asset ${asset.id}: $e");
       }
     }
     
@@ -1028,6 +1034,14 @@ abstract class XelisWalletBase
     _isTransactionUpdating = false;
     _txSaveDebounceTimer?.cancel();
     _txBatchTimer?.cancel();
+
+    try {
+      await _processTransactionBuffer();
+      await transactionHistory.save();
+    } catch (e) {
+      printV("Error during wallet close cleanup: $e");
+    }
+
     await _unsubscribeFromWalletEvents();
     await _libWallet.close();
     x_wallet.dropWallet(wallet: _libWallet);

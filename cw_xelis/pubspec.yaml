@@ -22,7 +22,7 @@ dependencies:
   xelis_flutter:
     git:
       url: https://github.com/xelis-project/xelis-flutter-ffi.git
-      ref: 60f9aa38d5e31256ac13e9d23108ce2776fe9cb1
+      ref: 83bda92f1b833fe5d8584aa429d5143a3698b33f
     # path: ./xelis-flutter-ffi
   xelis_dart_sdk: ^0.28.0
   mutex: ^3.1.0

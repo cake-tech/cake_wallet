@@ -42,6 +42,67 @@ class MemoryTierCalculator {
   }
 }
 
+class XelisLoggerFactory {
+  static bool _isSetup = false;
+  static const LOG_LEVEL = 3;
+  /*
+  Log level for FFI Rust outputs in xelis_flutter
+
+  0: None
+  1: Error
+  2: Warn
+  3: Info
+  4: Debug
+  5: Trace
+
+  */
+
+  static Future<void> setupIfNeeded() async {
+    if (_isSetup) return;
+    await x_api.setUpRustLogger();
+    _setupLogStream();
+    _isSetup = true;
+  }
+  
+  static void _setupLogStream() {
+    x_api.createLogStream().listen((entry) {
+      final logLine = 'XELIS LOG | [${entry.level.name}] ${entry.tag}: ${entry.msg}';
+
+      switch (entry.level) {
+        case x_logger.Level.error:
+          if (LOG_LEVEL > 0) {
+            printV('❌ $logLine');
+          }
+          break;
+        case x_logger.Level.warn:
+          if (LOG_LEVEL > 1) {
+            printV('⚠️ $logLine');
+          }
+          break;
+        case x_logger.Level.info:
+          if (LOG_LEVEL > 2) {
+            printV('ℹ️ $logLine');
+          }
+          break;
+        case x_logger.Level.debug:
+          if (LOG_LEVEL > 3) {
+            printV('🐛 $logLine');
+          }
+          break;
+        case x_logger.Level.trace:
+          if (LOG_LEVEL > 4) {
+            printV('🔍 $logLine');
+          }
+          break;
+      }
+    },
+    onError: (dynamic e) {
+      printV("Error receiving Xelis Rust logs: $e");
+    });
+  }
+}
+
+
 enum XelisTableSize {
   initial,
   web,
@@ -142,20 +203,8 @@ class XelisWalletService extends WalletService<
   XelisNewWalletCredentials
 > {
   XelisWalletService(this.walletInfoSource, {required this.isDirect}) {
-    setupRustLogger();
+    XelisLoggerFactory.setupIfNeeded();
   }
-  static const LOG_LEVEL = 3;
-  /*
-  Log level for FFI Rust outputs in xelis_flutter
-
-  0: None
-  1: Error
-  2: Warn
-  3: Info
-  4: Debug
-  5: Trace
-
-  */
 
   final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
@@ -164,45 +213,6 @@ class XelisWalletService extends WalletService<
   static final _tableUpgradeMutex = Mutex();
   static Completer<void>? _tableUpgradeCompleter;
   static XelisWallet? _activeWallet;
-
-  void setupRustLogger() async {
-    await x_api.setUpRustLogger();
-
-    x_api.createLogStream().listen((entry) {
-      final logLine = 'XELIS LOG | [${entry.level.name}] ${entry.tag}: ${entry.msg}';
-
-      switch (entry.level) {
-        case x_logger.Level.error:
-          if (LOG_LEVEL > 0) {
-            printV('❌ $logLine');
-          }
-          break;
-        case x_logger.Level.warn:
-          if (LOG_LEVEL > 1) {
-            printV('⚠️ $logLine');
-          }
-          break;
-        case x_logger.Level.info:
-          if (LOG_LEVEL > 2) {
-            printV('ℹ️ $logLine');
-          }
-          break;
-        case x_logger.Level.debug:
-          if (LOG_LEVEL > 3) {
-            printV('🐛 $logLine');
-          }
-          break;
-        case x_logger.Level.trace:
-          if (LOG_LEVEL > 4) {
-            printV('🔍 $logLine');
-          }
-          break;
-      }
-    },
-    onError: (dynamic e) {
-      printV("Error receiving Xelis Rust logs: $e");
-    });
-  }
 
   @override
   WalletType getType() => WalletType.xelis;
@@ -216,7 +226,7 @@ class XelisWalletService extends WalletService<
       try {
         await _activeWallet!.close();
       } catch (e) {
-        
+        printV("Error closing active Xelis wallet: $e");
       }
       _activeWallet = null;
     }

@@ -157,7 +157,7 @@ class XelisTransactionInfo extends TransactionInfo {
           assetAmounts[asset] = (assetAmounts[asset] ?? BigInt.zero) + BigInt.from(transfer.amount);
 
           if (txType.transfers.length > 1) {
-            formattedTransfers.add("${transfer.destination} ( $formatted )");
+            formattedTransfers.add("${transfer.destination} [ $formatted ]");
           } else {
             formattedTransfers.add("${transfer.destination}");
           }          
@@ -213,7 +213,7 @@ class XelisTransactionInfo extends TransactionInfo {
         }
 
         fee = BigInt.from(txType.fee);
-        to = "SCID:\n${txType.contract}\n\nchunk_id ${txType.chunkId}";
+        to = "SCID:\n${txType.contract}\n\nChunk ID:\n${txType.chunkId}";
         break;
 
       case xelis_sdk.DeployContractEntry():
