@@ -980,6 +980,7 @@
   "transport_type": "Tipo di trasporto",
   "trongrid_history": "Cronologia TronGrid",
   "trusted": "Fidato",
+  "try_again": "Riprova",
   "tx_commit_exception_no_dust_on_change": "La transazione viene respinta con questo importo. Con queste monete è possibile inviare ${min} senza modifiche o ${max} che restituisce il cambiamento.",
   "tx_commit_failed": "Commit di transazione non riuscita. Si prega di contattare il supporto.",
   "tx_commit_failed_no_peers": "Errore nella trasmissione della transazione, si prega di provare nuovamente",

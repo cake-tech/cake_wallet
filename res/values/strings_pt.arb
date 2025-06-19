@@ -981,6 +981,7 @@
   "transport_type": "Tipo de transporte",
   "trongrid_history": "História de Trongrid",
   "trusted": "confiável",
+  "try_again": "Tente novamente",
   "tx_commit_exception_no_dust_on_change": "A transação é rejeitada com esse valor. Com essas moedas, você pode enviar ${min} sem alteração ou ${max} que retorna alterações.",
   "tx_commit_failed": "A confirmação da transação falhou. Entre em contato com o suporte.",
   "tx_commit_failed_no_peers": "A transação não foi transmitida, tente novamente em um segundo",

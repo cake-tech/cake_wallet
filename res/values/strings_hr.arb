@@ -979,6 +979,7 @@
   "transport_type": "Transportni tip",
   "trongrid_history": "Povijest Trongrida",
   "trusted": "vjerovao",
+  "try_again": "Pokušajte ponovo",
   "tx_commit_exception_no_dust_on_change": "Transakcija se odbija s tim iznosom. Pomoću ovih kovanica možete poslati ${min} bez promjene ili ${max} koja vraća promjenu.",
   "tx_commit_failed": "Obveza transakcije nije uspjela. Molimo kontaktirajte podršku.",
   "tx_commit_failed_no_peers": "Transakcija nije uspjela emitirati, pokušajte ponovo u sekundi ili tako",
