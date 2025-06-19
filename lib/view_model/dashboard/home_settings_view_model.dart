@@ -127,7 +127,7 @@ abstract class HomeSettingsViewModelBase with Store {
   }
 
   @action
-  Future<bool> checkIfTokenIsAlreadyAdded(String contractAddress) async {
+  bool checkIfTokenIsAlreadyAdded(String contractAddress) {
     if (_balanceViewModel.wallet.type == WalletType.ethereum) {
       return ethereum!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
     }

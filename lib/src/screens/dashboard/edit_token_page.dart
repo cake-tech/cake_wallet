@@ -73,6 +73,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
   bool _showDisclaimer = false;
   bool _disclaimerChecked = false;
+  bool isEditingToken = false;
 
   @override
   void initState() {
@@ -88,11 +89,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       _tokenSymbolController.text = widget.token!.title;
       _tokenDecimalController.text = widget.token!.decimals.toString();
       _tokenIconPathController.text = widget.token?.iconPath ?? '';
+
+      isEditingToken = true;
     }
 
     if (widget.initialContractAddress != null) {
       _contractAddressController.text = widget.initialContractAddress!;
       _getTokenInfo();
+
+      isEditingToken = true;
     }
 
     _contractAddressFocusNode.addListener(() {
@@ -200,8 +205,10 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate() &&
                               (!_showDisclaimer || _disclaimerChecked)) {
-                            final isTokenAlreadyAdded = await widget.homeSettingsViewModel
-                                .checkIfTokenIsAlreadyAdded(_contractAddressController.text);
+                            final isTokenAlreadyAdded = isEditingToken
+                                ? false
+                                : await widget.homeSettingsViewModel
+                                    .checkIfTokenIsAlreadyAdded(_contractAddressController.text);
                             if (isTokenAlreadyAdded) {
                               showPopUp<void>(
                                 context: context,
@@ -216,7 +223,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               );
                               return;
                             }
-                            
+
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 
