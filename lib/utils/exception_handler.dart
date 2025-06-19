@@ -191,7 +191,12 @@ class ExceptionHandler {
     'PlatformException(133, Failed to write: (Unknown Error: 133), null, null)',
     'PlatformException(IllegalArgument, Unknown deviceId:',
     'ServiceNotSupportedException(ConnectionType.ble, Required service not supported. Write characteristic: false, Notify characteristic: false)',
-    'Exception: 6e01' // Wrong App
+    'Exception: 6e01', // Wrong App
+    'Exception: 6d02',
+    'Exception: 6511',
+    'Exception: 6e00',
+    'Exception: 6985',
+    'Exception: 5515',
   ];
 
   static bool isLedgerError(Object exception) =>
