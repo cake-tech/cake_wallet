@@ -48,6 +48,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dar
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
+import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
@@ -918,6 +919,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devSecurePreferences:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevSecurePreferencesPage>(),
+      );
+
+    case Routes.dEuroSavings:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DEuroSavingsPage>(),
       );
 
     default:
