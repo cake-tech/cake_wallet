@@ -661,7 +661,9 @@ abstract class EVMChainWalletBase
         } else {
           balance.remove(token);
         }
-      } catch (_) {}
+      } catch (e) {
+        print(e);
+      }
     }
   }
 

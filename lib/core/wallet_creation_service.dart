@@ -80,6 +80,7 @@ class WalletCreationService {
       case WalletType.bitcoinCash:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.gnosis:
       case WalletType.solana:
       case WalletType.tron:
         return true;
