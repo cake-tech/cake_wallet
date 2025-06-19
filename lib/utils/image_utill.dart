@@ -22,6 +22,15 @@ class ImageUtil {
                   child: CircularProgressIndicator(),
                 ),
               ),
+              errorBuilder: (_, __, ___) {
+                return Container(
+                  height: _height,
+                  width: _width,
+                  child: Center(
+                    child: Icon(Icons.error_outline, color: Colors.grey),
+                  ),
+                );
+              },
             )
           : Image.network(
               key: ValueKey(imagePath),
@@ -50,6 +59,9 @@ class ImageUtil {
                 return Container(
                   height: _height,
                   width: _width,
+                  child: Center(
+                    child: Icon(Icons.error_outline, color: Colors.grey),
+                  ),
                 );
               },
             );
@@ -60,6 +72,7 @@ class ImageUtil {
               height: _height,
               width: _width,
               placeholderBuilder: (_) => Icon(Icons.error),
+              errorBuilder: (_, __, ___) => Icon(Icons.error),
               key: ValueKey(imagePath),
             )
           : Image.asset(
