@@ -84,10 +84,11 @@ class PayjoinStorage {
     await session.save();
   }
 
-  Future<void> markSenderSessionUnrecoverable(String pjUrl) async {
+  Future<void> markSenderSessionUnrecoverable(String pjUrl, String reason) async {
     final session = _payjoinSessionSources.get("$_senderPrefix$pjUrl")!;
 
     session.status = PayjoinSessionStatus.unrecoverable.name;
+    session.error = reason;
     await session.save();
   }
 

@@ -121,15 +121,13 @@ class PayjoinManager {
           }
         } catch (e) {
           _cleanupSession(pjUri);
-          printV(e);
-          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri);
-          completer.completeError(e);
+          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, e.toString());
+          completer.complete();
         }
       } else if (message is PayjoinSessionError) {
         _cleanupSession(pjUri);
         if (message is UnrecoverableError) {
-          printV(message.message);
-          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri);
+          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, message.message);
           completer.complete();
         } else if (message is RecoverableError) {
           completer.complete();
