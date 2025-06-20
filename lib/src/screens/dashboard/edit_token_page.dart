@@ -96,8 +96,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     if (widget.initialContractAddress != null) {
       _contractAddressController.text = widget.initialContractAddress!;
       _getTokenInfo();
-
-      isEditingToken = true;
     }
 
     _contractAddressFocusNode.addListener(() {
