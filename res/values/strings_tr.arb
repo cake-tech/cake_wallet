@@ -913,6 +913,7 @@
   "tip": "Bahşiş:",
   "to": "İle",
   "today": "Bugün",
+  "token_already_exists": "Token zaten var",
   "token_contract_address": "Token sözleşme adresi",
   "token_decimal": "Belirteç ondalık",
   "token_name": "Belirteç adı, örneğin: Tether",

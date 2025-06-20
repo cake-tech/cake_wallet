@@ -127,6 +127,31 @@ abstract class HomeSettingsViewModelBase with Store {
   }
 
   @action
+  bool checkIfTokenIsAlreadyAdded(String contractAddress) {
+    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
+      return ethereum!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.polygon) {
+      return polygon!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      return solana!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.tron) {
+      return tron!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return zano!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    return false;
+  }
+
+  @action
   Future<void> deleteToken(CryptoCurrency token) async {
     try {
       isDeletingToken = true;
@@ -297,7 +322,7 @@ abstract class HomeSettingsViewModelBase with Store {
     required bool isEthereum,
   }) async {
     final uri = Uri.https(
-       "api.etherscan.io",
+      "api.etherscan.io",
       "/v2/api",
       {
         "chainid": isEthereum ? "1" : "137",

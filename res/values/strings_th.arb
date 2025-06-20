@@ -913,6 +913,7 @@
   "tip": "เพิ่มค่าตอบแทน:",
   "to": "ถึง",
   "today": "วันนี้",
+  "token_already_exists": "โทเค็นมีอยู่แล้ว",
   "token_contract_address": "ที่อยู่สัญญาโทเค็น",
   "token_decimal": "โทเค็นทศนิยม",
   "token_name": "ชื่อโทเค็น เช่น Tether",

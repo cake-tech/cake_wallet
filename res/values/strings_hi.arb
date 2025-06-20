@@ -915,6 +915,7 @@
   "tip": "टिप:",
   "to": "को",
   "today": "आज",
+  "token_already_exists": "टोकन पहले से मौजूद है",
   "token_contract_address": "टोकन अनुबंध पता",
   "token_decimal": "सांकेतिक दशमलव",
   "token_name": "टोकन नाम जैसे: टीथर",

@@ -155,4 +155,10 @@ class CWSolana extends Solana {
   List<String> getDefaultTokenContractAddresses() {
     return DefaultSPLTokens().initialSPLTokens.map((e) => e.mintAddress).toList();
   }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final solanaWallet = wallet as SolanaWallet;
+    return solanaWallet.splTokenCurrencies.any((element) => element.mintAddress == contractAddress);
+  }
 }

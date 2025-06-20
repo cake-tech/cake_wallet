@@ -913,6 +913,7 @@
   "tip": "Savjet:",
   "to": "Do",
   "today": "Danas",
+  "token_already_exists": "Token već postoji",
   "token_contract_address": "Adresa ugovora tokena",
   "token_decimal": "Token decimalni",
   "token_name": "Naziv tokena npr.: Tether",
