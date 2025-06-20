@@ -110,7 +110,7 @@ dependencies:
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+      ref: 60817d4b20144f9da9029f5034790272795b9d38
   hashlib: ^1.19.2
   on_chain:
     git:
