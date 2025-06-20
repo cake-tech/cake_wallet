@@ -66,7 +66,7 @@ void startCurrentWalletChangeReaction(
 
       final node = settingsStore.getCurrentNode(wallet.type);
 
-      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
+      startWalletSyncStatusChangeReaction(wallet, settingsStore);
       startCheckConnectionReaction(wallet, settingsStore);
 
       await Future.delayed(Duration.zero);

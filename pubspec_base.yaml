@@ -114,7 +114,7 @@ dependencies:
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+      ref: 60817d4b20144f9da9029f5034790272795b9d38
   hashlib: ^1.19.2
   on_chain:
     git:
@@ -171,7 +171,7 @@ dependency_overrides:
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+      ref: 60817d4b20144f9da9029f5034790272795b9d38
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart.git
@@ -180,6 +180,8 @@ dependency_overrides:
     git:
       url: https://github.com/MrCyjaneK/flutter-tor_binary
       ref: cb811c610871a9517d47134b87c2f590c15c96c5
+  web_socket_channel: ^3.0.2
+  freezed_annotation: 2.4.4
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

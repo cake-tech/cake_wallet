@@ -1,5 +1,7 @@
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -12,7 +14,7 @@ ReactionDisposer? _onWalletSyncStatusChangeReaction;
 
 void startWalletSyncStatusChangeReaction(
     WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
-    FiatConversionStore fiatConversionStore) {
+    SettingsStore settingsStore) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
     try {
@@ -24,6 +26,12 @@ void startWalletSyncStatusChangeReaction(
       }
       if (status is SyncedSyncStatus || status is FailedSyncStatus) {
         await WakelockPlus.disable();
+      }
+
+      if (status is SyncedSyncStatus &&
+          wallet.type == WalletType.bitcoin &&
+          settingsStore.usePayjoin) {
+        bitcoin!.resumePayjoinSessions(wallet);
       }
     } catch (e) {
       printV(e.toString());
