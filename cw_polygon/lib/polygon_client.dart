@@ -18,13 +18,20 @@ class PolygonClient extends EVMChainClient {
     EtherAmount? gasPrice,
     EtherAmount? maxFeePerGas,
   }) {
+    EtherAmount? finalGasPrice = gasPrice;
+
+    if (gasPrice == null && maxFeePerGas != null) {
+      // If we have EIP-1559 parameters but no legacy gasPrice, then use maxFeePerGas as gasPrice
+      finalGasPrice = maxFeePerGas;
+    }
+    
     return Transaction(
       from: from,
       to: to,
       value: amount,
-      // data: data,
+      data: data,
       maxGas: maxGas,
-      // gasPrice: gasPrice,
+      gasPrice: finalGasPrice,
       // maxFeePerGas: maxFeePerGas,
       // maxPriorityFeePerGas: maxPriorityFeePerGas,
     );
