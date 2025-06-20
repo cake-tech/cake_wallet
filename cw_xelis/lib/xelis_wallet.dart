@@ -407,7 +407,8 @@ abstract class XelisWalletBase
           final transactionInfo = await XelisTransactionInfo.fromTransactionEntry(
             event.tx, 
             wallet: _libWallet, 
-            isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset
+            isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset,
+            isTestnet: isTestnet
           );
           _bufferTransaction(transactionInfo);
           break;
@@ -970,7 +971,8 @@ abstract class XelisWalletBase
       final info = await XelisTransactionInfo.fromTransactionEntry(
         entry, 
         wallet: _libWallet, 
-        isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset
+        isAssetEnabled: (id) => findTrackedAssetById(id)?.enabled ?? id == xelis_sdk.xelisAsset,
+        isTestnet: isTestnet
       );
       if (entry.txEntryType is! xelis_sdk.InvokeContractEntry && info.assetAmounts.isEmpty) { continue; }
       result[entry.hash] = info;

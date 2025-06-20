@@ -49,6 +49,7 @@ class XelisTransactionInfo extends TransactionInfo {
     required this.assetAmounts,
     required this.to,
     required this.from,
+    this.isTestnet = false,
   }) :
     amount = xelAmount.toInt(),
     fee = xelFee.toInt()
@@ -68,6 +69,7 @@ class XelisTransactionInfo extends TransactionInfo {
   final List<String> assetIds;
   final String? to;
   final String? from;
+  final bool isTestnet;
   final int confirmations = 3; // static/unused atm, purely for compatibility
 
   String? _fiatAmount;
@@ -95,7 +97,7 @@ class XelisTransactionInfo extends TransactionInfo {
 
   @override
   String feeFormatted() =>
-    XelisFormatter.formatAmountWithSymbol(fee, decimals: 8, symbol: 'XEL');
+    XelisFormatter.formatAmountWithSymbol(fee, decimals: 8, symbol: isTestnet ? 'XET' : 'XEL');
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -106,7 +108,8 @@ class XelisTransactionInfo extends TransactionInfo {
   }
 
   static Future<XelisTransactionInfo> fromTransactionEntry(
-    xelis_sdk.TransactionEntry entry, {required x_wallet.XelisWallet wallet, required bool Function(String assetId) isAssetEnabled}
+    xelis_sdk.TransactionEntry entry, 
+    {required x_wallet.XelisWallet wallet, required bool Function(String assetId) isAssetEnabled, bool isTestnet = false}
   ) async {
     final txType = entry.txEntryType;
 
@@ -252,6 +255,7 @@ class XelisTransactionInfo extends TransactionInfo {
       assetSymbols: assetSymbols,
       assetIds: assetIds,
       assetAmounts: amounts,
+      isTestnet: isTestnet
     );
   }
 
@@ -293,6 +297,7 @@ class XelisTransactionInfo extends TransactionInfo {
       assetIds: assetIds,
       to: data['to'],
       from: data['from'],
+      isTestnet: data['isTestnet'],
     );
   }
 
@@ -309,5 +314,6 @@ class XelisTransactionInfo extends TransactionInfo {
     'date': date.millisecondsSinceEpoch,
     'to': to,
     'from': from,
+    'isTestnet': isTestnet,
   };
 }
