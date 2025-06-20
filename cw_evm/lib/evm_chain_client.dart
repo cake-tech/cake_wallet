@@ -109,7 +109,6 @@ abstract class EVMChainClient {
           sender: senderAddress,
           to: toAddress,
           value: value,
-          // maxFeePerGas: maxFeePerGas,
         );
 
         return estimatedGas.toInt();
@@ -165,6 +164,7 @@ abstract class EVMChainClient {
     required int exponent,
     String? contractAddress,
     String? data,
+    int? gasPrice,
   }) async {
     assert(currency == CryptoCurrency.eth ||
         currency == CryptoCurrency.maticpoly ||
@@ -180,6 +180,7 @@ abstract class EVMChainClient {
       data: data != null ? hexToBytes(data) : null,
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+      gasPrice: gasPrice != null ? EtherAmount.fromInt(EtherUnit.wei, gasPrice) : null,
     );
 
     Uint8List signedTransaction;
@@ -224,6 +225,7 @@ abstract class EVMChainClient {
     required EVMChainTransactionPriority priority,
     required int exponent,
     required String contractAddress,
+    int? gasPrice,
   }) async {
 
     final Transaction transaction = createTransaction(
@@ -233,6 +235,7 @@ abstract class EVMChainClient {
       amount: EtherAmount.zero(),
       maxGas: estimatedGasUnits,
       maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+      gasPrice: gasPrice != null ? EtherAmount.fromInt(EtherUnit.wei, gasPrice) : null,
     );
 
     final erc20 = ERC20(
