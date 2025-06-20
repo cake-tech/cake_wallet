@@ -269,6 +269,7 @@
   "disable_fee_api_warning": "Wyłączając tą opcję, stawki opłaty mogą być w niektórych przypadkach niedokładne, więc możesz przepłacić opłatę za transakcje",
   "disable_fiat": "Wyłącz waluty FIAT",
   "disable_sell": "Wyłącz akcję sprzedaży",
+  "disable_tor": "Wyłącz Tor",
   "disable_trade_option": "Wyłącz opcję handlu",
   "disableBatteryOptimization": "Wyłącz optymalizację baterii",
   "disableBatteryOptimizationDescription": "Czy chcesz wyłączyć optymalizację baterii, aby synchronizacja tła działała swobodniej i płynnie?",
@@ -294,6 +295,7 @@
   "electrum_address_disclaimer": "Za każdym razem, gdy wykorzystasz adres, dla wiekszej prywatności generujemy nowy, ale poprzednie adresy nadal działają, i moga odbierać środki",
   "email_address": "Adres e-mail",
   "enable": "Włącz",
+  "enable_builtin_tor": "Włącz wbudowany tor",
   "enable_mempool_api": "Mempool API dla dokładnych opłat i dat",
   "enable_replace_by_fee": "Włącz wymianę po lewej",
   "enable_silent_payments_scanning": "Zacznij skanować Silent Payments",
@@ -334,6 +336,7 @@
   "error_while_processing": "Wystąpił błąd podczas przeróbki",
   "errorGettingCredentials": "Niepowodzenie: Błąd podczas uzyskiwania poświadczeń",
   "errorSigningTransaction": "Wystąpił błąd podczas podpisywania transakcji",
+  "establishing_tor_connection": "Ustalenie połączenia TOR",
   "estimated": "Oszacowano",
   "estimated_new_fee": "Szacowana nowa opłata",
   "estimated_receive_amount": "Szacowana kwota otrzymania",
@@ -860,6 +863,7 @@
   "sort_by": "Sortuj według",
   "spend_key_private": "Klucz prywatny",
   "spend_key_public": "Klucz publiczny",
+  "starting_tor_proxy": "Rozpoczęcie proxy TOR",
   "status": "Status: ",
   "step": "Krok",
   "string_default": "Domyślny",
@@ -916,6 +920,7 @@
   "tokenID": "ID",
   "ton_extra_info": "Nie zapomnij określić identyfikatora notatki podczas wysyłania transakcji TON dla wymiany",
   "tor_connection": "Połączenie przez Tor",
+  "tor_connection_timeout": "Tor Connection Timeout",
   "tor_only": "Tylko sieć Tor",
   "total": "Całkowity",
   "total_saving": "Całkowite oszczędności",
@@ -1105,5 +1110,6 @@
   "you_will_receive_estimated_amount": "Otrzymasz(oszacowane )",
   "you_will_send": "Konwertuj z",
   "youCanGoBackToYourDapp": "Możesz teraz wrócić do swojego dapp",
-  "yy": "RR"
+  "yy": "RR",
+  "tor_experimental": "Jest to funkcja eksperymentalna. Nie wszystkie połączenia wykonane z Cake Wallet korzystają z Tor, niektóre połączenia mogą korzystać z Clearnet, aby w pełni przekierować ruch skorzystaj z Tor w trybie VPN."
 }

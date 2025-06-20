@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
+import 'package:cw_core/utils/proxy_socket/abstract.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:http/io_client.dart' as ioc;
 import 'dart:math' as math;
 import 'package:convert/convert.dart';
 
@@ -184,23 +184,17 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': "getinfo"};
 
     try {
-      final authenticatingClient = HttpClient();
-      authenticatingClient.badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => true);
-
-      final http.Client client = ioc.IOClient(authenticatingClient);
-
       final jsonBody = json.encode(body);
 
-      final response = await client.post(
-        rpcUri,
+      final response = await ProxyWrapper().post(
+        clearnetUri: rpcUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonBody,
       );
 
-      printV("node check response: ${response.body}");
-
+      
       final resBody = json.decode(response.body) as Map<String, dynamic>;
+
       return resBody['result']['height'] != null;
     } catch (e) {
       printV("error: $e");
@@ -218,11 +212,7 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': methodName};
 
     try {
-      final authenticatingClient = HttpClient();
-      authenticatingClient.badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => true);
-
-      final http.Client client = ioc.IOClient(authenticatingClient);
+      final client = ProxyWrapper().getHttpIOClient();
 
       final jsonBody = json.encode(body);
 
@@ -242,15 +232,15 @@ class Node extends HiveObject with Keyable {
         return !(response['offline'] as bool);
       }
 
-      printV("node check response: ${response.body}");
+      final responseString = await response.body;
 
-      if ((response.body.contains("400 Bad Request") // Some other generic error
+      if ((responseString.contains("400 Bad Request") // Some other generic error
               ||
-              response.body.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
+              responseString.contains("plain HTTP request was sent to HTTPS port") // Cloudflare
               ||
               response.headers["location"] != null // Generic reverse proxy
               ||
-              response.body
+              responseString
                   .contains("301 Moved Permanently") // Poorly configured generic reverse proxy
           ) &&
           !(useSSL ?? false)) {
@@ -277,15 +267,16 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
+    if (!isValidProxyAddress && !CakeTor.instance.enabled) {
       return false;
     }
 
     String? proxy = socksProxyAddress;
 
-    // if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
-    //   proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-    // }
+    if ((proxy?.isEmpty ?? true) && CakeTor.instance.enabled) {
+      proxy = "${InternetAddress.loopbackIPv4.address}:${CakeTor.instance.port}";
+    }
+    printV("proxy: $proxy");
     if (proxy == null) {
       return false;
     }
@@ -305,13 +296,9 @@ class Node extends HiveObject with Keyable {
   // you try to communicate with it
   Future<bool> requestElectrumServer() async {
     try {
-      final Socket socket;
-      if (useSSL == true) {
-        socket = await SecureSocket.connect(uri.host, uri.port,
-            timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
-      } else {
-        socket = await Socket.connect(uri.host, uri.port, timeout: Duration(seconds: 5));
-      }
+      final ProxySocket socket;
+      socket = await ProxyWrapper().getSocksSocket(useSSL ?? false, uri.host, uri.port);
+
 
       socket.destroy();
       return true;
@@ -322,8 +309,8 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestNanoNode() async {
     try {
-      final response = await http.post(
-        uri,
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
         headers: {"Content-Type": "application/json", "nano-app": "cake-wallet"},
         body: jsonEncode(
           {
@@ -332,7 +319,8 @@ class Node extends HiveObject with Keyable {
           },
         ),
       );
-      final data = await jsonDecode(response.body);
+      
+      final data = jsonDecode(response.body);
       if (response.statusCode != 200 ||
           data["error"] != null ||
           data["balance"] == null ||
@@ -348,13 +336,14 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestEthereumServer() async {
     try {
-      final response = await http.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final req = await ProxyWrapper().getHttpClient()
+        .getUrl(uri,)
+        .timeout(Duration(seconds: 15));
+      final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
-    } catch (_) {
+    } catch (err) {
+      printV("Failed to request ethereum server: $err");
       return false;
     }
   }
@@ -462,7 +451,7 @@ class DaemonRpc {
 
   /// Perform a JSON-RPC call with Digest Authentication.
   Future<Map<String, dynamic>> call(String method, Map<String, dynamic> params) async {
-    final http.Client client = http.Client();
+    final client = ProxyWrapper().getHttpIOClient();
     final DigestAuth digestAuth = DigestAuth(username, password);
 
     // Initial request to get the `WWW-Authenticate` header.

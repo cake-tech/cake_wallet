@@ -33,10 +33,12 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
+import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
@@ -48,6 +50,7 @@ import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/view_model/start_tor_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
@@ -138,7 +141,6 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -690,7 +692,6 @@ Future<void> setup({
     return walletKitService;
   });
 
-  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory(() => BalancePage(
       nftViewModel: getIt.get<NFTViewModel>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
@@ -1495,7 +1496,7 @@ Future<void> setup({
     () => WalletConnectConnectionsView(walletKitService: getIt.get<WalletKitService>()),
   );
 
-  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
 
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 
@@ -1512,7 +1513,11 @@ Future<void> setup({
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
   
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
+  
+  getIt.registerFactory(() => DevNetworkRequests());
 
+  getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
+  
   getIt.registerFactory(() => DEuroViewModel(getIt<AppStore>()));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));

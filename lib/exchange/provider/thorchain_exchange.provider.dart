@@ -7,10 +7,10 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
 
 class ThorChainExchangeProvider extends ExchangeProvider {
   ThorChainExchangeProvider({required this.tradesStore})
@@ -164,7 +164,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     if (id.isEmpty) throw Exception('Trade id is empty');
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
     final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');
-    final response = await http.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
 
     if (response.statusCode == 404) {
       throw Exception('Trade not found for id: $formattedId');
@@ -217,8 +218,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   static Future<Map<String, String>?>? lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
-    final response = await http.get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode != 200) {
       return null;
     }
@@ -244,8 +245,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
-    final response = await http.get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode != 200) {
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
