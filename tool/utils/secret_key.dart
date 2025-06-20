@@ -58,6 +58,7 @@ class SecretKey {
     SecretKey('tronTestWalletSeeds', () => ''),
     SecretKey('nanoTestWalletSeeds', () => ''),
     SecretKey('wowneroTestWalletSeeds', () => ''),
+    SecretKey('xelisTestWalletSeeds', () => ''),
     SecretKey('moneroTestWalletReceiveAddress', () => ''),
     SecretKey('bitcoinTestWalletReceiveAddress', () => ''),
     SecretKey('ethereumTestWalletReceiveAddress', () => ''),

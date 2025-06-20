@@ -101,5 +101,6 @@ abstract class SendTemplateViewModelBase with Store {
 
   bool get hasMultipleTokens => isEVMCompatibleChain(_wallet.type) ||
   _wallet.type == WalletType.solana ||
-  _wallet.type == WalletType.tron;
+  _wallet.type == WalletType.tron ||
+  _wallet.type == WalletType.xelis;
 }

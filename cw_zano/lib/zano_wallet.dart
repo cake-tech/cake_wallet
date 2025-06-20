@@ -121,7 +121,7 @@ abstract class ZanoWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, [int? amount = null]) =>
+  int (TransactionPriority priority, [int? amount = null]) =>
       getCurrentTxFee(priority);
 
   @override

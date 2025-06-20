@@ -14,6 +14,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -109,6 +110,14 @@ abstract class HomeSettingsViewModelBase with Store {
         );
       }
 
+      if (_balanceViewModel.wallet.type == WalletType.xelis) {
+        await xelis!.updateAssetState(
+          _balanceViewModel.wallet,
+          token,
+          contractAddress,
+        );
+      }
+
       if (_balanceViewModel.wallet.type == WalletType.tron) {
         await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
       }
@@ -147,6 +156,9 @@ abstract class HomeSettingsViewModelBase with Store {
       }
       if (_balanceViewModel.wallet.type == WalletType.zano) {
         await zano!.deleteZanoAsset(_balanceViewModel.wallet, token);
+      }
+      if (_balanceViewModel.wallet.type == WalletType.xelis) {
+        await xelis!.deleteAsset(_balanceViewModel.wallet, token);
       }
       _updateTokensList();
     } finally {
@@ -206,6 +218,11 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.tron:
         defaultTokenAddresses = tron!.getDefaultTokenContractAddresses();
         break;
+      case WalletType.xelis:
+        // TODO
+        // defaultTokenAddresses = xelis!.getDefaultAssetIDs();
+        // break;
+        return false;
       case WalletType.zano:
       case WalletType.banano:
       case WalletType.monero:
@@ -388,6 +405,10 @@ abstract class HomeSettingsViewModelBase with Store {
       return await solana!.getSPLToken(_balanceViewModel.wallet, contractAddress);
     }
 
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      return await xelis!.getAsset(_balanceViewModel.wallet, contractAddress);
+    }
+
     if (_balanceViewModel.wallet.type == WalletType.tron) {
       return await tron!.getTronToken(_balanceViewModel.wallet, contractAddress);
     }
@@ -428,6 +449,12 @@ abstract class HomeSettingsViewModelBase with Store {
     if (_balanceViewModel.wallet.type == WalletType.solana) {
       final address = solana!.getTokenAddress(token);
       solana!.addSPLToken(_balanceViewModel.wallet, token, address);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      final id = xelis!.getAssetId(token);
+      xelis!.updateAssetState(_balanceViewModel.wallet, token, id);
+      if (!value) await xelis!.removeAssetTransactionsInHistory(_balanceViewModel.wallet, token);
     }
 
     if (_balanceViewModel.wallet.type == WalletType.tron) {
@@ -501,6 +528,15 @@ abstract class HomeSettingsViewModelBase with Store {
           .toList()
         ..sort(_sortFunc));
     }
+
+
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      tokens.addAll(xelis!
+          .getXelisAssets(_balanceViewModel.wallet)
+          .where((element) => _matchesSearchText(element))
+          .toList()
+        ..sort(_sortFunc));
+    }
   }
 
   @action
@@ -549,7 +585,12 @@ abstract class HomeSettingsViewModelBase with Store {
       return zano!.getZanoAssetAddress(asset);
     }
 
-    // We return null if it's neither Tron, Polygon, Ethereum or Solana wallet (which is actually impossible because we only display home settings for either of these three wallets).
+    if (_balanceViewModel.wallet.type == WalletType.xelis) {
+      return xelis!.getAssetId(asset);
+    }
+
+
+    // We return null if it's neither Tron, Polygon, Ethereum, Xelis or Solana wallet (which is actually impossible because we only display home settings for either of these five wallets).
     return null;
   }
 }

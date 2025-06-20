@@ -16,6 +16,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -47,7 +48,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector =>
-      [WalletType.monero, WalletType.haven, WalletType.wownero].contains(type);
+      [WalletType.monero, WalletType.haven, WalletType.wownero, WalletType.xelis].contains(type);
 
   bool get showLanguageSelector =>
       newWalletArguments?.mnemonic == null && hasLanguageSelector;
@@ -141,6 +142,11 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.decred:
         return decred!.createDecredNewWalletCredentials(name: name);
+      case WalletType.xelis:
+        return xelis!.createXelisNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+        );
       case WalletType.none:
       case WalletType.haven:
         throw Exception('Unexpected type: ${type.toString()}');

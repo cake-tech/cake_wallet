@@ -584,6 +584,7 @@ class _WalletRestorePageBodyState extends State<_WalletRestorePageBody>
 
     if (seedWords.length == 14 && walletRestoreViewModel.type == WalletType.wownero) return true;
     if (seedWords.length == 26 && walletRestoreViewModel.type == WalletType.zano) return true;
+    if (seedWords.length == 25 && walletRestoreViewModel.type == WalletType.xelis) return true;
 
     if (seedWords.length == 12 && walletRestoreViewModel.type == WalletType.monero) {
       return walletRestoreFromSeedFormKey.currentState?.blockchainHeightKey.currentState

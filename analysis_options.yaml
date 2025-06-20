@@ -23,6 +23,7 @@ analyzer:
     lib/tron/cw_tron.dart,
     lib/wownero/cw_wownero.dart,
     lib/zano/cw_zano.dart,
+    lib/xelis/cw_xelis.dart,
     ]
   language:
     strict-casts: true

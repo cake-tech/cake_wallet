@@ -84,6 +84,12 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
 
+### Xelis Specific Features
+
+* Store XEL and all native assets/tokens
+* Add custom tokens by asset ID
+* Specify multiple recipients for batch sending
+
 # Monero.com by Cake Wallet for Android and iOS
 
 ## Open Source Monero-Only Wallet

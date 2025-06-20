@@ -56,6 +56,13 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
         });
       }
 
+      if (state is IsLoadingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // null duration to make it indefinite until its disposed
+          _authBar = createBar<void>(S.of(context).loading_wallet, context, duration: null)..show(context);
+        });
+      }
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           dismissFlushBar(_authBar);

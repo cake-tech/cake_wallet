@@ -47,6 +47,9 @@ class WalletRestoreFromQRCode {
     'decred': WalletType.decred,
     'decred-wallet': WalletType.decred,
     'decred_wallet': WalletType.decred,
+    'xelis': WalletType.xelis,
+    'xelis-wallet': WalletType.xelis,
+    'xelis_wallet': WalletType.xelis,
   };
 
   static WalletType? _extractWalletType(String code) {

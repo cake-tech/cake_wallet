@@ -100,6 +100,15 @@ class WalletKeysAndSeedPageRobot {
         commonTestCases.hasText(appStore.wallet!.privateKey!);
         tester.printToConsole('$walletName wallet has private key properly displayed');
       }
+
+      if (walletType == WalletType.xelis) {
+        if (hasSeed) {
+          commonTestCases.hasText(appStore.wallet!.seed);
+          tester.printToConsole('$walletName wallet has seeds properly displayed');
+          commonTestCases.hasText(appStore.wallet!.langSeed(lang.nameEnglish));
+          tester.printToConsole('$walletName wallet has language seed variant properly displayed');
+        }
+      }
     }
 
     await commonTestCases.defaultSleepTime(seconds: 5);

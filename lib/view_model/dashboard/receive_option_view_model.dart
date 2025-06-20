@@ -36,6 +36,7 @@ abstract class ReceiveOptionViewModelBase with Store {
         _options = [ReceivePageOption.mainnet];
         break;
       case WalletType.decred:
+      case WalletType.xelis:
         if (_wallet.isTestnet) {
           _options = [
             ReceivePageOption.testnet,

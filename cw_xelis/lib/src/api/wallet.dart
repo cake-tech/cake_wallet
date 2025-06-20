@@ -1,0 +1,1 @@
+export 'package:xelis_flutter/src/api/wallet.dart';

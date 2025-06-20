@@ -1,0 +1,1 @@
+export 'package:xelis_flutter/src/frb_generated.dart';

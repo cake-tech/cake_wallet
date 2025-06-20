@@ -10,6 +10,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -50,6 +51,8 @@ class SeedValidator extends Validator<MnemonicItem> {
         return zano!.getWordList(language);
       case WalletType.decred:
         return decred!.getDecredWordList();
+      case WalletType.xelis:
+        return xelis!.getXelisWordList(language);
       case WalletType.none:
       case WalletType.haven:
         return [];

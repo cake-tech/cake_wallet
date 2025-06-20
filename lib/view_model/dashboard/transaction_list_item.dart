@@ -10,6 +10,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -46,10 +47,17 @@ class TransactionListItem extends ActionListItem with Keyable {
   bool get hasTokens =>
       isEVMCompatibleChain(balanceViewModel.wallet.type) ||
       balanceViewModel.wallet.type == WalletType.solana ||
-      balanceViewModel.wallet.type == WalletType.tron;
+      balanceViewModel.wallet.type == WalletType.tron ||
+      balanceViewModel.wallet.type == WalletType.xelis;
 
   String get formattedCryptoAmount {
-    return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : transaction.amountFormatted();
+    late final String amtText;
+    if (transaction.amountFormatted() == "MULTI") {
+      amtText = S.current.multi_transfer;
+    } else {
+      amtText = transaction.amountFormatted();
+    }
+    return displayMode == BalanceDisplayMode.hiddenBalance ? '---' : amtText;
   }
 
   String get formattedTitle {
@@ -108,6 +116,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       WalletType.wownero,
       WalletType.litecoin,
       WalletType.zano,
+      WalletType.xelis
     ].contains(balanceViewModel.wallet.type)) {
       return formattedPendingStatus;
     }
@@ -141,6 +150,11 @@ class TransactionListItem extends ActionListItem with Keyable {
 
       if (balanceViewModel.wallet.type == WalletType.tron) {
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        return asset;
+      }
+
+      if (balanceViewModel.wallet.type == WalletType.xelis) {
+        final asset = xelis!.assetOfTransaction(balanceViewModel.wallet, transaction);
         return asset;
       }
     } catch (e) {
@@ -222,6 +236,13 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.decred:
         amount = calculateFiatAmountRaw(
             cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.xelis:
+        final asset = xelis!.assetOfTransaction(balanceViewModel.wallet, transaction);
+        final price = balanceViewModel.fiatConvertationStore.prices[asset];
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: xelis!.formatterXelisAmountToDouble(amount: xelis!.getTransactionAmountRaw(transaction)),
             price: price);
         break;
       case WalletType.none:

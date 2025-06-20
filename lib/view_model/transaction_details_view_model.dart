@@ -48,6 +48,11 @@ abstract class TransactionDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
+    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
+    final description = transactionDescriptionBox.values.firstWhere(
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
+
     // TODO: can be cleaned further
     switch (wallet.type) {
       case WalletType.monero:
@@ -88,15 +93,13 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.decred:
         _addDecredListItems(tx, dateFormat);
         break;
+      case WalletType.xelis:
+        _addXelisListItems(tx, dateFormat, description.recipientAddress?.isEmpty ?? true);
+        break;
       case WalletType.none:
       case WalletType.banano:
       break;
     }
-
-    final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
-    final description = transactionDescriptionBox.values.firstWhere(
-        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
-        orElse: () => TransactionDescription(id: descriptionKey));
 
     if (showRecipientAddress && !isRecipientAddressShown) {
       final recipientAddress = description.recipientAddress;
@@ -193,6 +196,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://explorer.zano.org/transaction/${txId}';
       case WalletType.decred:
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
+      case WalletType.xelis:
+        return 'https://${wallet.isTestnet ? "testnet-" : ""}explorer.xelis.io/txs/${txId}';
       case WalletType.none:
         return '';
     }
@@ -227,6 +232,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'explorer.zano.org';
       case WalletType.decred:
         return S.current.view_transaction_on + 'dcrdata.decred.org';
+      case WalletType.xelis:
+        return S.current.view_transaction_on + 'explorer.xelis.io';
       case WalletType.none:
         return '';
     }
@@ -562,6 +569,58 @@ abstract class TransactionDetailsViewModelBase with Store {
     items.addAll(_items);
   }
 
+  void _addXelisListItems(TransactionInfo tx, DateFormat dateFormat, bool showTo) {
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.id,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      if (!tx.amountFormatted().startsWith(":MULTI:")) 
+        StandartListItem(
+          title: S.current.transaction_details_amount,
+          value: tx.amountFormatted(),
+          key: ValueKey('standard_list_item_transaction_details_amount_key'),
+        ),
+      if (tx.amountFormatted().startsWith(":MULTI:"))
+        StandartListItem(
+          title: S.current.transaction_details_multi_breakdown,
+          value: tx.amountFormatted().split(":MULTI:")[1]!,
+          key: ValueKey('standard_list_item_transaction_details_multi_breakdown_key'),
+        ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false && tx.direction == TransactionDirection.outgoing)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (showRecipientAddress && tx.to != null && showTo)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      if (tx.from != null)
+        StandartListItem(
+          title: S.current.transaction_details_source_address,
+          value: tx.from!,
+          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
+        ),
+    ];
+
+    items.addAll(_items);
+  }
+
   void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {
     transactionPriority = bitcoin!.getBitcoinTransactionPriorityMedium();
     final inputsCount = (transactionInfo.inputAddresses?.isEmpty ?? true)
@@ -629,7 +688,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       );
     }
 
-    if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty) {
+    if (transactionInfo.outputAddresses != null && transactionInfo.outputAddresses!.isNotEmpty && wallet.type != WalletType.xelis) {
       final outputAddresses = transactionInfo.outputAddresses!.map((element) {
         if (element.contains('OP_RETURN:') && element.length > 40) {
           return element.substring(0, 40) + '...';
@@ -670,7 +729,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           value: tx.feeFormatted()!,
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
-      if (showRecipientAddress && tx.to != null)
+      if (showRecipientAddress && tx.to != null && tx.direction == TransactionDirection.outgoing)
         StandartListItem(
           title: S.current.transaction_details_recipient_address,
           value: tron!.getTronBase58Address(tx.to!, wallet),

@@ -1,0 +1,25 @@
+-
+  uri: us-node.xelis.io
+  useSSL: true
+  is_default: true
+-
+  uri: pl-node.xelis.io
+  useSSL: true
+-
+  uri: de-node.xelis.io
+  useSSL: true
+-
+  uri: fr-node.xelis.io
+  useSSL: true
+-
+  uri: sg-node.xelis.io
+  useSSL: true
+-
+  uri: uk-node.xelis.io
+  useSSL: true
+-
+  uri: ca-node.xelis.io
+  useSSL: true
+-
+  uri: testnet-node.xelis.io
+  useSSL: true

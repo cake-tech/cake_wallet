@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
@@ -116,6 +117,9 @@ abstract class OutputBase with Store {
           case WalletType.zano:
             _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
+          case WalletType.xelis:
+            _amount = xelis!.formatterStringDoubleToAmount(_cryptoAmount, currency: cryptoCurrencyHandler());
+            break;
           case WalletType.none:
           case WalletType.haven:
           case WalletType.nano:
@@ -151,6 +155,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.solana) {
         return solana!.getEstimateFees(_wallet) ?? 0.0;
+      }
+
+      if (_wallet.type == WalletType.xelis) {
+        return xelis!.getEstimateFees(_wallet) ?? 0.0;
       }
 
       int? fee = _wallet.calculateEstimatedFee(
@@ -193,6 +201,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.decred) {
         return decred!.formatterDecredAmountToDouble(amount: fee);
       }
+
+      if (_wallet.type == WalletType.xelis) {
+        return xelis!.formatterXelisAmountToDouble(amount: BigInt.from(fee));
+      }
     } catch (e) {
       printV(e.toString());
     }
@@ -205,7 +217,8 @@ abstract class OutputBase with Store {
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
               _wallet.type == WalletType.solana ||
-              _wallet.type == WalletType.tron)
+              _wallet.type == WalletType.tron ||
+              _wallet.type == WalletType.xelis)
           ? _wallet.currency
           : cryptoCurrencyHandler();
       final fiat = calculateFiatAmountRaw(
@@ -302,6 +315,7 @@ abstract class OutputBase with Store {
       case WalletType.zano:
       case WalletType.nano:
       case WalletType.decred:
+      case WalletType.xelis:
         maximumFractionDigits = 12;
         break;
       case WalletType.bitcoin:

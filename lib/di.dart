@@ -80,6 +80,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -1153,6 +1154,8 @@ Future<void> setup({
         return zano!.createZanoWalletService(_walletInfoSource);
       case WalletType.decred:
         return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+      case WalletType.xelis:
+        return xelis!.createXelisWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.haven:
         return HavenWalletService(_walletInfoSource);
       case WalletType.none:

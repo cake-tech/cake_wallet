@@ -3,6 +3,7 @@
 *.log
 *.pyc
 *.swp
+*.zip
 .DS_Store
 .atom/
 .buildlog/
@@ -140,6 +141,7 @@ lib/tron/tron.dart
 lib/wownero/wownero.dart
 lib/zano/zano.dart
 lib/decred/decred.dart
+lib/xelis/xelis.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x~ipad.png

@@ -25,6 +25,11 @@ import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
+import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
@@ -69,7 +74,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     hasMultipleTokens = isEVMCompatibleChain(wallet.type) ||
         wallet.type == WalletType.solana ||
         wallet.type == WalletType.tron ||
-        wallet.type == WalletType.zano;
+        wallet.type == WalletType.zano ||
+        wallet.type == WalletType.xelis;
   }
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
@@ -91,7 +97,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         hasMultipleTokens = isEVMCompatibleChain(appStore.wallet!.type) ||
             appStore.wallet!.type == WalletType.solana ||
             appStore.wallet!.type == WalletType.tron ||
-            appStore.wallet!.type == WalletType.zano,
+            appStore.wallet!.type == WalletType.zano ||
+            appStore.wallet!.type == WalletType.xelis,
         outputs = ObservableList<Output>(),
         _settingsStore = appStore.settingsStore,
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
@@ -199,6 +206,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.polygon:
       case WalletType.tron:
       case WalletType.solana:
+      case WalletType.xelis:
         return wallet.currency;
       default:
         return selectedCryptoCurrency;
@@ -482,6 +490,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
+      if (wallet.type == WalletType.xelis) {
+        final outputCount = pendingTransaction?.outputCount ?? 0;
+        if (outputCount > 255) {
+          throw Exception("Xelis does not support more than 255 outputs");
+        }
+      }
+
       state = ExecutedSuccessfullyState();
       return pendingTransaction;
     } catch (e) {
@@ -534,6 +549,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  String normalizeAmount(String amount) {
+    if (amount.contains('.')) return amount;
+    return '$amount.0';
+  }
+
   @action
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
@@ -558,11 +578,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return;
     }
 
-    String address = outputs.fold('', (acc, value) {
-      return value.isParsedAddress
-          ? '$acc${value.address}\n${value.extractedAddress}\n\n'
-          : '$acc${value.address}\n\n';
-    });
+    late String address;
+
+    if (walletType == WalletType.xelis) {
+      address = outputs.fold('', (acc, value) {
+        final nameLine = value.isParsedAddress ? '${value.address}\n' : '';
+        final realAddress = value.isParsedAddress ? value.extractedAddress : value.address;
+        final amount = normalizeAmount(value.cryptoAmount ?? '0.0');
+        final symbol = value.cryptoCurrencyHandler().title ?? '';
+        final amountPart = outputs.length > 1 ? ' ($amount $symbol)' : '';
+
+        return '$acc$nameLine$realAddress$amountPart\n\n';
+      });
+    } else {
+      address = outputs.fold('', (acc, value) {
+        return value.isParsedAddress
+            ? '$acc${value.address}\n${value.extractedAddress}\n\n'
+            : '$acc${value.address}\n\n';
+      });
+    }
 
     address = address.trim();
 
@@ -677,6 +711,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.decred:
         this.coinTypeToSpendFrom = UnspentCoinType.any;
         return decred!.createDecredTransactionCredentials(outputs, priority!);
+      case WalletType.xelis:
+        return xelis!.createXelisTransactionCredentials(outputs, priority: priority!, currency: selectedCryptoCurrency);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

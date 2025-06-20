@@ -64,6 +64,7 @@ class WalletLoadingService {
       }
       final walletService = walletServiceFactory.call(type);
       final walletPassword = password ?? (await keyService.getWalletPassword(walletName: name));
+
       final wallet = await walletService.openWallet(name, walletPassword);
 
       if (type == WalletType.monero) {
@@ -93,6 +94,7 @@ class WalletLoadingService {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
           final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
+
           wallet = await walletService.openWallet(walletInfo.name, walletPassword);
 
           if (walletInfo.type == WalletType.monero) {

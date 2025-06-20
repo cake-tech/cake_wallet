@@ -11,6 +11,8 @@ const tronOutputPath = 'lib/tron/tron.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
+const xelisOutputPath = 'lib/xelis/xelis.dart';
+const frbInitPath = 'lib/frb_init.g.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -30,6 +32,7 @@ Future<void> main(List<String> args) async {
   final hasWownero = args.contains('${prefix}wownero');
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
+  final hasXelis = args.contains('${prefix}xelis');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -44,6 +47,7 @@ Future<void> main(List<String> args) async {
   await generateZano(hasZano);
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
+  await generateXelis(hasXelis);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -59,6 +63,7 @@ Future<void> main(List<String> args) async {
     hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
+    hasXelis: hasXelis,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -73,6 +78,10 @@ Future<void> main(List<String> args) async {
     hasWownero: hasWownero,
     hasZano: hasZano,
     hasDecred: hasDecred,
+    hasXelis: hasXelis,
+  );
+  await generateFRBInit(
+    hasXelis: hasXelis,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1406,6 +1415,103 @@ abstract class Decred {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateXelis(bool hasImplementation) async {
+  final outputFile = File(xelisOutputPath);
+  const xelisCommonHeaders = """
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/address_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:hive/hive.dart';
+""";
+  const xelisCWHeaders = """
+import 'package:xelis_dart_sdk/xelis_dart_sdk.dart' as xelis_sdk;
+
+import 'package:cw_xelis/src/api/wallet.dart' as x_wallet;
+import 'package:cw_xelis/src/api/utils.dart';
+import 'package:cw_xelis/xelis_asset.dart';
+import 'package:cw_xelis/xelis_wallet_service.dart';
+import 'package:cw_xelis/xelis_wallet.dart';
+import 'package:cw_xelis/xelis_wallet_creation_credentials.dart';
+import 'package:cw_xelis/xelis_transaction_info.dart';
+import 'package:cw_xelis/xelis_transaction_history.dart';
+import 'package:cw_xelis/xelis_formatting.dart';
+import 'package:cw_xelis/xelis_transaction_credentials.dart';
+import 'package:cw_xelis/xelis_transaction_priority.dart';
+""";
+  const xelisCwPart = "part 'cw_xelis.dart';";
+  const xelisContent = """
+
+abstract class Xelis {
+  List<String> getXelisWordList(String language);
+  WalletCredentials createXelisNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo, String? password});
+  WalletCredentials createXelisRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password});
+
+  WalletService createXelisWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+
+  String getAddress(WalletBase wallet);
+  bool validateAddress(String address);
+  bool isTestnet(Object wallet);
+
+  BigInt getTransactionAmountRaw(TransactionInfo transactionInfo);
+
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getXelisTransactionPriorityFast();
+  TransactionPriority getXelisTransactionPriorityMedium();
+  TransactionPriority deserializeXelisTransactionPriority(int raw);
+
+  Object createXelisTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, required CryptoCurrency currency});
+  Future<void> removeAssetTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+
+  double formatterXelisAmountToDouble({TransactionInfo? transaction, BigInt? amount, int decimals = 8});
+  int formatterStringDoubleToAmount(String amount, {required CryptoCurrency currency});
+
+  // CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);  
+  double? getEstimateFees(WalletBase wallet);
+
+  List<CryptoCurrency> getXelisAssets(WalletBase wallet);
+  Future<void> updateAssetState(
+    WalletBase wallet,
+    CryptoCurrency asset,
+    String id,
+  );
+  Future<void> deleteAsset(WalletBase wallet, CryptoCurrency asset);
+  Future<CryptoCurrency?> getAsset(WalletBase wallet, String id);
+  String getAssetId(CryptoCurrency asset);
+  List<String> getDefaultAssetIDs();
+}
+""";
+
+  const xelisEmptyDefinition = 'Xelis? xelis;\n';
+  const xelisCWDefinition = 'Xelis? xelis = CWXelis();\n';
+
+  final output = '$xelisCommonHeaders\n' +
+      (hasImplementation ? '$xelisCWHeaders\n' : '\n') +
+      (hasImplementation ? '$xelisCwPart\n\n' : '\n') +
+      (hasImplementation ? xelisCWDefinition : xelisEmptyDefinition) +
+      '\n' +
+      xelisContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1420,6 +1526,7 @@ Future<void> generatePubspec({
   required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
+  required bool hasXelis,
 }) async {
   const cwCore = """
   cw_core:
@@ -1484,6 +1591,10 @@ Future<void> generatePubspec({
   cw_decred:
     path: ./cw_decred
   """;
+  const cwXelis = """
+  cw_xelis:
+    path: ./cw_xelis
+  """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -1533,6 +1644,10 @@ Future<void> generatePubspec({
     output += '\n$cwDecred';
   }
 
+  if (hasXelis) {
+    output += '\n$cwXelis';
+  }
+
   if (hasFlutterSecureStorage) {
     output += '\n$flutterSecureStorage\n';
   }
@@ -1561,6 +1676,32 @@ Future<void> generatePubspec({
   await outputFile.writeAsString(outputContent);
 }
 
+Future<void> generateFRBInit({
+  required bool hasXelis,
+}) async {
+  final frbInitFile = File(frbInitPath);
+
+  if (frbInitFile.existsSync()) {
+    await frbInitFile.delete();
+  }
+
+  const outputDefinition = 'Future<void> frb_init() async {';
+  var outputHeader = "";
+  var inits = "";
+  var outputContent = outputHeader + '\n\n' + outputDefinition + '\n';
+
+  if (hasXelis) {
+    outputHeader += "import 'package:cw_xelis/src/frb_generated.dart' as xelis_rust;\n";
+    inits += '\tawait xelis_rust.RustLib.init();\n';
+  }
+
+  outputContent = outputHeader + '\n\n' + 
+    outputDefinition + '\n' +
+    inits + 
+    '}';
+  await frbInitFile.writeAsString(outputContent);
+}
+
 Future<void> generateWalletTypes({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1574,6 +1715,7 @@ Future<void> generateWalletTypes({
   required bool hasWownero,
   required bool hasZano,
   required bool hasDecred,
+  required bool hasXelis,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1635,6 +1777,10 @@ Future<void> generateWalletTypes({
 
   if (hasWownero) {
     outputContent += '\tWalletType.wownero,\n';
+  }
+
+  if (hasXelis) {
+    outputContent += '\tWalletType.xelis,\n';
   }
 
   outputContent += '];\n';

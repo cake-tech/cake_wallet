@@ -46,6 +46,8 @@ const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
+const xelisDefaultUri = "us-node.xelis.io";
+const xelisTestnetUri = "testnet-node.xelis.io";
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -511,6 +513,17 @@ Future<void> defaultSettingsMigration(
             enabled: true,
           );
 			    break;
+        case 50:
+          await _fixNodesUseSSLFlag(nodes);
+          await addWalletNodeList(nodes: nodes, type: WalletType.xelis);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.xelis,
+            currentNodePreferenceKey: PreferencesKey.currentXelisNodeIdKey,
+            useSSL: true,
+          );
+			    break;
         default:
           break;
       }
@@ -617,6 +630,8 @@ String _getDefaultNodeUri(WalletType type) {
       return zanoDefaultNodeUri;
     case WalletType.decred:
       return decredDefaultUri;
+    case WalletType.xelis:
+      return xelisDefaultUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
@@ -805,6 +820,12 @@ Node? getBitcoinTestnetDefaultElectrumServer({required Box<Node> nodes}) {
   return nodes.values
           .firstWhereOrNull((Node node) => node.uriRaw == publicBitcoinTestnetElectrumUri) ??
       nodes.values.firstWhereOrNull((node) => node.type == WalletType.bitcoin);
+}
+
+Node? getXelisTestnetDefault({required Box<Node> nodes}) {
+  return nodes.values
+          .firstWhereOrNull((Node node) => node.uriRaw == xelisTestnetUri) ??
+      nodes.values.firstWhereOrNull((node) => node.type == WalletType.xelis);
 }
 
 Node? getDefaultNode({required Box<Node> nodes, required WalletType type}) {
@@ -1045,6 +1066,7 @@ Future<void> checkCurrentNodes(
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+  final currentXelisNodeId = sharedPreferences.getInt(PreferencesKey.currentXelisNodeIdKey);
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1079,6 +1101,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentWowneroNodeId);
   final currentZanoNode =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentZanoNodeId);
+  final currentXelisNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentXelisNodeId);
 
   if (currentMoneroNode == null) {
     final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
@@ -1174,6 +1198,15 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: decredDefaultUri, type: WalletType.decred);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentDecredNodeIdKey, node.key as int);
+  }
+
+  if (currentXelisNodeServer == null) {
+    final node = Node(uri: xelisDefaultUri, type: WalletType.xelis);
+    await nodeSource.add(node);
+    final xelisTestnet =
+      Node(uri: xelisTestnetUri, type: WalletType.xelis, useSSL: true);
+    await nodeSource.add(xelisTestnet);
+    await sharedPreferences.setInt(PreferencesKey.currentXelisNodeIdKey, node.key as int);
   }
 }
 

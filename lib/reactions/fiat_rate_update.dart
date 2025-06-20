@@ -8,6 +8,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/xelis/xelis.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -52,6 +53,11 @@ Future<void> startFiatRateUpdate(
       if (appStore.wallet!.type == WalletType.tron) {
         currencies =
             tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+      if (appStore.wallet!.type == WalletType.xelis) {
+        currencies =
+            xelis!.getXelisAssets(appStore.wallet!).where((element) => element.enabled);
       }
 
       if (currencies != null) {
