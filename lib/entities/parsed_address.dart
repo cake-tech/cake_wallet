@@ -86,6 +86,19 @@ extension AddressSourceIndex on AddressSource {
       AddressSource.values[raw.clamp(0, AddressSource.values.length - 1)];
 }
 
+extension AddressSourceNameParser on AddressSource {
+  static AddressSource fromLabel(String? text) {
+    if (text == null || text.trim().isEmpty) {
+      return AddressSource.notParsed;
+    }
+    final needle = text.trim().toLowerCase();
+    return AddressSource.values.firstWhere(
+          (src) => src.label.toLowerCase() == needle,
+      orElse: () => AddressSource.notParsed,
+    );
+  }
+}
+
 class ParsedAddress {
   const ParsedAddress({
     required this.parsedAddressByCurrencyMap,

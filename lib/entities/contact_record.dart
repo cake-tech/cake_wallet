@@ -14,117 +14,143 @@ part 'contact_record.g.dart';
 class ContactRecord = ContactRecordBase with _$ContactRecord;
 
 abstract class ContactRecordBase extends Record<Contact> with Store implements ContactBase {
-  ContactRecordBase(Box<Contact> source, Contact original)
+  ContactRecordBase(Box<Contact> box, Contact original)
       : name = original.name,
         handle = original.handle,
         profileName = original.profileName,
         description = original.description,
         imagePath = original.imagePath,
         sourceType = original.source,
-        parsedAddresses = ObservableMap.of(original.parsedByCurrency),
-        manualAddresses = ObservableMap.of(original.manualByCurrency),
-        super(source, original);
+        manual = ObservableMap.of(original.manualByCurrency),
+        parsedBlocks = ObservableMap.of({
+          for (final h in original.parsedByHandle.entries)
+            h.key: {
+              for (final cur in h.value.entries)
+                CryptoCurrency.deserialize(raw: cur.key): Map<String, String>.of(cur.value)
+            }
+        }),
+        super(box, original);
 
   @observable
-  String name;
-  @observable
-  String handle;
-  @observable
-  String profileName;
-  @observable
-  String description;
-  @observable
-  String imagePath;
+  String name, handle, profileName, description, imagePath;
   @observable
   AddressSource sourceType;
 
-  String address = '';
-
-  CryptoCurrency type = CryptoCurrency.btc;
+  @observable
+  ObservableMap<CryptoCurrency, Map<String, String>> manual;
 
   @observable
-  ObservableMap<CryptoCurrency, Map<String, String>> parsedAddresses;
+  ObservableMap<String, Map<CryptoCurrency, Map<String, String>>> parsedBlocks;
 
-  @observable
-  ObservableMap<CryptoCurrency, Map<String, String>> manualAddresses;
-
-  @override
-  void toBind(Contact original) {
-    reaction((_) => name, (v) => original.name = v);
-    reaction((_) => handle, (v) => original.handle = v);
-    reaction((_) => profileName, (v) => original.profileName = v);
-    reaction((_) => description, (v) => original.description = v);
-    reaction((_) => imagePath, (v) => original.imagePath = v);
-    reaction((_) => sourceType, (v) => original.source = v);
-
-    bool _different(Map<String, String>? inner, String lbl, String addr) =>
-        inner == null || inner[lbl] != addr;
-
-    reaction((_) => Map.of(parsedAddresses), (_) {
-      parsedAddresses.forEach((cur, byLabel) {
-        byLabel.forEach((lbl, addr) {
-          final inner = original.parsedAddresses[cur.raw];
-          if (_different(inner, lbl, addr)) {
-            original.setAddress(
-              currency: cur,
-              label: lbl,
-              address: addr,
-              isManual: false,
-            );
-          }
-        });
-      });
+  @computed
+  Map<CryptoCurrency, Map<String, String>> get parsedByCurrency {
+    final out = <CryptoCurrency, Map<String, String>>{};
+    parsedBlocks.forEach((_, byCur) {
+      byCur.forEach((cur, lbl) => out.putIfAbsent(cur, () => {})..addAll(lbl));
     });
-
-    reaction((_) => Map.of(manualAddresses), (_) {
-      manualAddresses.forEach((cur, byLabel) {
-        byLabel.forEach((lbl, addr) {
-          final inner = original.manualAddresses[cur.raw];
-          if (_different(inner, lbl, addr)) {
-            original.setAddress(
-              currency: cur,
-              label: lbl,
-              address: addr,
-              isManual: true,
-            );
-          }
-        });
-      });
-    });
-  }
-
-  @override
-  void fromBind(Contact original) {
-    name = original.name;
-    handle = original.handle;
-    profileName = original.profileName;
-    description = original.description;
-    imagePath = original.imagePath;
-    sourceType = original.source;
-
-    parsedAddresses = ObservableMap.of({
-      for (final e in original.parsedByCurrency.entries) e.key: Map<String, String>.of(e.value)
-    });
-
-    manualAddresses = ObservableMap.of({
-      for (final e in original.manualByCurrency.entries) e.key: Map<String, String>.of(e.value)
-    });
+    return out;
   }
 
   @computed
   File? get avatarFile => imagePath.isEmpty ? null : File(imagePath);
 
   @computed
-  ImageProvider get avatarProvider {
-    final f = avatarFile;
-    return (f != null && f.existsSync())
-        ? FileImage(f)
-        : const AssetImage('assets/images/profile.png');
+  ImageProvider get avatarProvider => (avatarFile?.existsSync() ?? false)
+      ? FileImage(avatarFile!)
+      : const AssetImage('assets/images/profile.png');
+
+  @override
+  void toBind(Contact c) {
+    reaction((_) => name, (v) => c.name = v);
+    reaction((_) => handle, (v) => c.handle = v);
+    reaction((_) => profileName, (v) => c.profileName = v);
+    reaction((_) => description, (v) => c.description = v);
+    reaction((_) => imagePath, (v) => c.imagePath = v);
+    reaction((_) => sourceType, (v) => c.source = v);
+  }
+
+  @override
+  void fromBind(Contact c) {
+    name = c.name;
+    handle = c.handle;
+    profileName = c.profileName;
+    description = c.description;
+    imagePath = c.imagePath;
+    sourceType = c.source;
   }
 
   @action
-  void setParsedAddress(CryptoCurrency cur, String label, String addr) {
-    final oldInner = parsedAddresses[cur] ?? {};
-    parsedAddresses[cur] = {...oldInner, label: addr};
+  void setManualAddress(CryptoCurrency cur, String label, String addr) {
+    manual.putIfAbsent(cur, () => {})[label] = addr;
+    _flushManual();
   }
+
+  @action
+  void removeManualAddress(CryptoCurrency cur, String label) {
+    final map = manual[cur];
+    if (map == null) return;
+    map.remove(label);
+    if (map.isEmpty) manual.remove(cur);
+    _flushManual();
+  }
+
+  @action
+  void setParsedAddress(String blockKey, CryptoCurrency cur, String label, String addr) {
+    final block = parsedBlocks.putIfAbsent(blockKey, () => {});
+    block.putIfAbsent(cur, () => {})[label] = addr;
+    parsedBlocks[blockKey] = {for (final e in block.entries) e.key: Map.of(e.value)};
+    _flushParsed();
+  }
+
+  @action
+  void removeParsedAddress(String blockKey, CryptoCurrency? cur, String? label) {
+    final block = parsedBlocks[blockKey];
+    if (block == null) return;
+
+    if (cur == null) {
+      parsedBlocks.remove(blockKey);
+      _flushParsed();
+      return;
+    }
+
+    final map = block[cur];
+    if (map == null) return;
+
+    if (label == null) {
+      block.remove(cur);
+    } else {
+      map.remove(label);
+      if (map.isEmpty) block.remove(cur);
+    }
+
+    if (block.isEmpty) {
+      parsedBlocks.remove(blockKey);
+    } else {
+      parsedBlocks[blockKey] = {for (final e in block.entries) e.key: Map.of(e.value)};
+    }
+
+    _flushParsed();
+  }
+
+  void _flushManual() {
+    original
+      ..manualAddresses = {
+        for (final e in manual.entries) e.key.raw: Map<String, String>.of(e.value)
+      }
+      ..lastChange = DateTime.now();
+  }
+
+  void _flushParsed() {
+    original
+      ..parsedByHandle = {
+        for (final h in parsedBlocks.entries)
+          h.key: {for (final cur in h.value.entries) cur.key.raw: Map<String, String>.of(cur.value)}
+      }
+      ..lastChange = DateTime.now();
+  }
+
+  @override
+  String address = '';
+  @override
+  CryptoCurrency type = CryptoCurrency.btc;
 }

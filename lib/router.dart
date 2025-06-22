@@ -13,7 +13,6 @@ import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
@@ -578,11 +577,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
-
-    case Routes.addressBookAddContact:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ContactPage>(param1: settings.arguments as ContactRecord?),
-      );
 
     case Routes.showKeys:
       return handleRouteWithPlatformAwareness(

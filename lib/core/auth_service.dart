@@ -30,7 +30,6 @@ class AuthService with Store {
     Routes.modify2FAPage,
     Routes.newWallet,
     Routes.newWalletType,
-    Routes.addressBookAddContact,
     Routes.restoreOptions,
   ];
 

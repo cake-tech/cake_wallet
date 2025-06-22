@@ -711,7 +711,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             contactListViewModel.contactSource,
             Contact(
               name: '',
-              parsedAddresses: {3: {'label4':address}
+              parsedByHandle: {
+                'handle':
+
+                {
+                  3: {'label4': address}
+                }
               },
               manualAddresses: {3: {'label5':address} //TODO : Fix this hardcoded value
               },

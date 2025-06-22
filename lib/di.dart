@@ -32,12 +32,12 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
-import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_addresses_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_contact_group_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
@@ -971,54 +971,72 @@ Future<void> setup({
   getIt.registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
-  
+
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
   getIt.registerFactoryParam<AnimatedURPage, String, void>((String urQr, _) =>
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
-  getIt.registerFactoryParam<ContactViewModel, ContactRecord?, List<dynamic>?>(
-        (contact, initialContactParams) => ContactViewModel(
-      _contactSource,
-      contact: contact,
-      initialParams: initialContactParams ?? <dynamic>[],
-    ),
+  getIt.registerFactoryParam<ContactViewModel, AddressEditRequest?, void>(
+        (req, _) => ContactViewModel(_contactSource,getIt<AppStore>().wallet!, request: req),
   );
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-          (CryptoCurrency? cur, _) =>
-          ContactListViewModel(_contactSource, _walletInfoSource, getIt
-              .get<AppStore>()
-              .wallet!, cur, getIt.get<SettingsStore>()));
+        (cur, _) => ContactListViewModel(
+      _contactSource,
+      _walletInfoSource,
+      getIt<AppStore>().wallet!,
+      cur,
+      getIt<SettingsStore>(),
+    ),
+  );
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
-      ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
-
-  getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
-      (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
-
-  getIt.registerFactoryParam<EditNewContactGroupPage, ParsedAddress, void>(
-          (ParsedAddress parsedAddress, _) => EditNewContactGroupPage(selectedParsedAddress: parsedAddress,contacts: _contactSource));
-
-  getIt.registerFactoryParam<EditAddressesPage, ContactRecord, void>(
-          (ContactRecord contact, _) => EditAddressesPage(contactViewModel: getIt.get<ContactViewModel>(param1: contact)));
-
-  getIt.registerFactoryParam<EditAddressPage, List<dynamic>, void>(
-          (List<dynamic> args, _) {
-        final contact = args.first as ContactRecord?;
-        final currency = args[1] as CryptoCurrency?;
-        final label = args[2] as String?;
-
-        return EditAddressPage(
-          contactViewModel: getIt.get<ContactViewModel>(param1: contact, param2: [currency, label]),
-        );
-      });
-
-  getIt.registerFactoryParam<EditNewContactPage, ContactRecord, void>(
-          (ContactRecord contact, _) => EditNewContactPage(contactViewModel: getIt.get<ContactViewModel>(param1: contact)));
+  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>(
+        (cur, _) => ContactListPage(
+      getIt.get<ContactListViewModel>(param1: cur),
+      getIt<AuthService>(),
+    ),
+  );
 
   getIt.registerFactoryParam<EditContactPage, ContactRecord, void>(
-          (ContactRecord contact, _) => EditContactPage(contactViewModel: getIt.get<ContactViewModel>(param1: contact)));
+        (contact, _) => EditContactPage(
+      contactViewModel: getIt.get<ContactViewModel>(
+        param1: AddressEditRequest.contact(contact),
+      ),
+    ),
+  );
+
+  getIt.registerFactoryParam<EditAddressPage, AddressEditRequest, void>(
+        (request, _) => EditAddressPage(
+      contactViewModel: getIt.get<ContactViewModel>(param1: request),
+    ),
+  );
+
+
+  getIt.registerFactoryParam<EditContactGroupPage, ContactViewModel, void>(
+        (vm, _) => EditContactGroupPage(contactViewModel: vm),
+  );
+
+  getIt.registerFactoryParam<EditNewContactGroupPage, ParsedAddress, ContactRecord?>(
+        (parsedAddress, record) {
+
+      final vm = getIt<ContactViewModel>(
+        param1: AddressEditRequest.contact(record),
+      );
+
+      return EditNewContactGroupPage(
+        selectedParsedAddress: parsedAddress,
+        contactViewModel     : vm,
+      );
+    },
+  );
+
+  getIt.registerFactoryParam<EditNewContactPage, ContactRecord?, void>(
+        (contact, _) => EditNewContactPage(
+      contactViewModel: getIt.get<ContactViewModel>(param1: AddressEditRequest.contact(contact)),
+    ),
+  );
+
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
@@ -1544,10 +1562,10 @@ Future<void> setup({
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
 
   getIt.registerFactory(() => DevSecurePreferencesPage(getIt.get<DevSecurePreferences>()));
-  
+
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
-  
+
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
-  
+
   _isSetupFinished = true;
 }

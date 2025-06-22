@@ -6,20 +6,20 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 
 class EditNewContactGroupPage extends BasePage {
   EditNewContactGroupPage({
     required this.selectedParsedAddress,
-    required this.contacts,
+    required this.contactViewModel,
   })  : _formKey = GlobalKey<FormState>(),
         _groupLabelCtl = TextEditingController(
           text: selectedParsedAddress.profileName ?? '',
         );
 
   final ParsedAddress selectedParsedAddress;
-  final Box<Contact> contacts;
+  final ContactViewModel contactViewModel;
 
   final GlobalKey<FormState> _formKey;
   final TextEditingController _groupLabelCtl;
@@ -127,7 +127,7 @@ class EditNewContactGroupPage extends BasePage {
                                   final text = value?.trim() ?? '';
                                   if (text.isEmpty) return 'Name cannot be empty';
 
-                                  final clash = contacts.values.any(
+                                  final clash = contactViewModel.box.values.any(
                                     (c) => c.name.toLowerCase() == text.toLowerCase(),
                                   );
                                   return clash ? 'Group with this name already exists' : null;
@@ -149,22 +149,46 @@ class EditNewContactGroupPage extends BasePage {
                     height: 40,
                     onPressed: () async {
                       if (!(_formKey.currentState?.validate() ?? false)) return;
-                      final localImg =
-                          await ImageUtil.saveAvatarLocally(selectedParsedAddress.profileImageUrl);
 
-                      final contact = Contact.fromParsed(
-                          selectedParsedAddress.copyWith(profileName: _groupLabelCtl.text.trim()),
-                          localImage: localImg);
-                      contacts.add(contact);
-                      final contactRecord = ContactRecord(
-                        contacts,
-                        contact,
-                      );
-                      if (context.mounted) {
-                        Navigator.of(context).pushNamed(
-                          Routes.editNewContactPage,
-                          arguments: [contactRecord],
+                      if (contactViewModel.record != null) {
+                        final record = contactViewModel.record!;
+                        final handleKey =
+                            '${selectedParsedAddress.addressSource.label}-${selectedParsedAddress.handle}'
+                                .trim();
+
+                        selectedParsedAddress.parsedAddressByCurrencyMap.forEach((cur, addr) {
+                          record.setParsedAddress(
+                            handleKey,
+                            cur,
+                            cur.title,
+                            addr.trim(),
+                          );
+                        });
+
+                        if (context.mounted) {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        }
+                      } else {
+                        final localImg = await ImageUtil.saveAvatarLocally(
+                            selectedParsedAddress.profileImageUrl);
+
+                        final newContact = Contact.fromParsed(
+                          selectedParsedAddress.copyWith(
+                            profileName: _groupLabelCtl.text.trim(),
+                          ),
+                          localImage: localImg,
                         );
+
+                        contactViewModel.box.add(newContact);
+
+                        final record = ContactRecord(contactViewModel.box, newContact);
+                        if (context.mounted) {
+                          Navigator.pushNamed(
+                            context,
+                            Routes.editNewContactPage,
+                            arguments: record,
+                          );
+                        }
                       }
                     },
                     color: Theme.of(context).colorScheme.primary,

@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/address_book/widgets/rounded_icon_button.dart';
+import 'package:cake_wallet/src/screens/address_book/widgets/standard_text_form_field_widget.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
@@ -14,24 +17,36 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum _InputMode { handle, address }
 
 class NewContactWelcomePage extends BasePage {
-  NewContactWelcomePage({required this.onSearch});
+  NewContactWelcomePage({required this.onSearch, this.handleOnly = false, this.existingContact});
 
   final Future<List<ParsedAddress>> Function(String query) onSearch;
+  final bool handleOnly;
+  final ContactRecord? existingContact;
 
   @override
-  Widget body(BuildContext context) =>
-      NewContactWelcomePageBody(currentTheme: currentTheme, onSearch: onSearch);
+  Widget body(BuildContext context) => NewContactWelcomePageBody(
+      currentTheme: currentTheme,
+      onSearch: onSearch,
+      handleOnly: handleOnly,
+      existingContact: existingContact);
 }
 
 class NewContactWelcomePageBody extends StatefulWidget {
-  const NewContactWelcomePageBody({required this.currentTheme, required this.onSearch});
+  const NewContactWelcomePageBody(
+      {required this.currentTheme,
+      required this.onSearch,
+      required this.handleOnly,
+      required this.existingContact});
 
   final MaterialThemeBase currentTheme;
   final Future<List<ParsedAddress>> Function(String query) onSearch;
+  final bool handleOnly;
+  final ContactRecord? existingContact;
 
   @override
   State<NewContactWelcomePageBody> createState() => _NewContactWelcomePageBodyState();
@@ -130,6 +145,7 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
   }
 
   Widget _segmentedSwitcher(BuildContext ctx) {
+    if (widget.handleOnly) return const SizedBox.shrink();
     final txt = Theme.of(ctx).textTheme.bodyMedium;
     final seg = (_InputMode m, String label) => ButtonSegment<_InputMode>(
           value: m,
@@ -150,13 +166,8 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
     return SizedBox(
       width: double.infinity,
       child: SegmentedButton<_InputMode>(
-          segments: [
-            seg(_InputMode.handle, 'handle'),
-            seg(_InputMode.address, 'address'),
-          ],
-          selected: <_InputMode>{
-            _mode
-          },
+          segments: [seg(_InputMode.handle, 'handle'), seg(_InputMode.address, 'address')],
+          selected: <_InputMode>{_mode},
           showSelectedIcon: false,
           style: ButtonStyle(
             shape: WidgetStatePropertyAll(
@@ -191,51 +202,40 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
         ? CustomThemeColors.backgroundGradientColorDark
         : CustomThemeColors.backgroundGradientColorLight;
 
-    final hasDropdown = _results.isNotEmpty || _isSearching;
-    final border = OutlineInputBorder(
-      borderRadius: BorderRadius.vertical(
-        top: const Radius.circular(12),
-        bottom: hasDropdown ? Radius.zero : const Radius.circular(12),
+    final isHandleMode = widget.handleOnly ? true : _mode == _InputMode.handle;
+
+    return StandardTextFormFieldWidget(
+      focusNode: _focusNode,
+      controller: isHandleMode ? _handleCtl : _addressCtl,
+      labelText: isHandleMode ? 'Enter handle' : 'Enter address',
+      fillColor: fillColor,
+      onChanged: isHandleMode ? _handleChanged : (v) => setState(() => _typedAddress = v.trim()),
+      prefixIcon: isHandleMode
+          ? null
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _currencyPrefix(context),
+            ),
+      suffixIcon: RoundedIconButton(
+        icon: Icons.paste_outlined,
+        onPressed: () async {
+          final data = await Clipboard.getData(Clipboard.kTextPlain);
+          final text = data?.text?.trim() ?? '';
+          if (text.isEmpty) return;
+
+          final isHandleMode = widget.handleOnly || _mode == _InputMode.handle;
+
+          if (isHandleMode) {
+            _handleCtl.text = text;
+            _handleChanged(text);
+          } else {
+            _addressCtl.text = text;
+            setState(() => _typedAddress = text);
+          }
+        },
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
       ),
-      borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
-    );
-
-    final rounded = BorderRadius.vertical(
-      top: const Radius.circular(12),
-      bottom: hasDropdown ? Radius.zero : const Radius.circular(12),
-    );
-
-    final noStroke = OutlineInputBorder(borderRadius: rounded, borderSide: BorderSide.none);
-
-    final isHandleMode = _mode == _InputMode.handle;
-
-    return Theme(
-      data: Theme.of(context).copyWith(
-        inputDecorationTheme: InputDecorationTheme(
-          border: noStroke,
-          focusedBorder: noStroke,
-          enabledBorder: noStroke,
-          disabledBorder: border,
-          errorBorder: border,
-          focusedErrorBorder: border,
-          prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-        ),
-      ),
-      child: BaseTextFormField(
-        key: ValueKey(_mode),
-        controller: isHandleMode ? _handleCtl : _addressCtl,
-        prefixIcon: isHandleMode
-            ? null
-            : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: _currencyPrefix(context),
-              ),
-        focusNode: _focusNode,
-        fillColor: fillColor,
-        hintText: isHandleMode ? 'Enter handle' : 'Enter address',
-        onChanged: isHandleMode ? _handleChanged : (v) => setState(() => _typedAddress = v.trim()),
-        textStyle: Theme.of(context).textTheme.bodyMedium!,
-      ),
+      addressValidator: AddressValidator(type: _selectedCurrency),
     );
   }
 
@@ -311,7 +311,7 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
                                 },
                               ),
                       ),
-                    _mode == _InputMode.handle
+                    widget.handleOnly || _mode == _InputMode.handle
                         ? InkWell(
                             splashFactory: NoSplash.splashFactory,
                             onTap: () {
@@ -340,41 +340,49 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: 24, top: 8),
-                child: LoadingPrimaryButton(
-                  text: S.of(context).seed_language_next,
-                  onPressed: () {
-                    _focusNode.unfocus();
-                    if (_mode == _InputMode.handle) {
-                      Navigator.pushNamed(context, Routes.editNewContactGroupPage,
-                          arguments: _selected);
-                      _selected = null;
-                    } else {
-                      Navigator.pushNamed(context,
+                  padding: const EdgeInsets.only(bottom: 24, top: 8),
+                  child: LoadingPrimaryButton(
+                    text: S.of(context).seed_language_next,
+                    onPressed: () {
+                      _focusNode.unfocus();
+                      if (_mode == _InputMode.handle) {
+                        Navigator.pushNamed(
+                          context,
                           Routes.editNewContactGroupPage,
-                          arguments: ParsedAddress(
-                            parsedAddressByCurrencyMap: {},
-                            manualAddressByCurrencyMap: {
-                              _selectedCurrency: _typedAddress.trim(),
-                            },
-                            addressSource: AddressSource.contact,
-                            handle: '',
-                            profileName: '',
-                            profileImageUrl: 'assets/images/profile.png',
-                            description: '',
-                          ));
-                    }
-                  },
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 150,
-                  height: 40,
-                  textColor: Theme.of(context).colorScheme.onPrimary,
-                  isLoading: false,
-                  isDisabled: _mode == _InputMode.handle
-                      ? _selected == null || _isSearching
-                      : _typedAddress.isEmpty,
-                ),
-              )
+                          arguments: [_selected!, widget.existingContact],
+                        );
+                        _selected = null;
+                      } else {
+                        final parsed = ParsedAddress(
+                          parsedAddressByCurrencyMap: {},
+                          manualAddressByCurrencyMap: {
+                            _selectedCurrency: _typedAddress.trim(),
+                          },
+                          addressSource: AddressSource.contact,
+                          handle: '',
+                          profileName: '',
+                          profileImageUrl: 'assets/images/profile.png',
+                          description: '',
+                        );
+
+                        Navigator.pushNamed(
+                          context,
+                          Routes.editNewContactGroupPage,
+                          arguments: [parsed, null],
+                        );
+                      }
+                    },
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 150,
+                    height: 40,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    isLoading: false,
+                    isDisabled: widget.handleOnly
+                        ? _selected == null || _isSearching
+                        : (_mode == _InputMode.handle
+                            ? _selected == null || _isSearching
+                            : _typedAddress.isEmpty),
+                  )),
             ],
           ),
         ),

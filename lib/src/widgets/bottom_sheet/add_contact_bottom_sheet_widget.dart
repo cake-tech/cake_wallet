@@ -4,13 +4,16 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_welcome_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_addresses_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_contact_group_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
-import 'package:cake_wallet/src/screens/address_book/new_contact_welcome_page.dart';
+import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
+
 import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:flutter/material.dart';
 
 
@@ -108,24 +111,40 @@ class _AddContactNavigator extends StatelessWidget {
       case Routes.supportedHandlesPage:
         page = SupportedHandlesPage();
         break;
+      case Routes.newContactWelcomePage:
+        final list       = args as List<dynamic>;
+        final onSearch   = list[0] as Future<List<ParsedAddress>> Function(String);
+        final handleOnly = list.length > 1 && list[1] == true;
+        final contact    = list.length > 2 ? list[2] as ContactRecord? : null;
+
+        page = NewContactWelcomePage(
+          onSearch     : onSearch,
+          handleOnly   : handleOnly,
+          existingContact: contact,
+        );
+        break;
       case Routes.editNewContactGroupPage:
-        page = getIt<EditNewContactGroupPage>(param1: args as ParsedAddress);
+        final list = args as List<dynamic>;
+        page = getIt<EditNewContactGroupPage>(
+          param1: list[0] as ParsedAddress,
+          param2: list.length > 1 ? list[1] as ContactRecord? : null,
+        );
+        break;
+      case Routes.editContactGroupPage:
+        final vm = args as ContactViewModel;
+        page = getIt<EditContactGroupPage>(param1: vm);
         break;
       case Routes.editNewContactPage:
-        final list = args as List<dynamic>;
-        page = getIt<EditNewContactPage>(param1: list.first as ContactRecord?);
-        break;
-      case Routes.editAddressesPage:
-        page = getIt<EditAddressesPage>(param1: args as ContactRecord);
+        page = getIt<EditNewContactPage>(param1: args as ContactRecord);
         break;
       case Routes.editContactPage:
         page = getIt<EditContactPage>(param1: args as ContactRecord);
         break;
       case Routes.editAddressPage:
-        page = getIt<EditAddressPage>(param1: args as List<dynamic>);
+        page = getIt<EditAddressPage>(param1: args as AddressEditRequest);
         break;
       default:
-        page = NewContactWelcomePage(onSearch: onHandlerSearch);
+        page = NewContactWelcomePage(onSearch: onHandlerSearch, handleOnly: false);
     }
 
     return MaterialPageRoute(

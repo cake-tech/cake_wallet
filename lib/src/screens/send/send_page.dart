@@ -612,64 +612,13 @@ class SendPage extends BasePage {
           //   newContactAddress = null;
           // }
 
-          bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
+          // bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
 
           await showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return showContactSheet && sendViewModel.ocpRequest == null
-                  ? InfoBottomSheet(
-                currentTheme: currentTheme,
-                footerType: FooterType.doubleActionButton,
-                titleText: S.of(bottomSheetContext).transaction_sent,
-                contentImage: 'assets/images/contact.png',
-                contentImageColor: Theme.of(context).colorScheme.onSurface,
-                content: S.of(bottomSheetContext).add_contact_to_address_book,
-                actionPanel: Padding(
-                  padding: const EdgeInsets.only(left: 34.0),
-                  child: Row(
-                    children: [
-                      SimpleCheckbox(
-                          onChanged: (value) =>
-                              sendViewModel.setShowAddressBookPopup(!value)),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Don’t ask me next time',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).textTheme.titleLarge!.color,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                doubleActionLeftButtonText: 'No',
-                doubleActionRightButtonText: 'Yes',
-                onLeftActionButtonPressed: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  if (context.mounted) {
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                  }
-                  RequestReviewHandler.requestReview();
-                  newContactAddress = null;
-                },
-                onRightActionButtonPressed: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  RequestReviewHandler.requestReview();
-                  if (context.mounted) {
-                    Navigator.of(context).pushNamed(Routes.addressBookAddContact,
-                        arguments: newContactAddress);
-                  }
-                  newContactAddress = null;
-                },
-              )
-                  : InfoBottomSheet(
+              return InfoBottomSheet(
                 currentTheme: currentTheme,
                 footerType: FooterType.singleActionButton,
                 titleText: S.of(bottomSheetContext).transaction_sent,

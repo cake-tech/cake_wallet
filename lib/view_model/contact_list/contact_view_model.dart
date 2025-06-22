@@ -1,237 +1,272 @@
 import 'dart:io';
 
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
+import 'package:cake_wallet/src/screens/address_book/entities/user_handles.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/contact.dart';
-import 'package:cw_core/crypto_currency.dart';
 
 part 'contact_view_model.g.dart';
 
-class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
+enum ContactEditMode {
+  contactInfo,
+  manualAddress,
+  parsedAddress,
+}
 
-abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._box, {ContactRecord? contact, required List<dynamic>? initialParams,})
-      : state = InitialExecutionState(),
+class ContactViewModel = _ContactViewModel with _$ContactViewModel;
+
+abstract class _ContactViewModel with Store {
+  _ContactViewModel(
+    this.box,
+    this.wallet, {
+    AddressEditRequest? request,
+  })  : mode = request?.mode == EditMode.manualAddressAdd ||
+                request?.mode == EditMode.manualAddressEdit
+            ? ContactEditMode.manualAddress
+            : request?.mode == EditMode.parsedAddressAdd ||
+                    request?.mode == EditMode.parsedAddressEdit
+                ? ContactEditMode.parsedAddress
+                : ContactEditMode.contactInfo,
+        record = request?.contact,
         currencies = CryptoCurrency.all,
-        contactRecord = contact,
-        name = contact?.name ?? '',
-        handle = contact?.handle ?? '',
-        profileName = contact?.profileName ?? '',
-        description = contact?.description ?? '',
-        imagePath = contact?.imagePath ?? '',
-        sourceType = contact?.sourceType ?? AddressSource.notParsed,
+        state = InitialExecutionState(),
+        name = request?.contact?.name ?? '',
+        handle = request?.contact?.handle ?? '',
+        profileName = request?.contact?.profileName ?? '',
+        description = request?.contact?.description ?? '',
+        imagePath = request?.contact?.imagePath ?? '',
+        sourceType = request?.contact?.sourceType ?? AddressSource.notParsed,
+        currency = request?.currency ?? CryptoCurrency.xmr,
+        label = request?.label ?? '',
+        address = '',
+        handleKey = request?.handleKey ?? '' {
+    _initMapsFromRecord();
 
-        currency = (initialParams != null &&
-            initialParams.isNotEmpty &&
-            initialParams[0] is CryptoCurrency)
-            ? initialParams[0] as CryptoCurrency
-            : CryptoCurrency.xmr,
+    if (request?.label != null && record != null) {
+      currency = request!.currency!;
+      label = request.label!;
+      address = _targetMap[currency]?[label] ?? '';
 
-        initialCurrency = (initialParams != null &&
-            initialParams.isNotEmpty &&
-            initialParams[0] is CryptoCurrency)
-            ? initialParams[0] as CryptoCurrency
+      _rememberOriginal(
+        blockKey: mode == ContactEditMode.parsedAddress
+            ? (request.handleKey ?? _defaultHandleKey())
             : null,
-        manualLabel = (initialParams != null &&
-            initialParams.length > 1 &&
-            initialParams[1] is String)
-            ? initialParams[1] as String
-            : '',
-        isNewAddress = !(initialParams != null &&
-            initialParams.isNotEmpty &&
-            initialParams[0] is CryptoCurrency) {
-
-    const _emptyParsed = <CryptoCurrency, Map<String, String>>{};
-    const _emptyManual = <CryptoCurrency, Map<String, String>>{};
-
-    final parsedRaw = contact?.parsedAddresses ?? _emptyParsed;
-    final manualRaw = contact?.manualAddresses ?? _emptyManual;
-
-    parsedAddressesByCurrency = ObservableMap.of({
-      for (final e in parsedRaw.entries)
-        e.key: Map<String, String>.of(e.value)
-    });
-
-    manualAddressesByCurrency = ObservableMap.of({
-      for (final e in manualRaw.entries)
-        e.key: Map<String, String>.of(e.value)
-    });
+      );
+    }
   }
 
+  final Box<Contact> box;
+  final WalletBase wallet;
+  ContactRecord? record;
 
   @observable
   ExecutionState state;
+
   @observable
-  String name;
-  @observable
-  String handle;
-  @observable
-  String profileName;
-  @observable
-  String description;
-  @observable
-  String imagePath;
+  String name, handle, profileName, description, imagePath;
   @observable
   AddressSource sourceType;
+
   @observable
   CryptoCurrency currency;
   @observable
-  String manualAddress = '';
-  @observable
-  String manualLabel = '';
+  String label, address, handleKey;
 
   @observable
-  ObservableMap<CryptoCurrency, Map<String, String>> parsedAddressesByCurrency = ObservableMap<
-      CryptoCurrency,
-      Map<String, String>>();
-
+  ObservableMap<CryptoCurrency, Map<String, String>> manual = ObservableMap();
   @observable
-  ObservableMap<CryptoCurrency, Map<String, String>> manualAddressesByCurrency = ObservableMap<
-      CryptoCurrency,
-      Map<String, String>>();
+  ObservableMap<CryptoCurrency, Map<String, String>> parsed = ObservableMap();
+  @observable
+  ObservableMap<String, Map<CryptoCurrency, Map<String, String>>> parsedBlocks = ObservableMap();
 
-  final Box<Contact> _box;
-  final ContactRecord? contactRecord;
+  final ContactEditMode mode;
   final List<CryptoCurrency> currencies;
-  late final bool isNewAddress;
-  CryptoCurrency? initialCurrency;
+
+  CryptoCurrency? _originalCur;
+  String? _originalLabel, _originalAddress, _originalHandleKey;
 
   @computed
-  bool get isReady =>
-      name
-          .trim()
-          .isNotEmpty && parsedAddressesByCurrency.isNotEmpty;
+  bool get isReady => name.trim().isNotEmpty || manual.isNotEmpty || parsed.isNotEmpty;
 
-  ImageProvider get avatarProvider {
-    final file = avatarFile;
-    return (file != null && file.existsSync())
-        ? FileImage(file)
-        : const AssetImage('assets/images/profile.png');
+  @computed
+  List<UserHandles> get userHandles =>
+      parsedBlocks.keys.map((k) => UserHandles(handleKey: k)).toList();
+
+  @computed
+  ImageProvider get avatar => imagePath.isEmpty
+      ? const AssetImage('assets/images/profile.png')
+      : FileImage(File(imagePath));
+
+  bool get isAddressEdit =>
+      mode != ContactEditMode.contactInfo && record != null && (_originalLabel ?? '').isNotEmpty;
+
+  ObservableMap<CryptoCurrency, Map<String, String>> get _targetMap =>
+      mode == ContactEditMode.manualAddress
+          ? manual
+          : parsed[currency] != null
+              ? parsed
+              : manual;
+
+  @action
+  Future<void> saveContactInfo() async {
+    if (record != null) {
+      record!
+        ..name = name.trim()
+        ..handle = handle.trim()
+        ..profileName = profileName.trim()
+        ..description = description.trim()
+        ..imagePath = imagePath
+        ..sourceType = sourceType;
+      record!.original..lastChange = DateTime.now();
+      await record!.original.save();
+      state = ExecutedSuccessfullyState();
+      return;
+    }
+    final newContact = Contact(
+      name: name.trim(),
+      address: '',
+    )
+      ..handle = handle.trim()
+      ..profileName = profileName.trim()
+      ..description = description.trim()
+      ..imagePath = imagePath
+      ..source = sourceType
+      ..lastChange = DateTime.now();
+
+    await box.put(newContact.key, newContact);
+    record = ContactRecord(box, newContact);
+    state = ExecutedSuccessfullyState();
   }
 
   @action
-  void updateManualAddress() {
-    if (manualAddress
-        .trim()
-        .isEmpty) return;
+  Future<void> saveManualAddress() async {
+    _ensureRecord();
 
-    final inner = manualAddressesByCurrency.putIfAbsent(currency, () => {});
-    final base = manualLabel
-        .trim()
-        .isEmpty ? currency.title : manualLabel.trim();
+    final map = manual.putIfAbsent(currency, () => {});
+    final oldLabel = isAddressEdit ? _originalLabel : null;
+    final newLabel = label.trim().isEmpty ? currency.title : label.trim();
+    final newAddress = address.trim();
 
-    var label = base;
-    var i = 1;
-    while (inner.containsKey(label)) {
-      label = '$base $i';
-      i++;
+    if (oldLabel != null && oldLabel != newLabel) map.remove(oldLabel);
+    map[newLabel] = newAddress;
+    manual[currency] = Map.of(map);
+
+    record!.setManualAddress(currency, newLabel, newAddress);
+    _rememberOriginal();
+    state = ExecutedSuccessfullyState();
+  }
+
+  @action
+  Future<void> saveParsedAddress() async {
+    _ensureRecord();
+
+    final blockKey = handleKey.trim().isEmpty ? _defaultHandleKey() : handleKey.trim();
+    final block = parsedBlocks.putIfAbsent(blockKey, () => {});
+    final map = block.putIfAbsent(currency, () => {});
+
+    final oldLabel = isAddressEdit ? _originalLabel : null;
+    final newLabel = label.trim().isEmpty ? currency.title : label.trim();
+    final newAddress = address.trim();
+
+    if (oldLabel != null && oldLabel != newLabel) map.remove(oldLabel);
+    map[newLabel] = newAddress;
+    parsedBlocks[blockKey] = {for (final e in block.entries) e.key: Map.of(e.value)};
+
+    record!.setParsedAddress(blockKey, currency, newLabel, newAddress);
+    _rememberOriginal(blockKey: blockKey);
+    state = ExecutedSuccessfullyState();
+  }
+
+  @action
+  Future<void> deleteCurrentAddress() async {
+    if (!isAddressEdit) return;
+    _ensureRecord();
+
+    if (mode == ContactEditMode.manualAddress) {
+      final map = manual[_originalCur]!;
+      map.remove(_originalLabel);
+      if (map.isEmpty) manual.remove(_originalCur);
+      manual[_originalCur!] = Map.of(map);
+
+      record!.removeManualAddress(_originalCur!, _originalLabel!);
+    } else {
+      final block = parsedBlocks[_originalHandleKey]!;
+      final curMap = block[_originalCur]!;
+      curMap.remove(_originalLabel);
+      if (curMap.isEmpty) block.remove(_originalCur);
+      if (block.isEmpty)
+        parsedBlocks.remove(_originalHandleKey);
+      else
+        parsedBlocks[_originalHandleKey!] = {for (final e in block.entries) e.key: Map.of(e.value)};
+
+      record!.removeParsedAddress(_originalHandleKey!, _originalCur!, _originalLabel!);
     }
 
-    inner[label] = manualAddress.trim();
-
-    manualAddressesByCurrency[currency] = Map<String, String>.of(inner);
+    state = ExecutedSuccessfullyState();
   }
 
   @action
-  Future<void> pickAvatar(String localPath) async {
-    imagePath = localPath;
+  Future<void> deleteParsedBlock(String handleKey) async {
+    if (!parsedBlocks.containsKey(handleKey)) return;
+
+    parsedBlocks.remove(handleKey);
+    record!.removeParsedAddress(handleKey, null, null);
+    state = ExecutedSuccessfullyState();
   }
 
-  void deleteManualAddress(CryptoCurrency cur, String label) {
-    final inner = manualAddressesByCurrency[cur];
-    if (inner == null) return;
-    inner.remove(label);
-    manualAddressesByCurrency[cur] = Map<String, String>.of(inner);
+  @action
+  Future<void> deleteContact() async {
+    if (record == null) return;
+
+    await record!.original.delete();
+    record = null;
+    reset();
+    state = ExecutedSuccessfullyState();
   }
 
   @action
   void reset() {
-    name = '';
-    handle = '';
-    profileName = '';
-    description = '';
-    imagePath = '';
-    parsedAddressesByCurrency.clear();
-    manualAddressesByCurrency.clear();
+    name = handle = profileName = description = imagePath = '';
+    label = address = handleKey = '';
+    currency = CryptoCurrency.xmr;
+    manual.clear();
+    parsed.clear();
+    parsedBlocks.clear();
+    _originalCur = null;
+    _originalLabel = null;
+    _originalAddress = null;
+    _originalHandleKey = null;
+    state = InitialExecutionState();
   }
 
-  Future<void> save() async {
+  void _initMapsFromRecord() {
+    if (record == null) return;
 
-    try {
-      state = IsExecutingState();
-
-      final clash = _box.values.any(
-            (c) => c.name == name && c.key != contactRecord?.original.key,
-      );
-      if (clash) {
-        state = FailureState(S.current.contact_name_exists);
-        return;
-      }
-
-      if (contactRecord != null && contactRecord!.original.isInBox) {
-
-        final contact = contactRecord!.original;
-
-        contact
-          ..name = name
-          ..handle = handle
-          ..profileName = profileName
-          ..description = description
-          ..imagePath = imagePath
-          ..source = sourceType;
-
-        contact.parsedAddresses
-          ..clear()
-          ..addAll({
-            for (final e in parsedAddressesByCurrency.entries)
-              e.key.raw: Map<String, String>.of(e.value)
-          });
-
-        contact.manualAddresses
-          ..clear()
-          ..addAll({
-            for (final e in manualAddressesByCurrency.entries)
-              e.key.raw: Map<String, String>.of(e.value)
-          });
-
-        await contact.save();
-
-
-        contactRecord!
-          ..parsedAddresses = ObservableMap.of(contact.parsedByCurrency)
-          ..manualAddresses = ObservableMap.of(contact.manualByCurrency);
-      } else {
-
-        final newContact = Contact(
-          name: name,
-          parsedAddresses: {
-            for (final e in parsedAddressesByCurrency.entries)
-              e.key.raw: Map<String, String>.of(e.value)
-          },
-          manualAddresses: {
-            for (final e in manualAddressesByCurrency.entries)
-              e.key.raw: Map<String, String>.of(e.value)
-          },
-          source: sourceType,
-          handle: handle,
-          profileName: profileName,
-          description: description,
-          imagePath: imagePath,
-          lastChange: DateTime.now(),
-        );
-        await _box.add(newContact);
-      }
-      state = ExecutedSuccessfullyState();
-    } catch (e, st) {
-      debugPrintStack(label: 'save() failed', stackTrace: st);
-      state = FailureState(e.toString());
-    }
+    manual = ObservableMap.of(record!.manual);
+    parsed = ObservableMap.of(record!.parsedByCurrency);
+    parsedBlocks = ObservableMap.of(record!.parsedBlocks);
   }
 
-  File? get avatarFile => imagePath.isEmpty ? null : File(imagePath);
+  void _ensureRecord() {
+    if (record != null) return;
+    final newContact = Contact(name: name.trim().isEmpty ? 'No name' : name, address: '');
+    box.put(newContact.key, newContact);
+    record = ContactRecord(box, newContact);
+  }
+
+  String _defaultHandleKey() => '${sourceType.label}-${handle}'.trim();
+
+  void _rememberOriginal({String? blockKey}) {
+    _originalCur = currency;
+    _originalLabel = label.trim().isEmpty ? currency.title : label.trim();
+    _originalAddress = address.trim();
+    _originalHandleKey = blockKey ?? _defaultHandleKey();
+  }
 }

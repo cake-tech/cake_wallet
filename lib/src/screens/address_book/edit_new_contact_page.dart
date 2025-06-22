@@ -1,14 +1,11 @@
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/addresses_expansion_tile_widget.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
-import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -56,7 +53,7 @@ class EditNewContactPage extends BasePage {
             child: Image(
               width: 24,
               height: 24,
-              image: contactViewModel.avatarProvider,
+              image: contactViewModel.avatar,
               fit: BoxFit.cover,
             ),
           ),
@@ -141,9 +138,11 @@ class EditNewContactPage extends BasePage {
                       Expanded(
                         child: Wrap(
                           spacing: 8,
-                          children: contactViewModel.parsedAddressesByCurrency.keys
-                              .map((currency) => currency.iconPath != null
-                              ? Image.asset(currency.iconPath!, height: 24, width: 24)
+                          children: contactViewModel.parsedBlocks.values
+                              .expand((map) => map.keys)
+                              .toSet()
+                              .map((CryptoCurrency cur) => cur.iconPath != null
+                              ? Image.asset(cur.iconPath!, height: 24, width: 24)
                               : const SizedBox.shrink())
                               .toList(),
                         ),
@@ -159,17 +158,18 @@ class EditNewContactPage extends BasePage {
             key: ValueKey(contactViewModel.name),
             title: Text('Manual Addresses'),
             fillColor: fillColor,
-            manualByCurrency: contactViewModel.manualAddressesByCurrency,
+            manualByCurrency: contactViewModel.manual,
             onCopyPressed: (address) async => await Clipboard.setData(ClipboardData(text: address)),
             onEditPressed: (cur, lbl) {
               Navigator.pushNamed(
                 context,
                 Routes.editAddressPage,
-                arguments: [
-                  contactViewModel.contactRecord,
-                  cur,
-                  lbl,
-                ],
+                arguments: AddressEditRequest.address(
+                  contact: contactViewModel.record,
+                  currency: cur,
+                  label: lbl,
+                  kindIsManual: false,
+                )
               );
             },
           ),
