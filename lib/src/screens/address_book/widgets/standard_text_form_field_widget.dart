@@ -12,6 +12,9 @@ class StandardTextFormFieldWidget extends StatelessWidget {
     this.prefixIcon,
     this.suffix,
     this.onChanged,
+    this.suffixIconConstraints,
+    this.prefixIconConstraints,
+    this.outline,
   });
 
   final TextEditingController controller;
@@ -22,7 +25,10 @@ class StandardTextFormFieldWidget extends StatelessWidget {
   final Widget? suffixIcon;
   final Widget? prefixIcon;
   final Widget? suffix;
+  final BoxConstraints? suffixIconConstraints;
+  final BoxConstraints? prefixIconConstraints;
   final void Function(String)? onChanged;
+  final InputBorder? outline;
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +45,27 @@ class StandardTextFormFieldWidget extends StatelessWidget {
           hintStyle:
               Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).hintColor),
           fillColor: fillColor,
-          border: OutlineInputBorder(
+          border: outline ??  OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(15)),
               borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-          enabledBorder: OutlineInputBorder(
+          enabledBorder: outline ?? OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(15)),
             borderSide: BorderSide(color: Colors.transparent),
           ),
+          focusedBorder: outline?.copyWith(
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)
+      ),
           suffixIcon: Padding(padding: const EdgeInsets.only(right: 10), child: suffixIcon),
           suffix: suffix,
           prefixIcon: prefixIcon,
-          suffixIconConstraints: const BoxConstraints(
+          prefixIconConstraints: prefixIconConstraints,
+          suffixIconConstraints: suffixIconConstraints ?? const BoxConstraints(
             minWidth: 34,
             maxWidth: 34,
             minHeight: 24,
             maxHeight: 24,
           )),
+
       style: Theme.of(context).textTheme.bodyMedium,
       onChanged: onChanged,
       validator: addressValidator,

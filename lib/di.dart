@@ -34,12 +34,11 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_contact_group_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -999,8 +998,8 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<EditContactPage, ContactRecord, void>(
-        (contact, _) => EditContactPage(
+  getIt.registerFactoryParam<ContactPage, ContactRecord, void>(
+        (contact, _) => ContactPage(
       contactViewModel: getIt.get<ContactViewModel>(
         param1: AddressEditRequest.contact(contact),
       ),
@@ -1034,13 +1033,6 @@ Future<void> setup({
       );
     },
   );
-
-  getIt.registerFactoryParam<EditNewContactPage, ContactRecord?, void>(
-        (contact, _) => EditNewContactPage(
-      contactViewModel: getIt.get<ContactViewModel>(param1: AddressEditRequest.contact(contact)),
-    ),
-  );
-
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 

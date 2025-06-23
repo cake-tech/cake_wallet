@@ -14,10 +14,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class EditContactPage extends BasePage {
-  EditContactPage({required this.contactViewModel});
+class ContactPage extends BasePage {
+  ContactPage({required this.contactViewModel});
 
   final ContactViewModel contactViewModel;
+
+  @override
+  Widget? leading(BuildContext context) => null;
 
   @override
   Widget middle(BuildContext context) {

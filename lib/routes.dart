@@ -40,8 +40,7 @@ class Routes {
   static const editContactGroupPage = '/edit_contact_group_page';
   static const editAddressesPage = '/edit_addresses_page';
   static const editAddressPage = '/edit_address_page';
-  static const editNewContactPage = '/edit_new_contact_page';
-  static const editContactPage = '/edit_contact_page';
+  static const contactPage = '/contact_page';
   static const showKeys = '/show_keys';
   static const exchangeConfirm = '/exchange_confirm';
   static const tradeHistory = '/trade_history';

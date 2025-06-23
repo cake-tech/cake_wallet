@@ -203,6 +203,17 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
         : CustomThemeColors.backgroundGradientColorLight;
 
     final isHandleMode = widget.handleOnly ? true : _mode == _InputMode.handle;
+    final hasDropdown = _results.isNotEmpty || _isSearching;
+
+    final radius = BorderRadius.vertical(
+      top: const Radius.circular(12),
+      bottom: hasDropdown ? Radius.zero : const Radius.circular(12),
+    );
+
+    final outline = OutlineInputBorder(
+      borderRadius: radius,
+      borderSide: BorderSide.none,
+    );
 
     return StandardTextFormFieldWidget(
       focusNode: _focusNode,
@@ -211,13 +222,30 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
       fillColor: fillColor,
       onChanged: isHandleMode ? _handleChanged : (v) => setState(() => _typedAddress = v.trim()),
       prefixIcon: isHandleMode
-          ? null
+          ? SizedBox(height: 50)
           : Padding(
               padding: const EdgeInsets.all(8.0),
               child: _currencyPrefix(context),
             ),
+      prefixIconConstraints: isHandleMode
+          ? const BoxConstraints(
+              minWidth: 12,
+              maxWidth: 12,
+              minHeight: 50,
+              maxHeight: 50,
+            )
+          : null,
+      suffixIconConstraints: const BoxConstraints(
+        minWidth: 32,
+        maxWidth: 40,
+        minHeight: 30,
+        maxHeight: 30,
+      ),
       suffixIcon: RoundedIconButton(
         icon: Icons.paste_outlined,
+        iconSize: 20,
+        width: 38,
+        height: 36,
         onPressed: () async {
           final data = await Clipboard.getData(Clipboard.kTextPlain);
           final text = data?.text?.trim() ?? '';
@@ -236,6 +264,7 @@ class _NewContactWelcomePageBodyState extends State<NewContactWelcomePageBody> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(6))),
       ),
       addressValidator: AddressValidator(type: _selectedCurrency),
+      outline: outline,
     );
   }
 

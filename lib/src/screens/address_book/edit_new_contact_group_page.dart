@@ -123,15 +123,15 @@ class EditNewContactGroupPage extends BasePage {
                                   ),
                                 ),
                                 style: theme.textTheme.bodyMedium,
-                                validator: (value) {
-                                  final text = value?.trim() ?? '';
-                                  if (text.isEmpty) return 'Name cannot be empty';
-
-                                  final clash = contactViewModel.box.values.any(
-                                    (c) => c.name.toLowerCase() == text.toLowerCase(),
-                                  );
-                                  return clash ? 'Group with this name already exists' : null;
-                                },
+                                // validator: (value) {
+                                //   final text = value?.trim() ?? '';
+                                //   if (text.isEmpty) return 'Name cannot be empty';
+                                //
+                                //   final clash = contactViewModel.box.values.any(
+                                //     (c) => c.name.toLowerCase() == text.toLowerCase(),
+                                //   );
+                                //   return clash ? 'Group with this name already exists' : null;
+                                // },
                               ),
                             ),
                           ),
@@ -185,7 +185,7 @@ class EditNewContactGroupPage extends BasePage {
                         if (context.mounted) {
                           Navigator.pushNamed(
                             context,
-                            Routes.editNewContactPage,
+                            Routes.contactPage,
                             arguments: record,
                           );
                         }

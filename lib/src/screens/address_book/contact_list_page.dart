@@ -404,7 +404,7 @@ class _ContactListBodyState extends State<ContactListBody> {
                 onPressed: () async => await _showAddressBookBottomSheet(
                     context: context,
                     contactListViewModel: contactListViewModel,
-                    initialRoute: Routes.editContactPage,
+                    initialRoute: Routes.contactPage,
                     initialArgs: contact)),
           ],
         ),

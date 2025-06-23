@@ -7,13 +7,10 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_welcome_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_contact_group_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
-
 import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -132,11 +129,8 @@ class _AddContactNavigator extends StatelessWidget {
         final vm = args as ContactViewModel;
         page = getIt<EditContactGroupPage>(param1: vm);
         break;
-      case Routes.editNewContactPage:
-        page = getIt<EditNewContactPage>(param1: args as ContactRecord);
-        break;
-      case Routes.editContactPage:
-        page = getIt<EditContactPage>(param1: args as ContactRecord);
+      case Routes.contactPage:
+        page = getIt<ContactPage>(param1: args as ContactRecord);
         break;
       case Routes.editAddressPage:
         page = getIt<EditAddressPage>(param1: args as AddressEditRequest);
