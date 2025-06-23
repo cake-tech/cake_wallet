@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/user_handles.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,8 @@ class ContactViewModel = _ContactViewModel with _$ContactViewModel;
 abstract class _ContactViewModel with Store {
   _ContactViewModel(
     this.box,
-    this.wallet, {
+    this.wallet,
+    this.settingsStore, {
     AddressEditRequest? request,
   })  : mode = request?.mode == EditMode.manualAddressAdd ||
                 request?.mode == EditMode.manualAddressEdit
@@ -64,6 +66,7 @@ abstract class _ContactViewModel with Store {
 
   final Box<Contact> box;
   final WalletBase wallet;
+  final SettingsStore? settingsStore;
   ContactRecord? record;
 
   @observable
@@ -269,4 +272,57 @@ abstract class _ContactViewModel with Store {
     _originalAddress = address.trim();
     _originalHandleKey = blockKey ?? _defaultHandleKey();
   }
+
+  late final Map<String, (bool Function(), void Function(bool))> lookupMap = settingsStore != null
+      ? {
+          AddressSource.twitter.label: (
+            () => settingsStore!.lookupsTwitter,
+            (v) => settingsStore!.lookupsTwitter = v
+          ),
+          AddressSource.zanoAlias.label: (
+            () => settingsStore!.lookupsZanoAlias,
+            (v) => settingsStore!.lookupsZanoAlias = v
+          ),
+          AddressSource.mastodon.label: (
+            () => settingsStore!.lookupsMastodon,
+            (v) => settingsStore!.lookupsMastodon = v
+          ),
+          AddressSource.yatRecord.label: (
+            () => settingsStore!.lookupsYatService,
+            (v) => settingsStore!.lookupsYatService = v
+          ),
+          AddressSource.unstoppableDomains.label: (
+            () => settingsStore!.lookupsUnstoppableDomains,
+            (v) => settingsStore!.lookupsUnstoppableDomains = v
+          ),
+          AddressSource.openAlias.label: (
+            () => settingsStore!.lookupsOpenAlias,
+            (v) => settingsStore!.lookupsOpenAlias = v
+          ),
+          AddressSource.ens.label: (
+            () => settingsStore!.lookupsENS,
+            (v) => settingsStore!.lookupsENS = v
+          ),
+          AddressSource.wellKnown.label: (
+            () => settingsStore!.lookupsWellKnown,
+            (v) => settingsStore!.lookupsWellKnown = v
+          ),
+          AddressSource.fio.label: (
+            () => settingsStore!.lookupsFio,
+            (v) => settingsStore!.lookupsFio = v
+          ),
+          AddressSource.nostr.label: (
+            () => settingsStore!.lookupsNostr,
+            (v) => settingsStore!.lookupsNostr = v
+          ),
+          AddressSource.thorChain.label: (
+            () => settingsStore!.lookupsThorChain,
+            (v) => settingsStore!.lookupsThorChain = v
+          ),
+          AddressSource.bip353.label: (
+            () => settingsStore!.lookupsBip353,
+            (v) => settingsStore!.lookupsBip353 = v
+          ),
+        }
+      : {};
 }

@@ -200,8 +200,7 @@ class AddressResolverService {
       LookupEntry(
         source: AddressSource.fio,
         currencies: AddressSource.fio.supportedCurrencies,
-        applies: (q) => !q.startsWith('@') && q.contains('@') && !q.contains('.'),
-        // TODO: Add condition for FIO lookups
+        applies: (q) => settingsStore.lookupsFio && !q.startsWith('@') && q.contains('@') && !q.contains('.'),
         // FIO handle example: username@domain
         run: _lookupFio,
       ),
@@ -215,8 +214,7 @@ class AddressResolverService {
       LookupEntry(
         source: AddressSource.thorChain,
         currencies: AddressSource.thorChain.supportedCurrencies,
-        applies: (q) => true,
-        // ThorChain handles can be any string //TODO: Add condition for ThorChain lookups
+        applies: (q) => settingsStore.lookupsThorChain && q.isNotEmpty,
         run: _lookupThorChain,
       ),
       LookupEntry(
@@ -238,7 +236,7 @@ class AddressResolverService {
       LookupEntry(
         source: AddressSource.bip353,
         currencies: AddressSource.bip353.supportedCurrencies,
-        applies: (q) => true, //TODO: Add condition for BIP-353 lookups
+        applies: (q) => settingsStore.lookupsBip353,
         run: _lookupsBip353,
       ),
       LookupEntry(
@@ -262,8 +260,8 @@ class AddressResolverService {
       LookupEntry(
         source: AddressSource.nostr,
         currencies: [CryptoCurrency.btc],
-        applies: (q) => isEmailFormat(q),
-        // Nostr handle example: name@domain //TODO: Add condition for Nostr lookups
+        applies: (q) => settingsStore.lookupsNostr && isEmailFormat(q),
+        // Nostr handle example: name@domain
         run: _lookupsNostr,
       ),
     ];

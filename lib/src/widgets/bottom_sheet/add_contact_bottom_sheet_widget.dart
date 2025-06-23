@@ -13,9 +13,9 @@ import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart'
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 
 import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:flutter/material.dart';
-
 
 class AddressBookBottomSheet extends StatelessWidget {
   const AddressBookBottomSheet({
@@ -29,10 +29,8 @@ class AddressBookBottomSheet extends StatelessWidget {
   final String? initialRoute;
   final Object? initialArgs;
 
-
   @override
   Widget build(BuildContext context) {
-
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Material(
@@ -47,8 +45,8 @@ class AddressBookBottomSheet extends StatelessWidget {
               ),
               child: _AddContactNavigator(
                 onHandlerSearch: onHandlerSearch,
-                initialRoute   : initialRoute ?? Navigator.defaultRouteName,
-                initialArgs    : initialArgs,
+                initialRoute: initialRoute ?? Navigator.defaultRouteName,
+                initialArgs: initialArgs,
               ),
             ),
           ],
@@ -57,6 +55,7 @@ class AddressBookBottomSheet extends StatelessWidget {
     );
   }
 }
+
 Widget _buildDragHandle(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.only(top: 16),
@@ -106,20 +105,19 @@ class _AddContactNavigator extends StatelessWidget {
   Route<dynamic> _routeFor(String name, Object? args) {
     late final Widget page;
 
-
     switch (name) {
       case Routes.supportedHandlesPage:
-        page = SupportedHandlesPage();
+        page = getIt<SupportedHandlesPage>();
         break;
       case Routes.newContactWelcomePage:
-        final list       = args as List<dynamic>;
-        final onSearch   = list[0] as Future<List<ParsedAddress>> Function(String);
+        final list = args as List<dynamic>;
+        final onSearch = list[0] as Future<List<ParsedAddress>> Function(String);
         final handleOnly = list.length > 1 && list[1] == true;
-        final contact    = list.length > 2 ? list[2] as ContactRecord? : null;
+        final contact = list.length > 2 ? list[2] as ContactRecord? : null;
 
         page = NewContactWelcomePage(
-          onSearch     : onSearch,
-          handleOnly   : handleOnly,
+          onSearch: onSearch,
+          handleOnly: handleOnly,
           existingContact: contact,
         );
         break;

@@ -325,33 +325,29 @@ class _ContactListBodyState extends State<ContactListBody> {
           shrinkWrap: true,
           itemBuilder: (context, index) {
             final contact = contacts[index];
-            return Padding(
-              key: ValueKey(contact.key),
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ContactAddressesExpansionTile(
-                key: Key(contact.key.toString()),
-                contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                manualByCurrency: contact.manual,
-                fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                title: _buildContactTitle(
-                    context: context,
+            return ContactAddressesExpansionTile(
+              key: Key(contact.key.toString()),
+              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              manualByCurrency: contact.manual,
+              fillColor: Theme.of(context).colorScheme.surfaceContainer,
+              title: _buildContactTitle(
+                  context: context,
+                  contact: contact,
+                  contactListViewModel: widget.contactListViewModel),
+              onEditPressed: (cur, lbl) async {
+                await _showAddressBookBottomSheet(
+                  context: context,
+                  contactListViewModel: widget.contactListViewModel,
+                  initialRoute: Routes.editAddressPage,
+                  initialArgs: AddressEditRequest.address(
                     contact: contact,
-                    contactListViewModel: widget.contactListViewModel),
-                onEditPressed: (cur, lbl) async {
-                  await _showAddressBookBottomSheet(
-                    context: context,
-                    contactListViewModel: widget.contactListViewModel,
-                    initialRoute: Routes.editAddressPage,
-                    initialArgs: AddressEditRequest.address(
-                      contact: contact,
-                      currency: cur,
-                      label: lbl,
-                      kindIsManual: true,
-                    ),
-                  );
-                },
-                onCopyPressed: (addr) => Clipboard.setData(ClipboardData(text: addr)),
-              ),
+                    currency: cur,
+                    label: lbl,
+                    kindIsManual: true,
+                  ),
+                );
+              },
+              onCopyPressed: (addr) => Clipboard.setData(ClipboardData(text: addr)),
             );
           },
         ),

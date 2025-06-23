@@ -38,6 +38,7 @@ import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
+import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
@@ -978,7 +979,7 @@ Future<void> setup({
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
   getIt.registerFactoryParam<ContactViewModel, AddressEditRequest?, void>(
-        (req, _) => ContactViewModel(_contactSource,getIt<AppStore>().wallet!, request: req),
+        (req, _) => ContactViewModel(_contactSource,getIt<AppStore>().wallet!,getIt<SettingsStore>(), request: req,),
   );
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
@@ -1012,6 +1013,9 @@ Future<void> setup({
     ),
   );
 
+  getIt.registerFactory<SupportedHandlesPage>(
+        () => SupportedHandlesPage(contactViewModel: getIt<ContactViewModel>()),
+  );
 
   getIt.registerFactoryParam<EditContactGroupPage, ContactViewModel, void>(
         (vm, _) => EditContactGroupPage(contactViewModel: vm),
