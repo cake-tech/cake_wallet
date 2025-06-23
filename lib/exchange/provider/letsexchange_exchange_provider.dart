@@ -10,9 +10,9 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
   LetsExchangeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -152,7 +152,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
       final uri = Uri.https(_baseUrl,
           isFixedRateMode ? _createTransactionRevertPath : _createTransactionPath, tradeParams);
-      final response = await http.post(uri, headers: headers);
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
+        headers: headers,
+      );
+      
 
       if (response.statusCode != 200) {
         throw Exception('LetsExchange create trade failed: ${response.body}');
@@ -218,7 +222,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     };
 
     final url = Uri.https(_baseUrl, '$_getTransactionPath/$id');
-    final response = await http.get(url, headers: headers);
+    final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
+    
 
     if (response.statusCode != 200) {
       throw Exception('LetsExchange fetch trade failed: ${response.body}');
@@ -266,7 +271,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     try {
       final uri = Uri.https(_baseUrl, isFixedRateMode ? _infoRevertPath : _infoPath, params);
-      final response = await http.post(uri, headers: headers);
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
+        headers: headers,
+      );
+      
       if (response.statusCode != 200) {
         throw Exception('LetsExchange fetch info failed: ${response.body}');
       }

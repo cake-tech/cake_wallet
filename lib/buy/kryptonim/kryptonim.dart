@@ -9,10 +9,10 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class KryptonimBuyProvider extends BuyProvider {
@@ -74,9 +74,14 @@ class KryptonimBuyProvider extends BuyProvider {
     });
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await ProxyWrapper().post(
+        clearnetUri: url,
+        headers: headers,
+        body: body,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 401) {
+        
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
         return {};

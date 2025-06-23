@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
@@ -255,6 +256,7 @@ abstract class EVMChainWalletBase
     required String? contractAddress,
     required String receivingAddressHex,
     required TransactionPriority priority,
+    Uint8List? data,
   }) async {
     try {
       if (priority is EVMChainTransactionPriority) {
@@ -276,6 +278,7 @@ abstract class EVMChainWalletBase
           gasPrice: EtherAmount.fromInt(EtherUnit.wei, gasPrice),
           toAddress: EthereumAddress.fromHex(receivingAddressHex),
           maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+          data: data,
         );
 
         final totalGasFee = estimatedGas * maxFeePerGas;
@@ -476,6 +479,43 @@ abstract class EVMChainWalletBase
     );
 
     return pendingEVMChainTransaction;
+  }
+
+  Future<PendingTransaction> createApprovalTransaction(
+      BigInt amount,
+      String spender,
+      CryptoCurrency token,
+      EVMChainTransactionPriority priority) async {
+    final CryptoCurrency transactionCurrency =
+        balance.keys.firstWhere((element) => element.title == token.title);
+    assert(transactionCurrency is Erc20Token);
+
+    final data = _client.getEncodedDataForApprovalTransaction(
+      contractAddress: EthereumAddress.fromHex(
+          (transactionCurrency as Erc20Token).contractAddress),
+      value: EtherAmount.fromBigInt(EtherUnit.wei, amount),
+      toAddress: EthereumAddress.fromHex(spender),
+    );
+
+    final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
+      amount: amount,
+      receivingAddressHex: spender,
+      priority: priority,
+      contractAddress: transactionCurrency.contractAddress,
+      data: data,
+    );
+
+    return _client.signApprovalTransaction(
+      privateKey: _evmChainPrivateKey,
+      spender: spender,
+      amount: amount,
+      priority: priority,
+      gasFee: BigInt.from(gasFeesModel.estimatedGasFee),
+      maxFeePerGas: gasFeesModel.maxFeePerGas,
+      estimatedGasUnits: gasFeesModel.estimatedGasUnits,
+      exponent: transactionCurrency.decimal,
+      contractAddress: transactionCurrency.contractAddress,
+    );
   }
 
   Future<void> _updateTransactions() async {

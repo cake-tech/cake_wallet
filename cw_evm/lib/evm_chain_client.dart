@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
@@ -12,13 +13,12 @@ import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart' as hex;
-import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 
 import 'contract/erc20.dart';
 
 abstract class EVMChainClient {
-  final httpClient = Client();
+  late final client = ProxyWrapper().getHttpIOClient();
   Web3Client? _client;
 
   //! To be overridden by all child classes
@@ -47,7 +47,7 @@ abstract class EVMChainClient {
       }
 
       _client =
-          Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), httpClient);
+          Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);
 
       return true;
     } catch (e) {
@@ -76,7 +76,7 @@ abstract class EVMChainClient {
   Future<int> getGasUnitPrice() async {
     try {
       final gasPrice = await _client!.getGasPrice();
-    
+
       return gasPrice.getInWei.toInt();
     } catch (_) {
       return 0;
@@ -101,6 +101,7 @@ abstract class EVMChainClient {
     String? contractAddress,
     EtherAmount? gasPrice,
     EtherAmount? maxFeePerGas,
+    Uint8List? data,
   }) async {
     try {
       if (contractAddress == null) {
@@ -124,7 +125,7 @@ abstract class EVMChainClient {
         final gasEstimate = await _client!.estimateGas(
           sender: senderAddress,
           to: EthereumAddress.fromHex(contractAddress),
-          data: transfer.encodeCall([
+          data: data ?? transfer.encodeCall([
             toAddress,
             value.getInWei,
           ]),
@@ -135,6 +136,21 @@ abstract class EVMChainClient {
     } catch (_) {
       return 0;
     }
+  }
+
+  Uint8List getEncodedDataForApprovalTransaction({
+    required EthereumAddress toAddress,
+    required EtherAmount value,
+    required EthereumAddress contractAddress,
+  }) {
+    final contract = DeployedContract(ethereumContractAbi, contractAddress);
+
+    final approve = contract.function('approve');
+
+    return approve.encodeCall([
+      toAddress,
+      value.getInWei,
+    ]);
   }
 
   Future<PendingEVMChainTransaction> signTransaction({
@@ -195,6 +211,50 @@ abstract class EVMChainClient {
       fee: gasFee,
       sendTransaction: _sendTransaction,
       exponent: exponent,
+    );
+  }
+
+  Future<PendingEVMChainTransaction> signApprovalTransaction({
+    required Credentials privateKey,
+    required String spender,
+    required BigInt amount,
+    required BigInt gasFee,
+    required int estimatedGasUnits,
+    required int maxFeePerGas,
+    required EVMChainTransactionPriority priority,
+    required int exponent,
+    required String contractAddress,
+  }) async {
+
+    final Transaction transaction = createTransaction(
+      from: privateKey.address,
+      to: EthereumAddress.fromHex(contractAddress),
+      maxPriorityFeePerGas: EtherAmount.fromInt(EtherUnit.gwei, priority.tip),
+      amount: EtherAmount.zero(),
+      maxGas: estimatedGasUnits,
+      maxFeePerGas: EtherAmount.fromInt(EtherUnit.wei, maxFeePerGas),
+    );
+
+    final erc20 = ERC20(
+      client: _client!,
+      address: EthereumAddress.fromHex(contractAddress),
+      chainId: chainId,
+    );
+
+    final signedTransaction = await erc20.approve(
+      EthereumAddress.fromHex(spender),
+      amount,
+      credentials: privateKey,
+      transaction: transaction,
+    );
+
+    return PendingEVMChainTransaction(
+      signedTransaction: prepareSignedTransactionForSending(signedTransaction),
+      amount: amount.toString(),
+      fee: gasFee,
+      sendTransaction: () => sendTransaction(signedTransaction),
+      exponent: exponent,
+      isInfiniteApproval: amount.toRadixString(16) == 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
     );
   }
 
@@ -293,7 +353,7 @@ abstract class EVMChainClient {
         },
       );
 
-      final response = await httpClient.get(
+      final response = await client.get(
         uri,
         headers: {
           "Accept": "application/json",
