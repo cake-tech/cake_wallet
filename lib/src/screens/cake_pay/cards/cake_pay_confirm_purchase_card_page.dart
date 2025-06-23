@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/cake_pay/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -389,9 +390,11 @@ class CakePayBuyCardDetailPage extends BasePage {
         return ConfirmSendingBottomSheet(
           key: ValueKey('send_page_confirm_sending_dialog_key'),
           currentTheme: currentTheme,
+          footerType: FooterType.slideActionButton,
           walletType: cakePayPurchaseViewModel.sendViewModel.walletType,
           paymentId: S.of(popupContext).payment_id,
           paymentIdValue: order?.orderId,
+          cakePayBuyCardViewModel: cakePayPurchaseViewModel,
           expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
           titleText: S.of(popupContext).confirm_transaction,
           titleIconPath: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
@@ -405,7 +408,7 @@ class CakePayBuyCardDetailPage extends BasePage {
           feeFiatAmount:
               cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
           outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
-          onSlideComplete: () async {
+          onSlideActionComplete: () async {
             Navigator.of(popupContext).pop();
             cakePayPurchaseViewModel.sendViewModel.commitTransaction(context);
           },

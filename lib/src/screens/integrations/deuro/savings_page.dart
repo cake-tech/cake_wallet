@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_edit_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -128,11 +129,11 @@ class DEuroSavingsPage extends BasePage {
           feeValue: tx.feeFormatted,
           feeFiatAmount: "",
           outputs: [],
-          onSlideComplete: () async {
+          onSlideActionComplete: () async {
             Navigator.of(bottomSheetContext).pop(true);
             dEuroViewModel.commitTransaction();
           },
-          change: tx.change,
+          change: tx.change, footerType: FooterType.slideActionButton,
         ),
       );
 
@@ -159,11 +160,11 @@ class DEuroSavingsPage extends BasePage {
           feeValue: tx.feeFormatted,
           feeFiatAmount: "",
           outputs: [],
-          onSlideComplete: () {
+          onSlideActionComplete: () {
             Navigator.of(bottomSheetContext).pop(true);
             dEuroViewModel.commitApprovalTransaction();
           },
-          change: tx.change,
+          change: tx.change, footerType: FooterType.slideActionButton,
         ),
       );
 
@@ -180,12 +181,13 @@ class DEuroSavingsPage extends BasePage {
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
               currentTheme: currentTheme,
+              footerType: FooterType.singleActionButton,
               titleText: S.of(bottomSheetContext).transaction_sent,
               contentImage: 'assets/images/birthday_cake.png',
               content: S.of(bottomSheetContext).deuro_tx_commited_content,
-              actionButtonText: S.of(bottomSheetContext).close,
-              actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-              actionButton: () => Navigator.of(bottomSheetContext).pop(),
+              singleActionButtonText: S.of(bottomSheetContext).close,
+              singleActionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+              onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
             ),
           );
         });
