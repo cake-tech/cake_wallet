@@ -96,7 +96,8 @@ abstract class LedgerViewModelBase with Store {
     if (!Platform.isIOS) await ledgerPlusUSB.stopScanning();
   }
 
-  Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
+  Future<bool> connectLedger(sdk.LedgerDevice device, WalletType type) async {
+    if (_isConnecting) return false;
     _isConnecting = true;
     _connectingWalletType = type;
     if (isConnected) {
@@ -110,17 +111,25 @@ abstract class LedgerViewModelBase with Store {
         : ledgerPlusUSB;
 
     if (_connectionChangeSubscription == null) {
-      _connectionChangeSubscription =
-          ledger.deviceStateChanges.listen(_connectionChangeListener);
+      _connectionChangeSubscription = ledger
+          .deviceStateChanges(device.id)
+          .listen(_connectionChangeListener);
     }
 
-    _connection = await ledger.connect(device);
+    try {
+      _connection = await ledger.connect(device);
+      _isConnecting = false;
+      return true;
+    } catch (e) {
+      printV(e);
+    }
     _isConnecting = false;
+    return false;
   }
 
   StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
   sdk.LedgerConnection? _connection;
-  bool _isConnecting = true;
+  bool _isConnecting = false;
   WalletType? _connectingWalletType;
 
   void _connectionChangeListener(sdk.BleConnectionState event) {
@@ -168,17 +177,14 @@ abstract class LedgerViewModelBase with Store {
   }
 
   String? interpretErrorCode(String errorCode) {
-    switch (errorCode) {
-      case "6985":
-        return S.current.ledger_error_tx_rejected_by_user;
-      case "5515":
-        return S.current.ledger_error_device_locked;
-      case "6d02": // UNKNOWN_APDU
-      case "6511":
-      case "6e00":
-        return S.current.ledger_error_wrong_app;
-      default:
-        return null;
+    if (errorCode.contains("6985")) {
+      return S.current.ledger_error_tx_rejected_by_user;
+    } else if (errorCode.contains("5515")) {
+      return S.current.ledger_error_device_locked;
+    } else
+    if (["6e01", "6a87", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+      return S.current.ledger_error_wrong_app;
     }
+    return null;
   }
 }

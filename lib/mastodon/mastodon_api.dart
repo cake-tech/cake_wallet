@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart' as http;
 import 'package:cake_wallet/mastodon/mastodon_user.dart';
 
 class MastodonAPI {
@@ -20,7 +20,8 @@ class MastodonAPI {
         queryParameters: queryParams,
       );
 
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
 
       if (response.statusCode != 200) return null;
 
@@ -47,7 +48,8 @@ class MastodonAPI {
         queryParameters: queryParams,
       );
 
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
 
       if (response.statusCode != 200) {
         throw Exception('Unexpected HTTP status: ${response.statusCode}');

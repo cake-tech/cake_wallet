@@ -13,6 +13,11 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/utils/tor.dart';
+import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -47,10 +52,9 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1027,6 +1031,39 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get syncAll => settingsStore.currentSyncAll;
 
+  @computed
+  bool get builtinTor => settingsStore.currentBuiltinTor;
+
+  @action
+  void setBuiltinTor(bool value, BuildContext context) {
+    if (value) {
+      unawaited(showPopUp<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.of(context).tor_connection,
+              alertContent: S.of(context).tor_experimental,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(true),
+            );
+          },
+        ),
+      );
+    }
+    settingsStore.currentBuiltinTor = value;
+    if (value) {
+      unawaited(ensureTorStarted(context: context).then((_) async {
+        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
+        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+      }));
+    } else {
+      unawaited(ensureTorStopped(context: context).then((_) async {
+        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
+        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+      }));
+    }
+  }
+  
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
@@ -1073,7 +1110,17 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  static ServicesResponse? cachedServicesResponse; 
+
   Future<ServicesResponse> getServicesStatus() async {
+    if (cachedServicesResponse != null) {
+      return cachedServicesResponse!;
+    }
+    cachedServicesResponse = await _getServicesStatus();
+    return cachedServicesResponse!;
+  }
+
+  Future<ServicesResponse> _getServicesStatus() async {
     try {
       if (isEnabledBulletinAction) {
         final uri = Uri.https(
@@ -1082,8 +1129,7 @@ abstract class DashboardViewModelBase with Store {
           {'key': secrets.fiatApiKey},
         );
 
-        final res = await http.get(uri);
-
+        final res = await ProxyWrapper().get(clearnetUri: uri);
         if (res.statusCode < 200 || res.statusCode >= 300) {
           throw res.body;
         }

@@ -7,7 +7,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -80,15 +80,16 @@ abstract class NFTViewModelBase with Store {
 
       isLoading = true;
 
-      final response = await http.get(
-        uri,
+      final response = await ProxyWrapper().get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
+      
 
-      final decodedResponse = jsonDecode(response.body);
+      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (walletType == WalletType.solana) {
         final results = await Future.wait(
@@ -131,14 +132,14 @@ abstract class NFTViewModelBase with Store {
       '/nft/$chainName/$address/metadata',
     );
 
-    final response = await http.get(
-      uri,
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
       headers: {
         "Accept": "application/json",
         "X-API-Key": secrets.moralisApiKey,
       },
     );
-
+    
     final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
     return SolanaNFTAssetModel.fromJson(decodedResponse);
@@ -171,15 +172,14 @@ abstract class NFTViewModelBase with Store {
             "normalizeMetadata": "true",
           },
         );
-
-        final response = await http.get(
-          uri,
+        final response = await ProxyWrapper().get(
+          clearnetUri: uri,
           headers: {
             "Accept": "application/json",
             "X-API-Key": secrets.moralisApiKey,
           },
         );
-
+        
         final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
         final nftAsset = NFTAssetModel.fromJson(decodedResponse);
