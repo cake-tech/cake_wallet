@@ -198,8 +198,8 @@ abstract class EVMChainWalletBase
     for (var token in erc20Currencies) {
       bool isPotentialScam = false;
 
-      bool isWhitelisted =
-          getDefaultTokenContractAddresses.any((element) => element == token.contractAddress);
+      bool isWhitelisted = getDefaultTokenContractAddresses
+          .any((element) => element.toLowerCase() == token.contractAddress.toLowerCase());
 
       final tokenSymbol = token.title.toUpperCase();
 
@@ -212,6 +212,16 @@ abstract class EVMChainWalletBase
       if (isPotentialScam) {
         token.isPotentialScam = true;
         token.iconPath = null;
+        await token.save();
+      }
+
+      // For fixing wrongly classified tokens
+      if (!isPotentialScam && token.isPotentialScam) {
+        token.isPotentialScam = false;
+        final iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+        token.iconPath = iconPath;
         await token.save();
       }
     }

@@ -913,6 +913,7 @@
   "tip": "بقشيش:",
   "to": "ل",
   "today": "اليوم",
+  "token_already_exists": "رمز موجود بالفعل",
   "token_contract_address": "عنوان عقد الرمز",
   "token_decimal": "رمز عشري",
   "token_name": "اسم الرمز ، على سبيل المثال: Tether",

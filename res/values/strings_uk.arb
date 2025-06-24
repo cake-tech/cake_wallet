@@ -914,6 +914,7 @@
   "tip": "Порада:",
   "to": "До",
   "today": "Сьогодні",
+  "token_already_exists": "Маркер вже існує",
   "token_contract_address": "Адреса договору маркера",
   "token_decimal": "Токен десятковий",
   "token_name": "Назва токена, наприклад: Tether",
