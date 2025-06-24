@@ -200,7 +200,8 @@ class AddressResolverService {
       LookupEntry(
         source: AddressSource.fio,
         currencies: AddressSource.fio.supportedCurrencies,
-        applies: (q) => settingsStore.lookupsFio && !q.startsWith('@') && q.contains('@') && !q.contains('.'),
+        applies: (q) =>
+            settingsStore.lookupsFio && !q.startsWith('@') && q.contains('@') && !q.contains('.'),
         // FIO handle example: username@domain
         run: _lookupFio,
       ),
@@ -236,7 +237,7 @@ class AddressResolverService {
       LookupEntry(
         source: AddressSource.bip353,
         currencies: AddressSource.bip353.supportedCurrencies,
-        applies: (q) => settingsStore.lookupsBip353,
+        applies: (q) => settingsStore.lookupsBip353 && q.contains('@') && q.contains('.'),
         run: _lookupsBip353,
       ),
       LookupEntry(
@@ -267,11 +268,8 @@ class AddressResolverService {
     ];
   }
 
-
-
-      static  String _cleanInput(String raw) => raw
-      .replaceAll(RegExp(r'[\u2028\u2029]'), '\n')
-      .replaceAll(RegExp(r'<[^>]+>'), ' ');
+  static String _cleanInput(String raw) =>
+      raw.replaceAll(RegExp(r'[\u2028\u2029]'), '\n').replaceAll(RegExp(r'<[^>]+>'), ' ');
 
   static String? extractAddressByType({
     required String raw,
@@ -279,21 +277,21 @@ class AddressResolverService {
   }) {
     final pat = AddressValidator.getAddressFromStringPattern(type);
     if (pat == null) {
-      throw StateError('Unknown pattern for $type');
+      printV('Unknown pattern for $type');
+      return null;
     }
 
     final text = _cleanInput(raw);
 
-    final regex = RegExp(r'(?:^|[^0-9A-Za-z])(' + pat + r')',
-        multiLine: true, caseSensitive: false);
+    final regex =
+        RegExp(r'(?:^|[^0-9A-Za-z])(' + pat + r')', multiLine: true, caseSensitive: false);
 
     final m = regex.firstMatch(text);
     if (m == null) return null;
 
     // 3.  Strip BCH / NANO prefixes and punctuation just like before
-    final cleaned = m
-        .group(1)!
-        .replaceAllMapped(RegExp(r'[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'), (m) {
+    final cleaned =
+        m.group(1)!.replaceAllMapped(RegExp(r'[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'), (m) {
       final g = m.group(0)!;
       return (g.startsWith('bitcoincash:') || g.startsWith('nano_') || g.startsWith('ban_'))
           ? g
@@ -349,15 +347,21 @@ class AddressResolverService {
 
     final Map<CryptoCurrency, String> result = {};
 
+    try {
     for (final cur in currencies) {
       final addressFromBio = extractAddressByType(
           raw: twitterUser.description, type: CryptoCurrency.fromString(cur.title));
+      print('Address from bio: $addressFromBio');
 
       if (addressFromBio != null && addressFromBio.isNotEmpty) {
         result[cur] = addressFromBio;
       }
     }
+    } catch (e) {
+      printV('Error extracting address from Twitter bio: $e');
+    }
 
+    try {
     final pinnedTweet = twitterUser.pinnedTweet?.text;
     if (pinnedTweet != null) {
       for (final cur in currencies) {
@@ -367,6 +371,9 @@ class AddressResolverService {
           result[cur] = addressFromPinnedTweet;
         }
       }
+    }
+    } catch (e) {
+      printV('Error extracting address from Twitter pinned tweet: $e');
     }
 
     if (result.isNotEmpty) {
@@ -472,7 +479,7 @@ class AddressResolverService {
 
     for (final cur in currencies) {
       final address = await FioAddressProvider.getPubAddress(text, cur.title);
-      if (address.isNotEmpty) {
+      if (address != null && address.isNotEmpty) {
         result[cur] = address;
       }
     }
@@ -556,18 +563,24 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupsBip353(
-      String text, List<CryptoCurrency> currency, WalletBase _) async {
+      String text, List<CryptoCurrency> currencies, WalletBase _) async {
     final Map<CryptoCurrency, String> result = {};
 
-    for (final cur in currency) {
+    for (final cur in currencies) {
       final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, cur.title);
+
       if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
-        final address = bip353AddressMap['address'];
-        if (address != null && address.isNotEmpty) {
-          result[cur] = address;
+        if (cur == CryptoCurrency.btc) {
+          bip353AddressMap.forEach((key, value) {
+            final address = bip353AddressMap['sp'] ?? bip353AddressMap['address'];
+            if (address != null && address.isNotEmpty) {
+              result[cur] = address;
+            }
+          });
         }
       }
     }
+
     if (result.isNotEmpty) {
       return ParsedAddress(
         parsedAddressByCurrencyMap: result,
@@ -575,15 +588,6 @@ class AddressResolverService {
         handle: text,
       );
     }
-
-    //
-    // if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
-    //   final chosenAddress =
-    //   await Bip353Record.pickBip353AddressChoice(text, bip353AddressMap); //TODO fix context
-    //   if (chosenAddress != null) {
-    //     return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
-    //   }
-    // }
     return null;
   }
 

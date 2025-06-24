@@ -5,8 +5,9 @@ import 'package:cw_core/crypto_currency.dart';
 const supportedSources = [
   AddressSource.twitter,
   AddressSource.unstoppableDomains,
-  AddressSource.ens,
   AddressSource.mastodon,
+  AddressSource.bip353,
+  AddressSource.fio,
 ];
 
 enum AddressSource {
@@ -14,7 +15,15 @@ enum AddressSource {
       label: 'X',
       iconPath: 'assets/images/x_social.png',
       alias: '@username',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      supportedCurrencies: [
+        CryptoCurrency.xmr,
+        CryptoCurrency.btc,
+        CryptoCurrency.ltc,
+        CryptoCurrency.eth,
+        CryptoCurrency.bnb,
+        CryptoCurrency.sol,
+        CryptoCurrency.maticpoly
+      ]),
   unstoppableDomains(
       label: 'Unstoppable Domains',
       iconPath: 'assets/images/ud.png',
@@ -30,19 +39,33 @@ enum AddressSource {
       iconPath: 'assets/images/yat_mini_logo.png',
       alias: '🎂🎂🎂',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
-  fio(
-      label: 'FIO',
-      iconPath: 'assets/images/fio.png',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+  fio(label: 'FIO', iconPath: 'assets/images/fio.png', alias: 'user@domain', supportedCurrencies: [
+    CryptoCurrency.xmr,
+    CryptoCurrency.btc,
+    CryptoCurrency.ltc,
+    CryptoCurrency.eth,
+    CryptoCurrency.bnb,
+    CryptoCurrency.sol,
+    CryptoCurrency.maticpoly,
+  ]),
   ens(
       label: 'Ethereum Name Service',
       iconPath: 'assets/images/ens_icon.png',
+      alias: 'domain.eth',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.eth]),
   mastodon(
       label: 'Mastodon',
       iconPath: 'assets/images/mastodon.svg',
       alias: 'user@domain.tld',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      supportedCurrencies: [
+        CryptoCurrency.xmr,
+        CryptoCurrency.btc,
+        CryptoCurrency.ltc,
+        CryptoCurrency.eth,
+        CryptoCurrency.bnb,
+        CryptoCurrency.sol,
+        CryptoCurrency.maticpoly
+      ]),
   nostr(
       label: 'Nostr',
       iconPath: 'assets/images/nostr.png',
@@ -61,8 +84,9 @@ enum AddressSource {
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
   bip353(
       label: 'BIP-353',
-      iconPath: '',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      iconPath: 'assets/images/btc.png',
+      alias: 'user@domain.com',
+      supportedCurrencies: [CryptoCurrency.btc]),
   contact(label: 'Contact', iconPath: '', supportedCurrencies: []),
   notParsed(label: 'Unknown', iconPath: '', supportedCurrencies: []);
 
@@ -93,7 +117,7 @@ extension AddressSourceNameParser on AddressSource {
     }
     final needle = text.trim().toLowerCase();
     return AddressSource.values.firstWhere(
-          (src) => src.label.toLowerCase() == needle,
+      (src) => src.label.toLowerCase() == needle,
       orElse: () => AddressSource.notParsed,
     );
   }
