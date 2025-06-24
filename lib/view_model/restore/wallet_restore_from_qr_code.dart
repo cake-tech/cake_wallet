@@ -54,6 +54,8 @@ class WalletRestoreFromQRCode {
 
     final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
 
+    if (code.startsWith("xpub")) return WalletType.bitcoin;
+
     if (extracted == null) {
       // Special case for view-only monero wallet
       try {
@@ -117,11 +119,15 @@ class WalletRestoreFromQRCode {
 
       formattedUri = seedPhrase != null
           ? '$walletType:?seed=$seedPhrase'
-          : throw Exception('Failed to determine valid seed phrase');
+          : code.startsWith('xpub') 
+            ? '$walletType:?xpub=$code' 
+            : throw Exception('Failed to determine valid seed phrase');
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = '$walletType:?$query';
+      formattedUri = code.startsWith('xpub') 
+        ? '$walletType:?xpub=$code' 
+        :'$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
