@@ -11,6 +11,7 @@ class CakeImageWidget extends StatelessWidget {
     this.loadingWidget,
     this.errorWidget,
     this.color,
+    this.borderRadius = 24.0,
   });
 
   final String? imageUrl;
@@ -20,6 +21,7 @@ class CakeImageWidget extends StatelessWidget {
   final Widget? loadingWidget;
   final Widget? errorWidget;
   final Color? color;
+  final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +82,7 @@ class CakeImageWidget extends StatelessWidget {
       height: height,
       width: width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24.0),
+        borderRadius: BorderRadius.circular(borderRadius),
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
       child: Center(

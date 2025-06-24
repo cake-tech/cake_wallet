@@ -289,6 +289,15 @@ Widget getImage(String imagePath, {double? height, double? width, Color? imageCo
                 child: CircularProgressIndicator(),
               ),
             ),
+            errorBuilder: (_, __, ___) {
+              return Container(
+                height: imageHeight,
+                width: imageWidth,
+                child: Center(
+                  child: Icon(Icons.error_outline, color: Colors.grey),
+                ),
+              );
+            },
           )
         : Image.network(
             imagePath,
@@ -315,6 +324,9 @@ Widget getImage(String imagePath, {double? height, double? width, Color? imageCo
               return Container(
                 height: imageHeight,
                 width: imageWidth,
+                child: Center(
+                  child: Icon(Icons.error_outline, color: Colors.grey),
+                ),
               );
             },
           );
@@ -325,6 +337,7 @@ Widget getImage(String imagePath, {double? height, double? width, Color? imageCo
             height: imageHeight,
             width: imageWidth,
             colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
+            errorBuilder: (_, __, ___) => Icon(Icons.error, color: Colors.grey),
           )
         : Image.asset(imagePath, height: imageHeight, width: imageWidth);
   }
