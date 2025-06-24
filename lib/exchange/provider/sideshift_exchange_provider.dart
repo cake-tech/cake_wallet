@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -11,9 +10,9 @@ import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -60,8 +59,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async {
     const url = apiBaseUrl + permissionPath;
     final uri = Uri.parse(url);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
@@ -90,7 +89,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         "$apiBaseUrl$rangePath/${fromCurrency.title.toLowerCase()}-$fromNetwork/${toCurrency.title.toLowerCase()}-$toNetwork";
 
     final uri = Uri.parse(url);
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -137,7 +137,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
           "$apiBaseUrl$rangePath/$fromCurrency-$depositNetwork/$toCurrency-$settleNetwork?amount=$amount";
 
       final uri = Uri.parse(url);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 500) {
@@ -186,7 +187,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final headers = {'Content-Type': 'application/json'};
 
     final uri = Uri.parse(url);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -227,8 +233,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final url = apiBaseUrl + orderPath + '/' + id;
     final uri = Uri.parse(url);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
     }
@@ -281,7 +287,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       'depositNetwork': _networkFor(request.fromCurrency),
     };
     final uri = Uri.parse(url);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {

@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -10,15 +11,19 @@ class ImageUtil {
     BoxFit? fit,
     double? borderRadius,
   }) {
-    final isNetwork = imagePath.startsWith('http');
-    final isSvg = imagePath.endsWith('.svg');
+bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
 
+if (CakeTor.instance.enabled && isNetworkImage) {
+imagePath = "assets/images/tor_logo.svg";
+isNetworkImage = false;
+}
+    final isSvg = imagePath.endsWith('.svg');
     final bool ignoreSize = fit != null;
     final double? _height = ignoreSize ? null : (height ?? 35);
     final double? _width = ignoreSize ? null : (width ?? 35);
 
     Widget img;
-    if (isNetwork) {
+    if (isNetworkImage) {
       img = isSvg
           ? SvgPicture.network(imagePath,
               key: ValueKey(imagePath),

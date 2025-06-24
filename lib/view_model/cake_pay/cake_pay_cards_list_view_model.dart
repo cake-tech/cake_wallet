@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 
 part 'cake_pay_cards_list_view_model.g.dart';
@@ -165,7 +166,11 @@ abstract class CakePayCardsListViewModelBase with Store {
   }
 
   Future<void> getCountries() async {
-    availableCountries = await cakePayService.getCountries();
+    try {
+      availableCountries = await cakePayService.getCountries();
+    } catch (e) {
+      printV(e);
+    }
   }
 
   Future<void> getUserCards() async {
@@ -212,17 +217,21 @@ abstract class CakePayCardsListViewModelBase with Store {
     int? currentPage,
   }) async {
     vendorsState = CakePayVendorLoadingState();
-    searchString = text ?? '';
-    var newVendors = await cakePayService.getVendors(
-        country: Country.getCakePayName(selectedCountry),
-        page: currentPage ?? page,
-        search: searchString,
-        giftCards: displayGiftCards,
-        prepaidCards: displayPrepaidCards,
-        custom: displayCustomValueCards,
-        onDemand: displayDenominationsCards);
+    try {
+      searchString = text ?? '';
+      var newVendors = await cakePayService.getVendors(
+          country: Country.getCakePayName(selectedCountry),
+          page: currentPage ?? page,
+          search: searchString,
+          giftCards: displayGiftCards,
+          prepaidCards: displayPrepaidCards,
+          custom: displayCustomValueCards,
+          onDemand: displayDenominationsCards);
 
-    cakePayVendors = CakePayVendorList = newVendors;
+      cakePayVendors = CakePayVendorList = newVendors;
+    } catch (e) {
+      printV(e);
+    }
     vendorsState = CakePayVendorLoadedState();
   }
 
