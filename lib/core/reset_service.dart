@@ -36,15 +36,20 @@ class ResetService {
     'PIN_CODE_PASSWORD',
   ];
 
+  static const List<String> _walletPreferencesKeys = [
+    PreferencesKey.currentWalletName,
+    PreferencesKey.currentWalletType,
+  ];
+
   bool _isAuthKey(String key) => _authKeys.contains(key);
 
-  /// Checks if this is a new install and clears any existing auth data from Keychain
+  /// Checks if this is a new install and clears any existing auth data from Storage
   Future<void> resetAuthDataOnNewInstall(SharedPreferences sharedPreferences) async {
     try {
       final isNewInstall = sharedPreferences.getBool(PreferencesKey.isNewInstall) ?? false;
 
       if (isNewInstall) {
-        await _clearExistingAuthDataOnNewInstall();
+        await _clearExistingAuthDataOnNewInstall(sharedPreferences);
       }
     } catch (e) {
       printV('Error during new install auth reset: $e');
@@ -52,9 +57,10 @@ class ResetService {
   }
 
   /// Checks if there's existing auth data that should be cleared on new install
-  Future<void> _clearExistingAuthDataOnNewInstall() async {
+  Future<void> _clearExistingAuthDataOnNewInstall(SharedPreferences sharedPreferences) async {
     final allKeys = await secureStorage.readAll();
     final authKeysFound = <String>[];
+    final walletPrefsFound = <String>[];
 
     for (final key in allKeys.keys) {
       if (_isAuthKey(key)) {
@@ -62,21 +68,33 @@ class ResetService {
       }
     }
 
-    if (authKeysFound.isNotEmpty) {
+    for (final key in _walletPreferencesKeys) {
+      if (sharedPreferences.containsKey(key)) {
+        walletPrefsFound.add(key);
+      }
+    }
+
+    if (authKeysFound.isNotEmpty || walletPrefsFound.isNotEmpty) {
       printV(
         'Found ${authKeysFound.length} existing auth keys in storage: ${authKeysFound.join(', ')}',
       );
+      printV(
+        'Found ${walletPrefsFound.length} existing wallet preferences: ${walletPrefsFound.join(', ')}',
+      );
 
-      await resetAuthenticationData();
+      await resetAuthenticationData(sharedPreferences);
     }
   }
 
-  /// Resets authentication data from both secure storage and settings store
-  Future<void> resetAuthenticationData() async {
+  /// Resets authentication data auth store, storage and settings store
+  Future<void> resetAuthenticationData(SharedPreferences sharedPreferences) async {
     try {
+      authenticationStore.state = AuthenticationState.uninitialized;
+
       await Future.wait([
         _deleteAuthenticationKeys(),
         _resetSettingsStoreAuthData(),
+        _clearWalletPreferences(sharedPreferences),
       ]);
     } catch (e) {
       printV('An error occurred during authentication reset: $e');
@@ -100,7 +118,26 @@ class ResetService {
     settingsStore.allowBiometricalAuthentication = false;
   }
 
-  /// Deletes authentication keys from secure storage
+  Future<void> _clearWalletPreferences(SharedPreferences sharedPreferences) async {
+    final failedDeletions = <String>[];
+
+    for (final key in _walletPreferencesKeys) {
+      try {
+        await sharedPreferences.remove(key);
+      } catch (e) {
+        failedDeletions.add(key);
+      }
+    }
+
+    if (failedDeletions.isNotEmpty) {
+      printV(
+        'Warning: Failed to delete ${failedDeletions.length} wallet preferences: ${failedDeletions.join(', ')}',
+      );
+    } else {
+      printV('All wallet preferences deleted successfully');
+    }
+  }
+
   Future<void> _deleteAuthenticationKeys() async {
     final failedDeletions = <String>[];
 
