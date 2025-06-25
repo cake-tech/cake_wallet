@@ -50,7 +50,7 @@ class UnspentCoinsListPage extends BasePage {
 
     unspentCoinsListViewModel.setIsDisposing(true);
     await unspentCoinsListViewModel.dispose();
-    Navigator.of(context).pop();
+
     if (navigator.canPop()) navigator.pop();
   }
 
