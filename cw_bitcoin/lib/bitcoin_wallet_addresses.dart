@@ -67,6 +67,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       payjoinManager.resumeSessions();
     } catch (e) {
       printV(e);
+      // Ignore Connectivity errors
+      if (!e.toString().contains("error sending request for url")) rethrow;
     }
   }
 
@@ -79,6 +81,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);
     } catch (e) {
       printV(e);
+      // Ignore Connectivity errors
+      if (!e.toString().contains("error sending request for url")) rethrow;
     }
   }
 }
