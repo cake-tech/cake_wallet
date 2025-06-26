@@ -81,11 +81,20 @@ packages:
     source: git
     version: "1.0.1"
   bitcoin_base:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake-update-v7
+      resolved-ref: f577e83fe78766b2655ea0602baa9299b953a31b
+      url: "https://github.com/cake-tech/bitcoin_base"
+    source: git
+    version: "4.7.0"
+  bitcoin_base_old:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v9
-      resolved-ref: bb4318511312a454fd91bf49042e25ecc855e4ac
+      ref: cake-update-old
+      resolved-ref: f39aa0b62642eaf1e9de5b31e2395148e73c7fd2
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"

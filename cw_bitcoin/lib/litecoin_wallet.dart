@@ -6,15 +6,19 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/exceptions.dart';
+import 'package:cw_bitcoin/litecoin_address_record.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:blockchain_utils/signer/ecdsa_signing_key.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -66,8 +70,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     String? xpub,
     String? passphrase,
     String? addressPageType,
-    List<BitcoinAddressRecord>? initialAddresses,
-    List<BitcoinAddressRecord>? initialMwebAddresses,
+    List<LitecoinAddressRecord>? initialAddresses,
+    List<LitecoinAddressRecord>? initialMwebAddresses,
     ElectrumBalance? initialBalance,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
@@ -151,6 +155,904 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   StreamSubscription<Utxo>? _utxoStream;
   late bool mwebEnabled;
   bool processingUtxos = false;
+  
+  Bip32Slip10Secp256k1 get hd => accountHD.childKey(Bip32KeyIndex(0));
+
+  Bip32Slip10Secp256k1 get sideHd => accountHD.childKey(Bip32KeyIndex(1));
+
+  Set<String> get addressesSet => walletAddresses.allAddresses
+      .where((element) => element.type != SegwitAddresType.mweb)
+      .map((addr) => addr.address)
+      .toSet();
+
+  List<String> get scriptHashes => walletAddresses.addressesByReceiveType
+      .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
+      .map((addr) => (addr as LitecoinAddressRecord).getScriptHash(network))
+      .toList();
+
+  List<String> get publicScriptHashes => walletAddresses.allAddresses
+      .where((addr) => !addr.isHidden)
+      .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
+      .map((addr) => addr.getScriptHash(network))
+      .toList();
+
+  UtxoDetails _createUTXOS({
+    required bool sendAll,
+    required bool paysToSilentPayment,
+    int credentialsAmount = 0,
+    int? inputsCount,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) {
+    List<UtxoWithAddress> utxos = [];
+    List<Outpoint> vinOutpoints = [];
+    List<ECPrivateInfo> inputPrivKeyInfos = [];
+    final publicKeys = <String, PublicKeyWithDerivationPath>{};
+    int allInputsAmount = 0;
+    bool spendsSilentPayment = false;
+    bool spendsUnconfirmedTX = false;
+
+    int leftAmount = credentialsAmount;
+    var availableInputs = unspentCoins.where((utx) {
+      if (!utx.isSending || utx.isFrozen) {
+        return false;
+      }
+
+      switch (coinTypeToSpendFrom) {
+        case UnspentCoinType.mweb:
+          return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+        case UnspentCoinType.nonMweb:
+          return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.any:
+          return true;
+      }
+    }).toList();
+    final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
+
+    // sort the unconfirmed coins so that mweb coins are last:
+    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? 1 : -1);
+
+    for (int i = 0; i < availableInputs.length; i++) {
+      final utx = availableInputs[i];
+      if (!spendsUnconfirmedTX) spendsUnconfirmedTX = utx.confirmations == 0;
+
+      allInputsAmount += utx.value;
+      leftAmount = leftAmount - utx.value;
+
+      final address = RegexUtils.addressTypeFromStr(utx.address, network);
+      ECPrivate? privkey;
+      bool? isSilentPayment = false;
+
+      final hd =
+      utx.bitcoinAddressRecord.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd;
+
+      if (utx.bitcoinAddressRecord is BitcoinSilentPaymentAddressRecord) {
+        final unspentAddress = utx.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+        privkey = walletAddresses.silentAddress!.b_spend.tweakAdd(
+          BigintUtils.fromBytes(
+            BytesUtils.fromHexString(unspentAddress.silentPaymentTweak!),
+          ),
+        );
+        spendsSilentPayment = true;
+        isSilentPayment = true;
+      } else if (!isHardwareWallet) {
+        privkey =
+            generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
+      }
+
+      vinOutpoints.add(Outpoint(txid: utx.hash, index: utx.vout));
+      String pubKeyHex;
+
+      if (privkey != null) {
+        inputPrivKeyInfos.add(ECPrivateInfo(
+          privkey,
+          address.type == SegwitAddresType.p2tr,
+          tweak: !isSilentPayment,
+        ));
+
+        pubKeyHex = privkey.getPublic().toHex();
+      } else {
+        pubKeyHex = hd.childKey(Bip32KeyIndex(utx.bitcoinAddressRecord.index)).publicKey.toHex();
+      }
+
+      final derivationPath =
+          "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? electrum_path)}"
+          "/${utx.bitcoinAddressRecord.isHidden ? "1" : "0"}"
+          "/${utx.bitcoinAddressRecord.index}";
+      publicKeys[address.pubKeyHash()] = PublicKeyWithDerivationPath(pubKeyHex, derivationPath);
+
+      utxos.add(
+        UtxoWithAddress(
+          utxo: BitcoinUtxo(
+            txHash: utx.hash,
+            value: BigInt.from(utx.value),
+            vout: utx.vout,
+            scriptType: _getScriptType(address),
+            isSilentPayment: isSilentPayment,
+          ),
+          ownerDetails: UtxoAddressDetails(
+            publicKey: pubKeyHex,
+            address: address,
+          ),
+        ),
+      );
+
+      // sendAll continues for all inputs
+      if (!sendAll) {
+        bool amountIsAcquired = leftAmount <= 0;
+        if ((inputsCount == null && amountIsAcquired) || inputsCount == i + 1) {
+          break;
+        }
+      }
+    }
+
+    if (utxos.isEmpty) {
+      throw BitcoinTransactionNoInputsException();
+    }
+
+    return UtxoDetails(
+      availableInputs: availableInputs,
+      unconfirmedCoins: unconfirmedCoins,
+      utxos: utxos,
+      vinOutpoints: vinOutpoints,
+      inputPrivKeyInfos: inputPrivKeyInfos,
+      publicKeys: publicKeys,
+      allInputsAmount: allInputsAmount,
+      spendsSilentPayment: spendsSilentPayment,
+      spendsUnconfirmedTX: spendsUnconfirmedTX,
+    );
+  }
+
+  Future<EstimatedTxResult> estimateSendAllTx(
+      List<BitcoinOutput> outputs,
+      int feeRate, {
+        String? memo,
+        bool hasSilentPayment = false,
+        UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+      }) async {
+    final utxoDetails = _createUTXOS(
+      sendAll: true,
+      paysToSilentPayment: hasSilentPayment,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
+
+    int fee = await calcFee(
+      utxos: utxoDetails.utxos,
+      outputs: outputs,
+      network: network,
+      memo: memo,
+      feeRate: feeRate,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      vinOutpoints: utxoDetails.vinOutpoints,
+    );
+
+    if (fee == 0) {
+      throw BitcoinTransactionNoFeeException();
+    }
+
+    // Here, when sending all, the output amount equals to the input value - fee to fully spend every input on the transaction and have no amount left for change
+    int amount = utxoDetails.allInputsAmount - fee;
+
+    if (amount <= 0) {
+      throw BitcoinTransactionWrongBalanceException(amount: utxoDetails.allInputsAmount + fee);
+    }
+
+    // Attempting to send less than the dust limit
+    if (_isBelowDust(amount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
+    if (outputs.length == 1) {
+      outputs[0] = BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+    }
+
+    return EstimatedTxResult(
+      utxos: utxoDetails.utxos,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      publicKeys: utxoDetails.publicKeys,
+      fee: fee,
+      amount: amount,
+      isSendAll: true,
+      hasChange: false,
+      memo: memo,
+      spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+      spendsSilentPayment: utxoDetails.spendsSilentPayment,
+    );
+  }
+
+  int get _dustAmount => 546;
+
+  bool _isBelowDust(int amount) => amount <= _dustAmount && network != BitcoinNetwork.testnet;
+
+  Future<EstimatedTxResult> estimateTxForAmount(
+      int credentialsAmount,
+      List<BitcoinOutput> outputs,
+      List<BitcoinOutput> updatedOutputs,
+      int feeRate, {
+        int? inputsCount,
+        String? memo,
+        bool? useUnconfirmed,
+        bool hasSilentPayment = false,
+        UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+      }) async {
+    // Attempting to send less than the dust limit
+    if (_isBelowDust(credentialsAmount)) {
+      throw BitcoinTransactionNoDustException();
+    }
+
+    final utxoDetails = _createUTXOS(
+      sendAll: false,
+      credentialsAmount: credentialsAmount,
+      inputsCount: inputsCount,
+      paysToSilentPayment: hasSilentPayment,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
+
+    final spendingAllCoins = utxoDetails.availableInputs.length == utxoDetails.utxos.length;
+    final spendingAllConfirmedCoins = !utxoDetails.spendsUnconfirmedTX &&
+        utxoDetails.utxos.length ==
+            utxoDetails.availableInputs.length - utxoDetails.unconfirmedCoins.length;
+
+    // How much is being spent - how much is being sent
+    int amountLeftForChangeAndFee = utxoDetails.allInputsAmount - credentialsAmount;
+
+    if (amountLeftForChangeAndFee <= 0) {
+      if (!spendingAllCoins) {
+        return estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          updatedOutputs,
+          feeRate,
+          inputsCount: utxoDetails.utxos.length + 1,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      }
+
+      throw BitcoinTransactionWrongBalanceException();
+    }
+
+    final changeAddress = await walletAddresses.getChangeAddress(
+      inputs: utxoDetails.availableInputs,
+      outputs: updatedOutputs,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
+    final address = RegexUtils.addressTypeFromStr(changeAddress.address, network);
+    updatedOutputs.add(BitcoinOutput(
+      address: address,
+      value: BigInt.from(amountLeftForChangeAndFee),
+      isChange: true,
+    ));
+    outputs.add(BitcoinOutput(
+      address: address,
+      value: BigInt.from(amountLeftForChangeAndFee),
+      isChange: true,
+    ));
+
+    // Get Derivation path for change Address since it is needed in Litecoin and BitcoinCash hardware Wallets
+    final changeDerivationPath =
+        "${_hardenedDerivationPath(walletInfo.derivationInfo?.derivationPath ?? "m/0'")}"
+        "/${changeAddress.isHidden ? "1" : "0"}"
+        "/${changeAddress.index}";
+    utxoDetails.publicKeys[address.pubKeyHash()] =
+        PublicKeyWithDerivationPath('', changeDerivationPath);
+
+    // calcFee updates the silent payment outputs to calculate the tx size accounting
+    // for taproot addresses, but if more inputs are needed to make up for fees,
+    // the silent payment outputs need to be recalculated for the new inputs
+    var temp = outputs.map((output) => output).toList();
+    int fee = await calcFee(
+      utxos: utxoDetails.utxos,
+      // Always take only not updated bitcoin outputs here so for every estimation
+      // the SP outputs are re-generated to the proper taproot addresses
+      outputs: temp,
+      network: network,
+      memo: memo,
+      feeRate: feeRate,
+      inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+      vinOutpoints: utxoDetails.vinOutpoints,
+    );
+
+    updatedOutputs.clear();
+    updatedOutputs.addAll(temp);
+
+    if (fee == 0) {
+      throw BitcoinTransactionNoFeeException();
+    }
+
+    int amount = credentialsAmount;
+    final lastOutput = updatedOutputs.last;
+    final amountLeftForChange = amountLeftForChangeAndFee - fee;
+
+    if (_isBelowDust(amountLeftForChange)) {
+      // If has change that is lower than dust, will end up with tx rejected by network rules
+      // so remove the change amount
+      updatedOutputs.removeLast();
+      outputs.removeLast();
+
+      if (amountLeftForChange < 0) {
+        if (!spendingAllCoins) {
+          return estimateTxForAmount(
+            credentialsAmount,
+            outputs,
+            updatedOutputs,
+            feeRate,
+            inputsCount: utxoDetails.utxos.length + 1,
+            memo: memo,
+            useUnconfirmed: useUnconfirmed ?? spendingAllConfirmedCoins,
+            hasSilentPayment: hasSilentPayment,
+            coinTypeToSpendFrom: coinTypeToSpendFrom,
+          );
+        } else {
+          throw BitcoinTransactionWrongBalanceException();
+        }
+      }
+
+      // if the amount left for change is less than dust, but not less than 0
+      // then add it to the fees
+      fee += amountLeftForChange;
+
+      return EstimatedTxResult(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: false,
+        isSendAll: spendingAllCoins,
+        memo: memo,
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+        spendsSilentPayment: utxoDetails.spendsSilentPayment,
+      );
+    } else {
+      // Here, lastOutput already is change, return the amount left without the fee to the user's address.
+      updatedOutputs[updatedOutputs.length - 1] = BitcoinOutput(
+        address: lastOutput.address,
+        value: BigInt.from(amountLeftForChange),
+        isSilentPayment: lastOutput.isSilentPayment,
+        isChange: true,
+      );
+      outputs[outputs.length - 1] = BitcoinOutput(
+        address: lastOutput.address,
+        value: BigInt.from(amountLeftForChange),
+        isSilentPayment: lastOutput.isSilentPayment,
+        isChange: true,
+      );
+
+      return EstimatedTxResult(
+        utxos: utxoDetails.utxos,
+        inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+        publicKeys: utxoDetails.publicKeys,
+        fee: fee,
+        amount: amount,
+        hasChange: true,
+        isSendAll: spendingAllCoins,
+        memo: memo,
+        spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+        spendsSilentPayment: utxoDetails.spendsSilentPayment,
+      );
+    }
+  }
+
+  Future<PendingTransaction> createTransactionSuper(Object credentials) async {
+    try {
+      // start by updating unspent coins
+      await updateAllUnspents();
+
+      final outputs = <BitcoinOutput>[];
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+      final hasMultiDestination = transactionCredentials.outputs.length > 1;
+      final sendAll = !hasMultiDestination && transactionCredentials.outputs.first.sendAll;
+      final memo = transactionCredentials.outputs.first.memo;
+      final coinTypeToSpendFrom = transactionCredentials.coinTypeToSpendFrom;
+
+      int credentialsAmount = 0;
+      bool hasSilentPayment = false;
+
+      for (final out in transactionCredentials.outputs) {
+        final outputAmount = out.formattedCryptoAmount!;
+
+        if (!sendAll && _isBelowDust(outputAmount)) {
+          throw BitcoinTransactionNoDustException();
+        }
+
+        if (hasMultiDestination) {
+          if (out.sendAll) {
+            throw BitcoinTransactionWrongBalanceException();
+          }
+        }
+
+        credentialsAmount += outputAmount;
+
+        final address = RegexUtils.addressTypeFromStr(
+            out.isParsedAddress ? out.extractedAddress! : out.address, network);
+        final isSilentPayment = address is SilentPaymentAddress;
+
+        if (isSilentPayment) {
+          hasSilentPayment = true;
+        }
+
+        if (sendAll) {
+          // The value will be changed after estimating the Tx size and deducting the fee from the total to be sent
+          outputs.add(BitcoinOutput(
+            address: address,
+            value: BigInt.from(0),
+            isSilentPayment: isSilentPayment,
+          ));
+        } else {
+          outputs.add(BitcoinOutput(
+            address: address,
+            value: BigInt.from(outputAmount),
+            isSilentPayment: isSilentPayment,
+          ));
+        }
+      }
+
+      final feeRateInt = transactionCredentials.feeRate != null
+          ? transactionCredentials.feeRate!
+          : feeRate(transactionCredentials.priority!);
+
+      EstimatedTxResult estimatedTx;
+      final updatedOutputs = outputs
+          .map((e) => BitcoinOutput(
+        address: e.address,
+        value: e.value,
+        isSilentPayment: e.isSilentPayment,
+        isChange: e.isChange,
+      ))
+          .toList();
+
+      if (sendAll) {
+        estimatedTx = await estimateSendAllTx(
+          updatedOutputs,
+          feeRateInt,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      } else {
+        estimatedTx = await estimateTxForAmount(
+          credentialsAmount,
+          outputs,
+          updatedOutputs,
+          feeRateInt,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      }
+
+      if (walletInfo.isHardwareWallet) {
+        final transaction = await buildHardwareWalletTransaction(
+          utxos: estimatedTx.utxos,
+          outputs: updatedOutputs,
+          publicKeys: estimatedTx.publicKeys,
+          fee: BigInt.from(estimatedTx.fee),
+          network: network,
+          memo: estimatedTx.memo,
+          outputOrdering: BitcoinOrdering.none,
+          enableRBF: true,
+        );
+
+        return PendingBitcoinTransaction(
+          transaction,
+          type,
+          electrumClient: electrumClient,
+          amount: estimatedTx.amount,
+          fee: estimatedTx.fee,
+          feeRate: feeRateInt.toString(),
+          network: network,
+          hasChange: estimatedTx.hasChange,
+          isSendAll: estimatedTx.isSendAll,
+          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
+        )..addListener((transaction) async {
+          transactionHistory.addOne(transaction);
+          await updateBalance();
+          await updateAllUnspents();
+        });
+      }
+
+      BasedBitcoinTransacationBuilder txb = BitcoinTransactionBuilder(
+          utxos: estimatedTx.utxos,
+          outputs: updatedOutputs,
+          fee: BigInt.from(estimatedTx.fee),
+          network: network,
+          memo: estimatedTx.memo,
+          outputOrdering: BitcoinOrdering.none,
+          enableRBF: !estimatedTx.spendsUnconfirmedTX,
+        );
+
+      bool hasTaprootInputs = false;
+
+      final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
+        String error = "Cannot find private key.";
+
+        ECPrivateInfo? key;
+
+        if (estimatedTx.inputPrivKeyInfos.isEmpty) {
+          error += "\nNo private keys generated.";
+        } else {
+          error += "\nAddress: ${utxo.ownerDetails.address.toAddress(network)}";
+
+          key = estimatedTx.inputPrivKeyInfos.firstWhereOrNull((element) {
+            final elemPubkey = element.privkey.getPublic().toHex();
+            if (elemPubkey == publicKey) {
+              return true;
+            } else {
+              error += "\nExpected: $publicKey";
+              error += "\nPubkey: $elemPubkey";
+              return false;
+            }
+          });
+        }
+
+        if (key == null) {
+          throw Exception(error);
+        }
+
+        if (utxo.utxo.isP2tr()) {
+          hasTaprootInputs = true;
+          return key.privkey.signTapRoot(
+            txDigest,
+            sighash: sighash,
+            tweak: utxo.utxo.isSilentPayment != true,
+          );
+        } else {
+          return key.privkey.signInput(txDigest, sigHash: sighash);
+        }
+      });
+
+      return PendingBitcoinTransaction(transaction, type,
+          electrumClient: electrumClient,
+          amount: estimatedTx.amount,
+          fee: estimatedTx.fee,
+          feeRate: feeRateInt.toString(),
+          network: network,
+          hasChange: estimatedTx.hasChange,
+          isSendAll: estimatedTx.isSendAll,
+          hasTaprootInputs: hasTaprootInputs,
+          utxos: estimatedTx.utxos,
+          publicKeys: estimatedTx.publicKeys)
+        ..addListener((transaction) async {
+          transactionHistory.addOne(transaction);
+          if (estimatedTx.spendsSilentPayment) {
+            transactionHistory.transactions.values.forEach((tx) {
+              tx.unspents?.removeWhere(
+                      (unspent) => estimatedTx.utxos.any((e) => e.utxo.txHash == unspent.hash));
+              transactionHistory.addOne(tx);
+            });
+          }
+
+          unspentCoins
+              .removeWhere((utxo) => estimatedTx.utxos.any((e) => e.utxo.txHash == utxo.hash));
+
+          await updateBalance();
+          await updateAllUnspents();
+        });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  String toJSON() => json.encode({
+    'mnemonic': super.seed,
+    'xpub': xpub,
+    'passphrase': passphrase ?? '',
+    'account_index': walletAddresses.currentReceiveAddressIndexByType,
+    'change_address_index': walletAddresses.currentChangeAddressIndexByType,
+    'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
+    'address_page_type': walletInfo.addressPageType == null
+        ? SegwitAddresType.p2wpkh.toString()
+        : walletInfo.addressPageType.toString(),
+    'balance': balance[currency]?.toJSON(),
+    'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
+    'derivationPath': walletInfo.derivationInfo?.derivationPath,
+    'silent_addresses': walletAddresses.silentAddresses.map((addr) => addr.toJSON()).toList(),
+    'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
+    'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
+    'alwaysScan': alwaysScan,
+  });
+
+  @action
+  Future<List<BitcoinUnspent>?> fetchUnspent(covariant LitecoinAddressRecord address) async {
+    List<BitcoinUnspent> updatedUnspentCoins = [];
+
+    final unspents = await electrumClient.getListUnspent(address.getScriptHash(network));
+
+    // Failed to fetch unspents
+    if (unspents == null) return null;
+
+    await Future.wait(unspents.map((unspent) async {
+      try {
+        final coin = BitcoinUnspent.fromJSON(address, unspent);
+        final tx = await fetchTransactionInfo(hash: coin.hash);
+        coin.isChange = address.isHidden;
+        coin.confirmations = tx?.confirmations;
+
+        updatedUnspentCoins.add(coin);
+      } catch (_) {}
+    }));
+
+    return updatedUnspentCoins;
+  }
+
+  Future<void> _refreshUnspentCoinsInfo() async {
+    try {
+      final List<dynamic> keys = [];
+      final currentWalletUnspentCoins =
+      unspentCoinsInfo.values.where((record) => record.walletId == id);
+
+      for (final element in currentWalletUnspentCoins) {
+        if (RegexUtils.addressTypeFromStr(element.address, network) is MwebAddress) continue;
+
+        final existUnspentCoins = unspentCoins.where((coin) => element == coin);
+
+        if (existUnspentCoins.isEmpty) {
+          keys.add(element.key);
+        }
+      }
+
+      if (keys.isNotEmpty) {
+        await unspentCoinsInfo.deleteAll(keys);
+      }
+    } catch (e) {
+      printV("refreshUnspentCoinsInfo $e");
+    }
+  }
+
+  int transactionVSize(String transactionHex) => BtcTransaction.fromRaw(transactionHex).getVSize();
+
+  Future<ElectrumTransactionBundle> getTransactionExpanded(
+      {required String hash, int? height}) async {
+    String transactionHex;
+    int? time;
+    int? confirmations;
+
+    final verboseTransaction = await electrumClient.getTransactionVerbose(hash: hash);
+
+    if (verboseTransaction.isEmpty) {
+      transactionHex = await electrumClient.getTransactionHex(hash: hash);
+
+      if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
+        try {
+          final blockHash = await ProxyWrapper()
+              .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/block-height/$height"))
+              .timeout(Duration(seconds: 15));
+
+          if (blockHash.statusCode == 200 &&
+              blockHash.body.isNotEmpty &&
+              jsonDecode(blockHash.body) != null) {
+            final blockResponse = await ProxyWrapper()
+                .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/block/${blockHash}"))
+                .timeout(Duration(seconds: 15));
+
+            if (blockResponse.statusCode == 200 &&
+                blockResponse.body.isNotEmpty &&
+                jsonDecode(blockResponse.body)['timestamp'] != null) {
+              time = int.parse(jsonDecode(blockResponse.body)['timestamp'].toString());
+            }
+          }
+        } catch (_) {}
+      }
+    } else {
+      transactionHex = verboseTransaction['hex'] as String;
+      time = verboseTransaction['time'] as int?;
+      confirmations = verboseTransaction['confirmations'] as int?;
+    }
+
+    if (height != null) {
+      if (time == null && height > 0) {
+        time = (getDateByBitcoinHeight(height).millisecondsSinceEpoch / 1000).round();
+      }
+
+      if (confirmations == null) {
+        final tip = await getUpdatedChainTip();
+        if (tip > 0 && height > 0) {
+          // Add one because the block itself is the first confirmation
+          confirmations = tip - height + 1;
+        }
+      }
+    }
+
+    final original = BtcTransaction.fromRaw(transactionHex);
+    final ins = <BtcTransaction>[];
+
+    for (final vin in original.inputs) {
+      final verboseTransaction = await electrumClient.getTransactionVerbose(hash: vin.txId);
+
+      final String inputTransactionHex;
+
+      if (verboseTransaction.isEmpty) {
+        inputTransactionHex = await electrumClient.getTransactionHex(hash: hash);
+      } else {
+        inputTransactionHex = verboseTransaction['hex'] as String;
+      }
+
+      ins.add(BtcTransaction.fromRaw(inputTransactionHex));
+    }
+
+    return ElectrumTransactionBundle(
+      original,
+      ins: ins,
+      time: time,
+      confirmations: confirmations ?? 0,
+    );
+  }
+
+  Future<ElectrumTransactionInfo?> fetchTransactionInfo(
+      {required String hash, int? height, bool? retryOnFailure}) async {
+    try {
+      return ElectrumTransactionInfo.fromElectrumBundle(
+        await getTransactionExpanded(hash: hash, height: height),
+        walletInfo.type,
+        network,
+        addresses: addressesSet,
+        height: height,
+      );
+    } catch (e) {
+      if (e is FormatException && retryOnFailure == true) {
+        await Future.delayed(const Duration(seconds: 2));
+        return fetchTransactionInfo(hash: hash, height: height);
+      }
+      return null;
+    }
+  }
+
+  @override
+  Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+    try {
+      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+      if (type == WalletType.litecoin) {
+        await Future.wait(LITECOIN_ADDRESS_TYPES
+            .where((type) => type != SegwitAddresType.mweb)
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+      }
+
+      transactionHistory.transactions.values.forEach((tx) async {
+        final isPendingSilentPaymentUtxo =
+            (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
+
+        if (isPendingSilentPaymentUtxo) {
+          final info =
+          await fetchTransactionInfo(hash: tx.id, height: tx.height, retryOnFailure: true);
+
+          if (info != null) {
+            tx.confirmations = info.confirmations;
+            tx.isPending = tx.confirmations == 0;
+            transactionHistory.addOne(tx);
+            await transactionHistory.save();
+          }
+        }
+      });
+
+      return historiesWithDetails;
+    } catch (e) {
+      printV("fetchTransactions $e");
+      return {};
+    }
+  }
+
+  Future<Map<String, ElectrumTransactionInfo>> _fetchAddressHistory(
+      BitcoinAddressRecord addressRecord, int? currentHeight) async {
+    String txid = "";
+
+    try {
+      final Map<String, ElectrumTransactionInfo> historiesWithDetails = {};
+
+      final history = await electrumClient.getHistory(addressRecord.getScriptHash(network));
+
+      if (history.isNotEmpty) {
+        addressRecord.setAsUsed();
+
+        await Future.wait(history.map((transaction) async {
+          txid = transaction['tx_hash'] as String;
+          final height = transaction['height'] as int;
+          final storedTx = transactionHistory.transactions[txid];
+
+          if (storedTx != null) {
+            if (height > 0) {
+              storedTx.height = height;
+              // the tx's block itself is the first confirmation so add 1
+              if ((currentHeight ?? 0) > 0) {
+                storedTx.confirmations = currentHeight! - height + 1;
+              }
+              storedTx.isPending = storedTx.confirmations == 0;
+            }
+
+            historiesWithDetails[txid] = storedTx;
+          } else {
+            final tx = await fetchTransactionInfo(hash: txid, height: height, retryOnFailure: true);
+
+            if (tx != null) {
+              historiesWithDetails[txid] = tx;
+
+              // Got a new transaction fetched, add it to the transaction history
+              // instead of waiting all to finish, and next time it will be faster
+
+              if (this is LitecoinWallet) {
+                // if we have a peg out transaction with the same value
+                // that matches this received transaction, mark it as being from a peg out:
+                for (final tx2 in transactionHistory.transactions.values) {
+                  final heightDiff = ((tx2.height ?? 0) - (tx.height ?? 0)).abs();
+                  // this isn't a perfect matching algorithm since we don't have the right input/output information from these transaction models (the addresses are in different formats), but this should be more than good enough for now as it's extremely unlikely a user receives the EXACT same amount from 2 different sources and one of them is a peg out and the other isn't WITHIN 5 blocks of each other
+                  if (tx2.additionalInfo["isPegOut"] == true &&
+                      tx2.amount == tx.amount &&
+                      heightDiff <= 5) {
+                    tx.additionalInfo["fromPegOut"] = true;
+                  }
+                }
+              }
+              transactionHistory.addOne(tx);
+              await transactionHistory.save();
+            }
+          }
+
+          return Future.value(null);
+        }));
+      }
+
+      return historiesWithDetails;
+    } catch (e) {
+      // _onError?.call(FlutterErrorDetails(
+      //   exception: "$txid - $e",
+      //   stack: stacktrace,
+      //   library: this.runtimeType.toString(),
+      // ));
+      return {};
+    }
+  }
+
+
+  Future<void> fetchTransactionsForAddressType(
+      Map<String, ElectrumTransactionInfo> historiesWithDetails,
+      BitcoinAddressType type,
+      ) async {
+    final addressesByType = walletAddresses.allAddresses.where((addr) => addr.type == type);
+    final hiddenAddresses = addressesByType.where((addr) => addr.isHidden == true);
+    final receiveAddresses = addressesByType.where((addr) => addr.isHidden == false);
+    walletAddresses.hiddenAddresses.addAll(hiddenAddresses.map((e) => e.address));
+    await walletAddresses.saveAddressesInBox();
+    await Future.wait(addressesByType.map((addressRecord) async {
+      final history = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
+
+      if (history.isNotEmpty) {
+        addressRecord.txCount = history.length;
+        historiesWithDetails.addAll(history);
+
+        final matchedAddresses = addressRecord.isHidden ? hiddenAddresses : receiveAddresses;
+        final isUsedAddressUnderGap = matchedAddresses.toList().indexOf(addressRecord) >=
+            matchedAddresses.length -
+                (addressRecord.isHidden
+                    ? LitecoinWalletAddressesBase.defaultChangeAddressesCount
+                    : LitecoinWalletAddressesBase.defaultReceiveAddressesCount);
+
+        if (isUsedAddressUnderGap) {
+          final prevLength = walletAddresses.allAddresses.length;
+
+          // Discover new addresses for the same address type until the gap limit is respected
+          await walletAddresses.discoverAddresses(
+            matchedAddresses.toList(),
+            addressRecord.isHidden,
+                (address) async {
+              await subscribeForUpdates();
+              return _fetchAddressHistory(address, await getCurrentChainTip())
+                  .then((history) => history.isNotEmpty ? address.address : null);
+            },
+            type: type,
+          );
+
+          final newLength = walletAddresses.allAddresses.length;
+
+          if (newLength > prevLength) {
+            await fetchTransactionsForAddressType(historiesWithDetails, type);
+          }
+        }
+      }
+    }));
+  }
+
+  static String _hardenedDerivationPath(String derivationPath) =>
+      derivationPath.substring(0, derivationPath.lastIndexOf("'") + 1);
 
   @observable
   SyncStatus mwebSyncStatus = NotConnectedSyncStatus();
@@ -169,8 +1071,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       required EncryptionFileUtils encryptionFileUtils,
       String? passphrase,
       String? addressPageType,
-      List<BitcoinAddressRecord>? initialAddresses,
-      List<BitcoinAddressRecord>? initialMwebAddresses,
+      List<LitecoinAddressRecord>? initialAddresses,
+      List<LitecoinAddressRecord>? initialMwebAddresses,
       ElectrumBalance? initialBalance,
       Map<String, int>? initialRegularAddressIndex,
       Map<String, int>? initialChangeAddressIndex}) async {
@@ -274,8 +1176,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp?.addresses,
-      initialMwebAddresses: snp?.mwebAddresses,
+      initialAddresses: snp?.addresses as List<LitecoinAddressRecord>?,
+      initialMwebAddresses: snp?.mwebAddresses as List<LitecoinAddressRecord>?,
       initialBalance: snp?.balance,
       seedBytes: seedBytes,
       passphrase: passphrase,
@@ -1060,7 +1962,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
-      var tx = await super.createTransaction(credentials) as PendingBitcoinTransaction;
+      var tx = await createTransactionSuper(credentials) as PendingBitcoinTransaction;
       tx.isMweb = mwebEnabled;
 
       if (!mwebEnabled) {
@@ -1425,4 +2327,27 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     return BtcTransaction.fromRaw(rawHex);
   }
+
+  BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
+    if (type is P2pkhAddress) {
+      return P2pkhAddressType.p2pkh;
+    } else if (type is P2shAddress) {
+      return P2shAddressType.p2wpkhInP2sh;
+    } else if (type is P2wshAddress) {
+      return SegwitAddresType.p2wsh;
+    } else if (type is P2trAddress) {
+      return SegwitAddresType.p2tr;
+    } else if (type is MwebAddress) {
+      return SegwitAddresType.mweb;
+    } else if (type is SilentPaymentsAddresType) {
+      return SilentPaymentsAddresType.p2sp;
+    } else {
+      return SegwitAddresType.p2wpkh;
+    }
+  }
+
+  static const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
+    SegwitAddresType.p2wpkh,
+    SegwitAddresType.mweb,
+  ];
 }

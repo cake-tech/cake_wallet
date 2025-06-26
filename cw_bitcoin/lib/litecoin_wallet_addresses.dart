@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:typed_data';
 
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_mweb/cw_mweb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -33,7 +33,10 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     super.initialMwebAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
-  }) : super(walletInfo) {
+  }) : _addressPageType = 
+      (walletInfo.addressPageType != null
+          ? BitcoinAddressType.fromValue(walletInfo.addressPageType!)
+          : SegwitAddresType.p2wpkh), super(walletInfo) {
     for (int i = 0; i < mwebAddresses.length; i++) {
       mwebAddrs.add(mwebAddresses[i].address);
     }
@@ -210,4 +213,403 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
         .where((element) => element.type == SegwitAddresType.p2wpkh && !element.isUsed);
     return addresses.first.address;
   }
+
+  static const defaultReceiveAddressesCount = 22;
+  static const defaultChangeAddressesCount = 17;
+  static const gap = 20;
+
+  @observable
+  late BitcoinAddressType _addressPageType;
+
+  @computed
+  BitcoinAddressType get addressPageType => _addressPageType;
+
+
+  @override
+  @computed
+  String get address {
+    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+      if (activeSilentAddress != null) {
+        return activeSilentAddress!;
+      }
+
+      return silentAddress.toString();
+    }
+
+    final typeMatchingAddresses = super.allAddresses.where((addr) => !addr.isHidden && _isAddressPageTypeMatch(addr)).toList();
+    final typeMatchingReceiveAddresses = typeMatchingAddresses.where((addr) => !addr.isUsed).toList();
+
+    if (!isEnabledAutoGenerateSubaddress) {
+      if (previousAddressRecord != null &&
+          previousAddressRecord!.type == addressPageType) {
+        return previousAddressRecord!.address;
+      }
+
+      if (typeMatchingAddresses.isNotEmpty) {
+        return typeMatchingAddresses.first.address;
+      }
+
+      return generateNewAddress().address;
+    }
+
+    if (typeMatchingAddresses.isEmpty || typeMatchingReceiveAddresses.isEmpty) {
+      return generateNewAddress().address;
+    }
+
+    final prev = previousAddressRecord;
+    if (prev != null && prev.type == addressPageType && !prev.isUsed) {
+      return prev.address;
+    }
+
+    return typeMatchingReceiveAddresses.first.address;
+  }
+
+  @observable
+  bool isEnabledAutoGenerateSubaddress = true;
+
+  @override
+  set address(String addr) {
+    if (addr == "Silent Payments" && SilentPaymentsAddresType.p2sp != addressPageType) {
+      return;
+    }
+    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+      final selected = silentAddresses.firstWhere((addressRecord) => addressRecord.address == addr);
+
+      if (selected.silentPaymentTweak != null && silentAddress != null) {
+        activeSilentAddress =
+            silentAddress!.toLabeledSilentPaymentAddress(selected.index).toString();
+      } else {
+        activeSilentAddress = silentAddress!.toString();
+      }
+      return;
+    }
+    try {
+      final addressRecord = super.allAddresses.firstWhere(
+            (addressRecord) => addressRecord.address == addr,
+      );
+
+      previousAddressRecord = addressRecord;
+      receiveAddresses.remove(addressRecord);
+      receiveAddresses.insert(0, addressRecord);
+    } catch (e) {
+      printV("ElectrumWalletAddressBase: set address ($addr): $e");
+    }
+  }
+
+  @override
+  String get primaryAddress => getAddress(index: 0, hd: mainHd, addressType: addressPageType);
+
+  int get currentReceiveAddressIndex =>
+      currentReceiveAddressIndexByType[_addressPageType.toString()] ?? 0;
+
+  void set currentReceiveAddressIndex(int index) =>
+      currentReceiveAddressIndexByType[_addressPageType.toString()] = index;
+
+  int get currentChangeAddressIndex =>
+      currentChangeAddressIndexByType[_addressPageType.toString()] ?? 0;
+
+  void set currentChangeAddressIndex(int index) =>
+      currentChangeAddressIndexByType[_addressPageType.toString()] = index;
+
+  @observable
+  BitcoinAddressRecord? previousAddressRecord;
+
+  @computed
+  int get totalCountOfReceiveAddresses => addressesByReceiveType.fold(0, (acc, addressRecord) {
+    if (!addressRecord.isHidden) {
+      return acc + 1;
+    }
+    return acc;
+  });
+
+  @computed
+  int get totalCountOfChangeAddresses => addressesByReceiveType.fold(0, (acc, addressRecord) {
+    if (addressRecord.isHidden) {
+      return acc + 1;
+    }
+    return acc;
+  });
+
+  Map<String, String> get labels {
+    final G = ECPublic.fromBytes(BigintUtils.toBytes(Curves.generatorSecp256k1.x, length: 32));
+    final labels = <String, String>{};
+    for (int i = 0; i < silentAddresses.length; i++) {
+      final silentAddressRecord = silentAddresses[i];
+      final silentPaymentTweak = silentAddressRecord.silentPaymentTweak;
+
+      if (silentPaymentTweak != null &&
+          SilentPaymentAddress.regex.hasMatch(silentAddressRecord.address)) {
+        labels[G
+            .tweakMul(BigintUtils.fromBytes(BytesUtils.fromHexString(silentPaymentTweak)))
+            .toHex()] = silentPaymentTweak;
+      }
+    }
+    return labels;
+  }
+
+  @action
+  BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
+    final newAddressIndex = addressesByReceiveType.fold(
+        0, (int acc, addressRecord) => addressRecord.isHidden == false ? acc + 1 : acc);
+
+    final address = BitcoinAddressRecord(
+      getAddress(index: newAddressIndex, hd: mainHd, addressType: addressPageType),
+      index: newAddressIndex,
+      isHidden: false,
+      name: label,
+      type: addressPageType,
+      network: network,
+    );
+    Future.delayed(Duration.zero, () {
+      super.allAddresses.add(address);
+      updateAddressesByMatch();
+    });
+    return address;
+  }
+
+  void addLitecoinAddressTypes() {
+    final lastP2wpkh = super.allAddresses
+        .where((addressRecord) =>
+        _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+        .toList()
+        .last;
+    if (lastP2wpkh.address != address) {
+      addressesMap[lastP2wpkh.address] = 'P2WPKH';
+    } else {
+      addressesMap[address] = 'Active - P2WPKH';
+    }
+
+    final lastMweb = super.allAddresses.firstWhere(
+            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
+    if (lastMweb.address != address) {
+      addressesMap[lastMweb.address] = 'MWEB';
+    } else {
+      addressesMap[address] = 'Active - MWEB';
+    }
+  }
+
+  @override
+  Future<void> updateAddressesInBox() async {
+    try {
+      addressesMap.clear();
+      addressesMap[address] = 'Active';
+
+      allAddressesMap.clear();
+      super.allAddresses.forEach((addressRecord) {
+        allAddressesMap[addressRecord.address] = addressRecord.name;
+      });
+
+      switch (walletInfo.type) {
+        case WalletType.bitcoin:
+          addBitcoinAddressTypes();
+          break;
+        case WalletType.litecoin:
+          addLitecoinAddressTypes();
+          break;
+        case WalletType.bitcoinCash:
+          addBitcoinCashAddressTypes();
+          break;
+        default:
+          break;
+      }
+
+      await saveAddressesInBox();
+    } catch (e) {
+      printV("updateAddresses $e");
+    }
+  }
+
+  @action
+  void updateAddress(String address, String label) {
+    BaseBitcoinAddressRecord? foundAddress;
+    super.allAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+    silentAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+    mwebAddresses.forEach((addressRecord) {
+      if (addressRecord.address == address) {
+        foundAddress = addressRecord;
+      }
+    });
+
+    if (foundAddress != null) {
+      foundAddress!.setNewName(label);
+
+      if (foundAddress is BitcoinAddressRecord) {
+        final index = super.allAddresses.indexOf(foundAddress as BitcoinAddressRecord);
+        super.allAddresses.remove(foundAddress);
+        super.allAddresses.insert(index, foundAddress as BitcoinAddressRecord);
+      } else {
+        final index = silentAddresses.indexOf(foundAddress as BitcoinSilentPaymentAddressRecord);
+        silentAddresses.remove(foundAddress);
+        silentAddresses.insert(index, foundAddress as BitcoinSilentPaymentAddressRecord);
+      }
+    }
+  }
+
+  @action
+  void updateAddressesByMatch() {
+    if (addressPageType == SilentPaymentsAddresType.p2sp) {
+      addressesByReceiveType.clear();
+      addressesByReceiveType.addAll(silentAddresses);
+      return;
+    }
+
+    addressesByReceiveType.clear();
+    addressesByReceiveType.addAll(super.allAddresses.where(_isAddressPageTypeMatch).toList());
+  }
+
+  @action
+  void updateReceiveAddresses() {
+    receiveAddresses.removeRange(0, receiveAddresses.length);
+    final newAddresses =
+    super.allAddresses.where((addressRecord) => !addressRecord.isHidden && !addressRecord.isUsed);
+    receiveAddresses.addAll(newAddresses);
+  }
+
+  @action
+  void updateChangeAddresses() {
+    changeAddresses.removeRange(0, changeAddresses.length);
+    final newAddresses = super.allAddresses.where((addressRecord) =>
+    addressRecord.isHidden &&
+        !addressRecord.isUsed &&
+        // TODO: feature to change change address type. For now fixed to p2wpkh, the cheapest type
+        (walletInfo.type != WalletType.bitcoin || addressRecord.type == SegwitAddresType.p2wpkh));
+    changeAddresses.addAll(newAddresses);
+  }
+
+  @action
+  Future<void> discoverAddresses(List<BitcoinAddressRecord> addressList, bool isHidden,
+      Future<String?> Function(BitcoinAddressRecord) getAddressHistory,
+      {BitcoinAddressType type = SegwitAddresType.p2wpkh}) async {
+    final newAddresses = await _createNewAddresses(gap,
+        startIndex: addressList.length, isHidden: isHidden, type: type);
+    addAddresses(newAddresses);
+
+    final addressesWithHistory = await Future.wait(newAddresses.map(getAddressHistory));
+    final isLastAddressUsed = addressesWithHistory.last == addressList.last.address;
+
+    if (isLastAddressUsed) {
+      discoverAddresses(addressList, isHidden, getAddressHistory, type: type);
+    }
+  }
+
+  Future<void> _generateInitialAddresses(
+      {BitcoinAddressType type = SegwitAddresType.p2wpkh}) async {
+    var countOfReceiveAddresses = 0;
+    var countOfHiddenAddresses = 0;
+
+    super.allAddresses.forEach((addr) {
+      if (addr.type == type) {
+        if (addr.isHidden) {
+          countOfHiddenAddresses += 1;
+          return;
+        }
+
+        countOfReceiveAddresses += 1;
+      }
+    });
+
+    if (countOfReceiveAddresses < defaultReceiveAddressesCount) {
+      final addressesCount = defaultReceiveAddressesCount - countOfReceiveAddresses;
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfReceiveAddresses, isHidden: false, type: type);
+      addAddresses(newAddresses);
+    }
+
+    if (countOfHiddenAddresses < defaultChangeAddressesCount) {
+      final addressesCount = defaultChangeAddressesCount - countOfHiddenAddresses;
+      final newAddresses = await _createNewAddresses(addressesCount,
+          startIndex: countOfHiddenAddresses, isHidden: true, type: type);
+      addAddresses(newAddresses);
+    }
+  }
+
+  Future<List<BitcoinAddressRecord>> _createNewAddresses(int count,
+      {int startIndex = 0, bool isHidden = false, BitcoinAddressType? type}) async {
+    final list = <BitcoinAddressRecord>[];
+
+    for (var i = startIndex; i < count + startIndex; i++) {
+      final address = BitcoinAddressRecord(
+        await getAddressAsync(index: i, hd: _getHd(isHidden), addressType: type ?? addressPageType),
+        index: i,
+        isHidden: isHidden,
+        type: type ?? addressPageType,
+        network: network,
+      );
+      list.add(address);
+    }
+
+    return list;
+  }
+
+  @action
+  void addAddresses(Iterable<BitcoinAddressRecord> addresses) {
+    final addressesSet = super.allAddresses.toSet();
+    addressesSet.addAll(addresses);
+    super.allAddresses.clear();
+    super.allAddresses.addAll(addressesSet);
+    updateAddressesByMatch();
+  }
+
+  @action
+  void addSilentAddresses(Iterable<BitcoinSilentPaymentAddressRecord> addresses) {
+    final addressesSet = this.silentAddresses.toSet();
+    addressesSet.addAll(addresses);
+    this.silentAddresses.clear();
+    this.silentAddresses.addAll(addressesSet);
+    updateAddressesByMatch();
+  }
+
+  @action
+  void addMwebAddresses(Iterable<BitcoinAddressRecord> addresses) {
+    final addressesSet = this.mwebAddresses.toSet();
+    addressesSet.addAll(addresses);
+    this.mwebAddresses.clear();
+    this.mwebAddresses.addAll(addressesSet);
+    updateAddressesByMatch();
+  }
+
+  void _validateAddresses() {
+    super.allAddresses.forEach((element) async {
+      if (element.type == SegwitAddresType.mweb) {
+        // this would add a ton of startup lag for mweb addresses since we have 1000 of them
+        return;
+      }
+      if (!element.isHidden &&
+          element.address !=
+              await getAddressAsync(index: element.index, hd: mainHd, addressType: element.type)) {
+        element.isHidden = true;
+      } else if (element.isHidden &&
+          element.address !=
+              await getAddressAsync(index: element.index, hd: sideHd, addressType: element.type)) {
+        element.isHidden = false;
+      }
+    });
+  }
+
+  @action
+  Future<void> setAddressType(BitcoinAddressType type) async {
+    _addressPageType = type;
+    updateAddressesByMatch();
+    walletInfo.addressPageType = addressPageType.toString();
+    await walletInfo.save();
+  }
+
+  bool _isAddressPageTypeMatch(BitcoinAddressRecord addressRecord) {
+    return _isAddressByType(addressRecord, addressPageType);
+  }
+
+  Bip32Slip10Secp256k1 _getHd(bool isHidden) => isHidden ? sideHd : mainHd;
+
+  bool _isAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) => addr.type == type;
+
+  bool _isUnusedReceiveAddressByType(BitcoinAddressRecord addr, BitcoinAddressType type) =>
+      !addr.isHidden && !addr.isUsed && addr.type == type;
 }
