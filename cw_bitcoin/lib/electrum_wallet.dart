@@ -182,7 +182,7 @@ abstract class ElectrumWalletBase
   SyncStatus syncStatus;
 
   Set<String> get addressesSet => walletAddresses.allAddresses
-      .where((element) => element.type != SegwitAddresType.mweb)
+      .where((element) => element.type != SegwitAddressType.mweb)
       .map((addr) => addr.address)
       .toSet();
 
@@ -439,7 +439,6 @@ abstract class ElectrumWalletBase
               BigintUtils.fromBytes(BytesUtils.fromHexString(unspent.silentPaymentLabel!)),
             )
           : silentAddress.B_spend,
-      network: network,
     );
 
     final addressRecord = walletAddresses.silentAddresses
@@ -624,9 +623,9 @@ abstract class ElectrumWalletBase
 
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
-          return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+          return utx.bitcoinAddressRecord.type == SegwitAddressType.mweb;
         case UnspentCoinType.nonMweb:
-          return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+          return utx.bitcoinAddressRecord.type != SegwitAddressType.mweb;
         case UnspentCoinType.any:
           return true;
       }
@@ -634,7 +633,7 @@ abstract class ElectrumWalletBase
     final unconfirmedCoins = availableInputs.where((utx) => utx.confirmations == 0).toList();
 
     // sort the unconfirmed coins so that mweb coins are last:
-    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddresType.mweb ? 1 : -1);
+    availableInputs.sort((a, b) => a.bitcoinAddressRecord.type == SegwitAddressType.mweb ? 1 : -1);
 
     for (int i = 0; i < availableInputs.length; i++) {
       final utx = availableInputs[i];
@@ -642,7 +641,7 @@ abstract class ElectrumWalletBase
 
       if (paysToSilentPayment) {
         // Check inputs for shared secret derivation
-        if (utx.bitcoinAddressRecord.type == SegwitAddresType.p2wsh) {
+        if (utx.bitcoinAddressRecord.type == SegwitAddressType.p2wsh) {
           throw BitcoinTransactionSilentPaymentsNotSupported();
         }
       }
@@ -677,7 +676,7 @@ abstract class ElectrumWalletBase
       if (privkey != null) {
         inputPrivKeyInfos.add(ECPrivateInfo(
           privkey,
-          address.type == SegwitAddresType.p2tr,
+          address.type == SegwitAddressType.p2tr,
           tweak: !isSilentPayment,
         ));
 
@@ -1163,7 +1162,7 @@ abstract class ElectrumWalletBase
           throw Exception(error);
         }
 
-        if (utxo.utxo.isP2tr()) {
+        if (utxo.utxo.isP2tr) {
           hasTaprootInputs = true;
           return key.privkey.signTapRoot(
             txDigest,
@@ -1230,7 +1229,7 @@ abstract class ElectrumWalletBase
         'change_address_index': walletAddresses.currentChangeAddressIndexByType,
         'addresses': walletAddresses.allAddresses.map((addr) => addr.toJSON()).toList(),
         'address_page_type': walletInfo.addressPageType == null
-            ? SegwitAddresType.p2wpkh.toString()
+            ? SegwitAddressType.p2wpkh.toString()
             : walletInfo.addressPageType.toString(),
         'balance': balance[currency]?.toJSON(),
         'derivationTypeIndex': walletInfo.derivationInfo?.derivationType?.index,
@@ -1370,7 +1369,7 @@ abstract class ElectrumWalletBase
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
-        utxo.bitcoinAddressRecord.type != SegwitAddresType.mweb &&
+        utxo.bitcoinAddressRecord.type != SegwitAddressType.mweb &&
         utxo.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord));
 
     if (hasSilentPaymentsScanning) {
@@ -1384,13 +1383,13 @@ abstract class ElectrumWalletBase
 
     // Set the balance of all non-silent payment and non-mweb addresses to 0 before updating
     walletAddresses.allAddresses
-        .where((element) => element.type != SegwitAddresType.mweb)
+        .where((element) => element.type != SegwitAddressType.mweb)
         .forEach((addr) {
       if (addr is! BitcoinSilentPaymentAddressRecord) addr.balance = 0;
     });
 
     final addressFutures = walletAddresses.allAddresses
-        .where((element) => element.type != SegwitAddresType.mweb)
+        .where((element) => element.type != SegwitAddressType.mweb)
         .map((address) => fetchUnspent(address))
         .toList();
 
@@ -1831,7 +1830,7 @@ abstract class ElectrumWalletBase
           throw Exception("Cannot find private key");
         }
 
-        if (utxo.utxo.isP2tr()) {
+        if (utxo.utxo.isP2tr) {
           return key.signTapRoot(txDigest, sighash: sighash);
         } else {
           return key.signInput(txDigest, sigHash: sighash);
@@ -1978,7 +1977,7 @@ abstract class ElectrumWalletBase
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.litecoin) {
         await Future.wait(LITECOIN_ADDRESS_TYPES
-            .where((type) => type != SegwitAddresType.mweb)
+            .where((type) => type != SegwitAddressType.mweb)
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
@@ -2167,7 +2166,7 @@ abstract class ElectrumWalletBase
     final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
       (address) =>
           !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
-          address.type != SegwitAddresType.mweb,
+          address.type != SegwitAddressType.mweb,
     );
 
     await Future.wait(unsubscribedScriptHashes.map((address) async {
@@ -2707,7 +2706,7 @@ Future<void> startRefresh(ScanData scanData) async {
                   isUsed: true,
                   network: scanData.network,
                   silentPaymentTweak: t_k,
-                  type: SegwitAddresType.p2tr,
+                  type: SegwitAddressType.p2tr,
                   txCount: 1,
                   balance: amount!,
                 );
@@ -2800,15 +2799,15 @@ BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {
   } else if (type is P2shAddress) {
     return P2shAddressType.p2wpkhInP2sh;
   } else if (type is P2wshAddress) {
-    return SegwitAddresType.p2wsh;
+    return SegwitAddressType.p2wsh;
   } else if (type is P2trAddress) {
-    return SegwitAddresType.p2tr;
+    return SegwitAddressType.p2tr;
   } else if (type is MwebAddress) {
-    return SegwitAddresType.mweb;
+    return SegwitAddressType.mweb;
   } else if (type is SilentPaymentsAddresType) {
     return SilentPaymentsAddresType.p2sp;
   } else {
-    return SegwitAddresType.p2wpkh;
+    return SegwitAddressType.p2wpkh;
   }
 }
 

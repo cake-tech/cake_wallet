@@ -50,7 +50,7 @@ import 'package:ledger_litecoin/ledger_litecoin.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_mweb/cw_mweb.dart';
-import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
+// import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -690,16 +690,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           throw Exception(error);
         }
 
-        if (utxo.utxo.isP2tr()) {
-          hasTaprootInputs = true;
-          return key.privkey.signTapRoot(
-            txDigest,
-            sighash: sighash,
-            tweak: utxo.utxo.isSilentPayment != true,
-          );
-        } else {
-          return key.privkey.signInput(txDigest, sigHash: sighash);
-        }
+        return key.privkey.signInput(txDigest, sigHash: sighash);
       });
 
       return PendingBitcoinTransaction(transaction, type,

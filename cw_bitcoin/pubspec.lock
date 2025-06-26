@@ -81,20 +81,20 @@ packages:
     source: git
     version: "1.0.1"
   bitcoin_base:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v7
-      resolved-ref: f577e83fe78766b2655ea0602baa9299b953a31b
+      ref: "2ab3437bd5a671e3f5833e5613eb98751e108bb7"
+      resolved-ref: "2ab3437bd5a671e3f5833e5613eb98751e108bb7"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
-    version: "4.7.0"
+    version: "6.1.0"
   bitcoin_base_old:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-old
-      resolved-ref: f39aa0b62642eaf1e9de5b31e2395148e73c7fd2
+      ref: cd98de1d47895085e58fc8433b4ce41a157fc342
+      resolved-ref: cd98de1d47895085e58fc8433b4ce41a157fc342
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -107,6 +107,15 @@ packages:
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
     version: "3.3.0"
+  blockchain_utils_new:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake-update-v4-renamed
+      resolved-ref: "8fdcf98f0ce8842517e33be7643dc45ffd18e455"
+      url: "https://github.com/cake-tech/blockchain_utils"
+    source: git
+    version: "4.3.0"
   bluez:
     dependency: transitive
     description:
