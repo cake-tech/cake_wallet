@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/gnosis/gnosis.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -106,6 +107,13 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         );
       case WalletType.polygon:
         return polygon!.createPolygonNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          mnemonic: newWalletArguments!.mnemonic,
+          passphrase: passphrase,
+        );
+      case WalletType.gnosis:
+        return gnosis!.createGnosisNewWalletCredentials(
           name: name,
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,

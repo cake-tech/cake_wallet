@@ -35,9 +35,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     // convert to switch case so that it give a syntax error when adding a new wallet type
     // thus we don't forget about it
     switch (type) {
-      case WalletType.ethereum:
       case WalletType.bitcoinCash:
+      case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.gnosis:
       case WalletType.solana:
       case WalletType.tron:
         return true;

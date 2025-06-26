@@ -31,6 +31,9 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
     case WalletType.polygon:
       path = 'assets/polygon_node_list.yml';
       break;
+    case WalletType.gnosis:
+      path = 'assets/gnosis_node_list.yml';
+      break;
     case WalletType.solana:
       path = 'assets/solana_node_list.yml';
       break;
