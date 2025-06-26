@@ -413,7 +413,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final psbt = PsbtV2()..deserializeV0(base64Decode(preProcessedPsbt));
 
     await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
-      return utxo.utxo.isP2tr()
+      return utxo.utxo.isP2tr
           ? key.signTapRoot(
               txDigest,
               sighash: sighash,

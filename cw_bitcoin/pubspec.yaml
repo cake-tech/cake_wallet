@@ -70,10 +70,14 @@ dev_dependencies:
 dependency_overrides:
   watcher: ^1.1.0
   protobuf: ^3.1.0
+  bitcoin_base_old:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: 4917d51caa02c6d1cb095769859b1ec563bf26ee
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v9
+      ref: 2ab3437bd5a671e3f5833e5613eb98751e108bb7
   pointycastle: 3.7.4
   ffi: 2.1.0
 
