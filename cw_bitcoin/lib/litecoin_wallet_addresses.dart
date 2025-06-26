@@ -6,6 +6,7 @@ import 'package:bitcoin_base_old/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/litecoin_address_record.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -106,7 +107,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
           .asMap()
           .entries
-          .map((e) => BitcoinAddressRecord(
+          .map((e) => LitecoinAddressRecord(
                 e.value,
                 index: e.key,
                 type: SegwitAddresType.mweb,

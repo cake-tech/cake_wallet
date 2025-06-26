@@ -73,7 +73,7 @@ dependency_overrides:
   bitcoin_base_old:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cd98de1d47895085e58fc8433b4ce41a157fc342
+      ref: 4917d51caa02c6d1cb095769859b1ec563bf26ee
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base

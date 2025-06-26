@@ -34,10 +34,10 @@ packages:
     dependency: transitive
     description:
       name: asn1lib
-      sha256: "1c296cd268f486cabcc3930e9b93a8133169305f18d722916e675959a88f6d2c"
+      sha256: "9a8f69025044eb466b9b60ef3bc3ac99b4dc6c158ae9c56d25eeccf5bc56d024"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.9"
+    version: "1.6.5"
   async:
     dependency: transitive
     description:
@@ -93,8 +93,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cd98de1d47895085e58fc8433b4ce41a157fc342
-      resolved-ref: cd98de1d47895085e58fc8433b4ce41a157fc342
+      ref: "4917d51caa02c6d1cb095769859b1ec563bf26ee"
+      resolved-ref: "4917d51caa02c6d1cb095769859b1ec563bf26ee"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -486,10 +486,10 @@ packages:
     dependency: "direct main"
     description:
       name: grpc
-      sha256: "30e1edae6846b163a64f6d8716e3443980fe1f7d2d1f086f011d24ea186f2582"
+      sha256: "2dde469ddd8bbd7a33a0765da417abe1ad2142813efce3a86c512041294e2b26"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.4"
+    version: "4.1.0"
   hex:
     dependency: transitive
     description:
@@ -607,7 +607,7 @@ packages:
     description:
       path: "packages/ledger-bitcoin"
       ref: trunk
-      resolved-ref: e93254f3ff3f996fb91f65a1e7ceffb9f510b4c8
+      resolved-ref: eab179d487cddda3f647f6608115a89662facde4
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -624,7 +624,7 @@ packages:
     description:
       path: "packages/ledger-litecoin"
       ref: HEAD
-      resolved-ref: e93254f3ff3f996fb91f65a1e7ceffb9f510b4c8
+      resolved-ref: eab179d487cddda3f647f6608115a89662facde4
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.2"
@@ -713,7 +713,7 @@ packages:
     description:
       path: "."
       ref: cake-update-v2
-      resolved-ref: "93440dc5126369b873ca1fccc13c3c1240b1c5c2"
+      resolved-ref: "096865a8c6b89c260beadfec04f7e184c40a3273"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
     version: "3.7.0"
@@ -1066,10 +1066,10 @@ packages:
     dependency: transitive
     description:
       name: timing
-      sha256: "70a3b636575d4163c477e6de42f247a23b315ae20e86442bebe32d3cabf61c32"
+      sha256: "62ee18aca144e4a9f29d212f5a4c6a053be252b895ab14b5821996cff4ed90fe"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.0.2"
   tor_binary:
     dependency: transitive
     description:
@@ -1115,10 +1115,10 @@ packages:
     dependency: transitive
     description:
       name: unorm_dart
-      sha256: "23d8bf65605401a6a32cff99435fed66ef3dab3ddcad3454059165df46496a3b"
+      sha256: "8e3870a1caa60bde8352f9597dd3535d8068613269444f8e35ea8925ec84c1f5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.3.1+1"
   vector_math:
     dependency: transitive
     description:
@@ -1139,10 +1139,10 @@ packages:
     dependency: "direct overridden"
     description:
       name: watcher
-      sha256: "69da27e49efa56a15f8afe8f4438c4ec02eff0a117df1b22ea4aad194fe1c104"
+      sha256: "0b7fd4a0bbc4b92641dbf20adfd7e3fd1398fe17102d94b674234563e110088a"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.1"
+    version: "1.1.2"
   web:
     dependency: transitive
     description:

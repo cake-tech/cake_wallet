@@ -12,9 +12,9 @@ class LitecoinAddressRecord extends BitcoinAddressRecord {
     super.balance = 0,
     super.name = '',
     super.isUsed = false,
-    required super.type,
+    required this.type,
     String? scriptHash,
-    required super.network,
+    required this.network,
   }) : scriptHash = scriptHash ??
             (network != null ? BitcoinAddressUtils.scriptHash(address, network: network) : null);
 
@@ -39,6 +39,9 @@ class LitecoinAddressRecord extends BitcoinAddressRecord {
   }
 
   String? scriptHash;
+
+  final BitcoinAddressType type;
+  final BasedUtxoNetwork? network;
 
   String getScriptHash(BasedUtxoNetwork network) {
     if (scriptHash != null) return scriptHash!;
