@@ -32,7 +32,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type, this.restoredWallet})
-      : isButtonEnabled = false,
+      : isButtonEnabled = restoredWallet != null,
         hasPassphrase = false,
         mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
