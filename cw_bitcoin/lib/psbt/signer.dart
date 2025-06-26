@@ -51,7 +51,7 @@ extension PsbtSigner on PsbtV2 {
     List<BigInt> taprootAmounts = [];
     List<Script> taprootScripts = [];
 
-    if (utxos.any((e) => e.utxo.isP2tr)) {
+    if (utxos.any((e) => e.utxo.isP2tr())) {
       for (final input in tx.inputs) {
         final utxo = utxos.firstWhereOrNull(
             (u) => u.utxo.txHash == input.txId && u.utxo.vout == input.txIndex);
@@ -76,7 +76,7 @@ extension PsbtSigner on PsbtV2 {
       /// We receive the owner's ScriptPubKey
       final script = _findLockingScript(utxo, false);
 
-      final int sighash = utxo.utxo.isP2tr
+      final int sighash = utxo.utxo.isP2tr()
           ? BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL
           : BitcoinOpCodeConst.SIGHASH_ALL;
 
@@ -87,7 +87,7 @@ extension PsbtSigner on PsbtV2 {
       /// now we need sign the transaction digest
       final sig = signer(digest, utxo, utxo.privateKey, sighash);
 
-      if (utxo.utxo.isP2tr) {
+      if (utxo.utxo.isP2tr()) {
         setInputTapKeySig(i, Uint8List.fromList(BytesUtils.fromHexString(sig)));
       } else {
         setInputPartialSig(
@@ -106,7 +106,7 @@ extension PsbtSigner on PsbtV2 {
       List<BigInt> taprootAmounts,
       List<Script> tapRootPubKeys) {
     if (utxo.isSegwit()) {
-      if (utxo.isP2tr) {
+      if (utxo.isP2tr()) {
         return transaction.getTransactionTaprootDigset(
           txIndex: input,
           scriptPubKeys: tapRootPubKeys,
@@ -129,23 +129,23 @@ extension PsbtSigner on PsbtV2 {
     switch (utxo.utxo.scriptType) {
       case PubKeyAddressType.p2pk:
         return senderPub.toRedeemScript();
-      case SegwitAddressType.p2wsh:
+      case SegwitAddresType.p2wsh:
         if (isTaproot) {
           return senderPub.toP2wshAddress().toScriptPubKey();
         }
         return senderPub.toP2wshRedeemScript();
       case P2pkhAddressType.p2pkh:
         return senderPub.toP2pkhAddress().toScriptPubKey();
-      case SegwitAddressType.p2wpkh:
+      case SegwitAddresType.p2wpkh:
         if (isTaproot) {
           return senderPub.toP2wpkhAddress().toScriptPubKey();
         }
         return senderPub.toP2pkhAddress().toScriptPubKey();
-      case SegwitAddressType.p2tr:
+      case SegwitAddresType.p2tr:
         return senderPub
             .toTaprootAddress(tweak: utxo.utxo.isSilentPayment != true)
             .toScriptPubKey();
-      case SegwitAddressType.mweb:
+      case SegwitAddresType.mweb:
         return Script(script: []);
       case P2shAddressType.p2pkhInP2sh:
         if (isTaproot) {

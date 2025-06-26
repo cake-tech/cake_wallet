@@ -17,7 +17,7 @@ class PSBTTransactionBuild {
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
 
-      printV(input.utxo.isP2tr);
+      printV(input.utxo.isP2tr());
       printV(input.utxo.isSegwit());
       printV(input.utxo.isP2shSegwit());
 
@@ -30,7 +30,7 @@ class PSBTTransactionBuild {
         setInputSegwit(i, input);
       } else if (input.utxo.isP2shSegwit()) {
         setInputP2shSegwit(i, input);
-      } else if (input.utxo.isP2tr) {
+      } else if (input.utxo.isP2tr()) {
         // ToDo: (Konsti) Handle Taproot Inputs
       } else {
         setInputP2pkh(i, input);
