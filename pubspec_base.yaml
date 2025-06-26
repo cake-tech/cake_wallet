@@ -150,6 +150,7 @@ dev_dependencies:
     git:
       url: https://github.com/cake-tech/google-translator.git
       version: 1.0.0
+  msix: ^3.16.9
 
 dependency_overrides:
   bech32:
@@ -221,3 +222,12 @@ flutter:
         - asset: assets/fonts/Lato-Medium.ttf
         - asset: assets/fonts/Lato-Semibold.ttf
         - asset: assets/fonts/Lato-Bold.ttf
+
+msix_config:
+  display_name: Cake Wallet
+  publisher_display_name: Cake Labs
+  identity_name: com.cakewallet.wallet
+  msix_version: 1.0.0.1
+  logo_path: assets/images/app_logo.png
+  trim_logo: false
+  capabilities: internetClient
