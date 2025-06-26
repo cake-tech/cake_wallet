@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -16,7 +17,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 class ExolixExchangeProvider extends ExchangeProvider {
   ExolixExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
-  static final apiKey = secrets.exolixApiKey;
+  static final apiKey = isMoneroOnly ? secrets.exolixMoneroApiKey : secrets.exolixCakeWalletApiKey;
   static const apiBaseUrl = 'exolix.com';
   static const transactionsPath = '/api/v2/transactions';
   static const ratePath = '/api/v2/rate';
