@@ -440,21 +440,41 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    final ur = URDecoder();
-    for (final inp in urCodes) {
-      ur.receivePart(inp);
-    }
-    final result = (ur.result as UR);
-    final cbor = result.cbor;
-    final cborDecoder = CBORDecoder(cbor);
-    final out = cborDecoder.decodeBytes();
-    final bytes = out.$1;
-    final base64psbt = base64Encode(bytes);
-    final psbt = PsbtV2()..deserializeV0(base64Decode(base64psbt));
+    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    bool isUr = urCodes.any((str) {
+      return str.startsWith("ur:psbt/");
+    });
+    if (isUr) {
+      final ur = URDecoder();
+      for (final inp in urCodes) {
+        ur.receivePart(inp);
+      }
+      final result = (ur.result as UR);
+      final cbor = result.cbor;
+      final cborDecoder = CBORDecoder(cbor);
+      final out = cborDecoder.decodeBytes();
+      final bytes = out.$1;
+      final base64psbt = base64Encode(bytes);
+      final psbt = PsbtV2()..deserializeV0(base64Decode(base64psbt));
 
-    // psbt.finalize();
-    final finalized = base64Encode(psbt.serialize());
-    await commitPsbt(finalized);
+      // psbt.finalize();
+      final finalized = base64Encode(psbt.serialize());
+      await commitPsbt(finalized);
+    } else {
+      final btcTx = BtcTransaction.fromRaw(urCodes.first);
+
+      return PendingBitcoinTransaction(
+        btcTx,
+        type,
+        electrumClient: electrumClient,
+        amount: 0,
+        fee: 0,
+        feeRate: "",
+        network: network,
+        hasChange: true,
+        isViewOnly: false,
+      ).commit();
+    }
   }
 
   @override
