@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:bitcoin_base_old/bitcoin_base.dart';
 import 'package:convert/convert.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ledger_bitcoin/psbt.dart';

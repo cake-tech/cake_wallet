@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -71,9 +70,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         super(walletInfo) {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
-        b_scan: ECPrivate.fromHex(masterHd.derivePath(SCAN_PATH).privateKey.toHex()),
-        b_spend: ECPrivate.fromHex(masterHd.derivePath(SPEND_PATH).privateKey.toHex()),
-        network: network,
+        b_scan: ECPrivate.fromHex(
+          masterHd.derivePath("m/352'/1'/0'/1'/0").privateKey.toHex(),
+        ),
+        b_spend: ECPrivate.fromHex(
+          masterHd.derivePath("m/352'/1'/0'/0'/0").privateKey.toHex(),
+        ),
       );
 
       if (silentAddresses.length == 0) {
@@ -109,8 +111,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final ObservableList<BaseBitcoinAddressRecord> addressesByReceiveType;
   final ObservableList<BitcoinAddressRecord> receiveAddresses;
   final ObservableList<BitcoinAddressRecord> changeAddresses;
+
   // TODO: add this variable in `bitcoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinSilentPaymentAddressRecord> silentAddresses;
+
   // TODO: add this variable in `litecoin_wallet_addresses` and just add a cast in cw_bitcoin to use it
   final ObservableList<BitcoinAddressRecord> mwebAddresses;
   final BasedUtxoNetwork network;
@@ -144,12 +148,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return silentAddress.toString();
     }
 
-    final typeMatchingAddresses = _addresses.where((addr) => !addr.isHidden && _isAddressPageTypeMatch(addr)).toList();
-    final typeMatchingReceiveAddresses = typeMatchingAddresses.where((addr) => !addr.isUsed).toList();
+    final typeMatchingAddresses =
+        _addresses.where((addr) => !addr.isHidden && _isAddressPageTypeMatch(addr)).toList();
+    final typeMatchingReceiveAddresses =
+        typeMatchingAddresses.where((addr) => !addr.isUsed).toList();
 
     if (!isEnabledAutoGenerateSubaddress) {
-      if (previousAddressRecord != null &&
-          previousAddressRecord!.type == addressPageType) {
+      if (previousAddressRecord != null && previousAddressRecord!.type == addressPageType) {
         return previousAddressRecord!.address;
       }
 
