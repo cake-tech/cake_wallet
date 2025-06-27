@@ -23,6 +23,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
               // CryptoCurrency.eth,
               CryptoCurrency.ltc,
               CryptoCurrency.bch,
+              CryptoCurrency.usdtbsc,
               // CryptoCurrency.aave,
               // CryptoCurrency.dai,
               // CryptoCurrency.gusd,
@@ -259,7 +260,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
-    final networkTitle = currency.tag == 'ETH' ? 'ETH' : currency.title;
+    final networkTitle = currency.tag == 'ETH' ? 'ETH' : currency.tag ?? currency.title;
     return '$networkTitle.${currency.title}';
   }
 
