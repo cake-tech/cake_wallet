@@ -15,7 +15,6 @@ Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
     'interval_count': '1',
     'base': crypto.split(".").first,
     'quote': fiat,
-    'key': secrets.fiatApiKey,
   };
 
   num price = 0.0;
@@ -27,6 +26,9 @@ Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
     final response = await ProxyWrapper().get(
       onionUri: onionUri,
       clearnetUri: torOnly ? onionUri : clearnetUri,
+      headers: {
+        "x-api-key": secrets.fiatApiKey,
+      }
     );
     
 
