@@ -205,12 +205,16 @@ class PendingBitcoinTransaction with PendingTransaction {
     var sourceBytes = unsignedPsbt!;
     var cborEncoder = CBOREncoder();
     cborEncoder.encodeBytes(sourceBytes);
-    var ur = UR("psbt", cborEncoder.getBytes());    
+    var ur = UR("psbt", cborEncoder.getBytes());
+    var urLegacy = UR("crypto-psbt", cborEncoder.getBytes());  
     // var ur = UR("psbt", Uint8List.fromList(List.generate(64*1024, (int x) => x % 256)));    
     var encoded = UREncoder(ur, 120);
+    var encodedLegacy = UREncoder(urLegacy, 120);
     List<String> values = [];
+    List<String> valuesLegacy = [];
     while (!encoded.isComplete) {
       values.add(encoded.nextPart());
+      valuesLegacy.add(encodedLegacy.nextPart());
     }
 
     final bbqrObj = BBQRPsbt.fromUint8List(sourceBytes);
@@ -225,6 +229,7 @@ class PendingBitcoinTransaction with PendingTransaction {
     return Future.value({
       "PSBT (bcur)": values.join("\n"),
       "PSBT (bbqr)": bbqr.join("\n"),
+      "PSBT (bcur legacy)": valuesLegacy.join("\n"),
     });
   }
 }
