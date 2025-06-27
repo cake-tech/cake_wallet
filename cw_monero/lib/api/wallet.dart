@@ -116,12 +116,17 @@ String getSeedLegacy(String? language) {
 }
 
 String getPassphrase() {
-  return currentWallet!.getCacheAttribute(key: "cakewallet.passphrase");
+  return currentWallet?.getCacheAttribute(key: "cakewallet.passphrase") ?? "";
 }
 
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
+  // this is a workaround for when we switch the wallet pointer,
+  // it should never reach UI but should be good enough to prevent gray screen
+  // or other errors because of forced null check.
+  if (currentWallet == null) return "<wallet not ready ($accountIndex:$addressIndex)>";
+
   // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
   // this could be a while loop, but I'm in favor of making it if to not cause freezes
   if (currentWallet!.numSubaddresses(accountIndex: accountIndex)-1 < addressIndex) {
@@ -272,13 +277,13 @@ void closeCurrentWallet() {
   currentWallet!.stop();
 }
 
-String getSecretViewKey() => currentWallet!.secretViewKey();
+String getSecretViewKey() => currentWallet?.secretViewKey() ?? "";
 
-String getPublicViewKey() => currentWallet!.publicViewKey();
+String getPublicViewKey() => currentWallet?.publicViewKey() ?? "";
 
-String getSecretSpendKey() => currentWallet!.secretSpendKey();
+String getSecretSpendKey() => currentWallet?.secretSpendKey() ?? "";
 
-String getPublicSpendKey() => currentWallet!.publicSpendKey();
+String getPublicSpendKey() => currentWallet?.publicSpendKey() ?? "";
 
 class SyncListener {
   SyncListener(this.onNewBlock, this.onNewTransaction)

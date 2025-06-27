@@ -1,19 +1,16 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:crypto/crypto.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_ethereum/deuro/deuro_savings_contract.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
 import 'package:cw_evm/contract/erc20.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
-const String savingsGatewayAddress =
-    "0x073493d73258C4BEb6542e8dd3e1b2891C972303";
+const String savingsGatewayAddress = "0x073493d73258C4BEb6542e8dd3e1b2891C972303";
 
 const String dEuroAddress = "0xbA3f535bbCcCcA2A154b573Ca6c5A49BAAE0a3ea";
+const String frontendCode = "0x00000000000000000000000000000000000000000043616b652057616c6c6574";
 
 class DEuro {
   final SavingsGateway _savingsGateway;
@@ -35,27 +32,21 @@ class DEuro {
         client: client,
       );
 
-  final frontendCode =
-      Uint8List.fromList(sha256.convert(utf8.encode("wallet")).bytes);
-
-  EthereumAddress get _address =>
-      EthereumAddress.fromHex(_wallet.walletAddresses.primaryAddress);
+  EthereumAddress get _address => EthereumAddress.fromHex(_wallet.walletAddresses.primaryAddress);
 
   Future<BigInt> get savingsBalance async =>
       (await _savingsGateway.savings(accountOwner: _address)).saved;
 
-  Future<BigInt> get accruedInterest =>
-      _savingsGateway.accruedInterest(accountOwner: _address);
+  Future<BigInt> get accruedInterest => _savingsGateway.accruedInterest(accountOwner: _address);
 
   Future<BigInt> get interestRate => _savingsGateway.currentRatePPM();
 
-  Future<BigInt> get approvedBalance =>
-      _dEuro.allowance(_address, _savingsGateway.self.address);
+  Future<BigInt> get approvedBalance => _dEuro.allowance(_address, _savingsGateway.self.address);
 
   Future<PendingEVMChainTransaction> depositSavings(
       BigInt amount, EVMChainTransactionPriority priority) async {
     final signedTransaction = await _savingsGateway.save(
-      (amount: amount, frontendCode: frontendCode),
+      (amount: amount, frontendCode: hexToBytes(frontendCode)),
       credentials: _wallet.evmChainPrivateKey,
     );
 
@@ -64,12 +55,10 @@ class DEuro {
       contractAddress: _savingsGateway.self.address.hexEip55,
       receivingAddressHex: _savingsGateway.self.address.hexEip55,
       priority: priority,
-      data: _savingsGateway.self.abi.functions[17]
-          .encodeCall([amount, frontendCode]),
+      data: _savingsGateway.self.abi.functions[17].encodeCall([amount, hexToBytes(frontendCode)]),
     );
 
-    final sendTransaction =
-        () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+    final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
 
     return PendingEVMChainTransaction(
         sendTransaction: sendTransaction,
@@ -82,7 +71,7 @@ class DEuro {
   Future<PendingEVMChainTransaction> withdrawSavings(
       BigInt amount, EVMChainTransactionPriority priority) async {
     final signedTransaction = await _savingsGateway.withdraw(
-      (target: _address, amount: amount, frontendCode: frontendCode),
+      (target: _address, amount: amount, frontendCode: hexToBytes(frontendCode)),
       credentials: _wallet.evmChainPrivateKey,
     );
 
@@ -91,12 +80,10 @@ class DEuro {
       contractAddress: _savingsGateway.self.address.hexEip55,
       receivingAddressHex: _savingsGateway.self.address.hexEip55,
       priority: priority,
-      data: _savingsGateway.self.abi.functions[17]
-          .encodeCall([amount, frontendCode]),
+      data: _savingsGateway.self.abi.functions[17].encodeCall([amount, hexToBytes(frontendCode)]),
     );
 
-    final sendTransaction =
-        () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+    final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
 
     return PendingEVMChainTransaction(
         sendTransaction: sendTransaction,
@@ -107,8 +94,7 @@ class DEuro {
   }
 
   // Set an infinite approval to save gas in the future
-  Future<PendingEVMChainTransaction> enableSavings(
-          EVMChainTransactionPriority priority) async =>
+  Future<PendingEVMChainTransaction> enableSavings(EVMChainTransactionPriority priority) async =>
       (await _wallet.createApprovalTransaction(
         BigInt.parse(
           'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
