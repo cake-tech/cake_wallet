@@ -83,7 +83,7 @@ class DEuro {
         contractAddress: _savingsGateway.self.address.hexEip55,
         receivingAddressHex: _savingsGateway.self.address.hexEip55,
         priority: priority,
-        data: _savingsGateway.self.abi.functions[17].encodeCall([amount, frontendCode]),
+        data: _savingsGateway.self.abi.functions[17].encodeCall([amount, hexToBytes(frontendCode)]),
       );
 
       final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
