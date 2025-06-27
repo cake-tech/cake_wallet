@@ -4,9 +4,11 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_edit_sheet.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -187,6 +189,24 @@ class DEuroSavingsPage extends BasePage {
               actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
               actionButton: () => Navigator.of(bottomSheetContext).pop(),
             ),
+          );
+        });
+      }
+
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!context.mounted) return;
+
+          await showPopUp<void>(
+            context: context,
+            builder: (BuildContext popupContext) {
+              return AlertWithOneAction(
+                alertTitle: S.of(popupContext).error,
+                alertContent: state.error,
+                buttonText: S.of(popupContext).ok,
+                buttonAction: () => Navigator.of(popupContext).pop(),
+              );
+            },
           );
         });
       }

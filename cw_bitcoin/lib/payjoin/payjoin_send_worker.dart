@@ -106,8 +106,8 @@ class PayjoinSenderWorker {
       sendPort.send({'type': PayjoinSenderRequestTypes.requestPosted});
 
       return await postRequest.$2.processResponse(response: response);
-    } catch (e) {
-      throw PayjoinSessionError.unrecoverable('Send V1 payjoin error: $e');
+    } catch (e, stack) {
+      throw PayjoinSessionError.unrecoverable('Send V1 payjoin error: $e, $stack');
     }
   }
 

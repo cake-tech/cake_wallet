@@ -348,6 +348,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'TRC20';
       case 'LN':
         return 'Lightning';
+      case 'BSC':
+        return 'BEP20';
       default:
         return tag.toLowerCase();
     }

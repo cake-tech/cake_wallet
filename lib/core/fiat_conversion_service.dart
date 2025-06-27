@@ -5,8 +5,7 @@ import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 const _fiatApiClearNetAuthority = 'fiat-api.cakewallet.com';
-// const _fiatApiOnionAuthority = 'n4z7bdcmwk2oyddxvzaap3x2peqcplh3pzdy7tpkk5ejz5n4mhfvoxqd.onion';
-const _fiatApiOnionAuthority = _fiatApiClearNetAuthority;
+const _fiatApiOnionAuthority = 'kfkyguqtz5vcnbvar5pjgddkaeawbo4j3r4fj3e22k3tzqageplosiid.onion';
 const _fiatApiPath = '/v2/rates';
 
 Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
