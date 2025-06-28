@@ -302,7 +302,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                             final paymentRequest = PaymentRequest.fromUri(uri);
                             addressController.text = paymentRequest.address;
 
-                            if (amountController.text.isNotEmpty) {
+                            if (amountController.text.isNotEmpty &&
+                                paymentRequest.amount.isNotEmpty) {
                               _showAmountPopup(context, paymentRequest);
                               return;
                             }
