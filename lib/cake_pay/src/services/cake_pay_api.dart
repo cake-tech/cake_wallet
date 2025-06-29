@@ -42,7 +42,6 @@ class CakePayApi {
         throw Exception('Unexpected http status: ${response.statusCode}');
       }
 
-      
       final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
       if (bodyJson.containsKey('user') && bodyJson['user']['email'] != null) {
@@ -79,7 +78,6 @@ class CakePayApi {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     if (bodyJson.containsKey('error')) {
@@ -110,12 +108,14 @@ class CakePayApi {
     String? cardImagePath,
   }) async {
     final uri = Uri.https(baseCakePayUri, createOrderPath);
+
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': 'Api-Key $apiKey',
     };
-    final query = <String, dynamic>{
+
+    final body = json.encode({
       'card_id': cardId,
       'price': price,
       'quantity': quantity,
@@ -125,33 +125,40 @@ class CakePayApi {
       'confirms_no_vpn': confirmsNoVpn,
       'confirms_voided_refund': confirmsVoidedRefund,
       'confirms_terms_agreed': confirmsTermsAgreed,
-    };
+    });
 
-    try {
-      final response = await ProxyWrapper().post(
-        clearnetUri: uri,
-        headers: headers,
-        body: json.encode(query),
-      );
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: body,
+    );
 
-      if (response.statusCode != 201) {
-        
-        final responseBody = json.decode(response.body);
-        if (responseBody is List) {
-          throw '${responseBody[0]}';
-        } else {
-          throw Exception('Unexpected error: $responseBody');
-        }
-      }
-
-      
-      final bodyJson = json.decode(response.body) as Map<String, dynamic>;
-      bodyJson['card_name'] = cardName;
-      bodyJson['card_image_path'] = cardImagePath;
-      return CakePayOrder.fromMap(bodyJson);
-    } catch (e) {
-      throw Exception('${e}');
+    if (response.statusCode == 201) {
+      final data = json.decode(response.body) as Map<String, dynamic>;
+      data['card_name'] = cardName;
+      data['card_image_path'] = cardImagePath;
+      return CakePayOrder.fromMap(data);
     }
+
+    String message = 'Server error ${response.statusCode}';
+
+    final isJson = response.headers['content-type']?.contains('application/json') == true ||
+        response.body.trim().startsWith(RegExp(r'[\{\[]'));
+
+    if (isJson) {
+      try {
+        final decoded = json.decode(response.body);
+        if (decoded is List && decoded.isNotEmpty) {
+          message = decoded.first.toString();
+        } else if (decoded is Map && decoded['detail'] != null) {
+          message = decoded['detail'].toString();
+        } else {
+          message = decoded.toString();
+        }
+      } on FormatException {}
+    }
+
+    throw Exception(message);
   }
 
   ///Simulate Payment
@@ -166,7 +173,6 @@ class CakePayApi {
     };
 
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    
 
     printV('Response: ${response.statusCode}');
 
@@ -177,7 +183,6 @@ class CakePayApi {
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     return 'You just SIMULATED a buying of a gift card with ID: ${bodyJson['order_id']}';
-
   }
 
   /// Logout
@@ -214,7 +219,7 @@ class CakePayApi {
     };
 
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    
+
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
@@ -261,7 +266,6 @@ class CakePayApi {
     };
 
     var response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
-    
 
     if (response.statusCode != 200) {
       throw Exception(

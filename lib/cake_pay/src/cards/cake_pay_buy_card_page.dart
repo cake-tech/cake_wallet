@@ -67,6 +67,14 @@ class CakePayBuyCardPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.completelyTransparent;
 
   @override
+  Widget? trailing (BuildContext context) {
+    return const SizedBox(
+      width: 54,
+      height: 0,
+    );
+  }
+
+  @override
   Widget? middle(BuildContext context) {
     return Text(
       title,
@@ -213,7 +221,7 @@ class CakePayBuyCardPage extends BasePage {
               child: SingleChildScrollView(
                 primary: false,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 38, right: 24),
+                  padding: const EdgeInsets.only(left: 24, right: 24),
                   child: Column(
                     children: [
                       if (card.expiryAndValidity != null && card.expiryAndValidity!.isNotEmpty)
@@ -226,11 +234,8 @@ class CakePayBuyCardPage extends BasePage {
                                     fontWeight: FontWeight.w900)),
                             Expanded(
                                 child: Text(card.expiryAndValidity!,
-                                    textAlign: TextAlign.end,
-                                    style: TextStyle(
-                                        color: Theme.of(context).textTheme.titleLarge!.color!,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400))),
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.labelMedium)),
                           ],
                         ),
                       SizedBox(height: 8),
@@ -248,46 +253,51 @@ class CakePayBuyCardPage extends BasePage {
             ),
             SizedBox(height: 8),
             Observer(builder: (_) {
+              Widget _buildPaymentMethodWidget (List<CakePayPaymentMethod> methods, CakePayPaymentMethod selected) {
+                return Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 24, right: 8),
+                      child: Text(
+                        'Payment Method',
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.titleLarge!.color!,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    Expanded(child: const SizedBox()),
+                    if (methods.length > 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
+                        child: ToggleButtons(
+                          isSelected: methods.map((m) => m == selected).toList(),
+                          borderRadius: BorderRadius.circular(8),
+                          onPressed: (index) =>
+                              cakePayBuyCardViewModel.chooseMethod(methods[index]),
+                          children: methods
+                              .map((m) => Padding(
+                            padding:
+                            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            child: Text(m.label),
+                          ))
+                              .toList(),
+                        ),
+                      ),
+                  ],
+                );
+              }
               final methods = cakePayBuyCardViewModel.availableMethods;
-              final selected = cakePayBuyCardViewModel.selectedPaymentMethod ?? methods.first;
+              final selected = cakePayBuyCardViewModel.selectedPaymentMethod ?? (methods.isNotEmpty
+                  ? methods.first
+                  : null);
 
               return Column(
                 children: [
-                  methods.length <= 1
+                  methods.length <= 1 || selected == null
                       ? const SizedBox.shrink()
-                      : Row(
-                        children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 24, right: 8),
-                              child: Text(
-                                'Payment Method',
-                                style: TextStyle(
-                                  color: Theme.of(context).textTheme.titleLarge!.color!,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ),
-                            Expanded(child: const SizedBox()),
-                            if (methods.length > 1)
-                          Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-                              child: ToggleButtons(
-                                isSelected: methods.map((m) => m == selected).toList(),
-                                borderRadius: BorderRadius.circular(8),
-                                onPressed: (index) =>
-                                    cakePayBuyCardViewModel.chooseMethod(methods[index]),
-                                children: methods
-                                    .map((m) => Padding(
-                                          padding:
-                                              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          child: Text(m.label),
-                                        ))
-                                    .toList(),
-                              ),
-                            ),
-                        ],
-                      ),
+                      : _buildPaymentMethodWidget(methods, selected),
                   if (FeatureFlag.hasDevOptions)
                     Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
@@ -576,7 +586,7 @@ class CakePayBuyCardPage extends BasePage {
                   amount: S.of(bottomSheetContext).send_amount,
                   amountValue:
                       cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                  quantity: 'QTY: ${order?.cards.length.toString()}',
+                  quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
                   fiatAmountValue:
                       cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
                   fee: S.of(bottomSheetContext).send_fee,
