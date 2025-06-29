@@ -52,7 +52,7 @@ class PendingEVMChainTransaction with PendingTransaction {
   }
   
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }
