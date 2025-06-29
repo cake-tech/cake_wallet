@@ -76,7 +76,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - payjoin_flutter (0.20.0)
+  - payjoin_flutter (0.23.0)
   - permission_handler_apple (9.3.0):
     - Flutter
   - reown_yttrium (0.0.1):
@@ -235,7 +235,7 @@ SPEC CHECKSUMS:
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  payjoin_flutter: 6397d7b698cdad6453be4949ab6aca1863f6c5e5
+  payjoin_flutter: d9d4c8aa16bd5dfedb9b21d0edc8199e0187d96e
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   reown_yttrium: c0e87e5965fa60a3559564cc35cffbba22976089
   SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8

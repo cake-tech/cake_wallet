@@ -1123,13 +1123,18 @@ abstract class DashboardViewModelBase with Store {
   Future<ServicesResponse> _getServicesStatus() async {
     try {
       if (isEnabledBulletinAction) {
-        final uri = Uri.https(
-          "service-api.cakewallet.com",
-          "/v1/active-notices",
-          {'key': secrets.fiatApiKey},
+        final res = await ProxyWrapper().get(
+          clearnetUri: Uri.https(
+            "service-api.cakewallet.com",
+            "/v1/active-notices",
+            {'key': secrets.fiatApiKey},
+          ),
+          onionUri: Uri.http(
+            "jpirgl4lrwzjgdqj2nsv3g7twhp2efzty5d3cnypktyczzqfc5qcwwyd.onion",
+            "/v1/active-notices",
+            {'key': secrets.fiatApiKey},
+          ),
         );
-
-        final res = await ProxyWrapper().get(clearnetUri: uri);
         if (res.statusCode < 200 || res.statusCode >= 300) {
           throw res.body;
         }
