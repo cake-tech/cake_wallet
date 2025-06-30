@@ -77,7 +77,8 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 34),
             child: LoadingPrimaryButton(
-              onPressed: () => Navigator.pop(context, amount),
+              onPressed: () =>
+                  Navigator.pop(context, amount),
               text: S.of(context).confirm,
               color: Theme.of(context).colorScheme.primary,
               textColor: Theme.of(context).colorScheme.onPrimary,

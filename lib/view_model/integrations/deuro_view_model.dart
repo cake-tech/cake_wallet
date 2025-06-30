@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:mobx/mobx.dart';
 
 part 'deuro_view_model.g.dart';
@@ -82,7 +81,7 @@ abstract class DEuroViewModelBase with Store {
   Future<void> prepareSavingsEdit(String amountRaw, bool isAdding) async {
     try {
       state = TransactionCommitting();
-      final amount = BigInt.from(num.parse(amountRaw) * pow(10, 18));
+      final amount = parseFixed(amountRaw, 18);
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
       transaction = await (isAdding
           ? ethereum!.addDEuroSaving(_appStore.wallet!, amount, priority)
