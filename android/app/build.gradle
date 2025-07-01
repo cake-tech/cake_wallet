@@ -38,6 +38,12 @@ android {
     compileSdkVersion 35
     buildToolsVersion "35.0.0"
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     lintOptions {
         disable 'InvalidPackage'
     }
