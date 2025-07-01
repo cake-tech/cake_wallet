@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
@@ -250,13 +251,14 @@ abstract class OutputBase with Store {
       sendAll = false;
     }
 
-    cryptoAmount = amount.replaceAll(',', '.');
+    final maxDecimals = cryptoCurrencyHandler().decimals;
+    cryptoAmount = amount.replaceAll(',', '.').withMaxDecimals(maxDecimals);
     _updateFiatAmount();
   }
 
   @action
   void setFiatAmount(String amount) {
-    fiatAmount = amount;
+    fiatAmount = amount.replaceAll(',', '.').withMaxDecimals(2);
     _updateCryptoAmount();
   }
 

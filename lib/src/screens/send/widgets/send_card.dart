@@ -502,9 +502,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       if (output.sendAll && amount != S.current.all) {
         output.sendAll = false;
       }
-
       if (amount != output.cryptoAmount) {
         output.setCryptoAmount(amount);
+        cryptoAmountController.text = output.cryptoAmount;
       }
     });
 
@@ -514,6 +514,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       if (amount != output.fiatAmount) {
         output.sendAll = false;
         output.setFiatAmount(amount);
+        fiatAmountController.text = output.fiatAmount;
       }
     });
 
