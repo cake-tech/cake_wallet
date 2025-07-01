@@ -17,6 +17,7 @@ class ReceivePage extends BasePage {
     _amountController.addListener(() {
       if (_formKey.currentState!.validate()) {
         addressListViewModel.changeAmount(_amountController.text);
+        _amountController.text = addressListViewModel.amount;
       }
     });
   }
