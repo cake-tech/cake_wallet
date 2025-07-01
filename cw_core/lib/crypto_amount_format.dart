@@ -5,7 +5,7 @@ extension MaxDecimals on String {
     var parts = split(".");
 
     if (parts.length > 2) {
-      parts = [parts.sublist(0, parts.length - 1).join(""), parts.last];
+      parts = [parts.first, parts.sublist(1, parts.length).join("")];
     }
 
     if (parts.length == 2 && parts[1].length > maxDecimals) {

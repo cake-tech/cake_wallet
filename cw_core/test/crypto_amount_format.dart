@@ -26,9 +26,9 @@ void main() {
 
     test('should handle strings with multiple decimal points', () {
       final input = '123.45.67';
-      final result = input.withMaxDecimals(2);
+      final result = input.withMaxDecimals(4);
       
-      expect(result, equals('12345.67'));
+      expect(result, equals('123.4567'));
     });
   });
 }
