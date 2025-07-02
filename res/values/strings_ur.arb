@@ -915,6 +915,7 @@
   "tip": "ٹپ:",
   "to": "to",
   "today": "آج",
+  "token_already_exists": "ٹوکن پہلے ہی موجود ہے",
   "token_contract_address": "ٹوکن کنٹریکٹ ایڈریس",
   "token_decimal": "ٹوکن اعشاریہ",
   "token_name": "ٹوکن کا نام جیسے: Tether",

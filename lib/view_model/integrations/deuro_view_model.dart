@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:mobx/mobx.dart';
 
 part 'deuro_view_model.g.dart';
@@ -46,10 +45,8 @@ abstract class DEuroViewModelBase with Store {
 
   @action
   Future<void> reloadSavingsUserData() async {
-    final savingsBalanceRaw =
-    ethereum!.getDEuroSavingsBalance(_appStore.wallet!);
-    final accruedInterestRaw =
-    ethereum!.getDEuroAccruedInterest(_appStore.wallet!);
+    final savingsBalanceRaw = ethereum!.getDEuroSavingsBalance(_appStore.wallet!);
+    final accruedInterestRaw = ethereum!.getDEuroAccruedInterest(_appStore.wallet!);
 
     approvedTokens = await ethereum!.getDEuroSavingsApproved(_appStore.wallet!);
 
@@ -63,56 +60,73 @@ abstract class DEuroViewModelBase with Store {
 
   @action
   Future<void> reloadInterestRate() async {
-    final interestRateRaw =
-    await ethereum!.getDEuroInterestRate(_appStore.wallet!);
+    final interestRateRaw = await ethereum!.getDEuroInterestRate(_appStore.wallet!);
 
     interestRate = (interestRateRaw / BigInt.from(10000)).toString();
   }
 
   @action
   Future<void> prepareApproval() async {
-    final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
-    approvalTransaction =
-        await ethereum!.enableDEuroSaving(_appStore.wallet!, priority);
+    try {
+      state = TransactionCommitting();
+      final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
+      approvalTransaction = await ethereum!.enableDEuroSaving(_appStore.wallet!, priority);
+      state = InitialExecutionState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
   }
 
   @action
   Future<void> prepareSavingsEdit(String amountRaw, bool isAdding) async {
-    final amount = BigInt.from(num.parse(amountRaw) * pow(10, 18));
-    final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
-    transaction = await (isAdding
-        ? ethereum!.addDEuroSaving(_appStore.wallet!, amount, priority)
-        : ethereum!.removeDEuroSaving(_appStore.wallet!, amount, priority));
+    try {
+      state = TransactionCommitting();
+      final amount = parseFixed(amountRaw, 18);
+      final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
+      transaction = await (isAdding
+          ? ethereum!.addDEuroSaving(_appStore.wallet!, amount, priority)
+          : ethereum!.removeDEuroSaving(_appStore.wallet!, amount, priority));
+      state = InitialExecutionState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
   }
 
-  Future<void> prepareCollectInterest() =>
-      prepareSavingsEdit(accruedInterest, false);
+  Future<void> prepareCollectInterest() => prepareSavingsEdit(accruedInterest, false);
 
   @action
   Future<void> commitTransaction() async {
     if (transaction != null) {
-      state = TransactionCommitting();
-      await transaction!.commit();
-      transaction = null;
-      reloadSavingsUserData();
-      state = TransactionCommitted();
+      try {
+        state = TransactionCommitting();
+        await transaction!.commit();
+        transaction = null;
+        reloadSavingsUserData();
+        state = TransactionCommitted();
+      } catch (e) {
+        state = FailureState(e.toString());
+      }
     }
   }
 
   @action
   Future<void> commitApprovalTransaction() async {
     if (approvalTransaction != null) {
-      state = TransactionCommitting();
-      await approvalTransaction!.commit();
-      approvalTransaction = null;
-      reloadSavingsUserData();
-      state = TransactionCommitted();
+      try {
+        state = TransactionCommitting();
+        await approvalTransaction!.commit();
+        approvalTransaction = null;
+        reloadSavingsUserData();
+        state = TransactionCommitted();
+      } catch (e) {
+        state = FailureState(e.toString());
+      }
     }
   }
 
   @action
   void dismissTransaction() {
-    transaction == null;
+    transaction = null;
     approvalTransaction = null;
     state = InitialExecutionState();
   }

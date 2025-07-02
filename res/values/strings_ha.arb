@@ -915,6 +915,7 @@
   "tip": "Tukwici:",
   "to": "Zuwa",
   "today": "Yau",
+  "token_already_exists": "Alama an riga an wanzu",
   "token_contract_address": "Adireshin kwangilar Token",
   "token_decimal": "Alamar ƙima",
   "token_name": "Alamar sunan misali: Tether",

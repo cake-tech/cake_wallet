@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -51,7 +52,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     CryptoCurrency.zaddr,
   ];
 
-  static const apiKey = secrets.trocadorApiKey;
+  static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
   static const clearNetAuthority = 'api.trocador.app';
   static const onionApiAuthority = clearNetAuthority;
   // static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
@@ -347,6 +348,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'TRC20';
       case 'LN':
         return 'Lightning';
+      case 'BSC':
+        return 'BEP20';
       default:
         return tag.toLowerCase();
     }

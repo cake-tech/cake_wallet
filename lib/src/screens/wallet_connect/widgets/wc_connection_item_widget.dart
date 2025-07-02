@@ -85,7 +85,7 @@ class _ModelElementWidget extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontWeight: FontWeight.w600,
               ),
-          maxLines: 10,
+          maxLines: 50,
           overflow: TextOverflow.ellipsis,
         ),
       ),

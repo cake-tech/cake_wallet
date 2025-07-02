@@ -914,6 +914,7 @@
   "tip": "Suggerimento:",
   "to": "A",
   "today": "Oggi",
+  "token_already_exists": "Il token esiste già",
   "token_contract_address": "Indirizzo del contratto token",
   "token_decimal": "Decimale del token",
   "token_name": "Nome del token, ad esempio: Tether",
