@@ -1,13 +1,17 @@
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ImageUtil {
   static Widget getImageFromPath({required String imagePath, double? height, double? width}) {
-    final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
+    bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
+    if (CakeTor.instance.enabled && isNetworkImage) {
+      imagePath = "assets/images/tor_logo.svg";
+      isNetworkImage = false;
+    }
     final bool isSvg = imagePath.endsWith('.svg');
     final double _height = height ?? 35;
     final double _width = width ?? 35;
-
     if (isNetworkImage) {
       return isSvg
           ? SvgPicture.network(
@@ -22,6 +26,15 @@ class ImageUtil {
                   child: CircularProgressIndicator(),
                 ),
               ),
+              errorBuilder: (_, __, ___) {
+                return Container(
+                  height: _height,
+                  width: _width,
+                  child: Center(
+                    child: Icon(Icons.error_outline, color: Colors.grey),
+                  ),
+                );
+              },
             )
           : Image.network(
               key: ValueKey(imagePath),
@@ -50,6 +63,9 @@ class ImageUtil {
                 return Container(
                   height: _height,
                   width: _width,
+                  child: Center(
+                    child: Icon(Icons.error_outline, color: Colors.grey),
+                  ),
                 );
               },
             );
@@ -60,6 +76,7 @@ class ImageUtil {
               height: _height,
               width: _width,
               placeholderBuilder: (_) => Icon(Icons.error),
+              errorBuilder: (_, __, ___) => Icon(Icons.error),
               key: ValueKey(imagePath),
             )
           : Image.asset(

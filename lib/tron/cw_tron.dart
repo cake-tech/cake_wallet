@@ -138,4 +138,10 @@ class CWTron extends Tron {
   List<String> getDefaultTokenContractAddresses() {
     return DefaultTronTokens().initialTronTokens.map((e) => e.contractAddress).toList();
   }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final tronWallet = wallet as TronWallet;
+    return tronWallet.tronTokenCurrencies.any((element) => element.contractAddress == contractAddress);
+  }
 }

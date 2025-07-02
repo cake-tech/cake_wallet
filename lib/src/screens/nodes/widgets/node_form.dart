@@ -196,8 +196,27 @@ class NodeForm extends StatelessWidget {
             Observer(
                 builder: (_) => Column(
                       children: [
+                        if (nodeViewModel.usesEmbeddedProxy) ...[
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                StandardCheckbox(
+                                  value: nodeViewModel.usesEmbeddedProxy,
+                                  gradientBackground: false,
+                                  borderColor: Theme.of(context).dividerColor,
+                                  iconColor: Theme.of(context).colorScheme.primary,
+                                  onChanged: null,
+                                  caption: 'Embedded Tor SOCKS Proxy',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                         Padding(
-                          padding: EdgeInsets.only(top: 20),
+                          padding: EdgeInsets.only(top: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.max,

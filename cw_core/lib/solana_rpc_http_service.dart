@@ -1,20 +1,19 @@
 import 'dart:convert';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:on_chain/solana/solana.dart';
 
 class SolanaRPCHTTPService implements SolanaJSONRPCService {
   SolanaRPCHTTPService(
-      {required this.url, Client? client, this.defaultRequestTimeout = const Duration(seconds: 30)})
-      : client = client ?? Client();
+      {required this.url,
+      this.defaultRequestTimeout = const Duration(seconds: 30)});
   @override
   final String url;
-  final Client client;
   final Duration defaultRequestTimeout;
 
-  @override
-  Future<Map<String, dynamic>> call(SolanaRequestDetails params, [Duration? timeout]) async {
-    final response = await client.post(
-      Uri.parse(url),
+  Future<Map<String, dynamic>> call(SolanaRequestDetails params,
+      [Duration? timeout]) async {
+    final response = await ProxyWrapper().post(
+      clearnetUri: Uri.parse(url),
       body: params.toRequestBody(),
       headers: {
         'Content-Type': 'application/json',

@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_servic
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -153,7 +154,10 @@ class WCCDetailsWidget extends BasePage {
                 child: CircleAvatar(
                   backgroundImage: (pairing.peerMetadata!.icons.isNotEmpty
                       ? NetworkImage(pairing.peerMetadata!.icons[0])
-                      : const AssetImage('assets/images/app_logo.png')) as ImageProvider<Object>,
+                      : AssetImage(
+                        CakeTor.instance.enabled
+                        ? 'assets/images/tor_logo.svg'
+                        : 'assets/images/app_logo.png')) as ImageProvider<Object>,
                 ),
               ),
               const SizedBox(height: 20.0),
