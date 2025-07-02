@@ -336,7 +336,7 @@
   "error_while_processing": "An error occurred while proceessing",
   "errorGettingCredentials": "Failed: Error while getting credentials",
   "errorSigningTransaction": "An error has occured while signing transaction",
-  "establishing_tor_connection": "Estabilishing Tor connection",
+  "establishing_tor_connection": "Establishing Tor connection",
   "estimated": "Estimated",
   "estimated_new_fee": "Estimated new fee",
   "estimated_receive_amount": "Estimated receive amount",
