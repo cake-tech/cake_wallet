@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -48,7 +49,6 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 import 'package:hex/hex.dart';
-import 'package:http/http.dart' as http;
 
 part 'electrum_wallet.g.dart';
 
@@ -491,9 +491,9 @@ abstract class ElectrumWalletBase
   Future<void> updateFeeRates() async {
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
-        final response = await http
-            .get(Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
-            .timeout(Duration(seconds: 5));
+        final response = await ProxyWrapper()
+            .get(clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"))
+            .timeout(Duration(seconds: 15));
 
         final result = json.decode(response.body) as Map<String, dynamic>;
         final slowFee = (result['economyFee'] as num?)?.toInt() ?? 0;
@@ -1876,8 +1876,8 @@ abstract class ElectrumWalletBase
 
       if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
         try {
-          final blockHash = await http.get(
-            Uri.parse(
+          final blockHash = await ProxyWrapper().get(
+            clearnetUri: Uri.parse(
               "https://mempool.cakewallet.com/api/v1/block-height/$height",
             ),
           );
@@ -1885,8 +1885,8 @@ abstract class ElectrumWalletBase
           if (blockHash.statusCode == 200 &&
               blockHash.body.isNotEmpty &&
               jsonDecode(blockHash.body) != null) {
-            final blockResponse = await http.get(
-              Uri.parse(
+            final blockResponse = await ProxyWrapper().get(
+              clearnetUri: Uri.parse(
                 "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
               ),
             );
