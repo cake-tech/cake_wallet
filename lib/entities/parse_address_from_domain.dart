@@ -351,7 +351,7 @@ class AddressResolverService {
     for (final cur in currencies) {
       final addressFromBio = extractAddressByType(
           raw: twitterUser.description, type: CryptoCurrency.fromString(cur.title));
-      print('Address from bio: $addressFromBio');
+      printV('Address from bio: $addressFromBio');
 
       if (addressFromBio != null && addressFromBio.isNotEmpty) {
         result[cur] = addressFromBio;

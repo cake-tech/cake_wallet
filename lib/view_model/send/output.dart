@@ -323,7 +323,6 @@ abstract class OutputBase with Store {
   }
 
   Future<void> fetchParsedAddress(BuildContext context) async {
-    print('fetchParsedAddress: $address');
     final domain = address;
     final currency = cryptoCurrencyHandler();
     final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: _wallet);
