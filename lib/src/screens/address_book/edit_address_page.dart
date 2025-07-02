@@ -110,7 +110,10 @@ class EditAddressPage extends SheetPage {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: RoundedIconButton(
-                            icon: Icons.delete_outline_rounded,
+                            iconWidget: Image.asset(
+                              'assets/images/trash_can_icon.png',
+                              color: Theme.of(context).colorScheme.onErrorContainer,
+                            ),
                             onPressed: () async {
                               await contactViewModel.deleteCurrentAddress();
                               if (context.mounted) Navigator.of(context, rootNavigator: true).pop();

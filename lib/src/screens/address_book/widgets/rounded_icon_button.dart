@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class RoundedIconButton extends StatelessWidget {
   const RoundedIconButton(
-      {required this.icon,
+      {this.icon,
+      this.iconWidget,
       required this.onPressed,
       this.shape,
       this.width,
@@ -10,7 +11,8 @@ class RoundedIconButton extends StatelessWidget {
       this.iconSize,
       this.fillColor});
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? iconWidget;
   final VoidCallback onPressed;
   final ShapeBorder? shape;
   final double? width;
@@ -29,7 +31,11 @@ class RoundedIconButton extends StatelessWidget {
       padding: EdgeInsets.zero,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       shape: shape ?? const CircleBorder(),
-      child: Icon(icon, size: iconSize ?? 14, color: colorScheme.onSurface),
+      child: icon != null
+          ? Icon(icon, size: iconSize ?? 14, color: colorScheme.onSurface)
+          : iconWidget ??
+              Icon(Icons.remove_circle_outline_rounded,
+                  size: iconSize ?? 14, color: colorScheme.onSurface),
     );
   }
 }

@@ -146,12 +146,8 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
         padding: EdgeInsets.only(bottom: bottomInset),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: ImageUtil.getImageFromPath(
-                imagePath: 'assets/images/add_contact_coins_img.png',
-                height: 200,
-              ),
+            Image.asset(
+              'assets/images/add_contact_coins_img.png',
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),

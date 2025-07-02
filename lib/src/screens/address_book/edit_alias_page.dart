@@ -21,7 +21,12 @@ class EditAliasPage extends SheetPage {
   @override
   Widget trailing(BuildContext context) {
     return RoundedIconButton(
-        icon: Icons.delete_outline_rounded,
+        iconWidget: Image.asset(
+          'assets/images/trash_can_icon.png',
+          width: 16,
+          height: 16,
+          color: Theme.of(context).colorScheme.onErrorContainer,
+        ),
         fillColor: Theme.of(context).colorScheme.errorContainer,
         onPressed: () async {
           await contactViewModel.deleteParsedBlock(handleKey);
