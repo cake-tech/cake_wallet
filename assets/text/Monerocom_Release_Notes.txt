@@ -1,3 +1,4 @@
-New themes and UI/UX improvements
-Ledger flow enhancements
+Add built-in Tor support (experimental)
+Ledger improvements
+UI/UX improvements
 Bug fixes
