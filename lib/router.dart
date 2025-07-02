@@ -26,7 +26,7 @@ import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
-import 'package:cake_wallet/src/screens/address_book/contact_list_page.dart';
+import 'package:cake_wallet/src/screens/address_book/address_book_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
@@ -569,13 +569,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressBook:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ContactListPage>(),
+        (context) => getIt.get<AddressBookPage>(),
       );
 
     case Routes.pickerAddressBook:
       final selectedCurrency = settings.arguments as CryptoCurrency?;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
+          builder: (_) => getIt.get<AddressBookPage>(param1: selectedCurrency));
 
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());

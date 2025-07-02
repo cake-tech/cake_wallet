@@ -6,12 +6,10 @@ class HandlesListWidget extends StatefulWidget {
   const HandlesListWidget(
       {super.key,
       required this.items,
-      required this.fillColor,
       this.initiallySelected = const [],
       this.onSelectionChanged});
 
   final List<AddressSource> items;
-  final Color fillColor;
 
   final List<AddressSource> initiallySelected;
 
@@ -53,7 +51,7 @@ class _HandlesListWidgetState extends State<HandlesListWidget> {
         return ListTile(
           title: Text(src.label, style: theme.textTheme.bodyMedium),
           trailing: Text(src.alias, style: theme.textTheme.bodyMedium),
-          tileColor: widget.fillColor,
+          tileColor: theme.colorScheme.surfaceContainer,
           splashColor: Colors.transparent,
           dense: true,
           visualDensity: const VisualDensity(horizontal: 0, vertical: -3),

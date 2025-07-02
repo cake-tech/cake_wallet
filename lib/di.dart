@@ -33,12 +33,13 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_contact_group_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_alias_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
-import 'package:cake_wallet/src/screens/address_book/contact_list_page.dart';
+import 'package:cake_wallet/src/screens/address_book/address_book_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
@@ -994,8 +995,8 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>(
-        (cur, _) => ContactListPage(
+  getIt.registerFactoryParam<AddressBookPage, CryptoCurrency?, void>(
+        (cur, _) => AddressBookPage(
       getIt.get<ContactListViewModel>(param1: cur),
       getIt<AuthService>(),
     ),
@@ -1019,18 +1020,23 @@ Future<void> setup({
         () => SupportedHandlesPage(contactViewModel: getIt<ContactViewModel>()),
   );
 
-  getIt.registerFactoryParam<EditContactGroupPage, ContactViewModel, void>(
-        (vm, _) => EditContactGroupPage(contactViewModel: vm),
+  getIt.registerFactoryParam<EditContactPage, ContactViewModel, void>(
+        (contactViewModel, _) => EditContactPage(contactViewModel: contactViewModel),
   );
 
-  getIt.registerFactoryParam<EditNewContactGroupPage, ParsedAddress, ContactRecord?>(
+  getIt.registerFactoryParam<EditAliasPage, ContactViewModel, String>(
+        (contactViewModel, handleKey) => EditAliasPage(contactViewModel: contactViewModel,
+          handleKey: handleKey),
+  );
+
+  getIt.registerFactoryParam<EditNewContactPage, ParsedAddress, ContactRecord?>(
         (parsedAddress, record) {
 
       final vm = getIt<ContactViewModel>(
         param1: AddressEditRequest.contact(record),
       );
 
-      return EditNewContactGroupPage(
+      return EditNewContactPage(
         selectedParsedAddress: parsedAddress,
         contactViewModel     : vm,
       );

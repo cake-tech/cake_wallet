@@ -1,8 +1,8 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/standard_text_form_field_widget.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class EditAddressPage extends BasePage {
+class EditAddressPage extends SheetPage {
   EditAddressPage({required this.contactViewModel})
       : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(text: contactViewModel.label),

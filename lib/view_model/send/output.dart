@@ -1,6 +1,8 @@
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -321,6 +323,7 @@ abstract class OutputBase with Store {
   }
 
   Future<void> fetchParsedAddress(BuildContext context) async {
+    print('fetchParsedAddress: $address');
     final domain = address;
     final currency = cryptoCurrencyHandler();
     final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: _wallet);
@@ -329,10 +332,12 @@ abstract class OutputBase with Store {
     note = parsedAddress.description ?? '';
   }
 
-  void loadContact(ContactBase contact) {
-    address = contact.name;
-    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {contact.type : contact.address}, handle: contact.name);
-    extractedAddress = parsedAddress.parsedAddressByCurrencyMap[contact.type] ?? '';
+  void loadContact((ContactRecord,String)selectedContact) {
+    address = selectedContact.$1.name;
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {selectedContact.$1.type: selectedContact.$2},
+                                  handle: selectedContact.$1.handle,
+                                  addressSource: AddressSource.contact);
+    extractedAddress = selectedContact.$2;
     note = parsedAddress.description ?? '';
   }
 }

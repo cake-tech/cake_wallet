@@ -10,6 +10,7 @@ const supportedSources = [
   AddressSource.fio,
 ];
 
+///Do not use '-' in the label, it is used to separate the label from the alias.
 enum AddressSource {
   twitter(
       label: 'X',
@@ -75,7 +76,7 @@ enum AddressSource {
       iconPath: 'assets/images/thorchain.png',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
   wellKnown(
-      label: '.well-known',
+      label: '.wellknown',
       iconPath: 'assets/icons/wk.svg',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
   zanoAlias(
@@ -83,7 +84,7 @@ enum AddressSource {
       iconPath: 'assets/images/zano_icon.png',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
   bip353(
-      label: 'BIP-353',
+      label: 'BIP353',
       iconPath: 'assets/images/btc.png',
       alias: 'user@domain.com',
       supportedCurrencies: [CryptoCurrency.btc]),

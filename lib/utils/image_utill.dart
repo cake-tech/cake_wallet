@@ -20,46 +20,38 @@ class ImageUtil {
       imagePath = "assets/images/tor_logo.svg";
       isNetworkImage = false;
     }
-
-    final bool isSvg = imagePath.endsWith('.svg');
+    final isSvg = imagePath.endsWith('.svg');
     final bool ignoreSize = fit != null;
     final double? _height = ignoreSize ? null : (height ?? 35);
     final double? _width = ignoreSize ? null : (width ?? 35);
 
     Widget img;
-
     if (isNetworkImage) {
       img = isSvg
-          ? SvgPicture.network(
-              imagePath,
+          ? SvgPicture.network(imagePath,
               key: ValueKey(imagePath),
               height: _height,
               width: _width,
               fit: fit ?? BoxFit.contain,
-              placeholderBuilder: (_) => _placeholder(_height, _width),
-            )
-          : Image.network(
-              imagePath,
+              placeholderBuilder: (_) => _placeholder(_height, _width))
+          : Image.network(imagePath,
               key: ValueKey(imagePath),
               height: _height,
               width: _width,
               fit: fit,
               loadingBuilder: (_, child, progress) =>
                   progress == null ? child : _placeholder(_height, _width),
-              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-            );
+              errorBuilder: (_, __, ___) => const SizedBox.shrink());
     } else {
       img = isSvg
-          ? SvgPicture.asset(
-              imagePath,
+          ? SvgPicture.asset(imagePath,
               key: ValueKey(imagePath),
               height: _height,
               width: _width,
               fit: fit ?? BoxFit.contain,
               colorFilter:
                   svgImageColor != null ? ColorFilter.mode(svgImageColor, BlendMode.srcIn) : null,
-              placeholderBuilder: (_) => const Icon(Icons.error),
-            )
+              placeholderBuilder: (_) => const Icon(Icons.error))
           : Image.asset(
               imagePath,
               key: ValueKey(imagePath),
@@ -76,19 +68,12 @@ class ImageUtil {
         child: img,
       );
     }
-
     return img;
   }
 
-  static Widget _placeholder(double? height, double? width) {
-    return (height != null || width != null)
-        ? SizedBox(
-            height: height,
-            width: width,
-            child: const Center(child: CircularProgressIndicator()),
-          )
-        : const Center(child: CircularProgressIndicator());
-  }
+  static Widget _placeholder(double? h, double? w) => (h != null || w != null)
+      ? SizedBox(height: h, width: w, child: const Center(child: CircularProgressIndicator()))
+      : const Center(child: CircularProgressIndicator());
 
   static Future<String?> saveAvatarLocally(String imageUriOrPath) async {
     if (imageUriOrPath.isEmpty) return null;

@@ -6,15 +6,16 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_welcome_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_contact_group_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_alias_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
-import 'package:cake_wallet/src/screens/address_book/edit_new_contact_group_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:flutter/material.dart';
 
-class AddressBookBottomSheet extends StatelessWidget {
+class AddressBookBottomSheet extends StatefulWidget {
   const AddressBookBottomSheet({
     super.key,
     required this.onHandlerSearch,
@@ -27,26 +28,36 @@ class AddressBookBottomSheet extends StatelessWidget {
   final Object? initialArgs;
 
   @override
+  State<AddressBookBottomSheet> createState() => _AddressBookBottomSheetState();
+}
+
+class _AddressBookBottomSheetState extends State<AddressBookBottomSheet>
+    with TickerProviderStateMixin {
+  @override
   Widget build(BuildContext context) {
+    final double screenH = MediaQuery.of(context).size.height;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Material(
         color: Theme.of(context).colorScheme.surface,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDragHandle(context),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * .7,
-              ),
-              child: _AddContactNavigator(
-                onHandlerSearch: onHandlerSearch,
-                initialRoute: initialRoute ?? Navigator.defaultRouteName,
-                initialArgs: initialArgs,
-              ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: screenH * 0.45),
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildDragHandle(context),
+                _AddContactNavigator(
+                  onHandlerSearch: widget.onHandlerSearch,
+                  initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
+                  initialArgs: widget.initialArgs,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -100,48 +111,61 @@ class _AddContactNavigator extends StatelessWidget {
   }
 
   Route<dynamic> _routeFor(String name, Object? args) {
-    late final Widget page;
+    final Widget page = _pageFor(name, args);
 
+    return PageRouteBuilder(
+      settings: RouteSettings(name: name, arguments: args),
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: const Duration(milliseconds: 150),
+      reverseTransitionDuration: const Duration(milliseconds: 150),
+      transitionsBuilder: (_, animation, __, child) {
+        final slide = Tween<Offset>(
+          begin: const Offset(0, 0.08),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        ));
+
+        return SlideTransition(position: slide, child: child);
+      },
+    );
+  }
+
+  Widget _pageFor(String name, Object? args) {
     switch (name) {
       case Routes.supportedHandlesPage:
-        page = getIt<SupportedHandlesPage>();
-        break;
-      case Routes.newContactWelcomePage:
+        return getIt<SupportedHandlesPage>();
+      case Routes.contactWelcomePage:
         final list = args as List<dynamic>;
         final onSearch = list[0] as Future<List<ParsedAddress>> Function(String);
-        final handleOnly = list.length > 1 && list[1] == true;
-        final contact = list.length > 2 ? list[2] as ContactRecord? : null;
+        final contact = list.length > 1 ? list[1] as ContactRecord? : null;
 
-        page = NewContactWelcomePage(
+        return ContactWelcomePage(
           onSearch: onSearch,
-          handleOnly: handleOnly,
           existingContact: contact,
         );
-        break;
-      case Routes.editNewContactGroupPage:
+      case Routes.editNewContactPage:
         final list = args as List<dynamic>;
-        page = getIt<EditNewContactGroupPage>(
+        return getIt<EditNewContactPage>(
           param1: list[0] as ParsedAddress,
           param2: list.length > 1 ? list[1] as ContactRecord? : null,
         );
-        break;
-      case Routes.editContactGroupPage:
+      case Routes.editContactPage:
         final vm = args as ContactViewModel;
-        page = getIt<EditContactGroupPage>(param1: vm);
-        break;
+        return getIt<EditContactPage>(param1: vm);
+      case Routes.editAliasPage:
+        final list = args as List<dynamic>;
+        return getIt<EditAliasPage>(
+          param1: list[0] as ContactViewModel,
+          param2: list.length > 1 ? list[1] as String? : '',
+        );
       case Routes.contactPage:
-        page = getIt<ContactPage>(param1: args as ContactRecord);
-        break;
+        return getIt<ContactPage>(param1: args as ContactRecord);
       case Routes.editAddressPage:
-        page = getIt<EditAddressPage>(param1: args as AddressEditRequest);
-        break;
+        return getIt<EditAddressPage>(param1: args as AddressEditRequest);
       default:
-        page = NewContactWelcomePage(onSearch: onHandlerSearch, handleOnly: false);
+        return ContactWelcomePage(onSearch: onHandlerSearch);
     }
-
-    return MaterialPageRoute(
-      builder: (_) => page,
-      settings: RouteSettings(name: name, arguments: args),
-    );
   }
 }

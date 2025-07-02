@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/entities/user_handles.dart';
@@ -116,6 +118,47 @@ abstract class _ContactViewModel with Store {
           : parsed[currency] != null
               ? parsed
               : manual;
+
+  @action
+  Future<void> refresh() async {
+    state = IsExecutingState();
+    final resolver = getIt<AddressResolverService>();
+
+    final originalBlocks = Map<String, Map<CryptoCurrency, Map<String, String>>>.from(parsedBlocks);
+
+    try {
+
+    for (final entry in originalBlocks.entries) {
+      final handleKey = entry.key;
+      final sourceLabel = handleKey.split('-').first;
+      final handle = handleKey.substring(sourceLabel.length + 1);
+
+      final newResults = await resolver.resolve(
+        query: handle,
+        wallet: wallet,
+      );
+
+      final Map<CryptoCurrency, Map<String, String>> refreshed = {};
+
+      for (final parsed in newResults) {
+        parsed.parsedAddressByCurrencyMap.forEach((cur, addr) {
+          final oldLabel = parsedBlocks[handleKey]?[cur]?.keys.firstOrNull ?? cur.title;
+
+          (refreshed[cur] ??= {})[oldLabel] = addr;
+        });
+      }
+
+      parsedBlocks[handleKey] = refreshed;
+      record?.replaceParsedBlock(handleKey, refreshed);
+    }
+    } catch (e) {
+      state = FailureState(e.toString());
+      return;
+    }
+
+    await record?.original.save();
+    state = ExecutedSuccessfullyState();
+  }
 
   @action
   Future<void> saveContactInfo() async {

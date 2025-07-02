@@ -149,6 +149,19 @@ abstract class ContactRecordBase extends Record<Contact> with Store implements C
       ..lastChange = DateTime.now();
   }
 
+  @action
+  void replaceParsedBlock(String handleKey, Map<CryptoCurrency, Map<String, String>> newBlock) {
+    parsedBlocks[handleKey] = {
+      for (final e in newBlock.entries) e.key: Map<String, String>.of(e.value)
+    };
+
+    original.parsedByHandle = {
+      for (final h in parsedBlocks.entries)
+        h.key: {for (final cur in h.value.entries) cur.key.raw: Map<String, String>.of(cur.value)}
+    };
+    original.lastChange = DateTime.now();
+  }
+
   @override
   String address = '';
   @override

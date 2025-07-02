@@ -1,11 +1,10 @@
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/handles_list_widget.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:flutter/material.dart';
 
-class SupportedHandlesPage extends BasePage {
+class SupportedHandlesPage extends SheetPage {
   SupportedHandlesPage({required this.contactViewModel});
 
   final ContactViewModel contactViewModel;
@@ -15,10 +14,6 @@ class SupportedHandlesPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final fill = currentTheme.isDark
-        ? CustomThemeColors.backgroundGradientColorDark
-        : CustomThemeColors.backgroundGradientColorLight;
-
     final selectedInit = <AddressSource>[
       for (final src in supportedSources)
         if (contactViewModel.lookupMap[src.label]!.$1()) src
@@ -26,7 +21,6 @@ class SupportedHandlesPage extends BasePage {
 
     return HandlesListWidget(
       items: supportedSources,
-      fillColor: fill,
       initiallySelected: selectedInit,
       onSelectionChanged: (sel) {
         for (final src in supportedSources) {
