@@ -69,6 +69,7 @@
   "auto_generate_addresses": "สร้างที่อยู่อัตโนมัติ",
   "auto_generate_subaddresses": "Auto สร้าง subaddresses",
   "automatic": "อัตโนมัติ",
+  "automatic_node_switching": "การสลับโหนดที่เชื่อถือได้อัตโนมัติ",
   "available_balance": "ยอดคงเหลือที่ใช้งานได้",
   "available_balance_description": "จำนวนเงินที่คุณสามารถใช้ได้ในการซื้อหรือขาย",
   "avg_savings": "ประหยัดเฉลี่ย",

@@ -69,6 +69,7 @@
   "auto_generate_addresses": "주소 자동 생성",
   "auto_generate_subaddresses": "하위 주소 자동 생성",
   "automatic": "자동",
+  "automatic_node_switching": "자동 신뢰할 수있는 노드 스위칭",
   "available_balance": "사용 가능 잔액",
   "available_balance_description": "“사용 가능 잔액” 또는 “확정 잔액”은 즉시 사용할 수 있는 자금입니다. 자금이 아래 잔액에는 표시되지만 위 잔액에는 표시되지 않는 경우, 들어오는 자금이 더 많은 네트워크 확인을 받을 때까지 몇 분 정도 기다려야 합니다. 더 많은 확인을 받은 후 사용할 수 있게 됩니다.",
   "avg_savings": "평균 절약액",

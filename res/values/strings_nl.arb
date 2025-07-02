@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Auto -genereer adressen",
   "auto_generate_subaddresses": "Automatisch subadressen genereren",
   "automatic": "automatisch",
+  "automatic_node_switching": "Automatisch vertrouwde knooppuntomschakeling",
   "available_balance": "Beschikbaar saldo",
   "available_balance_description": "Beschikbaar saldo is het saldo dat u kunt uitgeven. Het kan lager zijn dan uw totale saldo als u onlangs geld hebt verzonden.",
   "avg_savings": "Gem. besparingen",

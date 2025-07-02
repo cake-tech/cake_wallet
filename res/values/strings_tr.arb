@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Otomatik Adres Oluşturma",
   "auto_generate_subaddresses": "Alt adresleri otomatik olarak oluştur",
   "automatic": "Otomatik",
+  "automatic_node_switching": "Otomatik Güvenilir Düğüm Değiştirme",
   "available_balance": "Kullanılabilir Bakiye",
   "available_balance_description": "Bu, cüzdanınızda harcayabileceğiniz miktar. Bu miktar, cüzdanınızdan çekilebilecek toplam bakiyeden daha düşük olabilir, çünkü bazı fonlar henüz kullanılamaz durumda olabilir.",
   "avg_savings": "Ortalama Tasarruf",

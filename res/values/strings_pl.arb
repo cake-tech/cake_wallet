@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Automatycznie generuj adresy",
   "auto_generate_subaddresses": "Automatycznie generuj podadresy",
   "automatic": "Automatyczny",
+  "automatic_node_switching": "Automatyczne zaufane przełączanie węzłów",
   "available_balance": "Dostępne środki",
   "available_balance_description": "Dostępne saldo jest równoważne z saldem portfela minus zamrożone saldo.",
   "avg_savings": "Śr. oszczędności",
@@ -922,6 +923,7 @@
   "ton_extra_info": "Nie zapomnij określić identyfikatora notatki podczas wysyłania transakcji TON dla wymiany",
   "tor_connection": "Połączenie przez Tor",
   "tor_connection_timeout": "Tor Connection Timeout",
+  "tor_experimental": "Jest to funkcja eksperymentalna. Nie wszystkie połączenia wykonane z Cake Wallet korzystają z Tor, niektóre połączenia mogą korzystać z Clearnet, aby w pełni przekierować ruch skorzystaj z Tor w trybie VPN.",
   "tor_only": "Tylko sieć Tor",
   "total": "Całkowity",
   "total_saving": "Całkowite oszczędności",
@@ -1111,6 +1113,5 @@
   "you_will_receive_estimated_amount": "Otrzymasz(oszacowane )",
   "you_will_send": "Konwertuj z",
   "youCanGoBackToYourDapp": "Możesz teraz wrócić do swojego dapp",
-  "yy": "RR",
-  "tor_experimental": "Jest to funkcja eksperymentalna. Nie wszystkie połączenia wykonane z Cake Wallet korzystają z Tor, niektóre połączenia mogą korzystać z Clearnet, aby w pełni przekierować ruch skorzystaj z Tor w trybie VPN."
+  "yy": "RR"
 }

@@ -89,6 +89,7 @@ class PreferencesKey {
   static const showPayjoinCard = 'show_payjoin_card';
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
+  static const automaticNodeSwitchingEnabled = 'automatic_node_switching_enabled';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Auto generate addresses",
   "auto_generate_subaddresses": "Auto generate subaddresses",
   "automatic": "Automatic",
+  "automatic_node_switching": "Automatic Trusted Node Switching",
   "available_balance": "Available Balance",
   "available_balance_description": "The “Available Balance” or “Confirmed Balance” are funds that can be spent immediately. If funds appear in the lower balance but not the top balance, then you must wait a few minutes for the incoming funds to get more network confirmations. After they get more confirmations, they will be spendable.",
   "avg_savings": "Avg. Savings",

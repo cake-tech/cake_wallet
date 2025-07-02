@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Genera automaticamente indirizzi",
   "auto_generate_subaddresses": "Genera automaticamente sottindirizzi",
   "automatic": "Automatico",
+  "automatic_node_switching": "Commutazione del nodo di fiducia automatica",
   "available_balance": "Saldo Disponibile",
   "available_balance_description": "I “Saldo Disponibile” o “Saldo Confermato” sono fondi che possono essere spesi immediatamente. Se i fondi appaiono nel saldo sottostante ma non nel saldo soprastante, allora aspetta un paio di minuti per i fondi in arrivo per ottenere maggiori conferme di rete. Dopo aver ottenuto più conferme, saranno spendibili.",
   "avg_savings": "Risparmio medio",

@@ -69,6 +69,7 @@
   "auto_generate_addresses": "自动生成地址",
   "auto_generate_subaddresses": "自动生成子辅助",
   "automatic": "自动的",
+  "automatic_node_switching": "自动信任节点切换",
   "available_balance": "可用余额",
   "available_balance_description": "可用余额是您可以使用的金额。冻结余额是您当前正在等待确认的金额。",
   "avg_savings": "平均储蓄",

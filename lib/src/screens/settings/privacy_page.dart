@@ -153,6 +153,12 @@ class PrivacyPage extends BasePage {
                     _privacySettingsViewModel.setUseMempoolFeeAPI(isEnabled);
                   },
                 ),
+              SettingsSwitcherCell(
+                title: S.current.automatic_node_switching,
+                value: _privacySettingsViewModel.isAutomaticNodeSwitchingEnabled,
+                onValueChange: (_, value) =>
+                    _privacySettingsViewModel.setAutomaticNodeSwitchingEnabled(value),
+              ),
               SettingsCellWithArrow(
                 title: S.current.domain_looks_up,
                 handler: (context) => Navigator.of(context).pushNamed(Routes.domainLookupsPage),

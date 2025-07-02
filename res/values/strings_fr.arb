@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Adresses de génération automatique",
   "auto_generate_subaddresses": "Générer automatiquement des sous-adresses",
   "automatic": "Automatique",
+  "automatic_node_switching": "Commutation de nœud de confiance automatique",
   "available_balance": "Solde Disponible",
   "available_balance_description": "Le solde disponible est le montant que vous pouvez dépenser immédiatement. Il est calculé en soustrayant le solde gelé du solde total.",
   "avg_savings": "Économies moy.",

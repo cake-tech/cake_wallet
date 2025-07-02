@@ -128,6 +128,7 @@ abstract class SettingsStoreBase with Store {
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
+      required bool initialAutomaticNodeSwitchingEnabled,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -186,6 +187,7 @@ abstract class SettingsStoreBase with Store {
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
         currentBuiltinTor = initialBuiltinTor,
+        automaticNodeSwitchingEnabled = initialAutomaticNodeSwitchingEnabled,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -497,6 +499,10 @@ abstract class SettingsStoreBase with Store {
         (_) => showPayjoinCard,
         (bool showPayjoinCard) => _sharedPreferences.setBool(
             PreferencesKey.showPayjoinCard, showPayjoinCard));
+    
+    reaction(
+        (_) => automaticNodeSwitchingEnabled,
+        (bool automaticNodeSwitchingEnabled) => _sharedPreferences.setBool(PreferencesKey.automaticNodeSwitchingEnabled, automaticNodeSwitchingEnabled));
 
     // secure storage keys:
     reaction(
@@ -859,6 +865,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   String mwebNodeUri;
 
+  @observable
+  bool automaticNodeSwitchingEnabled;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1034,6 +1043,7 @@ abstract class SettingsStoreBase with Store {
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
     final hasEnabledMwebBefore =
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
+    final automaticNodeSwitchingEnabled = sharedPreferences.getBool(PreferencesKey.automaticNodeSwitchingEnabled) ?? false;
     final mwebNodeUri = sharedPreferences.getString(PreferencesKey.mwebNodeUri) ??
         "ltc-electrum.cakewallet.com:9333";
 
@@ -1365,6 +1375,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowYatPopup: shouldShowYatPopup,
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
+      initialAutomaticNodeSwitchingEnabled: automaticNodeSwitchingEnabled,
     );
   }
 
@@ -1479,6 +1490,7 @@ abstract class SettingsStoreBase with Store {
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
+    automaticNodeSwitchingEnabled = sharedPreferences.getBool(PreferencesKey.automaticNodeSwitchingEnabled) ?? automaticNodeSwitchingEnabled;
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
     // If no value
     if (pinLength == null || pinLength == 0) {

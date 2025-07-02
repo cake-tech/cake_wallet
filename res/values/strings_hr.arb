@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Automatsko generiranje adresa",
   "auto_generate_subaddresses": "Automatski generirajte podadrese",
   "automatic": "Automatski",
+  "automatic_node_switching": "Automatsko prebacivanje čvorova s ​​pouzdanim čvorovima",
   "available_balance": "Raspoloživ iznos",
   "available_balance_description": "Dostupno stanje je iznos koji možete potrošiti. To je vaš saldo minus bilo kakve transakcije koje su još uvijek u tijeku.",
   "avg_savings": "Prosj. ušteda",

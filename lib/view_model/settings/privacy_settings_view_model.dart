@@ -116,6 +116,9 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   bool get canUsePayjoin => _wallet.type == WalletType.bitcoin;
 
+  @computed
+  bool get isAutomaticNodeSwitchingEnabled => _settingsStore.automaticNodeSwitchingEnabled;
+
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
@@ -189,4 +192,8 @@ abstract class PrivacySettingsViewModelBase with Store {
     _settingsStore.usePayjoin = value;
     bitcoin!.updatePayjoinState(_wallet, value);
   }
+
+  @action
+  void setAutomaticNodeSwitchingEnabled(bool value) =>
+      _settingsStore.automaticNodeSwitchingEnabled = value;
 }

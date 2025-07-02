@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Auto bumuo ng mga address",
   "auto_generate_subaddresses": "Auto bumuo ng mga subaddress",
   "automatic": "Awtomatiko",
+  "automatic_node_switching": "Awtomatikong pinagkakatiwalaang paglipat ng node",
   "available_balance": "Magagamit na Balanse",
   "available_balance_description": "Ang \"magagamit na balanse\" o \"nakumpirma na balanse\" ay mga pondo na maaaring gastusin kaagad. Kung lumilitaw ang mga pondo sa mas mababang balanse ngunit hindi ang nangungunang balanse, dapat kang maghintay ng ilang minuto para sa mga papasok na pondo upang makakuha ng mas maraming mga kumpirmasyon sa network. Matapos silang makakuha ng higit pang mga kumpirmasyon, gugugol sila.",
   "avg_savings": "Avg. Matitipid",

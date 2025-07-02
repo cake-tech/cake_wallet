@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Automatické generování adres",
   "auto_generate_subaddresses": "Automaticky generovat podadresy",
   "automatic": "Automatický",
+  "automatic_node_switching": "Automatické přepínání důvěryhodného uzlu",
   "available_balance": "Dostupný zůstatek",
   "available_balance_description": "Dostupná částka je částka, kterou můžete okamžitě utratit. Zmrazená částka je částka, která ještě není k dispozici, protože ještě nebyla potvrzena síťovým protokolem.",
   "avg_savings": "Prům. ušetřeno",

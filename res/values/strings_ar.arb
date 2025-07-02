@@ -69,6 +69,7 @@
   "auto_generate_addresses": "تلقائي توليد العناوين",
   "auto_generate_subaddresses": "تلقائي توليد subddresses",
   "automatic": "تلقائي",
+  "automatic_node_switching": "تبديل العقدة الموثوقة التلقائي",
   "available_balance": "الرصيد المتوفر",
   "available_balance_description": "الرصيد المتاح هو الرصيد الذي يمكنك إنفاقه أو تحويله إلى محفظة أخرى. يتم تجميد الرصيد المتاح للمعاملات الصادرة والمعاملات الواردة غير المؤكدة.",
   "avg_savings": "متوسط مدخرات",

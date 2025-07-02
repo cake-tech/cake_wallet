@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Autoはアドレスを生成します",
   "auto_generate_subaddresses": "Autoはサブアドレスを生成します",
   "automatic": "自動",
+  "automatic_node_switching": "自動信頼できるノードスイッチング",
   "available_balance": "利用可能残高",
   "available_balance_description": "利用可能な残高は、ウォレットの残高から冷凍残高を差し引いたものです。",
   "avg_savings": "平均節約額",

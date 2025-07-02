@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Endereços gerados automaticamente",
   "auto_generate_subaddresses": "Gerar subendereços automaticamente",
   "automatic": "Automático",
+  "automatic_node_switching": "Comutação de nó de confiança automática",
   "available_balance": "Saldo disponível",
   "available_balance_description": "Seu saldo disponível é o saldo total menos o saldo congelado. O saldo congelado é o saldo que você não pode gastar, mas que ainda não foi confirmado na blockchain. O saldo congelado é geralmente o resultado de transações recentes.",
   "avg_savings": "Poupança média",

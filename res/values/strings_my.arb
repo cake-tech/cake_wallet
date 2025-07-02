@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Auto Generate လိပ်စာများ",
   "auto_generate_subaddresses": "အော်တို Generate Subaddresses",
   "automatic": "အလိုအလျောက်",
+  "automatic_node_switching": "အလိုအလျောက်ယုံကြည်ရသော node switching",
   "available_balance": "လက်ကျန်ငွေ ရရှိနိုင်",
   "available_balance_description": "သင့်ရဲ့ အကောင့်တွင် ရရှိနိုင်သော ငွေကျန်ငွေကို ပြန်လည်ပေးသွင်းပါ။",
   "avg_savings": "ပျမ်းမျှ စုဆောင်းငွေ",

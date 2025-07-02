@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Авто генерируйте адреса",
   "auto_generate_subaddresses": "Авто генерируйте Subaddresses",
   "automatic": "автоматический",
+  "automatic_node_switching": "Автоматическое переключение доверенного узла",
   "available_balance": "Доступный баланс",
   "available_balance_description": "Доступный баланс - это средства, которые вы можете использовать для покупки или продажи криптовалюты.",
   "avg_savings": "Средняя экономия",

@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Auto-generar nuevas direcciones",
   "auto_generate_subaddresses": "Generar subdirecciones automáticamente",
   "automatic": "Automático",
+  "automatic_node_switching": "Conmutación automática de nodo de confianza",
   "available_balance": "Balance disponible",
   "available_balance_description": "Tu saldo disponible es la cantidad de fondos que puedes gastar. Los fondos que se muestran aquí, se pueden gastar inmediatamente.",
   "avg_savings": "Ahorro promedio",

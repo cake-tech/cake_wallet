@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Auto menghasilkan alamat",
   "auto_generate_subaddresses": "Menghasilkan subalamat secara otomatis",
   "automatic": "Otomatis",
+  "automatic_node_switching": "Switching simpul terpercaya otomatis",
   "available_balance": "Saldo Tersedia",
   "available_balance_description": "“Saldo yang Tersedia” atau “Saldo yang Dikonfirmasi” adalah dana yang dapat langsung dibelanjakan. Jika dana muncul di saldo bawah tetapi tidak di saldo atas, maka Anda harus menunggu beberapa menit agar dana masuk mendapatkan konfirmasi jaringan lainnya. Setelah mereka mendapatkan lebih banyak konfirmasi, mereka akan dapat dibelanjakan.",
   "avg_savings": "Rata-rata Pembayaran",

@@ -69,6 +69,7 @@
   "auto_generate_addresses": "Tự động tạo địa chỉ",
   "auto_generate_subaddresses": "Tự động tạo địa chỉ phụ",
   "automatic": "Tự động",
+  "automatic_node_switching": "Chuyển đổi nút đáng tin cậy tự động",
   "available_balance": "Số dư khả dụng",
   "available_balance_description": "Số dư khả dụng hoặc số dư đã xác nhận là số tiền có thể chi tiêu ngay lập tức. Nếu tiền xuất hiện ở số dư thấp hơn nhưng không phải ở số dư cao hơn, bạn phải đợi một vài phút để các khoản tiền đến có thêm xác nhận từ mạng lưới. Sau khi có thêm xác nhận, chúng sẽ có thể chi tiêu.",
   "avg_savings": "Tiết kiệm trung bình",
