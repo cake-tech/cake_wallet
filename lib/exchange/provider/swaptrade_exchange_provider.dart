@@ -58,6 +58,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapTrade;
 
+  static const _headers = <String, String>{'Content-Type': 'application/json'};
+
   @override
   Future<bool> checkIsAvailable() async => true;
 
@@ -68,16 +70,21 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
   }) async {
     try {
+      print("@@@@@");
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
       
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      print("@@@@@");
+      print(responseJSON);
 
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
 
       final coinsInfo = responseJSON['data'] as List<dynamic>;
+      print("@@@@@");
+      print(coinsInfo);
 
       for (var coin in coinsInfo) {
         if (coin['id'].toString().toUpperCase() == _normalizeCurrency(from)) {
@@ -107,7 +114,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     try {
       if (amount == 0) return 0.0;
 
-      final headers = <String, String>{};
       final params = <String, dynamic>{};
       final body = <String, String>{
         'coin_send': _normalizeCurrency(from),
@@ -117,10 +123,12 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       };
 
       final uri = Uri.https(apiAuthority, getRate, params);
+      print("#########");
+      print(uri);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         body: json.encode(body),
-        headers: headers,
+        headers: _headers,
       );
       
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
@@ -144,7 +152,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required bool isSendAll,
   }) async {
     try {
-      final headers = <String, String>{};
       final params = <String, dynamic>{};
       var body = <String, dynamic>{
         'coin_send': _normalizeCurrency(request.fromCurrency),
@@ -162,7 +169,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         body: json.encode(body),
-        headers: headers,
+        headers: _headers,
       );
       
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
@@ -200,7 +207,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({required String id}) async {
     try {
-      final headers = <String, String>{};
       final params = <String, dynamic>{};
       var body = <String, dynamic>{
         'order_id': id,
@@ -210,7 +216,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         body: json.encode(body),
-        headers: headers,
+        headers: _headers,
       );
       
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
