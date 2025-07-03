@@ -250,11 +250,13 @@ abstract class OutputBase with Store {
       sendAll = false;
     }
 
+    cryptoAmount = amount;
     _updateFiatAmount();
   }
 
   @action
   void setFiatAmount(String amount) {
+    fiatAmount = amount;
     _updateCryptoAmount();
   }
 
