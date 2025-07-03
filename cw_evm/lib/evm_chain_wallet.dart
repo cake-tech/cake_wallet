@@ -517,8 +517,7 @@ abstract class EVMChainWalletBase
       currency: transactionCurrency,
       feeCurrency: switch (_client.chainId) {
         1 => "ETH",
-        137 => "MATIC",
-        1000 => "TRX",
+        137 => "POL",
         _ => ""
       },
       maxFeePerGas: maxFeePerGasForTransaction,
