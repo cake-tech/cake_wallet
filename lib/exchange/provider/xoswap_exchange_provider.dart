@@ -97,18 +97,12 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
   }) async {
     try {
-      print("meow");
       final curFrom = await _getAssets(from);
       final curTo = await _getAssets(to);
       if (curFrom == null || curTo == null) return [];
       final pairId = curFrom + '_' + curTo;
       final uri = Uri.https(_apiAuthority, '$_apiPath$_pairsPath/$pairId$_ratePath');
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
-      print("meow");
-      print(uri);
-      print(response);
-      print(response.statusCode);
-      print(response.body);
 
       if (response.statusCode != 200) return [];
       return json.decode(response.body) as List<dynamic>;
@@ -123,7 +117,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    print("!!!!!!!!");
     final rates = await getRatesForPair(from: from, to: to);
     if (rates.isEmpty) return Limits(min: 0, max: 0);
 
@@ -136,10 +129,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (currentMin < minLimit) minLimit = currentMin;
       if (currentMax > maxLimit) maxLimit = currentMax;
     }
-    print("!!!!!!!!");
-    print(rates);
-    print(minLimit);
-    print(maxLimit);
     return Limits(min: minLimit, max: maxLimit);
   }
 
@@ -222,11 +211,6 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         headers: _headers,
         body: json.encode(payload),
       );
-      print("%%%%%%%%%%%");
-      print(uri);
-      print(_headers);
-      print(json.encode(payload));
-      print(payload);
 
       if (response.statusCode != 201) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;

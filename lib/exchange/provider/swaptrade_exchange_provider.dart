@@ -70,21 +70,16 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
   }) async {
     try {
-      print("@@@@@");
       final uri = Uri.https(apiAuthority, getCoins);
       final response = await ProxyWrapper().get(clearnetUri: uri);
       
 
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      print("@@@@@");
-      print(responseJSON);
 
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
 
       final coinsInfo = responseJSON['data'] as List<dynamic>;
-      print("@@@@@");
-      print(coinsInfo);
 
       for (var coin in coinsInfo) {
         if (coin['id'].toString().toUpperCase() == _normalizeCurrency(from)) {
@@ -123,8 +118,6 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       };
 
       final uri = Uri.https(apiAuthority, getRate, params);
-      print("#########");
-      print(uri);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         body: json.encode(body),
