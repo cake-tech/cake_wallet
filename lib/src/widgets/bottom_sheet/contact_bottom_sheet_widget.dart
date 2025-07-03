@@ -66,14 +66,14 @@ class _AddressBookBottomSheetState extends State<AddressBookBottomSheet>
 
 Widget _buildDragHandle(BuildContext context) {
   return Padding(
-    padding: const EdgeInsets.only(top: 16),
+    padding: const EdgeInsets.only(top: 10, bottom: 6),
     child: Row(
       children: [
         const Spacer(flex: 4),
         Expanded(
           flex: 2,
           child: Container(
-            height: 6,
+            height: 4,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
               color: Theme.of(context).colorScheme.onSurface,

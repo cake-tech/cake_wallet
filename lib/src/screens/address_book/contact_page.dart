@@ -42,7 +42,7 @@ class ContactPage extends SheetPage {
             ClipRRect(
                 borderRadius: BorderRadius.circular(5),
                 child: Image(
-                    width: 24, height: 24, image: contactViewModel.avatar, fit: BoxFit.cover)),
+                    width: 30, height: 30, image: contactViewModel.avatar, fit: BoxFit.cover)),
             const SizedBox(width: 12),
             Text(
               contactViewModel.name,

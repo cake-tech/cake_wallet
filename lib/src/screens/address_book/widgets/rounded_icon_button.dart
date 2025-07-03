@@ -27,7 +27,7 @@ class RoundedIconButton extends StatelessWidget {
       onPressed: onPressed,
       fillColor: fillColor ?? colorScheme.surfaceContainerHighest,
       elevation: 0,
-      constraints: BoxConstraints.tightFor(width: width ?? 24, height: height ?? 24),
+      constraints: BoxConstraints.tightFor(width: width ?? 30, height: height ?? 30),
       padding: EdgeInsets.zero,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       shape: shape ?? const CircleBorder(),
