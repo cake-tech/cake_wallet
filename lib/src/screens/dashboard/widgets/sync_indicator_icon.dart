@@ -52,10 +52,10 @@ class SyncIndicatorIcon extends StatelessWidget {
         shape: BoxShape.circle,
         color: indicatorColor,
       ),
-      child: !showTorIcon ? null : SvgPicture.asset(
+      child: showTorIcon ? SvgPicture.asset(
         "assets/images/tor.svg",
         color: indicatorColor,
-      ), 
+      ) : null, 
     );
   }
 }
