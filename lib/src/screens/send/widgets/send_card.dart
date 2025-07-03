@@ -247,6 +247,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 currencyAmountTextFieldWidgetKey:
                     ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
                 selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
+                selectedCurrencyDecimals: sendViewModel.selectedCryptoCurrency.decimals,
                 amountFocusNode: widget.cryptoAmountFocus,
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
@@ -308,6 +309,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   currencyAmountTextFieldWidgetKey:
                       ValueKey('send_page_fiat_currency_amount_textfield_widget_key'),
                   selectedCurrency: sendViewModel.fiat.title,
+                  selectedCurrencyDecimals: sendViewModel.fiat.decimals,
                   amountFocusNode: widget.fiatAmountFocus,
                   amountController: fiatAmountController,
                   hintText: '0.00',
@@ -502,9 +504,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       if (output.sendAll && amount != S.current.all) {
         output.sendAll = false;
       }
+
       if (amount != output.cryptoAmount) {
         output.setCryptoAmount(amount);
-        cryptoAmountController.text = output.cryptoAmount;
       }
     });
 
@@ -514,7 +516,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       if (amount != output.fiatAmount) {
         output.sendAll = false;
         output.setFiatAmount(amount);
-        fiatAmountController.text = output.fiatAmount;
       }
     });
 

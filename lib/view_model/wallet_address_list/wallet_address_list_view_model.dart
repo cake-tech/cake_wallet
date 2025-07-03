@@ -26,8 +26,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_h
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/amount_converter.dart';
-import 'package:cw_core/crypto_amount_format.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:intl/intl.dart';
@@ -675,10 +673,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @action
   void changeAmount(String amount) {
-    final decimals =
-        (selectedCurrency is CryptoCurrency) ? (selectedCurrency as CryptoCurrency).decimals : 2;
-    amount = amount.replaceAll(',', '.').withMaxDecimals(decimals);
-
     this.amount = amount;
     this._rawAmount = amount;
     if (selectedCurrency is FiatCurrency) {

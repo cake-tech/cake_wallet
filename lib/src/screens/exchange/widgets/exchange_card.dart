@@ -225,6 +225,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                 ValueKey('${_cardInstanceName}_currency_amount_textfield_widget_key'),
             imageArrow: widget.imageArrow,
             selectedCurrency: _selectedCurrency.toString(),
+            selectedCurrencyDecimals: _selectedCurrency.decimals,
             amountFocusNode: widget.amountFocusNode,
             amountController: amountController,
             onTapPicker: () => _presentPicker(context),
