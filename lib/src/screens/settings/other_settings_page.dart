@@ -69,8 +69,7 @@ class OtherSettingsPage extends BasePage {
                       value: _otherSettingsViewModel.enableAutomaticNodeSwitching,
                       borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       iconColor: Theme.of(context).colorScheme.primary,
-                      onChanged: (value) =>
-                          _otherSettingsViewModel.enableAutomaticNodeSwitching = value,
+                      onChanged: _otherSettingsViewModel.setEnableAutomaticNodeSwitching,
                       caption: S.current.enable_auto_node_switching,
                     ),
                   ],

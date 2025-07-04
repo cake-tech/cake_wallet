@@ -63,7 +63,8 @@ abstract class OtherSettingsViewModelBase with Store {
   @computed
   bool get enableAutomaticNodeSwitching => _settingsStore.enableAutomaticNodeSwitching;
 
-  set enableAutomaticNodeSwitching(bool value) => _settingsStore.enableAutomaticNodeSwitching = value;
+  void setEnableAutomaticNodeSwitching(bool value) =>
+      _settingsStore.enableAutomaticNodeSwitching = value;
 
   @computed
   bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
