@@ -6,7 +6,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -521,7 +520,8 @@ class ExchangePage extends BasePage {
       if (exchangeViewModel.isFixedRateMode) {
         exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
       } else {
-        exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+        if (depositAmountController.text != S.current.all)
+          exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
       }
     });
 
