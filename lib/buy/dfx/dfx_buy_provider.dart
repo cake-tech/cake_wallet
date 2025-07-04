@@ -123,7 +123,10 @@ class DFXBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
-        return await wallet.signMessage(message);
+      case WalletType.solana:
+      case WalletType.tron:
+        final r = await wallet.signMessage(message);
+        return r;
       case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:
@@ -169,6 +172,11 @@ class DFXBuyProvider extends BuyProvider {
         final responseData = jsonDecode(response.body);
 
         if (responseData is List && responseData.isNotEmpty) {
+          for (final i in responseData) {
+            if (assetsName.toLowerCase() == i["dexName"].toString().toLowerCase()) {
+              return i as Map<String, dynamic>;
+            }
+          }
           return responseData.first as Map<String, dynamic>;
         } else if (responseData is Map<String, dynamic>) {
           return responseData;
@@ -251,8 +259,6 @@ class DFXBuyProvider extends BuyProvider {
     }
 
     final action = isBuyAction ? 'buy' : 'sell';
-
-    if (isBuyAction && cryptoCurrency != wallet.currency) return null;
 
     final fiatCredentials = await fetchFiatCredentials(fiatCurrency.name.toString());
     if (fiatCredentials['id'] == null) return null;

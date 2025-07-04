@@ -189,7 +189,7 @@ class CWPolygon extends Polygon {
   Future<PendingTransaction> createTokenApproval(WalletBase wallet,
           BigInt amount, String spender, CryptoCurrency token, TransactionPriority priority) =>
       (wallet as EVMChainWallet)
-          .createApprovalTransaction(amount, spender, token, priority as EVMChainTransactionPriority);
+          .createApprovalTransaction(amount, spender, token, priority as EVMChainTransactionPriority, "POL");
 
   @override
   void setLedgerConnection(

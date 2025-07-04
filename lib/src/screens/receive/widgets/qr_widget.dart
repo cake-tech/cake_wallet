@@ -212,6 +212,8 @@ class QRWidget extends StatelessWidget {
                                 hasUnderlineBorder: true,
                                 borderWidth: 0.0,
                                 selectedCurrency: _currencyName,
+                                selectedCurrencyDecimals:
+                                    addressListViewModel.selectedCurrency.decimals,
                                 amountFocusNode: amountTextFieldFocusNode,
                                 amountController: amountController,
                                 padding: EdgeInsets.only(top: 20, left: _width / 4),
