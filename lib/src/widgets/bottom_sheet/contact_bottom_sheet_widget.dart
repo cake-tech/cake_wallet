@@ -4,15 +4,16 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_refresh_page.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_welcome_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_alias_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
-import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
 class AddressBookBottomSheet extends StatefulWidget {
@@ -35,11 +36,17 @@ class _AddressBookBottomSheetState extends State<AddressBookBottomSheet>
     with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    final double screenH = MediaQuery.of(context).size.height;
+    final double screenH = MediaQuery
+        .of(context)
+        .size
+        .height;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Material(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme
+            .of(context)
+            .colorScheme
+            .surface,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: screenH * 0.45),
           child: AnimatedSize(
@@ -76,7 +83,10 @@ Widget _buildDragHandle(BuildContext context) {
             height: 6,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Theme.of(context).colorScheme.onSurface,
+              color: Theme
+                  .of(context)
+                  .colorScheme
+                  .onSurface,
             ),
           ),
         ),
@@ -100,13 +110,15 @@ class _AddContactNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      onGenerateInitialRoutes: (_, __) => [
+      onGenerateInitialRoutes: (_, __) =>
+      [
         _routeFor(initialRoute, initialArgs),
       ],
-      onGenerateRoute: (settings) => _routeFor(
-        settings.name ?? Navigator.defaultRouteName,
-        settings.arguments,
-      ),
+      onGenerateRoute: (settings) =>
+          _routeFor(
+            settings.name ?? Navigator.defaultRouteName,
+            settings.arguments,
+          ),
     );
   }
 
@@ -163,7 +175,22 @@ class _AddContactNavigator extends StatelessWidget {
       case Routes.contactPage:
         return getIt<ContactPage>(param1: args as ContactRecord);
       case Routes.editAddressPage:
-        return getIt<EditAddressPage>(param1: args as AddressEditRequest);
+        final list = args as List<dynamic>;
+        final viewModel = list[0] as ContactViewModel;
+        viewModel
+          ..currency = list[1] as CryptoCurrency
+          ..label = list[2] as String
+          ..address = viewModel.manual[viewModel.currency]?[viewModel.label] ?? '';
+        return getIt<EditAddressPage>(param1: viewModel);
+
+      case Routes.contactRefreshPage:
+        final list = args as List<dynamic>;
+        final contact = list[0] as ContactRecord;
+        final selectedCurrency = list[1] as CryptoCurrency;
+        return getIt<ContactRefreshPage>(
+          param1: contact,
+          param2: selectedCurrency,
+        );
       default:
         return ContactWelcomePage(onSearch: onHandlerSearch);
     }

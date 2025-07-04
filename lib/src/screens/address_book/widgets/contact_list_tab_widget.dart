@@ -1,12 +1,14 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_list_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_list/filtered_list.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/contact_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -49,9 +51,7 @@ class _ContactListBodyState extends State<ContactListBody> {
   @override
   Widget build(BuildContext context) {
     final isEditable = widget.contactListViewModel.isEditable;
-    final contacts = widget.contactListViewModel.isEditable
-        ? widget.contactListViewModel.contacts
-        : widget.contactListViewModel.contactsToShow;
+    final contacts = widget.contactListViewModel.contacts;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Container(
@@ -83,28 +83,94 @@ class _ContactListBodyState extends State<ContactListBody> {
     );
   }
 
-  Widget _buildContactTile(
-      {required BuildContext context,
-      required ContactRecord contact,
-      required ContactListViewModel contactListViewModel}) {
-    final isEditable = contactListViewModel.isEditable;
+  final double _iconSize   = 24;
+  final double _iconOffset = 16;
+
+  Widget _buildSourceIcons(ContactRecord contact) {
+    final sources = <AddressSource>{};
+
+    for (final handleKey in contact.parsedBlocks.keys) {
+      final srcLabel = handleKey.split('-').first;
+      sources.add(AddressSourceNameParser.fromLabel(srcLabel));
+    }
+
+    if (sources.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final srcList = sources.toList();
+    return SizedBox(
+      width : _iconSize + _iconOffset * (srcList.length - 1),
+      height: _iconSize,
+      child : Stack(
+        children: [
+          for (var i = 0; i < srcList.length; ++i)
+            Positioned(
+              left: i * _iconOffset,
+              child: CircleAvatar(
+                radius: _iconSize / 2,
+                backgroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                child: CircleAvatar(
+                  radius: (_iconSize / 2) - 1,
+                  backgroundColor: Theme.of(context).colorScheme.outlineVariant,
+                  child: ImageUtil.getImageFromPath(
+                    imagePath: srcList[i].iconPath,
+                    height   : _iconSize - 6,
+                    width    : _iconSize - 6,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+// … inside _buildContactTile()
+  Widget _buildContactTile({
+    required BuildContext context,
+    required ContactRecord contact,
+    required ContactListViewModel contactListViewModel,
+  }) {
+    final selectedCurrency = contactListViewModel.selectedCurrency;
 
     return ListTile(
-        key: ValueKey(contact.key),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-        dense: true,
-        visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
-        tileColor: Theme.of(context).colorScheme.surfaceContainer,
-        leading: ClipRRect(
-            borderRadius: BorderRadius.circular(5),
-            child: Image(image: contact.avatarProvider, width: 24, height: 24, fit: BoxFit.cover)),
-        title: Text(contact.name, style: Theme.of(context).textTheme.bodyMedium),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-        onTap: () => _openBottomSheet(
-            context: context,
-            wallet: contactListViewModel.wallet,
-            initialRoute: Routes.contactPage,
-            initialArgs: contact));
+      key: ValueKey(contact.key),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+      dense: true,
+      visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
+      tileColor: Theme.of(context).colorScheme.surfaceContainer,
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: Image(
+          image : contact.avatarProvider,
+          width : 24,
+          height: 24,
+          fit   : BoxFit.cover,
+        ),
+      ),
+
+      // NEW trailing overlay
+      trailing: _buildSourceIcons(contact),
+
+      title: Text(contact.name, style: Theme.of(context).textTheme.bodyMedium),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      onTap: () => selectedCurrency != null
+          ? _openContactRefreshBottomSheet(
+        context      : context,
+        wallet       : contactListViewModel.wallet,
+        initialRoute : Routes.contactRefreshPage,
+        initialArgs  : [contact, selectedCurrency],
+      )
+          : _openBottomSheet(
+        context      : context,
+        wallet       : contactListViewModel.wallet,
+        initialRoute : Routes.contactPage,
+        initialArgs  : contact,
+      ),
+    );
   }
 
   Widget filterButtonWidget(BuildContext context, ContactListViewModel contactListViewModel) {
@@ -171,5 +237,29 @@ class _ContactListBodyState extends State<ContactListBody> {
               initialRoute: initialRoute,
               initialArgs: initialArgs);
         });
+  }
+
+  Future<void> _openContactRefreshBottomSheet({
+    required BuildContext context,
+    required WalletBase wallet,
+    String? initialRoute,
+    Object? initialArgs,
+  }) async {
+    final resolver = getIt<AddressResolverService>();
+
+    final contact = await showModalBottomSheet<(ContactRecord,String)>(
+      context: context,
+      isScrollControlled: true,
+      builder: (bottomSheetContext) {
+        return AddressBookBottomSheet(
+          onHandlerSearch: (q) => resolver.resolve(query: q, wallet: wallet),
+          initialRoute   : initialRoute,
+          initialArgs    : initialArgs,
+        );
+      },
+    );
+    if (contact?.$1 != null && context.mounted) {
+      Navigator.of(context).pop(contact);
+    }
   }
 }

@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 
 typedef EditCallback = void Function(CryptoCurrency currency, String label);
 typedef OnStringAction = void Function(String address);
-typedef ManualByCurrencyMap = Map<CryptoCurrency, Map<String, String>>;
+typedef AddressByCurrencyMap = Map<CryptoCurrency, Map<String, String>>;
 
 class ContactAddressesExpansionTile extends StatelessWidget {
   const ContactAddressesExpansionTile({
     super.key,
-    required this.manualByCurrency,
+    required this.addressByCurrency,
     required this.fillColor,
     this.title,
     this.contentPadding,
@@ -21,9 +21,10 @@ class ContactAddressesExpansionTile extends StatelessWidget {
     this.onCopyPressed,
     this.onAddressPressed,
     this.initiallyExpanded = false,
+    this.shouldTruncateContent = true,
   });
 
-  final ManualByCurrencyMap manualByCurrency;
+  final AddressByCurrencyMap addressByCurrency;
   final Color fillColor;
   final Widget? title;
   final EdgeInsetsGeometry? contentPadding;
@@ -32,6 +33,7 @@ class ContactAddressesExpansionTile extends StatelessWidget {
   final OnStringAction? onCopyPressed;
   final OnStringAction? onAddressPressed;
   final bool initiallyExpanded;
+  final bool shouldTruncateContent;
 
   Widget _addressRow(BuildContext context,
       {required CryptoCurrency currency, required String label, required String address}) {
@@ -48,7 +50,7 @@ class ContactAddressesExpansionTile extends StatelessWidget {
               .textTheme
               .labelSmall!,
           visibleChunks: 4,
-          shouldTruncate: true),
+          shouldTruncate: shouldTruncateContent),
       leading:
       ImageUtil.getImageFromPath(imagePath: currency.iconPath ?? '', height: 24, width: 24),
       trailing: onEditPressed != null || onCopyPressed != null ? Row(
@@ -118,7 +120,7 @@ class ContactAddressesExpansionTile extends StatelessWidget {
           visualDensity: VisualDensity.compact,
           title: title ?? const SizedBox(),
           children: [
-            for (final curEntry in manualByCurrency.entries) ...[
+            for (final curEntry in addressByCurrency.entries) ...[
               for (final labelEntry in curEntry.value.entries)
                 _addressRow(
                   context,

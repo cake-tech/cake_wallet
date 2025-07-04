@@ -32,6 +32,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_refresh_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_alias_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
@@ -1010,10 +1011,15 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<EditAddressPage, AddressEditRequest, void>(
-        (request, _) => EditAddressPage(
-      contactViewModel: getIt.get<ContactViewModel>(param1: request),
-    ),
+  getIt.registerFactoryParam<ContactRefreshPage, ContactRecord, CryptoCurrency>(
+        (contact, cur) => ContactRefreshPage(
+          contactViewModel : getIt.get<ContactViewModel>(param1: AddressEditRequest.contact(contact)),
+          currency: cur,
+        ),
+  );
+
+  getIt.registerFactoryParam<EditAddressPage, ContactViewModel, void>(
+        (viewModel, _) => EditAddressPage(contactViewModel: viewModel),
   );
 
   getIt.registerFactory<SupportedHandlesPage>(

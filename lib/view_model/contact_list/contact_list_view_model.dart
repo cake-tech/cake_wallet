@@ -106,6 +106,7 @@ abstract class ContactListViewModelBase with Store {
   final SettingsStore settingsStore;
 
   bool get isEditable => _currency == null;
+  CryptoCurrency? get selectedCurrency => _currency;
 
   FilterListOrderType? get orderType => settingsStore.contactListOrder;
 

@@ -24,18 +24,15 @@ class RoundedIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return RawMaterialButton(
-      onPressed: onPressed,
-      fillColor: fillColor ?? colorScheme.surfaceContainerHighest,
-      elevation: 0,
-      constraints: BoxConstraints.tightFor(width: width ?? 24, height: height ?? 24),
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      shape: shape ?? const CircleBorder(),
-      child: icon != null
-          ? Icon(icon, size: iconSize ?? 14, color: colorScheme.onSurface)
-          : iconWidget ??
-              Icon(Icons.remove_circle_outline_rounded,
-                  size: iconSize ?? 14, color: colorScheme.onSurface),
-    );
+        onPressed: onPressed,
+        fillColor: fillColor ?? colorScheme.surfaceContainerHighest,
+        elevation: 0,
+        constraints: BoxConstraints.tightFor(width: width ?? 24, height: height ?? 24),
+        padding: EdgeInsets.zero,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: shape ?? const CircleBorder(),
+        child: icon != null
+            ? Icon(icon, size: iconSize ?? 14, color: colorScheme.onSurface)
+            : iconWidget);
   }
 }

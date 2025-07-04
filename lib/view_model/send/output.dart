@@ -39,7 +39,8 @@ abstract class OutputBase with Store {
   OutputBase(
       this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
       : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
-        key = UniqueKey(),
+      _resolver = getIt<AddressResolverService>(),
+  key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
         cryptoFullBalance = '',
@@ -48,8 +49,11 @@ abstract class OutputBase with Store {
         note = '',
         extractedAddress = '',
         parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
+
     _setCryptoNumMaximumFractionDigits();
   }
+
+  final AddressResolverService _resolver;
 
   Key key;
 
@@ -116,7 +120,8 @@ abstract class OutputBase with Store {
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.zano:
-            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            _amount = zano!
+                .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -189,7 +194,8 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
+        return zano!.formatterIntAmountToDouble(
+            amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
 
       if (_wallet.type == WalletType.decred) {
@@ -224,6 +230,7 @@ abstract class OutputBase with Store {
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
+
   @action
   void setSendAll(String fullBalance) {
     cryptoFullBalance = fullBalance;
@@ -243,7 +250,7 @@ abstract class OutputBase with Store {
 
   void resetParsedAddress() {
     extractedAddress = '';
-    parsedAddress = ParsedAddress( parsedAddressByCurrencyMap: {});
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {});
   }
 
   @action
@@ -325,17 +332,19 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final currency = cryptoCurrencyHandler();
-    final parsedAddresses = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: _wallet);
+    final parsedAddresses = await _resolver.resolve(
+        query: domain,
+        wallet: _wallet,
+        currency: currency,);
     parsedAddress = parsedAddresses.first;
-    extractedAddress =  ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
+    extractedAddress = parsedAddress.parsedAddressByCurrencyMap[currency] ?? '';
     note = parsedAddress.description ?? '';
   }
 
-  void loadContact((ContactRecord,String)selectedContact) {
-    address = selectedContact.$1.name;
-    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {selectedContact.$1.type: selectedContact.$2},
-                                  handle: selectedContact.$1.handle,
-                                  addressSource: AddressSource.contact);
+  void loadContact((String, String) selectedContact) {
+    address = selectedContact.$1;
+    parsedAddress =
+        ParsedAddress(parsedAddressByCurrencyMap: {}, addressSource: AddressSource.contact);
     extractedAddress = selectedContact.$2;
     note = parsedAddress.description ?? '';
   }

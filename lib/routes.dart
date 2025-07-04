@@ -37,6 +37,7 @@ class Routes {
   static const contactWelcomePage = '/contact_welcome_page';
   static const supportedHandlesPage = '/supported_handles_page';
   static const contactPage = '/contact_page';
+  static const contactRefreshPage = '/contact_refresh_page';
   static const editContactPage = '/edit_contact_page';
   static const editAliasPage = '/edit_alias_page';
   static const editAddressPage = '/edit_address_page';

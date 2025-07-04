@@ -127,30 +127,29 @@ abstract class _ContactViewModel with Store {
     final originalBlocks = Map<String, Map<CryptoCurrency, Map<String, String>>>.from(parsedBlocks);
 
     try {
+      for (final entry in originalBlocks.entries) {
+        final handleKey = entry.key;
+        final sourceLabel = handleKey.split('-').first;
+        final handle = handleKey.substring(sourceLabel.length + 1);
 
-    for (final entry in originalBlocks.entries) {
-      final handleKey = entry.key;
-      final sourceLabel = handleKey.split('-').first;
-      final handle = handleKey.substring(sourceLabel.length + 1);
+        final newResults = await resolver.resolve(
+          query: handle,
+          wallet: wallet,
+        );
 
-      final newResults = await resolver.resolve(
-        query: handle,
-        wallet: wallet,
-      );
+        final Map<CryptoCurrency, Map<String, String>> refreshed = {};
 
-      final Map<CryptoCurrency, Map<String, String>> refreshed = {};
+        for (final parsed in newResults) {
+          parsed.parsedAddressByCurrencyMap.forEach((cur, addr) {
+            final oldLabel = parsedBlocks[handleKey]?[cur]?.keys.firstOrNull ?? cur.title;
 
-      for (final parsed in newResults) {
-        parsed.parsedAddressByCurrencyMap.forEach((cur, addr) {
-          final oldLabel = parsedBlocks[handleKey]?[cur]?.keys.firstOrNull ?? cur.title;
+            (refreshed[cur] ??= {})[oldLabel] = addr;
+          });
+        }
 
-          (refreshed[cur] ??= {})[oldLabel] = addr;
-        });
+        parsedBlocks[handleKey] = refreshed;
+        record?.replaceParsedBlock(handleKey, refreshed);
       }
-
-      parsedBlocks[handleKey] = refreshed;
-      record?.replaceParsedBlock(handleKey, refreshed);
-    }
     } catch (e) {
       state = FailureState(e.toString());
       return;
@@ -188,74 +187,53 @@ abstract class _ContactViewModel with Store {
 
     await box.put(newContact.key, newContact);
     record = ContactRecord(box, newContact);
-    state = ExecutedSuccessfullyState();
   }
 
   @action
-  Future<void> saveManualAddress() async {
-    _ensureRecord();
+  Future<void> saveManualAddress({
+    required CryptoCurrency oldCurrency,
+    required CryptoCurrency selectedCurrency,
+    required String oldLabel,
+    required String newLabel,
+    required String newAddress,
+  }) async {
+    if (record == null) return;
 
-    final map = manual.putIfAbsent(currency, () => {});
-    final oldLabel = isAddressEdit ? _originalLabel : null;
-    final newLabel = label.trim().isEmpty ? currency.title : label.trim();
-    final newAddress = address.trim();
+    final oldMap = manual[oldCurrency];
+    if (oldMap == null || !oldMap.containsKey(oldLabel)) return;
 
-    if (oldLabel != null && oldLabel != newLabel) map.remove(oldLabel);
-    map[newLabel] = newAddress;
-    manual[currency] = Map.of(map);
+    final trimmed = newAddress.trim();
 
-    record!.setManualAddress(currency, newLabel, newAddress);
-    _rememberOriginal();
-    state = ExecutedSuccessfullyState();
-  }
-
-  @action
-  Future<void> saveParsedAddress() async {
-    _ensureRecord();
-
-    final blockKey = handleKey.trim().isEmpty ? _defaultHandleKey() : handleKey.trim();
-    final block = parsedBlocks.putIfAbsent(blockKey, () => {});
-    final map = block.putIfAbsent(currency, () => {});
-
-    final oldLabel = isAddressEdit ? _originalLabel : null;
-    final newLabel = label.trim().isEmpty ? currency.title : label.trim();
-    final newAddress = address.trim();
-
-    if (oldLabel != null && oldLabel != newLabel) map.remove(oldLabel);
-    map[newLabel] = newAddress;
-    parsedBlocks[blockKey] = {for (final e in block.entries) e.key: Map.of(e.value)};
-
-    record!.setParsedAddress(blockKey, currency, newLabel, newAddress);
-    _rememberOriginal(blockKey: blockKey);
-    state = ExecutedSuccessfullyState();
-  }
-
-  @action
-  Future<void> deleteCurrentAddress() async {
-    if (!isAddressEdit) return;
-    _ensureRecord();
-
-    if (mode == ContactEditMode.manualAddress) {
-      final map = manual[_originalCur]!;
-      map.remove(_originalLabel);
-      if (map.isEmpty) manual.remove(_originalCur);
-      manual[_originalCur!] = Map.of(map);
-
-      record!.removeManualAddress(_originalCur!, _originalLabel!);
+    oldMap.remove(oldLabel);
+    if (oldMap.isEmpty) {
+      manual.remove(oldCurrency);
+      record!.removeManualAddress(oldCurrency, oldLabel);
     } else {
-      final block = parsedBlocks[_originalHandleKey]!;
-      final curMap = block[_originalCur]!;
-      curMap.remove(_originalLabel);
-      if (curMap.isEmpty) block.remove(_originalCur);
-      if (block.isEmpty)
-        parsedBlocks.remove(_originalHandleKey);
-      else
-        parsedBlocks[_originalHandleKey!] = {for (final e in block.entries) e.key: Map.of(e.value)};
-
-      record!.removeParsedAddress(_originalHandleKey!, _originalCur!, _originalLabel!);
+      manual[oldCurrency] = Map.of(oldMap);
+      record!.removeManualAddress(oldCurrency, oldLabel);
     }
 
-    state = ExecutedSuccessfullyState();
+    final newMap = manual.putIfAbsent(selectedCurrency, () => {});
+    newMap[newLabel] = trimmed;
+    manual[selectedCurrency] = Map.of(newMap);
+    record!.setManualAddress(selectedCurrency, newLabel, trimmed);
+  }
+
+  @action
+  Future<void> deleteManualAddress(
+      {required CryptoCurrency currency, required String label}) async {
+    if (record == null) return;
+    final map = manual[currency];
+    if (map == null || !map.containsKey(label)) return;
+
+    map.remove(label);
+    if (map.isEmpty) {
+      manual.remove(currency);
+    } else {
+      manual[currency] = Map.of(map);
+    }
+
+    record!.removeManualAddress(currency, label);
   }
 
   @action
@@ -264,7 +242,6 @@ abstract class _ContactViewModel with Store {
 
     parsedBlocks.remove(handleKey);
     record!.removeParsedAddress(handleKey, null, null);
-    state = ExecutedSuccessfullyState();
   }
 
   @action
@@ -274,7 +251,6 @@ abstract class _ContactViewModel with Store {
     await record!.original.delete();
     record = null;
     reset();
-    state = ExecutedSuccessfullyState();
   }
 
   @action
@@ -300,12 +276,6 @@ abstract class _ContactViewModel with Store {
     parsedBlocks = ObservableMap.of(record!.parsedBlocks);
   }
 
-  void _ensureRecord() {
-    if (record != null) return;
-    final newContact = Contact(name: name.trim().isEmpty ? 'No name' : name, address: '');
-    box.put(newContact.key, newContact);
-    record = ContactRecord(box, newContact);
-  }
 
   String _defaultHandleKey() => '${sourceType.label}-${handle}'.trim();
 

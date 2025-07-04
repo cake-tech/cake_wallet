@@ -3,7 +3,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
 import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/addresses_expansion_tile_widget.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/rounded_icon_button.dart';
@@ -112,19 +111,14 @@ class ContactPage extends SheetPage {
                     title: Text('Manual Addresses'),
                     initiallyExpanded: true,
                     fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                    manualByCurrency: contactViewModel.manual,
+                    addressByCurrency: contactViewModel.manual,
                     onCopyPressed: (address) async =>
                         await Clipboard.setData(ClipboardData(text: address)),
                     onEditPressed: (cur, lbl) {
                       Navigator.pushNamed(
                         context,
                         Routes.editAddressPage,
-                        arguments: AddressEditRequest.address(
-                          contact: contactViewModel.record,
-                          currency: cur,
-                          label: lbl,
-                          kindIsManual: true,
-                        ),
+                        arguments: [contactViewModel, cur, lbl],
                       );
                     },
                   ),

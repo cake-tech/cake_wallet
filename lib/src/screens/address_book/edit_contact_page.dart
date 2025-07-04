@@ -48,8 +48,8 @@ class EditContactPage extends SheetPage {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
-            mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +119,6 @@ class EditContactPage extends SheetPage {
                   ),
                 ],
               ),
-              const Spacer(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 24),
                 child: Row(
