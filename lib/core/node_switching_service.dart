@@ -13,7 +13,7 @@ class NodeSwitchingService {
     required this.nodeSource,
   });
 
-  static const int _healthCheckIntervalMinutes = 15;
+  static const int _healthCheckIntervalMinutes = 5;
 
   Timer? _healthCheckTimer;
 
@@ -30,7 +30,7 @@ class NodeSwitchingService {
   void startHealthCheckTimer() {
     _healthCheckTimer?.cancel();
     _healthCheckTimer = Timer.periodic(
-      Duration(seconds: _healthCheckIntervalMinutes),
+      Duration(minutes: _healthCheckIntervalMinutes),
       (_) => _performHealthCheck(),
     );
 
