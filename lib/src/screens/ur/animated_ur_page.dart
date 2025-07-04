@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:bbqrdart/bbqrdart.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -7,31 +9,33 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/utils/clipboard_util.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // ur:xmr-txunsigned - unsigned transaction
 //     should show a scanner afterwards.
 
 class AnimatedURPage extends BasePage {
   final bool isAll;
-  AnimatedURPage(this.animatedURmodel, {required String urQr, this.isAll = false}) {
-    if (urQr == "export-outputs") {
-      this.urQr = monero!.exportOutputsUR(animatedURmodel.wallet, false);
-    } else if (urQr == "export-outputs-all") {
-      this.urQr = monero!.exportOutputsUR(animatedURmodel.wallet, true);
-    } else {
-      this.urQr = urQr;
-    }
-  }
+  AnimatedURPage(this.animatedURmodel, {
+    required this.urQr,
+    this.isAll = false,
+  });
 
-  late String urQr;
+  late Map<String, String> urQr;
 
   final AnimatedURModel animatedURmodel;
 
   String get urQrType {
-    final first = urQr.trim().split("\n")[0];
+    if (urQr.values.first.trim().substring(0, 2) == BBQR.header) {
+      return BBQR.header;
+    }
+    if (urQr.isEmpty) return "unknown";
+    final first = urQr.values.first.trim().split("\n")[0];
     return first.split('/')[0];
   }
 
@@ -43,11 +47,11 @@ class AnimatedURPage extends BasePage {
         Padding(
           padding: const EdgeInsets.only(top: 64.0),
           child: URQR(
-            frames: urQr.trim().split("\n"),
+            urqr: urQr,
           ),
         ),
+        if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header].contains(urQrType)) ...{
         SizedBox(height: 32),
-        if (urQrType == "ur:xmr-txunsigned" || urQrType == "ur:xmr-output")
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SizedBox(
@@ -60,8 +64,11 @@ class AnimatedURPage extends BasePage {
               ),
             ),
           ),
-        SizedBox(height: 32),
-        if (urQrType == "ur:xmr-output" && !isAll) Padding(
+        },
+
+        if (urQrType == "ur:xmr-output" && !isAll) ...{
+          SizedBox(height: 32),
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SizedBox(
               width: double.maxFinite,
@@ -73,6 +80,7 @@ class AnimatedURPage extends BasePage {
               ),
             ),
           ),
+        },
       ],
     );
   }
@@ -81,7 +89,13 @@ class AnimatedURPage extends BasePage {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) {
-          return AnimatedURPage(animatedURmodel, urQr: "export-outputs-all", isAll: true);
+          return AnimatedURPage(
+            animatedURmodel,
+            urQr: {
+              "export-outputs-all": "export-outputs-all",
+            },
+            isAll: true,
+          );
         },
       ),
     );
@@ -106,6 +120,11 @@ class AnimatedURPage extends BasePage {
           Navigator.of(context).pop(true);
         }        
         break;
+      case "ur:psbt": // psbt
+        final ur = await presentQRScanner(context);
+        if (ur == null) return;
+        await bitcoin!.commitPsbtUR(animatedURmodel.wallet, ur.trim().split("\n"));
+        Navigator.of(context).pop(true);
       default:
         throw UnimplementedError("unable to handle UR: ${urQrType}");
     }
@@ -124,9 +143,9 @@ class AnimatedURPage extends BasePage {
 }
 
 class URQR extends StatefulWidget {
-  URQR({super.key, required this.frames});
+  URQR({super.key, required this.urqr});
 
-  List<String> frames;
+  final Map<String, String> urqr;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -160,6 +179,24 @@ class _URQRState extends State<URQR> {
     super.dispose();
   }
 
+  late String selected = (widget.urqr.isEmpty) ? "unknown" : widget.urqr.keys.first;
+  int selectedInt = 0;
+
+  List<String> get frames {
+    return widget.urqr[selected]?.split("\n") ?? [];
+  }
+
+  late String nextLabel = widget.urqr.keys.toList()[(selectedInt + 1) % widget.urqr.length] ;
+
+  void next() {
+    final keys = widget.urqr.keys.toList();
+    selectedInt++;
+    setState(() {
+      nextLabel = keys[(selectedInt) % keys.length];
+      selected = keys[(selectedInt) % keys.length];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -168,10 +205,37 @@ class _URQRState extends State<URQR> {
       children: [
         Center(
           child: QrImage(
-            data: widget.frames[frame % widget.frames.length], version: -1,
+            data: frames[frame % frames.length],
+            version: -1,
             size: 400,
           ),
         ),
+        if (widget.urqr.values.length > 1)
+          SizedBox(
+            width: double.maxFinite,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: SizedBox(
+                width: double.maxFinite,
+                child: PrimaryButton(
+                  onPressed: next,
+                  text: nextLabel,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ),
+          ),
+        if (FeatureFlag.hasDevOptions) ...{
+          TextButton(
+            onPressed: () { 
+              Clipboard.setData(ClipboardData(text: """Current frame (${frame % frames.length}): ${frames[frame % frames.length]},
+All frames:
+ - ${frames.join("\n - ")}"""));
+             },
+            child: Text(frames[frame % frames.length]),
+          ),
+        }
       ],
     );
   }
