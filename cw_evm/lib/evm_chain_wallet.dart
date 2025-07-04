@@ -164,6 +164,16 @@ abstract class EVMChainWalletBase
     EncryptionFileUtils encryptionFileUtils,
   );
 
+    @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      await _client.getBalance(_evmChainPrivateKey.address, throwOnError: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   //! Common Methods across child classes
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';

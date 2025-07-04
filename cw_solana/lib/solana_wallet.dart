@@ -477,6 +477,16 @@ abstract class SolanaWalletBase
   @override
   Future<void>? updateBalance() async => await _updateBalance();
 
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      await _client.getBalance(solanaAddress, throwOnError: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   List<SPLToken> get splTokenCurrencies => splTokensBox.values.toList();
 
   void addInitialTokens() {

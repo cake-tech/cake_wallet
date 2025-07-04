@@ -51,7 +51,7 @@ class SolanaWalletClient {
     }
   }
 
-  Future<double> getBalance(String walletAddress) async {
+  Future<double> getBalance(String walletAddress, {bool throwOnError = false}) async {
     try {
       final balance = await _provider!.requestWithContext(
         SolanaRPCGetBalance(
@@ -65,6 +65,9 @@ class SolanaWalletClient {
 
       return solBalance;
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return 0.0;
     }
   }

@@ -203,15 +203,25 @@ class ElectrumClient {
         return [];
       });
 
-  Future<Map<String, dynamic>> getBalance(String scriptHash) =>
-      call(method: 'blockchain.scripthash.get_balance', params: [scriptHash])
-          .then((dynamic result) {
-        if (result is Map<String, dynamic>) {
-          return result;
-        }
-
-        return <String, dynamic>{};
-      });
+  Future<Map<String, dynamic>> getBalance(String scriptHash, {bool throwOnError = false}) async {
+    try {
+      final result = await call(method: 'blockchain.scripthash.get_balance', params: [scriptHash]);
+      if (result is Map<String, dynamic>) {
+        return result;
+      }
+      
+      if (throwOnError) {
+        throw Exception('Invalid response format for getBalance');
+      }
+      
+      return <String, dynamic>{};
+    } catch (e) {
+      if (throwOnError) {
+        rethrow;
+      }
+      return <String, dynamic>{};
+    }
+  }
 
   Future<List<Map<String, dynamic>>> getHistory(String scriptHash) =>
       call(method: 'blockchain.scripthash.get_history', params: [scriptHash])
