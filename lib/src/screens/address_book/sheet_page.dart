@@ -62,7 +62,7 @@ abstract class SheetPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
