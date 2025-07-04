@@ -1,6 +1,8 @@
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -37,7 +39,8 @@ abstract class OutputBase with Store {
   OutputBase(
       this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
       : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
-        key = UniqueKey(),
+      _resolver = getIt<AddressResolverService>(),
+  key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
         cryptoFullBalance = '',
@@ -45,9 +48,12 @@ abstract class OutputBase with Store {
         address = '',
         note = '',
         extractedAddress = '',
-        parsedAddress = ParsedAddress(addresses: []) {
+        parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
+
     _setCryptoNumMaximumFractionDigits();
   }
+
+  final AddressResolverService _resolver;
 
   Key key;
 
@@ -79,7 +85,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
+      parsedAddress.addressSource != AddressSource.notParsed && parsedAddress.handle != null;
 
   @observable
   String? stealthAddress;
@@ -114,7 +120,8 @@ abstract class OutputBase with Store {
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.zano:
-            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            _amount = zano!
+                .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -187,7 +194,8 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
+        return zano!.formatterIntAmountToDouble(
+            amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
 
       if (_wallet.type == WalletType.decred) {
@@ -222,6 +230,7 @@ abstract class OutputBase with Store {
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
+
   @action
   void setSendAll(String fullBalance) {
     cryptoFullBalance = fullBalance;
@@ -241,7 +250,7 @@ abstract class OutputBase with Store {
 
   void resetParsedAddress() {
     extractedAddress = '';
-    parsedAddress = ParsedAddress(addresses: []);
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {});
   }
 
   @action
@@ -323,15 +332,20 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final currency = cryptoCurrencyHandler();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    extractedAddress = await extractAddressFromParsed(context, parsedAddress);
-    note = parsedAddress.description;
+    final parsedAddresses = await _resolver.resolve(
+        query: domain,
+        wallet: _wallet,
+        currency: currency,);
+    parsedAddress = parsedAddresses.first;
+    extractedAddress = parsedAddress.parsedAddressByCurrencyMap[currency] ?? '';
+    note = parsedAddress.description ?? '';
   }
 
-  void loadContact(ContactBase contact) {
-    address = contact.name;
-    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
-    extractedAddress = parsedAddress.addresses.first;
-    note = parsedAddress.description;
+  void loadContact((String, String) selectedContact) {
+    address = selectedContact.$1;
+    parsedAddress =
+        ParsedAddress(parsedAddressByCurrencyMap: {}, addressSource: AddressSource.contact);
+    extractedAddress = selectedContact.$2;
+    note = parsedAddress.description ?? '';
   }
 }

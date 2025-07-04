@@ -104,6 +104,18 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
   @computed
+  bool get lookupsFio => _settingsStore.lookupsFio;
+
+  @computed
+  bool get lookupsNostr => _settingsStore.lookupsNostr;
+
+  @computed
+  bool get lookupsThorChain => _settingsStore.lookupsThorChain;
+
+  @computed
+  bool get lookupsBip353 => _settingsStore.lookupsBip353;
+
+  @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
 
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
@@ -168,6 +180,18 @@ abstract class PrivacySettingsViewModelBase with Store {
     _settingsStore.useEtherscan = value;
     ethereum!.updateEtherscanUsageState(_wallet, value);
   }
+
+  @action
+  void setLookupsFio(bool value) => _settingsStore.lookupsFio = value;
+
+  @action
+  void setLookupsNostr(bool value) => _settingsStore.lookupsNostr = value;
+
+  @action
+  void setLookupsThorChain(bool value) => _settingsStore.lookupsThorChain = value;
+
+  @action
+  void setLookupsBip353(bool value) => _settingsStore.lookupsBip353 = value;
 
   @action
   void setUsePolygonScan(bool value) {

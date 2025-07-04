@@ -432,7 +432,11 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
       final address = _item["address"] as String;
       final name = _item["name"] as String;
 
-      return Contact(address: address, name: name, type: CryptoCurrency.fromString(type));
+      return Contact(parsedByHandle: {'handle':
+        {
+          5: {'label': address} //TODO fix this hardcoded value
+        }
+      }, manualAddresses: {}, name: name);
     });
 
     await contactSource.addAll(contacts);
