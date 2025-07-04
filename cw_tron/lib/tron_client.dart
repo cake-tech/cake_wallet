@@ -104,12 +104,15 @@ class TronClient {
     }
   }
 
-  Future<BigInt> getBalance(TronAddress address) async {
+  Future<BigInt> getBalance(TronAddress address, {bool throwOnError = false}) async {
     try {
       final accountDetails = await _provider!.request(TronRequestGetAccount(address: address));
 
       return accountDetails?.balance ?? BigInt.zero;
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return BigInt.zero;
     }
   }

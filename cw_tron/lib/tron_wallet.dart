@@ -505,6 +505,16 @@ abstract class TronWalletBase
   @override
   Future<void>? updateBalance() async => await _updateBalance();
 
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
 
   Future<void> addTronToken(TronToken token) async {

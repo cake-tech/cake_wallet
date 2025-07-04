@@ -26,6 +26,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         login = '',
         password = '',
         trusted = false,
+        isTrustedNodeForSwitching = false,
         useSocksProxy = false,
         socksProxyAddress = '';
 
@@ -55,6 +56,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   bool trusted;
+
+  @observable
+  bool isTrustedNodeForSwitching;
 
   @observable
   bool useSocksProxy;
@@ -118,6 +122,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     password = '';
     useSSL = false;
     trusted = false;
+    isTrustedNodeForSwitching = false;
     useSocksProxy = false;
     socksProxyAddress = '';
   }
@@ -144,6 +149,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
+  void setIsTrustedNodeForSwitching(bool val) => isTrustedNodeForSwitching = val;
+
+  @action
   void setSocksProxy(bool val) => useSocksProxy = val;
 
   @action
@@ -159,6 +167,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isTrustedNodeForSwitching: isTrustedNodeForSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       state = IsExecutingState();
@@ -190,6 +199,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isTrustedNodeForSwitching: isTrustedNodeForSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();

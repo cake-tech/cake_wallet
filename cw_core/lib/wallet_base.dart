@@ -112,4 +112,9 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool isTestnet = false;
 
   bool canSend() => true;
+
+  /// This is used to check if the current node is healthy by making a lightweight RPC call
+  /// Each wallet implementation should override this to make a single, efficient call
+  /// Returns true if the node is healthy, false otherwise
+  Future<bool> checkNodeHealth();
 }

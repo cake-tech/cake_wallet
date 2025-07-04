@@ -2,8 +2,11 @@
   uri: btc-electrum.cakewallet.com:50002
   useSSL: true
   isDefault: true
+  isTrustedNodeForSwitching: true
 -
   uri: electrs.cakewallet.com:50001
+  isTrustedNodeForSwitching: true
 -
   uri: fulcrum.sethforprivacy.com:50002
   useSSL: true
+  isTrustedNodeForSwitching: true

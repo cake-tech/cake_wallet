@@ -595,6 +595,16 @@ abstract class DecredWalletBase
   }
 
   @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      await _libwallet.balance(walletInfo.name, throwOnError: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
   Future<void> renameWalletFiles(String newWalletName) async {

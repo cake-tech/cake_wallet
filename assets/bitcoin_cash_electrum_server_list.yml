@@ -2,6 +2,7 @@
   uri: bitcoincash.stackwallet.com:50002
   is_default: true
   useSSL: true
+  isTrustedNodeForSwitching: true
 -
   uri: bch.aftrek.org:50002
   useSSL: true

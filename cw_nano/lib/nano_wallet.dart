@@ -518,7 +518,18 @@ abstract class NanoWalletBase
     return _client.getN2Reps();
   }
 
+  @override
   Future<void>? updateBalance() async => await _updateBalance();
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      await _client.getAccountInfo(_publicAddress!, throwOnError: true);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {

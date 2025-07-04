@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/setting_priority_picker
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -36,28 +37,45 @@ class OtherSettingsPage extends BasePage {
               if (_otherSettingsViewModel.displayTransactionPriority)
                 _otherSettingsViewModel.walletType == WalletType.bitcoin ?
                   SettingsPriorityPickerCell(
-                    title: S.current.settings_fee_priority,
-                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                    displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
-                    selectedItem: _otherSettingsViewModel.transactionPriority,
-                    customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
-                    onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
-                    customValue: _otherSettingsViewModel.customBitcoinFeeRate,
-                    maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                        displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
+                        onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
+                        customValue: _otherSettingsViewModel.customBitcoinFeeRate,
+                        maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
                   ) :
                   SettingsPickerCell(
-                    title: S.current.settings_fee_priority,
-                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                    displayItem: _otherSettingsViewModel.getDisplayPriority,
-                    selectedItem: _otherSettingsViewModel.transactionPriority,
-                    onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
-                  ),
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                        displayItem: _otherSettingsViewModel.getDisplayPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                      ),
               if (_otherSettingsViewModel.changeRepresentativeEnabled)
                 SettingsCellWithArrow(
                   title: S.current.change_rep,
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.changeRep),
                 ),
+              Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    StandardCheckbox(
+                      value: _otherSettingsViewModel.enableAutomaticNodeSwitching,
+                      borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      onChanged: (value) =>
+                          _otherSettingsViewModel.enableAutomaticNodeSwitching = value,
+                      caption: S.current.enable_auto_node_switching,
+                    ),
+                  ],
+                ),
+              ),
               SettingsCellWithArrow(
                 title: S.current.settings_terms_and_conditions,
                 handler: (BuildContext context) =>

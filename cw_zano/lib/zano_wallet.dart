@@ -411,6 +411,17 @@ abstract class ZanoWalletBase
   @override
   Future<void>? updateBalance() => null;
 
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      final status = await getWalletStatus();
+    
+      return status.isDaemonConnected;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<void> updateTransactions() async {
     try {
       if (_isTransactionUpdating) {
