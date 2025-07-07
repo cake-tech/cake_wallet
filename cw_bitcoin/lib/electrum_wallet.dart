@@ -1892,7 +1892,7 @@ abstract class ElectrumWalletBase
               clearnetUri: Uri.parse(
                 "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
               ),
-            );
+            ).timeout(Duration(seconds: 15));
             if (blockResponse.statusCode == 200 &&
                 blockResponse.body.isNotEmpty &&
                 jsonDecode(blockResponse.body)['timestamp'] != null) {
