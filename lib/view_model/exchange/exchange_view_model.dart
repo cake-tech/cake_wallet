@@ -432,7 +432,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .where((element) => !isFixedRateMode || element.supportsFixedRate)
         .toList();
 
-    printV(amount);
     final result = await Future.wait<double>(
       _providers.map(
         (element) => element
@@ -663,9 +662,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> calculateDepositAllAmount() async {
-    if (wallet.type == WalletType.litecoin ||
-        wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.bitcoinCash) {
+    if ([
+      WalletType.litecoin,
+      WalletType.bitcoin,
+      WalletType.bitcoinCash,
+    ].contains(wallet.type)) {
       final priority = _settingsStore.priority[wallet.type]!;
 
       final amount = await bitcoin!.estimateFakeSendAllTxAmount(
@@ -678,9 +679,13 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
     } else if (wallet.type == WalletType.monero) {
       isFixedRateMode = false;
-      changeDepositAmount(
-          amount: monero!.formatterMoneroAmountToString(
-              amount: wallet.balance[CryptoCurrency.xmr]!.available));
+      var amount = 0;
+      await monero!.updateUnspents(wallet);
+      monero!.getUnspents(wallet)
+          .where((u) => !u.isFrozen && u.isSending)
+          .forEach((u) => amount += u.value);
+
+      changeDepositAmount(amount: monero!.formatterMoneroAmountToString(amount: amount));
     }
   }
 
