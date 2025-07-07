@@ -1883,7 +1883,7 @@ abstract class ElectrumWalletBase
             clearnetUri: Uri.parse(
               "https://mempool.cakewallet.com/api/v1/block-height/$height",
             ),
-          );
+          ).timeout(Duration(seconds: 15));
 
           if (blockHash.statusCode == 200 &&
               blockHash.body.isNotEmpty &&
