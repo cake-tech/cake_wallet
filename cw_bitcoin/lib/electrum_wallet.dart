@@ -71,7 +71,7 @@ abstract class ElectrumWalletBase
     electrum.ElectrumClient? electrumClient,
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
-    this.alwaysScan,
+    bool? alwaysScan,
   })  : accountHD =
             getAccountHDWallet(currency, network, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
@@ -81,6 +81,8 @@ abstract class ElectrumWalletBase
         isEnabledAutoGenerateSubaddress = true,
         unspentCoins = [],
         _scripthashesUpdateSubject = {},
+        this.alwaysScan = alwaysScan,
+        silentPaymentsScanningActive = alwaysScan ?? false,
         balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of(currency != null
             ? {
                 currency: initialBalance ??
@@ -461,6 +463,7 @@ abstract class ElectrumWalletBase
       syncStatus = SyncronizingSyncStatus();
 
       if (hasSilentPaymentsScanning) {
+        silentPaymentsScanningActive = alwaysScan ?? false;
         await _setInitialHeight();
       }
 
@@ -475,7 +478,7 @@ abstract class ElectrumWalletBase
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
 
       if (alwaysScan == true) {
-        _setListeners(walletInfo.restoreHeight);
+        setSilentPaymentsScanning(true);
       } else {
         if (syncStatus is LostConnectionSyncStatus) return;
         syncStatus = SyncedSyncStatus();
@@ -2701,9 +2704,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               fee: 0,
               direction: TransactionDirection.incoming,
               isReplaced: false,
-              date: DateTime.fromMillisecondsSinceEpoch(
-                DateTime.now().millisecondsSinceEpoch * 1000,
-              ),
+              date: DateTime.now(),
               confirmations: scanData.chainTip - tweakHeight + 1,
               isReceivedSilentPayment: true,
               isPending: false,
