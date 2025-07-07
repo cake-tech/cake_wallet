@@ -226,14 +226,11 @@ class _ContactListBodyState extends State<ContactListBody> {
       required WalletBase wallet,
       String? initialRoute,
       Object? initialArgs}) async {
-    final resolver = getIt<AddressResolverService>();
     await showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
         builder: (BuildContext bottomSheetContext) {
           return AddressBookBottomSheet(
-              onHandlerSearch: (query) async =>
-                  await resolver.resolve(query: query, wallet: wallet),
               initialRoute: initialRoute,
               initialArgs: initialArgs);
         });
@@ -245,14 +242,11 @@ class _ContactListBodyState extends State<ContactListBody> {
     String? initialRoute,
     Object? initialArgs,
   }) async {
-    final resolver = getIt<AddressResolverService>();
-
     final contact = await showModalBottomSheet<(ContactRecord,String)>(
       context: context,
       isScrollControlled: true,
       builder: (bottomSheetContext) {
         return AddressBookBottomSheet(
-          onHandlerSearch: (q) => resolver.resolve(query: q, wallet: wallet),
           initialRoute   : initialRoute,
           initialArgs    : initialArgs,
         );

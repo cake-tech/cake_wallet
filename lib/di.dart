@@ -33,6 +33,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_refresh_page.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_welcome_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_alias_page.dart';
 import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
@@ -1003,6 +1004,14 @@ Future<void> setup({
     ),
   );
 
+  getIt.registerFactoryParam<ContactWelcomePage, ContactRecord?, void>(
+        (contact, _) => ContactWelcomePage(
+      contactViewModel: getIt.get<ContactViewModel>(
+        param1: AddressEditRequest.contact(contact),
+      ),
+    ),
+  );
+
   getIt.registerFactoryParam<ContactPage, ContactRecord, void>(
         (contact, _) => ContactPage(
       contactViewModel: getIt.get<ContactViewModel>(
@@ -1037,14 +1046,11 @@ Future<void> setup({
 
   getIt.registerFactoryParam<EditNewContactPage, ParsedAddress, ContactRecord?>(
         (parsedAddress, record) {
-
-      final vm = getIt<ContactViewModel>(
-        param1: AddressEditRequest.contact(record),
-      );
-
       return EditNewContactPage(
         selectedParsedAddress: parsedAddress,
-        contactViewModel     : vm,
+        contactViewModel: getIt<ContactViewModel>(
+          param1: AddressEditRequest.contact(record),
+        ),
       );
     },
   );
@@ -1577,11 +1583,11 @@ Future<void> setup({
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
 
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
-  
+
   getIt.registerFactory(() => DevNetworkRequests());
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
-  
+
   getIt.registerFactory(() => DEuroViewModel(
     getIt<AppStore>(),
     getIt<BalanceViewModel>(),

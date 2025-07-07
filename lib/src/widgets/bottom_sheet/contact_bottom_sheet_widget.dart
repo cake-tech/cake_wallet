@@ -18,13 +18,10 @@ import 'package:flutter/material.dart';
 
 class AddressBookBottomSheet extends StatefulWidget {
   const AddressBookBottomSheet({
-    super.key,
-    required this.onHandlerSearch,
     this.initialRoute,
-    this.initialArgs,
+    this.initialArgs
   });
 
-  final Future<List<ParsedAddress>> Function(String q) onHandlerSearch;
   final String? initialRoute;
   final Object? initialArgs;
 
@@ -36,17 +33,11 @@ class _AddressBookBottomSheetState extends State<AddressBookBottomSheet>
     with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    final double screenH = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final double screenH = MediaQuery.of(context).size.height;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Material(
-        color: Theme
-            .of(context)
-            .colorScheme
-            .surface,
+        color: Theme.of(context).colorScheme.surface,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: screenH * 0.45),
           child: AnimatedSize(
@@ -58,7 +49,6 @@ class _AddressBookBottomSheetState extends State<AddressBookBottomSheet>
               children: [
                 _buildDragHandle(context),
                 _AddContactNavigator(
-                  onHandlerSearch: widget.onHandlerSearch,
                   initialRoute: widget.initialRoute ?? Navigator.defaultRouteName,
                   initialArgs: widget.initialArgs,
                 ),
@@ -83,10 +73,7 @@ Widget _buildDragHandle(BuildContext context) {
             height: 4,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Theme
-                  .of(context)
-                  .colorScheme
-                  .onSurface,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
@@ -98,27 +85,23 @@ Widget _buildDragHandle(BuildContext context) {
 
 class _AddContactNavigator extends StatelessWidget {
   const _AddContactNavigator({
-    required this.onHandlerSearch,
     required this.initialRoute,
-    this.initialArgs,
+    this.initialArgs
   });
 
-  final Future<List<ParsedAddress>> Function(String) onHandlerSearch;
   final String initialRoute;
   final Object? initialArgs;
 
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      onGenerateInitialRoutes: (_, __) =>
-      [
+      onGenerateInitialRoutes: (_, __) => [
         _routeFor(initialRoute, initialArgs),
       ],
-      onGenerateRoute: (settings) =>
-          _routeFor(
-            settings.name ?? Navigator.defaultRouteName,
-            settings.arguments,
-          ),
+      onGenerateRoute: (settings) => _routeFor(
+        settings.name ?? Navigator.defaultRouteName,
+        settings.arguments,
+      ),
     );
   }
 
@@ -149,14 +132,7 @@ class _AddContactNavigator extends StatelessWidget {
       case Routes.supportedHandlesPage:
         return getIt<SupportedHandlesPage>();
       case Routes.contactWelcomePage:
-        final list = args as List<dynamic>;
-        final onSearch = list[0] as Future<List<ParsedAddress>> Function(String);
-        final contact = list.length > 1 ? list[1] as ContactRecord? : null;
-
-        return ContactWelcomePage(
-          onSearch: onSearch,
-          existingContact: contact,
-        );
+        return getIt<ContactWelcomePage>(param1: args as ContactRecord?);
       case Routes.editNewContactPage:
         final list = args as List<dynamic>;
         return getIt<EditNewContactPage>(
@@ -192,7 +168,7 @@ class _AddContactNavigator extends StatelessWidget {
           param2: selectedCurrency,
         );
       default:
-        return ContactWelcomePage(onSearch: onHandlerSearch);
+        return getIt<ContactWelcomePage>(param1: args as ContactRecord?);
     }
   }
 }

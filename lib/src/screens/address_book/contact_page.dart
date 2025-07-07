@@ -19,16 +19,8 @@ class ContactPage extends SheetPage {
 
   @override
   Widget? leading(BuildContext context) {
-    return SizedBox(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          RoundedIconButton(
-              icon: Icons.refresh_outlined,
-              onPressed: () async => await contactViewModel.refresh()),
-        ],
-      ),
-    );
+    return RoundedIconButton(
+        icon: Icons.refresh_outlined, onPressed: () async => await contactViewModel.refresh());
   }
 
   @override
@@ -45,10 +37,10 @@ class ContactPage extends SheetPage {
             const SizedBox(width: 12),
             Text(
               contactViewModel.name,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -58,12 +50,6 @@ class ContactPage extends SheetPage {
 
   @override
   Widget trailing(BuildContext context) {
-    final onHandlerSearch = (query) async {
-      final address = await getIt
-          .get<AddressResolverService>()
-          .resolve(query: query as String, wallet: contactViewModel.wallet);
-      return address;
-    };
     return SizedBox(
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -74,7 +60,7 @@ class ContactPage extends SheetPage {
                 Navigator.pushNamed(
                   context,
                   Routes.contactWelcomePage,
-                  arguments: [onHandlerSearch, contactViewModel.record],
+                  arguments: contactViewModel.record,
                 );
               }),
           const SizedBox(width: 8),

@@ -159,12 +159,6 @@ Future<void> _showAddressBookBottomSheet(
       isScrollControlled: true,
       builder: (BuildContext bottomSheetContext) {
         return AddressBookBottomSheet(
-          onHandlerSearch: (query) async {
-            final address = await getIt
-                .get<AddressResolverService>()
-                .resolve(query: query, wallet: contactListViewModel.wallet);
-            return address;
-          },
           initialRoute: initialRoute,
           initialArgs: initialArgs,
         );

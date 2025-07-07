@@ -14,7 +14,10 @@ class StandardTextFormFieldWidget extends StatelessWidget {
     this.onChanged,
     this.suffixIconConstraints,
     this.prefixIconConstraints,
-    this.outline,
+    this.outlineInputBorder,
+    this.enabledInputBorder,
+    this.focusedInputBorder,
+    this.readOnly = false,
   });
 
   final TextEditingController controller;
@@ -28,13 +31,17 @@ class StandardTextFormFieldWidget extends StatelessWidget {
   final BoxConstraints? suffixIconConstraints;
   final BoxConstraints? prefixIconConstraints;
   final void Function(String)? onChanged;
-  final InputBorder? outline;
+  final InputBorder? outlineInputBorder;
+  final InputBorder? enabledInputBorder;
+  final InputBorder? focusedInputBorder;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
+      readOnly: readOnly,
       decoration: InputDecoration(
           isDense: true,
           isCollapsed: true,
@@ -45,27 +52,29 @@ class StandardTextFormFieldWidget extends StatelessWidget {
           hintStyle:
               Theme.of(context).textTheme.bodyMedium!.copyWith(color: Theme.of(context).hintColor),
           fillColor: fillColor,
-          border: outline ??  OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
-          enabledBorder: outline ?? OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15)),
-            borderSide: BorderSide(color: Colors.transparent),
-          ),
-          focusedBorder: outline?.copyWith(
-              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)
-      ),
+          border: outlineInputBorder ??
+              OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.outline)),
+          enabledBorder: enabledInputBorder ??
+              OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  borderSide: BorderSide(color: Colors.transparent)),
+          focusedBorder: focusedInputBorder ??
+              OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)),
           suffixIcon: Padding(padding: const EdgeInsets.only(right: 10), child: suffixIcon),
           suffix: suffix,
           prefixIcon: prefixIcon,
           prefixIconConstraints: prefixIconConstraints,
-          suffixIconConstraints: suffixIconConstraints ?? const BoxConstraints(
-            minWidth: 34,
-            maxWidth: 34,
-            minHeight: 24,
-            maxHeight: 24,
-          )),
-
+          suffixIconConstraints: suffixIconConstraints ??
+              const BoxConstraints(
+                minWidth: 34,
+                maxWidth: 34,
+                minHeight: 24,
+                maxHeight: 24,
+              )),
       style: Theme.of(context).textTheme.bodyMedium,
       onChanged: onChanged,
       validator: addressValidator,
