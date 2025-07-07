@@ -2704,7 +2704,10 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               fee: 0,
               direction: TransactionDirection.incoming,
               isReplaced: false,
-              date: DateTime.now(),
+              // TODO: fetch block data and get the date from it
+              date: scanData.network == BitcoinNetwork.mainnet
+                  ? getDateByBitcoinHeight(tweakHeight)
+                  : DateTime.now(),
               confirmations: scanData.chainTip - tweakHeight + 1,
               isReceivedSilentPayment: true,
               isPending: false,
