@@ -416,12 +416,12 @@ class ExchangePage extends BasePage {
 
     reaction(
         (_) => exchangeViewModel.wallet.name,
-        (String _) =>
+        (_) =>
             _onWalletNameChange(exchangeViewModel, exchangeViewModel.receiveCurrency, receiveKey));
 
     reaction(
         (_) => exchangeViewModel.wallet.name,
-        (String _) =>
+        (_) =>
             _onWalletNameChange(exchangeViewModel, exchangeViewModel.depositCurrency, depositKey));
 
     reaction((_) => exchangeViewModel.receiveCurrency,
@@ -431,8 +431,10 @@ class ExchangePage extends BasePage {
         (CryptoCurrency currency) => _onCurrencyChange(currency, exchangeViewModel, depositKey));
 
     reaction((_) => exchangeViewModel.depositAmount, (String amount) {
-      if (depositKey.currentState!.amountController.text != amount && amount != S.of(context).all) {
-        depositKey.currentState!.amountController.text = amount;
+      if (exchangeViewModel.isSendAllEnabled) {
+        depositAmountController.text = S.of(context).all;
+      } else if (depositAmountController.text != amount && amount != S.of(context).all) {
+        depositAmountController.text = amount;
       }
     });
 
@@ -520,7 +522,9 @@ class ExchangePage extends BasePage {
       if (exchangeViewModel.isFixedRateMode) {
         exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
       } else {
-        if (depositAmountController.text != S.current.all)
+        if (depositAmountController.text == S.current.all)
+          exchangeViewModel.changeDepositAmount(amount: exchangeViewModel.depositAmount);
+        else
           exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
       }
     });
@@ -642,8 +646,7 @@ class ExchangePage extends BasePage {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
-    return address;
+    return extractAddressFromParsed(context, parsedAddress);
   }
 
   void _showFeeAlert(BuildContext context) async {
