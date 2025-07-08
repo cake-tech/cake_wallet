@@ -55,7 +55,7 @@ class ProvidersHelper {
   ];
 
   static List<ProviderType> getAvailableSellProviderTypes() => [
-    ProviderType.robinhood,
+    // ProviderType.robinhood, // ToDo: (Konsti) Enable once fixed in Exchange Helper, but still waiting for new Docs
     ProviderType.dfx,
     ProviderType.onramper,
     ProviderType.moonpay,

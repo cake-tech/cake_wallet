@@ -71,7 +71,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(_apiAuthority, _apiPath + _assets,
           {'networks': normalizedNetwork, 'query': currency.title});
 
-      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
@@ -102,8 +102,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (curFrom == null || curTo == null) return [];
       final pairId = curFrom + '_' + curTo;
       final uri = Uri.https(_apiAuthority, '$_apiPath$_pairsPath/$pairId$_ratePath');
-      final response = await ProxyWrapper().get(clearnetUri: uri);
-      
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+
       if (response.statusCode != 200) return [];
       return json.decode(response.body) as List<dynamic>;
     } catch (e) {
@@ -211,7 +211,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         headers: _headers,
         body: json.encode(payload),
       );
-      
+
       if (response.statusCode != 201) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final error = responseJSON['error'] ?? 'Unknown error';
@@ -260,7 +260,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     try {
       final uri = Uri.https(_apiAuthority, '$_apiPath$_orders/$id');
-      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
       
       if (response.statusCode != 200) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;

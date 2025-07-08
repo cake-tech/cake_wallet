@@ -1,11 +1,17 @@
-import 'dart:math';
-
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:mobx/mobx.dart';
 
 part 'deuro_view_model.g.dart';
@@ -15,9 +21,68 @@ class DEuroViewModel = DEuroViewModelBase with _$DEuroViewModel;
 abstract class DEuroViewModelBase with Store {
   final AppStore _appStore;
 
-  DEuroViewModelBase(this._appStore) {
+  DEuroViewModelBase(this._appStore, this.balanceViewModel, this._settingsStore, this._fiatConversationStore) {
     reloadInterestRate();
     reloadSavingsUserData();
+  }
+  final BalanceViewModel balanceViewModel;
+  final SettingsStore _settingsStore;
+  final FiatConversionStore _fiatConversationStore;
+  
+  @computed
+  bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
+
+  @computed
+  String get pendingTransactionFiatAmountFormatted =>
+      isFiatDisabled ? '' : pendingTransactionFiatAmount + ' ' + fiat.title;
+
+  @computed
+  String get pendingTransactionFeeFiatAmountFormatted =>
+      isFiatDisabled ? '' : pendingTransactionFeeFiatAmount + ' ' + fiat.title;
+
+  FiatCurrency get fiat => _settingsStore.fiatCurrency;
+
+  
+  @computed
+  String get pendingTransactionFiatAmount {
+    if (transaction == null) {
+      return '0.00';
+    }
+
+    try {
+      final keys = _fiatConversationStore.prices.keys.toList();
+      CryptoCurrency deuro = CryptoCurrency.deuro;
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i].title == "DEURO") {
+          deuro = keys[i];
+        }
+      }
+      final fiat = calculateFiatAmount(
+          price: _fiatConversationStore.prices[deuro]!,
+          cryptoAmount: transaction!.amountFormatted);
+      return fiat;
+    } catch (e) {
+      printV(e);
+      return '0.02';
+    }
+  }
+
+  @computed
+  String get pendingTransactionFeeFiatAmount {
+    try {
+      if (transaction != null) {
+        final currency = CryptoCurrency.eth;
+        final fiat = calculateFiatAmount(
+            price: _fiatConversationStore.prices[currency]!,
+            cryptoAmount: transaction!.feeFormatted.substring(0, transaction!.feeFormatted.indexOf(" ")),
+          );
+        return fiat;
+      } else {
+        return '0.00';
+      }
+    } catch (_) {
+      return '0.00';
+    }
   }
 
   @observable
@@ -82,7 +147,7 @@ abstract class DEuroViewModelBase with Store {
   Future<void> prepareSavingsEdit(String amountRaw, bool isAdding) async {
     try {
       state = TransactionCommitting();
-      final amount = BigInt.from(num.parse(amountRaw) * pow(10, 18));
+      final amount = parseFixed(amountRaw, 18);
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
       transaction = await (isAdding
           ? ethereum!.addDEuroSaving(_appStore.wallet!, amount, priority)

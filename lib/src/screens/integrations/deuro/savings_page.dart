@@ -127,10 +127,10 @@ class DEuroSavingsPage extends BasePage {
           currency: CryptoCurrency.deuro,
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: tx.amountFormatted,
-          fiatAmountValue: "",
+          fiatAmountValue: _dEuroViewModel.pendingTransactionFiatAmountFormatted,
           fee: S.of(bottomSheetContext).send_estimated_fee,
           feeValue: tx.feeFormatted,
-          feeFiatAmount: "",
+          feeFiatAmount: _dEuroViewModel.pendingTransactionFeeFiatAmountFormatted,
           outputs: [],
           onSlideActionComplete: () async {
             Navigator.of(bottomSheetContext).pop(true);

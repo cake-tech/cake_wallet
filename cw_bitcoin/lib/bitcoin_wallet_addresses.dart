@@ -57,6 +57,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
+  bool _isPayjoinConnectivityError(String error) =>
+      ["error sending request for url", "Instance of 'FfiIoError'"].any((e) => error.contains(e));
+
   @action
   Future<void> initPayjoin() async {
     try {
@@ -68,7 +71,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     } catch (e) {
       printV(e);
       // Ignore Connectivity errors
-      if (!e.toString().contains("error sending request for url")) rethrow;
+      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
     }
   }
 
@@ -82,7 +85,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     } catch (e) {
       printV(e);
       // Ignore Connectivity errors
-      if (!e.toString().contains("error sending request for url")) rethrow;
+      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
     }
   }
 }
