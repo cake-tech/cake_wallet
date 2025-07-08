@@ -29,7 +29,6 @@ import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -37,6 +36,7 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -68,6 +68,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this._settingsStore,
     this.sharedPreferences,
     this.contactListViewModel,
+    this.unspentCoinsListViewModel,
     this.feesViewModel,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
@@ -100,6 +101,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       CryptoCurrency.btt
     ];
     _initialPairBasedOnWallet();
+
+    unspentCoinsListViewModel.initialSetup().then((_) {
+      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
+    });
 
     final Map<String, dynamic> exchangeProvidersSelection =
         json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
@@ -323,6 +328,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final SettingsStore _settingsStore;
 
   final ContactListViewModel contactListViewModel;
+
+  final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   final FeesViewModel feesViewModel;
 
@@ -676,16 +683,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             wallet.type == WalletType.litecoin ? UnspentCoinType.nonMweb : UnspentCoinType.any,
       );
 
-      changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
+      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
     } else if (wallet.type == WalletType.monero) {
-      isFixedRateMode = false;
-      var amount = 0;
-      await monero!.updateUnspents(wallet);
-      monero!.getUnspents(wallet)
-          .where((u) => !u.isFrozen && u.isSending)
-          .forEach((u) => amount += u.value);
+      final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
 
-      changeDepositAmount(amount: monero!.formatterMoneroAmountToString(amount: amount));
+      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
     }
   }
 
