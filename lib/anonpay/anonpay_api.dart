@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -27,7 +28,7 @@ class AnonPayApi {
   static const anonPayPath = '/anonpay';
   static const anonPayStatus = '/anonpay/status';
   static const coinPath = 'api/coin';
-  static const apiKey = secrets.trocadorApiKey;
+  static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
 
   Future<AnonpayStatusResponse> paymentStatus(String id) async {
     final response = await ProxyWrapper().get(
