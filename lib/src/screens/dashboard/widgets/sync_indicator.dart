@@ -58,7 +58,11 @@ class SyncIndicator extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        SyncIndicatorIcon(isSynced: status is SyncedSyncStatus),
+                        SyncIndicatorIcon(
+                          isSynced: status is SyncedSyncStatus,
+                          showTorIcon: dashboardViewModel.builtinTor,
+                          size: dashboardViewModel.builtinTor ? 16 : 6,
+                        ),
                         Padding(
                           padding: EdgeInsets.only(left: 6),
                           child: Text(
