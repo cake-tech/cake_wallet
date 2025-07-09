@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -69,6 +70,14 @@ abstract class DEuroViewModelBase with Store {
     }
   }
 
+  @computed
+  String get accountBalance {
+    final dEuroKey = balanceViewModel.balances.keys
+        .firstWhereOrNull((e) => e.title == CryptoCurrency.deuro.title);
+    if (dEuroKey == null) return '0.00';
+    return balanceViewModel.balances[dEuroKey]?.availableBalance ?? '0.00';
+  }
+
   @observable
   String savingsBalance = '0.00';
 
@@ -95,6 +104,9 @@ abstract class DEuroViewModelBase with Store {
 
   @observable
   bool isLoading = true;
+
+  @observable
+  DEuroActionType actionType = DEuroActionType.none;
 
   @observable
   PendingTransaction? transaction = null;
@@ -148,6 +160,7 @@ abstract class DEuroViewModelBase with Store {
       state = TransactionCommitting();
       final amount = parseFixed(amountRaw, 18);
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
+      actionType = isAdding ? DEuroActionType.deposit : DEuroActionType.withdraw;
       transaction = await (isAdding
           ? ethereum!.addDEuroSaving(_appStore.wallet!, amount, priority)
           : ethereum!.removeDEuroSaving(_appStore.wallet!, amount, priority));
@@ -162,6 +175,7 @@ abstract class DEuroViewModelBase with Store {
   Future<void> prepareReinvestInterest() async {
     try {
       state = TransactionCommitting();
+      actionType = DEuroActionType.reinvest;
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
       transaction = await ethereum!.reinvestDEuroInterest(_appStore.wallet!, priority);
       state = InitialExecutionState();
@@ -225,3 +239,10 @@ abstract class DEuroViewModelBase with Store {
 }
 
 class NoEtherState extends ExecutionState {}
+
+enum DEuroActionType {
+  deposit,
+  withdraw,
+  reinvest,
+  none;
+}

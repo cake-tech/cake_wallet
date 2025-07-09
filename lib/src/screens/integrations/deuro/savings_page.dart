@@ -101,14 +101,12 @@ class DEuroSavingsPage extends BasePage {
   }
 
   Future<void> _onSavingsAdd(BuildContext context) async {
-    final amount = await Navigator.of(context).push(MaterialPageRoute<String>(
-        builder: (BuildContext context) => SavingEditPage(isAdding: true)));
+    final amount = await _showEditBottomSheet(context, isAdding: true);
     if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, true);
   }
 
   Future<void> _onSavingsRemove(BuildContext context) async {
-    final amount = await Navigator.of(context).push(MaterialPageRoute<String>(
-        builder: (BuildContext context) => SavingEditPage(isAdding: false)));
+    final amount = await _showEditBottomSheet(context, isAdding: false);
     if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, false);
   }
 
@@ -119,20 +117,41 @@ class DEuroSavingsPage extends BasePage {
 
     reaction((_) => dEuroViewModel.transaction, (PendingTransaction? tx) async {
       if (tx == null) return;
+      String title;
+
+      switch (_dEuroViewModel.actionType) {
+        case DEuroActionType.deposit:
+          title = S.of(context).deuro_savings_add;
+          break;
+        case DEuroActionType.withdraw:
+          title = S.of(context).deuro_savings_remove;
+          break;
+        case DEuroActionType.reinvest:
+          title = S.of(context).deuro_reinvest_interest;
+          break;
+        default:
+          title = S.of(context).confirm_transaction;
+          break;
+      }
+
       final result = await showModalBottomSheet<bool>(
         context: context,
         isDismissible: false,
         isScrollControlled: true,
         builder: (BuildContext bottomSheetContext) => ConfirmSendingBottomSheet(
           key: ValueKey('savings_page_confirm_sending_dialog_key'),
-          titleText: S.of(bottomSheetContext).confirm_transaction,
+          titleText: title,
           currentTheme: currentTheme,
           walletType: WalletType.ethereum,
           titleIconPath: CryptoCurrency.deuro.iconPath,
           currency: CryptoCurrency.deuro,
           amount: S.of(bottomSheetContext).send_amount,
-          amountValue: tx.amountFormatted,
-          fiatAmountValue: _dEuroViewModel.pendingTransactionFiatAmountFormatted,
+          amountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
+              ? _dEuroViewModel.accruedInterest
+              : tx.amountFormatted,
+          fiatAmountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
+              ? _dEuroViewModel.fiatAccruedInterest
+              : _dEuroViewModel.pendingTransactionFiatAmountFormatted,
           fee: S.of(bottomSheetContext).send_estimated_fee,
           feeValue: tx.feeFormatted,
           feeFiatAmount: _dEuroViewModel.pendingTransactionFeeFiatAmountFormatted,
@@ -173,6 +192,7 @@ class DEuroSavingsPage extends BasePage {
             dEuroViewModel.commitApprovalTransaction();
           },
           change: tx.change,
+          explanation: S.of(context).deuro_savings_approve_app_description,
         ),
       );
 
@@ -193,7 +213,7 @@ class DEuroSavingsPage extends BasePage {
               contentImage: 'assets/images/birthday_cake.png',
               content: S.of(bottomSheetContext).deuro_tx_commited_content,
               actionButtonText: S.of(bottomSheetContext).close,
-              actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+              actionButtonKey: ValueKey('savings_page_sent_dialog_ok_button_key'),
               actionButton: () => Navigator.of(bottomSheetContext).pop(),
             ),
           );
@@ -201,7 +221,7 @@ class DEuroSavingsPage extends BasePage {
       }
 
       if (state is NoEtherState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _showNoEthTooltip(context));
+        WidgetsBinding.instance.addPostFrameCallback((_) async => await _showNoEthTooltip(context));
       }
 
       if (state is FailureState) {
@@ -235,10 +255,11 @@ class DEuroSavingsPage extends BasePage {
         context,
         title: S.of(context).deuro_savings_collect_interest,
         content: S.of(context).deuro_savings_collect_interest_tooltip,
-        key: 'savings_tooltip',
+        key: 'interest_tooltip',
       );
 
-  void _showTooltip(BuildContext context, {required String title, required String content, required String key}) {
+  void _showTooltip(BuildContext context,
+      {required String title, required String content, required String key}) {
     if (!context.mounted) return;
 
     showModalBottomSheet<void>(
@@ -259,10 +280,10 @@ class DEuroSavingsPage extends BasePage {
     );
   }
 
-  void _showNoEthTooltip(BuildContext context) {
+  Future<void> _showNoEthTooltip(BuildContext context) async {
     if (!context.mounted) return;
 
-    showModalBottomSheet<void>(
+    return showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
         currentTheme: currentTheme,
@@ -270,9 +291,26 @@ class DEuroSavingsPage extends BasePage {
         titleIconPath: CryptoCurrency.deuro.iconPath,
         contentImage: 'assets/images/deuro_not_enough_eth.png',
         content: S.of(context).deuro_tooltip_no_eth,
-        actionButtonKey:  ValueKey('deuro_page_tooltip_dialog_no_eth_ok_button_key'),
+        actionButtonKey: ValueKey('deuro_page_tooltip_dialog_no_eth_ok_button_key'),
         actionButtonText: S.of(context).close,
         actionButton: () => Navigator.of(bottomSheetContext).pop(),
+      ),
+    );
+  }
+
+  Future<String?> _showEditBottomSheet(BuildContext context, {bool isAdding = false}) async {
+    if (!context.mounted) return null;
+
+    return showModalBottomSheet<String?>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext bottomSheetContext) => SavingsEditSheet(
+        titleText: isAdding ? S.of(context).deuro_savings_add : S.of(context).deuro_savings_remove,
+        titleIconPath: CryptoCurrency.deuro.iconPath,
+        balanceTitle: isAdding
+            ? S.of(context).deuro_savings_available_to_add
+            : S.of(context).deuro_savings_available_to_remove,
+        balance: isAdding ? _dEuroViewModel.accountBalance : _dEuroViewModel.savingsBalance,
       ),
     );
   }
