@@ -115,7 +115,7 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
                   Image.asset('assets/images/envelope.png'),
                   const SizedBox(height: 18),
                   Text(
-                    'Your gift card will be delivered via email after the necessary confirmations.',
+                    S.of(context).cake_pay_card_email_delivered_message,
                     style: Theme.of(context).textTheme.bodyLarge,
                     textAlign: TextAlign.center,
                   ),
