@@ -536,7 +536,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
-  bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
+  bool get hasSilentPayments =>
+      wallet.type == WalletType.bitcoin &&
+      (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isNotEmpty &&
+      !wallet.isHardwareWallet;
 
   @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;

@@ -216,7 +216,7 @@ abstract class ElectrumWalletBase
   @override
   bool isTestnet;
 
-  bool get hasSilentPaymentsScanning => type == WalletType.bitcoin;
+  bool get hasSilentPaymentsScanning => type == WalletType.bitcoin && keys.privateKey.isNotEmpty;
 
   @observable
   bool nodeSupportsSilentPayments = true;
@@ -1377,6 +1377,8 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> rescan({required int height, bool? doSingleScan}) async {
+    if (keys.privateKey.isEmpty) return;
+
     silentPaymentsScanningActive = true;
     _setListeners(height, doSingleScan: doSingleScan);
   }
