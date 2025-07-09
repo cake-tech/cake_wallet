@@ -7,7 +7,7 @@ import '.secrets.g.dart' as secrets;
 class TronHTTPProvider implements TronServiceProvider {
   TronHTTPProvider(
       {required this.url,
-      this.defaultRequestTimeout = const Duration(seconds: 45)});
+      this.defaultRequestTimeout = const Duration(seconds: 30)});
 
   @override
   final String url;
