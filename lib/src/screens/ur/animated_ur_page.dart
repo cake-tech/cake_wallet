@@ -190,8 +190,8 @@ class _URQRState extends State<URQR> {
 
   void next() {
     final keys = widget.urqr.keys.toList();
-    selectedInt++;
     setState(() {
+      selectedInt++;
       nextLabel = keys[(selectedInt) % keys.length];
       selected = keys[(selectedInt) % keys.length];
     });
