@@ -88,6 +88,7 @@ class ExchangeTradeExternalSendPage extends BasePage {
                           .where((item) => item.isExternalSendDetail)
                           .map(
                             (item) => TradeItemRowWidget(
+                              key: ValueKey('exchange_trade_external_send_page_send_item_${item.title}_key'),
                               currentTheme: currentTheme,
                               title: item.title,
                               value: item.data,

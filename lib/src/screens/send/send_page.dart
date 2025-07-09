@@ -566,7 +566,7 @@ class SendPage extends BasePage {
               isScrollControlled: true,
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
-                  key: ValueKey('send_page_confirm_sending_dialog_key'),
+                  key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
                   walletType: sendViewModel.walletType,
@@ -627,6 +627,10 @@ class SendPage extends BasePage {
                       isTwoAction: true,
                       leftButtonText: 'No',
                       rightButtonText: 'Yes',
+                      leftActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_no_button_key'),
+                      rightActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_yes_button_key'),
                       actionLeftButton: () {
                         Navigator.of(bottomSheetContext).pop();
                         if (context.mounted) {

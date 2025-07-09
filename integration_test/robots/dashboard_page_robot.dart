@@ -18,6 +18,7 @@ class DashboardPageRobot {
 
   Future<void> isDashboardPage() async {
     await commonTestCases.isSpecificPage<DashboardPage>();
+    await commonTestCases.takeScreenshots('dashboard_page');
   }
 
   Future<void> confirmWalletTypeIsDisplayedCorrectly(
@@ -91,6 +92,10 @@ class DashboardPageRobot {
     await commonTestCases.tapItemByKey('dashboard_page_${S.current.buy}_action_button_key');
   }
 
+  Future<void> navigateToWalletsListPage() async {
+    await commonTestCases.tapItemByKey('dashboard_page_${S.current.wallets}_action_button_key');
+  }
+
   Future<void> navigateToSendPage() async {
     await commonTestCases.tapItemByKey('dashboard_page_${S.current.send}_action_button_key');
   }
@@ -104,6 +109,6 @@ class DashboardPageRobot {
   }
 
   Future<void> navigateToExchangePage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.exchange}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_${S.current.swap}_action_button_key');
   }
 }

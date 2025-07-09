@@ -159,6 +159,7 @@ class TradeItemRowWidget extends StatelessWidget {
     required this.isCopied,
     required this.copyImage,
     required this.currentTheme,
+    super.key,
   });
 
   @override

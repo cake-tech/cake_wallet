@@ -25,7 +25,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/test_asset_bundles.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -92,11 +92,23 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         ledgerFile.writeAsStringSync("$content\n${event.message}");
       });
     }
+
     if (FeatureFlag.hasDevOptions) {
       ProxyWrapper.logger = MemoryProxyLogger();
     }
 
-    runApp(App(key: topLevelKey));
+    // Basically when we're running a test
+    if (topLevelKey != null) {
+      runApp(
+        DefaultAssetBundle(
+          bundle: TestAssetBundle(),
+          child: App(key: topLevelKey),
+        ),
+      );
+    } else {
+      runApp(App(key: topLevelKey));
+    }
+
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
@@ -202,8 +214,8 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final powNodes =
       await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
-          TransactionDescription.boxName,
-          encryptionKey: transactionDescriptionsBoxKey);
+      TransactionDescription.boxName,
+      encryptionKey: transactionDescriptionsBoxKey);
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -305,7 +317,8 @@ class App extends StatefulWidget {
 class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (BuildContext context) {
+    return Observer(
+      builder: (BuildContext context) {
         final appStore = getIt.get<AppStore>();
         final authService = getIt.get<AuthService>();
         final linkViewModel = getIt.get<LinkViewModel>();
@@ -314,15 +327,15 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-                  ? Routes.welcome
-            : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
+            ? Routes.welcome
+            : settingsStore.currentBuiltinTor
+                ? Routes.startTor
+                : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
-        final statusBarBrightness = currentTheme.type == currentTheme.isDark
-            ? Brightness.light
-            : Brightness.dark;
-        final statusBarIconBrightness = currentTheme.type == currentTheme.isDark
-            ? Brightness.light
-            : Brightness.dark;
+        final statusBarBrightness =
+            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
+        final statusBarIconBrightness =
+            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
             statusBarColor: statusBarColor,
             statusBarBrightness: statusBarBrightness,
@@ -338,8 +351,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           tradeMonitor: tradeMonitor,
           child: ThemeProvider(
             themeStore: appStore.themeStore,
-            materialAppBuilder: (context, theme, darkTheme, themeMode) =>
-                MaterialApp(
+            materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
               navigatorObservers: [routeObserver],
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
@@ -382,10 +394,8 @@ class _HomeState extends State<_Home> {
         SystemChrome.setPreferredOrientations(
             [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
       } else {
-        SystemChrome.setPreferredOrientations([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight
-        ]);
+        SystemChrome.setPreferredOrientations(
+            [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
       }
     }
   }
