@@ -8,8 +8,6 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -75,6 +73,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
   bool _showDisclaimer = false;
   bool _disclaimerChecked = false;
+  bool isEditingToken = false;
 
   @override
   void initState() {
@@ -90,6 +89,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       _tokenSymbolController.text = widget.token!.title;
       _tokenDecimalController.text = widget.token!.decimals.toString();
       _tokenIconPathController.text = widget.token?.iconPath ?? '';
+
+      isEditingToken = true;
     }
 
     if (widget.initialContractAddress != null) {
@@ -124,7 +125,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               Container(
                 padding: EdgeInsets.symmetric(vertical: 16, horizontal: 28),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -138,23 +139,18 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         children: [
                           Text(
                             S.of(context).warning,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 5),
                             child: Text(
                               S.of(context).add_token_warning,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context)
-                                    .extension<TransactionTradeTheme>()!
-                                    .detailsTitlesColor,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    height: 1.6,
+                                  ),
                             ),
                           ),
                         ],
@@ -195,8 +191,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                           Navigator.pop(context);
                         },
                         text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
-                        color: Colors.red,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        textColor: Theme.of(context).colorScheme.onErrorContainer,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -207,13 +203,33 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate() &&
                               (!_showDisclaimer || _disclaimerChecked)) {
+                            final isTokenAlreadyAdded = isEditingToken
+                                ? false
+                                : await widget.homeSettingsViewModel
+                                    .checkIfTokenIsAlreadyAdded(_contractAddressController.text);
+                            if (isTokenAlreadyAdded) {
+                              showPopUp<void>(
+                                context: context,
+                                builder: (dialogContext) {
+                                  return AlertWithOneAction(
+                                    alertTitle: S.current.warning,
+                                    alertContent: S.of(context).token_already_exists,
+                                    buttonText: S.of(context).ok,
+                                    buttonAction: () => Navigator.of(dialogContext).pop(),
+                                  );
+                                },
+                              );
+                              return;
+                            }
+
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 
-                            final hasPotentialError = !isWhitelisted && await widget.homeSettingsViewModel
-                                .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
-                              _contractAddressController.text,
-                            );
+                            final hasPotentialError = !isWhitelisted &&
+                                await widget.homeSettingsViewModel
+                                    .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
+                                  _contractAddressController.text,
+                                );
 
                             bool isPotentialScam = hasPotentialError && !isWhitelisted;
                             final tokenSymbol = _tokenSymbolController.text.toUpperCase();
@@ -298,8 +314,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                           }
                         },
                         text: S.of(context).save,
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
                   ],
@@ -354,7 +370,6 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             focusNode: _contractAddressFocusNode,
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
-            buttonColor: Theme.of(context).hintColor,
             validator: widget.homeSettingsViewModel.walletType == WalletType.zano
                 ? null
                 : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,

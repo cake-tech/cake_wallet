@@ -1,10 +1,4 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:flutter/material.dart';
 
 class DesktopActionButton extends StatelessWidget {
@@ -38,7 +32,7 @@ class DesktopActionButton extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15.0),
-              color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+              color: Theme.of(context).colorScheme.surfaceContainer,
             ),
             child: Center(
               child: Row(
@@ -49,19 +43,18 @@ class DesktopActionButton extends StatelessWidget {
                     height: 30,
                     width: 30,
                     color: isEnabled
-                        ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                        : Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                        ? Theme.of(context).colorScheme.onPrimaryContainer
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(width: 10),
                   AutoSizeText(
                     title,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 24,
-                      fontFamily: 'Lato',
                       fontWeight: FontWeight.bold,
                       color: isEnabled
-                          ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                          : null,
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       height: 1,
                     ),
                     maxLines: 1,

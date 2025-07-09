@@ -15,6 +15,7 @@ class Routes {
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
+  static const payjoinDetails = '/transaction_info/payjoin';
   static const bumpFeePage = '/bump_fee_page';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
@@ -109,13 +110,16 @@ class Routes {
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
-  static const torPage = '/tor_page';
   static const backgroundSync = '/background_sync';
+  static const startTor = '/start_tor';
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+
   static const devSharedPreferences = '/dev/shared_preferences';
+  static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
+  static const devNetworkRequests = '/dev/network_requests';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
@@ -125,4 +129,6 @@ class Routes {
   static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
+
+  static const dEuroSavings = '/integration/dEuro/savings';
 }

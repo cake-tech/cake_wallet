@@ -13,8 +13,7 @@ class AddressEditOrCreatePage extends BasePage {
       : _formKey = GlobalKey<FormState>(),
         _labelController = TextEditingController(),
         super() {
-    _labelController.addListener(
-        () => addressEditOrCreateViewModel.label = _labelController.text);
+    _labelController.addListener(() => addressEditOrCreateViewModel.label = _labelController.text);
     _labelController.text = addressEditOrCreateViewModel.label;
   }
 
@@ -39,10 +38,12 @@ class AddressEditOrCreatePage extends BasePage {
             children: <Widget>[
               Expanded(
                   child: Center(
-                      child: BaseTextFormField(
-                          controller: _labelController,
-                          hintText: S.of(context).new_subaddress_label_name,
-                          validator: AddressLabelValidator()))),
+                child: BaseTextFormField(
+                  controller: _labelController,
+                  hintText: S.of(context).new_subaddress_label_name,
+                  validator: AddressLabelValidator(),
+                ),
+              )),
               Observer(
                 builder: (_) => LoadingPrimaryButton(
                   onPressed: () async {
@@ -53,12 +54,10 @@ class AddressEditOrCreatePage extends BasePage {
                   text: addressEditOrCreateViewModel.isEdit
                       ? S.of(context).rename
                       : S.of(context).new_subaddress_create,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
-                  isLoading:
-                      addressEditOrCreateViewModel.state is AddressIsSaving,
-                  isDisabled:
-                      addressEditOrCreateViewModel.label.isEmpty,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                  isLoading: addressEditOrCreateViewModel.state is AddressIsSaving,
+                  isDisabled: addressEditOrCreateViewModel.label.isEmpty,
                 ),
               )
             ],
@@ -70,15 +69,13 @@ class AddressEditOrCreatePage extends BasePage {
     if (_isEffectsInstalled) {
       return;
     }
-    reaction((_) => addressEditOrCreateViewModel.state,
-            (AddressEditOrCreateState state) {
-          if (state is AddressSavedSuccessfully) {
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) {
-                  if (context.mounted) Navigator.of(context).pop();
-                });
-          }
+    reaction((_) => addressEditOrCreateViewModel.state, (AddressEditOrCreateState state) {
+      if (state is AddressSavedSuccessfully) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) Navigator.of(context).pop();
         });
+      }
+    });
 
     _isEffectsInstalled = true;
   }

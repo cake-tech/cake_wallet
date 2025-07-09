@@ -100,23 +100,27 @@ dependencies:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
 #      ref: main
-  socks5_proxy: ^1.0.4
+  socks5_proxy:
+    git:
+      url: https://github.com/LacticWhale/socks_dart
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
   flutter_svg: ^2.0.9
   polyseed: ^0.0.7
   nostr_tools:
     git:
       url: https://github.com/MrCyjaneK/nostr_tools.git
       ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
+  solana: ^0.31.0+1
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+      ref: 60817d4b20144f9da9029f5034790272795b9d38
   hashlib: ^1.19.2
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-  reown_walletkit: ^1.1.2
+  reown_walletkit: ^1.1.5+1
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -124,7 +128,7 @@ dependencies:
   flutter_daemon:
     git:
       url: https://github.com/MrCyjaneK/flutter_daemon
-      ref: 6d5270d64b5dd588fce12fd0a0c7314c37e6cff1
+      ref: c24ee99f2f3070ea02d8108bbdd7727d73f7e5f1
   flutter_local_notifications: ^19.0.0
 
 dev_dependencies:
@@ -133,10 +137,10 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.4
-  build_runner: ^2.3.3
+  build_runner: ^2.4.15
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
-  build_resolvers: ^2.0.9
+  build_resolvers: ^2.4.4
   hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
@@ -160,13 +164,22 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v9
+      ref: cake-update-v10
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+      ref: 60817d4b20144f9da9029f5034790272795b9d38
+  socks5_proxy:
+    git:
+      url: https://github.com/LacticWhale/socks_dart.git
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
+  tor_binary:
+    git:
+      url: https://github.com/MrCyjaneK/flutter-tor_binary
+      ref: cb811c610871a9517d47134b87c2f590c15c96c5
   web_socket_channel: ^3.0.2
+  freezed_annotation: 2.4.4
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

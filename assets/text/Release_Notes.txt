@@ -1,5 +1,9 @@
-Background sync improvements
-Payment notifications
-WalletConnect enhancements
+Add built-in Tor support (experimental)
+Add dEuro investments
+Solana fixes/enhancements
+Polygon fixes/enhancements
+WalletConnect improvements
+Ledger improvements
+Payjoin improvements
 UI/UX improvements
 Bug fixes

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/transaction_history.dart'
@@ -7,6 +9,7 @@ import 'package:cw_core/amount_converter.dart';
 
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/monero_wallet.dart';
 
 class DoubleSpendException implements Exception {
   DoubleSpendException();
@@ -17,17 +20,16 @@ class DoubleSpendException implements Exception {
 }
 
 class PendingMoneroTransaction with PendingTransaction {
-  PendingMoneroTransaction(this.pendingTransactionDescription);
+  PendingMoneroTransaction(this.pendingTransactionDescription, this.wallet);
 
   final PendingTransactionDescription pendingTransactionDescription;
+  final MoneroWalletBase wallet;
 
   @override
   String get id => pendingTransactionDescription.hash;
 
   @override
   String get hex => pendingTransactionDescription.hex;
-
-  String get txKey => pendingTransactionDescription.txKey;
 
   @override
   String get amountFormatted => AmountConverter.amountIntToString(
@@ -42,7 +44,7 @@ class PendingMoneroTransaction with PendingTransaction {
   @override
   Future<void> commit() async {
     try {
-      monero_transaction_history.commitTransactionFromPointerAddress(
+      await monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
           useUR: false);
     } catch (e) {
@@ -55,14 +57,23 @@ class PendingMoneroTransaction with PendingTransaction {
       rethrow;
     }
     storeSync(force: true);
+    unawaited(() async {
+      await Future.delayed(const Duration(milliseconds: 250));
+      await wallet.fetchTransactions();
+    }());
   }
 
   @override
   Future<String?> commitUR() async {
     try {
-      final ret = monero_transaction_history.commitTransactionFromPointerAddress(
+      final ret = await monero_transaction_history.commitTransactionFromPointerAddress(
           address: pendingTransactionDescription.pointerAddress,
           useUR: true);
+      storeSync(force: true);
+      unawaited(() async {
+        await Future.delayed(const Duration(milliseconds: 250));
+        await wallet.fetchTransactions();
+      }());
       return ret;
     } catch (e) {
       final message = e.toString();

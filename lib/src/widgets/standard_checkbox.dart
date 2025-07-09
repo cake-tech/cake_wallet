@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardCheckbox extends StatelessWidget {
@@ -18,30 +16,31 @@ class StandardCheckbox extends StatelessWidget {
   final Color? borderColor;
   final Color? iconColor;
   final Color? captionColor;
-  final Function(bool) onChanged;
+  final Function(bool)? onChanged;
 
   @override
   Widget build(BuildContext context) {
     final baseGradient = LinearGradient(colors: [
-      Theme.of(context).extension<FilterTheme>()!.checkboxFirstGradientColor,
-      Theme.of(context).extension<FilterTheme>()!.checkboxSecondGradientColor,
+      Theme.of(context).colorScheme.primary,
+      Theme.of(context).colorScheme.primary.withOpacity(0.7),
     ], begin: Alignment.centerLeft, end: Alignment.centerRight);
 
     final boxBorder = Border.all(
-      color: borderColor ?? Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor,
-      width: 1.0,
+      color: borderColor ?? Theme.of(context).colorScheme.outline,
+      width: 2.0,
     );
 
     final checkedBoxDecoration = BoxDecoration(
-        gradient: gradientBackground ? baseGradient : null,
-        border: gradientBackground ? null : boxBorder,
-        borderRadius: BorderRadius.all(Radius.circular(8.0)));
+      gradient: gradientBackground ? baseGradient : null,
+      border: gradientBackground ? null : boxBorder,
+      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    );
 
     final uncheckedBoxDecoration =
         BoxDecoration(border: boxBorder, borderRadius: BorderRadius.all(Radius.circular(8.0)));
 
     return GestureDetector(
-      onTap: () => onChanged(!value),
+      onTap: onChanged == null ? null : () => onChanged!(!value),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -54,7 +53,7 @@ class StandardCheckbox extends StatelessWidget {
             child: value
                 ? Icon(
                     Icons.check,
-                    color: iconColor ?? Theme.of(context).primaryColor,
+                    color: iconColor ?? Theme.of(context).colorScheme.primary,
                     size: 20.0,
                   )
                 : Offstage(),
@@ -66,11 +65,11 @@ class StandardCheckbox extends StatelessWidget {
                 child: Text(
                   caption,
                   softWrap: true,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 16.0,
-                    fontFamily: 'Lato',
+                     
                     fontWeight: FontWeight.normal,
-                    color: captionColor ?? Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                    color: captionColor ?? Theme.of(context).colorScheme.onSurface,
                     decoration: TextDecoration.none,
                   ),
                 ),

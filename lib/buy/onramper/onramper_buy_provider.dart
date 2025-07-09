@@ -8,17 +8,17 @@ import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class OnRamperBuyProvider extends BuyProvider {
-  OnRamperBuyProvider(this._settingsStore,
+  OnRamperBuyProvider(this._themeStore,
       {required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet,
       isTestEnvironment: isTestEnvironment,
@@ -33,12 +33,15 @@ class OnRamperBuyProvider extends BuyProvider {
   static const quotes = '/quotes';
   static const paymentTypes = '/payment-types';
   static const supported = '/supported';
+  static const defaultsAll = '/defaults/all';
 
   static const List<CryptoCurrency> _notSupportedCrypto = [];
   static const List<FiatCurrency> _notSupportedFiat = [];
   static Map<String, dynamic> _onrampMetadata = {};
 
-  final SettingsStore _settingsStore;
+  final ThemeStore _themeStore;
+
+  String? recommendedPaymentType;
 
   String get _apiKey => secrets.onramperApiKey;
 
@@ -57,25 +60,68 @@ class OnRamperBuyProvider extends BuyProvider {
   @override
   bool get isAggregator => true;
 
-  Future<List<PaymentMethod>> getAvailablePaymentTypes(
-      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
+  Future<String?> getRecommendedPaymentType(bool isBuyAction) async {
 
     final params = {'type': isBuyAction ? 'buy' : 'sell'};
 
-    final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$fiatCurrency', params);
+    final url = Uri.https(_baseApiUrl, '$supported$defaultsAll', params);
 
     try {
-      final response =
-          await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
+        headers: {'Authorization': _apiKey, 'accept': 'application/json'},
+      );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final recommended = data['message']['recommended'] as Map<String, dynamic>;
+
+        final recommendedPaymentType = recommended['paymentMethod'] as String?;
+
+        return recommendedPaymentType ;
+      } else {
+        final responseBody =
+        jsonDecode(response.body) as Map<String, dynamic>;
+        printV('Failed to fetch available payment types: ${responseBody['message']}');
+      }
+    } catch (e) {
+      printV('Failed to fetch available payment types: $e');
+    }
+    return null;
+  }
+
+  Future<List<PaymentMethod>> getAvailablePaymentTypes(
+      String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
+
+    final normalizedCryptoCurrency =
+        cryptoCurrency.title + _getNormalizeNetwork(cryptoCurrency);
+
+    final sourceCurrency = (isBuyAction ? fiatCurrency : normalizedCryptoCurrency).toLowerCase();
+    final destinationCurrency = (isBuyAction ? normalizedCryptoCurrency : fiatCurrency).toLowerCase();
+
+    final params = {'type': isBuyAction ? 'buy' : 'sell', 'destination' : destinationCurrency};
+
+    final url = Uri.https(_baseApiUrl, '$supported$paymentTypes/$sourceCurrency', params);
+
+    try {
+      final response =
+          await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+      
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final List<dynamic> message = data['message'] as List<dynamic>;
-        return message
+
+        final allAvailablePaymentMethods = message
             .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
             .toList();
+
+        recommendedPaymentType = await getRecommendedPaymentType(isBuyAction);
+
+        return allAvailablePaymentMethods;
       } else {
-        printV('Failed to fetch available payment types');
+        final responseBody =
+            jsonDecode(response.body) as Map<String, dynamic>;
+        printV('Failed to fetch available payment types: ${responseBody['message']}');
         return [];
       }
     } catch (e) {
@@ -89,7 +135,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
     try {
       final response =
-          await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+          await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+      
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -123,13 +170,13 @@ class OnRamperBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String walletAddress,
       PaymentType? paymentType,
+      String? customPaymentMethodType,
       String? countryCode}) async {
     String? paymentMethod;
 
-    if (paymentType != null && paymentType != PaymentType.all) {
-      paymentMethod = normalizePaymentMethod(paymentType);
-      if (paymentMethod == null) paymentMethod = paymentType.name;
-    }
+    if (paymentType == PaymentType.all && recommendedPaymentType != null) paymentMethod = recommendedPaymentType!;
+    else if (paymentType == PaymentType.unknown) paymentMethod = customPaymentMethodType;
+    else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
@@ -152,8 +199,8 @@ class OnRamperBuyProvider extends BuyProvider {
     final headers = {'Authorization': _apiKey, 'accept': 'application/json'};
 
     try {
-      final response = await http.get(url, headers: headers);
-
+      final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
         if (data.isEmpty) return null;
@@ -174,7 +221,7 @@ class OnRamperBuyProvider extends BuyProvider {
           if (rampMetaData == null) continue;
 
           final quote = Quote.fromOnramperJson(
-              item, isBuyAction, _onrampMetadata, _getPaymentTypeByString(paymentMethod));
+              item, isBuyAction, _onrampMetadata, _getPaymentTypeByString(paymentMethod), customPaymentMethodType);
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
@@ -202,22 +249,18 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     final actionType = isBuyAction ? 'buy' : 'sell';
 
-    final primaryColor = getColorStr(Theme.of(context).primaryColor);
-    final secondaryColor = getColorStr(Theme.of(context).colorScheme.background);
-    final primaryTextColor = getColorStr(Theme.of(context).extension<CakeTextTheme>()!.titleColor);
+    final primaryColor = getColorStr(Theme.of(context).colorScheme.primary,);
+    final secondaryColor = getColorStr(Theme.of(context).colorScheme.surface);
+    final primaryTextColor = getColorStr(Theme.of(context).colorScheme.onSurface);
     final secondaryTextColor =
-        getColorStr(Theme.of(context).extension<CakeTextTheme>()!.secondaryTextColor);
-    final containerColor = getColorStr(Theme.of(context).colorScheme.background);
-    var cardColor = getColorStr(Theme.of(context).cardColor);
-
-    if (_settingsStore.currentTheme.title == S.current.high_contrast_theme) {
-      cardColor = getColorStr(Colors.white);
-    }
+        getColorStr(Theme.of(context).colorScheme.onSurfaceVariant);
+    final containerColor = getColorStr(Theme.of(context).colorScheme.surface);
+    var cardColor = getColorStr(Theme.of(context).colorScheme.surfaceContainer);
 
     final defaultCrypto =
         quote.cryptoCurrency.title + _getNormalizeNetwork(quote.cryptoCurrency).toLowerCase();
 
-    final paymentMethod = normalizePaymentMethod(quote.paymentType);
+    final paymentMethod = quote.paymentType == PaymentType.unknown ? quote.customPaymentMethodType : normalizePaymentMethod(quote.paymentType);
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
@@ -322,6 +365,8 @@ class OnRamperBuyProvider extends BuyProvider {
         return 'dana';
       case PaymentType.ideal:
         return 'ideal';
+      case PaymentType.pixPay:
+        return 'pix';
       default:
         return null;
     }
@@ -371,8 +416,10 @@ class OnRamperBuyProvider extends BuyProvider {
         return PaymentType.dana;
       case 'ideal':
         return PaymentType.ideal;
+      case 'pix':
+        return PaymentType.pixPay;
       default:
-        return PaymentType.all;
+        return PaymentType.unknown;
     }
   }
 

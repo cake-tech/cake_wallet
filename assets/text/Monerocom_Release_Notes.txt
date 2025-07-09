@@ -1,4 +1,4 @@
-Background sync improvements
-Payment notifications
+Add built-in Tor support (experimental)
+Ledger improvements
 UI/UX improvements
 Bug fixes

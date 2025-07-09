@@ -64,6 +64,9 @@ abstract class SendTemplateViewModelBase with Store {
   String get fiatCurrency => _settingsStore.fiatCurrency.title;
 
   @computed
+  int get fiatCurrencyDecimals => _settingsStore.fiatCurrency.decimals;
+
+  @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
   @action

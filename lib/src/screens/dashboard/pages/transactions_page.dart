@@ -1,12 +1,13 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/payjoin_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/trade_row.dart';
-import 'package:cake_wallet/themes/extensions/placeholder_theme.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -39,18 +40,18 @@ class TransactionsPage extends StatelessWidget {
       child: Container(
         color: responsiveLayoutUtil.shouldRenderMobileUI
             ? null
-            : Theme.of(context).colorScheme.background,
+            : Theme.of(context).colorScheme.surface,
         child: Column(
           children: <Widget>[
             Observer(builder: (_) {
               final status = dashboardViewModel.status;
               if (status is SyncingSyncStatus) {
                 return DashBoardRoundedCardWidget(
+                  isDarkTheme: dashboardViewModel.isDarkTheme,
                   key: ValueKey('transactions_page_syncing_alert_card_key'),
                   onTap: () {
                     try {
-                      final uri = Uri.parse(
-                          "https://docs.cakewallet.com/faq/funds-not-appearing");
+                      final uri = Uri.parse("https://docs.cakewallet.com/faq/funds-not-appearing");
                       launchUrl(uri, mode: LaunchMode.externalApplication);
                     } catch (_) {}
                   },
@@ -74,8 +75,7 @@ class TransactionsPage extends StatelessWidget {
                           key: ValueKey('transactions_page_list_view_builder_key'),
                           itemCount: items.length + 1,
                           itemBuilder: (context, index) {
-
-                            if(index == items.length) return SizedBox(height: 150);
+                            if (index == items.length) return SizedBox(height: 150);
 
                             final item = items[index];
 
@@ -143,6 +143,24 @@ class TransactionsPage extends StatelessWidget {
                               );
                             }
 
+                            if (item is PayjoinTransactionListItem) {
+                              final session = item.session;
+
+                              return PayjoinTransactionRow(
+                                key: item.key,
+                                onTap: () => Navigator.of(context).pushNamed(
+                                  Routes.payjoinDetails,
+                                  arguments: [item.sessionId, item.transaction],
+                                ),
+                                currency: "BTC",
+                                state: item.status,
+                                amount: bitcoin!
+                                    .formatterBitcoinAmountToString(amount: session.amount.toInt()),
+                                createdAt: DateFormat('HH:mm').format(session.inProgressSince!),
+                                isSending: session.isSenderSession,
+                              );
+                            }
+
                             if (item is TradeListItem) {
                               final trade = item.trade;
 
@@ -151,7 +169,8 @@ class TransactionsPage extends StatelessWidget {
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.tradeDetails, arguments: trade),
-                                  provider: trade.provider,
+                                    swapState: trade.state,
+                                    provider: trade.provider,
                                   from: trade.from,
                                   to: trade.to,
                                   createdAtFormattedDate: trade.createdAt != null
@@ -180,15 +199,15 @@ class TransactionsPage extends StatelessWidget {
                               );
                             }
                             return Container(color: Colors.transparent, height: 1);
-                          })
+                          },
+                        )
                       : Center(
                           child: Text(
                             key: ValueKey('transactions_page_placeholder_transactions_text_key'),
                             S.of(context).placeholder_transactions,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).extension<PlaceholderTheme>()!.color,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                         );
                 },

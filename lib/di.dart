@@ -33,22 +33,31 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
+import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
+import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
+import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
+import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/src/screens/transaction_details/rbf_details_page.dart';
+import 'package:cake_wallet/view_model/start_tor_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
+import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
@@ -56,7 +65,10 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_node_page.dart';
 import 'package:cake_wallet/src/screens/welcome/welcome_page.dart';
+import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
+import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -129,7 +141,6 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -146,11 +157,9 @@ import 'package:cake_wallet/src/screens/wallet/wallet_edit_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/wc_connections_listing_view.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_page.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
@@ -270,6 +279,7 @@ import 'src/screens/buy/buy_sell_page.dart';
 import 'cake_pay/cake_pay_payment_credantials.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
 
 final getIt = GetIt.instance;
 
@@ -284,6 +294,7 @@ late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
+late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 
 Future<void> setup({
@@ -297,6 +308,7 @@ Future<void> setup({
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+  required Box<PayjoinSession> payjoinSessionSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
@@ -311,11 +323,17 @@ Future<void> setup({
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
+  _payjoinSessionSource = payjoinSessionSource;
   _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
     getIt.registerSingleton<SecureStorage>(secureStorage);
+    getIt.registerSingletonAsync<ThemeStore>(() async {
+      final store = ThemeStore();
+      await store.loadThemePreferences();
+      return store;
+    });
   }
 
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey.isNotEmpty) &&
@@ -326,10 +344,6 @@ Future<void> setup({
     nodeSource: _nodeSource,
     powNodeSource: _powNodeSource,
     isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-    // Enforce darkTheme on platforms other than mobile till the design for other themes is completed
-    initialTheme: responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile
-        ? null
-        : ThemeList.darkTheme,
   );
 
   if (_isSetupFinished) {
@@ -347,11 +361,14 @@ Future<void> setup({
       authenticationStore: getIt.get<AuthenticationStore>(),
       walletList: getIt.get<WalletListStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      nodeListStore: getIt.get<NodeListStore>()));
+      nodeListStore: getIt.get<NodeListStore>(),
+      themeStore: getIt.get<ThemeStore>()));
   getIt.registerSingleton<TradesStore>(
       TradesStore(tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerFactory(() =>
+      PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
@@ -495,18 +512,42 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory(() => DashboardViewModel(
-      balanceViewModel: getIt.get<BalanceViewModel>(),
-      appStore: getIt.get<AppStore>(),
+  getIt.registerFactory(
+    () => ExchangeViewModel(
+      getIt.get<AppStore>(),
+      _tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SharedPreferences>(),
+      getIt.get<ContactListViewModel>(),
+      getIt.get<FeesViewModel>(),
+    ),
+  );
+
+  getIt.registerSingleton(
+    TradeMonitor(
       tradesStore: getIt.get<TradesStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
-      settingsStore: settingsStore,
-      yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+      trades: _tradesSource,
+      appStore: getIt.get<AppStore>(),
+      preferences: getIt.get<SharedPreferences>(),
+    ),
+  );
+
+  getIt.registerFactory(() => DashboardViewModel(
+    tradeMonitor: getIt.get<TradeMonitor>(),
+    balanceViewModel: getIt.get<BalanceViewModel>(),
+    appStore: getIt.get<AppStore>(),
+    tradesStore: getIt.get<TradesStore>(),
+    tradeFilterStore: getIt.get<TradeFilterStore>(),
+    transactionFilterStore: getIt.get<TransactionFilterStore>(),
+    settingsStore: settingsStore,
+    yatStore: getIt.get<YatStore>(),
+    ordersStore: getIt.get<OrdersStore>(),
+    anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+    payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
+    sharedPreferences: getIt.get<SharedPreferences>(),
+    keyService: getIt.get<KeyService>()));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -651,7 +692,6 @@ Future<void> setup({
     return walletKitService;
   });
 
-  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
   getIt.registerFactory(() => BalancePage(
       nftViewModel: getIt.get<NFTViewModel>(),
       dashboardViewModel: getIt.get<DashboardViewModel>(),
@@ -837,7 +877,7 @@ Future<void> setup({
     if (wallet.type == WalletType.monero ||
         wallet.type == WalletType.wownero ||
         wallet.type == WalletType.haven) {
-      return MoneroAccountListViewModel(wallet);
+      return MoneroAccountListViewModel(wallet,getIt.get<SettingsStore>());
     }
     throw Exception(
         'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
@@ -889,7 +929,7 @@ Future<void> setup({
               getIt.get<NanoAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() =>
-      DisplaySettingsViewModel(getIt.get<SettingsStore>()));
+      DisplaySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<ThemeStore>()));
 
   getIt.registerFactory(() =>
       SilentPaymentsSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!));
@@ -919,6 +959,8 @@ Future<void> setup({
   getIt.registerFactory(() => DevMoneroBackgroundSync(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => DevSharedPreferences());
+
+  getIt.registerFactory(() => DevSecurePreferences());
 
   getIt.registerFactoryParam<WalletSeedPage, bool, void>((bool isWalletCreated, _) =>
       WalletSeedPage(getIt.get<WalletSeedViewModel>(), isNewWalletCreated: isWalletCreated));
@@ -1016,13 +1058,13 @@ Future<void> setup({
           getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
-        settingsStore: getIt.get<AppStore>().settingsStore,
+        appStore: getIt.get<AppStore>(),
         wallet: getIt.get<AppStore>().wallet!,
         isTestEnvironment: kDebugMode,
       ));
 
   getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        getIt.get<AppStore>().settingsStore,
+        getIt.get<ThemeStore>(),
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
@@ -1035,19 +1077,6 @@ Future<void> setup({
   ));
 
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
-
-  getIt.registerFactory(
-    () => ExchangeViewModel(
-      getIt.get<AppStore>(),
-      _tradesSource,
-      getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore,
-      getIt.get<SharedPreferences>(),
-      getIt.get<ContactListViewModel>(),
-      getIt.get<FeesViewModel>(),
-    ),
-  );
 
   getIt.registerFactory<FeesViewModel>(
     () => FeesViewModel(
@@ -1091,6 +1120,7 @@ Future<void> setup({
         return bitcoin!.createBitcoinWalletService(
           _walletInfoSource,
           _unspentCoinsInfoSource,
+          _payjoinSessionSource,
           getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
         );
@@ -1221,7 +1251,7 @@ Future<void> setup({
       TradeDetailsViewModel(
           tradeForDetails: trade,
           trades: _tradesSource,
-          settingsStore: getIt.get<SettingsStore>()));
+          appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => CakeFeaturesViewModel(getIt.get<CakePayService>()));
 
@@ -1416,7 +1446,16 @@ Future<void> setup({
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsViewModel(
             anonPayApi: getIt.get<AnonPayApi>(),
             anonpayInvoiceInfo: anonpayInvoiceInfo,
-            settingsStore: getIt.get<SettingsStore>(),
+            themeStore: getIt.get<ThemeStore>(),
+          ));
+
+  getIt.registerFactoryParam<PayjoinDetailsViewModel, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) =>
+          PayjoinDetailsViewModel(
+            sessionId,
+            transactionInfo,
+            payjoinSessionSource: _payjoinSessionSource,
+            themeStore: getIt.get<ThemeStore>(),
           ));
 
   getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInfoBase, void>(
@@ -1426,6 +1465,11 @@ Future<void> setup({
   getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(
           anonpayDetailsViewModel: getIt.get<AnonpayDetailsViewModel>(param1: anonpayInvoiceInfo)));
+
+  getIt.registerFactoryParam<PayjoinDetailsPage, String, TransactionInfo?>(
+      (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsPage(
+          payjoinDetailsViewModel: getIt.get<PayjoinDetailsViewModel>(
+              param1: sessionId, param2: transactionInfo)));
 
   getIt.registerFactoryParam<HomeSettingsPage, BalanceViewModel, void>((balanceViewModel, _) =>
       HomeSettingsPage(getIt.get<HomeSettingsViewModel>(param1: balanceViewModel)));
@@ -1452,7 +1496,7 @@ Future<void> setup({
     () => WalletConnectConnectionsView(walletKitService: getIt.get<WalletKitService>()),
   );
 
-  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
 
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 
@@ -1463,10 +1507,25 @@ Future<void> setup({
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
 
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
+
+  getIt.registerFactory(() => DevSecurePreferencesPage(getIt.get<DevSecurePreferences>()));
   
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
   
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
   
+  getIt.registerFactory(() => DevNetworkRequests());
+
+  getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
+  
+  getIt.registerFactory(() => DEuroViewModel(
+    getIt<AppStore>(),
+    getIt<BalanceViewModel>(),
+    getIt<SettingsStore>(),
+    getIt<FiatConversionStore>(),
+  ));
+
+  getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
+
   _isSetupFinished = true;
 }

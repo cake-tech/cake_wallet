@@ -24,6 +24,7 @@ class PreferencesKey {
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const isAppSecureKey = 'is_app_secure';
   static const disableTradeOption = 'disable_buy';
+  static const disableAutomaticExchangeStatusUpdates = 'disable_automatic_exchange_status_updates';
   static const disableBulletinKey = 'disable_bulletin';
   static const walletListOrder = 'wallet_list_order';
   static const contactListOrder = 'contact_list_order';
@@ -34,6 +35,7 @@ class PreferencesKey {
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
   static const currentTheme = 'current_theme';
+  static const themeMode = 'theme_mode';
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
@@ -64,6 +66,7 @@ class PreferencesKey {
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
+  static const builtinTorKey = 'builtin_tor';
   static const lastPopupDate = 'last_popup_date';
   static const lastAppReviewDate = 'last_app_review_date';
   static const sortBalanceBy = 'sort_balance_by';
@@ -82,6 +85,8 @@ class PreferencesKey {
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const usePayjoin = 'use_payjoin';
+  static const showPayjoinCard = 'show_payjoin_card';
   static const showCameraConsent = 'show_camera_consent';
   static const showDecredInfoCard = 'show_decred_info_card';
 

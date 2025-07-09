@@ -83,9 +83,21 @@ class OtherSettingsPage extends BasePage {
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
+                  title: '[dev] secure storage preferences',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSecurePreferences),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
                   title: '[dev] background sync logs',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] network requests logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devNetworkRequests),
                 ),
               Spacer(),
               SettingsVersionCell(

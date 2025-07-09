@@ -4,7 +4,7 @@
 
 LIBWALLET_PATH="${EXTERNAL_MACOS_SOURCE_DIR}/libwallet"
 LIBWALLET_URL="https://github.com/decred/libwallet.git"
-LIBWALLET_VERSION="dba5327d35cb5d5d1ff113b780869deee154511f"
+LIBWALLET_VERSION="05f8d7374999400fe4d525eb365c39b77d307b14"
 
 echo "======================= DECRED LIBWALLET ========================="
 

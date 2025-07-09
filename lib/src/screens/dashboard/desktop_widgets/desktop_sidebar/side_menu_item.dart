@@ -1,5 +1,5 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 
 class SideMenuItem extends StatelessWidget {
   const SideMenuItem({
@@ -19,9 +19,9 @@ class SideMenuItem extends StatelessWidget {
 
   Color _setColor(BuildContext context) {
     if (isSelected) {
-      return Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+      return Theme.of(context).colorScheme.primary;
     } else {
-      return Theme.of(context).highlightColor;
+      return Theme.of(context).colorScheme.onSurfaceVariant;
     }
   }
 
@@ -47,8 +47,8 @@ class SideMenuItem extends StatelessWidget {
             color: _setColor(context),
             size: 30,
           )
-        : Image.asset(
-            imagePath ?? '',
+        : CakeImageWidget(
+            imageUrl: imagePath ?? '',
             fit: BoxFit.cover,
             height: 30,
             width: 30,

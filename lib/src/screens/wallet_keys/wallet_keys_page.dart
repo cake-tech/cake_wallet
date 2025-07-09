@@ -6,9 +6,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/text_info_box.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -59,7 +57,7 @@ class WalletKeysPageBody extends StatefulWidget {
   });
 
   final WalletKeysViewModel walletKeysViewModel;
-  final ThemeBase currentTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   State<StatefulWidget> createState() => _WalletKeysPageBodyState();
@@ -108,20 +106,20 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               splashFactory: NoSplash.splashFactory,
               indicatorSize: TabBarIndicatorSize.label,
               isScrollable: true,
-              labelStyle: TextStyle(
-                fontSize: 18,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).appBarTheme.titleTextStyle!.color,
-              ),
-              unselectedLabelStyle: TextStyle(
-                fontSize: 18,
-                fontFamily: 'Lato',
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).appBarTheme.titleTextStyle!.color?.withOpacity(0.5),
-              ),
-              labelColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
-              indicatorColor: Theme.of(context).appBarTheme.titleTextStyle!.color,
+              labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 18,
+                     
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+              unselectedLabelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 18,
+                     
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  ),
+              labelColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              indicatorColor: Theme.of(context).colorScheme.onSurfaceVariant,
               indicatorPadding: EdgeInsets.zero,
               labelPadding: const EdgeInsets.only(right: 24),
               tabAlignment: TabAlignment.start,
@@ -219,7 +217,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -227,11 +225,10 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           Text(
             S.of(context).block_height,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5),
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                ),
           ),
           const SizedBox(width: 6),
           Expanded(
@@ -247,11 +244,10 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                   children: [
                     Text(
                       textToDisplay,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                     if (snapshot.connectionState == ConnectionState.done && snapshot.data != null)
                       GestureDetector(
@@ -278,7 +274,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).colorScheme.surfaceContainer,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -286,31 +282,32 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
           Text(
             S.of(context).passphrase_view_keys,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5),
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                ),
           ),
           const SizedBox(width: 6),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Observer(builder: (BuildContext context) {
-                  return Text(
-                    (widget.walletKeysViewModel.obscurePassphrase)
-                        ? "*****"
-                        : widget.walletKeysViewModel.passphrase,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
-                    ),
-                  );
-                }),
-                Observer(builder: (BuildContext context) {
-                  return GestureDetector(
+                Observer(
+                  builder: (BuildContext context) {
+                    return Text(
+                      (widget.walletKeysViewModel.obscurePassphrase)
+                          ? "*****"
+                          : widget.walletKeysViewModel.passphrase,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    );
+                  },
+                ),
+                Observer(
+                  builder: (BuildContext context) {
+                    return GestureDetector(
                       onTap: () {
                         widget.walletKeysViewModel.obscurePassphrase =
                             !widget.walletKeysViewModel.obscurePassphrase;
@@ -321,8 +318,10 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                             : Icons.visibility,
                         size: 16,
                         color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
-                      ));
-                }),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -350,10 +349,8 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                     key: const ValueKey('wallet_keys_page_copy_seeds_button_key'),
                     onPressed: () => _onCopy(titleForClipboard, dataToCopy, context),
                     text: S.of(context).copy,
-                    color: Theme.of(context).cardColor,
-                    textColor: widget.currentTheme.type == ThemeType.dark
-                        ? Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                        : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                   ),
                 ),
               ),
@@ -364,8 +361,8 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                     key: const ValueKey('wallet_keys_page_show_qr_seeds_button_key'),
                     onPressed: onShowQR,
                     text: S.current.show + ' QR',
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
               ),

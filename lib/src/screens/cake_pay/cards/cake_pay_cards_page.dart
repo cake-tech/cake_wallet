@@ -7,14 +7,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/cake_pay/widgets/card_menu.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/themes/extensions/balance_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/exchange_page_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -60,7 +56,7 @@ class CakePayCardsPage extends BasePage {
     return Text(
       'Cake Pay',
       style: textMediumSemiBold(
-        color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
@@ -68,66 +64,70 @@ class CakePayCardsPage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     return _TrailingIcon(
-        asset: 'assets/images/profile.png',
-        iconColor: pageIconColor(context) ?? Colors.white,
-        onPressed: () {
-          _cardsListViewModel.isCakePayUserAuthenticated().then((value) {
+      asset: 'assets/images/profile.png',
+      iconColor: Theme.of(context).colorScheme.onSurface,
+      onPressed: () {
+        _cardsListViewModel.isCakePayUserAuthenticated().then(
+          (value) {
             if (value) {
               Navigator.pushNamed(context, Routes.cakePayAccountPage);
               return;
             }
             Navigator.pushNamed(context, Routes.cakePayWelcomePage);
-          });
-        });
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget body(BuildContext context) {
-
     if (_cardsListViewModel.settingsStore.selectedCakePayCountry == null) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      reaction((_) => _cardsListViewModel.shouldShowCountryPicker, (bool shouldShowCountryPicker) async {
-        if (shouldShowCountryPicker) {
-          _cardsListViewModel.storeInitialFilterStates();
-          await showCountryPicker(context, _cardsListViewModel);
-          if (_cardsListViewModel.hasFiltersChanged) {
-            _cardsListViewModel.resetLoadingNextPageState();
-            _cardsListViewModel.getVendors();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        reaction((_) => _cardsListViewModel.shouldShowCountryPicker,
+            (bool shouldShowCountryPicker) async {
+          if (shouldShowCountryPicker) {
+            _cardsListViewModel.storeInitialFilterStates();
+            await showCountryPicker(context, _cardsListViewModel);
+            if (_cardsListViewModel.hasFiltersChanged) {
+              _cardsListViewModel.resetLoadingNextPageState();
+              _cardsListViewModel.getVendors();
+            }
+
+            _cardsListViewModel.settingsStore.selectedCakePayCountry =
+                _cardsListViewModel.selectedCountry;
           }
-
-          _cardsListViewModel.settingsStore.selectedCakePayCountry =
-              _cardsListViewModel.selectedCountry;
-
-        }
+        });
       });
-    });
     }
 
     final filterButton = Semantics(
       label: S.of(context).filter_by,
       child: GestureDetector(
-          onTap: () async {
-            _cardsListViewModel.storeInitialFilterStates();
-            await showFilterWidget(context);
-            if (_cardsListViewModel.hasFiltersChanged) {
-              _cardsListViewModel.resetLoadingNextPageState();
-              _cardsListViewModel.getVendors();
-            }
-          },
-          child: Container(
-              width: 32,
-              padding: EdgeInsets.only(top: 7, bottom: 7),
-              decoration: BoxDecoration(
-                color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                border: Border.all(
-                  color: Colors.transparent,
-                ),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Image.asset(
-                'assets/images/filter_icon.png',
-                color: Theme.of(context).extension<FilterTheme>()!.iconColor,
-              ))),
+        onTap: () async {
+          _cardsListViewModel.storeInitialFilterStates();
+          await showFilterWidget(context);
+          if (_cardsListViewModel.hasFiltersChanged) {
+            _cardsListViewModel.resetLoadingNextPageState();
+            _cardsListViewModel.getVendors();
+          }
+        },
+        child: Container(
+          width: 32,
+          padding: EdgeInsets.only(top: 7, bottom: 7),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: Border.all(
+              color: Colors.transparent,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Image.asset(
+            'assets/images/filter_icon.png',
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
     );
     final _countryPicker = Semantics(
       label: S.of(context).filter_by,
@@ -143,7 +143,7 @@ class CakePayCardsPage extends BasePage {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
-            color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
+            color: Theme.of(context).colorScheme.surface,
             border: Border.all(color: Colors.transparent),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -163,11 +163,10 @@ class CakePayCardsPage extends BasePage {
                 SizedBox(width: 6),
                 Text(
                   _cardsListViewModel.selectedCountry.countryCode,
-                  style: TextStyle(
-                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
               ],
             ),
@@ -177,25 +176,32 @@ class CakePayCardsPage extends BasePage {
     );
 
     return Padding(
-        padding: const EdgeInsets.all(14.0),
-        child: Column(children: [
+      padding: const EdgeInsets.all(14.0),
+      child: Column(
+        children: [
           Container(
-              padding: EdgeInsets.only(left: 2, right: 22),
-              height: 32,
-              child: Row(children: [
+            padding: EdgeInsets.only(left: 2, right: 22),
+            height: 32,
+            child: Row(
+              children: [
                 Expanded(
-                    child: _SearchWidget(
-                  controller: _searchController,
-                  focusNode: searchFocusNode,
-                )),
+                  child: _SearchWidget(
+                    controller: _searchController,
+                    focusNode: searchFocusNode,
+                  ),
+                ),
                 SizedBox(width: 5),
                 filterButton,
                 SizedBox(width: 5),
                 _countryPicker
-              ])),
+              ],
+            ),
+          ),
           SizedBox(height: 8),
           Expanded(child: CakePayCardsPageBody(cardsListViewModel: _cardsListViewModel))
-        ]));
+        ],
+      ),
+    );
   }
 
   Future<void> showFilterWidget(BuildContext context) async {
@@ -208,26 +214,25 @@ class CakePayCardsPage extends BasePage {
   }
 }
 
-
-Future<void> showCountryPicker(BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
+Future<void> showCountryPicker(
+    BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
   await showPopUp<void>(
       context: context,
       builder: (_) => Picker(
-        title: S.of(context).select_your_country,
+          title: S.of(context).select_your_country,
           items: cardsListViewModel.availableCountries,
           images: cardsListViewModel.availableCountries
               .map((e) => Image.asset(
-            e.iconPath,
-            errorBuilder: (context, error, stackTrace) => Container(
-              width: 58,
-              height: 58,
-            ),
-          ))
+                    e.iconPath,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 58,
+                      height: 58,
+                    ),
+                  ))
               .toList(),
-          selectedAtIndex: cardsListViewModel.availableCountries
-              .indexOf(cardsListViewModel.selectedCountry),
-          onItemSelected: (Country country) =>
-              cardsListViewModel.setSelectedCountry(country),
+          selectedAtIndex:
+              cardsListViewModel.availableCountries.indexOf(cardsListViewModel.selectedCountry),
+          onItemSelected: (Country country) => cardsListViewModel.setSelectedCountry(country),
           isSeparated: false,
           hintText: S.of(context).search,
           matchingCriteria: (Country country, String searchText) =>
@@ -310,10 +315,9 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
                 },
                 title: vendor.name,
                 subTitle: vendor.card?.description ?? '',
-                backgroundColor:
-                    Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-                titleColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-                subtitleColor: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                titleColor: Theme.of(context).colorScheme.onSurface,
+                subtitleColor: Theme.of(context).colorScheme.onSecondary,
                 discount: 0.0,
               );
             },
@@ -324,10 +328,8 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
                   thumbHeight: thumbHeight,
                   rightOffset: 1,
                   width: 3,
-                  backgroundColor:
-                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.05),
-                  thumbColor:
-                      Theme.of(context).extension<FilterTheme>()!.iconColor.withOpacity(0.5),
+                  backgroundColor: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.05),
+                  thumbColor: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
                   fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
                 )
               : Offstage()
@@ -343,9 +345,8 @@ class _VendorLoadedIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: CircularProgressIndicator(
-        backgroundColor: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
-        valueColor: AlwaysStoppedAnimation<Color>(
-            Theme.of(context).extension<ExchangePageTheme>()!.firstGradientBottomPanelColor),
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
+        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
       ),
     );
   }
@@ -362,41 +363,23 @@ class _SearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final searchIcon = ExcludeSemantics(
-        child: Icon( Icons.search,
-          color: Theme.of(context).extension<FilterTheme>()!.iconColor,
-          //size: 24
-        ),
-    );
-
-    return TextField(
+    return BaseTextFormField(
       focusNode: focusNode,
-      style: TextStyle(color: Theme.of(context).extension<DashboardPageTheme>()!.textColor),
+      textStyle: Theme.of(context).textTheme.bodyMedium,
       controller: controller,
-      decoration: InputDecoration(
-          filled: true,
-          contentPadding: EdgeInsets.only(
-            top: 8,
-            left: 8,
+      contentPadding: EdgeInsets.only(top: 8, left: 8),
+      hintText: S.of(context).search,
+      placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          fillColor: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
-          hintText: S.of(context).search,
-          hintStyle: TextStyle(
-            color: Theme.of(context).extension<BalancePageTheme>()!.labelTextColor,
-          ),
-          alignLabelWithHint: true,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          suffixIcon: searchIcon,
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.transparent,
-            ),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
-            borderRadius: BorderRadius.circular(10),
-          )),
+      alignLabelWithHint: true,
+      floatingLabelBehavior: FloatingLabelBehavior.never,
+      suffixIcon: ExcludeSemantics(
+        child: Icon(
+          Icons.search,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
     );
   }
 }

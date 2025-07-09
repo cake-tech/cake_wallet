@@ -2,16 +2,19 @@ import 'package:cw_core/enumerable_item.dart';
 import 'package:cw_core/wallet_info.dart';
 
 class MoneroSeedType extends EnumerableItem<int> with Serializable<int> {
-  const MoneroSeedType({required String title, required int raw}) : super(title: title, raw: raw);
+  const MoneroSeedType({required String title, required int raw, this.shortTitle})
+      : super(title: title, raw: raw);
+
+  final String? shortTitle;
 
   static const all = [legacy, polyseed, bip39];
 
   static const defaultSeedType = polyseed;
 
-  static const legacy = MoneroSeedType(raw: 0, title: 'Legacy');
-  static const polyseed = MoneroSeedType(raw: 1, title: 'Polyseed');
+  static const legacy = MoneroSeedType(raw: 0, title: 'Legacy (25 words)', shortTitle: "Legacy");
+  static const polyseed = MoneroSeedType(raw: 1, title: 'Polyseed (16 words)', shortTitle: "Polyseed");
   static const wowneroSeed = MoneroSeedType(raw: 2, title: 'Wownero');
-  static const bip39 = MoneroSeedType(raw: 3, title: 'BIP39');
+  static const bip39 = MoneroSeedType(raw: 3, title: 'BIP39 (12 words)', shortTitle: "BIP39");
 
   static MoneroSeedType deserialize({required int raw}) {
     switch (raw) {

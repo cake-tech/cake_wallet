@@ -64,6 +64,7 @@ abstract class BuyProvider {
           required bool isBuyAction,
           required String walletAddress,
           PaymentType? paymentType,
+            String? customPaymentMethodType,
           String? countryCode}) async =>
       null;
 }

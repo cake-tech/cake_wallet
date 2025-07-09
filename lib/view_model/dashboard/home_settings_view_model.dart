@@ -12,6 +12,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -19,7 +20,6 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
-import 'package:http/http.dart' as http;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'home_settings_view_model.g.dart';
@@ -124,6 +124,31 @@ abstract class HomeSettingsViewModelBase with Store {
     } finally {
       isAddingToken = false;
     }
+  }
+
+  @action
+  bool checkIfTokenIsAlreadyAdded(String contractAddress) {
+    if (_balanceViewModel.wallet.type == WalletType.ethereum) {
+      return ethereum!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.polygon) {
+      return polygon!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.solana) {
+      return solana!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.tron) {
+      return tron!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    if (_balanceViewModel.wallet.type == WalletType.zano) {
+      return zano!.isTokenAlreadyAdded(_balanceViewModel.wallet, contractAddress);
+    }
+
+    return false;
   }
 
   @action
@@ -240,14 +265,14 @@ abstract class HomeSettingsViewModelBase with Store {
     );
 
     try {
-      final response = await http.get(
-        uri,
+      final response = await ProxyWrapper().get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
-
+      
       final decodedResponse = jsonDecode(response.body);
 
       final tokenInfo = Erc20TokenInfoMoralis.fromJson(decodedResponse[0] as Map<String, dynamic>);
@@ -297,19 +322,20 @@ abstract class HomeSettingsViewModelBase with Store {
     required bool isEthereum,
   }) async {
     final uri = Uri.https(
-      isEthereum ? "api.etherscan.io" : "api.polygonscan.com",
-      "/api",
+      "api.etherscan.io",
+      "/v2/api",
       {
+        "chainid": isEthereum ? "1" : "137",
         "module": "token",
         "action": "tokeninfo",
         "contractaddress": contractAddress,
-        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
+        "apikey": secrets.etherScanApiKey,
       },
     );
 
     try {
-      final response = await http.get(uri);
-
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (decodedResponse['status'] != '1') {
@@ -338,18 +364,20 @@ abstract class HomeSettingsViewModelBase with Store {
     required bool isEthereum,
   }) async {
     final uri = Uri.https(
-      isEthereum ? "api.etherscan.io" : "api.polygonscan.com",
-      "/api",
+      "api.etherscan.io",
+      "/v2/api",
       {
+        "chainid": isEthereum ? "1" : "137",
         "module": "contract",
         "action": "getsourcecode",
         "address": contractAddress,
-        "apikey": isEthereum ? secrets.etherScanApiKey : secrets.polygonScanApiKey,
+        "apikey": secrets.etherScanApiKey,
       },
     );
 
     try {
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
 
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
