@@ -58,7 +58,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   List<CakePayVendor> CakePayVendorList;
 
   Map<String, List<FilterItem>> get createFilterItems => {
-        S.current.filter_by: [
+        'Card Type': [
           FilterItem(
               value: () => displayPrepaidCards,
               caption: S.current.prepaid_cards,

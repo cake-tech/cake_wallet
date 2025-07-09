@@ -19,6 +19,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_transaction_sent_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -67,7 +68,7 @@ class CakePayBuyCardPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.completelyTransparent;
 
   @override
-  Widget? trailing (BuildContext context) {
+  Widget? trailing(BuildContext context) {
     return const SizedBox(
       width: 54,
       height: 0,
@@ -253,7 +254,8 @@ class CakePayBuyCardPage extends BasePage {
             ),
             SizedBox(height: 8),
             Observer(builder: (_) {
-              Widget _buildPaymentMethodWidget (List<CakePayPaymentMethod> methods, CakePayPaymentMethod selected) {
+              Widget _buildPaymentMethodWidget(
+                  List<CakePayPaymentMethod> methods, CakePayPaymentMethod selected) {
                 return Row(
                   children: [
                     Padding(
@@ -278,20 +280,20 @@ class CakePayBuyCardPage extends BasePage {
                               cakePayBuyCardViewModel.chooseMethod(methods[index]),
                           children: methods
                               .map((m) => Padding(
-                            padding:
-                            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            child: Text(m.label),
-                          ))
+                                    padding:
+                                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    child: Text(m.label),
+                                  ))
                               .toList(),
                         ),
                       ),
                   ],
                 );
               }
+
               final methods = cakePayBuyCardViewModel.availableMethods;
-              final selected = cakePayBuyCardViewModel.selectedPaymentMethod ?? (methods.isNotEmpty
-                  ? methods.first
-                  : null);
+              final selected = cakePayBuyCardViewModel.selectedPaymentMethod ??
+                  (methods.isNotEmpty ? methods.first : null);
 
               return Column(
                 children: [
@@ -300,26 +302,27 @@ class CakePayBuyCardPage extends BasePage {
                       : _buildPaymentMethodWidget(methods, selected),
                   if (FeatureFlag.hasDevOptions)
                     Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
-                    child: LoadingPrimaryButton(
-                      onPressed: () {
-                        //Request dummy node to get the focus out of the text fields
-                        FocusScope.of(context).requestFocus(FocusNode());
+                      padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
+                      child: LoadingPrimaryButton(
+                        onPressed: () {
+                          //Request dummy node to get the focus out of the text fields
+                          FocusScope.of(context).requestFocus(FocusNode());
 
-                        cakePayBuyCardViewModel.isSimulatingFlow = true;
-                        isIOSUnavailable(card)
-                            ? alertIOSAvailability(context, card)
-                            : confirmPurchaseFirst(context);
-                      },
-                      text: '(Dev) Simulate Purchasing Gift Card',
-                      isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
-                          cakePayBuyCardViewModel.isPurchasing,
-                      isLoading: cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
-                          cakePayBuyCardViewModel.isPurchasing,
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary,
+                          cakePayBuyCardViewModel.isSimulatingFlow = true;
+                          isIOSUnavailable(card)
+                              ? alertIOSAvailability(context, card)
+                              : confirmPurchaseFirst(context);
+                        },
+                        text: '(Dev) Simulate Purchasing Gift Card',
+                        isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                            cakePayBuyCardViewModel.isPurchasing,
+                        isLoading:
+                            cakePayBuyCardViewModel.sendViewModel.state is IsExecutingState ||
+                                cakePayBuyCardViewModel.isPurchasing,
+                        color: Theme.of(context).colorScheme.primary,
+                        textColor: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     ),
-                  ),
                   Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 34, right: 20, left: 20),
                     child: LoadingPrimaryButton(
@@ -415,7 +418,6 @@ class CakePayBuyCardPage extends BasePage {
       cakePayBuyCardViewModel.isPurchasing = true;
       await _showconfirmPurchaseFirstAlert(context);
     }
-
   }
 
   Future<void> _showconfirmPurchaseFirstAlert(BuildContext context) async {
@@ -595,8 +597,10 @@ class CakePayBuyCardPage extends BasePage {
                       .sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: displayingOutputs,
                   footerType: FooterType.slideActionButton,
-                  slideActionButtonText: cakePayBuyCardViewModel.isSimulating ? 'Swipe to simulate'  : 'Swipe to send',
-                  accessibleNavigationModeSlideActionButtonText: cakePayBuyCardViewModel.isSimulating ? 'Simulate' : S.of(context).send,
+                  slideActionButtonText:
+                      cakePayBuyCardViewModel.isSimulating ? 'Swipe to simulate' : 'Swipe to send',
+                  accessibleNavigationModeSlideActionButtonText:
+                      cakePayBuyCardViewModel.isSimulating ? 'Simulate' : S.of(context).send,
                   onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
                     cakePayBuyCardViewModel.isSimulating
@@ -618,63 +622,55 @@ class CakePayBuyCardPage extends BasePage {
       }
 
       if (state is TransactionCommitted) {
+        final order = cakePayBuyCardViewModel.order;
+        final outputsCopy = List<Output>.from(cakePayBuyCardViewModel.sendViewModel.outputs);
+        final displayingOutputs = outputsCopy
+            .map((o) => o.OutputCopyWithParsedAddress(
+                  parsedAddress: ParsedAddress(
+                    addresses: [o.address],
+                    name: 'Cake Pay',
+                    profileName: order?.cardName ?? 'Cake Pay',
+                    profileImageUrl: order?.cardImagePath ?? '',
+                  ),
+                  fiatAmount: '${order?.amountUsd.toString()} USD',
+                ))
+            .toList();
+
+        cakePayBuyCardViewModel.sendViewModel.clearOutputs();
+
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          cakePayBuyCardViewModel.sendViewModel.clearOutputs();
+          final BuildContext navigatorContext = Navigator.of(context).context;
 
-          if (!context.mounted) return;
+          await showModalBottomSheet<void>(
+            context: navigatorContext,
+            useRootNavigator: true,
+            isScrollControlled: true,
+            isDismissible: true,
+            backgroundColor: Colors.transparent,
+            builder: (bottomSheetContext) => CakePayTransactionSentBottomSheet(
+              key: const ValueKey('cake_pay_buy_page_transaction_sent_bottom_sheet_key'),
+              titleText: S.of(bottomSheetContext).transaction_sent,
+              titleIconWidget: const CircleAvatar(
+                  radius: 10,
+                  backgroundColor: Colors.green,
+                  child: Icon(Icons.check, size: 16, color: Colors.white)),
+              output: displayingOutputs.first,
+              currency: cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency,
+              amount: S.of(bottomSheetContext).send_amount,
+              amountValue:
+                  cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+              quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
+              fiatAmountValue:
+                  cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+              fee: S.of(bottomSheetContext).send_fee,
+              feeValue: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+              feeFiatAmount:
+                  cakePayBuyCardViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+              onClose: () => Navigator.of(bottomSheetContext).pop(),
+            ),
+          );
 
-          final isCopy = await showModalBottomSheet<bool>(
-                  context: context,
-                  isDismissible: false,
-                  builder: (BuildContext bottomSheetContext) {
-                    return InfoBottomSheet(
-                      currentTheme: currentTheme,
-                      footerType: FooterType.doubleActionButton,
-                      rightActionButtonKey:
-                          ValueKey('cake_pay_buy_page_sent_dialog_copy_button_key'),
-                      doubleActionRightButtonText: S.of(bottomSheetContext).copy,
-                      onRightActionButtonPressed: () {
-                        Navigator.of(bottomSheetContext).pop(true);
-                      },
-                      leftActionButtonKey: ValueKey('cake_pay_buy_page_sent_dialog_ok_button_key'),
-                      doubleActionLeftButtonText: S.of(bottomSheetContext).close,
-                      onLeftActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(false),
-                      titleText: S.of(bottomSheetContext).transaction_sent,
-                      contentImage: cakePayBuyCardViewModel.order!.cardImagePath,
-                      bottomActionPanel: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                        child: Column(
-                          children: [
-                            Text(
-                              textAlign: TextAlign.center,
-                              S.of(bottomSheetContext).cake_pay_save_order,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Lato',
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).textTheme.titleLarge!.color!,
-                                decoration: TextDecoration.none,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Text(cakePayBuyCardViewModel.order!.orderId,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Lato',
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).textTheme.titleLarge!.color!,
-                                  decoration: TextDecoration.none,
-                                )),
-                          ],
-                        ),
-                      ),
-                    );
-                  }) ??
-              false;
-
-          if (isCopy) {
-            await Clipboard.setData(ClipboardData(text: cakePayBuyCardViewModel.order!.orderId));
-          }
+          if (context.mounted) Navigator.of(context).pop();
         });
       }
 
@@ -720,20 +716,19 @@ void _showHowToUseCard(BuildContext context, CakePayCard card) {
       builder: (BuildContext context) {
         return CakePayAlertModal(
           title: S.of(context).how_to_use_card,
+          dismissible: true,
           content: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Padding(
                 padding: EdgeInsets.all(10),
                 child: Text(card.name, style: Theme.of(context).textTheme.headlineSmall)),
             ClickableLinksText(
-              text: card.howToUse ?? '',
-              textStyle: Theme.of(context).textTheme.bodyMedium!,
-              linkStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontStyle: FontStyle.italic,
-                  ),
-            ),
+                text: card.howToUse ?? '',
+                textStyle: Theme.of(context).textTheme.bodyMedium!,
+                linkStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic))
           ]),
           actionTitle: S.current.got_it,
+          showCloseButton: false,
         );
       });
 }
@@ -744,16 +739,16 @@ void _showTermsAndCondition(BuildContext context, String? termsAndConditions) {
       builder: (BuildContext context) {
         return CakePayAlertModal(
           title: S.of(context).settings_terms_and_conditions,
+          dismissible: true,
           content: Align(
               alignment: Alignment.bottomLeft,
               child: ClickableLinksText(
-                text: termsAndConditions ?? '',
-                textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic),
-              )),
+                  text: termsAndConditions ?? '',
+                  textStyle: Theme.of(context).textTheme.bodyMedium!,
+                  linkStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.primary, fontStyle: FontStyle.italic))),
           actionTitle: S.of(context).agree,
           showCloseButton: false,
-          heightFactor: 0.6,
         );
       });
 }

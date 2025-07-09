@@ -4,81 +4,68 @@ import 'package:flutter/material.dart';
 
 class CakePayAlertModal extends StatelessWidget {
   const CakePayAlertModal({
-    Key? key,
+    super.key,
     required this.title,
     required this.content,
     required this.actionTitle,
-    this.heightFactor = 0.4,
     this.showCloseButton = true,
-  }) : super(key: key);
+    this.dismissible = false,
+  });
 
   final String title;
   final Widget content;
   final String actionTitle;
   final bool showCloseButton;
-  final double heightFactor;
+  final bool dismissible;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final maxHeight = MediaQuery.of(context).size.height * 0.8;
+
     return AlertBackground(
-      child: Material(
-        color: Colors.transparent,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Spacer(),
-            Container(
-              padding: EdgeInsets.only(top: 24, left: 24, right: 24),
-              margin: EdgeInsets.all(24),
+      dismissible: dismissible,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: Material(
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(30),
-              ),
+                  color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(30)),
+              padding: const EdgeInsets.all(24),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (title.isNotEmpty)
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
+                  if (title.isNotEmpty) ...[
+                    Text(title,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                            color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center),
+                    const SizedBox(height: 12),
+                  ],
+                  Flexible(child: SingleChildScrollView(child: content)),
+                  const SizedBox(height: 24),
+                  PrimaryButton(
+                      onPressed: () => Navigator.pop(context),
+                      text: actionTitle,
+                      color: theme.colorScheme.surfaceContainer,
+                      textColor: theme.colorScheme.primary),
+                  if (showCloseButton) ...[
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () => Navigator.pop(context),
+                      child: CircleAvatar(
+                        backgroundColor: theme.colorScheme.surfaceContainer,
+                        child: Icon(Icons.close, color: theme.colorScheme.onSurface),
                       ),
                     ),
-                  Container(
-                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * heightFactor),
-                    child: ListView(
-                      children: [
-                        content,
-                        SizedBox(height: 35),
-                      ],
-                    ),
-                  ),
-                  PrimaryButton(
-                    onPressed: () => Navigator.pop(context),
-                    text: actionTitle,
-                    color: Theme.of(context).colorScheme.surfaceContainer,
-                    textColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  SizedBox(height: 21),
+                  ],
                 ],
               ),
             ),
-            Spacer(),
-           if(showCloseButton)
-            InkWell(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                margin: EdgeInsets.only(bottom: 40),
-                child: CircleAvatar(
-                  child: Icon(
-                    Icons.close,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-                ),
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );
