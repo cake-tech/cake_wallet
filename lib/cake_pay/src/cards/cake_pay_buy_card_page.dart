@@ -54,6 +54,7 @@ class CakePayBuyCardPage extends BasePage {
   final CakePayService cakePayService;
 
   bool _effectsInstalled = false;
+  late final BuildContext _overlayCtx;
 
   @override
   String get title => cakePayBuyCardViewModel.card.name;
@@ -481,6 +482,8 @@ class CakePayBuyCardPage extends BasePage {
       return;
     }
 
+    _overlayCtx = Navigator.of(context).context;
+
     if (cakePayBuyCardViewModel.sendViewModel.isElectrumWallet) {
       bitcoin!.updateFeeRates(cakePayBuyCardViewModel.sendViewModel.wallet);
     }
@@ -624,6 +627,7 @@ class CakePayBuyCardPage extends BasePage {
       if (state is TransactionCommitted) {
         final order = cakePayBuyCardViewModel.order;
         final outputsCopy = List<Output>.from(cakePayBuyCardViewModel.sendViewModel.outputs);
+
         final displayingOutputs = outputsCopy
             .map((o) => o.OutputCopyWithParsedAddress(
                   parsedAddress: ParsedAddress(
@@ -632,45 +636,58 @@ class CakePayBuyCardPage extends BasePage {
                     profileName: order?.cardName ?? 'Cake Pay',
                     profileImageUrl: order?.cardImagePath ?? '',
                   ),
-                  fiatAmount: '${order?.amountUsd.toString()} USD',
+                  fiatAmount: '${order?.amountUsd ?? 0} USD',
                 ))
             .toList();
 
         cakePayBuyCardViewModel.sendViewModel.clearOutputs();
 
+        final bool usePageContextLater = context.mounted;
+
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final BuildContext navigatorContext = Navigator.of(context).context;
+          if (displayingOutputs.isEmpty) {
+            if (context.mounted) Navigator.of(context).pop();
+            return;
+          }
+
+          final BuildContext sheetParentCtx = usePageContextLater ? context : _overlayCtx;
 
           await showModalBottomSheet<void>(
-            context: navigatorContext,
-            useRootNavigator: true,
+            context: sheetParentCtx,
+            useRootNavigator: !usePageContextLater,
             isScrollControlled: true,
             isDismissible: true,
             backgroundColor: Colors.transparent,
-            builder: (bottomSheetContext) => CakePayTransactionSentBottomSheet(
-              key: const ValueKey('cake_pay_buy_page_transaction_sent_bottom_sheet_key'),
-              titleText: S.of(bottomSheetContext).transaction_sent,
-              titleIconWidget: const CircleAvatar(
+            builder: (sheetCtx) {
+              return CakePayTransactionSentBottomSheet(
+                key: const ValueKey('cake_pay_buy_page_transaction_sent_bottom_sheet_key'),
+                titleText: S.of(sheetCtx).transaction_sent,
+                titleIconWidget: const CircleAvatar(
                   radius: 10,
                   backgroundColor: Colors.green,
-                  child: Icon(Icons.check, size: 16, color: Colors.white)),
-              output: displayingOutputs.first,
-              currency: cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency,
-              amount: S.of(bottomSheetContext).send_amount,
-              amountValue:
-                  cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-              quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
-              fiatAmountValue:
-                  cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-              fee: S.of(bottomSheetContext).send_fee,
-              feeValue: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-              feeFiatAmount:
-                  cakePayBuyCardViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
-              onClose: () => Navigator.of(bottomSheetContext).pop(),
-            ),
+                  child: Icon(Icons.check, size: 16, color: Colors.white),
+                ),
+                output: displayingOutputs.first,
+                currency: cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency,
+                amount: S.of(sheetCtx).send_amount,
+                amountValue:
+                    cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.amountFormatted,
+                quantity: 'QTY: ${cakePayBuyCardViewModel.quantity}',
+                fiatAmountValue:
+                    cakePayBuyCardViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
+                fee: S.of(sheetCtx).send_fee,
+                feeValue: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.feeFormatted,
+                feeFiatAmount:
+                    cakePayBuyCardViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                onClose: () {
+                  Navigator.of(sheetCtx).pop();
+                },
+              );
+            },
           );
-
-          if (context.mounted) Navigator.of(context).pop();
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
         });
       }
 
