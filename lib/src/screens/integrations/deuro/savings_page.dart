@@ -210,14 +210,12 @@ class DEuroSavingsPage extends BasePage {
 
           await showPopUp<void>(
             context: context,
-            builder: (BuildContext popupContext) {
-              return AlertWithOneAction(
-                alertTitle: S.of(popupContext).error,
-                alertContent: state.error,
-                buttonText: S.of(popupContext).ok,
-                buttonAction: () => Navigator.of(popupContext).pop(),
-              );
-            },
+            builder: (BuildContext popupContext) => AlertWithOneAction(
+              alertTitle: S.of(popupContext).error,
+              alertContent: state.error,
+              buttonText: S.of(popupContext).ok,
+              buttonAction: () => Navigator.of(popupContext).pop(),
+            ),
           );
         });
       }
@@ -229,16 +227,14 @@ class DEuroSavingsPage extends BasePage {
   void _onSavingsTooltipPressed(BuildContext context) => _showTooltip(
         context,
         title: S.of(context).deuro_savings_balance,
-        content:
-            "This represents your current savings balance, which will accrue interest over time. You can deposit or withdraw your dEURO at any given time.",
+        content: S.of(context).deuro_savings_balance_tooltip,
         key: 'savings_tooltip',
       );
 
   void _onInterestTooltipPressed(BuildContext context) => _showTooltip(
         context,
         title: S.of(context).deuro_savings_collect_interest,
-        content:
-            "This represents your current earned interest, which you can collect into your dEURO balance at any time.",
+        content: S.of(context).deuro_savings_collect_interest_tooltip,
         key: 'savings_tooltip',
       );
 
