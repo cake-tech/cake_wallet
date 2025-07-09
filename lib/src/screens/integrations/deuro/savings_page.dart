@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/integrations/deuro/widgets/info_chip.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_edit_sheet.dart';
@@ -14,9 +15,11 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class DEuroSavingsPage extends BasePage {
   final DEuroViewModel _dEuroViewModel;
@@ -93,6 +96,28 @@ class DEuroSavingsPage extends BasePage {
               onReinvestInterest: _dEuroViewModel.prepareReinvestInterest,
               onTooltipPressed: () => _onInterestTooltipPressed(context),
               isEnabled: _dEuroViewModel.isEnabled,
+            ),
+          ),
+          Spacer(),
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InfoChip(
+                    label: S.of(context).deuro_about_deuro,
+                    icon: CupertinoIcons.info,
+                    onPressed: () => _showWelcomeTooltip(context),
+                  ),
+                  SizedBox(width: 10),
+                  InfoChip(
+                    label: S.of(context).website,
+                    icon: CupertinoIcons.globe,
+                    onPressed: () => launchUrlString("https://deuro.com/"),
+                  )
+                ],
+              ),
             ),
           ),
         ],
@@ -249,6 +274,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_balance,
         content: S.of(context).deuro_savings_balance_tooltip,
         key: 'savings_tooltip',
+        onLearnMorePressed: () {}, //ToDo
       );
 
   void _onInterestTooltipPressed(BuildContext context) => _showTooltip(
@@ -256,10 +282,16 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_collect_interest,
         content: S.of(context).deuro_savings_collect_interest_tooltip,
         key: 'interest_tooltip',
+        onLearnMorePressed: () {}, //ToDo
       );
 
-  void _showTooltip(BuildContext context,
-      {required String title, required String content, required String key}) {
+  void _showTooltip(
+    BuildContext context, {
+    required String title,
+    required String content,
+    required String key,
+    required VoidCallback onLearnMorePressed,
+  }) {
     if (!context.mounted) return;
 
     showModalBottomSheet<void>(
@@ -275,6 +307,31 @@ class DEuroSavingsPage extends BasePage {
         actionRightButton: () => Navigator.of(bottomSheetContext).pop(),
         leftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_learn_more_button_key'),
+        actionLeftButton: onLearnMorePressed,
+      ),
+    );
+  }
+
+  Future<void> _showWelcomeTooltip(BuildContext context) async {
+    if (!context.mounted) return;
+
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+        currentTheme: currentTheme,
+        height: 350,
+        titleText: "dEURO",
+        titleIconPath: CryptoCurrency.deuro.iconPath,
+        contentImage: 'assets/images/deuro_hero.png',
+        contentImageSize: 200,
+        content: S.of(context).deuro_savings_welcome_description,
+        isTwoAction: true,
+        rightButtonText: S.of(context).close,
+        rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_ok_button_key'),
+        actionRightButton: () => Navigator.of(bottomSheetContext).pop(),
+        leftButtonText: S.of(context).learn_more,
+        leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
         actionLeftButton: () => Navigator.of(bottomSheetContext).pop(), // ToDo
       ),
     );

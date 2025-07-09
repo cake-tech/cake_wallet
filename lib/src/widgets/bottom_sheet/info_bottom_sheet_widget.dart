@@ -39,6 +39,8 @@ class InfoBottomSheet extends BaseBottomSheet {
   final VoidCallback? actionRightButton;
   final Key? rightActionButtonKey;
   final Key? leftActionButtonKey;
+  final double height;
+  final double? contentImageSize;
 
   InfoBottomSheet({
     required String titleText,
@@ -46,9 +48,11 @@ class InfoBottomSheet extends BaseBottomSheet {
     required this.currentTheme,
     this.contentImage,
     this.contentImageColor,
+    this.contentImageSize,
     this.content,
     this.isTwoAction = false,
     this.showDontAskMeCheckbox = false,
+    this.height = 200,
     this.onCheckboxChanged,
     this.actionButtonText,
     this.actionButton,
@@ -59,18 +63,22 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.actionRightButton,
     this.rightActionButtonKey,
     this.leftActionButtonKey,
-  }) : super(titleText: titleText, titleIconPath: titleIconPath);
+    double maxHeight = 900,
+  }) : super(titleText: titleText, titleIconPath: titleIconPath, maxHeight: maxHeight);
 
   @override
   Widget contentWidget(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: height,
       child: Column(
         children: [
           if (contentImage != null)
             Expanded(
               flex: 4,
-              child: getImage(contentImage!, imageColor: contentImageColor),
+              child: SizedBox(
+                width: contentImageSize,
+                child: getImage(contentImage!, imageColor: contentImageColor),
+              ),
             )
           else
             Container(),
