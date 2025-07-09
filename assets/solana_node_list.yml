@@ -11,3 +11,4 @@
   uri: solana-mainnet.core.chainstack.com
   useSSL: true
   is_default: true
+  isTrustedNodeForSwitching: true

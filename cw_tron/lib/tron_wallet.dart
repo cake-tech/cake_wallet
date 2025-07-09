@@ -276,6 +276,13 @@ abstract class TronWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
+      
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
       await _updateBalance();
       await fetchTransactions();
       fetchTrc20ExcludedTransactions();
@@ -504,6 +511,22 @@ abstract class TronWalletBase
 
   @override
   Future<void>? updateBalance() async => await _updateBalance();
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check native balance
+      await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
+      
+      // Check USDT token balance
+      const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+      await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress, throwOnError: true);
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
 

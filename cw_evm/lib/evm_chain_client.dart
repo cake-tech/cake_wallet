@@ -65,10 +65,13 @@ abstract class EVMChainClient {
     // });
   }
 
-  Future<EtherAmount> getBalance(EthereumAddress address) async {
+  Future<EtherAmount> getBalance(EthereumAddress address, {bool throwOnError = false}) async {
     try {
       return await _client!.getBalance(address);
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return EtherAmount.zero();
     }
   }
