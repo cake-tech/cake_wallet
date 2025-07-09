@@ -95,8 +95,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   late final bool onlyViewKeyRestore = [
     WalletType.bitcoin,
-    WalletType.litecoin,
-    WalletType.bitcoinCash,
     WalletType.decred
   ].contains(type);
 
