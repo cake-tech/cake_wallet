@@ -1,10 +1,12 @@
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SavingsCard extends StatelessWidget {
@@ -12,10 +14,13 @@ class SavingsCard extends StatelessWidget {
   final bool isEnabled;
   final String interestRate;
   final String savingsBalance;
+  final String? fiatSavingsBalance;
+  final FiatCurrency? fiatCurrency;
   final CryptoCurrency currency;
   final VoidCallback onAddSavingsPressed;
   final VoidCallback onRemoveSavingsPressed;
   final VoidCallback onApproveSavingsPressed;
+  final VoidCallback onTooltipPressed;
 
   const SavingsCard({
     super.key,
@@ -26,107 +31,120 @@ class SavingsCard extends StatelessWidget {
     required this.onAddSavingsPressed,
     required this.onRemoveSavingsPressed,
     required this.onApproveSavingsPressed,
+    required this.onTooltipPressed,
     this.isEnabled = true,
+    this.fiatSavingsBalance,
+    this.fiatCurrency,
   });
 
   @override
   Widget build(BuildContext context) => Container(
-      margin: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        gradient: LinearGradient(
-          colors: [
-            isDarkTheme
-                ? CustomThemeColors.cardGradientColorPrimaryDark
-                : CustomThemeColors.cardGradientColorPrimaryLight,
-            isDarkTheme
-                ? CustomThemeColors.cardGradientColorSecondaryDark
-                : CustomThemeColors.cardGradientColorSecondaryLight,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+        margin: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Theme.of(context).colorScheme.surfaceContainerLowest,
         ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            getAssetBalanceRow(context,
-                title: S.of(context).deuro_savings_balance,
-                subtitle: savingsBalance,
-                currency: currency),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Current APR',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w500,
-                          ),
-                      softWrap: true,
-                    ),
-                  ),
-                  Text(
-                    interestRate,
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Current APR', // ToDo: Localize
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
                     softWrap: true,
                   ),
+                ),
+                Text(
+                  interestRate,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w800,
+                      ),
+                  softWrap: true,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                colors: [
+                  isDarkTheme
+                      ? CustomThemeColors.cardGradientColorPrimaryDark
+                      : CustomThemeColors.cardGradientColorPrimaryLight,
+                  isDarkTheme
+                      ? CustomThemeColors.cardGradientColorSecondaryDark
+                      : CustomThemeColors.cardGradientColorSecondaryLight,
                 ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: isEnabled
-                  ? [
-                      Expanded(
-                        child: getButton(
-                          context,
-                          label: S.of(context).deuro_savings_add,
-                          imagePath: 'assets/images/received.png',
-                          onPressed: onAddSavingsPressed,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: getButton(
-                          context,
-                          label: S.of(context).deuro_savings_remove,
-                          imagePath: 'assets/images/upload.png',
-                          onPressed: onRemoveSavingsPressed,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                        ),
-                      ),
-                    ]
-                  : [
-                      Expanded(
-                        child: getButton(
-                          context,
-                          label: S.of(context).deuro_savings_set_approval,
-                          onPressed: onApproveSavingsPressed,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      )
-                    ],
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: getAssetBalanceRow(
+                    context,
+                    title: S.of(context).deuro_savings_balance,
+                    amount: savingsBalance,
+                    fiatAmount: fiatSavingsBalance,
+                    currency: currency,
+                    fiatCurrency: fiatCurrency,
+                    hideSymbol: false,
+                    onTooltipPressed: onTooltipPressed,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: isEnabled
+                      ? [
+                          Expanded(
+                            child: getButton(
+                              context,
+                              label: S.of(context).deuro_savings_add,
+                              imagePath: 'assets/images/received.png',
+                              onPressed: onAddSavingsPressed,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: getButton(
+                              context,
+                              label: S.of(context).deuro_savings_remove,
+                              imagePath: 'assets/images/upload.png',
+                              onPressed: onRemoveSavingsPressed,
+                              backgroundColor: Theme.of(context).colorScheme.surface,
+                              color: Theme.of(context).colorScheme.onSecondaryContainer,
+                            ),
+                          ),
+                        ]
+                      : [
+                          Expanded(
+                            child: getButton(
+                              context,
+                              label: S.of(context).deuro_savings_set_approval,
+                              onPressed: onApproveSavingsPressed,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          )
+                        ],
+                ),
+              ],
             ),
-          ],
-        ),
-      ));
+          ),
+        ]),
+      );
 
   static Widget getButton(
     BuildContext context, {
@@ -146,8 +164,7 @@ class SavingsCard extends StatelessWidget {
               color: Theme.of(context).colorScheme.outlineVariant.withAlpha(0),
               width: 0,
             ),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -157,8 +174,8 @@ class SavingsCard extends StatelessWidget {
                 if (imagePath != null) ...[
                   Image.asset(
                     imagePath,
-                    height: 30,
-                    width: 30,
+                    height: 24,
+                    width: 24,
                     color: color,
                   ),
                   const SizedBox(width: 8),
@@ -179,9 +196,12 @@ class SavingsCard extends StatelessWidget {
   static Widget getAssetBalanceRow(
     BuildContext context, {
     required String title,
-    required String subtitle,
+    required String amount,
     required CryptoCurrency currency,
     bool hideSymbol = true,
+    VoidCallback? onTooltipPressed,
+    FiatCurrency? fiatCurrency,
+    String? fiatAmount,
   }) =>
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -190,16 +210,32 @@ class SavingsCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      height: 1,
+              Row(
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          height: 1,
+                        ),
+                  ),
+                  if (onTooltipPressed != null)
+                    Padding(
+                      padding: EdgeInsets.only(left: 4),
+                      child: InkWell(
+                        onTap: onTooltipPressed,
+                        child: Icon(
+                          CupertinoIcons.question_circle,
+                          size: 13,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ),
+                ],
               ),
               SizedBox(height: 6),
               AutoSizeText(
-                subtitle,
+                amount,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w900,
@@ -209,10 +245,21 @@ class SavingsCard extends StatelessWidget {
                 maxLines: 1,
                 textAlign: TextAlign.start,
               ),
+              if (fiatCurrency != null)
+                AutoSizeText(
+                  "${fiatCurrency.title} $fiatAmount",
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
+                  maxLines: 1,
+                  textAlign: TextAlign.start,
+                ),
             ],
           ),
           SizedBox(
-            //width: min(MediaQuery.of(context).size.width * 0.2, 100),
             child: Center(
               child: Column(
                 children: [
@@ -225,15 +272,11 @@ class SavingsCard extends StatelessWidget {
                       width: 30.0,
                       child: Center(
                         child: Text(
-                          currency.title
-                              .substring(0, min(currency.title.length, 2)),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontSize: 11,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
+                          currency.title.substring(0, min(currency.title.length, 2)),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontSize: 11,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                       ),
                       decoration: BoxDecoration(
@@ -243,7 +286,7 @@ class SavingsCard extends StatelessWidget {
                     ),
                   ),
                   if (!hideSymbol) ...[
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 3),
                     Text(
                       currency.title,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(

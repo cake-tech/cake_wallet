@@ -44,8 +44,7 @@ class DEuroSavingsPage extends BasePage {
               child: TextButton(
                 style: TextButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  overlayColor: WidgetStateColor.resolveWith(
-                      (states) => Colors.transparent),
+                  overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
                 ),
                 onPressed: _dEuroViewModel.reloadSavingsUserData,
                 child: Icon(
@@ -61,8 +60,7 @@ class DEuroSavingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _setReactions(context, _dEuroViewModel));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context, _dEuroViewModel));
 
     return Container(
       width: double.infinity,
@@ -73,10 +71,13 @@ class DEuroSavingsPage extends BasePage {
               isDarkTheme: currentTheme.isDark,
               interestRate: "${_dEuroViewModel.interestRate}%",
               savingsBalance: _dEuroViewModel.savingsBalance,
+              fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalance,
               currency: CryptoCurrency.deuro,
+              fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
               onAddSavingsPressed: () => _onSavingsAdd(context),
               onRemoveSavingsPressed: () => _onSavingsRemove(context),
               onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
+              onTooltipPressed: () => _onSavingsTooltipPressed(context),
               isEnabled: _dEuroViewModel.isEnabled,
             ),
           ),
@@ -84,8 +85,12 @@ class DEuroSavingsPage extends BasePage {
             builder: (_) => InterestCardWidget(
               isDarkTheme: currentTheme.isDark,
               title: S.of(context).deuro_savings_collect_interest,
-              collectedInterest: _dEuroViewModel.accruedInterest,
+              fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterest,
+              fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
+              accruedInterest: _dEuroViewModel.accruedInterest,
               onCollectInterest: _dEuroViewModel.prepareCollectInterest,
+              // onReinvestInterest: _dEuroViewModel.prepareReinvestInterest,
+              onTooltipPressed: () => _onInterestTooltipPressed(context),
             ),
           ),
         ],
@@ -213,5 +218,40 @@ class DEuroSavingsPage extends BasePage {
     });
 
     _isReactionsSet = true;
+  }
+
+  void _onSavingsTooltipPressed(BuildContext context) => _showTooltip(
+        context,
+        title: S.of(context).deuro_savings_balance,
+        content:
+            "This represents your current savings balance, which will accrue interest over time. You can deposit or withdraw your dEURO at any given time.",
+        key: 'savings_tooltip',
+      );
+
+  void _onInterestTooltipPressed(BuildContext context) => _showTooltip(
+        context,
+        title: S.of(context).deuro_savings_collect_interest,
+        content:
+            "This represents your current earned interest, which you can collect into your dEURO balance at any time.",
+        key: 'savings_tooltip',
+      );
+
+  void _showTooltip(BuildContext context, {required String title, required String content, required String key}) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+        currentTheme: currentTheme,
+        titleText: title,
+        titleIconPath: CryptoCurrency.deuro.iconPath,
+        content: content,
+        isTwoAction: true,
+        rightButtonText: S.of(context).close,
+        rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_ok_button_key'),
+        actionRightButton: () => Navigator.of(bottomSheetContext).pop(),
+        leftButtonText: S.of(context).learn_more,
+        leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_learn_more_button_key'),
+        actionLeftButton: () => Navigator.of(bottomSheetContext).pop(), // ToDo
+      ),
+    );
   }
 }
