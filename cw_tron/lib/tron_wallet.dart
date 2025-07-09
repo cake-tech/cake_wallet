@@ -515,7 +515,13 @@ abstract class TronWalletBase
   @override
   Future<bool> checkNodeHealth() async {
     try {
+      // Check native balance
       await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
+      
+      // Check USDT token balance
+      const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+      await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress, throwOnError: true);
+      
       return true;
     } catch (e) {
       return false;

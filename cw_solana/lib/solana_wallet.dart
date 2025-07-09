@@ -487,7 +487,13 @@ abstract class SolanaWalletBase
   @override
   Future<bool> checkNodeHealth() async {
     try {
+      // Check native balance
       await _client.getBalance(solanaAddress, throwOnError: true);
+      
+      // Check USDC token balance
+      const usdcMintAddress = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
+      await _client.getSplTokenBalance(usdcMintAddress, solanaAddress, throwOnError: true);
+      
       return true;
     } catch (e) {
       return false;

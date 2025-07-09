@@ -481,7 +481,7 @@ class TronClient {
     }
   }
 
-  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress) async {
+  Future<TronBalance> fetchTronTokenBalances(String userAddress, String contractAddress, {bool throwOnError = false}) async {
     try {
       final ownerAddress = TronAddress(userAddress);
 
@@ -504,6 +504,9 @@ class TronClient {
 
       return TronBalance(outputResult);
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return TronBalance(BigInt.zero);
     }
   }
