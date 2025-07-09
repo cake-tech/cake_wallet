@@ -72,7 +72,7 @@ abstract class DEuroViewModelBase with Store {
   @observable
   String savingsBalance = '0.00';
 
-  @observable
+  @computed
   String get fiatSavingsBalance => _getDEuroFiatAmount(savingsBalance);
 
   @observable
@@ -84,7 +84,7 @@ abstract class DEuroViewModelBase with Store {
   @observable
   String accruedInterest = '0.00';
 
-  @observable
+  @computed
   String get fiatAccruedInterest => _getDEuroFiatAmount(accruedInterest);
 
   @observable
@@ -92,6 +92,9 @@ abstract class DEuroViewModelBase with Store {
 
   @computed
   bool get isEnabled => approvedTokens > BigInt.zero;
+
+  @observable
+  bool isLoading = true;
 
   @observable
   PendingTransaction? transaction = null;
@@ -112,6 +115,7 @@ abstract class DEuroViewModelBase with Store {
     accruedInterest = ethereum!
         .formatterEthereumAmountToDouble(amount: await accruedInterestRaw)
         .toStringAsFixed(6);
+    isLoading = false;
   }
 
   @action
@@ -123,6 +127,11 @@ abstract class DEuroViewModelBase with Store {
 
   @action
   Future<void> prepareApproval() async {
+    final ethBalance = balanceViewModel.balances[CryptoCurrency.eth]?.availableBalance ?? "0";
+    if ((double.tryParse(ethBalance) ?? 0) == 0) {
+      state = NoEtherState();
+      return;
+    }
     try {
       state = TransactionCommitting();
       final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
@@ -150,7 +159,16 @@ abstract class DEuroViewModelBase with Store {
 
   Future<void> prepareCollectInterest() => prepareSavingsEdit(accruedInterest, false);
 
-  Future<void> prepareReinvestInterest() => throw UnimplementedError(); // ToDo
+  Future<void> prepareReinvestInterest() async {
+    try {
+      state = TransactionCommitting();
+      final priority = _appStore.settingsStore.priority[WalletType.ethereum]!;
+      transaction = await ethereum!.reinvestDEuroInterest(_appStore.wallet!, priority);
+      state = InitialExecutionState();
+    } catch (e) {
+      state = FailureState(e.toString());
+    }
+  }
 
   @action
   Future<void> commitTransaction() async {
@@ -205,3 +223,5 @@ abstract class DEuroViewModelBase with Store {
     }
   }
 }
+
+class NoEtherState extends ExecutionState {}

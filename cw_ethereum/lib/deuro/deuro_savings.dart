@@ -61,7 +61,7 @@ class DEuro {
     final requiredBalance = estimatedGasFee;
 
     if (currentBalance < requiredBalance) {
-      throw DeuroGasFeeException(
+      throw InsufficientGasFeeException(
         requiredGasFee: requiredBalance,
         currentBalance: currentBalance,
       );
@@ -99,9 +99,7 @@ class DEuro {
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {
         final ethBalance = await _wallet.getWeb3Client()!.getBalance(_address);
-        throw DeuroGasFeeException(
-          currentBalance: ethBalance.getInWei,
-        );
+        throw InsufficientGasFeeException(currentBalance: ethBalance.getInWei);
       }
       rethrow;
     }
@@ -122,7 +120,7 @@ class DEuro {
         contractAddress: _savingsGateway.self.address.hexEip55,
         receivingAddressHex: _savingsGateway.self.address.hexEip55,
         priority: priority,
-        data: _savingsGateway.self.abi.functions[17].encodeCall([amount, hexToBytes(frontendCode)]),
+        data: _savingsGateway.self.abi.functions[24].encodeCall([_address, amount, hexToBytes(frontendCode)]),
       );
 
       final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
@@ -137,9 +135,42 @@ class DEuro {
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {
         final ethBalance = await _wallet.getWeb3Client()!.getBalance(_address);
-        throw DeuroGasFeeException(
-          currentBalance: ethBalance.getInWei,
-        );
+        throw InsufficientGasFeeException(currentBalance: ethBalance.getInWei);
+      }
+      rethrow;
+    }
+  }
+
+  Future<PendingEVMChainTransaction> reinvestInterest(EVMChainTransactionPriority priority) async {
+    try {
+      await _checkEthBalanceForGasFees(priority);
+
+      final signedTransaction = await _savingsGateway.refreshBalance((owner: _address),
+        credentials: _wallet.evmChainPrivateKey,
+      );
+
+      final fee = await _wallet.calculateActualEstimatedFeeForCreateTransaction(
+        amount: BigInt.zero,
+        contractAddress: _savingsGateway.self.address.hexEip55,
+        receivingAddressHex: _savingsGateway.self.address.hexEip55,
+        priority: priority,
+        data: _savingsGateway.self.abi.functions[15].encodeCall([_address]),
+      );
+
+      final sendTransaction = () => _wallet.getWeb3Client()!.sendRawTransaction(signedTransaction);
+
+      return PendingEVMChainTransaction(
+        feeCurrency: "ETH",
+        sendTransaction: sendTransaction,
+        signedTransaction: signedTransaction,
+        fee: BigInt.from(fee.estimatedGasFee),
+        amount: 0.toString(),
+        exponent: 18,
+      );
+    } catch (e) {
+      if (e.toString().contains('insufficient funds for gas')) {
+        final ethBalance = await _wallet.getWeb3Client()!.getBalance(_address);
+        throw InsufficientGasFeeException(currentBalance: ethBalance.getInWei);
       }
       rethrow;
     }
@@ -158,14 +189,12 @@ class DEuro {
         _savingsGateway.self.address.hexEip55,
         CryptoCurrency.deuro,
         priority,
-        "ETH"
+        "ETH",
       )) as PendingEVMChainTransaction;
     } catch (e) {
       if (e.toString().contains('insufficient funds for gas')) {
         final ethBalance = await _wallet.getWeb3Client()!.getBalance(_address);
-        throw DeuroGasFeeException(
-          currentBalance: ethBalance.getInWei,
-        );
+        throw InsufficientGasFeeException(currentBalance: ethBalance.getInWei);
       }
       rethrow;
     }

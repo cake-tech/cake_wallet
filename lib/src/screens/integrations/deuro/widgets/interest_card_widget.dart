@@ -10,8 +10,9 @@ class InterestCardWidget extends StatelessWidget {
     required this.title,
     required this.accruedInterest,
     required this.isDarkTheme,
+    required this.isEnabled,
     required this.onCollectInterest,
-    // required this.onReinvestInterest,
+    required this.onReinvestInterest,
     required this.onTooltipPressed,
     this.fiatAccruedInterest,
     this.fiatCurrency,
@@ -22,8 +23,9 @@ class InterestCardWidget extends StatelessWidget {
   final String? fiatAccruedInterest;
   final FiatCurrency? fiatCurrency;
   final bool isDarkTheme;
+  final bool isEnabled;
   final VoidCallback onCollectInterest;
-  // final VoidCallback onReinvestInterest;
+  final VoidCallback onReinvestInterest;
   final VoidCallback onTooltipPressed;
 
   @override
@@ -70,19 +72,21 @@ class InterestCardWidget extends StatelessWidget {
                       onPressed: onCollectInterest,
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       color: Theme.of(context).colorScheme.onPrimary,
+                      enabled: isEnabled,
                     ),
                   ),
-                  // SizedBox(width: 12),
-                  // Expanded(
-                  //   child: SavingsCard.getButton(
-                  //     context,
-                  //     label: S.of(context).deuro_reinvest_interest,
-                  //     imagePath: 'assets/images/reinvest_interest.png',
-                  //     onPressed: onReinvestInterest,
-                  //     backgroundColor: Theme.of(context).colorScheme.surface,
-                  //     color: Theme.of(context).colorScheme.onSecondaryContainer,
-                  //   ),
-                  // ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: SavingsCard.getButton(
+                      context,
+                      label: S.of(context).deuro_reinvest_interest,
+                      icon: Icons.account_balance_outlined,
+                      onPressed: onReinvestInterest,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      enabled: isEnabled,
+                    ),
+                  ),
                 ]),
               ],
             ),

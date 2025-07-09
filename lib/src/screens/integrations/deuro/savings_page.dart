@@ -79,6 +79,7 @@ class DEuroSavingsPage extends BasePage {
               onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
               onTooltipPressed: () => _onSavingsTooltipPressed(context),
               isEnabled: _dEuroViewModel.isEnabled,
+              isLoading: _dEuroViewModel.isLoading,
             ),
           ),
           Observer(
@@ -89,8 +90,9 @@ class DEuroSavingsPage extends BasePage {
               fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
               accruedInterest: _dEuroViewModel.accruedInterest,
               onCollectInterest: _dEuroViewModel.prepareCollectInterest,
-              // onReinvestInterest: _dEuroViewModel.prepareReinvestInterest,
+              onReinvestInterest: _dEuroViewModel.prepareReinvestInterest,
               onTooltipPressed: () => _onInterestTooltipPressed(context),
+              isEnabled: _dEuroViewModel.isEnabled,
             ),
           ),
         ],
@@ -198,6 +200,10 @@ class DEuroSavingsPage extends BasePage {
         });
       }
 
+      if (state is NoEtherState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _showNoEthTooltip(context));
+      }
+
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!context.mounted) return;
@@ -237,6 +243,8 @@ class DEuroSavingsPage extends BasePage {
       );
 
   void _showTooltip(BuildContext context, {required String title, required String content, required String key}) {
+    if (!context.mounted) return;
+
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
@@ -251,6 +259,24 @@ class DEuroSavingsPage extends BasePage {
         leftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_learn_more_button_key'),
         actionLeftButton: () => Navigator.of(bottomSheetContext).pop(), // ToDo
+      ),
+    );
+  }
+
+  void _showNoEthTooltip(BuildContext context) {
+    if (!context.mounted) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+        currentTheme: currentTheme,
+        titleText: title,
+        titleIconPath: CryptoCurrency.deuro.iconPath,
+        contentImage: 'assets/images/deuro_not_enough_eth.png',
+        content: S.of(context).deuro_tooltip_no_eth,
+        actionButtonKey:  ValueKey('deuro_page_tooltip_dialog_no_eth_ok_button_key'),
+        actionButtonText: S.of(context).close,
+        actionButton: () => Navigator.of(bottomSheetContext).pop(),
       ),
     );
   }

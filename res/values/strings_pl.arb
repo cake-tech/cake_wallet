@@ -246,13 +246,16 @@
   "description": "Opis",
   "destination_tag": "Tag docelowy:",
   "deuro_collect_interest": "Zbierać",
+  "deuro_reinvest_interest": "Reinwestuj",
   "deuro_savings": "dEuro oszczędności",
   "deuro_savings_add": "Depozyt",
+  "deuro_savings_approve_app": "Zatwierdź aplikację",
   "deuro_savings_balance": "Równowaga oszczędności",
   "deuro_savings_collect_interest": "Zbieraj zainteresowanie",
   "deuro_savings_remove": "Wycofać",
   "deuro_savings_set_approval": "Ustaw zatwierdzenie",
   "deuro_savings_subtitle": "Zarabiaj do 10% odsetek od Deuro Stablecoin Holdings",
+  "deuro_tooltip_no_eth": "Aby włączyć Deuro, musisz mieć ETH w portfelu.",
   "deuro_tx_commited_content": "Potwierdzenie i odbicie na ekranie może potrwać kilka sekund",
   "device_is_signing": "Urządzenie podpisuje",
   "dfx_option_description": "Kup krypto za EUR & CHF. Dla klientów prywatnych i korporacyjnych w Europie",
@@ -922,6 +925,7 @@
   "ton_extra_info": "Nie zapomnij określić identyfikatora notatki podczas wysyłania transakcji TON dla wymiany",
   "tor_connection": "Połączenie przez Tor",
   "tor_connection_timeout": "Tor Connection Timeout",
+  "tor_experimental": "Jest to funkcja eksperymentalna. Nie wszystkie połączenia wykonane z Cake Wallet korzystają z Tor, niektóre połączenia mogą korzystać z Clearnet, aby w pełni przekierować ruch skorzystaj z Tor w trybie VPN.",
   "tor_only": "Tylko sieć Tor",
   "total": "Całkowity",
   "total_saving": "Całkowite oszczędności",
@@ -1111,6 +1115,5 @@
   "you_will_receive_estimated_amount": "Otrzymasz(oszacowane )",
   "you_will_send": "Konwertuj z",
   "youCanGoBackToYourDapp": "Możesz teraz wrócić do swojego dapp",
-  "yy": "RR",
-  "tor_experimental": "Jest to funkcja eksperymentalna. Nie wszystkie połączenia wykonane z Cake Wallet korzystają z Tor, niektóre połączenia mogą korzystać z Clearnet, aby w pełni przekierować ruch skorzystaj z Tor w trybie VPN."
+  "yy": "RR"
 }
