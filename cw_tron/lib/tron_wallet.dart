@@ -276,6 +276,13 @@ abstract class TronWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
+      
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
       await _updateBalance();
       await fetchTransactions();
       fetchTrc20ExcludedTransactions();

@@ -61,12 +61,6 @@ abstract class OtherSettingsViewModelBase with Store {
       _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
 
   @computed
-  bool get enableAutomaticNodeSwitching => _settingsStore.enableAutomaticNodeSwitching;
-
-  void setEnableAutomaticNodeSwitching(bool value) =>
-      _settingsStore.enableAutomaticNodeSwitching = value;
-
-  @computed
   bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
       _wallet.type == WalletType.solana ||
       _wallet.type == WalletType.tron);

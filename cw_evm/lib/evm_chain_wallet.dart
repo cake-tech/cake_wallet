@@ -115,8 +115,6 @@ abstract class EVMChainWalletBase
   int? gasBaseFee = 0;
   int estimatedGasUnits = 0;
 
-  Timer? _updateFeesTimer;
-
   bool _isTransactionUpdating;
 
   // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
@@ -164,7 +162,7 @@ abstract class EVMChainWalletBase
     EncryptionFileUtils encryptionFileUtils,
   );
 
-    @override
+  @override
   Future<bool> checkNodeHealth() async {
     try {
       await _client.getBalance(_evmChainPrivateKey.address, throwOnError: true);
@@ -359,7 +357,6 @@ abstract class EVMChainWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
-    _updateFeesTimer?.cancel();
   }
 
   @action
@@ -389,14 +386,17 @@ abstract class EVMChainWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
+
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
+
       await _updateBalance();
       await _updateTransactions();
-
       await _updateEstimatedGasFeeParams();
-
-      _updateFeesTimer ??= Timer.periodic(const Duration(seconds: 30), (timer) async {
-        await _updateEstimatedGasFeeParams();
-      });
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -838,6 +838,7 @@ abstract class EVMChainWalletBase
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       _updateTransactions();
       _updateBalance();
+      _updateEstimatedGasFeeParams();
     });
   }
 

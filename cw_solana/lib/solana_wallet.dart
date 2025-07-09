@@ -377,6 +377,13 @@ abstract class SolanaWalletBase
     try {
       syncStatus = AttemptingSyncStatus();
 
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
+
       await Future.wait([
         _updateBalance(),
         _updateNativeSOLTransactions(),
@@ -564,6 +571,7 @@ abstract class SolanaWalletBase
       _updateBalance();
       _updateNativeSOLTransactions();
       _updateSPLTokenTransactions();
+      _getEstimatedFees();
     });
   }
 
@@ -574,7 +582,7 @@ abstract class SolanaWalletBase
 
     // Sign the message bytes with the wallet's private key
     final signature = (_solanaPrivateKey.sign(messageBytes));
-    
+
     return Base58Encoder.encode(signature);
   }
 

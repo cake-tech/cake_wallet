@@ -13,7 +13,7 @@ class NodeSwitchingService {
     required this.nodeSource,
   });
 
-  static const int _healthCheckIntervalMinutes = 5;
+  static const int _healthCheckIntervalSeconds = 30;
 
   Timer? _healthCheckTimer;
 
@@ -30,11 +30,11 @@ class NodeSwitchingService {
   void startHealthCheckTimer() {
     _healthCheckTimer?.cancel();
     _healthCheckTimer = Timer.periodic(
-      Duration(minutes: _healthCheckIntervalMinutes),
-      (_) => _performHealthCheck(),
+      Duration(seconds: _healthCheckIntervalSeconds),
+      (_) => performHealthCheck(),
     );
 
-    _performHealthCheck();
+    performHealthCheck();
   }
 
   void stopHealthCheckTimer() {
@@ -42,7 +42,7 @@ class NodeSwitchingService {
     _healthCheckTimer = null;
   }
 
-  Future<void> _performHealthCheck() async {
+  Future<void> performHealthCheck() async {
     if (appStore.wallet == null) return;
 
     if (!settingsStore.enableAutomaticNodeSwitching) return;
