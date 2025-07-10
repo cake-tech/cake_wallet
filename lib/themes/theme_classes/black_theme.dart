@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
-class BlackTheme {
+class BlackTheme extends MaterialThemeBase {
   @override
   Brightness get brightness => Brightness.dark;
 
