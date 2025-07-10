@@ -213,7 +213,7 @@ class CWEthereum extends Ethereum {
   Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
           CryptoCurrency token, TransactionPriority priority) =>
       (wallet as EVMChainWallet).createApprovalTransaction(
-          amount, spender, token, priority as EVMChainTransactionPriority);
+          amount, spender, token, priority as EVMChainTransactionPriority, "ETH");
 
   // Integrations
   @override

@@ -521,6 +521,7 @@ Future<void> setup({
       getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
       getIt.get<ContactListViewModel>(),
+      getIt.get<UnspentCoinsListViewModel>(),
       getIt.get<FeesViewModel>(),
     ),
   );
@@ -1518,7 +1519,12 @@ Future<void> setup({
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
   
-  getIt.registerFactory(() => DEuroViewModel(getIt<AppStore>()));
+  getIt.registerFactory(() => DEuroViewModel(
+    getIt<AppStore>(),
+    getIt<BalanceViewModel>(),
+    getIt<SettingsStore>(),
+    getIt<FiatConversionStore>(),
+  ));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
 
