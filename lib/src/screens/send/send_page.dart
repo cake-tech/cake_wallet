@@ -711,8 +711,7 @@ class SendPage extends BasePage {
                 return InfoBottomSheet(
                   currentTheme: currentTheme,
                   titleText: S.of(context).proceed_on_device,
-                  contentImage:
-                      'assets/images/hardware_wallet/ledger_nano_x.png',
+                  contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
                   contentImageColor: Theme.of(context).colorScheme.onSurface,
                   content: S.of(context).proceed_on_device_description,
                   isTwoAction: false,
@@ -786,7 +785,8 @@ class SendPage extends BasePage {
   bool isRegularElectrumAddress(String address) {
     final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
     final excludedPatterns = [
-      RegExp(AddressValidator.silentPaymentAddressPattern),
+      RegExp(AddressValidator.silentPaymentAddressPatternMainnet),
+      RegExp(AddressValidator.silentPaymentAddressPatternTestnet),
       RegExp(AddressValidator.mWebAddressPattern)
     ];
 

@@ -5,6 +5,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+
 const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
 
@@ -19,7 +20,7 @@ class AddressValidator extends TextValidator {
                           ? BitcoinNetwork.mainnet
                           : LitecoinNetwork.mainnet,
                     )
-                : type == CryptoCurrency.zano 
+                : type == CryptoCurrency.zano
                     ? zano?.validateAddress
                     : null,
             pattern: getPattern(type),
@@ -38,7 +39,7 @@ class AddressValidator extends TextValidator {
             '|[0-9a-zA-Z]{105}|addr1[0-9a-zA-Z]{98}';
       case CryptoCurrency.btc:
         pattern =
-            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
+            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${silentPaymentAddressPatternMainnet}';
       case CryptoCurrency.ltc:
         pattern = '${P2wpkhAddress.regex.pattern}|${MwebAddress.regex.pattern}';
       case CryptoCurrency.nano:
@@ -281,7 +282,8 @@ class AddressValidator extends TextValidator {
     }
   }
 
-  static String get silentPaymentAddressPattern => SilentPaymentAddress.regex.pattern;
+  static String get silentPaymentAddressPatternMainnet => RegExp(r'^sp1[0-9a-zA-Z]{113}').pattern;
+  static String get silentPaymentAddressPatternTestnet => RegExp(r'^tsp1[0-9a-zA-Z]{113}').pattern;
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
   static String? getAddressFromStringPattern(CryptoCurrency type) {
@@ -299,7 +301,7 @@ class AddressValidator extends TextValidator {
             '|([0-9a-zA-Z]{106})';
       case CryptoCurrency.btc:
         pattern =
-            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
+            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${silentPaymentAddressPatternMainnet}';
       case CryptoCurrency.ltc:
         pattern = '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
