@@ -544,7 +544,6 @@ abstract class ElectrumWalletBase
     }
 
     node!.isElectrs = false;
-    node!.save();
     return node!.isElectrs!;
   }
 
