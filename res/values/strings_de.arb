@@ -251,7 +251,7 @@
   "deuro_savings": "dEuro-Savings",
   "deuro_savings_add": "Einzahlen",
   "deuro_savings_approve_app": "App genehmigen",
-  "deuro_savings_approve_app_description": "Erlauben Sie dem Deuro Smart Contract, Ihre Deuro -Token für Einsparungen zu verwalten, aber nicht die Möglichkeit, Ihren Deuro zu senden oder zu nehmen.",
+  "deuro_savings_approve_app_description": "Erlauben Sie dem dEURO Smart Contract, Ihre dEURO-Token zu verwalten.",
   "deuro_savings_available_to_add": "Verfügbar zum Hinzufügen",
   "deuro_savings_available_to_remove": "Verfügbar zum Entfernen",
   "deuro_savings_balance": "Sparguthaben",
