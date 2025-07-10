@@ -1,4 +1,3 @@
-import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
@@ -23,30 +22,27 @@ class EditNewContactPage extends SheetPage {
     required this.selectedParsedAddress,
     required this.contactViewModel,
   })  : _formKey = GlobalKey<FormState>(),
-        _contactNameController =
-        TextEditingController(text: contactViewModel.record?.name ?? ''),
+        _contactNameController = TextEditingController(),
         _labelController = TextEditingController(),
         _addressController = TextEditingController() {
-    if (selectedParsedAddress.parsedAddressByCurrencyMap.isNotEmpty) {
-      final cur = selectedParsedAddress.parsedAddressByCurrencyMap.keys.first;
-      contactViewModel.currency = cur;
-      _labelController.text = cur.title;
+    _contactNameController.text = _isExisting
+        ? contactViewModel.record!.profileName
+        : selectedParsedAddress.profileName.isEmpty
+            ? selectedParsedAddress.handle
+            : selectedParsedAddress.profileName;
+
+    contactViewModel.newAddingCurrency =
+        _isManualFlow ? selectedParsedAddress.manualAddressByCurrencyMap?.keys.firstOrNull : null;
+
+    if (_isManualFlow && contactViewModel.newAddingCurrency != null) {
       _addressController.text =
-      selectedParsedAddress.parsedAddressByCurrencyMap[cur]!;
-      _currencyPicked = true;
-    } else if (selectedParsedAddress.manualAddressByCurrencyMap?.isNotEmpty ==
-        true) {
-      final entry =
-          selectedParsedAddress.manualAddressByCurrencyMap!.entries.first;
-      contactViewModel.currency = entry.key;
-      _labelController.text = entry.key.title;
-      _addressController.text = entry.value;
-      _currencyPicked = true;
-    } else if (selectedParsedAddress.addressSource == AddressSource.notParsed) {
-      _labelController.text = '';
-      _addressController.text = selectedParsedAddress.handle;
-      _currencyPicked = false;
+          selectedParsedAddress.manualAddressByCurrencyMap?[contactViewModel.newAddingCurrency!] ??
+              '';
+    } else if (_isPlainFlow) {
+      _addressController.text = selectedParsedAddress.description;
     }
+
+    _currencyPicked = contactViewModel.newAddingCurrency != null;
   }
 
   final ParsedAddress selectedParsedAddress;
@@ -60,16 +56,21 @@ class EditNewContactPage extends SheetPage {
   bool _currencyPicked = false;
 
   bool get _isExisting => contactViewModel.record != null;
+
   bool get _isHandleFlow =>
       selectedParsedAddress.addressSource != AddressSource.contact &&
-          selectedParsedAddress.addressSource != AddressSource.notParsed;
-  bool get _isPlainFlow =>
-      selectedParsedAddress.addressSource == AddressSource.notParsed;
-  bool get _isManualFlow =>
-      selectedParsedAddress.addressSource == AddressSource.contact;
+      selectedParsedAddress.addressSource != AddressSource.notParsed;
+
+  bool get _isPlainFlow => selectedParsedAddress.addressSource == AddressSource.notParsed;
+
+  bool get _isManualFlow => selectedParsedAddress.addressSource == AddressSource.contact;
 
   @override
-  String? get title => _isExisting ? 'New address' : 'New contact';
+  String? get title => _isExisting
+      ? _isHandleFlow
+          ? 'New contact info from handle'
+          : 'New manual address'
+      : 'New contact';
 
   @override
   bool get resizeToAvoidBottomInset => true;
@@ -77,18 +78,20 @@ class EditNewContactPage extends SheetPage {
   @override
   Widget body(BuildContext context) {
     final theme = Theme.of(context);
-    final showAddrFields = !_isExisting;
+    final showAddrFields = !_isHandleFlow;
     return SizedBox(
-      height: MediaQuery.of(context).size.height * .60,
+      height: showAddrFields
+          ? MediaQuery.of(context).size.height * .45
+          : MediaQuery.of(context).size.height * .35,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
             Text(
-              _isHandleFlow
-                  ? 'Contact info auto-detected from ${selectedParsedAddress.addressSource.label}'
-                  : _isPlainFlow
-                  ? 'Review & save address'
+              _isExisting
+                  ? _isHandleFlow
+                      ? 'auto-detected from ${selectedParsedAddress.addressSource.label}'
+                      : 'Review & save manual address'
                   : 'Choose a contact name and icon',
               style: theme.textTheme.bodyLarge,
             ),
@@ -105,19 +108,15 @@ class EditNewContactPage extends SheetPage {
                     decoration: InputDecoration(
                       isDense: true,
                       isCollapsed: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       labelText: 'Address group name',
                       fillColor: theme.colorScheme.surfaceContainer,
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none),
+                          borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
                       enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none),
+                          borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
                     ),
-                    validator: (v) =>
-                    v!.trim().isEmpty ? 'Name cannot be empty' : null,
+                    validator: (v) => v!.trim().isEmpty ? 'Name cannot be empty' : null,
                   ),
                 ),
               ],
@@ -129,25 +128,20 @@ class EditNewContactPage extends SheetPage {
                 child: Column(
                   children: [
                     Observer(builder: (_) {
-                      final cc = contactViewModel.currency;
+                      final currency = contactViewModel.newAddingCurrency;
                       return ListTile(
                         dense: true,
-                        visualDensity: const VisualDensity(
-                            horizontal: 0, vertical: -3),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 12),
+                        visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                         tileColor: theme.colorScheme.surfaceContainer,
                         leading: _currencyPicked
                             ? ImageUtil.getImageFromPath(
-                            imagePath: cc.iconPath ?? '',
-                            height: 24,
-                            width: 24)
-                            : const SizedBox(width: 24),
+                                imagePath: currency?.iconPath ?? '', height: 24, width: 24)
+                            : null,
                         title: Text(
                           _currencyPicked
-                              ? cc.fullName ?? cc.name
+                              ? currency?.fullName ?? currency?.name ?? 'Choose currency'
                               : 'Choose currency',
                           style: theme.textTheme.bodyMedium,
                         ),
@@ -161,13 +155,9 @@ class EditNewContactPage extends SheetPage {
                       controller: _labelController,
                       labelText: 'Address label',
                       fillColor: theme.colorScheme.surfaceContainer,
-                      readOnly: _isExisting,
                       addressValidator: _isExisting
                           ? null
-                          : (v) =>
-                      v == null || v.trim().isEmpty
-                          ? 'Label required'
-                          : null,
+                          : (v) => v == null || v.trim().isEmpty ? 'Label required' : null,
                       suffixIcon: _pasteButton(() async {
                         _labelController.text = await _clipboardText;
                       }),
@@ -177,7 +167,6 @@ class EditNewContactPage extends SheetPage {
                       controller: _addressController,
                       labelText: S.of(context).address,
                       fillColor: theme.colorScheme.surfaceContainer,
-                      readOnly: _isExisting,
                       addressValidator: null,
                       suffixIcon: _pasteButton(() async {
                         _addressController.text = await _clipboardText;
@@ -196,139 +185,145 @@ class EditNewContactPage extends SheetPage {
   }
 
   Widget _iconBox(ThemeData theme) => ConstrainedBox(
-    constraints: const BoxConstraints(
-        minWidth: 44, maxWidth: 44, minHeight: 44, maxHeight: 44),
-    child: Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 4, 8, 1),
-        child: Column(
-          children: [
-            ImageUtil.getImageFromPath(
-              imagePath: selectedParsedAddress.profileImageUrl,
-              height: 24,
-              width: 24,
-              borderRadius: 30,
+        constraints: const BoxConstraints(minWidth: 44, maxWidth: 44, minHeight: 44, maxHeight: 44),
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 1),
+            child: Column(
+              children: [
+                ImageUtil.getImageFromPath(
+                  imagePath: selectedParsedAddress.profileImageUrl,
+                  height: 24,
+                  width: 24,
+                  borderRadius: 30,
+                ),
+                const SizedBox(height: 1),
+                Text('Icon',
+                    style:
+                        theme.textTheme.labelSmall?.copyWith(fontSize: 8, color: theme.hintColor))
+              ],
             ),
-            const SizedBox(height: 1),
-            Text('Icon',
-                style: theme.textTheme.labelSmall
-                    ?.copyWith(fontSize: 8, color: theme.hintColor))
-          ],
+          ),
         ),
-      ),
-    ),
-  );
+      );
 
   Widget _pasteButton(Future<void> Function() setText) => RoundedIconButton(
-    icon: Icons.paste_outlined,
-    onPressed: setText,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-  );
+        icon: Icons.paste_outlined,
+        onPressed: setText,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      );
 
   Widget _nextButton(BuildContext context) => LoadingPrimaryButton(
-    text: 'Next',
-    width: 150,
-    height: 40,
-    onPressed: () async {
-      if (!_isHandleFlow &&
-          !(_formKey.currentState?.validate() ?? false)) return;
-      if (!_isHandleFlow && !_currencyPicked) return;
+        text: 'Next',
+        width: 150,
+        height: 40,
+        onPressed: () async {
+          if (!_isHandleFlow && !(_formKey.currentState?.validate() ?? false)) return;
+          if (!_isHandleFlow && !_currencyPicked) return;
 
-      if (_isExisting) {
-        final record = contactViewModel.record!;
+          if (_isExisting) {
+            final record = contactViewModel.record!;
 
-        if (_isManualFlow || _isPlainFlow) {
-          record.setManualAddress(
-            contactViewModel.currency,
-            _labelController.text.trim(),
-            _addressController.text.trim(),
+            if (_isManualFlow || _isPlainFlow) {
+              final cur = contactViewModel.newAddingCurrency;
+
+              if (cur == null) {
+                return;
+              }
+
+              final label = _labelController.text.trim();
+              final newAddr = _addressController.text.trim();
+              final exists = record.manual[cur]?.containsKey(label) ?? false;
+
+              if (exists) {
+                await contactViewModel.saveManualAddress(
+                  oldCurrency: cur,
+                  selectedCurrency: cur,
+                  oldLabel: label,
+                  newLabel: label,
+                  newAddress: newAddr,
+                );
+              } else {
+                record.setManualAddress(cur, label, newAddr);
+              }
+            } else {
+              final key = '${selectedParsedAddress.addressSource.label}'
+                      '-${selectedParsedAddress.handle}'
+                  .trim();
+              for (final e in selectedParsedAddress.parsedAddressByCurrencyMap.entries) {
+                record.setParsedAddress(key, e.key, e.key.title, e.value.trim());
+              }
+            }
+
+            record.original
+              ..lastChange = DateTime.now()
+              ..save();
+
+            if (!context.mounted) return;
+            Navigator.of(context).pop();
+            Navigator.pushReplacementNamed(
+              context,
+              Routes.contactPage,
+              arguments: record,
+            );
+            return;
+          }
+
+          final localImg = await ImageUtil.saveAvatarLocally(selectedParsedAddress.profileImageUrl);
+
+          ParsedAddress payload;
+          if (_isHandleFlow) {
+            payload = selectedParsedAddress.copyWith(
+              profileName: _contactNameController.text.trim(),
+            );
+          } else {
+            final selectedCurrency = contactViewModel.newAddingCurrency;
+            if (selectedCurrency == null) return;
+            payload = ParsedAddress(
+              parsedAddressByCurrencyMap: const {},
+              manualAddressByCurrencyMap: {
+                selectedCurrency: _addressController.text.trim(),
+              },
+              addressSource: AddressSource.contact,
+              handle: '',
+              profileName: _contactNameController.text.trim(),
+              profileImageUrl: selectedParsedAddress.profileImageUrl,
+              description: '',
+            );
+          }
+
+          final newContact = Contact.fromParsed(payload, localImage: localImg);
+          contactViewModel.box.add(newContact);
+          final record = ContactRecord(contactViewModel.box, newContact);
+          if (!context.mounted) return;
+          Navigator.pushReplacementNamed(
+            context,
+            Routes.contactPage,
+            arguments: record,
           );
-        } else {
-          final key =
-          '${selectedParsedAddress.addressSource.label}-${selectedParsedAddress.handle}'
-              .trim();
-          record.setParsedAddress(
-            key,
-            contactViewModel.currency,
-            _labelController.text.trim(),
-            _addressController.text.trim(),
-          );
-        }
-
-        record.original
-          ..lastChange = DateTime.now()
-          ..save();
-
-        if (!context.mounted) return;
-
-        Navigator.of(context).pop();
-        Navigator.pushReplacementNamed(
-          context,
-          Routes.contactPage,
-          arguments: record,
-        );
-        return;
-      }
-
-      final localImg = await ImageUtil.saveAvatarLocally(
-          selectedParsedAddress.profileImageUrl);
-
-      ParsedAddress payload;
-
-      if (_isHandleFlow) {
-        payload = selectedParsedAddress.copyWith(
-          profileName: _contactNameController.text.trim(),
-        );
-      } else {
-        payload = ParsedAddress(
-          parsedAddressByCurrencyMap: const {},
-          manualAddressByCurrencyMap: {
-            contactViewModel.currency: _addressController.text.trim(),
-          },
-          addressSource: AddressSource.contact,
-          handle: '',
-          profileName: _contactNameController.text.trim(),
-          profileImageUrl: selectedParsedAddress.profileImageUrl,
-          description: '',
-        );
-      }
-
-      final newContact =
-      Contact.fromParsed(payload, localImage: localImg);
-      contactViewModel.box.add(newContact);
-      final record = ContactRecord(contactViewModel.box, newContact);
-
-      if (!context.mounted) return;
-      Navigator.pushReplacementNamed(
-        context,
-        Routes.contactPage,
-        arguments: record,
+        },
+        color: Theme.of(context).colorScheme.primary,
+        textColor: Theme.of(context).colorScheme.onPrimary,
+        isLoading: false,
+        isDisabled: false,
       );
-    },
-    color: Theme.of(context).colorScheme.primary,
-    textColor: Theme.of(context).colorScheme.onPrimary,
-    isLoading: false,
-    isDisabled: false,
-  );
 
   void _presentCurrencyPicker(BuildContext context) {
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-        selectedAtIndex: _currencyPicked
-            ? contactViewModel.currencies
-            .indexOf(contactViewModel.currency)
+        selectedAtIndex: _currencyPicked && contactViewModel.newAddingCurrency != null
+            ? contactViewModel.currencies.indexOf(contactViewModel.newAddingCurrency!)
             : 0,
         items: contactViewModel.currencies,
         title: S.of(context).please_select,
         hintText: S.of(context).search_currency,
         onItemSelected: (Currency item) {
-          contactViewModel.currency = item as CryptoCurrency;
-          _labelController.text = contactViewModel.currency.title;
+          contactViewModel.newAddingCurrency = item as CryptoCurrency;
           _currencyPicked = true;
         },
       ),

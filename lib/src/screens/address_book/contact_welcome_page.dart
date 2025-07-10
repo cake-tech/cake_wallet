@@ -390,10 +390,10 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
         parsedAddressByCurrencyMap: {},
         manualAddressByCurrencyMap: {},
         addressSource: AddressSource.notParsed,
-        handle: _plainSelected!.text,
+        handle: '',
         profileName: '',
         profileImageUrl: '',
-        description: '',
+        description: _plainSelected!.text,
       );
       Navigator.pushNamed(
         context,

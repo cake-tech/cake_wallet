@@ -81,6 +81,10 @@ abstract class _ContactViewModel with Store {
 
   @observable
   CryptoCurrency currency;
+
+  @observable
+  CryptoCurrency? newAddingCurrency;
+
   @observable
   String label, address, handleKey;
 

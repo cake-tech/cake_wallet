@@ -144,11 +144,13 @@ class Contact extends HiveObject with Keyable {
     });
   }
 
-  factory Contact.fromParsed(ParsedAddress p, {String? localImage}) {
+  factory Contact.fromParsed(ParsedAddress p,
+      {String? localImage, Map<CryptoCurrency, String>? customLabels}) {
     final manual = <int, Map<String, String>>{};
-    p.manualAddressByCurrencyMap?.forEach(
-      (cur, addr) => manual[cur.raw] = {cur.title: addr},
-    );
+    p.manualAddressByCurrencyMap?.forEach((cur, addr) {
+      final lbl = customLabels?[cur] ?? cur.title;
+      manual[cur.raw] = {lbl: addr};
+    });
 
     final parsed = <String, Map<int, Map<String, String>>>{};
     if (p.parsedAddressByCurrencyMap.isNotEmpty) {
