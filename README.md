@@ -1,6 +1,6 @@
 <div align="center">
 
-![logo](.github/assets/Logo_CakeWallet.png)
+![logo](.github/assets/cake-wallet-gh-header-2.svg)
 
 </div>
 
