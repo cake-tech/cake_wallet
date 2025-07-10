@@ -139,6 +139,7 @@ class DEuroSavingsPage extends BasePage {
 
   void _setReactions(BuildContext context, DEuroViewModel dEuroViewModel) {
     if (_isReactionsSet) return;
+    if (_dEuroViewModel.isFistTime) _showWelcomeTooltip(context);
 
     reaction((_) => dEuroViewModel.transaction, (PendingTransaction? tx) async {
       if (tx == null) return;
@@ -315,7 +316,7 @@ class DEuroSavingsPage extends BasePage {
   Future<void> _showWelcomeTooltip(BuildContext context) async {
     if (!context.mounted) return;
 
-    return showModalBottomSheet<void>(
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
@@ -333,9 +334,11 @@ class DEuroSavingsPage extends BasePage {
         leftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
         actionLeftButton: () => Navigator.of(bottomSheetContext).pop(), // ToDo
-        showDisclaimerText: true,
+        showDisclaimerText: _dEuroViewModel.isFistTime,
       ),
     );
+
+    if (_dEuroViewModel.isFistTime) _dEuroViewModel.acceptDisclaimer();
   }
 
   Future<void> _showNoEthTooltip(BuildContext context) async {

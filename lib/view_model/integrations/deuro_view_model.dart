@@ -39,6 +39,12 @@ abstract class DEuroViewModelBase with Store {
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;
 
   @computed
+  bool get isFistTime => _settingsStore.shouldShowDEuroDisclaimer;
+
+  @action
+  void acceptDisclaimer() => _settingsStore.shouldShowDEuroDisclaimer = false;
+
+  @computed
   String get pendingTransactionFiatAmountFormatted =>
       isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
 
