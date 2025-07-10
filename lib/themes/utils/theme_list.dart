@@ -1,15 +1,18 @@
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/theme_classes/dark_theme.dart';
 import 'package:cake_wallet/themes/theme_classes/light_theme.dart';
+import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
 
 class ThemeList {
   static final all = [
     darkTheme,
     lightTheme,
+    blackTheme,
   ];
 
   static final lightTheme = LightTheme();
   static final darkTheme = DarkTheme();
+  static final blackTheme = BlackTheme();
 
   static MaterialThemeBase deserialize({required int raw}) {
     switch (raw) {
@@ -27,7 +30,7 @@ class ThemeList {
       case 8:
       case 9:
       default:
-        return darkTheme;
+        return blackTheme;
     }
   }
 }
