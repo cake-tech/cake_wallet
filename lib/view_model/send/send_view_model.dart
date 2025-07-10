@@ -183,7 +183,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
-            cryptoAmount: pendingTransaction!.feeFormatted);
+            cryptoAmount: pendingTransaction!.feeFormatted.substring(0, pendingTransaction!.feeFormatted.indexOf(" ")),
+          );
         return fiat;
       } else {
         return '0.00';
@@ -846,7 +847,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (error.errorMessage != null && error.errorMessage!.contains("no peers replied")) {
         return S.current.tx_commit_failed_no_peers;
       }
-      return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
+      return "${S.current.tx_commit_failed}\nsupport@cakewallet.com${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
     }
     if (error is TransactionCommitFailedDustChange) {
       return S.current.tx_rejected_dust_change;

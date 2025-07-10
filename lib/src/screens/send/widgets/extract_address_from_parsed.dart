@@ -8,6 +8,8 @@ import 'choose_yat_address_alert.dart';
 Future<String> extractAddressFromParsed(
     BuildContext context,
     ParsedAddress parsedAddress) async {
+  if (!context.mounted) return parsedAddress.addresses.first;
+
   var title = '';
   var content = '';
   var address = '';
@@ -95,16 +97,17 @@ Future<String> extractAddressFromParsed(
       content += S.of(context).choose_address;
 
       address = await showPopUp<String?>(
-          context: context,
-          builder: (BuildContext context) {
-
-            return WillPopScope(
+            context: context,
+            builder: (context) => PopScope(
               child: ChooseYatAddressAlert(
                 alertTitle: title,
                 alertContent: content,
-                addresses: parsedAddress.addresses),
-              onWillPop: () async => false);
-          }) ?? '';
+                addresses: parsedAddress.addresses,
+              ),
+              canPop: false,
+            ),
+          ) ??
+          '';
 
       if (address.isEmpty) {
         return parsedAddress.name;
@@ -113,22 +116,20 @@ Future<String> extractAddressFromParsed(
       return address;
     case ParseFrom.contact:
     case ParseFrom.notParsed:
-      address = parsedAddress.addresses.first;
-      return address;
+      return parsedAddress.addresses.first;
   }
 
   await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-
-        return AlertWithOneAction(
-            alertTitle: title,
-            headerTitleText: profileName.isEmpty ? null : profileName,
-            headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
-            alertContent: content,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop());
-      });
+    context: context,
+    builder: (context) => AlertWithOneAction(
+      alertTitle: title,
+      headerTitleText: profileName.isEmpty ? null : profileName,
+      headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
+      alertContent: content,
+      buttonText: S.of(context).ok,
+      buttonAction: () => Navigator.of(context).pop(),
+    ),
+  );
 
   return address;
 }

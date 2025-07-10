@@ -57,21 +57,35 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
+  bool _isPayjoinConnectivityError(String error) =>
+      ["error sending request for url", "Instance of 'FfiIoError'"].any((e) => error.contains(e));
+
   @action
   Future<void> initPayjoin() async {
-    await payjoinManager.initPayjoin();
-    currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
-    payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+    try {
+      await payjoinManager.initPayjoin();
+      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
+      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
 
-    payjoinManager.resumeSessions();
+      payjoinManager.resumeSessions();
+    } catch (e) {
+      printV(e);
+      // Ignore Connectivity errors
+      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
+    }
   }
 
   @action
   Future<void> newPayjoinReceiver() async {
-    currentPayjoinReceiver = await payjoinManager.initReceiver(primaryAddress);
-    payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+    try {
+      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
+      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
 
-    printV("Initializing new Payjoin Receiver");
-    payjoinManager.spawnNewReceiver(receiver: currentPayjoinReceiver!);
+      payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);
+    } catch (e) {
+      printV(e);
+      // Ignore Connectivity errors
+      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
+    }
   }
 }

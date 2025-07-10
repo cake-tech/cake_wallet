@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/solana_rpc_http_service.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
@@ -11,7 +13,6 @@ import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/spl_token.dart';
-import 'package:http/http.dart' as http;
 import 'package:on_chain/solana/solana.dart';
 import 'package:on_chain/solana/src/instructions/associated_token_account/constant.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';
@@ -20,10 +21,10 @@ import 'package:on_chain/solana/src/rpc/models/models/confirmed_transaction_meta
 import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {
-  final httpClient = http.Client();
-  SolanaRPC? _provider;
   // Minimum amount in SOL to consider a transaction valid (to filter spam)
   static const double minValidAmount = 0.00000003;
+  final httpClient = ProxyWrapper().getHttpClient();
+  SolanaRPC? _provider;
 
   bool connect(Node node) {
     try {
@@ -86,7 +87,8 @@ class SolanaWalletClient {
     }
   }
 
-  Future<SolanaBalance?> getSplTokenBalance(String mintAddress, String walletAddress) async {
+  Future<SolanaBalance?> getSplTokenBalance(
+      String mintAddress, String walletAddress) async {
     // Fetch the token accounts (a token can have multiple accounts for various uses)
     final tokenAccounts = await getSPLTokenAccounts(mintAddress, walletAddress);
 
@@ -122,14 +124,16 @@ class SolanaWalletClient {
         ),
       );
 
-      final fee = (feeForMessage?.toDouble() ?? 0.0) / SolanaUtils.lamportsPerSol;
+      final fee =
+          (feeForMessage?.toDouble() ?? 0.0) / SolanaUtils.lamportsPerSol;
       return fee;
     } catch (_) {
       return 0.0;
     }
   }
 
-  Future<double> getEstimatedFee(SolanaPublicKey publicKey, Commitment commitment) async {
+  Future<double> getEstimatedFee(
+      SolanaPublicKey publicKey, Commitment commitment) async {
     final message = await _getMessageForNativeTransaction(
       publicKey: publicKey,
       destinationAddress: publicKey.toAddress().address,
@@ -429,17 +433,20 @@ class SolanaWalletClient {
           }
         }));
 
-        final versionedBatchResponses = batchResponses.whereType<VersionedTransactionResponse>();
+        final versionedBatchResponses =
+            batchResponses.whereType<VersionedTransactionResponse>();
 
-        final parsedTransactionsFutures = versionedBatchResponses.map((tx) => parseTransaction(
-              txResponse: tx,
-              splTokenSymbol: splTokenSymbol,
-              walletAddress: walletAddress?.address ?? address.address,
-            ));
+        final parsedTransactionsFutures =
+            versionedBatchResponses.map((tx) => parseTransaction(
+                  txResponse: tx,
+                  splTokenSymbol: splTokenSymbol,
+                  walletAddress: walletAddress?.address ?? address.address,
+                ));
 
         final parsedTransactions = await Future.wait(parsedTransactionsFutures);
 
-        transactions.addAll(parsedTransactions.whereType<SolanaTransactionModel>().toList());
+        transactions.addAll(
+            parsedTransactions.whereType<SolanaTransactionModel>().toList());
 
         // Only update UI if we have new valid transactions
         if (parsedTransactions.isNotEmpty) {
@@ -508,8 +515,8 @@ class SolanaWalletClient {
   }
 
   Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
-    final programAddress =
-        MetaplexTokenMetaDataProgramUtils.findMetadataPda(mint: SolAddress(mintAddress));
+    final programAddress = MetaplexTokenMetaDataProgramUtils.findMetadataPda(
+        mint: SolAddress(mintAddress));
 
     final token = await _provider!.request(
       SolanaRPCGetMetadataAccount(
@@ -530,8 +537,9 @@ class SolanaWalletClient {
     //   iconPath = await _client.getIconImageFromTokenUri(metadata.uri);
     // } catch (_) {}
 
-    String filteredTokenSymbol =
-        metadata.symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
+    String filteredTokenSymbol = metadata.symbol
+        .replaceFirst(RegExp('^\\\$'), '')
+        .replaceAll('\u0000', '');
 
     return SPLToken.fromMetadata(
       name: metadata.name,
@@ -647,7 +655,8 @@ class SolanaWalletClient {
     return message;
   }
 
-  Future<double> _getFeeFromCompiledMessage(Message message, Commitment commitment) async {
+  Future<double> _getFeeFromCompiledMessage(
+      Message message, Commitment commitment) async {
     final base64Message = base64Encode(message.serialize());
 
     final fee = await getFeeForMessage(base64Message, commitment);
@@ -786,7 +795,8 @@ class SolanaWalletClient {
     required SolAddress mintAddress,
     required bool shouldCreateATA,
   }) async {
-    final associatedTokenAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+    final associatedTokenAccount =
+        AssociatedTokenAccountProgramUtils.associatedTokenAccount(
       mint: mintAddress,
       owner: ownerAddress,
     );
@@ -857,7 +867,8 @@ class SolanaWalletClient {
     final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
     ProgramDerivedAddress? associatedSenderAccount;
     try {
-      associatedSenderAccount = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+      associatedSenderAccount =
+          AssociatedTokenAccountProgramUtils.associatedTokenAccount(
         mint: mintAddress,
         owner: ownerPrivateKey.publicKey().toAddress(),
       );
@@ -992,7 +1003,8 @@ class SolanaWalletClient {
     if (uri.isEmpty || uri == '…') return null;
 
     try {
-      final response = await httpClient.get(Uri.parse(uri));
+      final client = ProxyWrapper().getHttpIOClient();
+      final response = await client.get(Uri.parse(uri));
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 

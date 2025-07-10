@@ -18,6 +18,7 @@ import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
 import 'package:payjoin_flutter/send.dart';
 import 'package:payjoin_flutter/src/config.dart' as pj_config;
+import 'package:payjoin_flutter/src/generated/api.dart' as pj_api;
 import 'package:payjoin_flutter/uri.dart' as PayjoinUri;
 
 class PayjoinManager {
@@ -44,17 +45,21 @@ class PayjoinManager {
     final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
 
     final spawnedSessions = allSessions.map((session) {
-      if (session.isSenderSession) {
-        printV("Resuming Payjoin Sender Session ${session.pjUri!}");
-        return _spawnSender(
-          sender: Sender.fromJson(json: session.sender!),
-          pjUri: session.pjUri!,
-        );
+      try {
+        if (session.isSenderSession) {
+          printV("Resuming Payjoin Sender Session ${session.pjUri!}");
+          return _spawnSender(
+            sender: Sender.fromJson(json: session.sender!),
+            pjUri: session.pjUri!,
+          );
+        }
+        final receiver = Receiver.fromJson(json: session.receiver!);
+        printV("Resuming Payjoin Receiver Session ${receiver.id()}");
+        return spawnReceiver(receiver: receiver);
+      } on pj_api.FfiSerdeJsonError catch (_) {
+        _payjoinStorage.markSenderSessionUnrecoverable(session.pjUri!, "Outdated Session");
       }
-      final receiver = Receiver.fromJson(json: session.receiver!);
-      printV("Resuming Payjoin Receiver Session ${receiver.id()}");
-      return _spawnReceiver(receiver: receiver);
-    });
+    }).nonNulls;
 
     printV("Resumed ${spawnedSessions.length} Payjoin Sessions");
     await Future.wait(spawnedSessions);
@@ -121,15 +126,13 @@ class PayjoinManager {
           }
         } catch (e) {
           _cleanupSession(pjUri);
-          printV(e);
-          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri);
-          completer.completeError(e);
+          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, e.toString());
+          completer.complete();
         }
       } else if (message is PayjoinSessionError) {
         _cleanupSession(pjUri);
         if (message is UnrecoverableError) {
-          printV(message.message);
-          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri);
+          await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, message.message);
           completer.complete();
         } else if (message is RecoverableError) {
           completer.complete();
@@ -149,42 +152,41 @@ class PayjoinManager {
     return completer.future;
   }
 
-  Future<Receiver> initReceiver(String address,
+  Future<Receiver> getUnusedReceiver(String address,
       [bool isTestnet = false]) async {
-    try {
-      final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
-        ohttpRelay: await randomOhttpRelayUrl(),
-        payjoinDirectory: payjoinDirectoryUrl,
-      );
+    final session = _payjoinStorage.getUnusedActiveReceiverSession(_wallet.id);
 
-      final newReceiver = await NewReceiver.create(
-        address: address,
-        network: isTestnet ? Network.testnet : Network.bitcoin,
-        directory: payjoinDirectoryUrl,
-        ohttpKeys: ohttpKeys,
-      );
-      final persister = PayjoinReceiverPersister.impl();
-      final receiverToken = await newReceiver.persist(persister: persister);
-      final receiver =
-          await Receiver.load(persister: persister, token: receiverToken);
+    if (session != null) {
+      await PayjoinUri.Url.fromStr(payjoinDirectoryUrl);
 
-      await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
-
-      return receiver;
-    } catch (e) {
-      throw Exception('Error initializing Payjoin Receiver: $e');
+      return Receiver.fromJson(json: session.receiver!);
     }
+
+    return initReceiver(address);
   }
 
-  Future<void> spawnNewReceiver({
-    required Receiver receiver,
-    bool isTestnet = false,
-  }) async {
+  Future<Receiver> initReceiver(String address, [bool isTestnet = false]) async {
+    final ohttpKeys = await PayjoinUri.fetchOhttpKeys(
+      ohttpRelay: await randomOhttpRelayUrl(),
+      payjoinDirectory: payjoinDirectoryUrl,
+    );
+
+    final newReceiver = await NewReceiver.create(
+      address: address,
+      network: isTestnet ? Network.testnet : Network.bitcoin,
+      directory: payjoinDirectoryUrl,
+      ohttpKeys: ohttpKeys,
+    );
+    final persister = PayjoinReceiverPersister.impl();
+    final receiverToken = await newReceiver.persist(persister: persister);
+    final receiver = await Receiver.load(persister: persister, token: receiverToken);
+
     await _payjoinStorage.insertReceiverSession(receiver, _wallet.id);
-    return _spawnReceiver(isTestnet: isTestnet, receiver: receiver);
+
+    return receiver;
   }
 
-  Future<void> _spawnReceiver({
+  Future<void> spawnReceiver({
     required Receiver receiver,
     bool isTestnet = false,
   }) async {
@@ -229,6 +231,10 @@ class PayjoinManager {
 
             case PayjoinReceiverRequestTypes.getCandidateInputs:
               utxos = _wallet.getUtxoWithPrivateKeys();
+              if (utxos.isEmpty) {
+                await _wallet.updateAllUnspents();
+                utxos = _wallet.getUtxoWithPrivateKeys();
+              }
               mainToIsolateSendPort?.send({
                 'requestId': message['requestId'],
                 'result': utxos,

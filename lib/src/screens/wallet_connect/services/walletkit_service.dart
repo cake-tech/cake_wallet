@@ -78,6 +78,7 @@ abstract class WalletKitServiceBase with Store {
         description: 'Cake Wallet',
         url: 'https://cakewallet.com',
         icons: ['https://cakewallet.com/assets/image/cake_logo.png'],
+        redirect: Redirect(native: 'cakewallet://'),
       ),
     );
 

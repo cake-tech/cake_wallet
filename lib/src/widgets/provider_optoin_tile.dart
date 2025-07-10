@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -265,7 +266,11 @@ class Badge extends StatelessWidget {
 }
 
 Widget getImage(String imagePath, {double? height, double? width, Color? imageColor}) {
-  final bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
+  bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
+  if (CakeTor.instance.enabled && isNetworkImage) {
+    imagePath = "assets/images/tor_logo.svg";
+    isNetworkImage = false;
+  }
   final bool isSvg = imagePath.endsWith('.svg');
   final double imageHeight = height ?? 35;
   final double imageWidth = width ?? 35;
@@ -284,6 +289,15 @@ Widget getImage(String imagePath, {double? height, double? width, Color? imageCo
                 child: CircularProgressIndicator(),
               ),
             ),
+            errorBuilder: (_, __, ___) {
+              return Container(
+                height: imageHeight,
+                width: imageWidth,
+                child: Center(
+                  child: Icon(Icons.error_outline, color: Colors.grey),
+                ),
+              );
+            },
           )
         : Image.network(
             imagePath,
@@ -310,6 +324,9 @@ Widget getImage(String imagePath, {double? height, double? width, Color? imageCo
               return Container(
                 height: imageHeight,
                 width: imageWidth,
+                child: Center(
+                  child: Icon(Icons.error_outline, color: Colors.grey),
+                ),
               );
             },
           );
@@ -320,6 +337,7 @@ Widget getImage(String imagePath, {double? height, double? width, Color? imageCo
             height: imageHeight,
             width: imageWidth,
             colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
+            errorBuilder: (_, __, ___) => Icon(Icons.error, color: Colors.grey),
           )
         : Image.asset(imagePath, height: imageHeight, width: imageWidth);
   }

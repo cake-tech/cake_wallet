@@ -30,6 +30,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
       path: packages/ledger-ethereum
+      ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
 
 dependency_overrides:
   web3dart:

@@ -20,7 +20,7 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
-      : title = S.current.wallet_keys,
+      : title = '${walletTypeToString(_appStore.wallet!.type)} ${S.current.wallet_keys}',
         _wallet = _appStore.wallet!,
         _walletName = _appStore.wallet!.type.name,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
