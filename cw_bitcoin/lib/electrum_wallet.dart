@@ -402,11 +402,15 @@ abstract class ElectrumWalletBase
             } else {
               // else: First time seeing this TX after scanning
               tx.unspents!.forEach(_updateSilentAddressRecord);
+              await save();
 
               // Add new TX record
               transactionHistory.addMany(message);
+              await save();
+
               // Update balance record
               balance[currency]!.confirmed += tx.amount;
+              await save();
             }
 
             await updateAllUnspents();
