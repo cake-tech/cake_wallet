@@ -183,7 +183,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
-            cryptoAmount: pendingTransaction!.feeFormatted.substring(0, pendingTransaction!.feeFormatted.indexOf(" ")),
+            cryptoAmount: pendingTransaction!.feeFormattedValue,
           );
         return fiat;
       } else {

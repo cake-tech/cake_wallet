@@ -74,7 +74,7 @@ abstract class DEuroViewModelBase with Store {
         final currency = CryptoCurrency.eth;
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
-            cryptoAmount: transaction!.feeFormatted.substring(0, transaction!.feeFormatted.indexOf(" ")),
+            cryptoAmount: transaction!.feeFormattedValue,
           );
         return fiat;
       } else {

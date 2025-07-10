@@ -9,6 +9,7 @@ mixin PendingTransaction {
   String get id;
   String get amountFormatted;
   String get feeFormatted;
+  String get feeFormattedValue;
   String? feeRate;
   String get hex;
   int? get outputCount => null;

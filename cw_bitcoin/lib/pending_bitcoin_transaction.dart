@@ -59,7 +59,10 @@ class PendingBitcoinTransaction with PendingTransaction {
   String get amountFormatted => bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => bitcoinAmountToString(amount: fee);
+  String get feeFormatted => "$feeFormattedValue BTC";
+
+  @override
+  String get feeFormattedValue => bitcoinAmountToString(amount: fee);
 
   @override
   int? get outputCount => _tx.outputs.length;
