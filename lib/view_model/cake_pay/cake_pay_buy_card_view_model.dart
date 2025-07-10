@@ -143,8 +143,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
     try {
       order = await cakePayService.createOrder(
         cardId: card.id,
-        cardName: card.name,
-        cardImagePath: card.cardImageUrl,
         price: amount.toString(),
         quantity: quantity,
         confirmsNoVpn: confirmsNoVpn,

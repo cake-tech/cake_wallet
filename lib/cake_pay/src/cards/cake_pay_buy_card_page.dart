@@ -563,8 +563,8 @@ class CakePayBuyCardPage extends BasePage {
                       parsedAddress: ParsedAddress(
                         addresses: [o.address],
                         name: 'Cake Pay',
-                        profileName: order?.cardName ?? 'Cake Pay',
-                        profileImageUrl: order?.cardImagePath ?? '',
+                        profileName: order?.cards.first.cardName ?? 'Cake Pay',
+                        profileImageUrl: order?.cards.first.cardImagePath ?? '',
                       ),
                       fiatAmount: '${order?.amountUsd.toString()} USD',
                     ))
@@ -633,8 +633,8 @@ class CakePayBuyCardPage extends BasePage {
                   parsedAddress: ParsedAddress(
                     addresses: [o.address],
                     name: 'Cake Pay',
-                    profileName: order?.cardName ?? 'Cake Pay',
-                    profileImageUrl: order?.cardImagePath ?? '',
+                    profileName: order?.cards.first.cardName ?? 'Cake Pay',
+                    profileImageUrl: order?.cards.first.cardImagePath ?? '',
                   ),
                   fiatAmount: '${order?.amountUsd ?? 0} USD',
                 ))

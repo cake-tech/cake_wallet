@@ -18,8 +18,6 @@ class CakePayOrder {
   final String status;
   final String? vouchers;
   final PaymentData paymentData;
-  final String? cardName;
-  final String? cardImagePath;
 
   CakePayOrder({
     required this.orderId,
@@ -29,8 +27,6 @@ class CakePayOrder {
     required this.status,
     required this.vouchers,
     required this.paymentData,
-    required this.cardName,
-    required this.cardImagePath,
   });
 
   factory CakePayOrder.fromMap(Map<String, dynamic> map) {
@@ -40,8 +36,6 @@ class CakePayOrder {
             .map((x) => OrderCard.fromMap(x as Map<String, dynamic>))
             .toList(),
         externalId: map['external_id'] as String?,
-        cardName: map['card_name'] as String?,
-        cardImagePath: map['card_image_path'] as String?,
         amountUsd: map['amount_usd'] as double,
         status: map['status'] as String,
         vouchers: map['vouchers'] as String?,
@@ -55,6 +49,8 @@ class OrderCard {
   final String price;
   final int quantity;
   final String currencyCode;
+  final String? cardName;
+  final String? cardImagePath;
 
   OrderCard({
     required this.cardId,
@@ -62,6 +58,8 @@ class OrderCard {
     required this.price,
     required this.quantity,
     required this.currencyCode,
+    required this.cardName,
+    required this.cardImagePath,
   });
 
   factory OrderCard.fromMap(Map<String, dynamic> map) {
@@ -71,6 +69,8 @@ class OrderCard {
       price: map['price'] as String,
       quantity: map['quantity'] as int,
       currencyCode: map['currency_code'] as String,
+      cardName: map['name'] as String?,
+      cardImagePath: map['card_image_url'] as String?,
     );
   }
 }
