@@ -518,6 +518,7 @@ Future<void> setup({
       getIt.get<AppStore>().settingsStore,
       getIt.get<SharedPreferences>(),
       getIt.get<ContactListViewModel>(),
+      getIt.get<UnspentCoinsListViewModel>(),
       getIt.get<FeesViewModel>(),
     ),
   );
