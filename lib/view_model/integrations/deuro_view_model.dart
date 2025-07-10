@@ -40,7 +40,7 @@ abstract class DEuroViewModelBase with Store {
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : '${pendingTransactionFiatAmount} ${fiat.title}';
+      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
@@ -191,6 +191,7 @@ abstract class DEuroViewModelBase with Store {
         state = TransactionCommitting();
         await transaction!.commit();
         transaction = null;
+        actionType = DEuroActionType.none;
         reloadSavingsUserData();
         state = TransactionCommitted();
       } catch (e) {
@@ -218,6 +219,7 @@ abstract class DEuroViewModelBase with Store {
   void dismissTransaction() {
     transaction = null;
     approvalTransaction = null;
+    actionType = DEuroActionType.none;
     state = InitialExecutionState();
   }
 
