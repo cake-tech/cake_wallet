@@ -333,6 +333,7 @@ class DEuroSavingsPage extends BasePage {
         leftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
         actionLeftButton: () => Navigator.of(bottomSheetContext).pop(), // ToDo
+        showDisclaimerText: true,
       ),
     );
   }

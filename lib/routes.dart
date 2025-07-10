@@ -22,6 +22,7 @@ class Routes {
   static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
+  static const readThirdPartyDisclaimer = '/disclaimer/third_party';
   static const changeRep = '/change_representative';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
