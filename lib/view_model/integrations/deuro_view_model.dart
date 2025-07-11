@@ -64,10 +64,9 @@ abstract class DEuroViewModelBase with Store {
       if (transaction != null) {
         final currency = CryptoCurrency.eth;
         return calculateFiatAmount(
-          price: _fiatConversationStore.prices[currency]!,
-          cryptoAmount:
-              transaction!.feeFormatted.substring(0, transaction!.feeFormatted.indexOf(" ")),
-        );
+            price: _fiatConversationStore.prices[currency]!,
+            cryptoAmount: transaction!.feeFormattedValue,
+          );
       } else {
         return '0.00';
       }
