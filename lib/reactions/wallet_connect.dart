@@ -6,8 +6,9 @@ import 'package:cw_core/wallet_type.dart';
 
 bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
-    case WalletType.polygon:
     case WalletType.ethereum:
+    case WalletType.polygon:
+    case WalletType.gnosis:
       return true;
     default:
       return false;
@@ -16,8 +17,9 @@ bool isEVMCompatibleChain(WalletType walletType) {
 
 bool isNFTACtivatedChain(WalletType walletType) {
   switch (walletType) {
-    case WalletType.polygon:
     case WalletType.ethereum:
+    case WalletType.polygon:
+    case WalletType.gnosis:
     case WalletType.solana:
       return true;
     default:
@@ -27,8 +29,9 @@ bool isNFTACtivatedChain(WalletType walletType) {
 
 bool isWalletConnectCompatibleChain(WalletType walletType) {
   switch (walletType) {
-    case WalletType.polygon:
     case WalletType.ethereum:
+    case WalletType.polygon:
+    case WalletType.gnosis:
     case WalletType.solana:
       return true;
     default:

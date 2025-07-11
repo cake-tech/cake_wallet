@@ -124,6 +124,7 @@ abstract class WalletKeysViewModelBase with Store {
         break;
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.gnosis:
       case WalletType.solana:
       case WalletType.tron:
         items.addAll([

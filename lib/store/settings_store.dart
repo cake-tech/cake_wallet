@@ -26,6 +26,7 @@ import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/gnosis/gnosis.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -107,6 +108,7 @@ abstract class SettingsStoreBase with Store {
       required this.pinNativeTokenAtTop,
       required this.useEtherscan,
       required this.usePolygonScan,
+      required this.useGnosisScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
       required this.defaultNanoRep,
@@ -136,6 +138,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
+      TransactionPriority? initialGnosisTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
@@ -218,6 +221,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.polygon] = initialPolygonTransactionPriority;
     }
 
+    if (initialGnosisTransactionPriority != null) {
+      priority[WalletType.gnosis] = initialGnosisTransactionPriority;
+    }
+
     if (initialBitcoinCashTransactionPriority != null) {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
@@ -284,6 +291,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.polygon:
           key = PreferencesKey.polygonTransactionPriority;
+          break;
+        case WalletType.gnosis:
+          key = PreferencesKey.gnosisTransactionPriority;
           break;
         case WalletType.zano:
           key = PreferencesKey.zanoTransactionPriority;
@@ -441,6 +451,11 @@ abstract class SettingsStoreBase with Store {
         (_) => usePolygonScan,
         (bool usePolygonScan) =>
             _sharedPreferences.setBool(PreferencesKey.usePolygonScan, usePolygonScan));
+
+    reaction(
+        (_) => useGnosisScan,
+        (bool useGnosisScan) =>
+            _sharedPreferences.setBool(PreferencesKey.useGnosisScan, useGnosisScan));
 
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
@@ -790,6 +805,9 @@ abstract class SettingsStoreBase with Store {
   bool usePolygonScan;
 
   @observable
+  bool useGnosisScan;
+
+  @observable
   bool useTronGrid;
 
   @observable
@@ -927,6 +945,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? litecoinTransactionPriority;
     TransactionPriority? ethereumTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
+    TransactionPriority? gnosisTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
@@ -947,6 +966,10 @@ abstract class SettingsStoreBase with Store {
     if (sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
       polygonTransactionPriority = polygon?.deserializePolygonTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
+    }
+    if (sharedPreferences.getInt(PreferencesKey.gnosisTransactionPriority) != null) {
+      gnosisTransactionPriority = gnosis?.deserializeGnosisTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.gnosisTransactionPriority)!);
     }
     if (sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
@@ -974,6 +997,7 @@ abstract class SettingsStoreBase with Store {
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
+    gnosisTransactionPriority ??= gnosis?.getDefaultTransactionPriority();
     zanoTransactionPriority ??= zano?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -1018,6 +1042,7 @@ abstract class SettingsStoreBase with Store {
         : defaultSeedPhraseLength;
     final useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     final usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
+    final useGnosisScan = sharedPreferences.getBool(PreferencesKey.useGnosisScan) ?? true;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     final useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
@@ -1062,6 +1087,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
+    final gnosisNodeId = sharedPreferences.getInt(PreferencesKey.currentGnosisNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1081,6 +1107,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == ethereumDefaultNodeUri);
     final polygonNode = nodeSource.get(polygonNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == polygonDefaultNodeUri);
+    final gnosisNode = nodeSource.get(gnosisNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == gnosisDefaultNodeUri);
     final bitcoinCashElectrumServer = nodeSource.get(bitcoinCashElectrumServerId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == cakeWalletBitcoinCashDefaultNodeUri);
     final nanoNode = nodeSource.get(nanoNodeId) ??
@@ -1150,6 +1178,10 @@ abstract class SettingsStoreBase with Store {
 
     if (polygonNode != null) {
       nodes[WalletType.polygon] = polygonNode;
+    }
+
+    if (gnosisNode != null) {
+      nodes[WalletType.gnosis] = gnosisNode;
     }
 
     if (bitcoinCashElectrumServer != null) {
@@ -1325,6 +1357,7 @@ abstract class SettingsStoreBase with Store {
       pinNativeTokenAtTop: pinNativeTokenAtTop,
       useEtherscan: useEtherscan,
       usePolygonScan: usePolygonScan,
+      useGnosisScan: useGnosisScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       defaultNanoRep: defaultNanoRep,
@@ -1370,6 +1403,7 @@ abstract class SettingsStoreBase with Store {
           shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
       initialEthereumTransactionPriority: ethereumTransactionPriority,
       initialPolygonTransactionPriority: polygonTransactionPriority,
+      initialGnosisTransactionPriority: gnosisTransactionPriority,
       initialSyncMode: savedSyncMode,
       initialSyncAll: savedSyncAll,
       shouldShowYatPopup: shouldShowYatPopup,
@@ -1420,6 +1454,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority) != null) {
       priority[WalletType.polygon] = polygon!.deserializePolygonTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.polygonTransactionPriority)!);
+    }
+    if (gnosis != null &&
+        sharedPreferences.getInt(PreferencesKey.gnosisTransactionPriority) != null) {
+      priority[WalletType.gnosis] = gnosis!.deserializeGnosisTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.gnosisTransactionPriority)!);
     }
     if (bitcoinCash != null &&
         sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
@@ -1509,6 +1548,7 @@ abstract class SettingsStoreBase with Store {
     pinNativeTokenAtTop = sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop) ?? true;
     useEtherscan = sharedPreferences.getBool(PreferencesKey.useEtherscan) ?? true;
     usePolygonScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
+    useGnosisScan = sharedPreferences.getBool(PreferencesKey.usePolygonScan) ?? true;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? true;
     useMempoolFeeAPI = sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? true;
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
@@ -1541,6 +1581,7 @@ abstract class SettingsStoreBase with Store {
     final havenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
     final ethereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
     final polygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
+    final gnosisNodeId = sharedPreferences.getInt(PreferencesKey.currentGnosisNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
@@ -1553,6 +1594,7 @@ abstract class SettingsStoreBase with Store {
     final havenNode = nodeSource.get(havenNodeId);
     final ethereumNode = nodeSource.get(ethereumNodeId);
     final polygonNode = nodeSource.get(polygonNodeId);
+    final gnosisNode = nodeSource.get(gnosisNodeId);
     final bitcoinCashNode = nodeSource.get(bitcoinCashElectrumServerId);
     final nanoNode = nodeSource.get(nanoNodeId);
     final solanaNode = nodeSource.get(solanaNodeId);
@@ -1583,6 +1625,10 @@ abstract class SettingsStoreBase with Store {
 
     if (polygonNode != null) {
       nodes[WalletType.polygon] = polygonNode;
+    }
+
+    if (gnosisNode != null) {
+      nodes[WalletType.gnosis] = gnosisNode;
     }
 
     if (bitcoinCashNode != null) {
@@ -1740,6 +1786,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.polygon:
         await _sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+        break;
+      case WalletType.gnosis:
+        await _sharedPreferences.setInt(PreferencesKey.currentGnosisNodeIdKey, node.key as int);
         break;
       case WalletType.solana:
         await _sharedPreferences.setInt(PreferencesKey.currentSolanaNodeIdKey, node.key as int);

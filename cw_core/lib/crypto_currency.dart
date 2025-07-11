@@ -113,6 +113,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.flip,
     CryptoCurrency.deuro,
     CryptoCurrency.usdtbsc,
+    CryptoCurrency.xdai,
+    CryptoCurrency.gno,
   ];
 
   static const havenCurrencies = [
@@ -235,6 +237,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 97, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
   static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png', decimals: 18);
   static const usdtbsc = CryptoCurrency(title: 'USDT', tag: 'BSC', fullName: 'USDT Binance coin', raw: 99, name: 'usdtbsc', iconPath: 'assets/images/usdtbsc_icon.png', decimals: 18);
+  static const xdai = CryptoCurrency(title: 'XDAI', tag: 'XDAI', fullName: 'xDAI', raw: 100, name: 'xDAI', iconPath: 'assets/images/xdai.png', decimals: 18);
+  static const gno = CryptoCurrency(title: 'GNO', tag: 'XDAI', fullName: 'Gnosis', raw: 101, name: 'gnoxdai', iconPath: 'assets/images/gno.png', decimals: 18);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {
