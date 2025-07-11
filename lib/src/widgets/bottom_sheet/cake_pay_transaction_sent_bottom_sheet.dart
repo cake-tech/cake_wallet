@@ -20,6 +20,8 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
     this.titleIconWidget,
     required this.quantity,
     required this.onClose,
+    required this.paymentId,
+    required this.paymentIdValue,
   });
 
   final String titleText;
@@ -34,6 +36,8 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
   final String feeFiatAmount;
   final String quantity;
   final VoidCallback onClose;
+  final String paymentId;
+  final String paymentIdValue;
 
   TextStyle _titleStyle(BuildContext ctx) => Theme.of(ctx).textTheme.bodyLarge!;
 
@@ -112,6 +116,9 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
                 children: [
+                  Text(paymentId + ': ' + paymentIdValue,
+                      style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
+                  const SizedBox(height: 18),
                   Image.asset('assets/images/envelope.png'),
                   const SizedBox(height: 18),
                   Text(
@@ -164,7 +171,7 @@ class _StandardTile extends StatelessWidget {
     required this.titleStyle,
     required this.itemValue,
     required this.itemValueStyle,
-    required this.itemSubTitle,
+    this.itemSubTitle,
     this.itemSubTitleStyle,
     this.imagePath,
   });
@@ -173,7 +180,7 @@ class _StandardTile extends StatelessWidget {
   final TextStyle titleStyle;
   final String itemValue;
   final TextStyle itemValueStyle;
-  final String itemSubTitle;
+  final String? itemSubTitle;
   final TextStyle? itemSubTitleStyle;
   final String? imagePath;
 
@@ -221,7 +228,7 @@ class _StandardTile extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(itemValue, style: itemValueStyle.copyWith(height: 1.0)),
-                Text(itemSubTitle, style: itemSubTitleStyle),
+                if (itemSubTitle != null) Text(itemSubTitle!, style: itemSubTitleStyle),
               ],
             ),
           ],

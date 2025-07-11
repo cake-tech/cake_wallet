@@ -679,6 +679,8 @@ class CakePayBuyCardPage extends BasePage {
                 feeValue: cakePayBuyCardViewModel.sendViewModel.pendingTransaction!.feeFormatted,
                 feeFiatAmount:
                     cakePayBuyCardViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
+                paymentId: 'Order ID',
+                paymentIdValue: order?.orderId ?? '',
                 onClose: () {
                   Navigator.of(sheetCtx).pop();
                 },

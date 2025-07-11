@@ -35,6 +35,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
   })  : _currentTheme = currentTheme,
         super(
             titleText: titleText,
+            maxHeight: 900,
             titleIconPath: titleIconPath,
             currentTheme: currentTheme,
             footerType: footerType,

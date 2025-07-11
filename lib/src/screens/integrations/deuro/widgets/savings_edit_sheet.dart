@@ -14,18 +14,18 @@ class SavingsEditSheet extends BaseBottomSheet {
     super.titleIconPath,
     this.balance,
     this.balanceTitle,
+    required super.footerType, required super.maxHeight,
   });
 
   @override
   Widget contentWidget(BuildContext context) => SizedBox(
-        height: 600,
+        height: 500,
         child: _SavingsEditBody(
           balance: balance,
           balanceTitle: balanceTitle,
         ),
       );
 
-  @override
   Widget footerWidget(BuildContext context) => SizedBox.shrink();
 }
 
