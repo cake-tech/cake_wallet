@@ -127,7 +127,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                 itemBuilder: (context, index) {
                   final bool isBatchSending = outputs.length > 1;
                   final item = outputs[index];
-                  final contactName = item.parsedAddress.name;
+                  final contactName = item.parsedAddress.handle;
                   final batchContactTitle =
                       '${index + 1}/${outputs.length} - ${contactName.isEmpty ? 'Address' : contactName}';
                   final _address = item.isParsedAddress ? item.extractedAddress : item.address;

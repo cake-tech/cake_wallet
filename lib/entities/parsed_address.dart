@@ -1,181 +1,167 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
+import 'package:cw_core/crypto_currency.dart';
 
-enum ParseFrom {
-  unstoppableDomains,
-  openAlias,
-  yatRecord,
-  fio,
-  notParsed,
-  twitter,
-  ens,
-  contact,
-  mastodon,
-  nostr,
-  thorChain,
-  wellKnown,
-  zanoAlias,
-  bip353
+const supportedSources = [
+  AddressSource.twitter,
+  AddressSource.unstoppableDomains,
+  AddressSource.mastodon,
+  AddressSource.bip353,
+  AddressSource.fio,
+  AddressSource.zanoAlias,
+  AddressSource.thorChain,
+];
+
+///Do not use '-' in the label, it is used to separate the label from the alias.
+enum AddressSource {
+  twitter(
+      label: 'X',
+      iconPath: 'assets/images/x_social.png',
+      alias: '@username',
+      supportedCurrencies: [
+        CryptoCurrency.xmr,
+        CryptoCurrency.btc,
+        CryptoCurrency.ltc,
+        CryptoCurrency.eth,
+        CryptoCurrency.bnb,
+        CryptoCurrency.sol,
+        CryptoCurrency.maticpoly
+      ]),
+  unstoppableDomains(
+      label: 'Unstoppable Domains',
+      iconPath: 'assets/images/ud.png',
+      alias: 'domain.tld',
+      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+  openAlias(
+      label: 'OpenAlias',
+      iconPath: 'assets/images/open_alias.png',
+      alias: 'oa',
+      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+  yatRecord(
+      label: 'Yat',
+      iconPath: 'assets/images/yat_mini_logo.png',
+      alias: '🎂🎂🎂',
+      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+  fio(label: 'FIO', iconPath: 'assets/images/fio.png', alias: 'user@domain', supportedCurrencies: [
+    CryptoCurrency.xmr,
+    CryptoCurrency.btc,
+    CryptoCurrency.ltc,
+    CryptoCurrency.eth,
+    CryptoCurrency.bnb,
+    CryptoCurrency.sol,
+    CryptoCurrency.maticpoly,
+  ]),
+  ens(
+      label: 'Ethereum Name Service',
+      iconPath: 'assets/images/ens_icon.png',
+      alias: 'domain.eth',
+      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.eth]),
+  mastodon(
+      label: 'Mastodon',
+      iconPath: 'assets/images/mastodon.svg',
+      alias: 'user@domain.tld',
+      supportedCurrencies: [
+        CryptoCurrency.xmr,
+        CryptoCurrency.btc,
+        CryptoCurrency.ltc,
+        CryptoCurrency.eth,
+        CryptoCurrency.bnb,
+        CryptoCurrency.sol,
+        CryptoCurrency.maticpoly
+      ]),
+  nostr(
+      label: 'Nostr',
+      iconPath: 'assets/images/nostr.png',
+      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+  thorChain(
+      label: 'ThorChain',
+      iconPath: 'assets/images/thorchain.png',
+      supportedCurrencies: CryptoCurrency.all),
+  wellKnown(
+      label: '.wellknown',
+      iconPath: 'assets/icons/wk.svg',
+      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+  zanoAlias(
+      label: 'Zano Alias',
+      iconPath: 'assets/images/zano_icon.png',
+      supportedCurrencies: [CryptoCurrency.zano]),
+  bip353(
+      label: 'BIP353',
+      iconPath: 'assets/images/btc.png',
+      alias: 'user@domain.com',
+      supportedCurrencies: [CryptoCurrency.btc]),
+  contact(label: 'Contact', iconPath: '', supportedCurrencies: []),
+  notParsed(label: 'Unknown', iconPath: '', supportedCurrencies: []);
+
+  const AddressSource({
+    required this.label,
+    required this.iconPath,
+    this.alias = '',
+    this.supportedCurrencies = const <CryptoCurrency>[],
+  });
+
+  final String label;
+  final String iconPath;
+  final String alias;
+  final List<CryptoCurrency> supportedCurrencies;
+}
+
+extension AddressSourceIndex on AddressSource {
+  int get raw => index;
+
+  static AddressSource fromRaw(int raw) =>
+      AddressSource.values[raw.clamp(0, AddressSource.values.length - 1)];
+}
+
+extension AddressSourceNameParser on AddressSource {
+  static AddressSource fromLabel(String? text) {
+    if (text == null || text.trim().isEmpty) {
+      return AddressSource.notParsed;
+    }
+    final needle = text.trim().toLowerCase();
+    return AddressSource.values.firstWhere(
+      (src) => src.label.toLowerCase() == needle,
+      orElse: () => AddressSource.notParsed,
+    );
+  }
 }
 
 class ParsedAddress {
-  ParsedAddress({
-    required this.addresses,
-    this.name = '',
-    this.description = '',
+  const ParsedAddress({
+    required this.parsedAddressByCurrencyMap,
+    this.manualAddressByCurrencyMap,
+    this.addressSource = AddressSource.notParsed,
+    this.handle = '',
     this.profileImageUrl = '',
     this.profileName = '',
-    this.parseFrom = ParseFrom.notParsed,
+    this.description = '',
   });
 
-  factory ParsedAddress.fetchEmojiAddress({
-    List<YatRecord>? addresses,
-    required String name,
-  }) {
-    if (addresses?.isEmpty ?? true) {
-      return ParsedAddress(addresses: [name], parseFrom: ParseFrom.yatRecord);
-    }
-    return ParsedAddress(
-      addresses: addresses!.map((e) => e.address).toList(),
-      name: name,
-      parseFrom: ParseFrom.yatRecord,
-    );
-  }
-
-  factory ParsedAddress.fetchUnstoppableDomainAddress({
-    String? address,
-    required String name,
-  }) {
-    if (address?.isEmpty ?? true) {
-      return ParsedAddress(addresses: [name]);
-    }
-    return ParsedAddress(
-      addresses: [address!],
-      name: name,
-      parseFrom: ParseFrom.unstoppableDomains,
-    );
-  }
-
-  factory ParsedAddress.fetchBip353AddressAddress ({
-    required String address,
-    required String name,
-  }) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.bip353,
-    );
-  }
-
-  factory ParsedAddress.fetchOpenAliasAddress(
-      {required OpenaliasRecord record, required String name}) {
-    if (record.address.isEmpty) {
-      return ParsedAddress(addresses: [name]);
-    }
-    return ParsedAddress(
-      addresses: [record.address],
-      name: record.name,
-      description: record.description,
-      parseFrom: ParseFrom.openAlias,
-    );
-  }
-
-  factory ParsedAddress.fetchFioAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.fio,
-    );
-  }
-
-  factory ParsedAddress.fetchTwitterAddress(
-      {required String address,
-      required String name,
-      required String profileImageUrl,
-      required String profileName,
-      String? description}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      description: description ?? '',
-      profileImageUrl: profileImageUrl,
-      profileName: profileName,
-      parseFrom: ParseFrom.twitter,
-    );
-  }
-
-  factory ParsedAddress.fetchMastodonAddress(
-      {required String address,
-      required String name,
-      required String profileImageUrl,
-      required String profileName}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.mastodon,
-      profileImageUrl: profileImageUrl,
-      profileName: profileName,
-    );
-  }
-
-  factory ParsedAddress.fetchContactAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.contact,
-    );
-  }
-
-  factory ParsedAddress.fetchEnsAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.ens,
-    );
-  }
-
-  factory ParsedAddress.nostrAddress(
-      {required String address,
-      required String name,
-      required String profileImageUrl,
-      required String profileName}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.nostr,
-      profileImageUrl: profileImageUrl,
-      profileName: profileName,
-    );
-  }
-
-  factory ParsedAddress.thorChainAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.thorChain,
-    );
-  }
-
-  factory ParsedAddress.zanoAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.zanoAlias,
-    );
-  }
-
-  factory ParsedAddress.fetchWellKnownAddress({required String address, required String name}) {
-    return ParsedAddress(
-      addresses: [address],
-      name: name,
-      parseFrom: ParseFrom.wellKnown,
-    );
-  }
-
-  final List<String> addresses;
-  final String name;
-  final String description;
+  final Map<CryptoCurrency, String> parsedAddressByCurrencyMap;
+  final Map<CryptoCurrency, String>? manualAddressByCurrencyMap;
+  final AddressSource addressSource;
+  final String handle;
   final String profileImageUrl;
   final String profileName;
-  final ParseFrom parseFrom;
+  final String description;
+
+  ParsedAddress copyWith({
+    Map<CryptoCurrency, String>? parsedAddressByCurrencyMap,
+    Map<CryptoCurrency, String>? manualAddressByCurrencyMap,
+    AddressSource? addressSource,
+    String? handle,
+    String? profileImageUrl,
+    String? profileName,
+    String? description,
+  }) {
+    return ParsedAddress(
+      parsedAddressByCurrencyMap: parsedAddressByCurrencyMap ?? this.parsedAddressByCurrencyMap,
+      manualAddressByCurrencyMap: manualAddressByCurrencyMap ?? this.manualAddressByCurrencyMap,
+      addressSource: addressSource ?? this.addressSource,
+      handle: handle ?? this.handle,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      profileName: profileName ?? this.profileName,
+      description: description ?? this.description,
+    );
+  }
 }

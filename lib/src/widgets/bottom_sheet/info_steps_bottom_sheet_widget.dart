@@ -110,5 +110,7 @@ class InfoStepsBottomSheet extends BaseBottomSheet {
       );
 
   @override
-  Widget footerWidget(BuildContext context) => SizedBox.shrink();
+  Widget footerWidget(BuildContext context) {
+    return const SizedBox.shrink();
+  }
 }

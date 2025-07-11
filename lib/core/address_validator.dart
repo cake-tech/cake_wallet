@@ -314,8 +314,8 @@ class AddressValidator extends TextValidator {
         pattern = 'ban_[0-9a-zA-Z]{60}';
       case CryptoCurrency.bch:
         pattern = '(bitcoincash:)?q[0-9a-zA-Z]{41,42}';
-      case CryptoCurrency.sol:
-        pattern = '[1-9A-HJ-NP-Za-km-z]+';
+   // case CryptoCurrency.sol: // TODO - looks like this is not correct
+       // pattern = '[1-9A-HJ-NP-Za-km-z]+';
       case CryptoCurrency.trx:
         pattern = '(T|t)[1-9A-HJ-NP-Za-km-z]{33}';
       case CryptoCurrency.zano:

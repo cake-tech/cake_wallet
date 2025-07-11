@@ -3,6 +3,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
@@ -294,9 +295,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         .pendingTransactionFeeFiatAmountFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
                     onSlideComplete: () async {
-                      if (bottomSheetContext.mounted) {
-                        Navigator.of(bottomSheetContext).pop();
-                      }
+                    if (bottomSheetContext.mounted) {
+                      Navigator.of(bottomSheetContext).pop();
+                    }
+
                       widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
                     },
                   );
@@ -306,9 +308,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           });
         }
 
+
         if (state is TransactionCommitted) {
           WidgetsBinding.instance.addPostFrameCallback(
-            (_) async {
+                (_) async {
               if (!mounted) return;
 
               await showModalBottomSheet<void>(
@@ -326,7 +329,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       if (mounted) {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                           Routes.dashboard,
-                          (route) => false,
+                              (route) => false,
                         );
                       }
                       RequestReviewHandler.requestReview();
