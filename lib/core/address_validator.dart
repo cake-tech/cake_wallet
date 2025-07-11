@@ -58,7 +58,12 @@ class AddressValidator extends TextValidator {
 
         print(pattern);
       case CryptoCurrency.ltc:
-        pattern = '${P2wpkhAddress.regex.pattern}|${MwebAddress.regex.pattern}';
+        pattern = '(^|\s)(L[a-km-zA-HJ-NP-Z1-9]{25,34})'
+            '|([3M][a-km-zA-HJ-NP-Z1-9]{25,34})'
+            '|(ltc1q[ac-hj-np-z02-9]{25,39})'
+            '|(ltc1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
+            '|(ltc1q[ac-hj-np-z02-9]{40,80})'
+            '|(${MwebAddress.regex.pattern})(\$|\s)';
       case CryptoCurrency.nano:
         pattern = '[0-9a-zA-Z_]+';
       case CryptoCurrency.banano:
