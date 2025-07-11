@@ -22,6 +22,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
   final String fee;
   final String feeValue;
   final String feeFiatAmount;
+  final String? explanation;
   final List<Output> outputs;
   final VoidCallback onSlideComplete;
   final WalletType walletType;
@@ -46,6 +47,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
     required this.onSlideComplete,
     required this.walletType,
     this.change,
+    this.explanation,
     this.isOpenCryptoPay = false,
     Key? key,
   })  : showScrollbar = outputs.length > 3,
@@ -87,9 +89,18 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                 tileBackgroundColor: tileBackgroundColor,
               ),
             ),
+          if (explanation != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: StandardInfoTile(
+                value: explanation!,
+                itemTitleTextStyle: itemTitleTextStyle,
+                tileBackgroundColor: tileBackgroundColor,
+              ),
+            ),
           StandardTile(
             itemTitle: amount,
-            itemValue: amountValue + ' ${currency.title}',
+            itemValue: '$amountValue ${currency.title}',
             itemTitleTextStyle: itemTitleTextStyle,
             itemSubTitle: fiatAmountValue,
             itemSubTitleTextStyle: itemSubTitleTextStyle,
@@ -258,6 +269,34 @@ class StandardTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class StandardInfoTile extends StatelessWidget {
+  const StandardInfoTile({
+    super.key,
+    required this.value,
+    required this.itemTitleTextStyle,
+    required this.tileBackgroundColor,
+  });
+
+  final String value;
+  final TextStyle itemTitleTextStyle;
+  final Color tileBackgroundColor;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        container: true,
+        label: value,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: tileBackgroundColor,
+          ),
+          width: double.infinity,
+          child: Text(value, style: itemTitleTextStyle),
+        ),
+      );
 }
 
 class AddressTile extends StatelessWidget {

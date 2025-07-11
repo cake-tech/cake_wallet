@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 abstract class BaseBottomSheet extends StatelessWidget {
   final String titleText;
   final String? titleIconPath;
+  final double maxHeight;
 
-  const BaseBottomSheet({required this.titleText, this.titleIconPath});
+  const BaseBottomSheet({required this.titleText, this.titleIconPath, this.maxHeight = 900});
 
   Widget headerWidget(BuildContext context) {
     return Column(
@@ -59,7 +60,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: 600),
+      constraints: BoxConstraints(maxHeight: maxHeight),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),

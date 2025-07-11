@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -29,6 +31,7 @@ class InfoBottomSheet extends BaseBottomSheet {
   final String? content;
   final bool isTwoAction;
   final bool showDontAskMeCheckbox;
+  final bool showDisclaimerText;
   final Function(bool)? onCheckboxChanged;
   final String? actionButtonText;
   final VoidCallback? actionButton;
@@ -39,6 +42,8 @@ class InfoBottomSheet extends BaseBottomSheet {
   final VoidCallback? actionRightButton;
   final Key? rightActionButtonKey;
   final Key? leftActionButtonKey;
+  final double height;
+  final double? contentImageSize;
 
   InfoBottomSheet({
     required String titleText,
@@ -46,9 +51,12 @@ class InfoBottomSheet extends BaseBottomSheet {
     required this.currentTheme,
     this.contentImage,
     this.contentImageColor,
+    this.contentImageSize,
     this.content,
     this.isTwoAction = false,
     this.showDontAskMeCheckbox = false,
+    this.showDisclaimerText = false,
+    this.height = 200,
     this.onCheckboxChanged,
     this.actionButtonText,
     this.actionButton,
@@ -59,18 +67,22 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.actionRightButton,
     this.rightActionButtonKey,
     this.leftActionButtonKey,
-  }) : super(titleText: titleText, titleIconPath: titleIconPath);
+    double maxHeight = 900,
+  }) : super(titleText: titleText, titleIconPath: titleIconPath, maxHeight: maxHeight);
 
   @override
   Widget contentWidget(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: height,
       child: Column(
         children: [
           if (contentImage != null)
             Expanded(
               flex: 4,
-              child: getImage(contentImage!, imageColor: contentImageColor),
+              child: SizedBox(
+                width: contentImageSize,
+                child: getImage(contentImage!, imageColor: contentImageColor),
+              ),
             )
           else
             Container(),
@@ -98,9 +110,40 @@ class InfoBottomSheet extends BaseBottomSheet {
                 ],
               ),
             ),
+          if (showDisclaimerText)
+            Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 10),
+                child: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'By continuing you agree to this ',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  TextSpan(
+                    text: 'disclaimer',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => Navigator.pushNamed(context, Routes.readThirdPartyDisclaimer),
+                  ),
+                ],
+              ),
+            ),
+            ),
           if (showDontAskMeCheckbox)
             Padding(
-              padding: const EdgeInsets.only(left: 34.0),
+              padding: const EdgeInsets.only(left: 34),
               child: Row(
                 children: [
                   SimpleCheckbox(onChanged: onCheckboxChanged),
