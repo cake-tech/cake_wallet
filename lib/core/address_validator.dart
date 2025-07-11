@@ -299,8 +299,8 @@ class AddressValidator extends TextValidator {
     }
   }
 
-  static String get silentPaymentAddressPatternMainnet => RegExp(r'^sp1[0-9a-zA-Z]{113}').pattern;
-  static String get silentPaymentAddressPatternTestnet => RegExp(r'^tsp1[0-9a-zA-Z]{113}').pattern;
+  static String get silentPaymentAddressPatternMainnet => 'sp1[0-9a-zA-Z]{113}';
+  static String get silentPaymentAddressPatternTestnet => '(tsp|sprt)1[0-9a-zA-Z]{113}';
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
   // NOTE: not needed to check for network here as it's a general address catcher, validation is separate
