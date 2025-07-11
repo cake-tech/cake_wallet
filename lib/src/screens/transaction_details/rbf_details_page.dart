@@ -191,7 +191,6 @@ class RBFDetailsPage extends BasePage {
                   key: ValueKey('rbf_confirm_sending_bottom_sheet'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
-                  footerType: FooterType.slideActionButton,
                   walletType: transactionDetailsViewModel.sendViewModel.walletType,
                   titleIconPath: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: transactionDetailsViewModel.sendViewModel.selectedCryptoCurrency,
@@ -202,7 +201,7 @@ class RBFDetailsPage extends BasePage {
                   feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: transactionDetailsViewModel.sendViewModel.outputs,
-                  onSlideActionComplete: () async {
+                  onSlideComplete: () async {
                     Navigator.of(bottomSheetContext).pop();
                     await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
                     try {

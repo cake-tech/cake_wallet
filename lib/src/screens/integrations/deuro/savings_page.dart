@@ -183,11 +183,11 @@ class DEuroSavingsPage extends BasePage {
           feeValue: tx.feeFormatted,
           feeFiatAmount: _dEuroViewModel.pendingTransactionFeeFiatAmountFormatted,
           outputs: [],
-          onSlideActionComplete: () async {
+          onSlideComplete: () async {
             Navigator.of(bottomSheetContext).pop(true);
             dEuroViewModel.commitTransaction();
           },
-          change: tx.change, footerType: FooterType.slideActionButton,
+          change: tx.change,
         ),
       );
 
@@ -214,11 +214,11 @@ class DEuroSavingsPage extends BasePage {
           feeValue: tx.feeFormatted,
           feeFiatAmount: "",
           outputs: [],
-          onSlideActionComplete: () {
+          onSlideComplete: () {
             Navigator.of(bottomSheetContext).pop(true);
             dEuroViewModel.commitApprovalTransaction();
           },
-          change: tx.change,footerType: FooterType.slideActionButton,
+          change: tx.change,
           explanation: S.of(context).deuro_savings_approve_app_description,
         ),
       );
@@ -236,7 +236,6 @@ class DEuroSavingsPage extends BasePage {
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
               currentTheme: currentTheme,
-              footerType: FooterType.singleActionButton,
               titleText: S.of(bottomSheetContext).transaction_sent,
               contentImage: 'assets/images/birthday_cake.png',
               content: S.of(bottomSheetContext).deuro_tx_commited_content,

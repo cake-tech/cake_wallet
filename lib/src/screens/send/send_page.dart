@@ -571,7 +571,6 @@ class SendPage extends BasePage {
                   key: ValueKey('send_page_confirm_sending_dialog_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
-                  footerType: FooterType.slideActionButton,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
@@ -584,7 +583,7 @@ class SendPage extends BasePage {
                   feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
-                  onSlideActionComplete: () async {
+                  onSlideComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
@@ -620,12 +619,11 @@ class SendPage extends BasePage {
             builder: (BuildContext bottomSheetContext) {
               return InfoBottomSheet(
                 currentTheme: currentTheme,
-                footerType: FooterType.singleActionButton,
                 titleText: S.of(bottomSheetContext).transaction_sent,
                 contentImage: 'assets/images/birthday_cake.png',
-                singleActionButtonText: S.of(bottomSheetContext).close,
-                singleActionButtonKey: ValueKey('send_page_transaction_sent_button_key'),
-                onSingleActionButtonPressed: () {
+                actionButtonText: S.of(bottomSheetContext).close,
+                actionButtonKey: ValueKey('send_page_transaction_sent_button_key'),
+                actionButton: () {
                   Navigator.of(bottomSheetContext).pop();
                   Future.delayed(Duration.zero, () {
                     if (context.mounted) {
@@ -683,14 +681,13 @@ class SendPage extends BasePage {
                 dialogContext = context;
                 return InfoBottomSheet(
                   currentTheme: currentTheme,
-                  footerType: FooterType.singleActionButton,
                   titleText: S.of(context).proceed_on_device,
                   contentImage:
                   'assets/images/hardware_wallet/ledger_nano_x.png',
                   contentImageColor: Theme.of(context).colorScheme.onSurface,
                   content: S.of(context).proceed_on_device_description,
-                  singleActionButtonText: S.of(context).cancel,
-                  onSingleActionButtonPressed: () {
+                  actionButtonText: S.of(context).cancel,
+                  actionButton: () {
                     sendViewModel.state = InitialExecutionState();
                     Navigator.of(context).pop();
                   },

@@ -320,13 +320,12 @@ class QRWidget extends StatelessWidget {
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
         currentTheme: currentTheme,
-        footerType: FooterType.doubleActionButton,
-        doubleActionLeftButtonText: S.of(context).learn_more,
-        onLeftActionButtonPressed: () => launchUrl(
+        leftButtonText: S.of(context).learn_more,
+        actionLeftButton: () => launchUrl(
             Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
             mode: LaunchMode.externalApplication),
-        doubleActionRightButtonText: S.of(context).ok,
-        onRightActionButtonPressed: () => Navigator.of(context).pop(),
+        rightButtonText: S.of(context).ok,
+        actionRightButton: () => Navigator.of(context).pop(),
       ),
     );
   }

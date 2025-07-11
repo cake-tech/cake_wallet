@@ -390,11 +390,9 @@ class CakePayBuyCardDetailPage extends BasePage {
         return ConfirmSendingBottomSheet(
           key: ValueKey('send_page_confirm_sending_dialog_key'),
           currentTheme: currentTheme,
-          footerType: FooterType.slideActionButton,
           walletType: cakePayPurchaseViewModel.sendViewModel.walletType,
           paymentId: S.of(popupContext).payment_id,
           paymentIdValue: order?.orderId,
-          cakePayBuyCardViewModel: cakePayPurchaseViewModel,
           expirationTime: cakePayPurchaseViewModel.formattedRemainingTime,
           titleText: S.of(popupContext).confirm_transaction,
           titleIconPath: cakePayPurchaseViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
@@ -408,7 +406,7 @@ class CakePayBuyCardDetailPage extends BasePage {
           feeFiatAmount:
               cakePayPurchaseViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
           outputs: cakePayPurchaseViewModel.sendViewModel.outputs,
-          onSlideActionComplete: () async {
+          onSlideComplete: () async {
             Navigator.of(popupContext).pop();
             cakePayPurchaseViewModel.sendViewModel.commitTransaction(context);
           },
