@@ -60,9 +60,9 @@ class CommonTestFlows {
 
   //* ========== Handles flow to start the app afresh and accept disclaimer =============
   Future<void> startAppFlow(Key key) async {
-    await app.main(topLevelKey: ValueKey('send_flow_test_app_key'));
+    await app.main(topLevelKey: key);
 
-    await _tester.pumpAndSettle();
+    await _tester.pump(Duration(seconds: 2));
 
     // // --------- Disclaimer Page ------------
     // // Tap checkbox to accept disclaimer

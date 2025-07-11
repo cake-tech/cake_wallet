@@ -10,5 +10,5 @@ class CommonTestConstants {
   static final CryptoCurrency sendTestReceiveCurrency = CryptoCurrency.sol;
   static final CryptoCurrency exchangeTestReceiveCurrency = CryptoCurrency.usdtSol;
   static final CryptoCurrency exchangeTestDepositCurrency = CryptoCurrency.sol;
-  static final String testWalletAddress = '5v9gTW1yWPffhnbNKuvtL2frevAf4HpBMw8oYnfqUjhm';
+  static final String testWalletAddress = '7TSTXnQZxQDA4JoNqs4DqVqE7oNWk2kmHkMT6DD6vw2S';
 }
