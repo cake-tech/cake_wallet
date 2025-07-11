@@ -42,6 +42,7 @@ import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
+import 'package:cake_wallet/src/screens/disclaimer/third_party_disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
@@ -417,6 +418,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.readDisclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage(isReadOnly: true));
+
+    case Routes.readThirdPartyDisclaimer:
+      return CupertinoPageRoute<void>(builder: (_) => ThirdPartyDisclaimerPage());
 
     case Routes.changeRep:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());

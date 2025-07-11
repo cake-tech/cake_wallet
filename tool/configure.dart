@@ -755,6 +755,7 @@ abstract class Ethereum {
   Future<BigInt> getDEuroSavingsApproved(WalletBase wallet);
   Future<PendingTransaction> addDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority);
   Future<PendingTransaction> removeDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority);
+  Future<PendingTransaction> reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority);
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority);
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
