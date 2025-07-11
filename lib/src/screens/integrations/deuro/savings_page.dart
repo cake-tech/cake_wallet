@@ -275,7 +275,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_balance,
         content: S.of(context).deuro_savings_balance_tooltip,
         key: 'savings_tooltip',
-        onLearnMorePressed: () {}, //ToDo
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
       );
 
   void _onInterestTooltipPressed(BuildContext context) => _showTooltip(
@@ -283,7 +283,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_collect_interest,
         content: S.of(context).deuro_savings_collect_interest_tooltip,
         key: 'interest_tooltip',
-        onLearnMorePressed: () {}, //ToDo
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
       );
 
   void _showTooltip(
@@ -333,7 +333,7 @@ class DEuroSavingsPage extends BasePage {
         actionRightButton: () => Navigator.of(bottomSheetContext).pop(),
         leftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
-        actionLeftButton: () => Navigator.of(bottomSheetContext).pop(), // ToDo
+        actionLeftButton: () => launchUrlString("https://deuro.com/what-is-deuro.html"),
         showDisclaimerText: _dEuroViewModel.isFistTime,
       ),
     );
