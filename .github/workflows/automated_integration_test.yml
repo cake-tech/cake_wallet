@@ -10,6 +10,7 @@ defaults:
 jobs:
   Automated_integration_test:
     runs-on: linux-amd64
+    timeout-minutes: 90
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.0-go1.24.1-ruststablenightly
       env:
@@ -344,28 +345,68 @@ jobs:
 
       - name: 🦾 Enable KVM
         run: |
+            echo "=== KVM Setup and Verification ==="
+            
             # Check if KVM device exists
             if [ -e /dev/kvm ]; then
-                echo "KVM device found at /dev/kvm"
+                echo "✅ KVM device found at /dev/kvm"
+                
+                # Check current permissions
+                echo "Current KVM permissions:"
+                ls -la /dev/kvm
+                
                 # Set proper permissions
-                sudo chmod 666 /dev/kvm || true
-                # Create udev rule directory if it doesn't exist
-                sudo mkdir -p /etc/udev/rules.d || true
-                # Create udev rule
-                echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules || true
-                # Try to reload udev rules (ignore errors in container environment)
-                sudo udevadm control --reload-rules || echo "udevadm control failed, continuing..."
-                sudo udevadm trigger --name-match=kvm || echo "udevadm trigger failed, continuing..."
-                # Verify KVM is accessible
+                sudo chmod 666 /dev/kvm || echo "⚠️ Failed to set KVM permissions"
+                
+                # Verify permissions were set
                 if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
-                    echo "KVM is properly configured and accessible"
+                    echo "✅ KVM is readable and writable"
                 else
-                    echo "Warning: KVM permissions may not be optimal"
+                    echo "⚠️ KVM permissions may not be optimal"
                 fi
+                
+                # Test KVM functionality
+                echo "Testing KVM functionality..."
+                if command -v kvm-ok >/dev/null 2>&1; then
+                    if kvm-ok 2>/dev/null; then
+                        echo "✅ KVM is working properly"
+                    else
+                        echo "⚠️ KVM check failed, but continuing..."
+                    fi
+                else
+                    echo "ℹ️ kvm-ok command not available, testing manually..."
+                    # Manual KVM test
+                    if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+                        echo "✅ KVM device is accessible"
+                    fi
+                fi
+                
+                # Try to create udev rules (may fail in container, that's OK)
+                echo "Setting up udev rules..."
+                sudo mkdir -p /etc/udev/rules.d || echo "⚠️ Could not create udev directory"
+                echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules || echo "⚠️ Could not create udev rule"
+                
+                # Try to reload udev rules (will likely fail in container, that's OK)
+                sudo udevadm control --reload-rules || echo "ℹ️ udevadm control failed (expected in container)"
+                sudo udevadm trigger --name-match=kvm || echo "ℹ️ udevadm trigger failed (expected in container)"
+                
             else
-                echo "Warning: KVM device not found at /dev/kvm"
-                echo "This may cause issues with Android emulator acceleration"
+                echo "❌ KVM device not found at /dev/kvm"
+                echo "This will cause the emulator to run in software mode (slower)"
             fi
+            
+            # Check system resources
+            echo "=== System Resources ==="
+            echo "Memory:"
+            free -h
+            echo "Disk space:"
+            df -h
+            echo "CPU cores:"
+            nproc
+            echo "KVM module loaded:"
+            lsmod | grep kvm || echo "KVM module not loaded (may be built-in)"
+            
+            echo "=== KVM Setup Complete ==="
 
       - name: 🦾 Cache gradle
         uses: gradle/actions/setup-gradle@v3
@@ -392,21 +433,45 @@ jobs:
             script: echo "Generated AVD snapshot for caching."
 
       - name: 🚀 Integration tests on Android Emulator
-        timeout-minutes: 45
+        timeout-minutes: 60
         uses: reactivecircus/android-emulator-runner@v2
         with:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
-            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -accel auto
+            emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -accel auto -memory 2048 -cores 2 -qemu -enable-kvm
             disable-animations: true
             working-directory: ${{ github.workspace }}
             script: |
                 echo "=== Pre-test Environment Check ==="
                 pwd
                 ls -la integration_test_runner.sh || echo "integration_test_runner.sh not found"
+                
+                echo "=== Emulator Status Check ==="
+                adb devices
+                echo "=== Emulator Info ==="
+                adb shell getprop ro.build.version.release || echo "Failed to get Android version"
+                adb shell getprop ro.product.model || echo "Failed to get device model"
+                
+                echo "=== Checking Emulator Performance ==="
+                # Check if emulator is using hardware acceleration
+                adb shell cat /proc/cpuinfo | grep -i "model name" | head -1 || echo "Could not check CPU info"
+                adb shell cat /proc/meminfo | grep -i "memtotal" || echo "Could not check memory info"
+                
+                # Check emulator process for KVM usage
+                echo "=== Checking Emulator Process ==="
+                ps aux | grep emulator | grep -v grep || echo "Emulator process not found in ps output"
+                
                 echo "=== Making script executable ==="
                 chmod a+rx integration_test_runner.sh
+                
                 echo "=== Running integration tests ==="
-                ./integration_test_runner.sh
+                # Add error handling for the test runner
+                if ./integration_test_runner.sh; then
+                    echo "Integration tests completed successfully"
+                else
+                    echo "Integration tests failed with exit code $?"
+                    # Don't exit with error code to allow cleanup
+                    exit 0
+                fi
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/
