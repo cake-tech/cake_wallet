@@ -24,6 +24,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
     this.onRightActionButtonPressed,
     this.leftActionButtonKey,
     this.rightActionButtonKey,
+    required this.maxHeight,
   }) : assert(footerType == FooterType.none || currentTheme != null,
             'currentTheme is required unless footerType is none');
 
@@ -43,13 +44,14 @@ abstract class BaseBottomSheet extends StatelessWidget {
   final VoidCallback? onRightActionButtonPressed;
   final Key? leftActionButtonKey;
   final Key? rightActionButtonKey;
+  final double maxHeight;
 
   Widget contentWidget(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: 900),
+      constraints: BoxConstraints(maxHeight: maxHeight),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),

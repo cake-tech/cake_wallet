@@ -1,10 +1,18 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/simple_checkbox.dart';
+
 
 
 import 'package:cake_wallet/utils/image_utill.dart';
 
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+
+
+import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 
@@ -13,7 +21,7 @@ import 'base_bottom_sheet_widget.dart';
 class LoadingBottomSheet extends BaseBottomSheet {
   LoadingBottomSheet(
       {required String titleText, String? titleIconPath})
-      : super(titleText: titleText, titleIconPath: titleIconPath, footerType: FooterType.none);
+      : super(titleText: titleText, titleIconPath: titleIconPath, footerType: FooterType.none, maxHeight: 900);
 
   @override
   Widget contentWidget(BuildContext context) {
@@ -32,6 +40,8 @@ class InfoBottomSheet extends BaseBottomSheet {
     required this.footerType,
     this.contentImage,
     this.contentImageColor,
+    this.contentImageSize,
+    this.height = 200,
     this.content,
     this.bottomActionPanel,
     this.singleActionButtonText,
@@ -43,10 +53,12 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.onRightActionButtonPressed,
     this.leftActionButtonKey,
     this.rightActionButtonKey,
+    this.showDisclaimerText = true,
     Key? key,
   }) : super(
             titleText: titleText,
             titleIconPath: titleIconPath,
+            maxHeight: 900,
             currentTheme: currentTheme,
             footerType: footerType,
             singleActionButtonText: singleActionButtonText,
@@ -75,11 +87,15 @@ class InfoBottomSheet extends BaseBottomSheet {
   final VoidCallback? onRightActionButtonPressed;
   final Key? rightActionButtonKey;
   final Key? leftActionButtonKey;
+  final double height;
+  final double? contentImageSize;
+  final bool showDisclaimerText;
+
 
   @override
   Widget contentWidget(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: height,
       child: Column(
         children: [
           if (contentImage != null)
@@ -119,6 +135,37 @@ class InfoBottomSheet extends BaseBottomSheet {
               ),
             ),
           bottomActionPanel ?? const SizedBox(),
+          if (showDisclaimerText)
+            Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 10),
+                child: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'By continuing you agree to this ',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  TextSpan(
+                    text: 'disclaimer',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => Navigator.pushNamed(context, Routes.readThirdPartyDisclaimer),
+                  ),
+                ],
+              ),
+            ),
+            ),
         ],
       ),
     );

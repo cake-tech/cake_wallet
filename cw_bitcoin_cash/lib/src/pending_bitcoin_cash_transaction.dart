@@ -34,7 +34,10 @@ class PendingBitcoinCashTransaction with PendingTransaction {
   String get amountFormatted => bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => bitcoinAmountToString(amount: fee);
+  String get feeFormatted => "$feeFormattedValue BCH";
+
+  @override
+  String get feeFormattedValue => bitcoinAmountToString(amount: fee);
 
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
