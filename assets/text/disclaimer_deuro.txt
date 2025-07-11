@@ -1,0 +1,18 @@
+Last Modified: July 10, 2025
+
+Third-Party Protocol Disclaimer
+==============================
+
+You are now accessing a third-party protocol for savings and earnings in dEURO.
+
+This protocol is not developed, maintained, or controlled by Cake Wallet. Cake Wallet is not responsible for any third-party protocols or associated third party content accessed through the Services.
+
+Third party protocols are not investigated, monitored or managed by us. If you decide to access a third-party protocol or to access or use any associated third party content, you do so at your own risk and you should be aware that our terms and policies no longer govern. You should review the applicable third party's terms and policies, including privacy and data gathering practices.
+
+By proceeding, you acknowledge and agree that:
+
+    - You are using this third-party service at your own risk.
+    - Cake Wallet does not provide any guarantees, warranties, or support for the use of this protocol.
+    - Cake Wallet is not responsible for any loss of funds, technical issues, or changes to the third-party protocol.
+
+Please do your own research and exercise caution accordingly.

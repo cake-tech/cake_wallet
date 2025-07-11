@@ -34,10 +34,10 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
   bool _checked = false;
   String _fileText = '';
 
-  Future<void> getFileLines() async {
-    _fileText = await rootBundle.loadString(
-        isMoneroOnly ? 'assets/text/Monerocom_Terms_of_Use.txt' : 'assets/text/Terms_of_Use.txt');
-    setState(() {});
+  void getFileLines() {
+    final fileName =
+        isMoneroOnly ? 'assets/text/Monerocom_Terms_of_Use.txt' : 'assets/text/Terms_of_Use.txt';
+    rootBundle.loadString(fileName).then((text) => setState(() => _fileText = text));
   }
 
   @override
@@ -48,8 +48,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () async => widget.isReadOnly,
+    return PopScope(
+        canPop: widget.isReadOnly,
         child: Container(
           color: Theme.of(context).colorScheme.surface,
           child: Column(
@@ -121,7 +121,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Theme.of(context).colorScheme.surface.withOpacity(0.0),
+                                  Theme.of(context).colorScheme.surface.withAlpha(0),
                                   Theme.of(context).colorScheme.surface,
                                 ],
                                 begin: FractionalOffset.topCenter,
@@ -144,11 +144,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               EdgeInsets.only(left: 24.0, top: 10.0, right: 24.0, bottom: 10.0),
                           child: InkWell(
                             key: ValueKey('disclaimer_check_key'),
-                            onTap: () {
-                              setState(() {
-                                _checked = !_checked;
-                              });
-                            },
+                            onTap: () => setState(() =>_checked = !_checked),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
