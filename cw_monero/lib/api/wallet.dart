@@ -116,12 +116,17 @@ String getSeedLegacy(String? language) {
 }
 
 String getPassphrase() {
-  return currentWallet!.getCacheAttribute(key: "cakewallet.passphrase");
+  return currentWallet?.getCacheAttribute(key: "cakewallet.passphrase") ?? "";
 }
 
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
+  // this is a workaround for when we switch the wallet pointer,
+  // it should never reach UI but should be good enough to prevent gray screen
+  // or other errors because of forced null check.
+  if (currentWallet == null) return "<wallet not ready ($accountIndex:$addressIndex)>";
+
   // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
   // this could be a while loop, but I'm in favor of making it if to not cause freezes
   if (currentWallet!.numSubaddresses(accountIndex: accountIndex)-1 < addressIndex) {
@@ -146,7 +151,25 @@ int getUnlockedBalance({int accountIndex = 0}) =>
 
 int getCurrentHeight() => currentWallet?.blockChainHeight() ?? 0;
 
-int getNodeHeightSync() => currentWallet?.daemonBlockChainHeight() ?? 0;
+
+int cachedNodeHeight = 0;
+bool isHeightRefreshing = false;
+int getNodeHeightSync() {
+  if (isHeightRefreshing == false) {
+    (() async {
+      try {
+        isHeightRefreshing = true;
+        final wptrAddress = currentWallet!.ffiAddress();
+        cachedNodeHeight = await Isolate.run(() async {
+          return monero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
+        });
+      } finally {
+        isHeightRefreshing = false;
+      }
+    })();
+  }
+  return cachedNodeHeight;
+}
 
 bool isConnectedSync() => currentWallet?.connected() != 0;
 
@@ -202,7 +225,6 @@ Future<bool> setupNodeSync(
 }
 
 void startRefreshSync() {
-  currentWallet!.refreshAsync();
   currentWallet!.startRefresh();
 }
 
@@ -228,7 +250,7 @@ void storeSync({bool force = false}) async {
     return monero.Wallet_synchronized(Pointer.fromAddress(addr));
   });
   if (lastStorePointer == addr &&
-      lastStoreHeight + 5000 > currentWallet!.blockChainHeight() &&
+      lastStoreHeight + 75000 > currentWallet!.blockChainHeight() &&
       !synchronized && 
       !force) {
     return;
@@ -255,13 +277,13 @@ void closeCurrentWallet() {
   currentWallet!.stop();
 }
 
-String getSecretViewKey() => currentWallet!.secretViewKey();
+String getSecretViewKey() => currentWallet?.secretViewKey() ?? "";
 
-String getPublicViewKey() => currentWallet!.publicViewKey();
+String getPublicViewKey() => currentWallet?.publicViewKey() ?? "";
 
-String getSecretSpendKey() => currentWallet!.secretSpendKey();
+String getSecretSpendKey() => currentWallet?.secretSpendKey() ?? "";
 
-String getPublicSpendKey() => currentWallet!.publicSpendKey();
+String getPublicSpendKey() => currentWallet?.publicSpendKey() ?? "";
 
 class SyncListener {
   SyncListener(this.onNewBlock, this.onNewTransaction)

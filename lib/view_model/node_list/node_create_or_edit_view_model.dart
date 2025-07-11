@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -57,6 +58,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   bool useSocksProxy;
+
+  @computed
+  bool get usesEmbeddedProxy => CakeTor.instance.started;
 
   @observable
   String socksProxyAddress;

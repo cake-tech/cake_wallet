@@ -165,12 +165,18 @@ class AddressResolver {
     "zone"
   ];
 
-  static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
-    final addressPattern = AddressValidator.getAddressFromStringPattern(type);
+  static String? extractAddressByType(
+      {required String raw,
+      required CryptoCurrency type,
+      bool requireSurroundingWhitespaces = true}) {
+    var addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
     if (addressPattern == null) {
       throw Exception('Unexpected token: $type for getAddressFromStringPattern');
     }
+
+    if (requireSurroundingWhitespaces)
+      addressPattern = "$BEFORE_REGEX$addressPattern$AFTER_REGEX";
 
     final match = RegExp(addressPattern, multiLine: true).firstMatch(raw);
     return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),

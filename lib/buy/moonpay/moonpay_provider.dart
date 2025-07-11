@@ -16,12 +16,12 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MoonPayProvider extends BuyProvider {
@@ -98,9 +98,12 @@ class MoonPayProvider extends BuyProvider {
   Future<String> getMoonpaySignature(String query) async {
     final uri = Uri.https(_cIdBaseUrl, "/api/moonpay");
 
-    final response = await post(uri,
-        headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
-        body: json.encode({'query': query}));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
+      body: json.encode({'query': query}),
+    );
+    
 
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
@@ -120,7 +123,11 @@ class MoonPayProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, path, params);
 
     try {
-      final response = await get(url, headers: {'accept': 'application/json'});
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
+        headers: {'accept': 'application/json'},
+      );
+      
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
@@ -191,8 +198,8 @@ class MoonPayProvider extends BuyProvider {
     final path = '$_currenciesPath/$formattedCryptoCurrency$quotePath';
     final url = Uri.https(_baseUrl, path, params);
     try {
-      final response = await get(url);
-
+      final response = await ProxyWrapper().get(clearnetUri: url);
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -306,7 +313,8 @@ class MoonPayProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final url = _apiUrl + _transactionsSuffix + '/$id' + '?apiKey=' + _apiKey;
     final uri = Uri.parse(url);
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
 
     if (response.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Transaction $id is not found!');

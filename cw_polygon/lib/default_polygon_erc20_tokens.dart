@@ -84,6 +84,6 @@ class DefaultPolygonErc20Tokens {
               .iconPath;
         } catch (_) {}
 
-        return Erc20Token.copyWith(token, iconPath, 'POLY');
+        return Erc20Token.copyWith(token, iconPath, 'POL');
       }).toList();
 }

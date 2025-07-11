@@ -10,6 +10,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -17,7 +18,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
@@ -74,7 +74,7 @@ class DFXBuyProvider extends BuyProvider {
   Future<String> getSignMessage(String walletAddress) async =>
       "By_signing_this_message,_you_confirm_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_$walletAddress";
 
-  // // Lets keep this just in case, but we can avoid this API Call
+  // Lets keep this just in case, but we can avoid this API Call
   // Future<String> getSignMessage() async {
   //  final uri = Uri.https(_baseUrl, _signMessagePath, {'address': walletAddress});
   //
@@ -100,11 +100,12 @@ class DFXBuyProvider extends BuyProvider {
     });
 
     final uri = Uri.https(_baseUrl, _authPath);
-    var response = await http.post(
-      uri,
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
       headers: {'Content-Type': 'application/json'},
       body: requestBody,
     );
+    
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
@@ -122,7 +123,10 @@ class DFXBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
-        return await wallet.signMessage(message);
+      case WalletType.solana:
+      case WalletType.tron:
+        final r = await wallet.signMessage(message);
+        return r;
       case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:
@@ -137,8 +141,10 @@ class DFXBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, '/v1/fiat');
 
     try {
-      final response = await http.get(url, headers: {'accept': 'application/json'});
-
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
+        headers: {'accept': 'application/json'});
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List<dynamic>;
         for (final item in data) {
@@ -160,12 +166,17 @@ class DFXBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain});
 
     try {
-      final response = await http.get(url, headers: {'accept': 'application/json'});
-
+      final response = await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
+      
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
 
         if (responseData is List && responseData.isNotEmpty) {
+          for (final i in responseData) {
+            if (assetsName.toLowerCase() == i["dexName"].toString().toLowerCase()) {
+              return i as Map<String, dynamic>;
+            }
+          }
           return responseData.first as Map<String, dynamic>;
         } else if (responseData is Map<String, dynamic>) {
           return responseData;
@@ -249,8 +260,6 @@ class DFXBuyProvider extends BuyProvider {
 
     final action = isBuyAction ? 'buy' : 'sell';
 
-    if (isBuyAction && cryptoCurrency != wallet.currency) return null;
-
     final fiatCredentials = await fetchFiatCredentials(fiatCurrency.name.toString());
     if (fiatCredentials['id'] == null) return null;
 
@@ -271,7 +280,12 @@ class DFXBuyProvider extends BuyProvider {
     });
 
     try {
-      final response = await http.put(url, headers: headers, body: body);
+      final response = await ProxyWrapper().put(
+        clearnetUri: url,
+        headers: headers,
+        body: body,
+      );
+      
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {

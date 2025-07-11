@@ -136,4 +136,10 @@ class CWZano extends Zano {
   Map<String, List<int>> debugCallLength() {
     return api.debugCallLength();
   }
+
+  @override
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress) {
+    final zanoWallet = wallet as ZanoWallet;
+    return zanoWallet.zanoAssets.values.any((element) => element?.assetId == contractAddress);
+  }
 }

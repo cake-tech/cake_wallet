@@ -225,6 +225,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                 ValueKey('${_cardInstanceName}_currency_amount_textfield_widget_key'),
             imageArrow: widget.imageArrow,
             selectedCurrency: _selectedCurrency.toString(),
+            selectedCurrencyDecimals: _selectedCurrency.decimals,
             amountFocusNode: widget.amountFocusNode,
             amountController: amountController,
             onTapPicker: () => _presentPicker(context),
@@ -302,7 +303,8 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                             final paymentRequest = PaymentRequest.fromUri(uri);
                             addressController.text = paymentRequest.address;
 
-                            if (amountController.text.isNotEmpty) {
+                            if (amountController.text.isNotEmpty &&
+                                paymentRequest.amount.isNotEmpty) {
                               _showAmountPopup(context, paymentRequest);
                               return;
                             }
