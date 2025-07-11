@@ -46,7 +46,8 @@ abstract class SendTemplateViewModelBase with Store {
   AmountValidator get amountValidator =>
       AmountValidator(currency: walletTypeToCryptoCurrency(_wallet.type));
 
-  AddressValidator get addressValidator => AddressValidator(type: _wallet.currency);
+  AddressValidator get addressValidator =>
+      AddressValidator(type: _wallet.currency, isTestnet: _wallet.isTestnet);
 
   TemplateValidator get templateValidator => TemplateValidator();
 
@@ -102,7 +103,8 @@ abstract class SendTemplateViewModelBase with Store {
   @computed
   List<CryptoCurrency> get walletCurrencies => _wallet.balance.keys.toList();
 
-  bool get hasMultipleTokens => isEVMCompatibleChain(_wallet.type) ||
-  _wallet.type == WalletType.solana ||
-  _wallet.type == WalletType.tron;
+  bool get hasMultipleTokens =>
+      isEVMCompatibleChain(_wallet.type) ||
+      _wallet.type == WalletType.solana ||
+      _wallet.type == WalletType.tron;
 }

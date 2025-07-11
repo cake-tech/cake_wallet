@@ -75,7 +75,6 @@ class Routes {
   static const cakePayLoginPage = '/cake_pay_login_page';
   static const cakePayCardsPage = '/cake_pay_cards_page';
   static const cakePayBuyCardPage = '/cake_pay_buy_card_page';
-  static const cakePayBuyCardDetailPage = '/cake_pay_buy_card_detail_page';
   static const cakePayVerifyOtpPage = '/cake_pay_verify_otp_page';
   static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';

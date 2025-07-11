@@ -76,7 +76,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -170,14 +170,12 @@ import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_auth_view_model.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_service.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
-import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_account_view_model.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_cards_list_view_model.dart';
-import 'package:cake_wallet/view_model/cake_pay/cake_pay_purchase_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
@@ -276,7 +274,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'src/screens/buy/buy_sell_page.dart';
-import 'cake_pay/cake_pay_payment_credantials.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
@@ -1390,18 +1387,11 @@ Future<void> setup({
 
   getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
 
-  getIt.registerFactoryParam<CakePayPurchaseViewModel, PaymentCredential, CakePayCard>(
-      (PaymentCredential paymentCredential, CakePayCard card) {
-    return CakePayPurchaseViewModel(
-        cakePayService: getIt.get<CakePayService>(),
-        paymentCredential: paymentCredential,
-        card: card,
-        sendViewModel: getIt.get<SendViewModel>());
-  });
-
   getIt.registerFactoryParam<CakePayBuyCardViewModel, CakePayVendor, void>(
       (CakePayVendor vendor, _) {
-    return CakePayBuyCardViewModel(vendor: vendor);
+    return CakePayBuyCardViewModel(vendor: vendor,
+        cakePayService: getIt.get<CakePayService>(),
+        sendViewModel: getIt.get<SendViewModel>());
   });
 
   getIt.registerFactory(() => CakePayAccountViewModel(cakePayService: getIt.get<CakePayService>()));
@@ -1420,14 +1410,6 @@ Future<void> setup({
 
     return CakePayBuyCardPage(
         getIt.get<CakePayBuyCardViewModel>(param1: vendor), getIt.get<CakePayService>());
-  });
-
-  getIt
-      .registerFactoryParam<CakePayBuyCardDetailPage, List<dynamic>, void>((List<dynamic> args, _) {
-    final paymentCredential = args.first as PaymentCredential;
-    final card = args[1] as CakePayCard;
-    return CakePayBuyCardDetailPage(
-        getIt.get<CakePayPurchaseViewModel>(param1: paymentCredential, param2: card));
   });
 
   getIt.registerFactory(() => CakePayCardsPage(getIt.get<CakePayCardsListViewModel>()));
