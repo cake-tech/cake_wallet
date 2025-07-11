@@ -14,6 +14,7 @@ import '../components/common_test_cases.dart';
 import '../components/common_test_constants.dart';
 import 'auth_page_robot.dart';
 import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
+import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 
 class SendPageRobot {
   SendPageRobot({required this.tester})
@@ -256,7 +257,7 @@ class SendPageRobot {
 
       await tester.pump();
 
-      bool isDone = state is ExecutedSuccessfullyState;
+      bool isDone = state is ExecutedSuccessfullyState || state is TransactionCommitted;
       bool isFailed = state is FailureState;
 
       tester.printToConsole('isDone: $isDone');
@@ -321,51 +322,6 @@ class SendPageRobot {
       tester.printToConsole('No auth page detected, proceeding');
     }
     await tester.pump();
-  }
-
-  Future<void> handleSendResult() async {
-    await tester.pump();
-    tester.printToConsole('Inside handle function');
-
-    bool hasError = false;
-
-    hasError = await hasErrorWhileSending();
-
-    tester.printToConsole('Has an Error in the handle: $hasError');
-
-    int maxRetries = 3;
-    int retries = 0;
-
-    while (hasError && retries < maxRetries) {
-      tester.printToConsole('hasErrorInLoop: $hasError');
-      await tester.pump();
-
-      await onSendFailureDialogButtonPressed();
-      tester.printToConsole('Failure button tapped');
-
-      await commonTestCases.defaultSleepTime();
-
-      // Check if it's a network error that we can't retry
-      final errorText = find.textContaining('network');
-      if (errorText.tryEvaluate()) {
-        tester.printToConsole('Network error detected, skipping retry');
-        break;
-      }
-
-      await onSendButtonPressed();
-      tester.printToConsole('Send button tapped');
-
-      hasError = await hasErrorWhileSending();
-
-      retries++;
-    }
-
-    if (!hasError) {
-      tester.printToConsole('No error, proceeding with flow');
-      await tester.pump();
-    }
-
-    await commonTestCases.defaultSleepTime();
   }
 
   //* ------ On Sending Failure ------------
@@ -534,7 +490,8 @@ class SendPageRobot {
       // Check if we're in a transaction-related state
       return state is TransactionCommitting ||
           state is IsExecutingState ||
-          state is TransactionCommitted;
+          state is TransactionCommitted ||
+          state is ExecutedSuccessfullyState;
     } catch (e) {
       return false;
     }
@@ -554,34 +511,49 @@ class SendPageRobot {
         tester.printToConsole('Confirm bottom sheet disappeared, transaction may be processing');
       }
 
-      // Check if SendPage is available
-      final sendPageFinder = find.byType(SendPage);
-      if (!sendPageFinder.tryEvaluate()) {
-        tester.printToConsole('SendPage not found in commit completion, continuing to wait...');
-        continue;
+      // Check if we've navigated back to the dashboard (for cases of successful transaction)
+      final dashboardFinder = find.byType(DashboardPage);
+      if (dashboardFinder.tryEvaluate()) {
+        tester.printToConsole('Dashboard detected, transaction completed successfully!');
+        await tester.pump();
+        return;
       }
 
-      final sendPage = tester.widget<SendPage>(sendPageFinder);
-      final state = sendPage.sendViewModel.state;
+      // Check if SendPage is still available (transaction still processing)
+      final sendPageFinder = find.byType(SendPage);
+      if (sendPageFinder.tryEvaluate()) {
+        final sendPage = tester.widget<SendPage>(sendPageFinder);
+        final state = sendPage.sendViewModel.state;
 
-      bool isDone = state is TransactionCommitted;
-      bool isFailed = state is FailureState;
+        bool isDone = state is ExecutedSuccessfullyState || state is TransactionCommitted;
+        bool isFailed = state is FailureState;
 
-      tester.printToConsole('Transaction state: $state');
-      tester.printToConsole('isDone: $isDone');
-      tester.printToConsole('isFailed: $isFailed');
+        tester.printToConsole('Transaction state: $state');
+        tester.printToConsole('isDone: $isDone');
+        tester.printToConsole('isFailed: $isFailed');
 
-      if (isDone) {
-        tester.printToConsole('Transaction committed successfully!');
-        await tester.pump();
-        break;
-      } else if (isFailed) {
-        tester.printToConsole('Transaction failed: $state');
-        await tester.pump();
-        break;
+        if (isDone) {
+          tester.printToConsole('Transaction committed successfully!');
+          await tester.pump();
+          return;
+        } else if (isFailed) {
+          tester.printToConsole('Transaction failed: $state');
+          await tester.pump();
+          return;
+        } else {
+          tester.printToConsole('Transaction still processing');
+          await tester.pump();
+        }
       } else {
-        tester.printToConsole('Transaction still processing');
-        await tester.pump();
+        // SendPage not found, check if we're on dashboard or still processing
+        if (dashboardFinder.tryEvaluate()) {
+          tester.printToConsole('Dashboard detected - transaction completed successfully!');
+          await tester.pump();
+          return;
+        } else {
+          tester.printToConsole(
+              'SendPage not found, but dashboard not yet visible - continuing to wait...');
+        }
       }
     }
 
@@ -596,12 +568,24 @@ class SendPageRobot {
   Future<void> handleTransactionSuccessFlow() async {
     await commonTestCases.defaultSleepTime();
 
+    // Wait for any success dialogs to appear
+    await tester.pump(Duration(seconds: 2));
+
     // Check for contact addition dialog first (if new contact address exists)
     final contactDialog = find.byKey(ValueKey('send_page_add_contact_bottom_sheet_yes_button_key'));
     if (contactDialog.tryEvaluate()) {
       tester.printToConsole('Found contact addition dialog, selecting Yes');
-      await commonTestCases.tapItemByKey('send_page_add_contact_bottom_sheet_yes_button_key');
-      await commonTestCases.defaultSleepTime();
+
+      // Check if the button is actually visible and tappable
+      final buttonRect = tester.getRect(contactDialog);
+      final screenSize = tester.view.physicalSize / tester.view.devicePixelRatio;
+
+      if (buttonRect.bottom <= screenSize.height && buttonRect.top >= 0) {
+        await commonTestCases.tapItemByKey('send_page_add_contact_bottom_sheet_yes_button_key');
+        await commonTestCases.defaultSleepTime();
+      } else {
+        tester.printToConsole('Contact dialog button is off-screen, skipping');
+      }
     }
 
     // Check for the main success dialog

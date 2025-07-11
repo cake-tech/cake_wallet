@@ -38,8 +38,6 @@ void main() {
 
     await sendPageRobot.onSendButtonPressed();
 
-    await sendPageRobot.handleSendResult();
-
     await sendPageRobot.onSendSliderOnConfirmSendingBottomSheetDragged();
 
     await sendPageRobot.handleTransactionSuccessFlow();
