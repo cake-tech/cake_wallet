@@ -55,8 +55,6 @@ class AddressValidator extends TextValidator {
               '|(bc1q[ac-hj-np-z02-9]{40,80})'
               '|(${silentPaymentAddressPatternMainnet})(\$|\s)';
         }
-
-        print(pattern);
       case CryptoCurrency.ltc:
         pattern = '(^|\s)(L[a-km-zA-HJ-NP-Z1-9]{25,34})'
             '|([3M][a-km-zA-HJ-NP-Z1-9]{25,34})'
@@ -324,7 +322,7 @@ class AddressValidator extends TextValidator {
             '|([0-9a-zA-Z]{106})';
       case CryptoCurrency.btc:
         pattern =
-            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${silentPaymentAddressPatternMainnet}';
+            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
       case CryptoCurrency.ltc:
         pattern = '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'
