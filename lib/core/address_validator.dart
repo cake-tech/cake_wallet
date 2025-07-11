@@ -10,23 +10,25 @@ const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
 
 class AddressValidator extends TextValidator {
-  AddressValidator({required CryptoCurrency type})
+  AddressValidator({required CryptoCurrency type, bool isTestnet = false})
       : super(
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc || type == CryptoCurrency.ltc
                 ? (String txt) => BitcoinAddressUtils.validateAddress(
                       address: txt,
                       network: type == CryptoCurrency.btc
-                          ? BitcoinNetwork.mainnet
+                          ? isTestnet
+                              ? BitcoinNetwork.testnet
+                              : BitcoinNetwork.mainnet
                           : LitecoinNetwork.mainnet,
                     )
                 : type == CryptoCurrency.zano
                     ? zano?.validateAddress
                     : null,
-            pattern: getPattern(type),
+            pattern: getPattern(type, isTestnet: isTestnet),
             length: getLength(type));
 
-  static String getPattern(CryptoCurrency type) {
+  static String getPattern(CryptoCurrency type, {required bool isTestnet}) {
     var pattern = "";
     if (type is Erc20Token) {
       pattern = '0x[0-9a-zA-Z]+';
@@ -38,8 +40,23 @@ class AddressValidator extends TextValidator {
         pattern = '[0-9a-zA-Z]{59}|[0-9a-zA-Z]{92}|[0-9a-zA-Z]{104}'
             '|[0-9a-zA-Z]{105}|addr1[0-9a-zA-Z]{98}';
       case CryptoCurrency.btc:
-        pattern =
-            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${silentPaymentAddressPatternMainnet}';
+        if (isTestnet) {
+          pattern = '(^|\s)([mnL][a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|([23M][a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|(tb1q[ac-hj-np-z02-9]{25,39})'
+              '|(tb1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
+              '|(tb1q[ac-hj-np-z02-9]{40,80})'
+              '|(${silentPaymentAddressPatternTestnet})(\$|\s)';
+        } else {
+          pattern = '(^|\s)(1[a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|(3[a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|(bc1q[ac-hj-np-z02-9]{25,39})'
+              '|(bc1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
+              '|(bc1q[ac-hj-np-z02-9]{40,80})'
+              '|(${silentPaymentAddressPatternMainnet})(\$|\s)';
+        }
+
+        print(pattern);
       case CryptoCurrency.ltc:
         pattern = '${P2wpkhAddress.regex.pattern}|${MwebAddress.regex.pattern}';
       case CryptoCurrency.nano:
@@ -286,6 +303,7 @@ class AddressValidator extends TextValidator {
   static String get silentPaymentAddressPatternTestnet => RegExp(r'^tsp1[0-9a-zA-Z]{113}').pattern;
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
+  // NOTE: not needed to check for network here as it's a general address catcher, validation is separate
   static String? getAddressFromStringPattern(CryptoCurrency type) {
     String? pattern = null;
 
