@@ -8,6 +8,8 @@ const supportedSources = [
   AddressSource.mastodon,
   AddressSource.bip353,
   AddressSource.fio,
+  AddressSource.zanoAlias,
+  AddressSource.thorChain,
 ];
 
 ///Do not use '-' in the label, it is used to separate the label from the alias.
@@ -74,7 +76,7 @@ enum AddressSource {
   thorChain(
       label: 'ThorChain',
       iconPath: 'assets/images/thorchain.png',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      supportedCurrencies: CryptoCurrency.all),
   wellKnown(
       label: '.wellknown',
       iconPath: 'assets/icons/wk.svg',
@@ -82,7 +84,7 @@ enum AddressSource {
   zanoAlias(
       label: 'Zano Alias',
       iconPath: 'assets/images/zano_icon.png',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      supportedCurrencies: [CryptoCurrency.zano]),
   bip353(
       label: 'BIP353',
       iconPath: 'assets/images/btc.png',

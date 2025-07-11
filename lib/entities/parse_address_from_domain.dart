@@ -389,7 +389,7 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupZano(
-      String text, List<CryptoCurrency> currencies, WalletBase _) async {
+      String text, List<CryptoCurrency> _, WalletBase __) async {
     final formattedName = text.substring(1);
 
     final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
@@ -515,28 +515,28 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupThorChain(
-      String text, List<CryptoCurrency> currency, WalletBase _) async {
-    final Map<CryptoCurrency, String> result = {};
+      String text, List<CryptoCurrency> currencies, WalletBase _) async {
 
-    final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
-    if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
-      for (final cur in currency) {
-        String? address =
-            thorChainAddress[cur.title] ?? (cur.title == 'RUNE' ? thorChainAddress['THOR'] : null);
-        if (address != null && address.isNotEmpty) {
-          result[cur] = address;
-        }
-      }
+    final map = await ThorChainExchangeProvider.lookupAddressByName(text);
+    if (map == null || map.isEmpty) return null;
 
-      if (result.isNotEmpty) {
-        return ParsedAddress(
-          parsedAddressByCurrencyMap: result,
-          addressSource: AddressSource.thorChain,
-          handle: text,
-        );
+    final result = <CryptoCurrency, String>{};
+
+    for (final cur in currencies) {
+      final key = cur.title.toUpperCase();
+      final addr = map[key];
+      if (addr != null && addr.isNotEmpty) {
+        if (!result.containsValue(addr)) result[cur] = addr;
       }
     }
-    return null;
+
+    return result.isEmpty
+        ? null
+        : ParsedAddress(
+      parsedAddressByCurrencyMap: result,
+      addressSource: AddressSource.thorChain,
+      handle: text,
+    );
   }
 
   Future<ParsedAddress?> _lookupsUnstoppableDomains(
