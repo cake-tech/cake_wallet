@@ -288,10 +288,9 @@ jobs:
 
       - name: Rename apk file
         run: |
+          sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
           cd build/app/outputs/flutter-apk
           mkdir test-apk
-          # Read the sanitized branch name from the app.properties file created in "Rename app" step
-          sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
           
           cp app-arm64-v8a-release.apk test-apk/${sanitized_branch_name}.apk
           cp app-x86_64-release.apk test-apk/${sanitized_branch_name}_x86.apk
