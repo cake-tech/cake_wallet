@@ -210,7 +210,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
-    required bool alwaysScan,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);

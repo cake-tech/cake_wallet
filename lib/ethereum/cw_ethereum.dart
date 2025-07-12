@@ -213,7 +213,7 @@ class CWEthereum extends Ethereum {
   Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender,
           CryptoCurrency token, TransactionPriority priority) =>
       (wallet as EVMChainWallet).createApprovalTransaction(
-          amount, spender, token, priority as EVMChainTransactionPriority);
+          amount, spender, token, priority as EVMChainTransactionPriority, "ETH");
 
   // Integrations
   @override
@@ -243,6 +243,11 @@ class CWEthereum extends Ethereum {
           WalletBase wallet, BigInt amount, TransactionPriority priority) =>
       DEuro(wallet as EthereumWallet)
           .withdrawSavings(amount, priority as EVMChainTransactionPriority);
+
+  @override
+  Future<PendingTransaction> reinvestDEuroInterest(
+          WalletBase wallet, TransactionPriority priority) =>
+      DEuro(wallet as EthereumWallet).reinvestInterest(priority as EVMChainTransactionPriority);
 
   @override
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority) =>

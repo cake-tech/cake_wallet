@@ -78,11 +78,14 @@ class _FilterWidgetState extends State<FilterWidget> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        S.of(context).filter_by,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          S.of(context).filter_by,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -105,7 +108,7 @@ class _FilterWidgetState extends State<FilterWidget> {
 
                         final Widget sectionListView = ListView.builder(
                           controller: isSectionScrollable ? _scrollController : null,
-                          padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 8.0),
                           shrinkWrap: isSectionScrollable ? false : true,
                           physics: isSectionScrollable
                               ? const BouncingScrollPhysics()

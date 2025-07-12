@@ -9,6 +9,7 @@ class PendingEVMChainTransaction with PendingTransaction {
   final Function sendTransaction;
   final Uint8List signedTransaction;
   final BigInt fee;
+  final String feeCurrency;
   final String amount;
   final int exponent;
   final bool isInfiniteApproval;
@@ -17,6 +18,7 @@ class PendingEVMChainTransaction with PendingTransaction {
     required this.sendTransaction,
     required this.signedTransaction,
     required this.fee,
+    required this.feeCurrency,
     required this.amount,
     required this.exponent,
     this.isInfiniteApproval = false,
@@ -34,6 +36,11 @@ class PendingEVMChainTransaction with PendingTransaction {
 
   @override
   String get feeFormatted {
+    return "$feeFormattedValue $feeCurrency";
+  }
+
+  @override
+  String get feeFormattedValue {
     final _fee = (fee / BigInt.from(pow(10, 18))).toString();
     return _fee.substring(0, min(10, _fee.length));
   }

@@ -1,5 +1,5 @@
 #define MyAppName "Cake Wallet"
-#define MyAppVersion "5.1.0"
+#define MyAppVersion "5.1.2"
 #define MyAppPublisher "Cake Labs LLC"
 #define MyAppURL "https://cakewallet.com/"
 #define MyAppExeName "CakeWallet.exe"

@@ -183,7 +183,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
             price: _fiatConversationStore.prices[currency]!,
-            cryptoAmount: pendingTransaction!.feeFormatted);
+            cryptoAmount: pendingTransaction!.feeFormattedValue,
+          );
         return fiat;
       } else {
         return '0.00';
@@ -214,7 +215,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator<String> get addressValidator => AddressValidator(type: selectedCryptoCurrency);
+  Validator<String> get addressValidator =>
+      AddressValidator(type: selectedCryptoCurrency, isTestnet: wallet.isTestnet);
 
   Validator<String> get textValidator => TextValidator();
 
@@ -776,12 +778,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.solana_no_associated_token_account_exception;
       }
 
-      if (errorMessage.contains('insufficient funds for rent') && 
-          errorMessage.contains('Transaction simulation failed') && 
+      if (errorMessage.contains('insufficient funds for rent') &&
+          errorMessage.contains('Transaction simulation failed') &&
           errorMessage.contains('account_index')) {
         final accountIndexMatch = RegExp(r'account_index: (\d+)').firstMatch(errorMessage);
         if (accountIndexMatch != null) {
-          return int.parse(accountIndexMatch.group(1)!) == 0 
+          return int.parse(accountIndexMatch.group(1)!) == 0
               ? S.current.insufficientFundsForRentError
               : S.current.insufficientFundsForRentErrorReceiver;
         }
@@ -846,7 +848,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (error.errorMessage != null && error.errorMessage!.contains("no peers replied")) {
         return S.current.tx_commit_failed_no_peers;
       }
-      return "${S.current.tx_commit_failed}${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
+      return "${S.current.tx_commit_failed}\nsupport@cakewallet.com${error.errorMessage != null ? "\n\n${error.errorMessage}" : ""}";
     }
     if (error is TransactionCommitFailedDustChange) {
       return S.current.tx_rejected_dust_change;

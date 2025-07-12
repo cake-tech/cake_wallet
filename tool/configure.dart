@@ -192,8 +192,8 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool alwaysScan, bool isDirect);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -216,6 +216,8 @@ abstract class Bitcoin {
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
   Future<void> setScanningActive(Object wallet, bool active);
+  Future<void> setIsAlwaysScanningSP(Object wallet, bool active);
+  bool getIsAlwaysScanningSP(Object wallet);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
@@ -755,6 +757,7 @@ abstract class Ethereum {
   Future<BigInt> getDEuroSavingsApproved(WalletBase wallet);
   Future<PendingTransaction> addDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority);
   Future<PendingTransaction> removeDEuroSaving(WalletBase wallet, BigInt amount, TransactionPriority priority);
+  Future<PendingTransaction> reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority);
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority);
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);

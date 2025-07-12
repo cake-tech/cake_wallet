@@ -515,6 +515,11 @@ abstract class EVMChainWalletBase
       gasFee: estimatedFeesForTransaction,
       priority: _credentials.priority!,
       currency: transactionCurrency,
+      feeCurrency: switch (_client.chainId) {
+        1 => "ETH",
+        137 => "POL",
+        _ => ""
+      },
       maxFeePerGas: maxFeePerGasForTransaction,
       exponent: exponent,
       contractAddress:
@@ -527,7 +532,7 @@ abstract class EVMChainWalletBase
   }
 
   Future<PendingTransaction> createApprovalTransaction(BigInt amount, String spender,
-      CryptoCurrency token, EVMChainTransactionPriority priority) async {
+      CryptoCurrency token, EVMChainTransactionPriority priority, String feeCurrency) async {
     final CryptoCurrency transactionCurrency =
         balance.keys.firstWhere((element) => element.title == token.title);
     assert(transactionCurrency is Erc20Token);
@@ -553,6 +558,7 @@ abstract class EVMChainWalletBase
       priority: priority,
       gasFee: BigInt.from(gasFeesModel.estimatedGasFee),
       maxFeePerGas: gasFeesModel.maxFeePerGas,
+      feeCurrency: feeCurrency,
       estimatedGasUnits: gasFeesModel.estimatedGasUnits,
       exponent: transactionCurrency.decimal,
       contractAddress: transactionCurrency.contractAddress,
