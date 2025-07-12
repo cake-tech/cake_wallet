@@ -1,4 +1,3 @@
-Add built-in Tor support (experimental)
-Ledger improvements
-UI/UX improvements
-Bug fixes
+New Cake Pay mobile UI
+Monero enhancements
+Integrated exchange bug fixes

@@ -3,6 +3,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
@@ -274,6 +275,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   return ConfirmSendingBottomSheet(
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     currentTheme: widget.currentTheme,
+                    footerType: FooterType.slideActionButton,
                     walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
                     titleIconPath:
@@ -293,7 +295,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransactionFeeFiatAmountFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
-                    onSlideComplete: () async {
+                    onSlideActionComplete: () async {
                       if (bottomSheetContext.mounted) {
                         Navigator.of(bottomSheetContext).pop();
                       }
@@ -317,11 +319,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 builder: (BuildContext bottomSheetContext) {
                   return InfoBottomSheet(
                     currentTheme: widget.currentTheme,
+                    footerType: FooterType.singleActionButton,
                     titleText: S.of(bottomSheetContext).transaction_sent,
                     contentImage: 'assets/images/birthday_cake.png',
-                    actionButtonText: S.of(bottomSheetContext).close,
-                    actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                    actionButton: () {
+                    singleActionButtonText: S.of(bottomSheetContext).close,
+                    singleActionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                    onSingleActionButtonPressed: () {
                       Navigator.of(bottomSheetContext).pop();
                       if (mounted) {
                         Navigator.of(context).pushNamedAndRemoveUntil(
