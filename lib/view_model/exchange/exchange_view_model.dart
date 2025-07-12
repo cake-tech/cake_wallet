@@ -3,25 +3,9 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cake_wallet/core/create_trade_result.dart';
-import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cake_wallet/view_model/send/fees_view_model.dart';
-import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
-import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -31,13 +15,17 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -47,6 +35,19 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'exchange_view_model.g.dart';
 
@@ -67,6 +68,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this._settingsStore,
     this.sharedPreferences,
     this.contactListViewModel,
+    this.unspentCoinsListViewModel,
     this.feesViewModel,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
@@ -99,6 +101,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       CryptoCurrency.btt
     ];
     _initialPairBasedOnWallet();
+
+    unspentCoinsListViewModel.initialSetup().then((_) {
+      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
+    });
 
     final Map<String, dynamic> exchangeProvidersSelection =
         json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
@@ -160,13 +166,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get isElectrumWallet =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.bitcoinCash;
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
-      wallet.type == WalletType.monero ||
-      wallet.type == WalletType.wownero;
+      [WalletType.monero, WalletType.wownero].contains(wallet.type);
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -186,7 +189,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
       ];
-
 
   @observable
   ExchangeProvider? provider;
@@ -306,9 +308,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get hasAllAmount =>
-      (wallet.type == WalletType.bitcoin ||
-          wallet.type == WalletType.litecoin ||
-          wallet.type == WalletType.bitcoinCash) &&
+      [
+        WalletType.monero,
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+      ].contains(wallet.type) &&
       depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
@@ -322,6 +327,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final SettingsStore _settingsStore;
 
   final ContactListViewModel contactListViewModel;
+
+  final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   final FeesViewModel feesViewModel;
 
@@ -468,7 +475,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (depositCurrency == receiveCurrency) {
       limitsState = LimitsLoadedSuccessfully(limits: Limits(min: 0, max: 0));
       return;
-    };
+    }
     if (selectedProviders.isEmpty) return;
 
     limitsState = LimitsIsLoading();
@@ -661,9 +668,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> calculateDepositAllAmount() async {
-    if (wallet.type == WalletType.litecoin ||
-        wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.bitcoinCash) {
+    if ([
+      WalletType.litecoin,
+      WalletType.bitcoin,
+      WalletType.bitcoinCash,
+    ].contains(wallet.type)) {
       final priority = _settingsStore.priority[wallet.type]!;
 
       final amount = await bitcoin!.estimateFakeSendAllTxAmount(
@@ -673,7 +682,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             wallet.type == WalletType.litecoin ? UnspentCoinType.nonMweb : UnspentCoinType.any,
       );
 
-      changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
+      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
+    } else if (wallet.type == WalletType.monero) {
+      final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
+
+      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
     }
   }
 

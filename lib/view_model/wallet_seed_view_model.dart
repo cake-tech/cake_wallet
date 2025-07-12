@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 
@@ -14,6 +15,7 @@ abstract class WalletSeedViewModelBase with Store {
   WalletSeedViewModelBase(WalletBase wallet)
       : name = wallet.name,
         seed = wallet.seed!,
+        walletType = walletTypeToString(wallet.type),
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
     setupSeedVerification();
@@ -24,6 +26,9 @@ abstract class WalletSeedViewModelBase with Store {
 
   @observable
   String seed;
+
+  @observable
+  String walletType;
 
   /// The Regex split the words based on any whitespace character.
   ///

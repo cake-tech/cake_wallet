@@ -36,8 +36,13 @@ class PendingEVMChainTransaction with PendingTransaction {
 
   @override
   String get feeFormatted {
+    return "$feeFormattedValue $feeCurrency";
+  }
+
+  @override
+  String get feeFormattedValue {
     final _fee = (fee / BigInt.from(pow(10, 18))).toString();
-    return "${_fee.substring(0, min(10, _fee.length))} $feeCurrency";
+    return _fee.substring(0, min(10, _fee.length));
   }
 
   @override

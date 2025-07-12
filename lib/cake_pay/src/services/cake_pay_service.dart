@@ -1,7 +1,7 @@
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/cake_pay/cake_pay_api.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/country.dart';
 
@@ -114,6 +114,6 @@ class CakePayService {
   }
 
   ///Simulate Purchase Gift Card
-  Future<void> simulatePayment({required String orderId}) async => await cakePayApi.simulatePayment(
+  Future<String> simulatePayment({required String orderId}) async => await cakePayApi.simulatePayment(
       CSRFToken: CSRFToken, authorization: authorization, orderId: orderId);
 }

@@ -195,7 +195,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
         openedWalletsByPath.remove("$currentWalletDirPath/$name");
         closeWalletAwaitIfShould(wmaddr, waddr);
-        currentWallet = null;
+        if (currentWallet?.ffiAddress() == waddr) {
+          currentWallet = null;
+        }
         printV("wallet closed");
       }
     }
