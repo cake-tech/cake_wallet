@@ -23,7 +23,7 @@ void main() {
     // Set up error handling to prevent FlutterError.onError assertion
     FlutterError.onError = (FlutterErrorDetails details) {
       // We log the error but don't throw it
-      print('FlutterError caught: ${details.exception}');
+      debugPrint('FlutterError caught: ${details.exception}');
     };
 
     commonTestFlows = CommonTestFlows(tester);
