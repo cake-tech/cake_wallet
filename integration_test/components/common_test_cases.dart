@@ -196,17 +196,36 @@ class CommonTestCases {
       matching: find.byType(Scrollable),
     );
 
+    // Check if the item is already visible
+    if (tester.any(itemFinder)) {
+      tester.printToConsole('Item $itemKeyId is already visible');
+      return;
+    }
+
+    // Check if scrollable exists
+    if (!tester.any(scrollableFinder)) {
+      tester.printToConsole('Scrollable not found for $itemKeyId');
+      return;
+    }
+
     try {
       await tester.scrollUntilVisible(
         itemFinder,
         scrollPixels,
         scrollable: scrollableFinder,
+        maxScrolls: 10, 
       );
-    } catch (e) {
-      tester.printToConsole('Could not find $itemKeyId');
-    }
 
-    await tester.pumpAndSettle();
+      // Wait for the scroll to complete
+      await tester.pumpAndSettle(Duration(milliseconds: 500));
+
+      // Verify the item is now visible
+      if (!tester.any(itemFinder)) {
+        tester.printToConsole('Item $itemKeyId not found after scrolling');
+      }
+    } catch (e) {
+      tester.printToConsole('Could not scroll to $itemKeyId: $e');
+    }
   }
 
   Future<void> enterText(String text, String editableTextKey) async {

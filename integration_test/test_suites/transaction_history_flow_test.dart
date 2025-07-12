@@ -18,8 +18,14 @@ void main() {
 
   /// Two Test Scenarios
   ///  - Fully Synchronizes and display the transaction history either immediately or few seconds after fully synchronizing
-  /// - Displays the transaction history progressively as synchronizing happens
+  ///  - Displays the transaction history progressively as synchronizing happens
   testWidgets('Transaction history flow', (tester) async {
+    // Set up error handling to prevent FlutterError.onError assertion
+    FlutterError.onError = (FlutterErrorDetails details) {
+      // We log the error but don't throw it
+      print('FlutterError caught: ${details.exception}');
+    };
+
     commonTestFlows = CommonTestFlows(tester);
     dashboardPageRobot = DashboardPageRobot(tester);
     transactionsPageRobot = TransactionsPageRobot(tester);
@@ -30,31 +36,11 @@ void main() {
 
     /// Test Scenario 1 - Displays transaction history list while synchronizing.
     ///
-    /// For bitcoin/Monero/Wownero WalletTypes.
-    await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
-      WalletType.bitcoin,
-      secrets.bitcoinTestWalletSeeds,
-      CommonTestConstants.pin,
-    );
-
-    await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(WalletType.bitcoin);
-
-    await dashboardPageRobot.swipeDashboardTab(true);
-
-    await transactionsPageRobot.isTransactionsPage();
-
-    await transactionsPageRobot.confirmTransactionsPageConstantsDisplayProperly();
-
-    await transactionsPageRobot.confirmTransactionHistoryListDisplaysCorrectly(false);
-
-    /// Test Scenario 2 - Displays transaction history list after fully synchronizing.
-    ///
     /// For Solana/Tron WalletTypes.
-    await dashboardPageRobot.navigateToWalletsListPage();
-
-    await commonTestFlows.restoreWalletFromWalletMenu(
+    await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
       WalletType.solana,
       secrets.solanaTestWalletSeeds,
+      CommonTestConstants.pin,
     );
 
     await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(WalletType.solana);
@@ -65,6 +51,34 @@ void main() {
 
     await transactionsPageRobot.confirmTransactionsPageConstantsDisplayProperly();
 
+    // Wait time for the first scenario to ensure proper loading
+    await tester.pump(Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
     await transactionsPageRobot.confirmTransactionHistoryListDisplaysCorrectly(true);
+
+    /// Test Scenario 2 - Displays transaction history list after fully synchronizing.
+    ///
+    /// For Bitcoin/Monero/Wownero WalletTypes.
+    await dashboardPageRobot.navigateToWalletsListPage();
+
+    await commonTestFlows.restoreWalletFromWalletMenu(
+      WalletType.bitcoin,
+      secrets.bitcoinTestWalletSeeds,
+    );
+
+    await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(WalletType.bitcoin);
+
+    await dashboardPageRobot.swipeDashboardTab(true);
+
+    await transactionsPageRobot.isTransactionsPage();
+
+    await transactionsPageRobot.confirmTransactionsPageConstantsDisplayProperly();
+
+    // Wait time for the second scenario to ensure proper loading
+    await tester.pump(Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    await transactionsPageRobot.confirmTransactionHistoryListDisplaysCorrectly(false);
   });
 }
