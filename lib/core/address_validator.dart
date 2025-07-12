@@ -28,7 +28,7 @@ class AddressValidator extends TextValidator {
             pattern: getPattern(type, isTestnet: isTestnet),
             length: getLength(type));
 
-  static String getPattern(CryptoCurrency type, {required bool isTestnet}) {
+  static String getPattern(CryptoCurrency type, {bool isTestnet = false}) {
     var pattern = "";
     if (type is Erc20Token) {
       pattern = '0x[0-9a-zA-Z]+';

@@ -231,15 +231,14 @@ class CWBitcoin extends Bitcoin {
       Box<WalletInfo> walletInfoSource,
       Box<UnspentCoinsInfo> unspentCoinSource,
       Box<PayjoinSession> payjoinSessionSource,
-      bool alwaysScan,
       bool isDirect) {
     return BitcoinWalletService(walletInfoSource, unspentCoinSource,
-        payjoinSessionSource, alwaysScan, isDirect);
+        payjoinSessionSource, isDirect);
   }
 
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 
   @override
@@ -579,6 +578,15 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.setSilentPaymentsScanning(active);
   }
+
+  Future<void> setIsAlwaysScanningSP(Object wallet, bool active) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    bitcoinWallet.alwaysScan = active;
+    bitcoinWallet.save();
+  }
+
+  @computed
+  bool getIsAlwaysScanningSP(Object wallet) => (wallet as ElectrumWallet).alwaysScan ?? false;
 
   @override
   bool isTestnet(Object wallet) {
