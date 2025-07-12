@@ -53,7 +53,7 @@ class InfoBottomSheet extends BaseBottomSheet {
     this.onRightActionButtonPressed,
     this.leftActionButtonKey,
     this.rightActionButtonKey,
-    this.showDisclaimerText = true,
+    this.showDisclaimerText = false,
     Key? key,
   }) : super(
             titleText: titleText,
