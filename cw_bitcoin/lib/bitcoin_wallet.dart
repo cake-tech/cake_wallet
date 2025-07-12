@@ -168,7 +168,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<PayjoinSession> payjoinBox,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
-    required bool alwaysScan,
   }) async {
     final network = walletInfo.network != null
         ? BasedUtxoNetwork.fromName(walletInfo.network!)
@@ -252,7 +251,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         initialChangeAddressIndex: snp?.changeAddressIndex,
         addressPageType: snp?.addressPageType,
         networkParam: network,
-        alwaysScan: alwaysScan,
+        alwaysScan: snp?.alwaysScan,
         payjoinBox: payjoinBox);
   }
 

@@ -150,6 +150,7 @@ abstract class ElectrumWalletBase
     }
   }
 
+  @observable
   bool? alwaysScan;
 
   final Bip32Slip10Secp256k1 accountHD;
