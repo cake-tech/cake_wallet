@@ -473,40 +473,6 @@ jobs:
                 echo "=== Emulator Status Check ==="
                 adb devices
                 
-                # If no emulator is running, try to start one manually
-                if ! adb devices | grep -q emulator; then
-                    echo "No emulator found, attempting manual startup..."
-                    
-                    # List available AVDs
-                    echo "Available AVDs:"
-                    emulator -list-avds
-                    
-                    # Try to start the first available AVD
-                    AVD_NAME=$(emulator -list-avds | head -1)
-                    if [ -n "$AVD_NAME" ]; then
-                        echo "Starting AVD: $AVD_NAME"
-                        emulator -avd "$AVD_NAME" -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 &
-                        EMULATOR_PID=$!
-                        echo "Emulator started with PID: $EMULATOR_PID"
-                        
-                        # Wait for emulator to boot
-                        echo "Waiting for emulator to boot..."
-                        for i in {1..60}; do
-                            if adb devices | grep -q emulator; then
-                                echo "Emulator is now available"
-                                break
-                            fi
-                            echo "Waiting... ($i/60)"
-                            sleep 10
-                        done
-                    else
-                        echo "No AVDs available"
-                    fi
-                fi
-                
-                echo "=== Final Emulator Status ==="
-                adb devices
-                
                 echo "=== Emulator Info ==="
                 adb shell getprop ro.build.version.release || echo "Failed to get Android version"
                 adb shell getprop ro.product.model || echo "Failed to get device model"
