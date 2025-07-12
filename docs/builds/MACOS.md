@@ -7,7 +7,7 @@ The following are the system requirements to build Cake Wallet for your macOS de
 ```txt
 macOS 15.3.1
 Xcode 16.2
-Flutter 3.27.0
+Flutter 3.27.4
 ```
 
 ### 1. Installing dependencies
@@ -34,9 +34,9 @@ sudo xcodebuild -runFirstLaunch
 
 ### 3. Installing Flutter
 
-Install Flutter, specifically version `3.27.0` by following the [official docs](https://docs.flutter.dev/get-started/install/macos/desktop?tab=download).
+Install Flutter, specifically version `3.27.4` by following the [official docs](https://docs.flutter.dev/get-started/install/macos/desktop?tab=download).
 
-NOTE: as `3.27.0` is not the latest version, you'll need to download it from <https://docs.flutter.dev/release/archive> instead of the link in the docs above.
+NOTE: as `3.27.4` is not the latest version, you'll need to download it from <https://docs.flutter.dev/release/archive> instead of the link in the docs above.
 
 ### 4. Installing Rust
 
@@ -56,7 +56,7 @@ The output of this command should appear like this, indicating successful instal
 
 ```zsh
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 3.27.0, on macOS 15.x.x)
+[✓] Flutter (Channel stable, 3.27.4, on macOS 15.x.x)
 ...
 [✓] Xcode - develop for iOS and macOS (Xcode 16.2)
 ...
