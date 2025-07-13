@@ -37,7 +37,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
   static const _baseURL = 'chainflip-broker.io';
   static const _assetsPath = '/assets';
-  static const _quotePath = '/quote-native';
+  static const _quotePath = '/quotes-native';
   static const _swapPath = '/swap';
   static const _txInfoPath = '/status-by-deposit-channel';
   static const _affiliateBps = secrets.chainflipAffiliateFee;
@@ -144,6 +144,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'boostFee': '6',
         'retryDurationInBlocks': '150'
       };
+
+      if (quoteResponse.containsKey('numberOfChunks') && quoteResponse.containsKey('chunkIntervalBlocks')) {
+        swapParams.addAll({
+          'numberOfChunks': quoteResponse['numberOfChunks'].toString(),
+          'chunkIntervalBlocks': quoteResponse['chunkIntervalBlocks'].toString(),
+        });
+      }
 
       final swapResponse = await _openDepositChannel(swapParams);
 
@@ -266,9 +273,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Map<String, dynamic>> _getAssets() async =>
       _getRequest(_assetsPath, {});
 
-  Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async =>
-      _getRequest(_quotePath, params);
-
   Future<Map<String, dynamic>> _openDepositChannel(Map<String, String> params) async =>
       _getRequest(_swapPath, params);
 
@@ -276,7 +280,6 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final uri = Uri.https(_baseURL, path, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
       throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
@@ -285,11 +288,38 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     return json.decode(response.body) as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
+    final uri = Uri.https(_baseURL, _quotePath, params);
+
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+
+    if ((response.statusCode != 200) || (response.body.contains('error'))) {
+      throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+    }
+
+    //printV(response.body);
+
+    final quotes = json.decode(response.body) as List<dynamic>;
+
+    Map<String, dynamic> highestQuote = quotes.reduce((current, next) {
+      double currentAmount = current['egressAmount'];
+      double nextAmount = next['egressAmount'];
+
+      String currentType = current['type'];
+      String nextType = next['type'];
+
+      printV('Current: $currentType -> $currentAmount, Next: $nextType -> $nextAmount');
+
+      return currentAmount > nextAmount ? current : next;
+    });
+
+    return highestQuote;
+  }
+
   Future<Map<String, dynamic>?> _getStatus(Map<String, String> params) async {
     final uri = Uri.https(_baseURL, _txInfoPath, params);
 
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
 
     if (response.statusCode == 404) return null;
 
