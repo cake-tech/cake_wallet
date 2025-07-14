@@ -444,6 +444,49 @@ jobs:
                 ~/.android/adb*
             key: avd-${{ matrix.api-level }}
 
+      - name: 🔧 Prepare emulator utilities
+        run: |
+          # Create a helper script for emulator readiness checks
+          cat > /tmp/emulator_ready.sh << 'EOF'
+          #!/bin/bash
+          
+          echo "=== Emulator Readiness Check ==="
+          
+          # Wait for boot completion
+          echo "1. Checking boot completion..."
+          timeout 300 bash -c 'until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do sleep 5; echo "  Waiting for boot completion..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Boot completed"
+          else
+              echo "❌ Boot completion timeout"
+              return 1
+          fi
+          
+          # Wait for input service
+          echo "2. Checking input service..."
+          timeout 60 bash -c 'until adb shell service list 2>/dev/null | grep -q "input"; do sleep 2; echo "  Waiting for input service..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Input service ready"
+          else
+              echo "❌ Input service timeout"
+              return 1
+          fi
+          
+          # Wait for package manager
+          echo "3. Checking package manager..."
+          timeout 60 bash -c 'until adb shell pm list packages 2>/dev/null >/dev/null; do sleep 2; echo "  Waiting for package manager..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Package manager ready"
+          else
+              echo "❌ Package manager timeout"
+              return 1
+          fi
+          
+          echo "✅ Emulator is fully ready"
+          EOF
+          
+          chmod +x /tmp/emulator_ready.sh
+
       - name: 🦾 Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
@@ -453,10 +496,13 @@ jobs:
             # arch: ${{ matrix.arch }}
             emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024
             working-directory: ${{ github.workspace }}
-            disable-animations: false
+            disable-animations: true
             script: |
                 echo "=== AVD Snapshot Generation ==="
-                echo "Generated AVD snapshot for caching."
+                
+                # Use the helper script to ensure emulator is fully ready
+                /tmp/emulator_ready.sh
+                
                 echo "=== Checking emulator status before termination ==="
                 adb devices || echo "ADB devices check failed"
                 echo "=== AVD snapshot generation complete ==="
@@ -495,6 +541,11 @@ jobs:
                 chmod a+rx integration_test_runner.sh
                 
                 echo "=== Running integration tests ==="
+                
+                # Ensure emulator is fully ready before running tests
+                echo "Final emulator readiness check..."
+                /tmp/emulator_ready.sh
+                
                 # Add error handling for the test runner
                 if ./integration_test_runner.sh; then
                     echo "Integration tests completed successfully"

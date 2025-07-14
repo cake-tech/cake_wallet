@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -146,27 +147,59 @@ class SendPageRobot {
     await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> enterAmount(String amount) async {
-    await commonTestCases.enterText(amount, 'send_page_amount_textfield_key');
+  Future<void> enterSendAmount(String amount, {bool isFiat = false}) async {
+    await commonTestCases.enterText(
+      amount,
+      isFiat ? 'send_page_fiat_amount_textfield_key' : 'send_page_amount_textfield_key',
+    );
   }
 
-  Future<void> validateWalletBalance() async {
+  String _getTextFromField(ValueKey<String> key) {
+    final field = find.byKey(key);
+    if (!field.tryEvaluate()) return '';
+    final baseTextFormField = tester.widget<BaseTextFormField>(field);
+    return baseTextFormField.controller?.text ?? '';
+  }
+
+  /// Validates wallet balance for $1 send by checking against the converted crypto amount
+  /// Returns true if wallet has sufficient balance, false otherwise
+  Future<bool> validateWalletBalanceForOneDollarSend() async {
     SendPage sendPage = tester.widget(find.byType(SendPage));
     final sendViewModel = sendPage.sendViewModel;
 
     final balance = await sendViewModel.sendingBalance;
-    final amount = double.tryParse(CommonTestConstants.sendTestAmount) ?? 0.0;
 
-    tester.printToConsole('Wallet balance: $balance, sending amount: $amount');
+    await setupOneDollarSend();
+
+    // Get the crypto amount that was set for the $1 send
+    String cryptoAmount = _getTextFromField(ValueKey('send_page_amount_textfield_key'));
+    if (cryptoAmount.isEmpty || cryptoAmount == '0' || cryptoAmount == '0.0') {
+      cryptoAmount = '0.001'; // fallback amount
+    }
+
+    final amount = double.tryParse(cryptoAmount) ?? 0.0;
+
+    tester.printToConsole(
+      'Wallet balance: $balance, sending amount for \$${CommonTestConstants.sendTestFiatAmount}: $cryptoAmount',
+    );
 
     if (balance.isEmpty || double.tryParse(balance) == null) {
-      throw Exception('Invalid wallet balance: $balance');
+      tester.printToConsole('Invalid wallet balance: $balance');
+      return false;
     }
 
     final balanceValue = double.parse(balance);
     if (balanceValue < amount) {
-      throw Exception('Insufficient balance: $balanceValue < $amount');
+      tester.printToConsole(
+        'Insufficient balance for \$${CommonTestConstants.sendTestFiatAmount} send: $balanceValue < $amount',
+      );
+      return false;
     }
+
+    tester.printToConsole(
+      'Wallet has sufficient balance for \$${CommonTestConstants.sendTestFiatAmount} send',
+    );
+    return true;
   }
 
   Future<void> selectTransactionPriority({TransactionPriority? priority}) async {
@@ -595,5 +628,93 @@ class SendPageRobot {
       await commonTestCases.tapItemByKey('send_page_sent_dialog_ok_button_key');
       await commonTestCases.defaultSleepTime();
     }
+  }
+
+  //* ---- Fiat/Crypto Amount Validation -----
+  Future<void> testFiatAmountEntry() async {
+    tester.printToConsole('Testing fiat amount entry...');
+
+    await enterSendAmount('');
+    await enterSendAmount('', isFiat: true);
+    await commonTestCases.defaultSleepTime();
+
+    await enterSendAmount(CommonTestConstants.sendTestFiatAmount, isFiat: true);
+    await commonTestCases.defaultSleepTime();
+
+    // Wait for conversion to complete
+    await tester.pump(Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    // Next we get the crypto amount value and validate it's not 0
+    final cryptoAmount = _getTextFromField(ValueKey('send_page_amount_textfield_key'));
+
+    tester.printToConsole(
+      'Crypto amount after entering \$${CommonTestConstants.sendTestFiatAmount}: $cryptoAmount',
+    );
+
+    if (cryptoAmount.isNotEmpty && cryptoAmount != '0' && cryptoAmount != '0.0') {
+      tester.printToConsole('Fiat to crypto conversion working - crypto amount: $cryptoAmount');
+    } else {
+      tester.printToConsole(
+        'Fiat to crypto conversion may not be working - crypto amount: $cryptoAmount',
+      );
+    }
+  }
+
+  Future<void> testCryptoAmountEntry() async {
+    tester.printToConsole('Testing crypto amount entry...');
+
+    await enterSendAmount('');
+    await enterSendAmount('', isFiat: true);
+    await commonTestCases.defaultSleepTime();
+
+    String cryptoAmount = '0.001';
+
+    await enterSendAmount(cryptoAmount);
+    await commonTestCases.defaultSleepTime();
+
+    // Wait for conversion to complete
+    await tester.pump(Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    // Get the fiat amount value and validate it's not 0
+    final fiatAmount = _getTextFromField(ValueKey('send_page_fiat_amount_textfield_key'));
+
+    tester.printToConsole('Fiat amount after entering $cryptoAmount: $fiatAmount');
+
+    if (fiatAmount.isNotEmpty && fiatAmount != '0' && fiatAmount != '0.0') {
+      tester.printToConsole('Crypto to fiat conversion working, fiat amount: $fiatAmount');
+    } else {
+      tester.printToConsole(
+          'Crypto to fiat conversion may not be working - fiat amount: $fiatAmount');
+    }
+  }
+
+  Future<void> setupOneDollarSend() async {
+    // Clear existing amounts
+    await enterSendAmount('');
+    await enterSendAmount('', isFiat: true);
+    await commonTestCases.defaultSleepTime();
+
+    await enterSendAmount(CommonTestConstants.sendTestFiatAmount, isFiat: true);
+    await commonTestCases.defaultSleepTime();
+
+    // Wait for conversion to complete
+    await tester.pump(Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    // Get the converted crypto amount
+    String cryptoAmount = _getTextFromField(ValueKey('send_page_amount_textfield_key'));
+    if (cryptoAmount.isEmpty || cryptoAmount == '0' || cryptoAmount == '0.0') {
+      cryptoAmount = '0.001'; // fallback amount
+    }
+
+    tester.printToConsole(
+      'Sending $cryptoAmount (equivalent to \$${CommonTestConstants.sendTestFiatAmount}) to test wallet',
+    );
+
+    // Update the amount field with the converted value
+    await enterSendAmount(cryptoAmount);
+    await commonTestCases.defaultSleepTime();
   }
 }

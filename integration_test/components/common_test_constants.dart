@@ -4,6 +4,7 @@ import 'package:cw_core/wallet_type.dart';
 class CommonTestConstants {
   static final pin = [0, 8, 0, 1];
   static final String sendTestAmount = '0.00008';
+  static final String sendTestFiatAmount = '1.00';
   static final String exchangeTestAmount = '0.01';
   static final WalletType testWalletType = WalletType.solana;
   static final String testWalletName = 'Integrated Testing Wallet';
