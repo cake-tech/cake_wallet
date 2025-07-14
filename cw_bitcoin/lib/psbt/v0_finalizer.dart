@@ -88,7 +88,7 @@ extension InputFinalizer on PsbtV2 {
     }
   }
 
-  /// Deletes fields that are no longer neccesary from the psbt.
+  /// Deletes fields that are no longer necessary from the psbt.
   ///
   /// Note, the spec doesn't say anything about removing ouput fields
   /// like PSBT_OUT_BIP32_DERIVATION_PATH and others, so we keep them

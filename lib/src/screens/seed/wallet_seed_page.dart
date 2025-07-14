@@ -16,7 +16,7 @@ class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
 
   @override
-  String get title => S.current.seed_title;
+  String get title => '${walletSeedViewModel.walletType} ${S.current.seed_title}';
 
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;

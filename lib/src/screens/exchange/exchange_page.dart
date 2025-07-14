@@ -6,7 +6,6 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/desktop_exchange_cards_section.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/mobile_exchange_cards_section.dart';
 import 'package:cake_wallet/src/widgets/add_template_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -417,12 +416,12 @@ class ExchangePage extends BasePage {
 
     reaction(
         (_) => exchangeViewModel.wallet.name,
-        (String _) =>
+        (_) =>
             _onWalletNameChange(exchangeViewModel, exchangeViewModel.receiveCurrency, receiveKey));
 
     reaction(
         (_) => exchangeViewModel.wallet.name,
-        (String _) =>
+        (_) =>
             _onWalletNameChange(exchangeViewModel, exchangeViewModel.depositCurrency, depositKey));
 
     reaction((_) => exchangeViewModel.receiveCurrency,
@@ -432,8 +431,10 @@ class ExchangePage extends BasePage {
         (CryptoCurrency currency) => _onCurrencyChange(currency, exchangeViewModel, depositKey));
 
     reaction((_) => exchangeViewModel.depositAmount, (String amount) {
-      if (depositKey.currentState!.amountController.text != amount && amount != S.of(context).all) {
-        depositKey.currentState!.amountController.text = amount;
+      if (exchangeViewModel.isSendAllEnabled) {
+        depositAmountController.text = S.of(context).all;
+      } else if (depositAmountController.text != amount && amount != S.of(context).all) {
+        depositAmountController.text = amount;
       }
     });
 
@@ -521,7 +522,10 @@ class ExchangePage extends BasePage {
       if (exchangeViewModel.isFixedRateMode) {
         exchangeViewModel.changeReceiveAmount(amount: receiveAmountController.text);
       } else {
-        exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
+        if (depositAmountController.text == S.current.all)
+          exchangeViewModel.changeDepositAmount(amount: exchangeViewModel.depositAmount);
+        else
+          exchangeViewModel.changeDepositAmount(amount: depositAmountController.text);
       }
     });
 
@@ -642,8 +646,7 @@ class ExchangePage extends BasePage {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
     final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
-    return address;
+    return extractAddressFromParsed(context, parsedAddress);
   }
 
   void _showFeeAlert(BuildContext context) async {

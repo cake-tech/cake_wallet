@@ -19,14 +19,15 @@ class TextIconButton extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
+            style: TextStyle(
+              color: Theme.of(context).textTheme.titleLarge!.color,
+              fontSize: 16,
+              fontWeight: FontWeight.w900,
+            ),
           ),
           Icon(
             Icons.chevron_right_rounded,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).textTheme.titleLarge!.color,
           ),
         ],
       ),

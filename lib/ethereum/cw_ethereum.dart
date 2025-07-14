@@ -245,6 +245,11 @@ class CWEthereum extends Ethereum {
           .withdrawSavings(amount, priority as EVMChainTransactionPriority);
 
   @override
+  Future<PendingTransaction> reinvestDEuroInterest(
+          WalletBase wallet, TransactionPriority priority) =>
+      DEuro(wallet as EthereumWallet).reinvestInterest(priority as EVMChainTransactionPriority);
+
+  @override
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority) =>
       DEuro(wallet as EthereumWallet).enableSavings(priority as EVMChainTransactionPriority);
 }

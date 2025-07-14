@@ -54,7 +54,6 @@ class PreferencesKey {
   static const decredTransactionPriority = 'current_fee_priority_decred';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
-  static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const mwebCardDisplay = 'mwebCardDisplay';
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
@@ -62,6 +61,7 @@ class PreferencesKey {
   static const mwebNodeUri = 'mwebNodeUri';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
+  static const shouldShowDEuroDisclaimer = 'should_show_deuro_disclaimer';
   static const shouldShowRepWarning = 'should_show_rep_warning';
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';

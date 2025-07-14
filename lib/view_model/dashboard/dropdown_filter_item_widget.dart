@@ -1,67 +1,57 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
-class DropdownFilterList extends StatefulWidget {
-  DropdownFilterList({
+class DropdownFilterList extends StatelessWidget {
+  const DropdownFilterList({
     Key? key,
     required this.items,
-    this.itemPrefix,
-    this.textStyle,
-    required this.caption,
     required this.selectedItem,
     required this.onItemSelected,
+    this.itemPrefix,
   }) : super(key: key);
 
   final List<String> items;
-  final String? itemPrefix;
-  final TextStyle? textStyle;
-  final String caption;
   final String selectedItem;
-  final Function(String) onItemSelected;
-
-  @override
-  _DropdownFilterListState createState() => _DropdownFilterListState();
-}
-
-class _DropdownFilterListState extends State<DropdownFilterList> {
-  String? selectedValue;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedValue = widget.selectedItem;
-  }
+  final String? itemPrefix;
+  final ValueChanged<String> onItemSelected;
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonHideUnderline(
-      child: Container(
-        child: DropdownButton<String>(
-          isExpanded: true,
-          icon: Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ],
-            ),
-          ),
-          dropdownColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: DropdownButton<String>(
+          isDense: true,
+          dropdownColor: Theme.of(context).primaryColor,
           borderRadius: BorderRadius.circular(10),
-          items: widget.items
-              .map((item) => DropdownMenuItem<String>(
-                    alignment: Alignment.bottomCenter,
-                    value: item,
-                    child: AutoSizeText('${widget.itemPrefix ?? ''} $item', style: widget.textStyle),
-                  ))
+          selectedItemBuilder: (context) => items
+              .map(
+                (item) => Text(
+                  '${itemPrefix ?? ''} $item',
+                  style: Theme.of(context).textTheme.titleMedium!,
+                  maxLines: 1,
+                ),
+              )
               .toList(),
-          value: selectedValue,
-          onChanged: (newValue) {
-            setState(() => selectedValue = newValue);
-            widget.onItemSelected(newValue!);
+          items: items
+              .map(
+                (item) => DropdownMenuItem<String>(
+                  value: item,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${itemPrefix ?? ''} $item',
+                    style: (const TextStyle()).copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+              )
+              .toList(),
+          value: selectedItem,
+          onChanged: (value) {
+            if (value != null) onItemSelected(value);
           },
-        ),
-      ),
+          icon: Icon(Icons.keyboard_arrow_down_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant)),
     );
   }
 }

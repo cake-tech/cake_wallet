@@ -74,7 +74,7 @@ class DFXBuyProvider extends BuyProvider {
   Future<String> getSignMessage(String walletAddress) async =>
       "By_signing_this_message,_you_confirm_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_$walletAddress";
 
-  // // Lets keep this just in case, but we can avoid this API Call
+  // Lets keep this just in case, but we can avoid this API Call
   // Future<String> getSignMessage() async {
   //  final uri = Uri.https(_baseUrl, _signMessagePath, {'address': walletAddress});
   //

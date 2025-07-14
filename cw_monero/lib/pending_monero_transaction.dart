@@ -36,7 +36,10 @@ class PendingMoneroTransaction with PendingTransaction {
       CryptoCurrency.xmr, pendingTransactionDescription.amount);
 
   @override
-  String get feeFormatted => AmountConverter.amountIntToString(
+  String get feeFormatted => "$feeFormattedValue XMR";
+
+  @override
+  String get feeFormattedValue => AmountConverter.amountIntToString(
       CryptoCurrency.xmr, pendingTransactionDescription.fee);
 
   bool shouldCommitUR() => isViewOnly;
