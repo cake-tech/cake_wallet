@@ -99,6 +99,7 @@ abstract class OutputBase with Store {
           case WalletType.bitcoin:
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
+          case WalletType.dogecoin:
             _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.decred:
@@ -307,6 +308,7 @@ abstract class OutputBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         maximumFractionDigits = 8;
         break;
       case WalletType.wownero:

@@ -46,6 +46,7 @@ const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
+const dogecoinDefaultNodeUri = 'doge.aftrek.org:50001';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -511,6 +512,16 @@ Future<void> defaultSettingsMigration(
             enabled: true,
           );
 			    break;
+        case 50:
+          await addWalletNodeList(nodes: nodes, type: WalletType.dogecoin);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.dogecoin,
+            currentNodePreferenceKey: PreferencesKey.currentDogecoinNodeIdKey,
+            // will pick dogecoinDefaultUri above
+          );
+          break;
         default:
           break;
       }
@@ -617,6 +628,8 @@ String _getDefaultNodeUri(WalletType type) {
       return zanoDefaultNodeUri;
     case WalletType.decred:
       return decredDefaultUri;
+    case WalletType.dogecoin:
+      return dogecoinDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';

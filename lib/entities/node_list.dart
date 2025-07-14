@@ -45,6 +45,8 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
       break;
     case WalletType.decred:
       path = 'assets/decred_node_list.yml';
+    case WalletType.dogecoin:
+      path = 'assets/dogecoin_electrum_server_list.yml';
       break;
     case WalletType.banano:
     case WalletType.none:
@@ -96,6 +98,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final tronNodes = await loadDefaultNodes(WalletType.tron);
   final decredNodes = await loadDefaultNodes(WalletType.decred);
   final zanoNodes = await loadDefaultNodes(WalletType.zano);
+  final dogecoinElectrumServerList = await loadDefaultNodes(WalletType.dogecoin);
 
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
@@ -108,7 +111,8 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       solanaNodes +
       tronNodes +
       zanoNodes +
-      decredNodes;
+      decredNodes +
+      dogecoinElectrumServerList;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);

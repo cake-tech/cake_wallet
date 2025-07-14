@@ -127,6 +127,8 @@ abstract class ElectrumWalletBase
               as Bip32Slip10Secp256k1;
         case CryptoCurrency.bch:
           return bitcoinCashHDWallet(seedBytes);
+        case CryptoCurrency.doge:
+          return dogecoinHDWallet(seedBytes);
         default:
           throw Exception("Unsupported currency");
       }
@@ -137,6 +139,9 @@ abstract class ElectrumWalletBase
 
   static Bip32Slip10Secp256k1 bitcoinCashHDWallet(Uint8List seedBytes) =>
       Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'") as Bip32Slip10Secp256k1;
+
+  static Bip32Slip10Secp256k1 dogecoinHDWallet(Uint8List seedBytes) =>
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/3'/0'") as Bip32Slip10Secp256k1;
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
