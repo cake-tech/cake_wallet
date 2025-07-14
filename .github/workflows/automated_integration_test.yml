@@ -454,7 +454,12 @@ jobs:
             emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024
             working-directory: ${{ github.workspace }}
             disable-animations: false
-            script: echo "Generated AVD snapshot for caching."
+            script: |
+                echo "=== AVD Snapshot Generation ==="
+                echo "Generated AVD snapshot for caching."
+                echo "=== Checking emulator status before termination ==="
+                adb devices || echo "ADB devices check failed"
+                echo "=== AVD snapshot generation complete ==="
 
       - name: 🚀 Integration tests on Android Emulator
         timeout-minutes: 60
@@ -498,5 +503,19 @@ jobs:
                     # Don't exit with error code to allow cleanup
                     exit 0
                 fi
+
+      - name: 🧹 Post-test cleanup
+        if: always()
+        run: |
+            echo "=== Post-test cleanup ==="
+            # Kill any remaining emulator processes
+            pkill -f emulator || echo "No emulator processes to kill"
+            # Kill any remaining adb processes
+            pkill -f adb || echo "No adb processes to kill"
+            # Wait for processes to terminate
+            sleep 2
+            # Check for any remaining processes
+            ps aux | grep -E "(emulator|adb)" | grep -v grep || echo "No remaining emulator/adb processes"
+            echo "=== Cleanup complete ==="
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/
