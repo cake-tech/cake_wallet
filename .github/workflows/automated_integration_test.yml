@@ -482,6 +482,16 @@ jobs:
               return 1
           fi
           
+          # Wait for settings service
+          echo "4. Checking settings service..."
+          timeout 60 bash -c 'until adb shell settings get global window_animation_scale 2>/dev/null >/dev/null; do sleep 2; echo "  Waiting for settings service..."; done'
+          if [ $? -eq 0 ]; then
+              echo "✅ Settings service ready"
+          else
+              echo "❌ Settings service timeout"
+              return 1
+          fi
+          
           echo "✅ Emulator is fully ready"
           EOF
           
@@ -494,14 +504,20 @@ jobs:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
             # arch: ${{ matrix.arch }}
-            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024
+            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
             working-directory: ${{ github.workspace }}
-            disable-animations: true
+            disable-animations: false
             script: |
                 echo "=== AVD Snapshot Generation ==="
                 
                 # Use the helper script to ensure emulator is fully ready
                 /tmp/emulator_ready.sh
+                
+                # Manually disable animations with error handling
+                echo "Disabling animations manually..."
+                adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
+                adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
+                adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
                 
                 echo "=== Checking emulator status before termination ==="
                 adb devices || echo "ADB devices check failed"
@@ -513,8 +529,8 @@ jobs:
         with:
             api-level: ${{ matrix.api-level }}
             force-avd-creation: false
-            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024
-            disable-animations: true
+            emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 1024 -no-snapshot-save
+            disable-animations: false
             working-directory: ${{ github.workspace }}
             script: |
                 echo "=== Pre-test Environment Check ==="
@@ -545,6 +561,12 @@ jobs:
                 # Ensure emulator is fully ready before running tests
                 echo "Final emulator readiness check..."
                 /tmp/emulator_ready.sh
+                
+                # Manually disable animations with error handling
+                echo "Disabling animations for test performance..."
+                adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
+                adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
+                adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
                 
                 # Add error handling for the test runner
                 if ./integration_test_runner.sh; then
