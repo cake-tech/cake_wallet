@@ -37,7 +37,7 @@ class PendingEVMChainTransaction with PendingTransaction {
   String get feeFormatted => "$feeFormattedValue $feeCurrency";
 
   @override
-  String get feeFormattedValue => formatFixed(fee, 10);
+  String get feeFormattedValue => formatFixed(fee, 18, fractionalDigits: 10);
 
   @override
   String get hex => bytesToHex(signedTransaction, include0x: true);
