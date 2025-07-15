@@ -49,7 +49,7 @@ class MoneroAccountEditOrCreatePage extends BasePage {
 
                     await moneroAccountCreationViewModel.save();
 
-                    if (context.mounted) {
+                    if (context.mounted && Navigator.of(context).canPop()) {
                       Navigator.of(context).pop(_textController.text);
                     }
                   },
