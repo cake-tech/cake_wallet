@@ -372,6 +372,7 @@ abstract class ElectrumWalletBase
               existingTxInfo.confirmations = tx.confirmations;
               existingTxInfo.height = tx.height;
               existingTxInfo.date = tx.date;
+              existingTxInfo.isReceivedSilentPayment = tx.isReceivedSilentPayment;
 
               final newUnspents = tx.unspents!
                   .where((unspent) => !(existingTxInfo.unspents?.any((element) =>
