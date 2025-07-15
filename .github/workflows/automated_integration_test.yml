@@ -545,11 +545,9 @@ jobs:
                 adb shell getprop ro.product.model || echo "Failed to get device model"
                 
                 echo "=== Checking Emulator Performance ==="
-                # Check if emulator is using hardware acceleration
                 adb shell cat /proc/cpuinfo | grep -i "model name" | head -1 || echo "Could not check CPU info"
                 adb shell cat /proc/meminfo | grep -i "memtotal" || echo "Could not check memory info"
                 
-                # Check emulator process for KVM usage
                 echo "=== Checking Emulator Process ==="
                 ps aux | grep emulator | grep -v grep || echo "Emulator process not found in ps output"
                 
@@ -558,24 +556,22 @@ jobs:
                 
                 echo "=== Running integration tests ==="
                 
-                # Ensure emulator is fully ready before running tests
                 echo "Final emulator readiness check..."
                 /tmp/emulator_ready.sh || echo "Emulator readiness check failed, but continuing..."
                 
-                # Manually disable animations with error handling
                 echo "Disabling animations for test performance..."
                 adb shell settings put global window_animation_scale 0.0 || echo "Failed to disable window animations"
                 adb shell settings put global transition_animation_scale 0.0 || echo "Failed to disable transition animations"
                 adb shell settings put global animator_duration_scale 0.0 || echo "Failed to disable animator duration"
                 
-                # Add error handling for the test runner
                 echo "Starting integration test runner..."
-                if ./integration_test_runner.sh; then
+                ./integration_test_runner.sh
+                TEST_EXIT_CODE=$?
+                
+                if [ $TEST_EXIT_CODE -eq 0 ]; then
                     echo "Integration tests completed successfully"
                 else
-                    echo "Integration tests failed with exit code $?"
-                    # Don't exit with error code to allow cleanup
-                    exit 0
+                    echo "Integration tests failed with exit code $TEST_EXIT_CODE"
                 fi
 
       - name: 🧹 Post-test cleanup
