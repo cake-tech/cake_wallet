@@ -126,6 +126,9 @@ class CommonTestFlows {
   //* ========== Handles creating new wallet flow from wallet list/menu ===============
   Future<void> createNewWalletFromWalletMenu(WalletType walletTypeToCreate) async {
     _tester.printToConsole('Creating ${walletTypeToCreate.name} Wallet');
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await _walletListPageRobot.navigateToCreateNewWalletPage();
     await _commonTestCases.defaultSleepTime();
 
@@ -221,17 +224,32 @@ class CommonTestFlows {
   //* ============ Handles New Wallet Type Page ==================
   Future<void> _selectWalletTypeForWallet(WalletType type) async {
     // ----------- NewWalletType Page -------------
-    // Confirm scroll behaviour works properly
+    _tester.printToConsole('Selecting wallet type: ${type.name}');
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await _newWalletTypePageRobot.findParticularWalletTypeInScrollableList(type);
 
-    // Select a wallet and route to next page
+    _tester.printToConsole('Tapping wallet type: ${type.name}');
     await _newWalletTypePageRobot.selectWalletType(type);
+    await _tester.pumpAndSettle(Duration(milliseconds: 500));
+
+    _tester.printToConsole('Pressing next button');
     await _newWalletTypePageRobot.onNextButtonPressed();
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 2000));
+
+    _tester.printToConsole('Wallet type selection completed for: ${type.name}');
   }
 
   //* ============ Handles New Wallet Page ==================
   Future<void> _generateNewWalletDetails() async {
+    _tester.printToConsole('Attempting to find NewWalletPage...');
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await _newWalletPageRobot.isNewWalletPage();
+    _tester.printToConsole('NewWalletPage found successfully');
 
     await _newWalletPageRobot.generateWalletName();
 

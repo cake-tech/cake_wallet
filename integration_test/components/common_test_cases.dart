@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 
 class CommonTestCases {
   WidgetTester tester;
@@ -16,8 +15,14 @@ class CommonTestCases {
     bool shouldPumpAndSettle = true,
     int pumpDuration = 100,
   }) async {
-    final widget = find.byKey(ValueKey(key)).first;
-    await tester.tap(widget);
+    await tester.pump(Duration(milliseconds: 500));
+
+    final widgetFinder = find.byKey(ValueKey(key));
+
+    expect(tester.any(widgetFinder), true, reason: 'Widget with key "$key" should be visible');
+
+    final widget = widgetFinder.first;
+    await tester.tap(widget, warnIfMissed: false);
     shouldPumpAndSettle
         ? await tester.pumpAndSettle(Duration(milliseconds: pumpDuration))
         : await tester.pump();
@@ -213,7 +218,7 @@ class CommonTestCases {
         itemFinder,
         scrollPixels,
         scrollable: scrollableFinder,
-        maxScrolls: 10, 
+        maxScrolls: 10,
       );
 
       // Wait for the scroll to complete

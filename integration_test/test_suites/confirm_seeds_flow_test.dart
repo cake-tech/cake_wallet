@@ -24,62 +24,66 @@ void main() {
   testWidgets(
     'Confirm if the seeds display properly',
     (tester) async {
-      // Set up error handling to prevent FlutterError.onError assertion
+      // Store the original FlutterError.onError handler
+      final originalOnError = FlutterError.onError;
+      
       FlutterError.onError = (FlutterErrorDetails details) {
-        // We log the error but don't throw it
         debugPrint('FlutterError caught: ${details.exception}');
       };
-      
-      authPageRobot = AuthPageRobot(tester);
-      commonTestFlows = CommonTestFlows(tester);
-      dashboardPageRobot = DashboardPageRobot(tester);
-      walletKeysAndSeedPageRobot = WalletKeysAndSeedPageRobot(tester);
-      securityAndBackupPageRobot = SecurityAndBackupPageRobot(tester);
 
-      // Start the app
-      await commonTestFlows.startAppFlow(
-        ValueKey('confirm_creds_display_correctly_flow_app_key'),
-      );
+      try {
+        authPageRobot = AuthPageRobot(tester);
+        commonTestFlows = CommonTestFlows(tester);
+        dashboardPageRobot = DashboardPageRobot(tester);
+        walletKeysAndSeedPageRobot = WalletKeysAndSeedPageRobot(tester);
+        securityAndBackupPageRobot = SecurityAndBackupPageRobot(tester);
 
-      await commonTestFlows.welcomePageToCreateNewWalletFlow(
-        WalletType.solana,
-        CommonTestConstants.pin,
-      );
+        await commonTestFlows.startAppFlow(
+          ValueKey('confirm_creds_display_correctly_flow_app_key'),
+        );
 
-      await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(WalletType.solana);
+        await commonTestFlows.welcomePageToCreateNewWalletFlow(
+          WalletType.solana,
+          CommonTestConstants.pin,
+        );
 
-      await _confirmSeedsFlowForWalletType(
-        WalletType.solana,
-        authPageRobot,
-        dashboardPageRobot,
-        securityAndBackupPageRobot,
-        walletKeysAndSeedPageRobot,
-        tester,
-      );
-
-      // Do the same for other available wallet types
-      for (var walletType in availableWalletTypes) {
-        if (walletType == WalletType.solana) {
-          continue;
-        }
-
-        await dashboardPageRobot.navigateToWalletsListPage();
-
-        await commonTestFlows.createNewWalletFromWalletMenu(walletType);
-
-        await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(walletType);
+        await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(WalletType.solana);
 
         await _confirmSeedsFlowForWalletType(
-          walletType,
+          WalletType.solana,
           authPageRobot,
           dashboardPageRobot,
           securityAndBackupPageRobot,
           walletKeysAndSeedPageRobot,
           tester,
         );
-      }
 
-      await Future.delayed(Duration(seconds: 15));
+        // Do the same for other available wallet types
+        for (var walletType in availableWalletTypes) {
+          if (walletType == WalletType.solana) {
+            continue;
+          }
+
+          await dashboardPageRobot.navigateToWalletsListPage();
+
+          await commonTestFlows.createNewWalletFromWalletMenu(walletType);
+
+          await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(walletType);
+
+          await _confirmSeedsFlowForWalletType(
+            walletType,
+            authPageRobot,
+            dashboardPageRobot,
+            securityAndBackupPageRobot,
+            walletKeysAndSeedPageRobot,
+            tester,
+          );
+        }
+
+        await Future.delayed(Duration(seconds: 15));
+      } finally {
+        FlutterError.onError = originalOnError;
+      }
     },
   );
 }

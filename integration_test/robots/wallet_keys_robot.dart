@@ -181,7 +181,12 @@ class WalletKeysAndSeedPageRobot {
 
   Future<void> backToDashboard() async {
     tester.printToConsole('Going back to dashboard from credentials page');
+    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await commonTestCases.goBack();
+    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await commonTestCases.goBack();
+    await tester.pumpAndSettle(Duration(milliseconds: 2000));
   }
 }

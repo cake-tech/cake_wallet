@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/crypto_balance_widget.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_test_cases.dart';
@@ -93,7 +94,20 @@ class DashboardPageRobot {
   }
 
   Future<void> navigateToWalletsListPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.wallets}_action_button_key');
+    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+
+    final dashboardFinder = find.byType(DashboardPage);
+    expect(tester.any(dashboardFinder), true, reason: 'Dashboard page should be visible');
+
+    final walletsButtonKey = 'dashboard_page_${S.current.wallets}_action_button_key';
+    final walletsButtonFinder = find.byKey(ValueKey(walletsButtonKey));
+
+    await tester.pumpAndSettle(Duration(milliseconds: 500));
+    expect(tester.any(walletsButtonFinder), true, reason: 'Wallets button should be visible');
+
+    await commonTestCases.tapItemByKey(walletsButtonKey);
+
+    await tester.pumpAndSettle(Duration(milliseconds: 2000));
   }
 
   Future<void> navigateToSendPage() async {
