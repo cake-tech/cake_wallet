@@ -2,7 +2,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/balance/crypto_balance_widget.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_test_cases.dart';
@@ -90,39 +89,34 @@ class DashboardPageRobot {
   }
 
   Future<void> navigateToBuyPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.buy}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_buy_action_button_key');
   }
 
-  Future<void> navigateToWalletsListPage() async {
+  Future<void> navigateToWalletsListPage({bool isDrawer = false}) async {
     await tester.pumpAndSettle(Duration(milliseconds: 1000));
 
-    final dashboardFinder = find.byType(DashboardPage);
-    expect(tester.any(dashboardFinder), true, reason: 'Dashboard page should be visible');
-
-    final walletsButtonKey = 'dashboard_page_${S.current.wallets}_action_button_key';
-    final walletsButtonFinder = find.byKey(ValueKey(walletsButtonKey));
-
-    await tester.pumpAndSettle(Duration(milliseconds: 500));
-    expect(tester.any(walletsButtonFinder), true, reason: 'Wallets button should be visible');
-
-    await commonTestCases.tapItemByKey(walletsButtonKey);
+    await commonTestCases.tapItemByKey(
+      isDrawer
+          ? 'dashboard_page_menu_widget_wallet_menu_button_key'
+          : 'dashboard_page__wallet_list_button_key',
+    );
 
     await tester.pumpAndSettle(Duration(milliseconds: 2000));
   }
 
   Future<void> navigateToSendPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.send}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_send_action_button_key');
   }
 
   Future<void> navigateToSellPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.sell}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_sell_action_button_key');
   }
 
   Future<void> navigateToReceivePage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.receive}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_receive_action_button_key');
   }
 
   Future<void> navigateToExchangePage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.swap}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_swap_action_button_key');
   }
 }

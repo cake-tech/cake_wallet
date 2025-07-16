@@ -64,7 +64,7 @@ void main() {
             continue;
           }
 
-          await dashboardPageRobot.navigateToWalletsListPage();
+          await dashboardPageRobot.navigateToWalletsListPage(isDrawer: true);
 
           await commonTestFlows.createNewWalletFromWalletMenu(walletType);
 
