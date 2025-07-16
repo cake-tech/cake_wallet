@@ -25,7 +25,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -56,6 +55,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/core/reset_service.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -202,8 +202,8 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final powNodes =
       await CakeHive.openBox<Node>(Node.boxName + "pow"); // must be different from Node.boxName
   final transactionDescriptions = await CakeHive.openBox<TransactionDescription>(
-          TransactionDescription.boxName,
-          encryptionKey: transactionDescriptionsBoxKey);
+      TransactionDescription.boxName,
+      encryptionKey: transactionDescriptionsBoxKey);
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
   final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -287,6 +287,9 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
+
+  await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
+
   await bootstrapOffline();
   final settingsStore = getIt<SettingsStore>();
   if (!settingsStore.currentBuiltinTor) {
@@ -314,7 +317,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-                  ? Routes.welcome
+            ? Routes.welcome
             : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
         final statusBarBrightness = currentTheme.type == currentTheme.isDark
