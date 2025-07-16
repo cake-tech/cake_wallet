@@ -20,9 +20,7 @@ void main() {
   ///  - Fully Synchronizes and display the transaction history either immediately or few seconds after fully synchronizing
   ///  - Displays the transaction history progressively as synchronizing happens
   testWidgets('Transaction history flow', (tester) async {
-    // Set up error handling to prevent FlutterError.onError assertion
     FlutterError.onError = (FlutterErrorDetails details) {
-      // We log the error but don't throw it
       debugPrint('FlutterError caught: ${details.exception}');
     };
 

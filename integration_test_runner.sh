@@ -67,8 +67,6 @@ clean_data_directories() {
     fi
 }
 
-# No longer needed for sequential execution
-
 # Run a single test with retry logic
 run_test() {
     local test_file="$1"
@@ -118,7 +116,7 @@ run_test() {
     done
 }
 
-# Main execution
+# Main execution flow
 main() {
     log "Starting integration test runner"
     log "Configuration: RETRY_COUNT=${RETRY_COUNT}"

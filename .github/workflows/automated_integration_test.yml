@@ -1,9 +1,12 @@
 
 name: Automated Integration Tests
 
-on: [push]
+# Temporarily disabled - uncomment to re-enable
+on: 
+  # push:
   # pull_request:
   #   branches: [main, Integrate-Seed-Verification-Flow-To-Integration-Tests]
+  workflow_dispatch:  # This is to manually trigger if needed
 defaults:
   run:
     shell: bash

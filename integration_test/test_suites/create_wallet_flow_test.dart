@@ -17,9 +17,7 @@ void main() {
   testWidgets(
     'Create Wallet Flow',
     (tester) async {
-      // Set up error handling to prevent FlutterError.onError assertion
       FlutterError.onError = (FlutterErrorDetails details) {
-        // We log the error but don't throw it
         debugPrint('FlutterError caught: ${details.exception}');
       };
       commonTestFlows = CommonTestFlows(tester);

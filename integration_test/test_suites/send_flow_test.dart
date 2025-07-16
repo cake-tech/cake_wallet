@@ -20,9 +20,7 @@ void main() {
 
   testWidgets('Send flow with wallet switching for insufficient balance - testing \$1 send',
       (tester) async {
-    // Set up error handling to prevent FlutterError.onError assertion
     FlutterError.onError = (FlutterErrorDetails details) {
-      // We log the error but don't throw it
       debugPrint('FlutterError caught: ${details.exception}');
     };
 
