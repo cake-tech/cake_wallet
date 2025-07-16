@@ -54,7 +54,6 @@ class PreferencesKey {
   static const decredTransactionPriority = 'current_fee_priority_decred';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
-  static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const mwebCardDisplay = 'mwebCardDisplay';
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';

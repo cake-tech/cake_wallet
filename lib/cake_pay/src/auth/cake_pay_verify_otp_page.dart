@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/cake_pay/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -146,7 +147,9 @@ class CakePayVerifyOtpPage extends BasePage {
         });
   }
 
-  void _onOtpSuccessful(BuildContext context) => Navigator.pop(context);
+
+  void _onOtpSuccessful(BuildContext context) =>
+      Navigator.pop(context, true);
 
   void _verify() async => await _authViewModel.verifyEmail(_codeController.text);
 }

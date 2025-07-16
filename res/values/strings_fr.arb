@@ -108,6 +108,7 @@
   "cake_2fa_preset": "Cake 2FA prédéfini",
   "cake_dark_theme": "Thème sombre Cake",
   "cake_pay_account_note": "Inscrivez-vous avec juste une adresse e-mail pour voir et acheter des cartes. Certaines sont même disponibles à prix réduit !",
+  "cake_pay_card_email_delivered_message": "Votre carte-cadeau sera livrée par e-mail après les confirmations nécessaires.",
   "cake_pay_learn_more": "Achetez et utilisez instantanément des cartes-cadeaux dans l'application !\nBalayer de gauche à droite pour en savoir plus.",
   "cake_pay_save_order": "La carte doit être envoyée à votre e-mail dans un jour ouvrable \n Enregistrez votre identifiant de commande:",
   "cake_pay_subtitle": "Achetez des cartes et des cartes-cadeaux prépayées mondiales",
