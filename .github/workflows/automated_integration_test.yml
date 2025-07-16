@@ -3,7 +3,7 @@ name: Automated Integration Tests
 
 # Temporarily disabled - uncomment to re-enable
 on: 
-  push:
+  # push:
   # pull_request:
   #   branches: [main, Integrate-Seed-Verification-Flow-To-Integration-Tests]
   workflow_dispatch:  # This is to manually trigger if needed
