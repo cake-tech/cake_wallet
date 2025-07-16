@@ -16,6 +16,7 @@ String formatFixed(BigInt value, int? decimals,
       .padLeft(decimals, "0");
 
   if (fractionalDigits < 0) fractionalDigits = 0;
+  if (fractionalDigits > decimals) fractionalDigits = decimals;
   fraction = fraction.substring(0, fractionalDigits);
 
   if (trimZeros) {
