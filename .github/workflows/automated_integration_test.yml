@@ -5,7 +5,7 @@ name: Automated Integration Tests
 on: 
   # push:
   # pull_request:
-  #   branches: [main, Integrate-Seed-Verification-Flow-To-Integration-Tests]
+  #   branches: [main]
   workflow_dispatch:  # This is to manually trigger if needed
 defaults:
   run:
