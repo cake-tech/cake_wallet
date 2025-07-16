@@ -4,6 +4,7 @@ bool isBIP39Wallet(WalletType walletType) {
   switch (walletType) {
     case WalletType.ethereum:
     case WalletType.polygon:
+    case WalletType.gnosis:
     case WalletType.solana:
     case WalletType.tron:
     case WalletType.bitcoin:

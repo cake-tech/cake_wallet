@@ -135,6 +135,7 @@ lib/ethereum/ethereum.dart
 lib/bitcoin_cash/bitcoin_cash.dart
 lib/nano/nano.dart
 lib/polygon/polygon.dart
+lib/gnosis/gnosis.dart
 lib/solana/solana.dart
 lib/tron/tron.dart
 lib/wownero/wownero.dart

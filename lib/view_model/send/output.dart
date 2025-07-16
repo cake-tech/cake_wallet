@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/gnosis/gnosis.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -110,6 +111,9 @@ abstract class OutputBase with Store {
           case WalletType.polygon:
             _amount = polygon!.formatterPolygonParseAmount(_cryptoAmount);
             break;
+          case WalletType.gnosis:
+            _amount = gnosis!.formatterGnosisParseAmount(_cryptoAmount);
+            break;
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
@@ -184,6 +188,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.polygon) {
         return polygon!.formatterPolygonAmountToDouble(amount: BigInt.from(fee));
+      }
+
+      if (_wallet.type == WalletType.gnosis) {
+        return gnosis!.formatterGnosisAmountToDouble(amount: BigInt.from(fee));
       }
 
       if (_wallet.type == WalletType.zano) {
@@ -296,6 +304,7 @@ abstract class OutputBase with Store {
       case WalletType.monero:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.gnosis:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.haven:
