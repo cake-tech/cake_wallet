@@ -56,6 +56,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/core/reset_service.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -299,6 +300,9 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
+
+  await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
+
   await bootstrapOffline();
   final settingsStore = getIt<SettingsStore>();
   if (!settingsStore.currentBuiltinTor) {
@@ -328,9 +332,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
             ? Routes.welcome
-            : settingsStore.currentBuiltinTor
-                ? Routes.startTor
-                : Routes.login;
+            : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
         final statusBarBrightness =
             currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;

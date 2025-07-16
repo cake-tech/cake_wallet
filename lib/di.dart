@@ -276,6 +276,7 @@ import 'src/screens/buy/buy_sell_page.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/core/reset_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -550,6 +551,14 @@ Future<void> setup({
     () => AuthService(
       secureStorage: getIt.get<SecureStorage>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
+      settingsStore: getIt.get<SettingsStore>(),
+    ),
+  );
+
+  getIt.registerFactory<ResetService>(
+    () => ResetService(
+      secureStorage: getIt.get<SecureStorage>(),
+      authenticationStore: getIt.get<AuthenticationStore>(),
       settingsStore: getIt.get<SettingsStore>(),
     ),
   );
