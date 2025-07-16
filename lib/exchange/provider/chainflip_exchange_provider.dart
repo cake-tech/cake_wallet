@@ -300,11 +300,11 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final quotes = json.decode(response.body) as List<dynamic>;
 
     Map<String, dynamic> highestQuote = quotes.reduce((current, next) {
-      double currentAmount = current['egressAmount'];
-      double nextAmount = next['egressAmount'];
+      final currentAmount = current['egressAmount'] as double;
+      final nextAmount = next['egressAmount'] as double;
 
       return currentAmount > nextAmount ? current : next;
-    });
+    }) as Map<String, dynamic>;
 
     return highestQuote;
   }
