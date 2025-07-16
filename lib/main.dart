@@ -288,7 +288,7 @@ Future<void> initialSetup({
     secureStorage: secureStorage,
   );
 
-  getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
+  await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
 
   await bootstrapOffline();
   final settingsStore = getIt<SettingsStore>();
