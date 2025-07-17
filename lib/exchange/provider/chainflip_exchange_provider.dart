@@ -297,14 +297,14 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
-    final quotes = json.decode(response.body) as List<dynamic>;
+    final quotes = json.decode(response.body) as List<Map<String, dynamic>>;
 
     Map<String, dynamic> highestQuote = quotes.reduce((current, next) {
-      final currentAmount = current['egressAmount'] as double;
-      final nextAmount = next['egressAmount'] as double;
+      double currentAmount = current['egressAmount'] as double;
+      double nextAmount = next['egressAmount'] as double;
 
       return currentAmount > nextAmount ? current : next;
-    }) as Map<String, dynamic>;
+    });
 
     return highestQuote;
   }
