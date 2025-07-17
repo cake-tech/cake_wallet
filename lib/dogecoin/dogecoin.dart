@@ -4,6 +4,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
+
 import 'package:cw_dogecoin/cw_dogecoin.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 
@@ -30,4 +31,3 @@ abstract class DogeCoin {
 
   TransactionPriority getDogeCoinTransactionPrioritySlow();
 }
-

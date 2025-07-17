@@ -1452,12 +1452,10 @@ abstract class DogeCoin {
 
   TransactionPriority getDogeCoinTransactionPrioritySlow();
 }
-
-  """;
+""";
 
   const dogecoinEmptyDefinition = 'DogeCoin? dogecoin;\n';
-  const dogecoinCWDefinition =
-      'DogeCoin? dogecoin; = CWDogeCoin();\n';
+  const dogecoinCWDefinition = 'DogeCoin? dogecoin = CWDogeCoin();\n';
 
   final output = '$dogecoinCommonHeaders\n' +
       (hasImplementation ? '$dogecoinCWHeaders\n' : '\n') +
