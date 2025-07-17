@@ -131,7 +131,8 @@ class DEuroSavingsPage extends BasePage {
   Future<void> _onSavingsAdd(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
-    await _dEuroViewModel.prepareCollectInterest();
+    final amount = await _showEditBottomSheet(context, isAdding: true);
+    if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, true);
     _editSheetIsOpen = false;
   }
 
