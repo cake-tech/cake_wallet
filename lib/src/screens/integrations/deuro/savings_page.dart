@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/tooltip_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
@@ -323,11 +324,11 @@ class DEuroSavingsPage extends BasePage {
 
     showModalBottomSheet<void>(
       context: context,
-      builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+      builder: (BuildContext bottomSheetContext) => TooltipSheet(
         currentTheme: currentTheme,
         titleText: title,
         titleIconPath: CryptoCurrency.deuro.iconPath,
-        content: content,
+        tooltip: content,
         footerType: FooterType.doubleActionButton,
         doubleActionRightButtonText: S.of(context).close,
         rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_ok_button_key'),
@@ -380,7 +381,8 @@ class DEuroSavingsPage extends BasePage {
         content: S.of(context).deuro_tooltip_no_eth,
         singleActionButtonKey: ValueKey('deuro_page_tooltip_dialog_no_eth_ok_button_key'),
         singleActionButtonText: S.of(context).close,
-        onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(), footerType: FooterType.singleActionButton,
+        onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
+        footerType: FooterType.singleActionButton,
       ),
     );
   }
@@ -397,7 +399,9 @@ class DEuroSavingsPage extends BasePage {
         balanceTitle: isAdding
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
-        balance: isAdding ? _dEuroViewModel.accountBalanceFormated : _dEuroViewModel.savingsBalanceFormated,
+        balance: isAdding
+            ? _dEuroViewModel.accountBalanceFormated
+            : _dEuroViewModel.savingsBalanceFormated,
         footerType: FooterType.none,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
