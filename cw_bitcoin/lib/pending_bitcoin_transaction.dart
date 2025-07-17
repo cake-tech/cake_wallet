@@ -84,15 +84,6 @@ class PendingBitcoinTransaction with PendingTransaction {
   @override
   int? get outputCount => _tx.outputs.length;
 
-  String get feeFormattedSuffix {
-    if (type == WalletType.bitcoin) {
-      return 'BTC';
-    } else if (type == WalletType.dogecoin) {
-      return 'DOGE';
-    }
-    return '';
-  }
-
   List<TxOutput> get outputs => _tx.outputs;
 
   bool get hasSilentPayment => _tx.hasSilentPayment;
