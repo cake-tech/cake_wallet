@@ -74,6 +74,8 @@ class SecretKey {
     SecretKey('polygonScanApiKey', () => ''),
     SecretKey('letsExchangeBearerToken', () => ''),
     SecretKey('letsExchangeAffiliateId', () => ''),
+    SecretKey('swapuzAffiliateId', () => ''),
+    SecretKey('swapuzApiKey', () => ''),
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
     SecretKey('moneroTestWalletBlockHeight', () => ''),

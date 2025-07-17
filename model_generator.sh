@@ -5,20 +5,20 @@ for cwcoin in cw_{core,evm,monero,bitcoin,nano,bitcoin_cash,solana,tron,wownero,
 do
     if [[ "x$1" == "xasync" ]];
     then
-        bash -c "cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd .." &
+        bash -c "cd $cwcoin; fvm flutter pub get; fvm dart run build_runner build --delete-conflicting-outputs; cd .." &
     else
-        cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
+        cd $cwcoin; fvm flutter pub get; fvm dart run build_runner build --delete-conflicting-outputs; cd ..
     fi
 done
 for cwcoin in cw_{polygon,ethereum,mweb};
 do
     if [[ "x$1" == "xasync" ]];
     then
-        bash -c "cd $cwcoin; flutter pub get; cd .." &
+        bash -c "cd $cwcoin; fvm flutter pub get; cd .." &
     else
-        cd $cwcoin; flutter pub get; cd ..
+        cd $cwcoin; fvm flutter pub get; cd ..
     fi
 done
 
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
+fvm flutter pub get
+fvm dart run build_runner build --delete-conflicting-outputs
