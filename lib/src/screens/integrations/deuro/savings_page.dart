@@ -73,9 +73,9 @@ class DEuroSavingsPage extends BasePage {
           Observer(
             builder: (_) => SavingsCard(
               isDarkTheme: currentTheme.isDark,
-              interestRate: "${_dEuroViewModel.interestRate}%",
-              savingsBalance: _dEuroViewModel.savingsBalance,
-              fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalance,
+              interestRate: "${_dEuroViewModel.interestRateFormated}%",
+              savingsBalance: _dEuroViewModel.savingsBalanceFormated,
+              fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalanceFormated,
               currency: CryptoCurrency.deuro,
               fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
               onAddSavingsPressed: () => _onSavingsAdd(context),
@@ -90,13 +90,13 @@ class DEuroSavingsPage extends BasePage {
             builder: (_) => InterestCardWidget(
               isDarkTheme: currentTheme.isDark,
               title: S.of(context).deuro_savings_collect_interest,
-              fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterest,
+              fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterestFormated,
               fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
-              accruedInterest: _dEuroViewModel.accruedInterest,
+              accruedInterest: _dEuroViewModel.accruedInterestFormated,
               onCollectInterest: _dEuroViewModel.prepareCollectInterest,
               onReinvestInterest: _dEuroViewModel.prepareReinvestInterest,
               onTooltipPressed: () => _onInterestTooltipPressed(context),
-              isEnabled: _dEuroViewModel.isEnabled,
+              isEnabled: _dEuroViewModel.isSavingsActionsEnabled,
             ),
           ),
           Spacer(),
@@ -126,14 +126,22 @@ class DEuroSavingsPage extends BasePage {
     );
   }
 
+  bool _editSheetIsOpen = false;
+
   Future<void> _onSavingsAdd(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: true);
     if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, true);
+    _editSheetIsOpen = false;
   }
 
   Future<void> _onSavingsRemove(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: false);
     if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, false);
+    _editSheetIsOpen = false;
   }
 
   bool _isReactionsSet = false;
@@ -175,10 +183,10 @@ class DEuroSavingsPage extends BasePage {
           currency: CryptoCurrency.deuro,
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
-              ? _dEuroViewModel.accruedInterest
+              ? _dEuroViewModel.accruedInterestFormated
               : tx.amountFormatted,
           fiatAmountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
-              ? _dEuroViewModel.fiatAccruedInterest
+              ? _dEuroViewModel.fiatAccruedInterestFormated
               : _dEuroViewModel.pendingTransactionFiatAmountFormatted,
           fee: S.of(bottomSheetContext).send_estimated_fee,
           feeValue: tx.feeFormatted,
@@ -375,7 +383,7 @@ class DEuroSavingsPage extends BasePage {
         balanceTitle: isAdding
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
-        balance: isAdding ? _dEuroViewModel.accountBalance : _dEuroViewModel.savingsBalance,
+        balance: isAdding ? _dEuroViewModel.accountBalanceFormated : _dEuroViewModel.savingsBalanceFormated,
         footerType: FooterType.none,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
