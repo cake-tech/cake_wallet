@@ -59,7 +59,24 @@ class PendingBitcoinTransaction with PendingTransaction {
   String get amountFormatted => bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => "$feeFormattedValue $feeFormattedSuffix";
+  String get feeFormatted => "$feeFormattedValue ${_feeCurrency}";
+
+  String get _feeCurrency {
+    switch(type) {
+      case WalletType.bitcoin:
+        return "BTC";
+      case WalletType.litecoin:
+        return "LTC";
+      case WalletType.bitcoinCash:
+        return "BCH";
+      case WalletType.dogecoin:
+        return "DOGE";
+      default:
+        return type.name;
+    }
+
+  }
+
 
   @override
   String get feeFormattedValue => bitcoinAmountToString(amount: fee);

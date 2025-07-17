@@ -255,6 +255,7 @@ class ExceptionHandler {
     "Connection reset by peer",
     "Connection closed before full header was received",
     "Connection terminated during handshake",
+    "OS Error: Connection refused, errno = 61",
     "PERMISSION_NOT_GRANTED",
     "OS Error: Permission denied",
     "Failed host lookup:",

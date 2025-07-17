@@ -338,3 +338,29 @@ abstract class OutputBase with Store {
     note = parsedAddress.description;
   }
 }
+
+extension OutputCopyWith on Output {
+  Output OutputCopyWithParsedAddress({
+    ParsedAddress? parsedAddress,
+    String? fiatAmount,
+  }) {
+    final clone = Output(
+      _wallet,
+      _settingsStore,
+      _fiatConversationStore,
+      cryptoCurrencyHandler,
+    );
+
+    clone
+      ..cryptoAmount      = cryptoAmount
+      ..cryptoFullBalance = cryptoFullBalance
+      ..note              = note
+      ..sendAll           = sendAll
+      ..memo              = memo
+      ..stealthAddress    = stealthAddress
+      ..parsedAddress    = parsedAddress ?? this.parsedAddress
+      ..fiatAmount      = fiatAmount ?? this.fiatAmount;
+
+    return clone;
+  }
+}

@@ -18,7 +18,7 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
   bool get silentPaymentsCardDisplay => _settingsStore.silentPaymentsCardDisplay;
 
   @computed
-  bool get silentPaymentsAlwaysScan => _settingsStore.silentPaymentsAlwaysScan;
+  bool get silentPaymentsAlwaysScan => bitcoin!.getIsAlwaysScanningSP(_wallet);
 
   @action
   void setSilentPaymentsCardDisplay(bool value) {
@@ -27,7 +27,7 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
 
   @action
   void setSilentPaymentsAlwaysScan(bool value) {
-    _settingsStore.silentPaymentsAlwaysScan = value;
+    bitcoin!.setIsAlwaysScanningSP(_wallet, value);
     if (value) bitcoin!.setScanningActive(_wallet, true);
   }
 }

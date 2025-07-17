@@ -56,7 +56,7 @@ extension InputFinalizer on PsbtV2 {
           if (isWrappedSegwit) {
             if (redeemScript.isEmpty) {
               throw Exception(
-                  "Expected non-empty redeemscript. Can't finalize intput $i");
+                  "Expected non-empty redeemscript. Can't finalize input $i");
             }
             final scriptSigBuf = BufferWriter()
               ..writeUInt8(redeemScript.length) // Push redeemScript length
@@ -90,7 +90,7 @@ extension InputFinalizer on PsbtV2 {
 
   /// Deletes fields that are no longer necessary from the psbt.
   ///
-  /// Note, the spec doesn't say anything about removing ouput fields
+  /// Note, the spec doesn't say anything about removing output fields
   /// like PSBT_OUT_BIP32_DERIVATION_PATH and others, so we keep them
   /// without actually knowing why. I think we should remove them too.
   void clearFinalizedInput(int inputIndex) {

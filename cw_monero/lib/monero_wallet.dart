@@ -804,28 +804,39 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
   }
 
-  void _setHeightFromDate() {
+  void _setHeightFromDate({int tryNum = 0}) {
     if (walletInfo.isRecovery) {
       return;
     }
 
     int height = 0;
     try {
-      height = _getHeightByDate(walletInfo.date);
-    } catch (_) {}
+      height = _getHeightByDate(walletInfo.date.subtract(Duration(days: 14)));
+      if (height <= 0) {
+        throw Exception("height is <= 0");
+      }
+      monero_wallet.setRefreshFromBlockHeight(height: height);
+    } catch (_) {
+      if (tryNum <= 3) {
+        printV("Failed to set height from date, retrying... $tryNum");
+        unawaited(() async {
+          await Future.delayed(Duration(seconds: 10));
+          _setHeightFromDate(tryNum: tryNum + 1);
+        }());
+      }
+    }
 
     monero_wallet.setRecoveringFromSeed(isRecovery: true);
-    monero_wallet.setRefreshFromBlockHeight(height: height);
     setupBackgroundSync(password, currentWallet!);
   }
 
   int _getHeightDistance(DateTime date) {
     final distance =
-        DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
+        DateTime.now().difference(date).inSeconds;
     final daysTmp = (distance / 86400).round();
     final days = daysTmp < 1 ? 1 : daysTmp;
 
-    return days * 1000;
+    return days * 720; // there are720 blocks per day on xmr
   }
 
   int _getHeightByDate(DateTime date) {

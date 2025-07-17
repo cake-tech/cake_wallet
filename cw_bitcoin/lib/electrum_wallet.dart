@@ -155,6 +155,7 @@ abstract class ElectrumWalletBase
     }
   }
 
+  @observable
   bool? alwaysScan;
 
   final Bip32Slip10Secp256k1 accountHD;
@@ -410,8 +411,11 @@ abstract class ElectrumWalletBase
 
               // Add new TX record
               transactionHistory.addMany(message);
+
               // Update balance record
               balance[currency]!.confirmed += tx.amount;
+
+              await save();
             }
 
             await updateAllUnspents();
@@ -549,7 +553,6 @@ abstract class ElectrumWalletBase
     }
 
     node!.isElectrs = false;
-    node!.save();
     return node!.isElectrs!;
   }
 
