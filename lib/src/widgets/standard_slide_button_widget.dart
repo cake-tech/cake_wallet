@@ -20,11 +20,16 @@ class StandardSlideButton extends StatefulWidget {
   final String accessibleNavigationModeButtonText;
 
   @override
-  _StandardSlideButtonState createState() => _StandardSlideButtonState();
+  StandardSlideButtonState createState() => StandardSlideButtonState();
 }
 
-class _StandardSlideButtonState extends State<StandardSlideButton> {
+class StandardSlideButtonState extends State<StandardSlideButton> {
   double _dragPosition = 0.0;
+  double get dragPosition => _dragPosition;
+
+  double sideMargin = 4.0;
+  double effectiveMaxWidth = 0.0;
+  double sliderWidth = 42.0;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +74,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                     Positioned(
                       left: sideMargin + _dragPosition,
                       child: GestureDetector(
+                        key: ValueKey('standard_slide_button_widget_slider_key'),
                         onHorizontalDragUpdate: (details) {
                           setState(() {
                             _dragPosition += details.delta.dx;
@@ -86,6 +92,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                           }
                         },
                         child: Container(
+                          key: ValueKey('standard_slide_button_widget_slider_container_key'),
                           width: sliderWidth,
                           height: widget.height - 8,
                           decoration: BoxDecoration(
@@ -94,6 +101,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                           ),
                           alignment: Alignment.center,
                           child: Icon(
+                            key: ValueKey('standard_slide_button_widget_slider_icon_key'),
                             Icons.arrow_forward,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),

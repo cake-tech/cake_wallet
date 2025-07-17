@@ -112,6 +112,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.fromLTRB(40, 12, 40, 34),
           child: StandardSlideButton(
+            key: ValueKey('base_bottom_sheet_widget_standard_slide_button_key'),
             buttonText: slideActionButtonText ?? '',
             onSlideComplete: onSlideActionComplete ?? () {},
             currentTheme: currentTheme!,
@@ -140,12 +141,11 @@ abstract class BaseBottomSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: PrimaryButton(
-                  key: leftActionButtonKey,
-                  text: doubleActionLeftButtonText ?? '',
-                  onPressed: onLeftActionButtonPressed,
+                    key: leftActionButtonKey,
+                    text: doubleActionLeftButtonText ?? '',
+                    onPressed: onLeftActionButtonPressed,
                     color: Theme.of(context).colorScheme.surfaceContainer,
-                    textColor: Theme.of(context).colorScheme.onSecondaryContainer
-                ),
+                    textColor: Theme.of(context).colorScheme.onSecondaryContainer),
               ),
               const SizedBox(width: 12),
               Expanded(

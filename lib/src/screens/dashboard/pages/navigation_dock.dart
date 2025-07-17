@@ -64,8 +64,7 @@ class NavigationDock extends StatelessWidget {
                                     button: true,
                                     enabled: (action.isEnabled?.call(dashboardViewModel) ?? true),
                                     child: ActionButton(
-                                      key: ValueKey(
-                                          'dashboard_page_${action.name(context)}_action_button_key'),
+                                      key: action.key,
                                       image: Image.asset(action.image,
                                           height: 24,
                                           width: 24,

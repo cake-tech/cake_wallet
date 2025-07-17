@@ -10,7 +10,7 @@ if [ -z "$APP_MACOS_TYPE" ]; then
         exit 1
 fi
 
-cd .. # go to scipts
+cd .. # go to scripts
 ./gen_android_manifest.sh
 cd .. # go to root
 cp -rf ./macos/Runner/InfoBase.plist ./macos/Runner/Info.plist
