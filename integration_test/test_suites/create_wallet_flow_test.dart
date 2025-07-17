@@ -17,6 +17,9 @@ void main() {
   testWidgets(
     'Create Wallet Flow',
     (tester) async {
+      FlutterError.onError = (FlutterErrorDetails details) {
+        debugPrint('FlutterError caught: ${details.exception}');
+      };
       commonTestFlows = CommonTestFlows(tester);
       dashboardPageRobot = DashboardPageRobot(tester);
 
@@ -39,7 +42,7 @@ void main() {
           continue;
         }
 
-        await commonTestFlows.switchToWalletMenuFromDashboardPage();
+        await dashboardPageRobot.navigateToWalletsListPage();
 
         await commonTestFlows.createNewWalletFromWalletMenu(walletType);
 
@@ -47,7 +50,7 @@ void main() {
       }
 
       // Goes to the wallet menu and provides a confirmation that all the wallets were correctly restored
-      await commonTestFlows.switchToWalletMenuFromDashboardPage();
+      await dashboardPageRobot.navigateToWalletsListPage();
 
       commonTestFlows.confirmAllAvailableWalletTypeIconsDisplayCorrectly();
 

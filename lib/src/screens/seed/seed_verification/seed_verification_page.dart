@@ -17,7 +17,7 @@ class SeedVerificationPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   String? get title => S.current.verify_seed;
@@ -31,9 +31,11 @@ class SeedVerificationPage extends BasePage {
           child: walletSeedViewModel.isVerificationComplete ||
                   walletSeedViewModel.verificationIndices.isEmpty
               ? SeedVerificationSuccessView(
+                  key: ValueKey('seed_verification_success_view_page'),
                   currentTheme: currentTheme,
                 )
               : SeedVerificationStepView(
+                  key: ValueKey('seed_verification_step_view_page'),
                   walletSeedViewModel: walletSeedViewModel,
                   questionTextColor: titleColor(context),
                 ),
