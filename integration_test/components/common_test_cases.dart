@@ -15,8 +15,14 @@ class CommonTestCases {
     bool shouldPumpAndSettle = true,
     int pumpDuration = 100,
   }) async {
-    final widget = find.byKey(ValueKey(key));
-    await tester.tap(widget);
+    await tester.pump(Duration(milliseconds: 500));
+
+    final widgetFinder = find.byKey(ValueKey(key));
+
+    expect(tester.any(widgetFinder), true, reason: 'Widget with key "$key" should be visible');
+
+    final widget = widgetFinder.first;
+    await tester.tap(widget, warnIfMissed: false);
     shouldPumpAndSettle
         ? await tester.pumpAndSettle(Duration(milliseconds: pumpDuration))
         : await tester.pump();
@@ -69,7 +75,33 @@ class CommonTestCases {
     await tester.pumpAndSettle();
   }
 
-  Future<void> dragUntilVisible(String childKey, String parentKey) async {
+  Future<void> startGesture(String key, Offset gestureOffset) async {
+    await tester.pumpAndSettle();
+
+    final hasKey = isKeyPresent(key);
+
+    tester.printToConsole("Has gestureKey: $hasKey");
+
+    if (!hasKey) return;
+
+    final gesture = await tester.startGesture(tester.getCenter(find.byKey(ValueKey(key))));
+
+    // Drag to the left
+    await gesture.moveBy(gestureOffset);
+
+    // End the gesture
+    await gesture.up();
+
+    await tester.pump();
+  }
+
+  Future<void> dragUntilVisible(
+    String childKey,
+    String parentKey, {
+    int maxScrolls = 100,
+    double scrollStep = 50.0,
+    int maxReverseScrolls = 50,
+  }) async {
     await tester.pumpAndSettle();
 
     final itemFinder = find.byKey(ValueKey(childKey));
@@ -81,18 +113,6 @@ class CommonTestCases {
       tester.printToConsole('Child is already present');
       return;
     }
-
-    // We can adjust this as needed
-    final maxScrolls = 200;
-
-    int scrolls = 0;
-    bool found = false;
-
-    // We start by scrolling down
-    bool scrollDown = true;
-
-    // Flag to check if we've already reversed direction
-    bool reversedDirection = false;
 
     // Find the Scrollable associated with the Parent Ad
     final scrollableFinder = find.descendant(
@@ -110,45 +130,106 @@ class CommonTestCases {
     // Get the initial scroll position
     final scrollableState = tester.state<ScrollableState>(scrollableFinder);
     double previousScrollPosition = scrollableState.position.pixels;
+    bool scrollDown = true;
+    bool reversedDirection = false;
+    bool found = false;
 
-    while (!found && scrolls < maxScrolls) {
+    int reverseScrollCount = 0;
+
+    for (int scrolls = 0; scrolls < maxScrolls; scrolls++) {
+      await tester.pumpAndSettle();
+
+      // Check if the widget is visible
+      if (tester.any(itemFinder)) {
+        found = true;
+        break;
+      }
+
+      // Log current state for debugging
       tester.printToConsole('Scrolling ${scrollDown ? 'down' : 'up'}, attempt $scrolls');
 
-      // Perform the drag in the current direction
+      // Stop if reverse scroll limit is exceeded
+      if (!scrollDown && reverseScrollCount >= maxReverseScrolls) {
+        tester.printToConsole('Maximum reverse scrolls reached. Widget not found.');
+        break;
+      }
+
+      // Perform scrolling in the current direction
       await tester.drag(
         scrollableFinder,
-        scrollDown ? const Offset(0, -100) : const Offset(0, 100),
+        scrollDown ? Offset(0, -scrollStep) : Offset(0, scrollStep),
       );
       await tester.pumpAndSettle();
-      scrolls++;
 
       // Update the scroll position after the drag
       final currentScrollPosition = scrollableState.position.pixels;
 
       if (currentScrollPosition == previousScrollPosition) {
-        // Cannot scroll further in this direction
+        // Cannot scroll further in the current direction
         if (reversedDirection) {
           // We've already tried both directions
-          tester.printToConsole('Cannot scroll further in both directions. Widget not found.');
+          tester.printToConsole('Reached the scroll limit in both directions. Widget not found.');
           break;
         } else {
-          // Reverse the scroll direction
+          // Reverse the scroll direction and reset reverse scroll count
           scrollDown = !scrollDown;
           reversedDirection = true;
+          reverseScrollCount = 0;
           tester.printToConsole('Reached the end, reversing direction');
         }
       } else {
-        // Continue scrolling in the current direction
+        // Update scroll position and reverse scroll count, incrementing only for reverse scrolling
         previousScrollPosition = currentScrollPosition;
+        if (!scrollDown) reverseScrollCount++;
       }
-
-      // Check if the widget is now in the widget tree
-      found = tester.any(itemFinder);
     }
 
     if (!found) {
-      tester.printToConsole('Widget not found after scrolling in both directions.');
+      tester.printToConsole('Widget not found after $maxScrolls scrolls.');
+    }
+  }
+
+  Future<void> scrollItemIntoView(
+    String itemKeyId,
+    double scrollPixels,
+    String scrollableFinderKey,
+  ) async {
+    final Finder itemFinder = find.byKey(ValueKey(itemKeyId));
+
+    final scrollableFinder = find.descendant(
+      of: find.byKey(ValueKey(scrollableFinderKey)),
+      matching: find.byType(Scrollable),
+    );
+
+    // Check if the item is already visible
+    if (tester.any(itemFinder)) {
+      tester.printToConsole('Item $itemKeyId is already visible');
       return;
+    }
+
+    // Check if scrollable exists
+    if (!tester.any(scrollableFinder)) {
+      tester.printToConsole('Scrollable not found for $itemKeyId');
+      return;
+    }
+
+    try {
+      await tester.scrollUntilVisible(
+        itemFinder,
+        scrollPixels,
+        scrollable: scrollableFinder,
+        maxScrolls: 10,
+      );
+
+      // Wait for the scroll to complete
+      await tester.pumpAndSettle(Duration(milliseconds: 500));
+
+      // Verify the item is now visible
+      if (!tester.any(itemFinder)) {
+        tester.printToConsole('Item $itemKeyId not found after scrolling');
+      }
+    } catch (e) {
+      tester.printToConsole('Could not scroll to $itemKeyId: $e');
     }
   }
 
@@ -171,4 +252,9 @@ class CommonTestCases {
 
   Future<void> defaultSleepTime({int seconds = 2}) async =>
       await Future.delayed(Duration(seconds: seconds));
+
+  Future<void> takeScreenshots(String screenshotName) async {
+    // Pausing this for now
+    // await (tester.binding as IntegrationTestWidgetsFlutterBinding).takeScreenshot(screenshotName);
+  }
 }
