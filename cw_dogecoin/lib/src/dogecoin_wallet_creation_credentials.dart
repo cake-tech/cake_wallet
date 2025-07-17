@@ -9,11 +9,11 @@ class DogeCoinNewWalletCredentials extends WalletCredentials {
     String? passphrase,
     this.mnemonic,
   }) : super(
-    name: name,
-    walletInfo: walletInfo,
-    password: password,
-    passphrase: passphrase,
-  );
+          name: name,
+          walletInfo: walletInfo,
+          password: password,
+          passphrase: passphrase,
+        );
   final String? mnemonic;
 }
 

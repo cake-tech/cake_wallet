@@ -2,13 +2,11 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -30,7 +28,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
-    String  derivationPath = "m/44'/3'/0'",
+    String derivationPath = "m/44'/3'/0'",
     String? passphrase,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -38,17 +36,17 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-      mnemonic: mnemonic,
-      password: password,
-      walletInfo: walletInfo,
-      unspentCoinsInfo: unspentCoinsInfo,
-      network: DogecoinNetwork.mainnet,
-      initialAddresses: initialAddresses,
-      initialBalance: initialBalance,
-      seedBytes: seedBytes,
-      currency: CryptoCurrency.doge,
-      encryptionFileUtils: encryptionFileUtils,
-      passphrase: passphrase) {
+            mnemonic: mnemonic,
+            password: password,
+            walletInfo: walletInfo,
+            unspentCoinsInfo: unspentCoinsInfo,
+            network: DogecoinNetwork.mainnet,
+            initialAddresses: initialAddresses,
+            initialBalance: initialBalance,
+            seedBytes: seedBytes,
+            currency: CryptoCurrency.doge,
+            encryptionFileUtils: encryptionFileUtils,
+            passphrase: passphrase) {
     walletAddresses = DogeCoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -70,16 +68,16 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
 
   static Future<DogeCoinWallet> create(
       {required String mnemonic,
-        required String password,
-        required WalletInfo walletInfo,
-        required Box<UnspentCoinsInfo> unspentCoinsInfo,
-        required EncryptionFileUtils encryptionFileUtils,
-        String? passphrase,
-        String? addressPageType,
-        List<BitcoinAddressRecord>? initialAddresses,
-        ElectrumBalance? initialBalance,
-        Map<String, int>? initialRegularAddressIndex,
-        Map<String, int>? initialChangeAddressIndex}) async {
+      required String password,
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required EncryptionFileUtils encryptionFileUtils,
+      String? passphrase,
+      String? addressPageType,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumBalance? initialBalance,
+      Map<String, int>? initialRegularAddressIndex,
+      Map<String, int>? initialChangeAddressIndex}) async {
     return DogeCoinWallet(
       mnemonic: mnemonic,
       password: password,

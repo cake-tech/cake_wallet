@@ -13,7 +13,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_dogecoin/cw_dogecoin.dart';
 import 'package:hive/hive.dart';
 
-
 class DogeCoinWalletService extends WalletService<
     DogeCoinNewWalletCredentials,
     DogeCoinRestoreWalletFromSeedCredentials,
@@ -87,8 +86,9 @@ class DogeCoinWalletService extends WalletService<
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -143,8 +143,7 @@ class DogeCoinWalletService extends WalletService<
         walletInfo: credentials.walletInfo!,
         unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-        passphrase: credentials.passphrase
-    );
+        passphrase: credentials.passphrase);
     await wallet.save();
     await wallet.init();
     return wallet;
