@@ -167,7 +167,8 @@ abstract class OutputBase with Store {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash) {
+      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash ||
+          _wallet.type == WalletType.dogecoin) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 

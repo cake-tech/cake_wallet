@@ -604,12 +604,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.bitcoinCash,
         WalletType.bitcoin,
         WalletType.litecoin,
-        WalletType.decred
+        WalletType.decred,
+        WalletType.dogecoin,
       ].contains(wallet.type);
 
   @computed
   bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type);
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;

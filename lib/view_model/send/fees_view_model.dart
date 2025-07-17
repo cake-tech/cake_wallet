@@ -122,7 +122,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get isElectrumWallet =>
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.bitcoinCash;
+      wallet.type == WalletType.bitcoinCash ||
+      wallet.type == WalletType.dogecoin;
 
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 
@@ -190,6 +191,9 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         break;
       case WalletType.bitcoinCash:
         _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
+        break;
+      case WalletType.dogecoin:
+        _settingsStore.priority[wallet.type] = dogecoin!.getDefaultTransactionPriority();
         break;
       case WalletType.polygon:
         _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();

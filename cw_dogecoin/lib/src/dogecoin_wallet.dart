@@ -65,6 +65,9 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     });
   }
 
+  @override
+  int get networkDustAmount => 100000000; // 1 DOGE = 1e8 koinu
+
   static Future<DogeCoinWallet> create(
       {required String mnemonic,
         required String password,
@@ -162,63 +165,5 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: keysData.passphrase,
     );
-  }
-
-  // bitbox.ECPair generateKeyPair({required Bip32Slip10Secp256k1 hd, required int index}) =>
-  //     bitbox.ECPair.fromPrivateKey(
-  //       Uint8List.fromList(hd.childKey(Bip32KeyIndex(index)).privateKey.raw),
-  //     );
-
-  int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
-    int inputsCount = 0;
-    int totalValue = 0;
-
-    for (final input in unspentCoins) {
-      if (input.isSending) {
-        inputsCount++;
-        totalValue += input.value;
-      }
-      if (amount != null && totalValue >= amount) {
-        break;
-      }
-    }
-
-    if (amount != null && totalValue < amount) return 0;
-
-    final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
-
-    return feeAmountWithFeeRate(feeRate, inputsCount, _outputsCount);
-  }
-
-  @override
-  int feeRate(TransactionPriority priority) {
-    if (priority is DogecoinTransactionPriority) {
-      switch (priority) {
-        case DogecoinTransactionPriority.slow:
-          return 1;
-        case DogecoinTransactionPriority.medium:
-          return 5;
-        case DogecoinTransactionPriority.fast:
-          return 10;
-      }
-    }
-
-    return 0;
-  }
-
-  @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    int? index;
-    try {
-      index = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-          : null;
-    } catch (_) {}
-    final HD = index == null ? hd : hd.childKey(Bip32KeyIndex(index));
-    final priv = ECPrivate.fromWif(
-      WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
-      netVersion: network.wifNetVer,
-    );
-    return priv.signMessage(StringUtils.encode(message));
   }
 }

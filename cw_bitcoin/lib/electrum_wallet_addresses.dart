@@ -258,6 +258,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       }
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
+    } else if (walletInfo.type == WalletType.dogecoin) {
+      await _generateInitialAddresses();
       if (!isHardwareWallet) {
         await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
         await _generateInitialAddresses(type: P2shAddressType.p2wpkhInP2sh);
@@ -490,6 +492,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addLitecoinAddressTypes();
           break;
         case WalletType.bitcoinCash:
+          addBitcoinCashAddressTypes();
+          break;
+        case WalletType.dogecoin:
           addBitcoinCashAddressTypes();
           break;
         default:

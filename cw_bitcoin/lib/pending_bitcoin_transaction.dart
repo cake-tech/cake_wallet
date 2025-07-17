@@ -59,13 +59,22 @@ class PendingBitcoinTransaction with PendingTransaction {
   String get amountFormatted => bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => "$feeFormattedValue BTC";
+  String get feeFormatted => "$feeFormattedValue $feeFormattedSuffix";
 
   @override
   String get feeFormattedValue => bitcoinAmountToString(amount: fee);
 
   @override
   int? get outputCount => _tx.outputs.length;
+
+  String get feeFormattedSuffix {
+    if (type == WalletType.bitcoin) {
+      return 'BTC';
+    } else if (type == WalletType.dogecoin) {
+      return 'DOGE';
+    }
+    return '';
+  }
 
   List<TxOutput> get outputs => _tx.outputs;
 
@@ -77,7 +86,7 @@ class PendingBitcoinTransaction with PendingTransaction {
       if (changeAddressOverride != null) {
         return PendingChange(changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
       }
-      return PendingChange(change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
+      return PendingChange(change.scriptPubKey.toAddress(network: network), BtcUtils.fromSatoshi(change.amount));
     } catch (_) {
       return null;
     }

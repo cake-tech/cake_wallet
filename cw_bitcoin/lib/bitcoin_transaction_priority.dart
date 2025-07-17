@@ -187,7 +187,7 @@ class DogecoinTransactionPriority extends BitcoinTransactionPriority {
   }
 
   @override
-  String get units => 'Satoshi';
+  String get units => 'koinu';
 
   @override
   String toString() {
