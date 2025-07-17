@@ -93,8 +93,8 @@ class DEuroSavingsPage extends BasePage {
               fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterestFormated,
               fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
               accruedInterest: _dEuroViewModel.accruedInterestFormated,
-              onCollectInterest: _dEuroViewModel.prepareCollectInterest,
-              onReinvestInterest: _dEuroViewModel.prepareReinvestInterest,
+              onCollectInterest: _onCollectInterest,
+              onReinvestInterest: _onReinvestInterest,
               onTooltipPressed: () => _onInterestTooltipPressed(context),
               isEnabled: _dEuroViewModel.isSavingsActionsEnabled,
             ),
@@ -131,8 +131,7 @@ class DEuroSavingsPage extends BasePage {
   Future<void> _onSavingsAdd(BuildContext context) async {
     if (_editSheetIsOpen) return;
     _editSheetIsOpen = true;
-    final amount = await _showEditBottomSheet(context, isAdding: true);
-    if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, true);
+    await _dEuroViewModel.prepareCollectInterest();
     _editSheetIsOpen = false;
   }
 
@@ -141,6 +140,20 @@ class DEuroSavingsPage extends BasePage {
     _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: false);
     if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, false);
+    _editSheetIsOpen = false;
+  }
+
+  Future<void> _onReinvestInterest() async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    await _dEuroViewModel.prepareReinvestInterest();
+    _editSheetIsOpen = false;
+  }
+
+  Future<void> _onCollectInterest() async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    await _dEuroViewModel.prepareCollectInterest();
     _editSheetIsOpen = false;
   }
 
