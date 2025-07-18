@@ -242,6 +242,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.wownero:
       case WalletType.bitcoinCash:
       case WalletType.decred:
+      case WalletType.dogecoin:
         return false;
     }
 
