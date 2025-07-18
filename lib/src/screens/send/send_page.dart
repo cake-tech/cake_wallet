@@ -568,9 +568,10 @@ class SendPage extends BasePage {
               isScrollControlled: true,
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
-                  key: ValueKey('send_page_confirm_sending_dialog_key'),
+                  key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
                   currentTheme: currentTheme,
+                  footerType: FooterType.slideActionButton,
                   walletType: sendViewModel.walletType,
                   titleIconPath: sendViewModel.selectedCryptoCurrency.iconPath,
                   currency: sendViewModel.selectedCryptoCurrency,
@@ -583,7 +584,7 @@ class SendPage extends BasePage {
                   feeValue: sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: sendViewModel.outputs,
-                  onSlideComplete: () async {
+                  onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop(true);
                     sendViewModel.commitTransaction(context);
                   },
@@ -617,24 +618,80 @@ class SendPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return InfoBottomSheet(
-                currentTheme: currentTheme,
-                titleText: S.of(bottomSheetContext).transaction_sent,
-                contentImage: 'assets/images/birthday_cake.png',
-                actionButtonText: S.of(bottomSheetContext).close,
-                actionButtonKey: ValueKey('send_page_transaction_sent_button_key'),
-                actionButton: () {
-                  Navigator.of(bottomSheetContext).pop();
-                  Future.delayed(Duration.zero, () {
-                    if (context.mounted) {
-                      Navigator.of(context)
-                          .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                    }
-                    RequestReviewHandler.requestReview();
-                    newContactAddress = null;
-                  });
-                },
-              );
+              return /*showContactSheet && */ sendViewModel.ocpRequest == null
+                  ? InfoBottomSheet(
+                      currentTheme: currentTheme,
+                      footerType: FooterType.doubleActionButton,
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/contact.png',
+                      contentImageColor: Theme.of(context).colorScheme.onSurface,
+                      content: S.of(bottomSheetContext).add_contact_to_address_book,
+                      leftActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_no_button_key'),
+                      rightActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_yes_button_key'),
+                      bottomActionPanel: Padding(
+                        padding: const EdgeInsets.only(left: 34.0),
+                        child: Row(
+                          children: [
+                            SimpleCheckbox(
+                                onChanged: (value) =>
+                                    sendViewModel.setShowAddressBookPopup(!value)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Don’t ask me next time',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.titleLarge!.color,
+                                decoration: TextDecoration.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      doubleActionLeftButtonText: 'No',
+                      doubleActionRightButtonText: 'Yes',
+                      onLeftActionButtonPressed: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        }
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      },
+                      onRightActionButtonPressed: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        if (context.mounted) {
+                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                              arguments: newContactAddress);
+                        }
+                        newContactAddress = null;
+                      },
+                    )
+                  : InfoBottomSheet(
+                      currentTheme: currentTheme,
+                      footerType: FooterType.singleActionButton,
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/birthday_cake.png',
+                      singleActionButtonText: S.of(bottomSheetContext).close,
+                      singleActionButtonKey: ValueKey('send_page_transaction_sent_button_key'),
+                      onSingleActionButtonPressed: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        Future.delayed(Duration.zero, () {
+                          if (context.mounted) {
+                            Navigator.of(context)
+                                .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                          }
+                          RequestReviewHandler.requestReview();
+                          newContactAddress = null;
+                        });
+                      },
+                    );
             },
           );
 
@@ -681,13 +738,13 @@ class SendPage extends BasePage {
                 dialogContext = context;
                 return InfoBottomSheet(
                   currentTheme: currentTheme,
+                  footerType: FooterType.singleActionButton,
                   titleText: S.of(context).proceed_on_device,
-                  contentImage:
-                  'assets/images/hardware_wallet/ledger_nano_x.png',
+                  contentImage: 'assets/images/hardware_wallet/ledger_nano_x.png',
                   contentImageColor: Theme.of(context).colorScheme.onSurface,
                   content: S.of(context).proceed_on_device_description,
-                  actionButtonText: S.of(context).cancel,
-                  actionButton: () {
+                  singleActionButtonText: S.of(context).cancel,
+                  onSingleActionButtonPressed: () {
                     sendViewModel.state = InitialExecutionState();
                     Navigator.of(context).pop();
                   },
@@ -756,7 +813,8 @@ class SendPage extends BasePage {
   bool isRegularElectrumAddress(String address) {
     final supportedTypes = [CryptoCurrency.btc, CryptoCurrency.ltc, CryptoCurrency.bch];
     final excludedPatterns = [
-      RegExp(AddressValidator.silentPaymentAddressPattern),
+      RegExp(AddressValidator.silentPaymentAddressPatternMainnet),
+      RegExp(AddressValidator.silentPaymentAddressPatternTestnet),
       RegExp(AddressValidator.mWebAddressPattern)
     ];
 

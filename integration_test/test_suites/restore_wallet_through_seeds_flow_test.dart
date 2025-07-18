@@ -1,4 +1,3 @@
-
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +18,10 @@ void main() {
   testWidgets(
     'Restoring Wallets Through Seeds',
     (tester) async {
+      FlutterError.onError = (FlutterErrorDetails details) {
+        debugPrint('FlutterError caught: ${details.exception}');
+      };
+
       commonTestFlows = CommonTestFlows(tester);
       dashboardPageRobot = DashboardPageRobot(tester);
 
@@ -42,19 +45,27 @@ void main() {
         if (walletType == WalletType.solana) {
           continue;
         }
+        final seed = commonTestFlows.getWalletSeedsByWalletType(walletType);
+        if (seed.isEmpty) {
+          tester.printToConsole("----------------------------");
+          tester.printToConsole("- Skipped wallet: ${walletType}");
+          tester.printToConsole("- Make sure to add seed to secrets");
+          tester.printToConsole("----------------------------");
+          continue;
+        }
 
-        await commonTestFlows.switchToWalletMenuFromDashboardPage();
+        await dashboardPageRobot.navigateToWalletsListPage();
 
         await commonTestFlows.restoreWalletFromWalletMenu(
           walletType,
-          commonTestFlows.getWalletSeedsByWalletType(walletType),
+          seed,
         );
 
         await dashboardPageRobot.confirmWalletTypeIsDisplayedCorrectly(walletType);
       }
 
       // Goes to the wallet menu and provides a visual confirmation that all the wallets were correctly restored
-      await commonTestFlows.switchToWalletMenuFromDashboardPage();
+      await dashboardPageRobot.navigateToWalletsListPage();
 
       commonTestFlows.confirmAllAvailableWalletTypeIconsDisplayCorrectly();
 

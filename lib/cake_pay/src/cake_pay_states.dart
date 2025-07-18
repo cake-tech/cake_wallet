@@ -1,5 +1,3 @@
-import 'cake_pay_card.dart';
-
 abstract class CakePayUserVerificationState {}
 
 class CakePayUserVerificationStateInitial extends CakePayUserVerificationState {}
@@ -44,19 +42,22 @@ class CakePayCreateCardStateFailure extends CakePayCreateCardState {
   final String error;
 }
 
-class CakePayCardsState {}
+class UserCakePayCardsState {}
 
-class CakePayCardsStateNoCards extends CakePayCardsState {}
+class UserCakePayCardsStateInitial extends UserCakePayCardsState {}
 
-class CakePayCardsStateFetching extends CakePayCardsState {}
+class UserCakePayCardsStateNoCards extends UserCakePayCardsState {}
 
-class CakePayCardsStateFailure extends CakePayCardsState {}
+class UserCakePayCardsStateFetching extends UserCakePayCardsState {}
 
-class CakePayCardsStateSuccess extends CakePayCardsState {
-  CakePayCardsStateSuccess({required this.card});
+class UserCakePayCardsStateFailure extends UserCakePayCardsState {
+  UserCakePayCardsStateFailure({required this.error});
 
-  final CakePayCard card;
+  final String error;
 }
+
+class UserCakePayCardsStateSuccess extends UserCakePayCardsState {}
+
 
 abstract class CakePayVendorState {}
 

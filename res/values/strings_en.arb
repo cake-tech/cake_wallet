@@ -108,6 +108,7 @@
   "cake_2fa_preset": "Cake 2FA Preset",
   "cake_dark_theme": "Cake Dark Theme",
   "cake_pay_account_note": "Sign up with just an email address to see and purchase cards. Some are even available at a discount!",
+  "cake_pay_card_email_delivered_message": "Your gift card will be delivered via email after the necessary confirmations.",
   "cake_pay_learn_more": "Instantly purchase and redeem gift cards in the app!\nSwipe left to right to learn more.",
   "cake_pay_save_order": "The card should be sent to your e-mail within 1 business day \n Save your Order ID:",
   "cake_pay_subtitle": "Buy worldwide prepaid cards and gift cards",

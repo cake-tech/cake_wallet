@@ -34,7 +34,8 @@ class ImageUtil {
               height: _height,
               width: _width,
               fit: fit ?? BoxFit.contain,
-              placeholderBuilder: (_) => _placeholder(_height, _width))
+              placeholderBuilder: (_) => _placeholder(_height, _width),
+              errorBuilder: (_, __, ___) => _errorPlaceholder(_height, _width))
           : Image.network(imagePath,
               key: ValueKey(imagePath),
               height: _height,
@@ -42,7 +43,7 @@ class ImageUtil {
               fit: fit,
               loadingBuilder: (_, child, progress) =>
                   progress == null ? child : _placeholder(_height, _width),
-              errorBuilder: (_, __, ___) => const SizedBox.shrink());
+              errorBuilder: (_, __, ___) => _errorPlaceholder(_height, _width));
     } else {
       img = isSvg
           ? SvgPicture.asset(imagePath,
@@ -52,14 +53,15 @@ class ImageUtil {
               fit: fit ?? BoxFit.contain,
               colorFilter:
                   svgImageColor != null ? ColorFilter.mode(svgImageColor, BlendMode.srcIn) : null,
-              placeholderBuilder: (_) => const Icon(Icons.error))
+              placeholderBuilder: (_) => _placeholder(_height, _width),
+              errorBuilder: (_, __, ___) => _errorPlaceholder(_height, _width))
           : Image.asset(
               imagePath,
               key: ValueKey(imagePath),
               height: _height,
               width: _width,
               fit: fit,
-              errorBuilder: (_, __, ___) => const Icon(Icons.error),
+              errorBuilder: (_, __, ___) => _errorPlaceholder(_height, _width),
             );
     }
 
@@ -71,10 +73,6 @@ class ImageUtil {
     }
     return img;
   }
-
-  static Widget _placeholder(double? h, double? w) => (h != null || w != null)
-      ? SizedBox(height: h, width: w, child: const Center(child: CircularProgressIndicator()))
-      : const Center(child: CircularProgressIndicator());
 
   static Future<String?> saveAvatarLocally(String imageUriOrPath) async {
     if (imageUriOrPath.isEmpty) return null;
@@ -109,4 +107,15 @@ class ImageUtil {
       return null;
     }
   }
+
+  static Widget _placeholder(double? h, double? w) => (h != null || w != null)
+      ? SizedBox(height: h, width: w, child: const Center(child: CircularProgressIndicator()))
+      : const Center(child: CircularProgressIndicator());
+
+  static Widget _errorPlaceholder(double? h, double? w) => (h != null || w != null)
+      ? SizedBox(
+          height: h,
+          width: w,
+          child: const Center(child: Icon(Icons.error_outline, color: Colors.grey)))
+      : const Center(child: Icon(Icons.error_outline, color: Colors.grey));
 }

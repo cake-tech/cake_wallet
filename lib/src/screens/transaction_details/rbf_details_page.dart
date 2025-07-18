@@ -201,7 +201,9 @@ class RBFDetailsPage extends BasePage {
                   feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: transactionDetailsViewModel.sendViewModel.outputs,
-                  onSlideComplete: () async {
+                  footerType: FooterType.slideActionButton,
+                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
+                  onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop();
                     await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
                     try {

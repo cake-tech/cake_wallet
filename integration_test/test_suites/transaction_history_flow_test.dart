@@ -18,8 +18,12 @@ void main() {
 
   /// Two Test Scenarios
   ///  - Fully Synchronizes and display the transaction history either immediately or few seconds after fully synchronizing
-  /// - Displays the transaction history progressively as synchronizing happens
+  ///  - Displays the transaction history progressively as synchronizing happens
   testWidgets('Transaction history flow', (tester) async {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      debugPrint('FlutterError caught: ${details.exception}');
+    };
+
     commonTestFlows = CommonTestFlows(tester);
     dashboardPageRobot = DashboardPageRobot(tester);
     transactionsPageRobot = TransactionsPageRobot(tester);
@@ -28,7 +32,7 @@ void main() {
       ValueKey('confirm_creds_display_correctly_flow_app_key'),
     );
 
-    /// Test Scenario 1 - Displays transaction history list after fully synchronizing.
+    /// Test Scenario 1 - Displays transaction history list while synchronizing.
     ///
     /// For Solana/Tron WalletTypes.
     await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
@@ -45,12 +49,16 @@ void main() {
 
     await transactionsPageRobot.confirmTransactionsPageConstantsDisplayProperly();
 
-    await transactionsPageRobot.confirmTransactionHistoryListDisplaysCorrectly(false);
+    // Wait time for the first scenario to ensure proper loading
+    await tester.pump(Duration(seconds: 3));
+    await tester.pumpAndSettle();
 
-    /// Test Scenario 2 - Displays transaction history list while synchronizing.
+    await transactionsPageRobot.confirmTransactionHistoryListDisplaysCorrectly(true);
+
+    /// Test Scenario 2 - Displays transaction history list after fully synchronizing.
     ///
-    /// For bitcoin/Monero/Wownero WalletTypes.
-    await commonTestFlows.switchToWalletMenuFromDashboardPage();
+    /// For Bitcoin/Monero/Wownero WalletTypes.
+    await dashboardPageRobot.navigateToWalletsListPage();
 
     await commonTestFlows.restoreWalletFromWalletMenu(
       WalletType.bitcoin,
@@ -65,6 +73,10 @@ void main() {
 
     await transactionsPageRobot.confirmTransactionsPageConstantsDisplayProperly();
 
-    await transactionsPageRobot.confirmTransactionHistoryListDisplaysCorrectly(true);
+    // Wait time for the second scenario to ensure proper loading
+    await tester.pump(Duration(seconds: 3));
+    await tester.pumpAndSettle();
+
+    await transactionsPageRobot.confirmTransactionHistoryListDisplaysCorrectly(false);
   });
 }

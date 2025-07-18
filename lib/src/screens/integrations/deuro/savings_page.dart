@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_edit_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -167,6 +168,7 @@ class DEuroSavingsPage extends BasePage {
         isScrollControlled: true,
         builder: (BuildContext bottomSheetContext) => ConfirmSendingBottomSheet(
           key: ValueKey('savings_page_confirm_sending_dialog_key'),
+          footerType: FooterType.slideActionButton,
           titleText: title,
           currentTheme: currentTheme,
           walletType: WalletType.ethereum,
@@ -183,7 +185,7 @@ class DEuroSavingsPage extends BasePage {
           feeValue: tx.feeFormatted,
           feeFiatAmount: _dEuroViewModel.pendingTransactionFeeFiatAmountFormatted,
           outputs: [],
-          onSlideComplete: () async {
+          onSlideActionComplete: () async {
             Navigator.of(bottomSheetContext).pop(true);
             dEuroViewModel.commitTransaction();
           },
@@ -202,6 +204,7 @@ class DEuroSavingsPage extends BasePage {
         isScrollControlled: true,
         builder: (BuildContext bottomSheetContext) => ConfirmSendingBottomSheet(
           key: ValueKey('savings_page_confirm_approval_dialog_key'),
+          footerType: FooterType.slideActionButton,
           titleText: S.of(bottomSheetContext).approve_tokens,
           currentTheme: currentTheme,
           walletType: WalletType.ethereum,
@@ -214,7 +217,7 @@ class DEuroSavingsPage extends BasePage {
           feeValue: tx.feeFormatted,
           feeFiatAmount: "",
           outputs: [],
-          onSlideComplete: () {
+          onSlideActionComplete: () {
             Navigator.of(bottomSheetContext).pop(true);
             dEuroViewModel.commitApprovalTransaction();
           },
@@ -235,13 +238,14 @@ class DEuroSavingsPage extends BasePage {
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+              footerType: FooterType.singleActionButton,
               currentTheme: currentTheme,
               titleText: S.of(bottomSheetContext).transaction_sent,
               contentImage: 'assets/images/birthday_cake.png',
               content: S.of(bottomSheetContext).deuro_tx_commited_content,
-              actionButtonText: S.of(bottomSheetContext).close,
-              actionButtonKey: ValueKey('savings_page_sent_dialog_ok_button_key'),
-              actionButton: () => Navigator.of(bottomSheetContext).pop(),
+              singleActionButtonText: S.of(bottomSheetContext).close,
+              singleActionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+              onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
             ),
           );
         });
@@ -276,7 +280,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_balance,
         content: S.of(context).deuro_savings_balance_tooltip,
         key: 'savings_tooltip',
-        onLearnMorePressed: () {}, //ToDo
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
       );
 
   void _onInterestTooltipPressed(BuildContext context) => _showTooltip(
@@ -284,7 +288,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_collect_interest,
         content: S.of(context).deuro_savings_collect_interest_tooltip,
         key: 'interest_tooltip',
-        onLearnMorePressed: () {}, //ToDo
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
       );
 
   void _showTooltip(
@@ -303,13 +307,13 @@ class DEuroSavingsPage extends BasePage {
         titleText: title,
         titleIconPath: CryptoCurrency.deuro.iconPath,
         content: content,
-        isTwoAction: true,
-        rightButtonText: S.of(context).close,
+        footerType: FooterType.doubleActionButton,
+        doubleActionRightButtonText: S.of(context).close,
         rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_ok_button_key'),
-        actionRightButton: () => Navigator.of(bottomSheetContext).pop(),
-        leftButtonText: S.of(context).learn_more,
+        onRightActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
+        doubleActionLeftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_learn_more_button_key'),
-        actionLeftButton: onLearnMorePressed,
+        onLeftActionButtonPressed: onLearnMorePressed,
       ),
     );
   }
@@ -328,13 +332,13 @@ class DEuroSavingsPage extends BasePage {
         contentImage: 'assets/images/deuro_hero.png',
         contentImageSize: 200,
         content: S.of(context).deuro_savings_welcome_description,
-        isTwoAction: true,
-        rightButtonText: S.of(context).close,
+        footerType: FooterType.doubleActionButton,
+        doubleActionRightButtonText: S.of(context).close,
         rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_ok_button_key'),
-        actionRightButton: () => Navigator.of(bottomSheetContext).pop(),
-        leftButtonText: S.of(context).learn_more,
+        onRightActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
+        doubleActionLeftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
-        actionLeftButton: () => Navigator.of(bottomSheetContext).pop(), // ToDo
+        onLeftActionButtonPressed: () => launchUrlString("https://deuro.com/what-is-deuro.html"),
         showDisclaimerText: _dEuroViewModel.isFistTime,
       ),
     );
@@ -353,9 +357,9 @@ class DEuroSavingsPage extends BasePage {
         titleIconPath: CryptoCurrency.deuro.iconPath,
         contentImage: 'assets/images/deuro_not_enough_eth.png',
         content: S.of(context).deuro_tooltip_no_eth,
-        actionButtonKey: ValueKey('deuro_page_tooltip_dialog_no_eth_ok_button_key'),
-        actionButtonText: S.of(context).close,
-        actionButton: () => Navigator.of(bottomSheetContext).pop(),
+        singleActionButtonKey: ValueKey('deuro_page_tooltip_dialog_no_eth_ok_button_key'),
+        singleActionButtonText: S.of(context).close,
+        onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(), footerType: FooterType.singleActionButton,
       ),
     );
   }
@@ -373,6 +377,8 @@ class DEuroSavingsPage extends BasePage {
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
         balance: isAdding ? _dEuroViewModel.accountBalance : _dEuroViewModel.savingsBalance,
+        footerType: FooterType.none,
+        maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
     );
   }

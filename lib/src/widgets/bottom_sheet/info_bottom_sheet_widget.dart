@@ -1,74 +1,96 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cake_wallet/src/widgets/simple_checkbox.dart';
+
+
+
+import 'package:cake_wallet/utils/image_utill.dart';
+
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+
+
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/gestures.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 import 'base_bottom_sheet_widget.dart';
 
 class LoadingBottomSheet extends BaseBottomSheet {
-  LoadingBottomSheet({required String titleText, String? titleIconPath})
-      : super(titleText: titleText, titleIconPath: titleIconPath);
+  LoadingBottomSheet(
+      {required String titleText, String? titleIconPath})
+      : super(titleText: titleText, titleIconPath: titleIconPath, footerType: FooterType.none, maxHeight: 900);
 
   @override
   Widget contentWidget(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: 300,
       child: Center(child: CircularProgressIndicator()),
     );
   }
-
-  @override
-  Widget footerWidget(BuildContext context) => const SizedBox(height: 94);
 }
 
 class InfoBottomSheet extends BaseBottomSheet {
-  final MaterialThemeBase currentTheme;
-  final String? contentImage;
-  final Color? contentImageColor;
-  final String? content;
-  final bool isTwoAction;
-  final bool showDontAskMeCheckbox;
-  final bool showDisclaimerText;
-  final Function(bool)? onCheckboxChanged;
-  final String? actionButtonText;
-  final VoidCallback? actionButton;
-  final Key? actionButtonKey;
-  final String? leftButtonText;
-  final String? rightButtonText;
-  final VoidCallback? actionLeftButton;
-  final VoidCallback? actionRightButton;
-  final Key? rightActionButtonKey;
-  final Key? leftActionButtonKey;
-  final double height;
-  final double? contentImageSize;
-
   InfoBottomSheet({
     required String titleText,
     String? titleIconPath,
     required this.currentTheme,
+    required this.footerType,
     this.contentImage,
     this.contentImageColor,
     this.contentImageSize,
-    this.content,
-    this.isTwoAction = false,
-    this.showDontAskMeCheckbox = false,
-    this.showDisclaimerText = false,
     this.height = 200,
-    this.onCheckboxChanged,
-    this.actionButtonText,
-    this.actionButton,
-    this.actionButtonKey,
-    this.leftButtonText,
-    this.rightButtonText,
-    this.actionLeftButton,
-    this.actionRightButton,
-    this.rightActionButtonKey,
+    this.content,
+    this.bottomActionPanel,
+    this.singleActionButtonText,
+    this.onSingleActionButtonPressed,
+    this.singleActionButtonKey,
+    this.doubleActionLeftButtonText,
+    this.doubleActionRightButtonText,
+    this.onLeftActionButtonPressed,
+    this.onRightActionButtonPressed,
     this.leftActionButtonKey,
-    double maxHeight = 900,
-  }) : super(titleText: titleText, titleIconPath: titleIconPath, maxHeight: maxHeight);
+    this.rightActionButtonKey,
+    this.showDisclaimerText = false,
+    Key? key,
+  }) : super(
+            titleText: titleText,
+            titleIconPath: titleIconPath,
+            maxHeight: 900,
+            currentTheme: currentTheme,
+            footerType: footerType,
+            singleActionButtonText: singleActionButtonText,
+            onSingleActionButtonPressed: onSingleActionButtonPressed,
+            singleActionButtonKey: singleActionButtonKey,
+            doubleActionLeftButtonText: doubleActionLeftButtonText,
+            doubleActionRightButtonText: doubleActionRightButtonText,
+            onLeftActionButtonPressed: onLeftActionButtonPressed,
+            onRightActionButtonPressed: onRightActionButtonPressed,
+            leftActionButtonKey: leftActionButtonKey,
+            rightActionButtonKey: rightActionButtonKey,
+            key: key);
+
+  final MaterialThemeBase currentTheme;
+  final FooterType footerType;
+  final String? contentImage;
+  final Color? contentImageColor;
+  final String? content;
+  final Widget? bottomActionPanel;
+  final String? singleActionButtonText;
+  final VoidCallback? onSingleActionButtonPressed;
+  final Key? singleActionButtonKey;
+  final String? doubleActionLeftButtonText;
+  final String? doubleActionRightButtonText;
+  final VoidCallback? onLeftActionButtonPressed;
+  final VoidCallback? onRightActionButtonPressed;
+  final Key? rightActionButtonKey;
+  final Key? leftActionButtonKey;
+  final double height;
+  final double? contentImageSize;
+  final bool showDisclaimerText;
+
 
   @override
   Widget contentWidget(BuildContext context) {
@@ -79,9 +101,11 @@ class InfoBottomSheet extends BaseBottomSheet {
           if (contentImage != null)
             Expanded(
               flex: 4,
-              child: SizedBox(
-                width: contentImageSize,
-                child: getImage(contentImage!, imageColor: contentImageColor),
+              child: ImageUtil.getImageFromPath(
+                imagePath: contentImage!,
+                svgImageColor: contentImageColor,
+                fit: BoxFit.contain,
+                borderRadius: 10,
               ),
             )
           else
@@ -110,6 +134,7 @@ class InfoBottomSheet extends BaseBottomSheet {
                 ],
               ),
             ),
+          bottomActionPanel ?? const SizedBox(),
           if (showDisclaimerText)
             Padding(
                 padding: const EdgeInsets.only(top: 20, bottom: 10),
@@ -141,122 +166,7 @@ class InfoBottomSheet extends BaseBottomSheet {
               ),
             ),
             ),
-          if (showDontAskMeCheckbox)
-            Padding(
-              padding: const EdgeInsets.only(left: 34),
-              child: Row(
-                children: [
-                  SimpleCheckbox(onChanged: onCheckboxChanged),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Don’t ask me next time',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          decoration: TextDecoration.none,
-                        ),
-                  ),
-                ],
-              ),
-            ),
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget footerWidget(BuildContext context) {
-    if (isTwoAction) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 34),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Flexible(
-              child: Container(
-                padding: const EdgeInsets.only(right: 8.0, top: 8.0),
-                child: PrimaryButton(
-                  key: leftActionButtonKey,
-                  onPressed: actionLeftButton,
-                  text: leftButtonText ?? '',
-                  color: Theme.of(context).colorScheme.surfaceContainer,
-                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                ),
-              ),
-            ),
-            Flexible(
-              child: Container(
-                padding: const EdgeInsets.only(left: 8.0, top: 8.0),
-                child: PrimaryButton(
-                  key: rightActionButtonKey,
-                  onPressed: actionRightButton,
-                  text: rightButtonText ?? '',
-                  color: Theme.of(context).colorScheme.primary,
-                  textColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 34),
-        child: LoadingPrimaryButton(
-          key: actionButtonKey,
-          onPressed: actionButton ?? () {},
-          text: actionButtonText ?? '',
-          color: Theme.of(context).colorScheme.primary,
-          textColor: Theme.of(context).colorScheme.onPrimary,
-          isLoading: false,
-          isDisabled: false,
-        ),
-      );
-    }
-  }
-
-  Widget getImage(String imagePath, {Color? imageColor}) {
-    final bool isSvg = imagePath.endsWith('.svg');
-    if (isSvg) {
-      return SvgPicture.asset(
-        imagePath,
-        colorFilter: imageColor != null ? ColorFilter.mode(imageColor, BlendMode.srcIn) : null,
-      );
-    } else {
-      return Image.asset(imagePath);
-    }
-  }
-}
-
-class SimpleCheckbox extends StatefulWidget {
-  SimpleCheckbox({this.onChanged});
-
-  final Function(bool)? onChanged;
-
-  @override
-  State<SimpleCheckbox> createState() => _SimpleCheckboxState();
-}
-
-class _SimpleCheckboxState extends State<SimpleCheckbox> {
-  bool initialValue = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 24.0,
-      width: 24.0,
-      child: Checkbox(
-        value: initialValue,
-        onChanged: (value) => setState(() {
-          initialValue = value!;
-          widget.onChanged?.call(value);
-        }),
-        checkColor: Theme.of(context).colorScheme.onSurfaceVariant,
-        activeColor: Colors.transparent,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        side: WidgetStateBorderSide.resolveWith((states) =>
-            BorderSide(color: Theme.of(context).colorScheme.onSurfaceVariant, width: 1.0)),
       ),
     );
   }

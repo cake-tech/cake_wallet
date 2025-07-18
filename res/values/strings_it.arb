@@ -108,6 +108,7 @@
   "cake_2fa_preset": "Preset Cake 2FA",
   "cake_dark_theme": "Tema scuro Cake",
   "cake_pay_account_note": "Iscriviti solamente con un indirizzo email per vedere e acquistare le carte. Alcune sono anche disponibili con uno sconto!",
+  "cake_pay_card_email_delivered_message": "La tua carta regalo verrà consegnata via e -mail dopo le conferme necessarie.",
   "cake_pay_learn_more": "Acquista e riscatta istantaneamente carte regalo nell'app!\nScorri da sinistra a destra per saperne di più.",
   "cake_pay_save_order": "La carta deve essere inviata alla tua e-mail entro 1 giorno lavorativo \n Salva l'ID del tuo ordine:",
   "cake_pay_subtitle": "Acquista carte prepagate e carte regalo internazionali",

@@ -275,6 +275,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   return ConfirmSendingBottomSheet(
                     key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     currentTheme: widget.currentTheme,
+                    footerType: FooterType.slideActionButton,
                     walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
                     titleIconPath:
@@ -294,11 +295,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
                         .pendingTransactionFeeFiatAmountFormatted,
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
-                    onSlideComplete: () async {
-                    if (bottomSheetContext.mounted) {
-                      Navigator.of(bottomSheetContext).pop();
-                    }
-
+                    onSlideActionComplete: () async {
+                      if (bottomSheetContext.mounted) {
+                        Navigator.of(bottomSheetContext).pop();
+                      }
                       widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
                     },
                   );
@@ -320,11 +320,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 builder: (BuildContext bottomSheetContext) {
                   return InfoBottomSheet(
                     currentTheme: widget.currentTheme,
+                    footerType: FooterType.singleActionButton,
                     titleText: S.of(bottomSheetContext).transaction_sent,
                     contentImage: 'assets/images/birthday_cake.png',
-                    actionButtonText: S.of(bottomSheetContext).close,
-                    actionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
-                    actionButton: () {
+                    singleActionButtonText: S.of(bottomSheetContext).close,
+                    singleActionButtonKey: ValueKey('send_page_sent_dialog_ok_button_key'),
+                    onSingleActionButtonPressed: () {
                       Navigator.of(bottomSheetContext).pop();
                       if (mounted) {
                         Navigator.of(context).pushNamedAndRemoveUntil(

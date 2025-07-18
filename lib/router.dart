@@ -21,8 +21,7 @@ import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
@@ -153,14 +152,14 @@ import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
 
-Route<dynamic> handleRouteWithPlatformAwareness(
+Route<T> handleRouteWithPlatformAwareness<T>(
   Widget Function(BuildContext) builder, {
   bool fullscreenDialog = false,
 }) {
   if (Platform.isIOS) {
-    return CupertinoPageRoute<void>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
   } else {
-    return MaterialPageRoute<void>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
   }
 }
 
@@ -703,25 +702,20 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<CakePayBuyCardPage>(param1: args),
       );
 
-    case Routes.cakePayBuyCardDetailPage:
-      final args = settings.arguments as List;
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<CakePayBuyCardDetailPage>(param1: args),
-      );
-
     case Routes.cakePayWelcomePage:
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayWelcomePage>(),
       );
 
     case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayVerifyOtpPage>(param1: args),
       );
 
+
     case Routes.cakePayAccountPage:
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayAccountPage>(),
       );
 
