@@ -115,8 +115,6 @@ abstract class EVMChainWalletBase
   int? gasBaseFee = 0;
   int estimatedGasUnits = 0;
 
-  Timer? _updateFeesTimer;
-
   bool _isTransactionUpdating;
 
   // TODO: remove after integrating our own node and having eth_newPendingTransactionFilter
@@ -163,6 +161,36 @@ abstract class EVMChainWalletBase
     String password,
     EncryptionFileUtils encryptionFileUtils,
   );
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check native balance
+      await _client.getBalance(_evmChainPrivateKey.address, throwOnError: true);
+      
+      // Check USDC token balance
+      String usdcContractAddress;
+      if (_client.chainId == 1) {
+        // Ethereum mainnet
+        usdcContractAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+      } else if (_client.chainId == 137) {
+        // Polygon mainnet
+        usdcContractAddress = "0x2791bca1f2de4661ed88a30c99a7a9449aa84174";
+      } else {
+        // If we are not on Ethereum or Polygon, we skip ERC20 token check
+        return true;
+      }
+      
+      await _client.fetchERC20Balances(
+        _evmChainPrivateKey.address,
+        usdcContractAddress,
+      );
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   //! Common Methods across child classes
 
@@ -349,7 +377,6 @@ abstract class EVMChainWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
-    _updateFeesTimer?.cancel();
   }
 
   @action
@@ -379,14 +406,17 @@ abstract class EVMChainWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
+
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
+
       await _updateBalance();
       await _updateTransactions();
-
       await _updateEstimatedGasFeeParams();
-
-      _updateFeesTimer ??= Timer.periodic(const Duration(seconds: 30), (timer) async {
-        await _updateEstimatedGasFeeParams();
-      });
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -828,6 +858,7 @@ abstract class EVMChainWalletBase
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       _updateTransactions();
       _updateBalance();
+      _updateEstimatedGasFeeParams();
     });
   }
 

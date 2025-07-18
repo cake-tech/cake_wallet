@@ -41,6 +41,12 @@ abstract class NodeListViewModelBase with Store {
       S.current.change_current_node(uri) +
       '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + (CakeTor.instance.enabled ? '' : S.current.orbot_running_alert) : ''}';
 
+  @computed
+  bool get enableAutomaticNodeSwitching => settingsStore.enableAutomaticNodeSwitching;
+
+  void setEnableAutomaticNodeSwitching(bool value) =>
+      settingsStore.enableAutomaticNodeSwitching = value;
+
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
   final Box<Node> _nodeSource;
