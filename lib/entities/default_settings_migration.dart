@@ -46,7 +46,7 @@ const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
-const dogecoinDefaultNodeUri = 'doge.aftrek.org:50001';
+const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 
 Future<void> defaultSettingsMigration(
     {required int version,
