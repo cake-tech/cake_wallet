@@ -313,12 +313,6 @@ class SwapuzExchangeProvider extends ExchangeProvider {
 
   String _normalizeNetwork(CryptoCurrency currency) {
     switch (currency) {
-      case CryptoCurrency.usdcpoly:
-      case CryptoCurrency.usdtPoly:
-      case CryptoCurrency.maticpoly:
-      case CryptoCurrency.matic:
-      case CryptoCurrency.usdcEPoly:
-        return 'MATIC';
       case CryptoCurrency.nano:
         return 'NANO';
       case CryptoCurrency.avaxc:
