@@ -12,6 +12,7 @@ class SecurityAndBackupPageRobot {
 
   Future<void> isSecurityAndBackupPage() async {
     await commonTestCases.isSpecificPage<SecurityBackupPage>();
+    await commonTestCases.takeScreenshots('security_backup_page');
   }
 
   void hasTitle() {
@@ -19,6 +20,9 @@ class SecurityAndBackupPageRobot {
   }
 
   Future<void> navigateToShowKeysPage() async {
+    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+    
     await commonTestCases.tapItemByKey('security_backup_page_show_keys_button_key');
+    await tester.pumpAndSettle(Duration(milliseconds: 1000));
   }
 }

@@ -74,7 +74,7 @@ class DFXBuyProvider extends BuyProvider {
   Future<String> getSignMessage(String walletAddress) async =>
       "By_signing_this_message,_you_confirm_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_$walletAddress";
 
-  // // Lets keep this just in case, but we can avoid this API Call
+  // Lets keep this just in case, but we can avoid this API Call
   // Future<String> getSignMessage() async {
   //  final uri = Uri.https(_baseUrl, _signMessagePath, {'address': walletAddress});
   //
@@ -172,6 +172,11 @@ class DFXBuyProvider extends BuyProvider {
         final responseData = jsonDecode(response.body);
 
         if (responseData is List && responseData.isNotEmpty) {
+          for (final i in responseData) {
+            if (assetsName.toLowerCase() == i["dexName"].toString().toLowerCase()) {
+              return i as Map<String, dynamic>;
+            }
+          }
           return responseData.first as Map<String, dynamic>;
         } else if (responseData is Map<String, dynamic>) {
           return responseData;
@@ -254,8 +259,6 @@ class DFXBuyProvider extends BuyProvider {
     }
 
     final action = isBuyAction ? 'buy' : 'sell';
-
-    if (isBuyAction && cryptoCurrency != wallet.currency) return null;
 
     final fiatCredentials = await fetchFiatCredentials(fiatCurrency.name.toString());
     if (fiatCredentials['id'] == null) return null;

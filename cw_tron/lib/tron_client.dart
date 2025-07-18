@@ -24,8 +24,6 @@ class TronClient {
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
 
-  int get chainId => 1000;
-
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {

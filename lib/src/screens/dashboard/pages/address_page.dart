@@ -8,7 +8,6 @@ import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
@@ -34,9 +33,7 @@ class AddressPage extends BasePage {
         _amountController = TextEditingController() {
     _amountController.addListener(() {
       if (_formKey.currentState!.validate()) {
-        addressListViewModel.changeAmount(
-          _amountController.text,
-        );
+        addressListViewModel.changeAmount(_amountController.text);
       }
     });
   }
@@ -79,7 +76,7 @@ class AddressPage extends BasePage {
             label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
             child: TextButton(
               style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
+                overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
               ),
               onPressed: () => onClose(context),
               child: !isMobileView ? _closeButton : _backButton,

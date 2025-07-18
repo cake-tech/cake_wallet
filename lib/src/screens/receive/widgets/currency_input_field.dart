@@ -1,12 +1,14 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CurrencyAmountTextField extends StatelessWidget {
   const CurrencyAmountTextField({
     required this.selectedCurrency,
+    required this.selectedCurrencyDecimals,
     required this.amountFocusNode,
     required this.amountController,
     required this.isAmountEditable,
@@ -42,6 +44,7 @@ class CurrencyAmountTextField extends StatelessWidget {
   final Key? currencyAmountTextFieldWidgetKey;
   final Widget? imageArrow;
   final String selectedCurrency;
+  final int selectedCurrencyDecimals;
   final String? tag;
   final String? hintText;
   final Color? tagBackgroundColor;
@@ -197,6 +200,8 @@ class CurrencyAmountTextField extends StatelessWidget {
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       validator: isAmountEditable ? currencyValueValidator : null,
+                      onChanged: (value) => amountController.text =
+                          value.replaceAll(',', '.').withMaxDecimals(selectedCurrencyDecimals),
                     ),
                   ),
                 ),

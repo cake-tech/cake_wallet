@@ -40,8 +40,8 @@ abstract class ProxySocket {
   }
 
   Future<void> close();
-  Future<void> destroy();
-  Future<void> write(String data);
+  void destroy();
+  void write(String data);
   StreamSubscription<List<int>> listen(Function(Uint8List event) onData, {Function (Object error)? onError, Function ()? onDone, bool cancelOnError = true});
   ProxyAddress get address;
 }

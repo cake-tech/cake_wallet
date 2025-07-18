@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:monero/src/wallet2.dart';
@@ -13,9 +14,13 @@ Wallet2WalletListener? _wlptr = null;
 
 Wallet2WalletListener? getWlptr() {
   if (currentWallet == null) return null;
-  _wlptrForW = currentWallet!.ffiAddress();
-  _wlptr = currentWallet!.getWalletListener();
-  return _wlptr!;
+  if (_wlptrForW == currentWallet!.ffiAddress()) {
+    return _wlptr;
+  } else {
+    _wlptrForW = currentWallet!.ffiAddress();
+    _wlptr = currentWallet!.getWalletListener();
+    return _wlptr;
+  }
 }
 
 Wallet2SubaddressAccount? subaddressAccount;

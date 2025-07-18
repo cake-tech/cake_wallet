@@ -21,7 +21,7 @@ abstract class StartTorViewModelBase with Store {
   }
 
   Timer? _timer;
-  final int waitTimeInSeconds = 15;
+  final int waitTimeInSeconds = 5;
 
   @observable
   bool isLoading = true;
@@ -30,7 +30,7 @@ abstract class StartTorViewModelBase with Store {
   bool timeoutReached = false;
 
   @observable
-  int remainingSeconds = 15;
+  late int remainingSeconds = waitTimeInSeconds;
 
   @computed
   bool get showOptions => timeoutReached;

@@ -15,10 +15,10 @@ class ProxySocketInsecure implements ProxySocket {
   Future<void> close() => socket.close();
   
   @override
-  Future<void> destroy() async => socket.destroy();
+  void destroy() => socket.destroy();
   
   @override
-  Future<void> write(String data) async => socket.write(data);
+  void write(String data) => socket.write(data);
   
   @override
   StreamSubscription<List<int>> listen(Function(Uint8List event) onData, {Function(Object error)? onError, Function()? onDone, bool cancelOnError = true}) {

@@ -22,7 +22,10 @@ class DecredPendingTransaction with PendingTransaction {
   String get amountFormatted => decredAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => decredAmountToString(amount: fee);
+  String get feeFormatted => "$feeFormattedValue DCR";
+
+  @override
+  String get feeFormattedValue => decredAmountToString(amount: fee);
 
   @override
   String get hex => rawHex;

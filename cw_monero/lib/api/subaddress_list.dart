@@ -3,7 +3,6 @@ import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:monero/monero.dart';
-import 'package:monero/src/monero.dart';
 
 bool isUpdating = false;
 
@@ -17,7 +16,7 @@ class SubaddressInfoMetadata {
 SubaddressInfoMetadata? subaddress = null;
 
 String getRawLabel({required int accountIndex, required int addressIndex}) {
-  return currentWallet!.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex);
+  return currentWallet?.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex)??"";
 }
 
 void refreshSubaddresses({required int accountIndex}) {
@@ -47,7 +46,7 @@ class Subaddress {
   final int received;
   final int txCount;
   String get label {
-    final localLabel = currentWallet!.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex);
+    final localLabel = currentWallet?.getSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex) ?? "";
     if (localLabel.startsWith("#$addressIndex")) return localLabel; // don't duplicate the ID if it was user-providen
     return "#$addressIndex ${localLabel}".trim();
   }
@@ -120,17 +119,17 @@ List<Subaddress> getAllSubaddresses() {
 }
 
 int numSubaddresses(int subaccountIndex) {
-  return currentWallet!.numSubaddresses(accountIndex: subaccountIndex);
+  return currentWallet?.numSubaddresses(accountIndex: subaccountIndex) ?? 0;
 }
 
 Future<void> addSubaddress({required int accountIndex, required String label}) async {
-  currentWallet!.addSubaddress(accountIndex: accountIndex, label: label);
+  currentWallet?.addSubaddress(accountIndex: accountIndex, label: label);
   refreshSubaddresses(accountIndex: accountIndex);
   await store();
 }
 
 Future<void> setLabelForSubaddress(
     {required int accountIndex, required int addressIndex, required String label}) async {
-  currentWallet!.setSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex, label: label);
+  currentWallet?.setSubaddressLabel(accountIndex: accountIndex, addressIndex: addressIndex, label: label);
   await store();
 }

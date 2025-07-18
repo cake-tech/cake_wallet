@@ -1,14 +1,16 @@
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class SyncIndicatorIcon extends StatelessWidget {
   SyncIndicatorIcon(
-      {this.boolMode = true, this.isSynced = false, this.value = waiting, this.size = 6.0});
+      {this.boolMode = true, this.isSynced = false, this.value = waiting, this.size = 6.0, this.showTorIcon = false});
 
   final bool boolMode;
   final bool isSynced;
   final String value;
   final double size;
+  final bool showTorIcon;
 
   static const String waiting = 'waiting';
   static const String actionRequired = 'action required';
@@ -46,10 +48,14 @@ class SyncIndicatorIcon extends StatelessWidget {
     return Container(
       height: size,
       width: size,
-      decoration: BoxDecoration(
+      decoration: showTorIcon ? null : BoxDecoration(
         shape: BoxShape.circle,
         color: indicatorColor,
       ),
+      child: showTorIcon ? SvgPicture.asset(
+        "assets/images/tor.svg",
+        color: indicatorColor,
+      ) : null, 
     );
   }
 }

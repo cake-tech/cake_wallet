@@ -18,6 +18,7 @@ import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/receive.dart';
 import 'package:payjoin_flutter/send.dart';
 import 'package:payjoin_flutter/src/config.dart' as pj_config;
+import 'package:payjoin_flutter/src/generated/api.dart' as pj_api;
 import 'package:payjoin_flutter/uri.dart' as PayjoinUri;
 
 class PayjoinManager {
@@ -44,17 +45,21 @@ class PayjoinManager {
     final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
 
     final spawnedSessions = allSessions.map((session) {
-      if (session.isSenderSession) {
-        printV("Resuming Payjoin Sender Session ${session.pjUri!}");
-        return _spawnSender(
-          sender: Sender.fromJson(json: session.sender!),
-          pjUri: session.pjUri!,
-        );
+      try {
+        if (session.isSenderSession) {
+          printV("Resuming Payjoin Sender Session ${session.pjUri!}");
+          return _spawnSender(
+            sender: Sender.fromJson(json: session.sender!),
+            pjUri: session.pjUri!,
+          );
+        }
+        final receiver = Receiver.fromJson(json: session.receiver!);
+        printV("Resuming Payjoin Receiver Session ${receiver.id()}");
+        return spawnReceiver(receiver: receiver);
+      } on pj_api.FfiSerdeJsonError catch (_) {
+        _payjoinStorage.markSenderSessionUnrecoverable(session.pjUri!, "Outdated Session");
       }
-      final receiver = Receiver.fromJson(json: session.receiver!);
-      printV("Resuming Payjoin Receiver Session ${receiver.id()}");
-      return spawnReceiver(receiver: receiver);
-    });
+    }).nonNulls;
 
     printV("Resumed ${spawnedSessions.length} Payjoin Sessions");
     await Future.wait(spawnedSessions);

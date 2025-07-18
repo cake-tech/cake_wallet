@@ -27,7 +27,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
     this.transactionInfo, {
     required this.payjoinSessionSource,
     required this.themeStore,
-  })  : items = ObservableList<StandartListItem>(),
+  })  : items = ObservableList<TransactionDetailsListItem>(),
         payjoinSession = payjoinSessionSource.get(payjoinSessionId)! {
     listener = payjoinSessionSource.watch().listen((e) {
       if (e.key == payjoinSessionId) _updateItems();
