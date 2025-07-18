@@ -17,23 +17,49 @@ import 'package:cw_core/utils/print_verbose.dart';
 class SwapuzExchangeProvider extends ExchangeProvider {
   SwapuzExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
-  static const List<CryptoCurrency> _notSupported = [];
+  static const List<CryptoCurrency> _notSupported = [
+    CryptoCurrency.tbtc,
+    CryptoCurrency.usdt, // OMNI usdt
+    CryptoCurrency.xhv,
+    CryptoCurrency.xag,
+    CryptoCurrency.xau,
+    CryptoCurrency.xaud,
+    CryptoCurrency.xbtc,
+    CryptoCurrency.xcad,
+    CryptoCurrency.xchf,
+    CryptoCurrency.xcny,
+    CryptoCurrency.xeur,
+    CryptoCurrency.xgbp,
+    CryptoCurrency.xjpy,
+    CryptoCurrency.xnok,
+    CryptoCurrency.xnzd,
+    CryptoCurrency.xusd,
+    CryptoCurrency.btt,
+    CryptoCurrency.bttc,
+    CryptoCurrency.firo,
+    CryptoCurrency.sc,
+    CryptoCurrency.zaddr,
+    CryptoCurrency.zec,
+    CryptoCurrency.xvg,
+    CryptoCurrency.btcln,
+    CryptoCurrency.ftm,
+    CryptoCurrency.gusd,
+    CryptoCurrency.gtc,
+    CryptoCurrency.banano,
+    CryptoCurrency.kaspa,
+    CryptoCurrency.wow,
+    CryptoCurrency.zano,
+    CryptoCurrency.deuro,
+    CryptoCurrency.usdcpoly,
+  ];
 
-  static const baseApiUrl = 'dev.api.swapuz.com';
+  // API Configuration
+  static const baseApiUrl = 'api.swapuz.com';
   static const getRate = '/api/Home/v1/rate';
   static const createOrder = '/api/Home/v1/order';
   static const getOrder = '/api/Order/uid/';
   static const getLimits = '/api/Home/getLimits';
-
-  // final partnerApiKey = secrets.swapuz;
-  // final partnerAffiliateId = secrets.swapuzAffiliateId;
-
-  String _networkFor(CryptoCurrency currency) {
-    switch (currency) {
-      default:
-        return currency.tag != null ? currency.tag! : 'Mainnet';
-    }
-  }
+  final partnerApiKey = secrets.swapuzApiKey;
 
   @override
   Future<bool> checkIsAvailable() async => true;
@@ -48,16 +74,17 @@ class SwapuzExchangeProvider extends ExchangeProvider {
       var body = <String, dynamic>{
         'from': request.fromCurrency.title,
         'to': request.toCurrency.title,
-        'fromNetwork': _networkFor(request.fromCurrency),
-        'toNetwork': _networkFor(request.toCurrency),
+        'fromNetwork': _normalizeNetwork(request.fromCurrency),
+        'toNetwork': _normalizeNetwork(request.toCurrency),
         'address': request.toAddress,
         'amount': request.fromAmount,
         'modeCurs': isFixedRateMode ? 'fixed' : 'float',
       };
 
-      final uri = await _getUri(createOrder, {});
+      final uri = Uri.https(baseApiUrl, createOrder);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
+        headers: _buildHeaders(),
         body: json.encode(body),
       );
 
@@ -68,20 +95,29 @@ class SwapuzExchangeProvider extends ExchangeProvider {
         throw TradeNotCreatedException(description, description: error);
       }
 
-      final responseData = responseBody['result'] as Map<String, dynamic>;
+      if (response.statusCode != 200) {
+        throw Exception('Unexpected http status: ${response.statusCode}');
+      }
+
+      final result = responseBody['result'] as Map<String, dynamic>;
 
       return Trade(
-        id: responseData["uid"] as String,
+        id: result["uid"] as String,
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,
-        inputAddress: responseData["addressFrom"] as String,
-        amount: responseData["amount"].toString(),
-        receiveAmount: responseData["amountResult"].toString(),
-        createdAt: DateTime.parse(responseData["createDate"] as String),
+        inputAddress: result["addressFrom"] as String,
+        amount: result["amount"].toString(),
+        receiveAmount: result["amountResult"].toString(),
+        createdAt: DateTime.parse(result["createDate"] as String),
         state: TradeState.created,
         payoutAddress: request.toAddress,
+        refundAddress: result["addressRefund"] as String?,
         isSendAll: isSendAll,
+        txId: result["withdrawalTransactionID"] as String?,
+        memo: result["memoFrom"] as String?,
+        extraId: result["extraIdReceive"] as String?,
+        outputTransaction: result["withdrawalTransactionID"] as String?,
       );
     } catch (e) {
       printV("error creating trade: ${e.toString()}");
@@ -106,14 +142,23 @@ class SwapuzExchangeProvider extends ExchangeProvider {
       final uri = Uri.https(baseApiUrl, getLimits, params);
       final response = await ProxyWrapper().get(
         clearnetUri: uri,
+        headers: _buildHeaders(),
       );
-      final responseBody = json.decode(response.body) as Map<String, dynamic>;
-      if (response.statusCode != 200)
+
+      if (response.statusCode != 200) {
         throw Exception('Unexpected http status: ${response.statusCode}');
-      final data = responseBody['result'] as Map<String, dynamic>;
+      }
+
+      final responseBody = json.decode(response.body) as Map<String, dynamic>;
+
+      if (responseBody['result'] == null) {
+        throw Exception('No limits data received from API');
+      }
+
+      final result = responseBody['result'] as Map<String, dynamic>;
       return Limits(
-        min: double.parse(data['minAmount'].toString()),
-        max: double.parse(data['maxAmount'].toString()),
+        min: double.parse(result['minAmount'].toString()),
+        max: double.parse(result['maxAmount'].toString()),
       );
     } catch (e) {
       printV("error fetching limits: ${e.toString()}");
@@ -135,26 +180,33 @@ class SwapuzExchangeProvider extends ExchangeProvider {
       final params = <String, dynamic>{
         'from': from.title,
         'to': to.title,
-        'fromNetwork': from.title,
-        'toNetwork': to.title,
+        'fromNetwork': _normalizeNetwork(from),
+        'toNetwork': _normalizeNetwork(to),
         'amount': amount.toString(),
+        'mode': isFixedRateMode ? 'fixed' : 'float',
       };
 
       final uri = Uri.https(baseApiUrl, getRate, params);
-      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final response = await ProxyWrapper().get(
+        clearnetUri: uri,
+        headers: _buildHeaders(),
+      );
+
+      if (response.statusCode != 200) {
+        printV("error fetching rate: ${response.body}");
+        throw Exception('Unexpected http status: ${response.statusCode}');
+      }
 
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode != 200)
-        throw Exception('Unexpected http status: ${response.statusCode}');
+      if (responseBody['result'] == null) {
+        throw Exception('No rate data received from API');
+      }
 
-      final data = responseBody['result'] as Map<String, dynamic>;
-      double rate = double.parse(data['rate'].toString());
-      return rate > 0
-          ? isFixedRateMode
-              ? amount / rate
-              : rate / amount
-          : 0.0;
+      final result = responseBody['result'] as Map<String, dynamic>;
+
+      double rate = double.parse(result['rate'].toString());
+      return rate;
     } catch (e) {
       printV("error fetching rate: ${e.toString()}");
       return 0.0;
@@ -163,27 +215,50 @@ class SwapuzExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final uri = Uri.https(baseApiUrl, '$getOrder$id');
-    final response = await ProxyWrapper().get(clearnetUri: uri);
-    final responseBody = json.decode(response.body) as Map<String, dynamic>;
+    try {
+      final uri = Uri.https(baseApiUrl, '$getOrder$id');
+      final response = await ProxyWrapper().get(
+        clearnetUri: uri,
+        headers: _buildHeaders(),
+      );
 
-    if (responseBody['result'] == null) {
+      if (response.statusCode != 200) {
+        throw TradeNotFoundException(id, provider: description);
+      }
+
+      final responseBody = json.decode(response.body) as Map<String, dynamic>;
+
+      if (responseBody['result'] == null) {
+        throw TradeNotFoundException(id, provider: description);
+      }
+
+      final responseResult = responseBody['result'] as Map<String, dynamic>;
+      return Trade(
+        id: responseResult['uid'] as String,
+        from: CryptoCurrency.fromString(
+            responseResult['from']['shortName'] as String),
+        to: CryptoCurrency.fromString(
+            responseResult['to']['shortName'] as String),
+        provider: description,
+        inputAddress: responseResult['addressFrom'] as String,
+        amount: responseResult['amount'].toString(),
+        payoutAddress: responseResult['addressTo'] as String,
+        state: _deserializeSwapuzStatus(
+          statusCode: responseResult['status'] as int,
+        ),
+        receiveAmount: responseResult['amountResult'].toString(),
+        memo: responseResult['memoFrom'] as String?,
+        extraId: responseResult['extraIdReceive'] as String?,
+        createdAt:
+            DateTime.parse(responseResult['createDate'] as String? ?? ''),
+        refundAddress: responseResult['addressRefund'] as String?,
+        txId: responseResult['withdrawalTransactionID'] as String?,
+        outputTransaction: responseResult['withdrawalTransactionID'] as String?,
+      );
+    } catch (e) {
+      printV("error finding trade by ID: ${e.toString()}");
       throw TradeNotFoundException(id, provider: description);
     }
-    final responseResult = responseBody['result'] as Map<String, dynamic>;
-    return Trade(
-      id: responseResult['uid'] as String,
-      from: CryptoCurrency.fromString(responseResult['from']['name'] as String),
-      to: CryptoCurrency.fromString(responseResult['to']['name'] as String),
-      provider: description,
-      inputAddress: responseResult['addressFrom'] as String,
-      amount: responseResult['amount'].toString(),
-      payoutAddress: responseResult['addressTo'] as String,
-      state: TradeState.deserialize(raw: responseResult['status'].toString()),
-      receiveAmount: responseResult['amountResult'].toString(),
-      memo: responseResult['memoFrom'] as String?,
-      createdAt: DateTime.parse(responseResult['createDate'] as String? ?? ''),
-    );
   }
 
   @override
@@ -198,16 +273,60 @@ class SwapuzExchangeProvider extends ExchangeProvider {
   @override
   String get title => 'Swapuz';
 
-  Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
-    final uri = Uri.https(baseApiUrl, path, queryParams);
+  /// Maps Swapuz API status codes to TradeState enums
+  TradeState _deserializeSwapuzStatus({required int statusCode}) {
+    switch (statusCode) {
+      case 0:
+        return TradeState.unpaid;
+      case 1:
+        return TradeState.paidUnconfirmed;
+      case 2:
+      case 3:
+      case 4:
+        return TradeState.exchanging;
+      case 5:
+        return TradeState.sending;
+      case 6:
+        return TradeState.confirmed;
+      case 10:
+        return TradeState.overdue;
+      case 11:
+        return TradeState.refund;
+      case 12:
+      case 13:
+        return TradeState.failed;
+      default:
+        return TradeState.notFound;
+    }
+  }
 
-    try {
-      // Test connectivity to the base API URL
-      await ProxyWrapper().get(clearnetUri: uri);
-      return uri;
-    } catch (e) {
-      // If connection fails, return the same URI (no fallback for Swapuz)
-      return uri;
+  Map<String, String> _buildHeaders() {
+    return {
+      'Api-key': partnerApiKey,
+      'Content-Type': 'application/json',
+    };
+  }
+
+  String _normalizeNetwork(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.usdcpoly:
+      case CryptoCurrency.usdtPoly:
+      case CryptoCurrency.maticpoly:
+      case CryptoCurrency.matic:
+      case CryptoCurrency.usdcEPoly:
+        return 'MATIC';
+      case CryptoCurrency.nano:
+        return 'NANO';
+      case CryptoCurrency.avaxc:
+        return 'CCHAIN';
+      case CryptoCurrency.rune:
+        return 'THORCHAIN';
+      case CryptoCurrency.rvn:
+        return 'RAVENCOIN';
+      case CryptoCurrency.arb:
+        return 'ARBITRUM';
+      default:
+        return currency.tag != null ? currency.tag! : currency.title;
     }
   }
 }

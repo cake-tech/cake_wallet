@@ -28,8 +28,7 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       ExchangeProviderDescription(title: 'ThorChain', raw: 8, image: 'assets/images/thorchain.png');
   static const swapTrade =
       ExchangeProviderDescription(title: 'SwapTrade', raw: 9, image: 'assets/images/swap_trade.png');
-  static const swapuz =
-      ExchangeProviderDescription(title: 'Swapuz', raw: 9, image: 'assets/images/swapuz.png');
+
   static const letsExchange =
       ExchangeProviderDescription(title: 'LetsExchange', raw: 10, image: 'assets/images/letsexchange_icon.svg');
   static const stealthEx =
@@ -37,8 +36,10 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
   static const chainflip =
       ExchangeProviderDescription(title: 'Chainflip', raw: 12, image: 'assets/images/chainflip.png');
   static const xoSwap =
-  ExchangeProviderDescription(title: 'XOSwap', raw: 13, image: 'assets/images/xoswap.svg');
-  
+      ExchangeProviderDescription(title: 'XOSwap', raw: 13, image: 'assets/images/xoswap.svg');
+  static const swapuz =
+      ExchangeProviderDescription(title: 'Swapuz', raw: 14, image: 'assets/images/swapuz.png');
+
   static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
       case 0:
@@ -69,6 +70,8 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
         return chainflip;
       case 13:
         return xoSwap;
+      case 14:
+        return swapuz;
       default:
         throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }
