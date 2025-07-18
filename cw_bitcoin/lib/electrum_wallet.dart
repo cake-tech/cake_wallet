@@ -42,6 +42,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
@@ -1113,6 +1114,7 @@ abstract class ElectrumWalletBase
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
           enableRBF: true,
+          cwOutputs: transactionCredentials.outputs,
         );
 
         return PendingBitcoinTransaction(
@@ -1240,6 +1242,7 @@ abstract class ElectrumWalletBase
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
+    required List<OutputInfo> cwOutputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
     bool enableRBF = false,
