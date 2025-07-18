@@ -21,9 +21,11 @@ import 'package:cw_bitcoin/psbt/v0_deserialize.dart';
 import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -32,6 +34,9 @@ import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_decoder.dart';
 
 part 'bitcoin_wallet.g.dart';
 
@@ -280,6 +285,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   Future<PsbtV2> buildPsbt({
     required List<BitcoinBaseOutput> outputs,
+    required List<OutputInfo> cwOutputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -308,7 +314,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     return PSBTTransactionBuild(
-            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF)
+            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF, cwOutputs: cwOutputs)
         .psbt;
   }
 
@@ -318,6 +324,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
+    required List<OutputInfo> cwOutputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
     bool enableRBF = false,
@@ -331,6 +338,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       fee: fee,
       network: network,
       utxos: utxos,
+      cwOutputs: cwOutputs,
       publicKeys: publicKeys,
       masterFingerprint: masterFingerprint,
       memo: memo,
@@ -351,7 +359,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
-    if (payjoinUri == null) return tx;
+    if (payjoinUri == null && !tx.shouldCommitUR()) return tx;
 
     final transaction = await buildPsbt(
         utxos: tx.utxos,
@@ -363,20 +371,26 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
                   isChange: e.isChange,
                 ))
             .toList(),
+        cwOutputs: credentials.outputs,
         fee: BigInt.from(tx.fee),
         network: network,
         memo: credentials.outputs.first.memo,
         outputOrdering: BitcoinOrdering.none,
         enableRBF: true,
         publicKeys: tx.publicKeys!,
-        masterFingerprint: Uint8List(0));
+        masterFingerprint: Uint8List.fromList([0, 0, 0, 0]));
 
-    final originalPsbt = await signPsbt(
-        base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
+    if (tx.shouldCommitUR()) {
+     tx.unsignedPsbt = transaction.asPsbtV0();
+     return tx;
+    }
+
+    final originalPsbt =
+        await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
     tx.commitOverride = () async {
-      final sender = await payjoinManager.initSender(
-          payjoinUri, originalPsbt, int.parse(tx.feeRate));
+      final sender =
+          await payjoinManager.initSender(payjoinUri!, originalPsbt, int.parse(tx.feeRate));
       payjoinManager.spawnNewSender(
           sender: sender, pjUrl: payjoinUri, amount: BigInt.from(tx.amount));
     };
@@ -404,6 +418,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       feeRate: "",
       network: network,
       hasChange: true,
+      isViewOnly: false,
     ).commit();
   }
 
@@ -427,6 +442,44 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     psbt.finalizeV0();
     return base64Encode(psbt.asPsbtV0());
+  }
+
+  Future<void> commitPsbtUR(List<String> urCodes) async {
+    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    bool isUr = urCodes.any((str) {
+      return str.startsWith("ur:psbt/");
+    });
+    if (isUr) {
+      final ur = URDecoder();
+      for (final inp in urCodes) {
+        ur.receivePart(inp);
+      }
+      final result = (ur.result as UR);
+      final cbor = result.cbor;
+      final cborDecoder = CBORDecoder(cbor);
+      final out = cborDecoder.decodeBytes();
+      final bytes = out.$1;
+      final base64psbt = base64Encode(bytes);
+      final psbt = PsbtV2()..deserializeV0(base64Decode(base64psbt));
+
+      // psbt.finalize();
+      final finalized = base64Encode(psbt.serialize());
+      await commitPsbt(finalized);
+    } else {
+      final btcTx = BtcTransaction.fromRaw(urCodes.first);
+
+      return PendingBitcoinTransaction(
+        btcTx,
+        type,
+        electrumClient: electrumClient,
+        amount: 0,
+        fee: 0,
+        feeRate: "",
+        network: network,
+        hasChange: true,
+        isViewOnly: false,
+      ).commit();
+    }
   }
 
   @override
