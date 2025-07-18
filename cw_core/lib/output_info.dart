@@ -8,7 +8,8 @@ class OutputInfo {
     this.fiatAmount,
     this.note,
     this.extractedAddress,
-    this.memo});
+    this.memo,
+    this.extra = const {}});
 
   	final String? fiatAmount;
   	final String? cryptoAmount;
@@ -19,4 +20,5 @@ class OutputInfo {
   	final bool isParsedAddress;
   	final int? formattedCryptoAmount;
   	final String? memo;
+    final Map<String, dynamic> extra;
 }

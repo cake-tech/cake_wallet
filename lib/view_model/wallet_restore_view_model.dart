@@ -11,6 +11,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
@@ -94,7 +95,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   ].contains(type);
 
   late final bool onlyViewKeyRestore = [
-    WalletType.bitcoin,
+    if (FeatureFlag.hasBitcoinViewOnly) WalletType.bitcoin,
     WalletType.decred
   ].contains(type);
 

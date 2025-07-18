@@ -38,6 +38,7 @@ import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hive/hive.dart';
@@ -1383,6 +1384,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
+    required List<OutputInfo> cwOutputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
     bool enableRBF = false,

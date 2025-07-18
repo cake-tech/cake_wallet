@@ -26,6 +26,7 @@ class ParsedAddress {
     this.profileImageUrl = '',
     this.profileName = '',
     this.parseFrom = ParseFrom.notParsed,
+    this.bip353RsigRecord,
   });
 
   factory ParsedAddress.fetchEmojiAddress({
@@ -59,11 +60,13 @@ class ParsedAddress {
   factory ParsedAddress.fetchBip353AddressAddress ({
     required String address,
     required String name,
+    String? rsigRecord,
   }) {
     return ParsedAddress(
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.bip353,
+      bip353RsigRecord: rsigRecord,
     );
   }
 
@@ -178,4 +181,5 @@ class ParsedAddress {
   final String profileImageUrl;
   final String profileName;
   final ParseFrom parseFrom;
+  final String? bip353RsigRecord;
 }
