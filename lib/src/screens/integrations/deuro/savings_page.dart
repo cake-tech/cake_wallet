@@ -9,7 +9,9 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/tooltip_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -37,86 +39,71 @@ class DEuroSavingsPage extends BasePage {
   @override
   String get title => S.current.deuro_savings;
 
-  Widget trailing(BuildContext context) => MergeSemantics(
-        child: SizedBox(
-          height: 37,
-          width: 37,
-          child: ButtonTheme(
-            minWidth: double.minPositive,
-            child: Semantics(
-              label: "Refresh",
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  overlayColor: WidgetStateColor.resolveWith((states) => Colors.transparent),
-                ),
-                onPressed: _dEuroViewModel.reloadSavingsUserData,
-                child: Icon(
-                  Icons.refresh,
-                  color: pageIconColor(context),
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-
   @override
   Widget body(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _setReactions(context, _dEuroViewModel));
 
-    return Container(
-      width: double.infinity,
-      child: Column(
-        children: <Widget>[
-          Observer(
-            builder: (_) => SavingsCard(
-              isDarkTheme: currentTheme.isDark,
-              interestRate: "${_dEuroViewModel.interestRate}%",
-              savingsBalance: _dEuroViewModel.savingsBalance,
-              fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalance,
-              currency: CryptoCurrency.deuro,
-              fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
-              onAddSavingsPressed: () => _onSavingsAdd(context),
-              onRemoveSavingsPressed: () => _onSavingsRemove(context),
-              onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
-              onTooltipPressed: () => _onSavingsTooltipPressed(context),
-              isEnabled: _dEuroViewModel.isEnabled,
-              isLoading: _dEuroViewModel.isLoading,
-            ),
-          ),
-          Observer(
-            builder: (_) => InterestCardWidget(
-              isDarkTheme: currentTheme.isDark,
-              title: S.of(context).deuro_savings_collect_interest,
-              fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterest,
-              fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
-              accruedInterest: _dEuroViewModel.accruedInterest,
-              onCollectInterest: _dEuroViewModel.prepareCollectInterest,
-              onReinvestInterest: _dEuroViewModel.prepareReinvestInterest,
-              onTooltipPressed: () => _onInterestTooltipPressed(context),
-              isEnabled: _dEuroViewModel.isEnabled,
-            ),
-          ),
-          Spacer(),
-          SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 30),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InfoChip(
-                    label: S.of(context).deuro_about_deuro,
-                    icon: CupertinoIcons.info,
-                    onPressed: () => _showWelcomeTooltip(context),
+    return RefreshIndicator(
+      displacement: responsiveLayoutUtil.screenHeight * 0.1,
+      onRefresh: _dEuroViewModel.reloadSavingsUserData,
+      child: CustomScrollView(
+        slivers: <Widget>[
+          SliverFillRemaining(
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                children: <Widget>[
+                  Observer(
+                    builder: (_) => SavingsCard(
+                      isDarkTheme: currentTheme.isDark,
+                      interestRate: "${_dEuroViewModel.interestRateFormated}%",
+                      savingsBalance: _dEuroViewModel.savingsBalanceFormated,
+                      fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalanceFormated,
+                      currency: CryptoCurrency.deuro,
+                      fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
+                      onAddSavingsPressed: () => _onSavingsAdd(context),
+                      onRemoveSavingsPressed: () => _onSavingsRemove(context),
+                      onApproveSavingsPressed: _dEuroViewModel.prepareApproval,
+                      onTooltipPressed: () => _onSavingsTooltipPressed(context),
+                      isEnabled: _dEuroViewModel.isEnabled,
+                      isLoading: _dEuroViewModel.isLoading,
+                    ),
                   ),
-                  SizedBox(width: 10),
-                  InfoChip(
-                    label: S.of(context).website,
-                    icon: CupertinoIcons.globe,
-                    onPressed: () => launchUrlString("https://deuro.com/"),
-                  )
+                  Observer(
+                    builder: (_) => InterestCardWidget(
+                      isDarkTheme: currentTheme.isDark,
+                      title: S.of(context).deuro_savings_collect_interest,
+                      fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterestFormated,
+                      fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,
+                      accruedInterest: _dEuroViewModel.accruedInterestFormated,
+                      onCollectInterest: _onCollectInterest,
+                      onReinvestInterest: _onReinvestInterest,
+                      onTooltipPressed: () => _onInterestTooltipPressed(context),
+                      isEnabled: _dEuroViewModel.isSavingsActionsEnabled,
+                    ),
+                  ),
+                  Spacer(),
+                  SafeArea(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 30),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InfoChip(
+                            label: S.of(context).deuro_about_deuro,
+                            icon: CupertinoIcons.info,
+                            onPressed: () => _showWelcomeTooltip(context),
+                          ),
+                          SizedBox(width: 10),
+                          InfoChip(
+                            label: S.of(context).website,
+                            icon: CupertinoIcons.globe,
+                            onPressed: () => launchUrlString("https://deuro.com/"),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -126,14 +113,36 @@ class DEuroSavingsPage extends BasePage {
     );
   }
 
+  bool _editSheetIsOpen = false;
+
   Future<void> _onSavingsAdd(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: true);
     if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, true);
+    _editSheetIsOpen = false;
   }
 
   Future<void> _onSavingsRemove(BuildContext context) async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
     final amount = await _showEditBottomSheet(context, isAdding: false);
     if (amount != null) _dEuroViewModel.prepareSavingsEdit(amount, false);
+    _editSheetIsOpen = false;
+  }
+
+  Future<void> _onReinvestInterest() async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    await _dEuroViewModel.prepareReinvestInterest();
+    _editSheetIsOpen = false;
+  }
+
+  Future<void> _onCollectInterest() async {
+    if (_editSheetIsOpen) return;
+    _editSheetIsOpen = true;
+    await _dEuroViewModel.prepareCollectInterest();
+    _editSheetIsOpen = false;
   }
 
   bool _isReactionsSet = false;
@@ -175,10 +184,10 @@ class DEuroSavingsPage extends BasePage {
           currency: CryptoCurrency.deuro,
           amount: S.of(bottomSheetContext).send_amount,
           amountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
-              ? _dEuroViewModel.accruedInterest
+              ? _dEuroViewModel.accruedInterestFormated
               : tx.amountFormatted,
           fiatAmountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
-              ? _dEuroViewModel.fiatAccruedInterest
+              ? _dEuroViewModel.fiatAccruedInterestFormated
               : _dEuroViewModel.pendingTransactionFiatAmountFormatted,
           fee: S.of(bottomSheetContext).send_estimated_fee,
           feeValue: tx.feeFormatted,
@@ -301,11 +310,11 @@ class DEuroSavingsPage extends BasePage {
 
     showModalBottomSheet<void>(
       context: context,
-      builder: (BuildContext bottomSheetContext) => InfoBottomSheet(
+      builder: (BuildContext bottomSheetContext) => TooltipSheet(
         currentTheme: currentTheme,
         titleText: title,
         titleIconPath: CryptoCurrency.deuro.iconPath,
-        content: content,
+        tooltip: content,
         footerType: FooterType.doubleActionButton,
         doubleActionRightButtonText: S.of(context).close,
         rightActionButtonKey: ValueKey('deuro_page_tooltip_dialog_${key}_ok_button_key'),
@@ -358,7 +367,8 @@ class DEuroSavingsPage extends BasePage {
         content: S.of(context).deuro_tooltip_no_eth,
         singleActionButtonKey: ValueKey('deuro_page_tooltip_dialog_no_eth_ok_button_key'),
         singleActionButtonText: S.of(context).close,
-        onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(), footerType: FooterType.singleActionButton,
+        onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
+        footerType: FooterType.singleActionButton,
       ),
     );
   }
@@ -375,7 +385,9 @@ class DEuroSavingsPage extends BasePage {
         balanceTitle: isAdding
             ? S.of(context).deuro_savings_available_to_add
             : S.of(context).deuro_savings_available_to_remove,
-        balance: isAdding ? _dEuroViewModel.accountBalance : _dEuroViewModel.savingsBalance,
+        balance: isAdding
+            ? _dEuroViewModel.accountBalanceFormated
+            : _dEuroViewModel.savingsBalanceFormated,
         footerType: FooterType.none,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),

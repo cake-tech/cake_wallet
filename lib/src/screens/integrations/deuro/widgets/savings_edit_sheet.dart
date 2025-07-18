@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/numpad.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:flutter/material.dart';
 
 class SavingsEditSheet extends BaseBottomSheet {
@@ -14,7 +15,8 @@ class SavingsEditSheet extends BaseBottomSheet {
     super.titleIconPath,
     this.balance,
     this.balanceTitle,
-    required super.footerType, required super.maxHeight,
+    required super.footerType,
+    required super.maxHeight,
   });
 
   @override
@@ -53,7 +55,34 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
   }
 
   String amount = '0';
+  bool isValid = false;
   final FocusNode _numpadFocusNode = FocusNode();
+
+  void _onPressedAll() => setState(() {
+        amount = widget.balance!;
+        isValid = _validate();
+      });
+
+  void _onNumberPressed(int i) => setState(() {
+        amount = amount == '0' ? i.toString() : '${amount}${i}';
+        isValid = _validate();
+      });
+
+  void _onDeletePressed() => setState(() {
+        amount = amount.length > 1 ? amount.substring(0, amount.length - 1) : '0';
+        isValid = _validate();
+      });
+
+  void _onDecimalPressed() => setState(() {
+        amount = '${amount.replaceAll('.', '')}.';
+        isValid = _validate();
+      });
+
+  bool _validate() {
+    final amountBigInt = parseFixed(amount, 18);
+    final balanceBigInt = parseFixed(widget.balance!, 18);
+    return balanceBigInt >= amountBigInt && amountBigInt > BigInt.zero;
+  }
 
   @override
   Widget build(BuildContext context) => SafeArea(
@@ -80,18 +109,14 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
             AssetBalanceRow(
               title: widget.balanceTitle!,
               amount: widget.balance!,
-              onAllPressed: () => setState(() => amount = widget.balance!),
+              onAllPressed: _onPressedAll,
             ),
           ],
           NumberPad(
             focusNode: _numpadFocusNode,
-            onNumberPressed: (i) => setState(
-              () => amount = amount == '0' ? i.toString() : '${amount}${i}',
-            ),
-            onDeletePressed: () => setState(
-              () => amount = amount.length > 1 ? amount.substring(0, amount.length - 1) : '0',
-            ),
-            onDecimalPressed: () => setState(() => amount = '${amount.replaceAll('.', '')}.'),
+            onNumberPressed: _onNumberPressed,
+            onDeletePressed: _onDeletePressed,
+            onDecimalPressed: _onDecimalPressed,
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -101,7 +126,7 @@ class _SavingsEditBodyState extends State<_SavingsEditBody> {
               color: Theme.of(context).colorScheme.primary,
               textColor: Theme.of(context).colorScheme.onPrimary,
               isLoading: false,
-              isDisabled: false,
+              isDisabled: !isValid,
             ),
           )
         ]),
