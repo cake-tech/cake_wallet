@@ -21,6 +21,7 @@ import 'package:cw_bitcoin/psbt/v0_deserialize.dart';
 import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -284,6 +285,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   Future<PsbtV2> buildPsbt({
     required List<BitcoinBaseOutput> outputs,
+    required List<OutputInfo> cwOutputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -312,7 +314,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     return PSBTTransactionBuild(
-            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF)
+            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF, cwOutputs: cwOutputs)
         .psbt;
   }
 
@@ -322,6 +324,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
+    required List<OutputInfo> cwOutputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
     bool enableRBF = false,
@@ -335,6 +338,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       fee: fee,
       network: network,
       utxos: utxos,
+      cwOutputs: cwOutputs,
       publicKeys: publicKeys,
       masterFingerprint: masterFingerprint,
       memo: memo,
@@ -367,6 +371,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
                   isChange: e.isChange,
                 ))
             .toList(),
+        cwOutputs: credentials.outputs,
         fee: BigInt.from(tx.fee),
         network: network,
         memo: credentials.outputs.first.memo,
