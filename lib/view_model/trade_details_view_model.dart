@@ -10,6 +10,7 @@ import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapuz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
@@ -76,6 +77,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
         break;
+      case ExchangeProviderDescription.swapuz:
+        _provider = SwapuzExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -110,6 +114,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://scan.chainflip.io/channels/${trade.id}';
       case ExchangeProviderDescription.xoSwap:
         return  'https://orders.xoswap.com/${trade.id}';
+      case ExchangeProviderDescription.swapuz:
+        return 'https://swapuz.com/order/${trade.id}';
     }
     return null;
   }
