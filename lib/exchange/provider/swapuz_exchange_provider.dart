@@ -55,10 +55,10 @@ class SwapuzExchangeProvider extends ExchangeProvider {
 
   // API Configuration
   static const baseApiUrl = 'api.swapuz.com';
-  static const getRate = '/api/Home/v1/rate';
-  static const createOrder = '/api/Home/v1/order';
-  static const getOrder = '/api/Order/uid/';
-  static const getLimits = '/api/Home/getLimits';
+  static const getRatePath = '/api/Home/v1/rate';
+  static const createOrderPath = '/api/Home/v1/order';
+  static const getOrderPath = '/api/Order/uid/';
+  static const getLimitsPath = '/api/Home/getLimits';
   final partnerApiKey = secrets.swapuzApiKey;
 
   @override
@@ -78,10 +78,11 @@ class SwapuzExchangeProvider extends ExchangeProvider {
         'toNetwork': _normalizeNetwork(request.toCurrency),
         'address': request.toAddress,
         'amount': request.fromAmount,
-        'modeCurs': isFixedRateMode ? 'fixed' : 'float',
+        'modeCurs': isFixedRateMode ? 'fix' : 'float',
+        'refundAddress': request.refundAddress,
       };
 
-      final uri = Uri.https(baseApiUrl, createOrder);
+      final uri = Uri.https(baseApiUrl, createOrderPath);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         headers: _buildHeaders(),
@@ -110,6 +111,7 @@ class SwapuzExchangeProvider extends ExchangeProvider {
         amount: result["amount"].toString(),
         receiveAmount: result["amountResult"].toString(),
         createdAt: DateTime.parse(result["createDate"] as String),
+        expiredAt: DateTime.parse(result["finishPayment"] as String? ?? ''),
         state: TradeState.created,
         payoutAddress: request.toAddress,
         refundAddress: result["addressRefund"] as String?,
@@ -117,7 +119,7 @@ class SwapuzExchangeProvider extends ExchangeProvider {
         txId: result["withdrawalTransactionID"] as String?,
         memo: result["memoFrom"] as String?,
         extraId: result["extraIdReceive"] as String?,
-        outputTransaction: result["withdrawalTransactionID"] as String?,
+        outputTransaction: result["wTxId"] as String?,
       );
     } catch (e) {
       printV("error creating trade: ${e.toString()}");
@@ -139,7 +141,7 @@ class SwapuzExchangeProvider extends ExchangeProvider {
       final params = <String, dynamic>{
         'coin': from.title,
       };
-      final uri = Uri.https(baseApiUrl, getLimits, params);
+      final uri = Uri.https(baseApiUrl, getLimitsPath, params);
       final response = await ProxyWrapper().get(
         clearnetUri: uri,
         headers: _buildHeaders(),
@@ -183,10 +185,10 @@ class SwapuzExchangeProvider extends ExchangeProvider {
         'fromNetwork': _normalizeNetwork(from),
         'toNetwork': _normalizeNetwork(to),
         'amount': amount.toString(),
-        'mode': isFixedRateMode ? 'fixed' : 'float',
+        'mode': isFixedRateMode ? 'fix' : 'float',
       };
 
-      final uri = Uri.https(baseApiUrl, getRate, params);
+      final uri = Uri.https(baseApiUrl, getRatePath, params);
       final response = await ProxyWrapper().get(
         clearnetUri: uri,
         headers: _buildHeaders(),
@@ -216,7 +218,7 @@ class SwapuzExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({required String id}) async {
     try {
-      final uri = Uri.https(baseApiUrl, '$getOrder$id');
+      final uri = Uri.https(baseApiUrl, '$getOrderPath$id');
       final response = await ProxyWrapper().get(
         clearnetUri: uri,
         headers: _buildHeaders(),
@@ -251,6 +253,8 @@ class SwapuzExchangeProvider extends ExchangeProvider {
         extraId: responseResult['extraIdReceive'] as String?,
         createdAt:
             DateTime.parse(responseResult['createDate'] as String? ?? ''),
+        expiredAt: DateTime.parse(
+            responseResult['finishPayment'] as String? ?? ''),
         refundAddress: responseResult['addressRefund'] as String?,
         txId: responseResult['withdrawalTransactionID'] as String?,
         outputTransaction: responseResult['withdrawalTransactionID'] as String?,
