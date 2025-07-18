@@ -1431,7 +1431,6 @@ import 'package:hive/hive.dart';
 """;
   const dogecoinCWHeaders = """
 import 'package:cw_dogecoin/cw_dogecoin.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 """;
   const dogecoinCwPart = "part 'cw_dogecoin.dart';";
   const dogecoinContent = """
