@@ -6,7 +6,6 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 
 import 'package:cw_dogecoin/cw_dogecoin.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 
 part 'cw_dogecoin.dart';
 
