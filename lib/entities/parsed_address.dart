@@ -14,6 +14,7 @@ const supportedSources = [
   AddressSource.yatRecord,
   AddressSource.openAlias,
   AddressSource.wellKnown,
+  AddressSource.nostr,
 ];
 
 ///Do not use '-' in the label, it is used to separate the label from the alias.
