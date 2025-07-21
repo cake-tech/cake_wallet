@@ -664,13 +664,13 @@ class SendPage extends BasePage {
                         newContactAddress = null;
                       },
                       onRightActionButtonPressed: () {
-                        Navigator.of(bottomSheetContext).pop();
-                        RequestReviewHandler.requestReview();
-                        if (context.mounted) {
-                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
-                              arguments: newContactAddress);
-                        }
-                        newContactAddress = null;
+                        // Navigator.of(bottomSheetContext).pop();
+                        // RequestReviewHandler.requestReview();
+                        // if (context.mounted) {
+                        //   Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                        //       arguments: newContactAddress);
+                        // }
+                        // newContactAddress = null;
                       },
                     )
                   : InfoBottomSheet(

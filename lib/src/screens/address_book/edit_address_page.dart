@@ -14,13 +14,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class EditAddressPage extends SheetPage {
-  EditAddressPage({required this.contactViewModel})
-      : _formKey = GlobalKey<FormState>(),
-        _oldLabel = contactViewModel.label,
-        _initialCur = contactViewModel.currency,
-        _labelController = TextEditingController(text: contactViewModel.label),
-        _addressController = TextEditingController(text: contactViewModel.address);
+  EditAddressPage(this.list)
+      : contactViewModel = list[0] as ContactViewModel,
+        _formKey = GlobalKey<FormState>(),
+        _oldLabel = list[2] as String,
+        _initialCur = list[1] as CryptoCurrency,
+        _labelController = TextEditingController(),
+        _addressController = TextEditingController() {
+    contactViewModel.currency = _initialCur;
+    _labelController.text = _oldLabel;
+    _addressController.text = contactViewModel.manual[contactViewModel.currency]?[_oldLabel] ?? '';
+  }
 
+  final List<dynamic> list;
   final ContactViewModel contactViewModel;
   final GlobalKey<FormState> _formKey;
   final String _oldLabel;
@@ -29,7 +35,7 @@ class EditAddressPage extends SheetPage {
   final TextEditingController _addressController;
 
   @override
-  String get title => contactViewModel.isAddressEdit ? 'Edit Address' : 'Add Address';
+  String get title => 'Edit Address';
 
   @override
   bool get resizeToAvoidBottomInset => true;
@@ -37,7 +43,7 @@ class EditAddressPage extends SheetPage {
   @override
   Widget body(BuildContext context) {
     return Observer(builder: (_) {
-      final selectedCurrency = contactViewModel.currency;
+      final selectedCurrency = contactViewModel.currency!;
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.35,
         child: Padding(
@@ -67,24 +73,20 @@ class EditAddressPage extends SheetPage {
                         onTap: () => _presentCurrencyPicker(context, contactViewModel)),
                     const SizedBox(height: 8),
                     StandardTextFormFieldWidget(
-                      controller: _labelController,
-                      labelText: 'Address label',
-                      fillColor: Theme.of(context).colorScheme.surfaceContainer,
-                      suffixIcon: RoundedIconButton(
-                          icon: Icons.paste_outlined,
-                          onPressed: () async {
-                            final data = await Clipboard.getData(Clipboard.kTextPlain);
-                            final text = data?.text ?? '';
-                            if (text.trim().isEmpty) return;
-                            _labelController.text = text.trim();
-                          },
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(6)))),
-                      addressValidator: (value) {
-                        if (value == null || value.trim().isEmpty) return 'Label cannot be empty';
-                        return null;
-                      },
-                    ),
+                        controller: _labelController,
+                        labelText: 'Address label',
+                        fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                        suffixIcon: RoundedIconButton(
+                            icon: Icons.paste_outlined,
+                            onPressed: () async {
+                              final data = await Clipboard.getData(Clipboard.kTextPlain);
+                              final text = data?.text ?? '';
+                              if (text.trim().isEmpty) return;
+                              _labelController.text = text.trim();
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(6)))),
+                        validator: contactViewModel.manualAddressLabelValidator),
                     const SizedBox(height: 8),
                     StandardTextFormFieldWidget(
                         controller: _addressController,
@@ -100,7 +102,7 @@ class EditAddressPage extends SheetPage {
                             },
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.all(Radius.circular(6)))),
-                        addressValidator: AddressValidator(type: contactViewModel.currency)),
+                        validator: AddressValidator(type: contactViewModel.currency!)),
                   ],
                 ),
                 Padding(
@@ -114,7 +116,7 @@ class EditAddressPage extends SheetPage {
                                 color: Theme.of(context).colorScheme.onErrorContainer),
                             onPressed: () async {
                               await contactViewModel.deleteManualAddress(
-                                  currency: contactViewModel.currency, label: _oldLabel);
+                                  currency: contactViewModel.currency!, label: _oldLabel);
                               if (context.mounted) Navigator.of(context).pop();
                             },
                             shape: RoundedRectangleBorder(
@@ -152,7 +154,7 @@ class EditAddressPage extends SheetPage {
 
                             await contactViewModel.saveManualAddress(
                               oldCurrency: _initialCur,
-                              selectedCurrency: contactViewModel.currency,
+                              selectedCurrency: contactViewModel.currency!,
                               oldLabel: _oldLabel,
                               newLabel: _labelController.text.trim(),
                               newAddress: _addressController.text.trim(),
@@ -190,7 +192,7 @@ class EditAddressPage extends SheetPage {
 void _presentCurrencyPicker(BuildContext context, ContactViewModel contactViewModel) {
   showPopUp<void>(
     builder: (_) => CurrencyPicker(
-        selectedAtIndex: contactViewModel.currencies.indexOf(contactViewModel.currency),
+        selectedAtIndex: contactViewModel.currencies.indexOf(contactViewModel.currency!),
         items: contactViewModel.currencies,
         title: S.of(context).please_select,
         hintText: S.of(context).search_currency,

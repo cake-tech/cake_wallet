@@ -151,13 +151,7 @@ class _AddContactNavigator extends StatelessWidget {
       case Routes.contactPage:
         return getIt<ContactPage>(param1: args as ContactRecord);
       case Routes.editAddressPage:
-        final list = args as List<dynamic>;
-        final viewModel = list[0] as ContactViewModel;
-        viewModel
-          ..currency = list[1] as CryptoCurrency
-          ..label = list[2] as String
-          ..address = viewModel.manual[viewModel.currency]?[viewModel.label] ?? '';
-        return getIt<EditAddressPage>(param1: viewModel);
+        return getIt<EditAddressPage>(param1: args);
 
       case Routes.contactRefreshPage:
         final list = args as List<dynamic>;

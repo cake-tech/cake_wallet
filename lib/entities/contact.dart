@@ -30,6 +30,34 @@ class Contact extends HiveObject with Keyable {
         sourceRaw = source.raw,
         lastChange = lastChange ?? DateTime.now();
 
+  factory Contact.fromParsed(ParsedAddress p,
+      {String? localImage, Map<CryptoCurrency, String>? customLabels}) {
+    final manual = <int, Map<String, String>>{};
+    p.manualAddressByCurrencyMap?.forEach((cur, addr) {
+      final lbl = customLabels?[cur] ?? cur.title;
+      manual[cur.raw] = {lbl: addr};
+    });
+
+    final parsed = <String, Map<int, Map<String, String>>>{};
+    if (p.parsedAddressByCurrencyMap.isNotEmpty) {
+      final hKey = '${p.addressSource.label}-${p.handle}';
+      parsed[hKey] = {
+        for (final e in p.parsedAddressByCurrencyMap.entries) e.key.raw: {e.key.title: e.value}
+      };
+    }
+
+    return Contact(
+      name: p.profileName.isNotEmpty ? p.profileName : p.handle,
+      profileName: p.profileName,
+      handle: p.handle,
+      description: p.description,
+      source: p.addressSource,
+      imagePath: localImage ?? '',
+      manualAddresses: manual,
+      parsedByHandle: parsed,
+    );
+  }
+
   static const typeId = CONTACT_TYPE_ID;
   static const boxName = 'Contacts';
 
@@ -71,34 +99,24 @@ class Contact extends HiveObject with Keyable {
 
   AddressSource get source => AddressSourceIndex.fromRaw(sourceRaw);
 
-  set source(AddressSource v) => sourceRaw = v.raw;
-
   CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);
-
-  set type(CryptoCurrency v) => raw = v.raw;
 
   Map<String, Map<int, Map<String, String>>> get parsedByHandle => _decodeParsed(_parsedJson);
 
-  set parsedByHandle(Map<String, Map<int, Map<String, String>>> v) => _parsedJson = _encode(v);
-
   Map<int, Map<String, String>> get manualAddresses => _decodeManual(_manualJson);
 
+  Map<CryptoCurrency, Map<String, String>> get manualByCurrency =>
+      manualAddresses.map((k, v) => MapEntry(CryptoCurrency.deserialize(raw: k), v));
+
+
+
+  set source(AddressSource v) => sourceRaw = v.raw;
+
+  set type(CryptoCurrency v) => raw = v.raw;
+
+  set parsedByHandle(Map<String, Map<int, Map<String, String>>> v) => _parsedJson = _encode(v);
+
   set manualAddresses(Map<int, Map<String, String>> v) => _manualJson = _encode(v);
-
-  Map<CryptoCurrency, Map<String, String>> get manualByCurrency => manualAddresses.map(
-        (k, v) => MapEntry(CryptoCurrency.deserialize(raw: k), v),
-      );
-
-  Map<CryptoCurrency, Map<String, String>> get parsedByCurrency {
-    final out = <CryptoCurrency, Map<String, String>>{};
-    for (final block in parsedByHandle.values) {
-      block.forEach((curRaw, lblMap) {
-        final cur = CryptoCurrency.deserialize(raw: curRaw);
-        out.putIfAbsent(cur, () => {})..addAll(lblMap);
-      });
-    }
-    return out;
-  }
 
   @override
   dynamic get keyIndex => key;
@@ -144,31 +162,4 @@ class Contact extends HiveObject with Keyable {
     });
   }
 
-  factory Contact.fromParsed(ParsedAddress p,
-      {String? localImage, Map<CryptoCurrency, String>? customLabels}) {
-    final manual = <int, Map<String, String>>{};
-    p.manualAddressByCurrencyMap?.forEach((cur, addr) {
-      final lbl = customLabels?[cur] ?? cur.title;
-      manual[cur.raw] = {lbl: addr};
-    });
-
-    final parsed = <String, Map<int, Map<String, String>>>{};
-    if (p.parsedAddressByCurrencyMap.isNotEmpty) {
-      final hKey = '${p.addressSource.label}-${p.handle}';
-      parsed[hKey] = {
-        for (final e in p.parsedAddressByCurrencyMap.entries) e.key.raw: {e.key.title: e.value}
-      };
-    }
-
-    return Contact(
-      name: p.profileName.isNotEmpty ? p.profileName : p.handle,
-      profileName: p.profileName,
-      handle: p.handle,
-      description: p.description,
-      source: p.addressSource,
-      imagePath: localImage ?? '',
-      manualAddresses: manual,
-      parsedByHandle: parsed,
-    );
-  }
 }

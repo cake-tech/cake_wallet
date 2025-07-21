@@ -17,6 +17,8 @@ import 'package:mobx/mobx.dart';
 
 part 'contact_view_model.g.dart';
 
+typedef ValidatorType = String? Function(String? raw);
+
 enum ContactEditMode {
   contactInfo,
   manualAddress,
@@ -47,7 +49,7 @@ abstract class _ContactViewModel with Store {
         description = request?.contact?.description ?? '',
         imagePath = request?.contact?.imagePath ?? '',
         sourceType = request?.contact?.sourceType ?? AddressSource.notParsed,
-        currency = request?.currency ?? CryptoCurrency.xmr,
+        currency = request?.currency,
         label = request?.label ?? '',
         address = '',
         handleKey = request?.handleKey ?? '' {
@@ -57,64 +59,62 @@ abstract class _ContactViewModel with Store {
       currency = request!.currency!;
       label = request.label!;
       address = _targetMap[currency]?[label] ?? '';
-
-      _rememberOriginal(
-        blockKey: mode == ContactEditMode.parsedAddress
-            ? (request.handleKey ?? _defaultHandleKey())
-            : null,
-      );
     }
   }
 
   final Box<Contact> box;
   final WalletBase wallet;
   final SettingsStore? settingsStore;
+  final ContactEditMode mode;
+  final List<CryptoCurrency> currencies;
   ContactRecord? record;
 
   @observable
   ExecutionState state;
 
   @observable
-  String name, handle, profileName, description, imagePath;
+  String name;
+
+  @observable
+  String handle;
+
+  @observable
+  String profileName;
+
+  @observable
+  String description;
+
+  @observable
+  String imagePath;
+
   @observable
   AddressSource sourceType;
 
   @observable
-  CryptoCurrency currency;
+  CryptoCurrency? currency;
 
   @observable
-  CryptoCurrency? newAddingCurrency;
+  String label;
 
   @observable
-  String label, address, handleKey;
+  String address;
+
+  @observable
+  String handleKey;
 
   @observable
   ObservableMap<CryptoCurrency, Map<String, String>> manual = ObservableMap();
+
   @observable
   ObservableMap<CryptoCurrency, Map<String, String>> parsed = ObservableMap();
+
   @observable
   ObservableMap<String, Map<CryptoCurrency, Map<String, String>>> parsedBlocks = ObservableMap();
-
-  final ContactEditMode mode;
-  final List<CryptoCurrency> currencies;
-
-  CryptoCurrency? _originalCur;
-  String? _originalLabel, _originalAddress, _originalHandleKey;
-
-  @computed
-  bool get isReady => name.trim().isNotEmpty || manual.isNotEmpty || parsed.isNotEmpty;
-
-  @computed
-  List<UserHandles> get userHandles =>
-      parsedBlocks.keys.map((k) => UserHandles(handleKey: k)).toList();
 
   @computed
   ImageProvider get avatar => imagePath.isEmpty
       ? const AssetImage('assets/images/profile.png')
       : FileImage(File(imagePath));
-
-  bool get isAddressEdit =>
-      mode != ContactEditMode.contactInfo && record != null && (_originalLabel ?? '').isNotEmpty;
 
   ObservableMap<CryptoCurrency, Map<String, String>> get _targetMap =>
       mode == ContactEditMode.manualAddress
@@ -199,7 +199,7 @@ abstract class _ContactViewModel with Store {
     required CryptoCurrency selectedCurrency,
     required String oldLabel,
     required String newLabel,
-    required String newAddress,
+    required String newAddress
   }) async {
     if (record == null) return;
 
@@ -265,10 +265,6 @@ abstract class _ContactViewModel with Store {
     manual.clear();
     parsed.clear();
     parsedBlocks.clear();
-    _originalCur = null;
-    _originalLabel = null;
-    _originalAddress = null;
-    _originalHandleKey = null;
     state = InitialExecutionState();
   }
 
@@ -280,15 +276,29 @@ abstract class _ContactViewModel with Store {
     parsedBlocks = ObservableMap.of(record!.parsedBlocks);
   }
 
+  ValidatorType get contactNameValidator => (String? name) {
+        final value = name?.trim() ?? '';
 
-  String _defaultHandleKey() => '${sourceType.label}-${handle}'.trim();
+        if (value.isEmpty) return 'Name cannot be empty';
+        if (value.length > 30) return 'Name is too long';
 
-  void _rememberOriginal({String? blockKey}) {
-    _originalCur = currency;
-    _originalLabel = label.trim().isEmpty ? currency.title : label.trim();
-    _originalAddress = address.trim();
-    _originalHandleKey = blockKey ?? _defaultHandleKey();
-  }
+        final currentKey = record?.original.key;
+        final exists = box.values.any(
+          (c) => c.name.toLowerCase() == value.toLowerCase() && c.key != currentKey,
+        );
+        return exists ? 'Contact with this name already exists' : null;
+      };
+
+  ValidatorType get manualAddressLabelValidator => (String? label) {
+        final value = label?.trim() ?? '';
+
+        if (value.isEmpty) return 'Label cannot be empty';
+        if (value.length > 30) return 'Label is too long';
+        if (manual[currency] == null || manual[currency]!.isEmpty) return null;
+        final exists =
+            manual[currency]?.keys.any((l) => l.toLowerCase() == value.toLowerCase()) ?? false;
+        return exists ? 'Label already exists for this currency' : null;
+      };
 
   late final Map<String, (bool Function(), void Function(bool))> lookupMap = settingsStore != null
       ? {

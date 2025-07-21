@@ -271,7 +271,7 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
                   borderRadius: BorderRadius.all(Radius.circular(6)),
                 ),
               ),
-              addressValidator: (_) => null,
+              validator: (_) => null,
             ),
           ),
         ],

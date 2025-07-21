@@ -6,7 +6,7 @@ class StandardTextFormFieldWidget extends StatelessWidget {
     required this.controller,
     required this.labelText,
     required this.fillColor,
-    required this.addressValidator,
+    required this.validator,
     this.focusNode,
     this.suffixIcon,
     this.prefixIcon,
@@ -23,7 +23,7 @@ class StandardTextFormFieldWidget extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
   final Color fillColor;
-  final String? Function(String?)? addressValidator;
+  final String? Function(String?)? validator;
   final FocusNode? focusNode;
   final Widget? suffixIcon;
   final Widget? prefixIcon;
@@ -77,7 +77,7 @@ class StandardTextFormFieldWidget extends StatelessWidget {
               )),
       style: Theme.of(context).textTheme.bodyMedium,
       onChanged: onChanged,
-      validator: addressValidator,
+      validator: validator,
     );
   }
 }

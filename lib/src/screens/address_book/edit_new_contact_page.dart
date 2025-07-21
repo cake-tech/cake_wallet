@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
@@ -31,18 +32,17 @@ class EditNewContactPage extends SheetPage {
             ? selectedParsedAddress.handle
             : selectedParsedAddress.profileName;
 
-    contactViewModel.newAddingCurrency =
+    contactViewModel.currency =
         _isManualFlow ? selectedParsedAddress.manualAddressByCurrencyMap?.keys.firstOrNull : null;
 
-    if (_isManualFlow && contactViewModel.newAddingCurrency != null) {
+    if (_isManualFlow && contactViewModel.currency != null) {
       _addressController.text =
-          selectedParsedAddress.manualAddressByCurrencyMap?[contactViewModel.newAddingCurrency!] ??
-              '';
+          selectedParsedAddress.manualAddressByCurrencyMap?[contactViewModel.currency!] ?? '';
     } else if (_isPlainFlow) {
       _addressController.text = selectedParsedAddress.description;
     }
 
-    _currencyPicked = contactViewModel.newAddingCurrency != null;
+    _currencyPicked = contactViewModel.currency != null;
   }
 
   final ParsedAddress selectedParsedAddress;
@@ -85,100 +85,149 @@ class EditNewContactPage extends SheetPage {
           : MediaQuery.of(context).size.height * .35,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          children: [
-            Text(
-              _isExisting
-                  ? _isHandleFlow
-                      ? 'auto-detected from ${selectedParsedAddress.addressSource.label}'
-                      : 'Review & save manual address'
-                  : 'Choose a contact name and icon',
-              style: theme.textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _iconBox(theme),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextFormField(
-                    controller: _contactNameController,
-                    readOnly: _isExisting,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      isCollapsed: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      labelText: 'Address group name',
-                      fillColor: theme.colorScheme.surfaceContainer,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
-                    ),
-                    validator: (v) => v!.trim().isEmpty ? 'Name cannot be empty' : null,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (showAddrFields)
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Observer(builder: (_) {
-                      final currency = contactViewModel.newAddingCurrency;
-                      return ListTile(
-                        dense: true,
-                        visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                        tileColor: theme.colorScheme.surfaceContainer,
-                        leading: _currencyPicked
-                            ? ImageUtil.getImageFromPath(
-                                imagePath: currency?.iconPath ?? '', height: 24, width: 24)
-                            : null,
-                        title: Text(
-                          _currencyPicked
-                              ? currency?.fullName ?? currency?.name ?? 'Choose currency'
-                              : 'Choose currency',
-                          style: theme.textTheme.bodyMedium,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Text(
+                _isExisting
+                    ? _isHandleFlow
+                        ? 'auto-detected from ${selectedParsedAddress.addressSource.label}'
+                        : 'Review & save manual address'
+                    : 'Choose a contact name and icon',
+                style: theme.textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _iconBox(theme),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                        controller: _contactNameController,
+                        readOnly: _isExisting,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          isCollapsed: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          labelText: 'Address group name',
+                          fillColor: theme.colorScheme.surfaceContainer,
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
                         ),
-                        trailing: Icon(Icons.keyboard_arrow_down_outlined,
-                            color: theme.colorScheme.onSurface),
-                        onTap: () => _presentCurrencyPicker(context),
-                      );
-                    }),
+                        validator: contactViewModel.contactNameValidator),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (showAddrFields)
+                Column(
+                  children: [
+                    Observer(
+                      builder: (_) {
+                        String? Function(CryptoCurrency?) currencyValidator =
+                            (c) => c == null ? 'Please pick a currency' : null;
+
+                        return FormField<CryptoCurrency>(
+                          initialValue: contactViewModel.currency,
+                          validator: currencyValidator,
+                          builder: (field) {
+                            final currency = field.value;
+                            final hasError = field.hasError;
+                            final scheme = Theme.of(context).colorScheme;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: scheme.surfaceContainer,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      width: 1.3,
+                                      color: hasError ? scheme.error : Colors.transparent,
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    dense: true,
+                                    visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                    leading: currency == null
+                                        ? null
+                                        : ImageUtil.getImageFromPath(
+                                            imagePath: currency.iconPath ?? '',
+                                            height: 24,
+                                            width: 24,
+                                          ),
+                                    title: Text(
+                                      currency?.fullName ?? currency?.name ?? 'Choose currency',
+                                      style: Theme.of(context).textTheme.bodyMedium,
+                                    ),
+                                    trailing: Icon(Icons.keyboard_arrow_down_outlined,
+                                        color: scheme.onSurface),
+                                    onTap: () async {
+                                      final picked = await _presentCurrencyPicker(context);
+                                      if (picked != null) {
+                                        contactViewModel.currency = picked;
+                                        field.didChange(picked); // refresh validator below
+                                        _currencyPicked = true;
+                                      }
+                                    },
+                                  ),
+                                ),
+                                if (hasError)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4, left: 12),
+                                    child: Text(field.errorText!,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(color: scheme.error)),
+                                  ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
                     const SizedBox(height: 8),
                     StandardTextFormFieldWidget(
                       controller: _labelController,
                       labelText: 'Address label',
                       fillColor: theme.colorScheme.surfaceContainer,
-                      addressValidator: _isExisting
-                          ? null
-                          : (v) => v == null || v.trim().isEmpty ? 'Label required' : null,
+                      validator: contactViewModel.manualAddressLabelValidator,
                       suffixIcon: _pasteButton(() async {
                         _labelController.text = await _clipboardText;
                       }),
                     ),
                     const SizedBox(height: 8),
-                    StandardTextFormFieldWidget(
-                      controller: _addressController,
-                      labelText: S.of(context).address,
-                      fillColor: theme.colorScheme.surfaceContainer,
-                      addressValidator: null,
-                      suffixIcon: _pasteButton(() async {
-                        _addressController.text = await _clipboardText;
-                      }),
+                    Observer(
+                      builder: (_) {
+                        final cur = contactViewModel.currency;
+                        final String? Function(String?)? addrValidator =
+                            cur == null ? null : AddressValidator(type: cur).call;
+
+                        return StandardTextFormFieldWidget(
+                          controller: _addressController,
+                          labelText: S.of(context).address,
+                          fillColor: theme.colorScheme.surfaceContainer,
+                          validator: addrValidator,
+                          suffixIcon: _pasteButton(() async {
+                            _addressController.text = await _clipboardText;
+                          }),
+                        );
+                      },
                     ),
                   ],
                 ),
-              ),
-            const Spacer(),
-            _nextButton(context),
-            const SizedBox(height: 24),
-          ],
+              const Spacer(),
+              _nextButton(context),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -222,14 +271,14 @@ class EditNewContactPage extends SheetPage {
         width: 150,
         height: 40,
         onPressed: () async {
-          if (!_isHandleFlow && !(_formKey.currentState?.validate() ?? false)) return;
+          if (!(_formKey.currentState?.validate() ?? false)) return;
           if (!_isHandleFlow && !_currencyPicked) return;
 
           if (_isExisting) {
             final record = contactViewModel.record!;
 
             if (_isManualFlow || _isPlainFlow) {
-              final cur = contactViewModel.newAddingCurrency;
+              final cur = contactViewModel.currency;
 
               if (cur == null) {
                 return;
@@ -281,7 +330,7 @@ class EditNewContactPage extends SheetPage {
               profileName: _contactNameController.text.trim(),
             );
           } else {
-            final selectedCurrency = contactViewModel.newAddingCurrency;
+            final selectedCurrency = contactViewModel.currency;
             if (selectedCurrency == null) return;
             payload = ParsedAddress(
               parsedAddressByCurrencyMap: const {},
@@ -312,22 +361,23 @@ class EditNewContactPage extends SheetPage {
         isDisabled: false,
       );
 
-  void _presentCurrencyPicker(BuildContext context) {
-    showPopUp<void>(
+  Future<CryptoCurrency?> _presentCurrencyPicker(BuildContext context) async {
+    CryptoCurrency? currency;
+    await showPopUp<CryptoCurrency?>(
       context: context,
       builder: (_) => CurrencyPicker(
-        selectedAtIndex: _currencyPicked && contactViewModel.newAddingCurrency != null
-            ? contactViewModel.currencies.indexOf(contactViewModel.newAddingCurrency!)
+        selectedAtIndex: _currencyPicked && contactViewModel.currency != null
+            ? contactViewModel.currencies.indexOf(contactViewModel.currency!)
             : 0,
         items: contactViewModel.currencies,
         title: S.of(context).please_select,
         hintText: S.of(context).search_currency,
         onItemSelected: (Currency item) {
-          contactViewModel.newAddingCurrency = item as CryptoCurrency;
-          _currencyPicked = true;
+          currency = item as CryptoCurrency;
         },
       ),
     );
+    return currency;
   }
 
   Future<String> get _clipboardText async {

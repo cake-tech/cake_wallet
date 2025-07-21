@@ -1033,8 +1033,8 @@ Future<void> setup({
         ),
   );
 
-  getIt.registerFactoryParam<EditAddressPage, ContactViewModel, void>(
-        (viewModel, _) => EditAddressPage(contactViewModel: viewModel),
+  getIt.registerFactoryParam<EditAddressPage, List<dynamic>, void>(
+        (list, _) => EditAddressPage(list),
   );
 
   getIt.registerFactory<SupportedHandlesPage>(

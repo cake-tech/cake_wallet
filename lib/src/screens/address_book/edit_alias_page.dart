@@ -6,14 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class EditAliasPage extends SheetPage {
-  EditAliasPage({
-    required this.contactViewModel,
-    required this.handleKey,
-  }) : _aliasNameController = TextEditingController(text: handleKey) {}
+  EditAliasPage({required this.contactViewModel, required this.handleKey});
 
   final ContactViewModel contactViewModel;
   final String handleKey;
-  final TextEditingController _aliasNameController;
 
   @override
   String? get title => 'Edit Alias';
@@ -21,12 +17,8 @@ class EditAliasPage extends SheetPage {
   @override
   Widget trailing(BuildContext context) {
     return RoundedIconButton(
-        iconWidget: Image.asset(
-          'assets/images/trash_can_icon.png',
-          width: 16,
-          height: 16,
-          color: Theme.of(context).colorScheme.onErrorContainer,
-        ),
+        iconWidget: Image.asset('assets/images/trash_can_icon.png',
+            width: 16, height: 16, color: Theme.of(context).colorScheme.onErrorContainer),
         fillColor: Theme.of(context).colorScheme.errorContainer,
         onPressed: () async {
           await contactViewModel.deleteParsedBlock(handleKey);
