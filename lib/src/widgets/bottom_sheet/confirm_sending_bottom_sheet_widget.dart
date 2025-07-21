@@ -10,6 +10,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'base_bottom_sheet_widget.dart';
@@ -45,7 +46,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
         _currentTheme = currentTheme,
         super(
             titleText: titleText,
-          maxHeight: 900,
+            maxHeight: 900,
             titleIconPath: titleIconPath,
             currentTheme: currentTheme,
             footerType: footerType,
@@ -115,6 +116,7 @@ class ConfirmSendingBottomSheet extends BaseBottomSheet {
                         itemSubTitleTextStyle: itemSubTitleTextStyle,
                         tileBackgroundColor: tileBackgroundColor,
                         applyAddressFormatting: false,
+                    copyButton: true,
                       )),
             ),
           if (explanation != null)
@@ -307,20 +309,20 @@ class StandardInfoTile extends StatelessWidget {
 }
 
 class AddressTile extends StatelessWidget {
-  const AddressTile({
-    super.key,
-    required this.itemTitle,
-    required this.itemTitleTextStyle,
-    required this.address,
-    required this.itemSubTitleTextStyle,
-    required this.tileBackgroundColor,
-    required this.walletType,
-    this.amountTextStyle,
-    this.applyAddressFormatting = true,
-    this.imagePath,
-    this.amount,
-    this.itemSubTitle,
-  });
+  const AddressTile(
+      {super.key,
+      required this.itemTitle,
+      required this.itemTitleTextStyle,
+      required this.address,
+      required this.itemSubTitleTextStyle,
+      required this.tileBackgroundColor,
+      required this.walletType,
+      this.amountTextStyle,
+      this.applyAddressFormatting = true,
+      this.imagePath,
+      this.amount,
+      this.itemSubTitle,
+      this.copyButton = false});
 
   final String itemTitle;
   final TextStyle itemTitleTextStyle;
@@ -333,6 +335,7 @@ class AddressTile extends StatelessWidget {
   final bool applyAddressFormatting;
   final String? imagePath;
   final String? itemSubTitle;
+  final bool copyButton;
 
   @override
   Widget build(BuildContext context) {
@@ -387,9 +390,24 @@ class AddressTile extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                             decoration: TextDecoration.none,
                           ))
-                  : Text(
-                      address,
-                      style: itemTitleTextStyle,
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(address,
+                            style: copyButton
+                                ? itemTitleTextStyle.copyWith(fontSize: 12)
+                                : itemTitleTextStyle),
+                        SizedBox(width: 8),
+                        if (copyButton)
+                          RoundedIconButton(
+                            icon: Icons.copy_all_outlined,
+                            onPressed: () async =>
+                                await Clipboard.setData(ClipboardData(text: address)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                      ],
                     ),
           itemSubTitle == null
               ? Container()
@@ -488,5 +506,42 @@ class ExpansionAddressTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class RoundedIconButton extends StatelessWidget {
+  const RoundedIconButton(
+      {this.icon,
+      this.iconWidget,
+      required this.onPressed,
+      this.shape,
+      this.width,
+      this.height,
+      this.iconSize,
+      this.fillColor});
+
+  final IconData? icon;
+  final Widget? iconWidget;
+  final VoidCallback onPressed;
+  final ShapeBorder? shape;
+  final double? width;
+  final double? height;
+  final double? iconSize;
+  final Color? fillColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return RawMaterialButton(
+        onPressed: onPressed,
+        fillColor: fillColor ?? colorScheme.surfaceContainerHighest,
+        elevation: 0,
+        constraints: BoxConstraints.tightFor(width: width ?? 30, height: height ?? 30),
+        padding: EdgeInsets.zero,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: shape ?? const CircleBorder(),
+        child: icon != null
+            ? Icon(icon, size: iconSize ?? 14, color: colorScheme.onSurface)
+            : iconWidget);
   }
 }
