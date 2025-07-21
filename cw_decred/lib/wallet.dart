@@ -26,7 +26,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -595,14 +594,7 @@ abstract class DecredWalletBase
   }
 
   @override
-  Future<bool> checkNodeHealth() async {
-    try {
-      await _libwallet.balance(walletInfo.name, throwOnError: true);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> checkNodeHealth() async => await checkSync();
 
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
