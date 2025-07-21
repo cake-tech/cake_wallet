@@ -596,7 +596,7 @@ class AddressResolverService {
     final Map<CryptoCurrency, String> result = {};
 
     for (final cur in currency) {
-      final address = await EnsRecord.fetchEnsAddress(text, wallet: wallet);
+      final address = await EnsRecord.fetchEnsAddress(text,cur, wallet: wallet);
       if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
         result[cur] = address;
       }

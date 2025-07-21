@@ -10,6 +10,7 @@ const supportedSources = [
   AddressSource.fio,
   AddressSource.zanoAlias,
   AddressSource.thorChain,
+  AddressSource.ens,
 ];
 
 ///Do not use '-' in the label, it is used to separate the label from the alias.
