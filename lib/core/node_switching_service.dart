@@ -114,6 +114,8 @@ class NodeSwitchingService {
       // Connect the wallet to the new node
       await appStore.wallet!.connectToNode(node: nextNode);
 
+      await appStore.wallet!.startSync();
+
       printV('Successfully switched to node: ${nextNode.uriRaw}');
     } catch (e) {
       printV('Error switching to next trusted node: $e');
