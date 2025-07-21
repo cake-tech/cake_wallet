@@ -451,23 +451,18 @@ class AddressResolverService {
 
   Future<ParsedAddress?> _lookupWellKnown(
       String text, List<CryptoCurrency> currencies, WalletBase _) async {
-    final Map<CryptoCurrency, String> result = {};
+    if (!currencies.contains(CryptoCurrency.nano)) return null;
 
-    for (final cur in currencies) {
-      final record = await WellKnownRecord.fetchAddressAndName(formattedName: text, currency: cur);
-      if (record != null) {
-        result[cur] = record.address;
-      }
-    }
+    final rec = await WellKnownRecord.fetch(text, CryptoCurrency.nano);
+    if (rec == null || rec.address.isEmpty) return null;
 
-    if (result.isNotEmpty) {
-      return ParsedAddress(
-        parsedAddressByCurrencyMap: result,
-        addressSource: AddressSource.wellKnown,
-        handle: text,
-      );
-    }
-    return null;
+    return ParsedAddress(
+      parsedAddressByCurrencyMap: {CryptoCurrency.nano: rec.address},
+      addressSource: AddressSource.wellKnown,
+      handle: text,
+      profileName: rec.title ?? '',
+      profileImageUrl: rec.imageUrl ?? '',
+    );
   }
 
   Future<ParsedAddress?> _lookupFio(
@@ -615,10 +610,10 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupsOpenAlias(
-      String text,
-      List<CryptoCurrency> currencies,
-      WalletBase _,
-      ) async {
+    String text,
+    List<CryptoCurrency> currencies,
+    WalletBase _,
+  ) async {
     final formatted = OpenaliasRecord.formatDomainName(text);
 
     final txtRecords = await OpenaliasRecord.lookupOpenAliasRecord(formatted);
@@ -639,10 +634,10 @@ class AddressResolverService {
     return result.isEmpty
         ? null
         : ParsedAddress(
-      parsedAddressByCurrencyMap: result,
-      addressSource: AddressSource.openAlias,
-      handle: text,
-    );
+            parsedAddressByCurrencyMap: result,
+            addressSource: AddressSource.openAlias,
+            handle: text,
+          );
   }
 
   Future<ParsedAddress?> _lookupsNostr(

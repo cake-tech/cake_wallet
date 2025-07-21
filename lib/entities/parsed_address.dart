@@ -13,6 +13,7 @@ const supportedSources = [
   AddressSource.ens,
   AddressSource.yatRecord,
   AddressSource.openAlias,
+  AddressSource.wellKnown,
 ];
 
 ///Do not use '-' in the label, it is used to separate the label from the alias.
@@ -88,7 +89,7 @@ enum AddressSource {
   wellKnown(
       label: '.wellknown',
       iconPath: 'assets/icons/wk.svg',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      supportedCurrencies: [CryptoCurrency.nano]),
   zanoAlias(
       label: 'Zano Alias',
       iconPath: 'assets/images/zano_icon.png',
