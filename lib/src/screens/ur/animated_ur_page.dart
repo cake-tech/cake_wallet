@@ -9,10 +9,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -22,12 +22,28 @@ import 'package:flutter/services.dart';
 class AnimatedURPage extends BasePage {
   final bool isAll;
   AnimatedURPage(this.animatedURmodel, {
-    required this.urQr,
+    required Map<String, String> this.urQr,
     this.isAll = false,
-  });
+  }) {
+    if (urQr.keys.first.startsWith("export-outputs") && animatedURmodel.wallet.type == WalletType.monero) {
+      if (animatedURmodel.wallet.type == WalletType.monero) {
+        urQr = monero!.exportOutputsUR(animatedURmodel.wallet);
+      } else {
+        throw UnimplementedError("unable to handle UR: ${urQr.keys.first}");
+      }
+    }
+    for (var key in urQr.keys) {
+      if (key.isEmpty || urQr[key]!.isEmpty) {
+        urQr.remove(key);
+        continue;
+      }
+      urQr[key] = urQr[key]!.trim();
+    }
+  }
 
-  late Map<String, String> urQr;
+  Map<String, String> urQr = {};
 
+  
   final AnimatedURModel animatedURmodel;
 
   String get urQrType {
@@ -65,39 +81,7 @@ class AnimatedURPage extends BasePage {
             ),
           ),
         },
-
-        if (urQrType == "ur:xmr-output" && !isAll) ...{
-          SizedBox(height: 32),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SizedBox(
-              width: double.maxFinite,
-              child: PrimaryButton(
-                onPressed: () => _exportAll(context),
-                text: "Export all",
-                color: Theme.of(context).colorScheme.secondary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
-              ),
-            ),
-          ),
-        },
       ],
-    );
-  }
-
-  void _exportAll(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) {
-          return AnimatedURPage(
-            animatedURmodel,
-            urQr: {
-              "export-outputs-all": "export-outputs-all",
-            },
-            isAll: true,
-          );
-        },
-      ),
     );
   }
 
@@ -192,7 +176,7 @@ class _URQRState extends State<URQR> {
     final keys = widget.urqr.keys.toList();
     setState(() {
       selectedInt++;
-      nextLabel = keys[(selectedInt) % keys.length];
+      nextLabel = keys[(selectedInt + 1) % keys.length];
       selected = keys[(selectedInt) % keys.length];
     });
   }
