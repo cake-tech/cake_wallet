@@ -403,7 +403,7 @@ abstract class Monero {
 
   Future<bool> commitTransactionUR(Object wallet, String ur);
 
-  String exportOutputsUR(Object wallet, bool all);
+  Map<String, String> exportOutputsUR(Object wallet);
 
   bool needExportOutputs(Object wallet, int amount);
 
