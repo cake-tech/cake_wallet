@@ -11,6 +11,8 @@ const supportedSources = [
   AddressSource.zanoAlias,
   AddressSource.thorChain,
   AddressSource.ens,
+  AddressSource.yatRecord,
+  AddressSource.openAlias,
 ];
 
 ///Do not use '-' in the label, it is used to separate the label from the alias.
@@ -42,7 +44,12 @@ enum AddressSource {
       label: 'Yat',
       iconPath: 'assets/images/yat_mini_logo.png',
       alias: '🎂🎂🎂',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      supportedCurrencies: [
+        CryptoCurrency.xmr,
+        CryptoCurrency.btc,
+        CryptoCurrency.eth,
+        CryptoCurrency.ltc
+      ]),
   fio(label: 'FIO', iconPath: 'assets/images/fio.png', alias: 'user@domain', supportedCurrencies: [
     CryptoCurrency.xmr,
     CryptoCurrency.btc,

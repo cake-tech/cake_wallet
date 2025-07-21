@@ -348,30 +348,30 @@ class AddressResolverService {
     final Map<CryptoCurrency, String> result = {};
 
     try {
-    for (final cur in currencies) {
-      final addressFromBio = extractAddressByType(
-          raw: twitterUser.description, type: CryptoCurrency.fromString(cur.title));
-      printV('Address from bio: $addressFromBio');
+      for (final cur in currencies) {
+        final addressFromBio = extractAddressByType(
+            raw: twitterUser.description, type: CryptoCurrency.fromString(cur.title));
+        printV('Address from bio: $addressFromBio');
 
-      if (addressFromBio != null && addressFromBio.isNotEmpty) {
-        result[cur] = addressFromBio;
+        if (addressFromBio != null && addressFromBio.isNotEmpty) {
+          result[cur] = addressFromBio;
+        }
       }
-    }
     } catch (e) {
       printV('Error extracting address from Twitter bio: $e');
     }
 
     try {
-    final pinnedTweet = twitterUser.pinnedTweet?.text;
-    if (pinnedTweet != null) {
-      for (final cur in currencies) {
-        final addressFromPinnedTweet =
-            extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(cur.title));
-        if (addressFromPinnedTweet != null && addressFromPinnedTweet.isNotEmpty) {
-          result[cur] = addressFromPinnedTweet;
+      final pinnedTweet = twitterUser.pinnedTweet?.text;
+      if (pinnedTweet != null) {
+        for (final cur in currencies) {
+          final addressFromPinnedTweet =
+              extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(cur.title));
+          if (addressFromPinnedTweet != null && addressFromPinnedTweet.isNotEmpty) {
+            result[cur] = addressFromPinnedTweet;
+          }
         }
       }
-    }
     } catch (e) {
       printV('Error extracting address from Twitter pinned tweet: $e');
     }
@@ -388,8 +388,7 @@ class AddressResolverService {
     return null;
   }
 
-  Future<ParsedAddress?> _lookupZano(
-      String text, List<CryptoCurrency> _, WalletBase __) async {
+  Future<ParsedAddress?> _lookupZano(String text, List<CryptoCurrency> _, WalletBase __) async {
     final formattedName = text.substring(1);
 
     final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
@@ -495,28 +494,31 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupYatService(
-      String text, List<CryptoCurrency> currency, WalletBase _) async {
-    final Map<CryptoCurrency, String> result = {};
+      String text, List<CryptoCurrency> currencies, WalletBase _) async {
+    final result = <CryptoCurrency, String>{};
 
-    for (final cur in currency) {
-      final addresses = await yatService.fetchYatAddress(text, cur.title);
-      if (addresses.isNotEmpty) {
-        result[cur] = addresses.first.address; //TODO: Handle multiple addresses
-      }
-      if (result.isNotEmpty) {
-        return ParsedAddress(
-          parsedAddressByCurrencyMap: result,
-          addressSource: AddressSource.yatRecord,
-          handle: text,
-        );
-      }
+    for (final cur in currencies) {
+      final records = await yatService.fetchYatAddress(text, cur.title);
+      if (records.isEmpty) continue;
+
+      final chosen = cur == CryptoCurrency.xmr
+          ? records.firstWhere((r) => r.isMoneroSub, orElse: () => records.first)
+          : records.first;
+
+      result[cur] = chosen.address;
     }
-    return null;
+
+    return result.isEmpty
+        ? null
+        : ParsedAddress(
+            parsedAddressByCurrencyMap: result,
+            addressSource: AddressSource.yatRecord,
+            handle: text,
+          );
   }
 
   Future<ParsedAddress?> _lookupThorChain(
       String text, List<CryptoCurrency> currencies, WalletBase _) async {
-
     final map = await ThorChainExchangeProvider.lookupAddressByName(text);
     if (map == null || map.isEmpty) return null;
 
@@ -533,10 +535,10 @@ class AddressResolverService {
     return result.isEmpty
         ? null
         : ParsedAddress(
-      parsedAddressByCurrencyMap: result,
-      addressSource: AddressSource.thorChain,
-      handle: text,
-    );
+            parsedAddressByCurrencyMap: result,
+            addressSource: AddressSource.thorChain,
+            handle: text,
+          );
   }
 
   Future<ParsedAddress?> _lookupsUnstoppableDomains(
@@ -596,7 +598,7 @@ class AddressResolverService {
     final Map<CryptoCurrency, String> result = {};
 
     for (final cur in currency) {
-      final address = await EnsRecord.fetchEnsAddress(text,cur, wallet: wallet);
+      final address = await EnsRecord.fetchEnsAddress(text, cur, wallet: wallet);
       if (address.isNotEmpty && address != "0x0000000000000000000000000000000000000000") {
         result[cur] = address;
       }
@@ -613,29 +615,34 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupsOpenAlias(
-      String text, List<CryptoCurrency> currency, WalletBase _) async {
-    final formattedName = OpenaliasRecord.formatDomainName(text);
-    final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
-    final Map<CryptoCurrency, String> result = {};
+      String text,
+      List<CryptoCurrency> currencies,
+      WalletBase _,
+      ) async {
+    final formatted = OpenaliasRecord.formatDomainName(text);
 
-    for (final cur in currency) {
-      if (txtRecord == null) continue;
-      final record = await OpenaliasRecord.fetchAddressAndName(
-          formattedName: formattedName, ticker: cur.title.toLowerCase(), txtRecord: txtRecord);
-      if (record.address.isNotEmpty) {
-        result[cur] = record.address;
-      }
-    }
+    final txtRecords = await OpenaliasRecord.lookupOpenAliasRecord(formatted);
+    if (txtRecords == null) return null;
 
-    if (result.isNotEmpty) {
-      return ParsedAddress(
-        parsedAddressByCurrencyMap: result,
-        addressSource: AddressSource.openAlias,
-        handle: text,
+    final result = <CryptoCurrency, String>{};
+
+    for (final cur in currencies) {
+      final rec = OpenaliasRecord.fetchAddressAndName(
+        formattedName: formatted,
+        ticker: cur.title.toLowerCase(),
+        txtRecord: txtRecords,
       );
+
+      if (rec.address.isNotEmpty) result[cur] = rec.address;
     }
 
-    return null;
+    return result.isEmpty
+        ? null
+        : ParsedAddress(
+      parsedAddressByCurrencyMap: result,
+      addressSource: AddressSource.openAlias,
+      handle: text,
+    );
   }
 
   Future<ParsedAddress?> _lookupsNostr(
