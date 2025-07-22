@@ -194,9 +194,9 @@ abstract class ContactListViewModelBase with Store {
       case FilterListOrderType.Alphabetical:
         await sortAlphabetically();
         break;
-      case FilterListOrderType.GroupByType:
-        await sortGroupByType();
-        break;
+      // case FilterListOrderType.GroupByType:
+      //   await sortGroupByType();
+      //   break;
       case FilterListOrderType.Custom:
       default:
         reorderAccordingToContactList();

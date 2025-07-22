@@ -158,6 +158,7 @@ class _ContactListBodyState extends State<ContactListBody> {
                   _vm.setAscending(asc);
                   await _vm.setOrderType(type);
                 },
+                showGroupByType: false,
               ),
             );
           },
