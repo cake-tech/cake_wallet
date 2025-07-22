@@ -62,6 +62,10 @@ class Bip353Record {
         RRecordType.TXT,
         dnssec: true,
       );
+      final proof = await fetchDnsProof(bip353Name);
+      if (proof == null) {
+        throw Exception('DNSSEC proof not found');
+      }
 
       if (txtRecords == null) return null;
 

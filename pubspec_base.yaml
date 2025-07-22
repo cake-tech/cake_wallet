@@ -141,7 +141,7 @@ dependencies:
   dnssec_proof:
     git:
       url: https://github.com/MrCyjaneK/dnssec_proof.git
-      ref: 656b27e75d4992443033bd48337da41fcb6391fd
+      ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
 
 dev_dependencies:
   flutter_test:
