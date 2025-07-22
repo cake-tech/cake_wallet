@@ -57,26 +57,6 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
   Timer? _debounce;
 
   List<ParsedAddress> _results = [];
-  final List<CryptoCurrency> _validatableCurrency = [
-    CryptoCurrency.xmr,
-    CryptoCurrency.ada,
-    CryptoCurrency.btc,
-    CryptoCurrency.ltc,
-    CryptoCurrency.xrp,
-    CryptoCurrency.xhv,
-    CryptoCurrency.bch,
-    CryptoCurrency.zaddr,
-    CryptoCurrency.zec,
-    CryptoCurrency.dcr,
-    CryptoCurrency.rvn,
-    CryptoCurrency.near,
-    CryptoCurrency.rune,
-    CryptoCurrency.scrt,
-    CryptoCurrency.stx,
-    CryptoCurrency.kmd,
-    CryptoCurrency.pivx,
-    CryptoCurrency.btcln,
-  ];
   bool _isSearching = false;
   ParsedAddress? _selectedHandle;
   _PlainTextSelection? _plainSelected;
@@ -102,14 +82,7 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
     super.dispose();
   }
 
-  CryptoCurrency? _detectCurrency(String text) {
-    for (final cur in _validatableCurrency) {
-      final pattern = AddressValidator.getPattern(cur);
-      if (pattern.isEmpty) continue;
-      if (RegExp(pattern, caseSensitive: false).hasMatch(text)) return cur;
-    }
-    return null;
-  }
+  Set<CryptoCurrency> _detectCurrencies(String txt) => AddressValidator.detectCurrencies(txt);
 
   void _handleChanged(String q) {
     _typedText = q.trim();
@@ -152,12 +125,15 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
             _detectedAddress = null;
           });
         } else {
-          final cur = _detectCurrency(_typedText);
+          final detected = _detectCurrencies(_typedText);
           setState(() {
-            _detectedCurrency = cur;
-            _detectedAddress = cur != null ? _typedText : null;
-            if (cur == null) {
-              _plainSelected = _PlainTextSelection(_typedText);
+            if (detected.length == 1) {
+              _detectedCurrency = detected.first;
+              _detectedAddress = _typedText;
+            } else {
+              _detectedCurrency = null;
+              _detectedAddress = null;
+              _plainSelected = detected.isEmpty ? _PlainTextSelection(_typedText) : null;
             }
           });
         }
