@@ -510,7 +510,10 @@ Future<void> defaultSettingsMigration(
             providerName: "SwapTrade",
             enabled: true,
           );
-			    break;
+          break;
+        case 50:
+          await migrateExistingNodesToUseAutoSwitching(nodes: nodes);
+          break;
         default:
           break;
       }
@@ -1270,5 +1273,48 @@ Future<void> removeMoneroWorld(
       currentNodePreferenceKey: PreferencesKey.currentNodeIdKey,
       trusted: true,
     );
+  }
+}
+
+Future<void> migrateExistingNodesToUseAutoSwitching({required Box<Node> nodes}) async {
+  final nodeList = nodes.values.toList();
+  final listOfDefaultNodesWithAutoSwitching = [
+    'bitcoincash.stackwallet.com:50002',
+    'bch.aftrek.org:50002',
+    'btc-electrum.cakewallet.com:50002',
+    'fulcrum.sethforprivacy.com:50002',
+    'default-spv-nodes',
+    'dcrd.sethforprivacy.com:9108',
+    'ethereum-rpc.publicnode.com',
+    'eth.nownodes.io',
+    'ltc-electrum.cakewallet.com:50002',
+    'litecoin.stackwallet.com:20063',
+    'nano.nownodes.io',
+    'rpc.nano.to',
+    'node.nautilus.io',
+    'rpc.nano.to',
+    'workers.perish.co',
+    'worker.nanoriver.cc',
+    'xmr-node.cakewallet.com:18081',
+    'node.sethforprivacy.com:443',
+    'nodes.hashvault.pro:18081',
+    'polygon-bor-rpc.publicnode.com',
+    'matic.nownodes.io',
+    'api.mainnet-beta.solana.com:443',
+    'solana-rpc.publicnode.com:443',
+    'solana-mainnet.core.chainstack.com',
+    'api.trongrid.io',
+    'trx.nownodes.io',
+    'node3.monerodevs.org:34568',
+    'node2.monerodevs.org:34568',
+    '37.27.100.59:10500',
+    'zano.cakewallet.com:11211',
+    'electrum.cakewallet.com',
+  ];
+  for (var node in nodeList) {
+    if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
+      node.isEnabledForAutoSwitching = true;
+      await node.save();
+    }
   }
 }
