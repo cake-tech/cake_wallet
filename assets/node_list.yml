@@ -3,6 +3,7 @@
   is_default: true
   trusted: true
   useSSL: true
+  isEnabledForAutoSwitching: true
 -
   uri: cakexmrl7bonq7ovjka5kuwuyd3f7qnkz6z6s6dmsy3uckwra7bvggyd.onion:18081
   is_default: false
@@ -10,8 +11,8 @@
   uri: node.sethforprivacy.com:443
   useSSL: true
   is_default: false
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: nodes.hashvault.pro:18081
   is_default: false
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true

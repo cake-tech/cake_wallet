@@ -70,7 +70,7 @@ class NodeSwitchingService {
 
       // Get all trusted nodes for this wallet type
       final trustedNodes = nodeSource.values
-          .where((node) => node.type == walletType && node.isTrustedNodeForSwitching)
+          .where((node) => node.type == walletType && node.isEnabledForAutoSwitching)
           .toList();
 
       if (trustedNodes.isEmpty) {

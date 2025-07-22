@@ -26,7 +26,7 @@ class Node extends HiveObject with Keyable {
     this.trusted = false,
     this.socksProxyAddress,
     this.path = '',
-    this.isTrustedNodeForSwitching = false,
+    this.isEnabledForAutoSwitching = false,
     String? uri,
     WalletType? type,
   }) {
@@ -46,7 +46,7 @@ class Node extends HiveObject with Keyable {
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false,
         socksProxyAddress = map['socksProxyPort'] as String?,
-        isTrustedNodeForSwitching = map['isTrustedNodeForSwitching'] as bool? ?? false;
+        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] as bool? ?? false;
 
   static const typeId = NODE_TYPE_ID;
   static const boxName = 'Nodes';
@@ -85,7 +85,7 @@ class Node extends HiveObject with Keyable {
   bool? supportsMweb;
 
   @HiveField(11, defaultValue: false)
-  bool isTrustedNodeForSwitching;
+  bool isEnabledForAutoSwitching;
 
   bool get isSSL => useSSL ?? false;
 

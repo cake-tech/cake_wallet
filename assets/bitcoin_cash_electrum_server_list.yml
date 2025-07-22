@@ -2,10 +2,11 @@
   uri: bitcoincash.stackwallet.com:50002
   is_default: true
   useSSL: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: bch.aftrek.org:50002
   useSSL: true
+  isEnabledForAutoSwitching: true
 -
   uri: node.minisatoshi.cash:50002
   useSSL: true

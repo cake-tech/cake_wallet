@@ -2,9 +2,11 @@
   uri: rpc.nano.to
   useSSL: true
   is_default: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: workers.perish.co
+  isEnabledForAutoSwitching: true
 -
   uri: worker.nanoriver.cc
   useSSL: true
+  isEnabledForAutoSwitching: true

@@ -2,11 +2,11 @@
   uri: ltc-electrum.cakewallet.com:50002
   useSSL: true
   isDefault: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: litecoin.stackwallet.com:20063
   useSSL: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: electrum-ltc.bysh.me:50002
   useSSL: true

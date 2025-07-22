@@ -32,7 +32,7 @@ class NodeForm extends StatelessWidget {
         ..setLogin((editingNode!.login ?? ''))
         ..setSSL((editingNode!.isSSL))
         ..setTrusted((editingNode!.trusted))
-        ..setIsTrustedNodeForSwitching((editingNode!.isTrustedNodeForSwitching))
+        ..setIsEnabledForAutoSwitching((editingNode!.isEnabledForAutoSwitching))
         ..setSocksProxy((editingNode!.useSocksProxy))
         ..setSocksProxyAddress((editingNode!.socksProxyAddress ?? ''));
     }
@@ -162,11 +162,11 @@ class NodeForm extends StatelessWidget {
               children: [
                 Observer(
                   builder: (_) => StandardCheckbox(
-                    value: nodeViewModel.isTrustedNodeForSwitching,
+                    value: nodeViewModel.isEnabledForAutoSwitching,
                     borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     iconColor: Theme.of(context).colorScheme.primary,
-                    onChanged: (value) => nodeViewModel.isTrustedNodeForSwitching = value,
-                    caption: S.current.trusted_for_auto_switching,
+                    onChanged: (value) => nodeViewModel.isEnabledForAutoSwitching = value,
+                    caption: S.current.enable_for_auto_switching,
                   ),
                 ),
               ],

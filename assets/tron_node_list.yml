@@ -6,8 +6,8 @@
   uri: api.trongrid.io
   is_default: true
   useSSL: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 - 
   uri: trx.nownodes.io
   useSSL: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true

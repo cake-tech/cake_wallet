@@ -26,7 +26,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         login = '',
         password = '',
         trusted = false,
-        isTrustedNodeForSwitching = false,
+        isEnabledForAutoSwitching = false,
         useSocksProxy = false,
         socksProxyAddress = '';
 
@@ -58,7 +58,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool trusted;
 
   @observable
-  bool isTrustedNodeForSwitching;
+  bool isEnabledForAutoSwitching;
 
   @observable
   bool useSocksProxy;
@@ -122,7 +122,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     password = '';
     useSSL = false;
     trusted = false;
-    isTrustedNodeForSwitching = false;
+    isEnabledForAutoSwitching = false;
     useSocksProxy = false;
     socksProxyAddress = '';
   }
@@ -149,7 +149,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
-  void setIsTrustedNodeForSwitching(bool val) => isTrustedNodeForSwitching = val;
+  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
 
   @action
   void setSocksProxy(bool val) => useSocksProxy = val;
@@ -167,7 +167,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
-        isTrustedNodeForSwitching: isTrustedNodeForSwitching,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       state = IsExecutingState();
@@ -199,7 +199,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
-        isTrustedNodeForSwitching: isTrustedNodeForSwitching,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();

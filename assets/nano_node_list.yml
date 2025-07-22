@@ -1,16 +1,17 @@
 -
   uri: nano.nownodes.io
   useSSL: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: rpc.nano.to
   is_default: true
   useSSL: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: node.nautilus.io
   path: /api
   useSSL: true
+  isEnabledForAutoSwitching: true
 -
   uri: app.natrium.io
   path: /api

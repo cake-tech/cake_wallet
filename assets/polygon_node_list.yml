@@ -4,9 +4,9 @@
   uri: polygon-bor-rpc.publicnode.com
   useSSL: true
   isDefault: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: polygon.llamarpc.com
 -
   uri: matic.nownodes.io
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true

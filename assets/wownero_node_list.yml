@@ -2,11 +2,12 @@
   uri: node3.monerodevs.org:34568
   is_default: true
   useSSL: false
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: node2.monerodevs.org:34568
   is_default: false
   useSSL: false
+  isEnabledForAutoSwitching: true
 -
   uri: node.monerodevs.org:34568
   is_default: false

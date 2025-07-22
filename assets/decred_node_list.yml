@@ -1,8 +1,8 @@
 -
   uri: default-spv-nodes
   is_default: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
 -
   uri: dcrd.sethforprivacy.com:9108
   useSSL: true
-  isTrustedNodeForSwitching: true
+  isEnabledForAutoSwitching: true
