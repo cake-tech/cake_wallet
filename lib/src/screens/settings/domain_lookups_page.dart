@@ -22,6 +22,10 @@ class DomainLookupsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
+                  title: S.current.all,
+                  value: _privacySettingsViewModel.allLookups,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setAllLookups(value)),
+              SettingsSwitcherCell(
                   title: 'Twitter',
                   value: _privacySettingsViewModel.lookupTwitter,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsTwitter(value)),
