@@ -138,6 +138,10 @@ dependencies:
     git:
       url: https://github.com/mrcyjanek/bbqrdart
       ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+  dnssec_proof:
+    git:
+      url: https://github.com/MrCyjaneK/dnssec_proof.git
+      ref: 656b27e75d4992443033bd48337da41fcb6391fd
 
 dev_dependencies:
   flutter_test:

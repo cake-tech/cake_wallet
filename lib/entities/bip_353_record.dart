@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:isolate';
+
 import 'package:basic_utils/basic_utils.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_picker_option.dart';
@@ -5,6 +8,7 @@ import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:dnssec_proof/dnssec_proof.dart';
 import 'package:flutter/material.dart';
 
 class Bip353Record {
@@ -22,7 +26,7 @@ class Bip353Record {
     'address': 'On-Chain Address',
   };
 
-  static Future<String?> fetchRsigRecord(String bip353Name) async {
+  static Future<String?> fetchDnsProof(String bip353Name) async {
     if (bip353Name.startsWith('₿')) {
       bip353Name = bip353Name.substring(1);
     }
@@ -30,18 +34,9 @@ class Bip353Record {
     if (parts.length != 2) return null;
     final userPart = parts[0];
     final domainPart = parts[1];
-    final bip353Domain = '$userPart.user._bitcoin-payment.$domainPart';
-    final rsigRecords = await DnsUtils.lookupRecord(
-      bip353Domain,
-      RRecordType.RRSIG,
-      dnssec: true,
-    );
-    if (rsigRecords == null) return null;
-    if (rsigRecords.length != 1) {
-      printV('Bip353Record.fetchRsigRecord error: multiple rsig records found');
-      return null;
-    }
-    return rsigRecords[0].data;
+    final bip353Domain = '$userPart.user._bitcoin-payment.$domainPart.';
+    final proof = await Isolate.run(() => DnsProver.getTxtProof(bip353Domain));
+    return base64.encode(proof);
   }
 
   static Future<Map<String, String>?> fetchUriByCryptoCurrency(
