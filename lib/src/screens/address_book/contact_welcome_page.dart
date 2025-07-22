@@ -7,7 +7,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';
-import 'package:cake_wallet/src/screens/address_book/widgets/rounded_icon_button.dart';
+import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/standard_text_form_field_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';

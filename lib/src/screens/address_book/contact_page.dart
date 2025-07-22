@@ -5,7 +5,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/addresses_expansion_tile_widget.dart';
-import 'package:cake_wallet/src/screens/address_book/widgets/rounded_icon_button.dart';
+import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:flutter/material.dart';

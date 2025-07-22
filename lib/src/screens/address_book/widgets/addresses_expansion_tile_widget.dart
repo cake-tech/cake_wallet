@@ -1,4 +1,4 @@
-import 'package:cake_wallet/src/screens/address_book/widgets/rounded_icon_button.dart';
+import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cw_core/crypto_currency.dart';
