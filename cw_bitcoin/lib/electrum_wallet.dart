@@ -780,7 +780,11 @@ abstract class ElectrumWalletBase
     }
 
     if (outputs.length == 1) {
-      outputs[0] = BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+      outputs[0] = BitcoinOutput(
+        address: outputs.last.address,
+        value: BigInt.from(amount),
+        isSilentPayment: hasSilentPayment,
+      );
     }
 
     return EstimatedTxResult(
@@ -888,7 +892,17 @@ abstract class ElectrumWalletBase
     );
 
     updatedOutputs.clear();
-    updatedOutputs.addAll(temp);
+    for (int i = 0; i < temp.length; i++) {
+      final output = temp[i];
+      final oldOutput = outputs[i];
+
+      updatedOutputs.add(BitcoinOutput(
+        address: output.address,
+        value: output.value,
+        isSilentPayment: oldOutput.isSilentPayment,
+        isChange: output.isChange,
+      ));
+    }
 
     if (fee == 0) {
       throw BitcoinTransactionNoFeeException();
@@ -1086,6 +1100,14 @@ abstract class ElectrumWalletBase
           hasSilentPayment: hasSilentPayment,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
+      }
+
+      for (final output in updatedOutputs) {
+        // TODO: get from server
+        // if (output.isSilentPayment && output.value.toInt() > silentPaymentsMin) {
+        if (output.isSilentPayment && output.value.toInt() > 1000) {
+          throw BitcoinTransactionNoDustException();
+        }
       }
 
       if (walletInfo.isHardwareWallet) {
