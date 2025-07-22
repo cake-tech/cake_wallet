@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
@@ -506,42 +507,5 @@ class ExpansionAddressTile extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class RoundedIconButton extends StatelessWidget {
-  const RoundedIconButton(
-      {this.icon,
-      this.iconWidget,
-      required this.onPressed,
-      this.shape,
-      this.width,
-      this.height,
-      this.iconSize,
-      this.fillColor});
-
-  final IconData? icon;
-  final Widget? iconWidget;
-  final VoidCallback onPressed;
-  final ShapeBorder? shape;
-  final double? width;
-  final double? height;
-  final double? iconSize;
-  final Color? fillColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return RawMaterialButton(
-        onPressed: onPressed,
-        fillColor: fillColor ?? colorScheme.surfaceContainerHighest,
-        elevation: 0,
-        constraints: BoxConstraints.tightFor(width: width ?? 30, height: height ?? 30),
-        padding: EdgeInsets.zero,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        shape: shape ?? const CircleBorder(),
-        child: icon != null
-            ? Icon(icon, size: iconSize ?? 14, color: colorScheme.onSurface)
-            : iconWidget);
   }
 }
