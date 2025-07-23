@@ -304,6 +304,20 @@ class DefaultEthereumErc20Tokens {
       decimal: 18,
       enabled: false,
     ),
+    Erc20Token(
+      name: "Native Decentralized Euro Protocol Share",
+      symbol: "NDEPS",
+      contractAddress: "0xc71104001A3CCDA1BEf1177d765831Bd1bfE8eE6",
+      decimal: 18,
+      enabled: false,
+    ),
+    Erc20Token(
+      name: "Decentralized Euro Protocol Share",
+      symbol: "DEPS",
+      contractAddress: "0x103747924e74708139a9400e4ab4bea79fffa380",
+      decimal: 18,
+      enabled: false,
+    ),
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {
