@@ -84,6 +84,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.monero,
         WalletType.wownero,
         WalletType.zano,
+        WalletType.dogecoin,
       ].contains(type);
 
   @computed
