@@ -150,6 +150,7 @@ abstract class ElectrumWalletBase
     }
   }
 
+  @observable
   bool? alwaysScan;
 
   final Bip32Slip10Secp256k1 accountHD;
@@ -370,6 +371,7 @@ abstract class ElectrumWalletBase
               existingTxInfo.amount = tx.amount;
               existingTxInfo.confirmations = tx.confirmations;
               existingTxInfo.height = tx.height;
+              existingTxInfo.date = tx.date;
 
               final newUnspents = tx.unspents!
                   .where((unspent) => !(existingTxInfo.unspents?.any((element) =>
@@ -404,8 +406,11 @@ abstract class ElectrumWalletBase
 
               // Add new TX record
               transactionHistory.addMany(message);
+
               // Update balance record
               balance[currency]!.confirmed += tx.amount;
+
+              await save();
             }
 
             await updateAllUnspents();
@@ -543,7 +548,6 @@ abstract class ElectrumWalletBase
     }
 
     node!.isElectrs = false;
-    node!.save();
     return node!.isElectrs!;
   }
 
@@ -1879,20 +1883,24 @@ abstract class ElectrumWalletBase
 
       if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
         try {
-          final blockHash = await ProxyWrapper().get(
-            clearnetUri: Uri.parse(
-              "https://mempool.cakewallet.com/api/v1/block-height/$height",
-            ),
-          ).timeout(Duration(seconds: 15));
+          final blockHash = await ProxyWrapper()
+              .get(
+                clearnetUri: Uri.parse(
+                  "https://mempool.cakewallet.com/api/v1/block-height/$height",
+                ),
+              )
+              .timeout(Duration(seconds: 15));
 
           if (blockHash.statusCode == 200 &&
               blockHash.body.isNotEmpty &&
               jsonDecode(blockHash.body) != null) {
-            final blockResponse = await ProxyWrapper().get(
-              clearnetUri: Uri.parse(
-                "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
-              ),
-            ).timeout(Duration(seconds: 15));
+            final blockResponse = await ProxyWrapper()
+                .get(
+                  clearnetUri: Uri.parse(
+                    "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
+                  ),
+                )
+                .timeout(Duration(seconds: 15));
             if (blockResponse.statusCode == 200 &&
                 blockResponse.body.isNotEmpty &&
                 jsonDecode(blockResponse.body)['timestamp'] != null) {
@@ -2614,7 +2622,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
     var _scanningStream = await scanningClient.subscribe(req);
 
-    void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) {
+    void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) async {
       final response = req.onResponse(event);
 
       if (response == null || _scanningStream == null) {
@@ -2695,6 +2703,35 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               continue;
             }
 
+            var txDate = DateTime.now();
+            bool isDateNow = true;
+
+            final tweakBlockHash = await ProxyWrapper()
+                .get(
+                  clearnetUri: Uri.parse(
+                    "https://mempool.cakewallet.com/api/v1/block-height/$tweakHeight",
+                  ),
+                )
+                .timeout(Duration(seconds: 15));
+            final blockResponse = await ProxyWrapper()
+                .get(
+                  clearnetUri: Uri.parse(
+                    "https://mempool.cakewallet.com/api/v1/block/${tweakBlockHash.body}",
+                  ),
+                )
+                .timeout(Duration(seconds: 15));
+
+            if (blockResponse.statusCode == 200 &&
+                blockResponse.body.isNotEmpty &&
+                jsonDecode(blockResponse.body)['timestamp'] != null) {
+              try {
+                txDate = DateTime.fromMillisecondsSinceEpoch(
+                  int.parse(jsonDecode(blockResponse.body)['timestamp'].toString()) * 1000,
+                );
+                isDateNow = false;
+              } catch (_) {}
+            }
+
             // initial placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s) on the following loop
             final txInfo = ElectrumTransactionInfo(
               WalletType.bitcoin,
@@ -2706,7 +2743,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               isReplaced: false,
               // TODO: fetch block data and get the date from it
               date: scanData.network == BitcoinNetwork.mainnet
-                  ? getDateByBitcoinHeight(tweakHeight)
+                  ? (isDateNow ? getDateByBitcoinHeight(tweakHeight) : txDate)
                   : DateTime.now(),
               confirmations: scanData.chainTip - tweakHeight + 1,
               isReceivedSilentPayment: true,
@@ -2800,199 +2837,6 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
   } catch (e) {
     printV("Error in _handleScanSilentPayments: $e");
     scanData.sendPort.send(SyncResponse(scanData.height, LostConnectionSyncStatus()));
-  }
-}
-
-Future<void> startRefresh(ScanData scanData) async {
-  int syncHeight = scanData.height;
-  int initialSyncHeight = syncHeight;
-
-  BehaviorSubject<Object>? tweaksSubscription = null;
-
-  final electrumClient = scanData.electrumClient;
-  await electrumClient.connectToUri(
-    scanData.node?.uri ?? Uri.parse("tcp://electrs.cakewallet.com:50001"),
-    useSSL: scanData.node?.useSSL ?? false,
-  );
-
-  int getCountToScanPerRequest(int syncHeight) {
-    if (scanData.isSingleScan) {
-      return 1;
-    }
-
-    final amountLeft = scanData.chainTip - syncHeight + 1;
-    return amountLeft;
-  }
-
-  if (tweaksSubscription == null) {
-    final receiver = Receiver(
-      scanData.silentAddress.b_scan.toHex(),
-      scanData.silentAddress.B_spend.toHex(),
-      scanData.network == BitcoinNetwork.testnet,
-      scanData.labelIndexes,
-      scanData.labelIndexes.length,
-    );
-
-    // Initial status UI update, send how many blocks in total to scan
-    final initialCount = getCountToScanPerRequest(syncHeight);
-    scanData.sendPort.send(SyncResponse(syncHeight, StartingScanSyncStatus(syncHeight)));
-
-    tweaksSubscription = await electrumClient.tweaksSubscribe(
-      height: syncHeight,
-      count: initialCount,
-    );
-
-    Future<void> listenFn(t) async {
-      final tweaks = t as Map<String, dynamic>;
-      final msg = tweaks["message"];
-
-      // is success or error msg
-      final noData = msg != null;
-
-      if (noData) {
-        if (scanData.isSingleScan) {
-          return;
-        }
-
-        // re-subscribe to continue receiving messages, starting from the next unscanned height
-        final nextHeight = syncHeight + 1;
-
-        if (nextHeight <= scanData.chainTip) {
-          final nextStream = electrumClient.tweaksSubscribe(
-            height: nextHeight,
-            count: getCountToScanPerRequest(nextHeight),
-          );
-          nextStream?.listen(listenFn);
-        }
-
-        return;
-      }
-
-      // Continuous status UI update, send how many blocks left to scan
-      final syncingStatus = scanData.isSingleScan
-          ? SyncingSyncStatus(1, 0)
-          : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, syncHeight);
-      scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
-
-      final blockHeight = tweaks.keys.first;
-      final tweakHeight = int.parse(blockHeight);
-
-      try {
-        final blockTweaks = tweaks[blockHeight] as Map<String, dynamic>;
-
-        for (var j = 0; j < blockTweaks.keys.length; j++) {
-          final txid = blockTweaks.keys.elementAt(j);
-          final details = blockTweaks[txid] as Map<String, dynamic>;
-          final outputPubkeys = (details["output_pubkeys"] as Map<dynamic, dynamic>);
-          final tweak = details["tweak"].toString();
-
-          try {
-            // scanOutputs called from rust here
-            final addToWallet = scanOutputs(
-              outputPubkeys.values.toList(),
-              tweak,
-              receiver,
-            );
-
-            if (addToWallet.isEmpty) {
-              // no results tx, continue to next tx
-              continue;
-            }
-
-            // placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s)
-            final txInfo = ElectrumTransactionInfo(
-              WalletType.bitcoin,
-              id: txid,
-              height: tweakHeight,
-              amount: 0,
-              fee: 0,
-              direction: TransactionDirection.incoming,
-              isPending: false,
-              isReplaced: false,
-              date: scanData.network == BitcoinNetwork.mainnet
-                  ? getDateByBitcoinHeight(tweakHeight)
-                  : DateTime.now(),
-              confirmations: scanData.chainTip - tweakHeight + 1,
-              unspents: [],
-              isReceivedSilentPayment: true,
-            );
-
-            addToWallet.forEach((label, value) {
-              (value as Map<String, dynamic>).forEach((output, tweak) {
-                final t_k = tweak.toString();
-
-                final receivingOutputAddress = ECPublic.fromHex(output)
-                    .toTaprootAddress(tweak: false)
-                    .toAddress(scanData.network);
-
-                int? amount;
-                int? pos;
-                outputPubkeys.entries.firstWhere((k) {
-                  final isMatchingOutput = k.value[0] == output;
-                  if (isMatchingOutput) {
-                    amount = int.parse(k.value[1].toString());
-                    pos = int.parse(k.key.toString());
-                    return true;
-                  }
-                  return false;
-                });
-
-                final receivedAddressRecord = BitcoinSilentPaymentAddressRecord(
-                  receivingOutputAddress,
-                  index: 0,
-                  isHidden: false,
-                  isUsed: true,
-                  network: scanData.network,
-                  silentPaymentTweak: t_k,
-                  type: SegwitAddresType.p2tr,
-                  txCount: 1,
-                  balance: amount!,
-                );
-
-                final unspent = BitcoinSilentPaymentsUnspent(
-                  receivedAddressRecord,
-                  txid,
-                  amount!,
-                  pos!,
-                  silentPaymentTweak: t_k,
-                  silentPaymentLabel: label == "None" ? null : label,
-                );
-
-                txInfo.unspents!.add(unspent);
-                txInfo.amount += unspent.value;
-              });
-            });
-
-            scanData.sendPort.send({txInfo.id: txInfo});
-          } catch (_) {}
-        }
-      } catch (_) {}
-
-      syncHeight = tweakHeight;
-
-      if (tweakHeight >= scanData.chainTip || scanData.isSingleScan) {
-        if (tweakHeight >= scanData.chainTip)
-          scanData.sendPort.send(SyncResponse(
-            syncHeight,
-            SyncedTipSyncStatus(scanData.chainTip),
-          ));
-
-        if (scanData.isSingleScan) {
-          scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
-        }
-
-        await tweaksSubscription!.close();
-        await electrumClient.close();
-      }
-    }
-
-    tweaksSubscription?.listen(listenFn);
-  }
-
-  if (tweaksSubscription == null) {
-    return scanData.sendPort.send(
-      SyncResponse(syncHeight, UnsupportedSyncStatus()),
-    );
   }
 }
 

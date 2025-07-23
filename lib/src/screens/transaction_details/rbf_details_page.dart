@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_expandab
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
@@ -200,7 +201,9 @@ class RBFDetailsPage extends BasePage {
                   feeValue: transactionDetailsViewModel.sendViewModel.pendingTransaction!.feeFormatted,
                   feeFiatAmount: transactionDetailsViewModel.sendViewModel.pendingTransactionFeeFiatAmountFormatted,
                   outputs: transactionDetailsViewModel.sendViewModel.outputs,
-                  onSlideComplete: () async {
+                  footerType: FooterType.slideActionButton,
+                  accessibleNavigationModeSlideActionButtonText: S.of(context).send,
+                  onSlideActionComplete: () async {
                     Navigator.of(bottomSheetContext).pop();
                     await transactionDetailsViewModel.sendViewModel.commitTransaction(context);
                     try {

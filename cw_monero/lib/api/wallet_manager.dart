@@ -90,8 +90,9 @@ void createWallet(
   if (status != 0) {
     throw WalletCreationException(message: newW.errorString());
   }
-
+  newW.store(path: path);
   setupBackgroundSync(password, newW);
+  newW.store(path: path);
 
   currentWallet = newW;
   currentWallet!.setCacheAttribute(key: "cakewallet.passphrase", value: passphrase);
@@ -179,6 +180,8 @@ void restoreWalletFromKeys(
     throw WalletRestoreFromKeysException(
         message: newW.errorString());
   }
+  newW.store(path: path);
+
 
   // CW-712 - Try to restore deterministic wallet first, if the view key doesn't
   // match the view key provided
@@ -202,6 +205,7 @@ void restoreWalletFromKeys(
         throw WalletRestoreFromKeysException(
             message: newW.errorString());
       }
+      newW.store(path: path);
 
       setupBackgroundSync(password, newW);
     }

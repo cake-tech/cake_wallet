@@ -213,7 +213,7 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
-  Future<String> refreshBalance(
+  Future<_i2.Uint8List> refreshBalance(
       ({_i1.EthereumAddress owner}) args, {
         required _i1.Credentials credentials,
         _i1.Transaction? transaction,
@@ -221,7 +221,7 @@ class SavingsGateway extends _i1.GeneratedContract {
     final function = self.abi.functions[15];
     assert(checkSignature(function, 'b77cd1c7'));
     final params = [args.owner];
-    return write(
+    return writeRaw(
       credentials,
       transaction,
       function,
@@ -232,14 +232,14 @@ class SavingsGateway extends _i1.GeneratedContract {
   /// The optional [transaction] parameter can be used to override parameters
   /// like the gas price, nonce and max gas. The `data` and `to` fields will be
   /// set by the contract.
-  Future<String> refreshMyBalance({
+  Future<_i2.Uint8List> refreshMyBalance({
     required _i1.Credentials credentials,
     _i1.Transaction? transaction,
   }) async {
     final function = self.abi.functions[16];
     assert(checkSignature(function, '85bd12d1'));
     final params = [];
-    return write(
+    return writeRaw(
       credentials,
       transaction,
       function,
