@@ -40,7 +40,8 @@ import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class ExchangePage extends BasePage {
-  ExchangePage(this.exchangeViewModel, this.authService, this.initialPaymentRequest) {
+  ExchangePage(this.exchangeViewModel, this.authService, this.initialPaymentRequest)
+      : _resolver = getIt<AddressResolverService>() {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
         ? exchangeViewModel.wallet.name
         : null;
@@ -50,6 +51,7 @@ class ExchangePage extends BasePage {
   }
 
   final ExchangeViewModel exchangeViewModel;
+  final AddressResolverService _resolver;
   final AuthService authService;
   final PaymentRequest? initialPaymentRequest;
   final depositKey = GlobalKey<ExchangeCardState>();
@@ -578,16 +580,24 @@ class ExchangePage extends BasePage {
     _depositAddressFocus.addListener(() async {
       if (!_depositAddressFocus.hasFocus && depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
-        exchangeViewModel.depositAddress =
-            await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
+        final parsedAddress =
+        await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+        if (parsedAddress.isNotEmpty) {
+          exchangeViewModel.depositAddress =
+          await fetchParsedAddress(context, domain, exchangeViewModel.depositCurrency);
+        }
       }
     });
 
     _receiveAddressFocus.addListener(() async {
       if (!_receiveAddressFocus.hasFocus && receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
+        final parsedAddress =
+            await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+        if(parsedAddress.isNotEmpty) {
         exchangeViewModel.receiveAddress =
             await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+      }
       }
     });
 
@@ -644,8 +654,11 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolverService>().resolve(query: domain, currency: currency, wallet: exchangeViewModel.wallet);
-    return ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
+    final parsedAddresses = await _resolver.resolve(
+      query: domain,
+      wallet: exchangeViewModel.wallet,
+      currency: currency);
+    return parsedAddresses.isNotEmpty ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? '' : '';
   }
 
   void _showFeeAlert(BuildContext context) async {
@@ -774,15 +787,17 @@ class ExchangePage extends BasePage {
               : null;
         },
         addressTextFieldValidator: AddressValidator(type: exchangeViewModel.receiveCurrency),
+        onSelectedContact: (contact) {
+          exchangeViewModel.receiveAddress = contact.$2;
+        },
         onPushPasteButton: (context) async {
           final domain = exchangeViewModel.receiveAddress;
-          exchangeViewModel.receiveAddress =
-              await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+          final parsedAddress =
+          await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+          if (parsedAddress.isNotEmpty) exchangeViewModel.receiveAddress = parsedAddress;
         },
         onPushAddressBookButton: (context) async {
-          final domain = exchangeViewModel.receiveAddress;
-          exchangeViewModel.receiveAddress =
-              await fetchParsedAddress(context, domain, exchangeViewModel.receiveCurrency);
+          exchangeViewModel.receiveAddress = '';
         },
       ),
     );

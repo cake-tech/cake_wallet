@@ -39,6 +39,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.hasUnderlineBorder = false,
     this.borderWidth = 1.0,
     this.contentPadding,
+    this.keyboardType,
   });
 
   static const prefixIconWidth = 34.0;
@@ -63,6 +64,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final FocusNode? focusNode;
   final T? selectedCurrency;
   final Key? addressKey;
+  final TextInputType? keyboardType;
 
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
@@ -79,7 +81,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
           hasUnderlineBorder: hasUnderlineBorder,
           key: addressKey,
           enableIMEPersonalizedLearning: false,
-          keyboardType: TextInputType.visiblePassword,
+          keyboardType: keyboardType ?? TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
           enabled: isActive,
           controller: controller,

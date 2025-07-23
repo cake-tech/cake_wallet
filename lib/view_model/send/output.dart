@@ -333,12 +333,14 @@ abstract class OutputBase with Store {
     final domain = address;
     final currency = cryptoCurrencyHandler();
     final parsedAddresses = await _resolver.resolve(
-        query: domain,
-        wallet: _wallet,
-        currency: currency,);
-    parsedAddress = parsedAddresses.first;
-    extractedAddress = parsedAddress.parsedAddressByCurrencyMap[currency] ?? '';
-    note = parsedAddress.description ?? '';
+      query: domain,
+      wallet: _wallet,
+      currency: currency,);
+    if (parsedAddresses.isNotEmpty) {
+      parsedAddress = parsedAddresses.first;
+      extractedAddress = parsedAddress.parsedAddressByCurrencyMap[currency] ?? '';
+      note = parsedAddress.description ?? '';
+    }
   }
 
   void loadContact((String, String) selectedContact) {
