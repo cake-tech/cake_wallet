@@ -296,7 +296,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
-  @computed
   bool isSendToSilentPayments(Output output) =>
       wallet.type == WalletType.bitcoin &&
       (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
