@@ -18,6 +18,8 @@ import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
+import 'package:cw_core/sync_status.dart';
 
 class Root extends StatefulWidget {
   Root({
@@ -161,6 +163,20 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         }
 
         widget.tradeMonitor.resumeTradeMonitoring();
+
+        // Electrum Wallet socket health check and reconnection flow
+        final wallet = widget.appStore.wallet;
+        final settingsStore = widget.appStore.settingsStore;
+        if (wallet != null && isElectrumWallet(wallet.type)) {
+          wallet.checkSocketHealth().then((isHealthy) {
+            if (!isHealthy) {
+              wallet.syncStatus = LostConnectionSyncStatus();
+              wallet.connectToNode(node: settingsStore.getCurrentNode(wallet.type)).then((_) {
+                wallet.startSync();
+              });
+            }
+          });
+        }
         break;
       default:
         break;

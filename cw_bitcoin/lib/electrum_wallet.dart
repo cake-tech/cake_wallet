@@ -2521,6 +2521,16 @@ abstract class ElectrumWalletBase
     final amountInt = int.parse(amount);
     return bitcoinAmountToString(amount: amountInt);
   }
+
+  @override
+  Future<bool> checkSocketHealth() async {
+    try {
+      await electrumClient.ping();
+      return electrumClient.isConnected;
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 class ScanNode {

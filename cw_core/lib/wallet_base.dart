@@ -112,4 +112,9 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool isTestnet = false;
 
   bool canSend() => true;
+
+  /// Check if the wallet's socket connection is healthy.
+  /// Returns true if the connection is alive, false otherwise.
+  /// Default implementation returns true (no-op for wallets without socket connections).
+  Future<bool> checkSocketHealth() async => true;
 }
