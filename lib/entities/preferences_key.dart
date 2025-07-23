@@ -8,6 +8,7 @@ class PreferencesKey {
   static const currentZanoNodeIdKey = 'current_node_id_zano';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
+  static const currentGnosisNodeIdKey = 'current_node_id_gnosis';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
@@ -48,6 +49,7 @@ class PreferencesKey {
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
+  static const gnosisTransactionPriority = 'current_fee_priority_gnosis';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
@@ -73,6 +75,7 @@ class PreferencesKey {
   static const pinNativeTokenAtTop = 'pin_native_token_at_top';
   static const useEtherscan = 'use_etherscan';
   static const usePolygonScan = 'use_polygonscan';
+  static const useGnosisScan = 'use_gnosisscan';
   static const useTronGrid = 'use_trongrid';
   static const useMempoolFeeAPI = 'use_mempool_fee_api';
   static const defaultNanoRep = 'default_nano_representative';

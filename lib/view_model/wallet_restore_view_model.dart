@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/gnosis/gnosis.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
@@ -38,6 +39,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
         hasRestoreFromPrivateKey = type == WalletType.ethereum ||
             type == WalletType.polygon ||
+            type == WalletType.gnosis ||
             type == WalletType.nano ||
             type == WalletType.banano ||
             type == WalletType.solana ||
@@ -59,6 +61,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.gnosis:
       case WalletType.decred:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
@@ -145,6 +148,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
+        case WalletType.gnosis:
+          return gnosis!.createGnosisRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
             password: password,

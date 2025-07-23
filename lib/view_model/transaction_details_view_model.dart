@@ -73,6 +73,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.polygon:
         _addPolygonListItems(tx, dateFormat);
         break;
+      case WalletType.gnosis:
+        _addGnosisListItems(tx, dateFormat);
+        break;
       case WalletType.solana:
         _addSolanaListItems(tx, dateFormat);
         break;
@@ -183,6 +186,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://nanexplorer.com/banano/block/${txId}';
       case WalletType.polygon:
         return 'https://polygonscan.com/tx/${txId}';
+      case WalletType.gnosis:
+        return 'https://gnosisscan.io/tx/${txId}';
       case WalletType.solana:
         return 'https://solscan.io/tx/${txId}';
       case WalletType.tron:
@@ -217,6 +222,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'nanexplorer.com';
       case WalletType.polygon:
         return S.current.view_transaction_on + 'polygonscan.com';
+      case WalletType.gnosis:
+        return S.current.view_transaction_on + 'gnosisscan.io';
       case WalletType.solana:
         return S.current.view_transaction_on + 'solscan.io';
       case WalletType.tron:
@@ -473,6 +480,56 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addPolygonListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(
+        title: S.current.transaction_details_transaction_id,
+        value: tx.txHash,
+        key: ValueKey('standard_list_item_transaction_details_id_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_date,
+        value: dateFormat.format(tx.date),
+        key: ValueKey('standard_list_item_transaction_details_date_key'),
+      ),
+      StandartListItem(
+        title: S.current.confirmations,
+        value: tx.confirmations.toString(),
+        key: ValueKey('standard_list_item_transaction_confirmations_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_height,
+        value: '${tx.height}',
+        key: ValueKey('standard_list_item_transaction_details_height_key'),
+      ),
+      StandartListItem(
+        title: S.current.transaction_details_amount,
+        value: tx.amountFormatted(),
+        key: ValueKey('standard_list_item_transaction_details_amount_key'),
+      ),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(
+          title: S.current.transaction_details_fee,
+          value: tx.feeFormatted()!,
+          key: ValueKey('standard_list_item_transaction_details_fee_key'),
+        ),
+      if (showRecipientAddress && tx.to != null && tx.direction == TransactionDirection.outgoing)
+        StandartListItem(
+          title: S.current.transaction_details_recipient_address,
+          value: tx.to!,
+          key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+        ),
+      if (tx.direction == TransactionDirection.incoming && tx.from != null)
+        StandartListItem(
+          title: S.current.transaction_details_source_address,
+          value: tx.from!,
+          key: ValueKey('standard_list_item_transaction_details_source_address_key'),
+        ),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addGnosisListItems(TransactionInfo tx, DateFormat dateFormat) {
     final _items = [
       StandartListItem(
         title: S.current.transaction_details_transaction_id,

@@ -3,6 +3,7 @@ import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/gnosis/gnosis.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -89,6 +90,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       case WalletType.polygon:
         return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
+      case WalletType.gnosis:
+        return transactionPriority == gnosis!.getGnosisTransactionPrioritySlow();
       case WalletType.decred:
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.none:

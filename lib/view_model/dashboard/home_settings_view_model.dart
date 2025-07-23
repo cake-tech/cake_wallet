@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/erc20_token_info_moralis.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/gnosis/gnosis.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -224,6 +225,9 @@ abstract class HomeSettingsViewModelBase with Store {
         break;
       case WalletType.polygon:
         defaultTokenAddresses = polygon!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.gnosis:
+        defaultTokenAddresses = gnosis!.getDefaultTokenContractAddresses();
         break;
       case WalletType.solana:
         defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();

@@ -36,6 +36,7 @@ const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum-rpc.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor-rpc.publicnode.com';
+const gnosisDefaultNodeUri = 'gnosis-rpc.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
 const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
@@ -511,6 +512,15 @@ Future<void> defaultSettingsMigration(
             enabled: true,
           );
 			    break;
+        case 50:
+          await addWalletNodeList(nodes: nodes, type: WalletType.gnosis);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.gnosis,
+            currentNodePreferenceKey: PreferencesKey.currentGnosisNodeIdKey,
+          );
+          break;
         default:
           break;
       }
@@ -607,6 +617,8 @@ String _getDefaultNodeUri(WalletType type) {
       return cakeWalletBitcoinCashDefaultNodeUri;
     case WalletType.polygon:
       return polygonDefaultNodeUri;
+    case WalletType.gnosis:
+      return gnosisDefaultNodeUri;
     case WalletType.solana:
       return solanaDefaultNodeUri;
     case WalletType.tron:
@@ -1042,6 +1054,7 @@ Future<void> checkCurrentNodes(
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
+  final currentGnosisNodeId = sharedPreferences.getInt(PreferencesKey.currentGnosisNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
@@ -1063,6 +1076,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentPolygonNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
+  final currentGnosisNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentGnosisNodeId);
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentDecredNodeServer =
@@ -1144,6 +1159,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+  }
+
+  if (currentGnosisNodeServer == null) {
+    final node = Node(uri: gnosisDefaultNodeUri, type: WalletType.gnosis);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentGnosisNodeIdKey, node.key as int);
   }
 
   if (currentSolanaNodeServer == null) {

@@ -340,6 +340,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return NanoURI(amount: amount, address: address.address);
       case WalletType.polygon:
         return PolygonURI(amount: amount, address: address.address);
+      case WalletType.gnosis:
+        return EthereumURI(amount: amount, address: address.address); // ToDo: ?
       case WalletType.solana:
         return SolanaURI(amount: amount, address: address.address);
       case WalletType.tron:

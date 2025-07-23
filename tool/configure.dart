@@ -6,6 +6,7 @@ const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
 const polygonOutputPath = 'lib/polygon/polygon.dart';
+const gnosisOutputPath = 'lib/gnosis/gnosis.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
 const tronOutputPath = 'lib/tron/tron.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
@@ -25,6 +26,7 @@ Future<void> main(List<String> args) async {
   final hasNano = args.contains('${prefix}nano');
   final hasBanano = args.contains('${prefix}banano');
   final hasPolygon = args.contains('${prefix}polygon');
+  final hasGnosis = args.contains('${prefix}gnosis');
   final hasSolana = args.contains('${prefix}solana');
   final hasTron = args.contains('${prefix}tron');
   final hasWownero = args.contains('${prefix}wownero');
@@ -38,6 +40,7 @@ Future<void> main(List<String> args) async {
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
   await generatePolygon(hasPolygon);
+  await generateGnosis(hasGnosis);
   await generateSolana(hasSolana);
   await generateTron(hasTron);
   await generateWownero(hasWownero);
@@ -54,6 +57,7 @@ Future<void> main(List<String> args) async {
     hasBitcoinCash: hasBitcoinCash,
     hasFlutterSecureStorage: !excludeFlutterSecureStorage,
     hasPolygon: hasPolygon,
+    hasGnosis: hasGnosis,
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
@@ -68,6 +72,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasGnosis: hasGnosis,
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
@@ -895,6 +900,113 @@ abstract class Polygon {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateGnosis(bool hasImplementation) async {
+  final outputFile = File(gnosisOutputPath);
+  const gnosisCommonHeaders = """
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
+import 'package:web3dart/web3dart.dart';
+
+""";
+  const gnosisCWHeaders = """
+import 'package:cw_evm/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:cw_evm/evm_chain_hardware_wallet_service.dart';
+import 'package:cw_evm/evm_ledger_credentials.dart';
+import 'package:cw_evm/evm_chain_wallet.dart';
+
+import 'package:cw_gnosis/gnosis_client.dart';
+import 'package:cw_gnosis/gnosis_wallet.dart';
+import 'package:cw_gnosis/gnosis_wallet_service.dart';
+import 'package:cw_gnosis/default_gnosis_erc20_tokens.dart';
+
+import 'package:eth_sig_util/util/utils.dart';
+
+""";
+  const gnosisCwPart = "part 'cw_gnosis.dart';";
+  const gnosisContent = """
+abstract class Gnosis {
+  List<String> getGnosisWordList(String language);
+  WalletService createGnosisWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletCredentials createGnosisNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
+  WalletCredentials createGnosisRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
+  WalletCredentials createGnosisRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  WalletCredentials createGnosisHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getGnosisTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeGnosisTransactionPriority(int raw);
+
+  Object createGnosisTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createGnosisTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+
+  int formatterGnosisParseAmount(String amount);
+  double formatterGnosisAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+  
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updateGnosisScanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
+  
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  List<String> getDefaultTokenContractAddresses();
+}
+  """;
+
+  const gnosisEmptyDefinition = 'Gnosis? gnosis;\n';
+  const gnosisCWDefinition = 'Gnosis? gnosis = CWGnosis();\n';
+
+  final output = '$gnosisCommonHeaders\n' +
+      (hasImplementation ? '$gnosisCWHeaders\n' : '\n') +
+      (hasImplementation ? '$gnosisCwPart\n\n' : '\n') +
+      (hasImplementation ? gnosisCWDefinition : gnosisEmptyDefinition) +
+      '\n' +
+      gnosisContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
@@ -1423,6 +1535,7 @@ Future<void> generatePubspec({
   required bool hasBitcoinCash,
   required bool hasFlutterSecureStorage,
   required bool hasPolygon,
+  required bool hasGnosis,
   required bool hasSolana,
   required bool hasTron,
   required bool hasWownero,
@@ -1467,6 +1580,10 @@ Future<void> generatePubspec({
   const cwPolygon = """
   cw_polygon:
     path: ./cw_polygon
+  """;
+  const cwGnosis = """
+  cw_gnosis:
+    path: ./cw_gnosis
   """;
   const cwSolana = """
   cw_solana:
@@ -1529,6 +1646,10 @@ Future<void> generatePubspec({
     output += '\n$cwPolygon';
   }
 
+  if (hasGnosis) {
+    output += '\n$cwGnosis';
+  }
+
   if (hasSolana) {
     output += '\n$cwSolana';
   }
@@ -1577,6 +1698,7 @@ Future<void> generateWalletTypes({
   required bool hasBanano,
   required bool hasBitcoinCash,
   required bool hasPolygon,
+  required bool hasGnosis,
   required bool hasSolana,
   required bool hasTron,
   required bool hasWownero,
@@ -1615,6 +1737,10 @@ Future<void> generateWalletTypes({
 
   if (hasPolygon) {
     outputContent += '\tWalletType.polygon,\n';
+  }
+
+  if (hasGnosis) {
+    outputContent += '\tWalletType.gnosis,\n';
   }
 
   if (hasSolana) {
