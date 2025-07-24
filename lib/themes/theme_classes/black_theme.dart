@@ -52,7 +52,7 @@ class BlackTheme extends MaterialThemeBase {
         outline: const Color(0xFF958F95),
         outlineVariant: const Color(0xFF49454B),
       );
-  static const String fontFamily = 'Lato';
+  static const String fontFamily = 'WixMadeforText';
   @override
   TextTheme get textTheme => TextTheme(
         displayLarge: TextStyle(
