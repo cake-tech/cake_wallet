@@ -166,6 +166,18 @@ class CWBitcoin extends Bitcoin {
         return estimatedTx.amount;
       }
 
+
+      if (wallet.type == WalletType.dogecoin) {
+        final dogeAddr =
+        sk.getPublic().toP2pkhAddress();
+        final estimatedTx = await electrumWallet.estimateSendAllTx(
+          [BitcoinOutput(address: dogeAddr, value: BigInt.zero)],
+          getFeeRate(wallet, priority as BitcoinTransactionPriority),
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+        return estimatedTx.amount;
+      }
+
       final p2shAddr = sk.getPublic().toP2pkhInP2sh();
       final estimatedTx = await electrumWallet.estimateSendAllTx(
         [BitcoinOutput(address: p2shAddr, value: BigInt.zero)],

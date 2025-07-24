@@ -166,7 +166,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash,WalletType.dogecoin ].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
       [WalletType.monero, WalletType.wownero].contains(wallet.type);
@@ -313,6 +313,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
+        WalletType.dogecoin,
       ].contains(wallet.type) &&
       depositCurrency == wallet.currency;
 
@@ -672,6 +673,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       WalletType.litecoin,
       WalletType.bitcoin,
       WalletType.bitcoinCash,
+      WalletType.dogecoin,
     ].contains(wallet.type)) {
       final priority = _settingsStore.priority[wallet.type]!;
 

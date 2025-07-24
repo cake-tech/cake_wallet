@@ -45,6 +45,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
       break;
     case WalletType.decred:
       path = 'assets/decred_node_list.yml';
+      break;
     case WalletType.dogecoin:
       path = 'assets/dogecoin_electrum_server_list.yml';
       break;
