@@ -1679,6 +1679,10 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.litecoin,\n';
   }
 
+  if (hasDogecoin) {
+    outputContent += '\tWalletType.dogecoin,\n';
+  }
+
   if (hasBitcoinCash) {
     outputContent += '\tWalletType.bitcoinCash,\n';
   }
@@ -1713,10 +1717,6 @@ Future<void> generateWalletTypes({
 
   if (hasWownero) {
     outputContent += '\tWalletType.wownero,\n';
-  }
-
-  if (hasDogecoin) {
-    outputContent += '\tWalletType.dogecoin,\n';
   }
 
   outputContent += '];\n';
