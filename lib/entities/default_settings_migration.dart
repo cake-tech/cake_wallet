@@ -512,7 +512,8 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 50:
-          await migrateExistingNodesToUseAutoSwitching(nodes: nodes);
+          await migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
+          await removeDuplicateElectrumCakewalletNodes(nodes: nodes);
           break;
         default:
           break;
@@ -1091,7 +1092,7 @@ Future<void> checkCurrentNodes(
 
   if (currentBitcoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     await nodeSource.add(cakeWalletElectrum);
     final cakeWalletElectrumTestnet =
         Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
@@ -1191,7 +1192,7 @@ Future<void> resetBitcoinElectrumServer(
 
   if (cakeWalletNode == null) {
     cakeWalletNode =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     // final cakeWalletElectrumTestnet =
     //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
     // await nodeSource.add(cakeWalletElectrumTestnet);
@@ -1276,8 +1277,8 @@ Future<void> removeMoneroWorld(
   }
 }
 
-Future<void> migrateExistingNodesToUseAutoSwitching({required Box<Node> nodes}) async {
-  final nodeList = nodes.values.toList();
+Future<void> migrateExistingNodesToUseAutoSwitching(
+    {required Box<Node> nodes, required Box<Node> powNodes}) async {
   final listOfDefaultNodesWithAutoSwitching = [
     'bitcoincash.stackwallet.com:50002',
     'bch.aftrek.org:50002',
@@ -1309,12 +1310,25 @@ Future<void> migrateExistingNodesToUseAutoSwitching({required Box<Node> nodes}) 
     'node2.monerodevs.org:34568',
     '37.27.100.59:10500',
     'zano.cakewallet.com:11211',
-    'electrum.cakewallet.com',
+    'electrum.cakewallet.com:50002',
   ];
-  for (var node in nodeList) {
+  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
     if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
       node.isEnabledForAutoSwitching = true;
       await node.save();
+    }
+  }
+}
+
+Future<void> removeDuplicateElectrumCakewalletNodes({required Box<Node> nodes}) async {
+  final duplicateNodes = nodes.values
+      .where((node) => node.uriRaw == cakeWalletBitcoinElectrumUri)
+      .toList();
+  
+  // If there are duplicates, keep the first one and remove the rest
+  if (duplicateNodes.length > 1) {
+    for (int i = 1; i < duplicateNodes.length; i++) {
+      await duplicateNodes[i].delete();
     }
   }
 }

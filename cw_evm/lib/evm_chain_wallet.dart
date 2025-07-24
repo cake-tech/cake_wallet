@@ -855,7 +855,7 @@ abstract class EVMChainWalletBase
       _transactionsUpdateTimer!.cancel();
     }
 
-    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+    _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       _updateTransactions();
       _updateBalance();
       _updateEstimatedGasFeeParams();

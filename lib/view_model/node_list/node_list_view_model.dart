@@ -44,6 +44,7 @@ abstract class NodeListViewModelBase with Store {
   @computed
   bool get enableAutomaticNodeSwitching => settingsStore.enableAutomaticNodeSwitching;
 
+  @action
   void setEnableAutomaticNodeSwitching(bool value) =>
       settingsStore.enableAutomaticNodeSwitching = value;
 

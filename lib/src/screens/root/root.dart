@@ -31,6 +31,7 @@ class Root extends StatefulWidget {
     required this.authService,
     required this.linkViewModel,
     required this.tradeMonitor,
+    required this.nodeSwitchingService,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -40,6 +41,7 @@ class Root extends StatefulWidget {
   final Widget child;
   final LinkViewModel linkViewModel;
   final TradeMonitor tradeMonitor;
+  final NodeSwitchingService nodeSwitchingService;
 
   @override
   RootState createState() => RootState();
@@ -165,7 +167,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         widget.tradeMonitor.resumeTradeMonitoring();
 
         // Trigger node health check when app resumes
-        getIt.get<NodeSwitchingService>().performHealthCheck();
+        widget.nodeSwitchingService.performHealthCheck();
 
         break;
       default:
