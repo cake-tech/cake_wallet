@@ -561,8 +561,11 @@ class CakePayBuyCardPage extends BasePage {
             final displayingOutputs = cakePayBuyCardViewModel.sendViewModel.outputs
                 .map((o) => o.OutputCopyWithParsedAddress(
                       parsedAddress: ParsedAddress(
-                        addresses: [o.address],
-                        name: 'Cake Pay',
+                        parsedAddressByCurrencyMap: {
+                          cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency:
+                              o.address,
+                        },
+                        handle: 'Cake Pay',
                         profileName: order?.cards.first.cardName ?? 'Cake Pay',
                         profileImageUrl: order?.cards.first.cardImagePath ?? '',
                       ),
@@ -631,10 +634,12 @@ class CakePayBuyCardPage extends BasePage {
         final displayingOutputs = outputsCopy
             .map((o) => o.OutputCopyWithParsedAddress(
                   parsedAddress: ParsedAddress(
-                    addresses: [o.address],
-                    name: 'Cake Pay',
+                    handle: 'Cake Pay',
                     profileName: order?.cards.first.cardName ?? 'Cake Pay',
-                    profileImageUrl: order?.cards.first.cardImagePath ?? '',
+                    profileImageUrl: order?.cards.first.cardImagePath ?? '', parsedAddressByCurrencyMap: {
+                      cakePayBuyCardViewModel.sendViewModel.selectedCryptoCurrency:
+                          o.address,
+                    },
                   ),
                   fiatAmount: '${order?.amountUsd ?? 0} USD',
                 ))

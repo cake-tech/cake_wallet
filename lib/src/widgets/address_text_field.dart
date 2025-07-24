@@ -1,5 +1,8 @@
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -64,7 +67,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
   final Function(BuildContext context)? onPushAddressPickerButton;
-  final Function(ContactBase contact)? onSelectedContact;
+  final Function((String,String))? onSelectedContact;
 
   @override
   Widget build(BuildContext context) {
@@ -239,13 +242,19 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
-    final contact = await Navigator.of(context)
+    var contact = await Navigator.of(context)
         .pushNamed(Routes.pickerAddressBook, arguments: selectedCurrency);
 
-    if (contact is ContactBase) {
+    if( contact is WalletContact) {
       controller?.text = contact.address;
       onPushAddressBookButton?.call(context);
-      onSelectedContact?.call(contact);
+      onSelectedContact?.call((contact.name, contact.address));
+    }
+
+    if (contact is (ContactRecord,String)) {
+      controller?.text = contact.$2;
+      onPushAddressBookButton?.call(context);
+      onSelectedContact?.call((contact.$1.name, contact.$2));
     }
   }
 

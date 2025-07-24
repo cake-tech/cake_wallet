@@ -313,9 +313,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           });
         }
 
+
         if (state is TransactionCommitted) {
           WidgetsBinding.instance.addPostFrameCallback(
-            (_) async {
+                (_) async {
               if (!mounted) return;
 
               await showModalBottomSheet<void>(
@@ -334,7 +335,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       if (mounted) {
                         Navigator.of(context).pushNamedAndRemoveUntil(
                           Routes.dashboard,
-                          (route) => false,
+                              (route) => false,
                         );
                       }
                       RequestReviewHandler.requestReview();
