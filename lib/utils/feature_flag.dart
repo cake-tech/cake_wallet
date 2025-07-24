@@ -9,5 +9,5 @@ class FeatureFlag {
   static final bool isInAppTorEnabled = (Platform.isAndroid);
   static const int verificationWordsCount = kDebugMode ? 0 : 2;
   static const bool hasDevOptions = bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
-  static const bool hasBitcoinViewOnly = false;
+  static const bool hasBitcoinViewOnly = true;
 }
