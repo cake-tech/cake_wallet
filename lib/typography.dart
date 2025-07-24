@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const latoFont = "Lato";
+const latoFont = "WixMadeforText";
 
 TextStyle textXxSmall({Color? color}) => _cakeRegular(10, color);
 
