@@ -47,10 +47,14 @@ class PSBTTransactionBuild {
         psbt.setOutputAmount(i, output.value.toInt());
         if (cwOutputs.isNotEmpty) {
           try {
-            final cwOutput = cwOutputs.where((e) => e.address.toLowerCase() == output.address.toAddress().toLowerCase()).firstOrNull;
+            final cwOutput = cwOutputs
+            .where((e) => [e.address, e.extractedAddress]
+              .map((e) => e?.toLowerCase())
+              .contains(output.address.toAddress().toLowerCase()))
+            .firstOrNull;
             if (cwOutput != null) {
               final bip353Name = utf8.encode(cwOutput.extra['bip353_name'] as String);
-              final bip353Rsig = base64.decode(cwOutput.extra['bip353_rsig'] as String);
+              final bip353Proof = base64.decode(cwOutput.extra['bip353_proof'] as String);
 
               if (bip353Name.length > 255) {
                 printV('BIP353 name is too long, skipping');
@@ -59,7 +63,7 @@ class PSBTTransactionBuild {
               final proof = Uint8List.fromList([
                 bip353Name.length,
                 ...bip353Name,
-                ...bip353Rsig,
+                ...bip353Proof,
               ]);
 
               psbt.setOutputDNSSECProof(i, proof);
