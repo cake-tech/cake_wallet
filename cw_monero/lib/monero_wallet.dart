@@ -185,6 +185,24 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void>? updateBalance() => null;
 
   @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check if the wallet is currently connected to the daemon
+      final isConnected = monero_wallet.isConnectedSync();
+      
+      if (!isConnected) {
+        return false; // It's not connected to daemon
+      }
+      
+      // Check to get current node height to ensure daemon is responsive
+      final nodeHeight = await monero_wallet.getNodeHeight();
+      return nodeHeight > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
   Future<void> close({bool shouldCleanup = false}) async {
     if (isHardwareWallet) {
       disableLedgerExchange();

@@ -6,6 +6,7 @@ import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -249,7 +250,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 49,
+    initialMigrationVersion: 50,
   );
 }
 
@@ -327,6 +328,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authService = getIt.get<AuthService>();
         final linkViewModel = getIt.get<LinkViewModel>();
         final tradeMonitor = getIt.get<TradeMonitor>();
+        final nodeSwitchingService = getIt.get<NodeSwitchingService>();
         final settingsStore = appStore.settingsStore;
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
@@ -351,6 +353,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authService: authService,
           linkViewModel: linkViewModel,
           tradeMonitor: tradeMonitor,
+          nodeSwitchingService: nodeSwitchingService,
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(

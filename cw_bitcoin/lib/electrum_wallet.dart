@@ -2301,6 +2301,26 @@ abstract class ElectrumWalletBase
   }
 
   @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      final addresses = walletAddresses.allAddresses
+          .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
+          .toList();
+      
+      if (addresses.isEmpty) {
+        return false;
+      }
+      
+      final firstAddress = addresses.first;
+      final sh = firstAddress.getScriptHash(network);
+      await electrumClient.getBalance(sh, throwOnError: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
   @override
