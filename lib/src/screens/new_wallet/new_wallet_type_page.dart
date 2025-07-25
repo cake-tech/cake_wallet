@@ -3,7 +3,7 @@ import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';

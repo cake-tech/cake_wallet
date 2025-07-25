@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/entities/seed_type.dart';
-import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
