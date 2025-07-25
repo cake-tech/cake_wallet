@@ -34,7 +34,8 @@ void enableLedgerExchange(LedgerConnection connection) {
 
     api.MoneroWallet.setDeviceReceivedData(
          result.cast<UnsignedChar>(), response.length);
-    api.MoneroFree().free(result.cast());
+    malloc.free(result);
+    // api.MoneroFree().free(result.cast());
   }
 
   callable = NativeCallable<LedgerCallback>.listener(callback);

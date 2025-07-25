@@ -197,9 +197,9 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   Padding(
                     padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                     child: Text(
-                      Platform.isIOS
-                          ? S.of(context).connect_your_hardware_wallet_ios
-                          : S.of(context).connect_your_hardware_wallet,
+                      Platform.isAndroid
+                          ? S.of(context).connect_your_hardware_wallet
+                          : S.of(context).connect_your_hardware_wallet_ios,
                       style:  Theme.of(context)
                               .textTheme.titleMedium,
                       textAlign: TextAlign.center,
