@@ -45,10 +45,6 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
   bool isRestoring = false;
 
   bool get _doesSupportHardwareWallets {
-    if (!DeviceInfo.instance.isMobile) {
-      return false;
-    }
-
     if (isMoneroOnly) {
       return DeviceConnectionType.supportedConnectionTypes(WalletType.monero, Platform.isIOS)
           .isNotEmpty;
