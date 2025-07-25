@@ -43,6 +43,7 @@ abstract class PrivacySettingsViewModelBase with Store {
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
+        WalletType.dogecoin,
         WalletType.decred
       ].contains(_wallet.type);
 
