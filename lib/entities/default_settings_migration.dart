@@ -512,8 +512,7 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 50:
-          await migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
-          await removeDuplicateElectrumCakewalletNodes(nodes: nodes);
+          migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
           break;
         default:
           break;
@@ -1320,15 +1319,3 @@ Future<void> migrateExistingNodesToUseAutoSwitching(
   }
 }
 
-Future<void> removeDuplicateElectrumCakewalletNodes({required Box<Node> nodes}) async {
-  final duplicateNodes = nodes.values
-      .where((node) => node.uriRaw == cakeWalletBitcoinElectrumUri)
-      .toList();
-  
-  // If there are duplicates, keep the first one and remove the rest
-  if (duplicateNodes.length > 1) {
-    for (int i = 1; i < duplicateNodes.length; i++) {
-      await duplicateNodes[i].delete();
-    }
-  }
-}
