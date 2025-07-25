@@ -293,7 +293,7 @@ abstract class OutputBase with Store {
     final fields = <String, dynamic>{};
     if (parsedAddress.parseFrom == ParseFrom.bip353) {
       fields['bip353_name'] = parsedAddress.name;
-      fields['bip353_rsig'] = parsedAddress.bip353RsigRecord;
+      fields['bip353_proof'] = parsedAddress.bip353DnsProof;
     }
     return fields;
   }

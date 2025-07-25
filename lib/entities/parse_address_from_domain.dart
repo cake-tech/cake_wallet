@@ -345,8 +345,8 @@ class AddressResolver {
         final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
         if (chosenAddress != null) {
           try {
-            final rsigRecord = await Bip353Record.fetchRsigRecord(text);
-            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text, rsigRecord: rsigRecord);
+            final dnsProof = await Bip353Record.fetchDnsProof(text);
+            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text, dnsProof: dnsProof);
           } catch (e) {
             printV('Bip353Record.fetchBip353AddressAddress error: $e');
             return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
