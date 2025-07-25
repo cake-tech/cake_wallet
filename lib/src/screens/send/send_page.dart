@@ -570,6 +570,7 @@ class SendPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
+                  accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
                   currentTheme: currentTheme,
                   footerType: FooterType.slideActionButton,
                   walletType: sendViewModel.walletType,

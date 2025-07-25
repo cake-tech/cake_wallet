@@ -1,6 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
-import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
