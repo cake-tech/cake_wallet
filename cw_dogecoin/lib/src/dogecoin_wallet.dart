@@ -142,6 +142,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
             addr.address,
             index: addr.index,
             isHidden: addr.isHidden,
+            name: addr.name,
             type: P2pkhAddressType.p2pkh,
             network: DogecoinNetwork.mainnet,
           );
@@ -150,6 +151,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
             addr.address,
             index: addr.index,
             isHidden: addr.isHidden,
+            name: addr.name,
             type: P2pkhAddressType.p2pkh,
             network: DogecoinNetwork.mainnet,
           );
