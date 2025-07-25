@@ -97,11 +97,14 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @computed
   String get extraInfo => switch (trade.from) {
-    CryptoCurrency.xlm => '\n\n' + S.current.xlm_extra_info,
-    CryptoCurrency.xrp => '\n\n' + S.current.xrp_extra_info,
-    CryptoCurrency.ton => '\n\n' + S.current.ton_extra_info,
-    _ => ''
-  };
+        CryptoCurrency.xlm => '\n\n' + S.current.xlm_extra_info,
+        CryptoCurrency.xrp => '\n\n' + S.current.xrp_extra_info,
+        CryptoCurrency.ton => '\n\n' + S.current.ton_extra_info,
+        CryptoCurrency.hbar => '\n\n' + S.current.hbar_extra_info,
+        CryptoCurrency.rune => '\n\n' + S.current.rune_extra_info,
+        CryptoCurrency.scrt => '\n\n' + S.current.scrt_extra_info,
+        _ => ''
+      };
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
@@ -204,7 +207,12 @@ abstract class ExchangeTradeViewModelBase with Store {
     ]);
 
     if (trade.extraId != null) {
-      final shouldAddExtraId = trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm || trade.from == CryptoCurrency.ton;
+      final shouldAddExtraId = trade.from == CryptoCurrency.xrp ||
+          trade.from == CryptoCurrency.xlm ||
+          trade.from == CryptoCurrency.ton ||
+          trade.from == CryptoCurrency.rune ||
+          trade.from == CryptoCurrency.scrt ||
+          trade.from == CryptoCurrency.hbar;
 
       if (shouldAddExtraId) {
         final title = trade.from == CryptoCurrency.xrp
@@ -215,12 +223,11 @@ abstract class ExchangeTradeViewModelBase with Store {
 
         items.add(
           ExchangeTradeItem(
-            title: title,
-            data: '${trade.extraId}',
-            isCopied: true,
-            isReceiveDetail: !shouldAddExtraId,
-            isExternalSendDetail: shouldAddExtraId
-          ),
+              title: title,
+              data: '${trade.extraId}',
+              isCopied: true,
+              isReceiveDetail: !shouldAddExtraId,
+              isExternalSendDetail: shouldAddExtraId),
         );
       }
     }
