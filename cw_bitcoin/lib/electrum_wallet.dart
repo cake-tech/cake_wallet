@@ -1105,7 +1105,7 @@ abstract class ElectrumWalletBase
       for (final output in updatedOutputs) {
         // TODO: get from server
         // if (output.isSilentPayment && output.value.toInt() > silentPaymentsMin) {
-        if (output.isSilentPayment && output.value.toInt() > 1000) {
+        if (output.isSilentPayment && output.value.toInt() <= 1000) {
           throw BitcoinTransactionNoDustException();
         }
       }
