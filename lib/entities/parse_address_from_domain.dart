@@ -344,7 +344,13 @@ class AddressResolver {
       if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
         final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
         if (chosenAddress != null) {
-          return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+          try {
+            final dnsProof = await Bip353Record.fetchDnsProof(text);
+            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text, dnsProof: dnsProof);
+          } catch (e) {
+            printV('Bip353Record.fetchBip353AddressAddress error: $e');
+            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+          }
         }
       }
 

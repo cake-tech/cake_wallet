@@ -45,7 +45,7 @@ class SettingActions {
     name: (context) => S.of(context).export_outputs,
     image: 'assets/images/monero_menu.png',
     onTap: (BuildContext context) {
-      Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: 'export-outputs');
+      Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: {'export-outputs': 'export-outputs'});
     },
   );
   
