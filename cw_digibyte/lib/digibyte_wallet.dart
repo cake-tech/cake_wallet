@@ -22,9 +22,37 @@ import 'package:ledger_bitcoin/psbt.dart';
 import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:mobx/mobx.dart';
 
-part 'digibyte_wallet.g.dart';
-
-class DigibyteWallet = DigibyteWalletBase with _$DigibyteWallet;
+class DigibyteWallet extends DigibyteWalletBase {
+  DigibyteWallet({
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    Uint8List? seedBytes,
+    String? mnemonic,
+    String? xpub,
+    String? passphrase,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    Map<String, int>? initialRegularAddressIndex,
+    Map<String, int>? initialChangeAddressIndex,
+    bool? alwaysScan,
+  }) : super(
+        password: password,
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfo,
+        encryptionFileUtils: encryptionFileUtils,
+        seedBytes: seedBytes,
+        mnemonic: mnemonic,
+        xpub: xpub,
+        passphrase: passphrase,
+        initialAddresses: initialAddresses,
+        initialBalance: initialBalance,
+        initialRegularAddressIndex: initialRegularAddressIndex,
+        initialChangeAddressIndex: initialChangeAddressIndex,
+        alwaysScan: alwaysScan,
+      );
+}
 
 abstract class DigibyteWalletBase extends ElectrumWallet with Store {
   DigibyteWalletBase({

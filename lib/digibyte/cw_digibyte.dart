@@ -1,4 +1,15 @@
+import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cw_digibyte/digibyte_wallet_service.dart';
+import 'package:cw_digibyte/digibyte_wallet.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:hive/hive.dart';
+
 part of 'digibyte.dart';
+
+const String electrum_path = "m/44'/20'/0'";
 
 class CWDigibyte extends Digibyte {
   @override

@@ -1,12 +1,11 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'digibyte_network.g.dart';
-
-@JsonEnum()
+/// Defines the available DigiByte networks.
+///
+/// We don't rely on code generation for this enum; instead we manually
+/// provide helper getters and a deserializer.  The `value` and
+/// `wifNetVer` properties correspond to the human‑readable name and the
+/// network byte used for WIF keys, respectively.
 enum DigibyteNetwork {
-  @JsonValue('mainnet')
   mainnet('mainnet', wifNetVer: 0x80),
-  @JsonValue('testnet')
   testnet('testnet', wifNetVer: 0xf1);
 
   const DigibyteNetwork(this.value, {required this.wifNetVer});
@@ -14,8 +13,16 @@ enum DigibyteNetwork {
   final String value;
   final int wifNetVer;
 
-  static DigibyteNetwork deserialize(String name) =>
-      _$DigibyteNetworkEnumMap.entries
-          .firstWhere((e) => e.value == name)
-          .key;
+  /// Convert a string (e.g. from JSON) into a [DigibyteNetwork].
+  static DigibyteNetwork deserialize(String name) {
+    switch (name) {
+      case 'mainnet':
+        return DigibyteNetwork.mainnet;
+      case 'testnet':
+        return DigibyteNetwork.testnet;
+      default:
+        throw ArgumentError('Unknown DigiByte network name: $name');
+    }
+  }
 }
+
