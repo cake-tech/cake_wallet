@@ -175,9 +175,10 @@ class DigibyteWalletService extends WalletService<
       derivationPath: electrum_path,
     );
 
-    final ecPrivate =
-        ECPrivate.fromWif(credentials.wif, netVersion: network.wifNetVer);
-
+    final ecPrivate = ECPrivate.fromWif(
+      credentials.wif,
+      netVersion: [network.wifNetVer], // wrap WIF version in a list
+    );
     final wallet = DigibyteWallet(
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,

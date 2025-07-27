@@ -76,7 +76,7 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
           xpub: xpub,
           walletInfo: walletInfo,
           unspentCoinsInfo: unspentCoinsInfo,
-          network: DigibyteNetwork.mainnet,
+          network: BitcoinNetwork.mainnet,
           initialAddresses: initialAddresses,
           initialBalance: initialBalance,
           seedBytes: seedBytes,
@@ -200,7 +200,7 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
         name,
         walletInfo.type,
         password,
-        DigibyteNetwork.mainnet,
+        BitcoinNetwork.mainnet,
       );
     } catch (_) {
       if (!hasKeysFile) rethrow;
