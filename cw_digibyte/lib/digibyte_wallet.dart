@@ -1,5 +1,5 @@
+import 'package:cw_digibyte/digibyte_network.dart';
 import 'dart:typed_data';
-
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';

@@ -23,7 +23,7 @@ class AddressValidator extends TextValidator {
                           ? BitcoinNetwork.mainnet
                           : type == CryptoCurrency.ltc
                               ? LitecoinNetwork.mainnet
-                              : DigibyteNetwork.mainnet,
+                              : BitcoinNetwork.mainnet,
                     )
                 : type == CryptoCurrency.zano 
                     ? zano?.validateAddress
