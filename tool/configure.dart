@@ -1534,7 +1534,7 @@ Future<void> generatePubspec({
     output += '\n$cwMonero';
   }
 
-  if (hasBitcoin) {
+  if (hasBitcoin || hasDigibyte) {
     output += '\n$cwBitcoin';
   }
 
