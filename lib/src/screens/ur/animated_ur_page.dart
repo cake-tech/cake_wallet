@@ -217,7 +217,7 @@ class _URQRState extends State<URQR> {
 All frames:
  - ${frames.join("\n - ")}"""));
              },
-            child: Text(frames[frame % frames.length]),
+            child: Text("[dev] copy debug info"),
           ),
         }
       ],
