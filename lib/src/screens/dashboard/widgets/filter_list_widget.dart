@@ -12,11 +12,13 @@ class FilterListWidget extends StatefulWidget {
     required this.initalType,
     required this.initalAscending,
     required this.onClose,
+    this.showGroupByType = true,
   });
 
   final FilterListOrderType? initalType;
   final bool initalAscending;
   final Function(bool, FilterListOrderType) onClose;
+  final bool showGroupByType;
 
   @override
   FilterListWidgetState createState() => FilterListWidgetState();
@@ -110,6 +112,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
                   onChanged: setSelectedOrderType,
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
+                if (widget.showGroupByType)
                 RadioListTile(
                   value: FilterListOrderType.GroupByType,
                   groupValue: type,

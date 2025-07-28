@@ -80,6 +80,20 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get useMempoolFeeAPI => _settingsStore.useMempoolFeeAPI;
 
   @computed
+  bool get allLookups => _settingsStore.lookupsTwitter &&
+      _settingsStore.lookupsZanoAlias &&
+      _settingsStore.lookupsMastodon &&
+      _settingsStore.lookupsYatService &&
+      _settingsStore.lookupsUnstoppableDomains &&
+      _settingsStore.lookupsOpenAlias &&
+      _settingsStore.lookupsENS &&
+      _settingsStore.lookupsWellKnown &&
+      _settingsStore.lookupsFio &&
+      _settingsStore.lookupsNostr &&
+      _settingsStore.lookupsThorChain &&
+      _settingsStore.lookupsBip353;
+
+  @computed
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
@@ -102,6 +116,19 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @computed
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
+
+  @computed
+  bool get lookupsFio => _settingsStore.lookupsFio;
+
+  @computed
+  bool get lookupsNostr => _settingsStore.lookupsNostr;
+
+  @computed
+  bool get lookupsThorChain => _settingsStore.lookupsThorChain;
+
+  @computed
+  bool get lookupsBip353 => _settingsStore.lookupsBip353;
+
 
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
@@ -140,6 +167,22 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
 
   @action
+  void setAllLookups(bool value) {
+    _settingsStore.lookupsTwitter = value;
+    _settingsStore.lookupsZanoAlias = value;
+    _settingsStore.lookupsMastodon = value;
+    _settingsStore.lookupsYatService = value;
+    _settingsStore.lookupsUnstoppableDomains = value;
+    _settingsStore.lookupsOpenAlias = value;
+    _settingsStore.lookupsENS = value;
+    _settingsStore.lookupsWellKnown = value;
+    _settingsStore.lookupsFio = value;
+    _settingsStore.lookupsNostr = value;
+    _settingsStore.lookupsThorChain = value;
+    _settingsStore.lookupsBip353 = value;
+  }
+
+  @action
   void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
 
   @action
@@ -168,6 +211,18 @@ abstract class PrivacySettingsViewModelBase with Store {
     _settingsStore.useEtherscan = value;
     ethereum!.updateEtherscanUsageState(_wallet, value);
   }
+
+  @action
+  void setLookupsFio(bool value) => _settingsStore.lookupsFio = value;
+
+  @action
+  void setLookupsNostr(bool value) => _settingsStore.lookupsNostr = value;
+
+  @action
+  void setLookupsThorChain(bool value) => _settingsStore.lookupsThorChain = value;
+
+  @action
+  void setLookupsBip353(bool value) => _settingsStore.lookupsBip353 = value;
 
   @action
   void setUsePolygonScan(bool value) {
