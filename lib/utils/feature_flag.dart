@@ -3,6 +3,7 @@ import 'dart:io';
 
 class FeatureFlag {
   static const bool isCakePayEnabled = false;
+  static const bool isCakePayPurchaseSimulationEnabled = false;
   static const bool isCakePayRedemptionFlowEnabled = false;
   static const bool isExolixEnabled = true;
   static const bool isBackgroundSyncEnabled = true;

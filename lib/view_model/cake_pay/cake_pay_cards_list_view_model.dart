@@ -22,7 +22,7 @@ abstract class CakePayCardsListViewModelBase with Store {
     required this.settingsStore,
   })  : cakePayVendors = [],
         userCards = [],
-        availableCountries = [],
+        availableCountries = ObservableList<Country>.of(Country.all),
         page = 1,
         displayPrepaidCards = true,
         displayGiftCards = true,
@@ -33,8 +33,7 @@ abstract class CakePayCardsListViewModelBase with Store {
         createCardState = CakePayCreateCardState(),
         userCardState = UserCakePayCardsStateInitial(),
         searchString = '',
-        searchMyCardsString = '',
-        CakePayVendorList = <CakePayVendor>[] {
+        searchMyCardsString = '' {
     checkAuth();
     initialization();
   }
@@ -47,15 +46,12 @@ abstract class CakePayCardsListViewModelBase with Store {
   }
 
   void initialization() async {
-    await getCountries();
     getVendors();
     getUserCards();
   }
 
   final CakePayService cakePayService;
   final SettingsStore settingsStore;
-
-  List<CakePayVendor> CakePayVendorList;
 
   Map<String, List<FilterItem>> get createFilterItems => {
         'Card Type': [
@@ -165,14 +161,6 @@ abstract class CakePayCardsListViewModelBase with Store {
         displayCustomValueCards != _initialDisplayCustomValueCards;
   }
 
-  Future<void> getCountries() async {
-    try {
-      availableCountries = await cakePayService.getCountries();
-    } catch (e) {
-      printV(e);
-    }
-  }
-
   Future<void> getUserCards() async {
     //Dummy user cards // TODO: fetch from API
     userCardState = UserCakePayCardsStateFetching();
@@ -195,9 +183,7 @@ abstract class CakePayCardsListViewModelBase with Store {
         userCardState = UserCakePayCardsStateNoCards();
       }
     } catch (e) {
-      userCardState = UserCakePayCardsStateFailure(
-        error: e.toString(),
-      );
+      userCardState = UserCakePayCardsStateFailure(error: e.toString());
     }
   }
 
@@ -220,15 +206,16 @@ abstract class CakePayCardsListViewModelBase with Store {
     try {
       searchString = text ?? '';
       var newVendors = await cakePayService.getVendors(
-          country: Country.getCakePayName(selectedCountry),
+          countryCode: selectedCountry.countryCode,
           page: currentPage ?? page,
           search: searchString,
           giftCards: displayGiftCards,
-          prepaidCards: displayPrepaidCards,
-          custom: displayCustomValueCards,
-          onDemand: displayDenominationsCards);
+          prepaidCards: displayPrepaidCards);
 
-      cakePayVendors = CakePayVendorList = newVendors;
+      cakePayVendors = newVendors.where((vendor) {
+        if (vendor.card == null) return false;
+        return true;
+      }).toList();
     } catch (e) {
       printV(e);
     }
@@ -245,15 +232,16 @@ abstract class CakePayCardsListViewModelBase with Store {
     page++;
     try {
       var newVendors = await cakePayService.getVendors(
-          country: Country.getCakePayName(selectedCountry),
+          countryCode: selectedCountry.countryCode,
           page: page,
           search: searchString,
           giftCards: displayGiftCards,
-          prepaidCards: displayPrepaidCards,
-          custom: displayCustomValueCards,
-          onDemand: displayDenominationsCards);
+          prepaidCards: displayPrepaidCards);
 
-      cakePayVendors.addAll(newVendors);
+      cakePayVendors.addAll(newVendors.where((vendor) {
+        if (vendor.card == null) return false;
+        return true;
+      }).toList());
     } catch (error) {
       if (error.toString().contains('detail":"Invalid page."')) {
         hasMoreDataToFetch = false;

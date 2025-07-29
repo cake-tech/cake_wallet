@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/country.dart';
+
 import 'cake_pay_card.dart';
 
 class CakePayVendor {
@@ -17,8 +19,9 @@ class CakePayVendor {
     this.card,
   });
 
-  factory CakePayVendor.fromJson(Map<String, dynamic> json, String country) {
+  factory CakePayVendor.fromJson(Map<String, dynamic> json, String countryCode) {
     final name = stripHtmlIfNeeded(json['name'] as String);
+    final country = Country.fromCountryCode(countryCode)?.fullName ?? countryCode;
 
     var cardsJson = json['cards'] as List?;
     CakePayCard? cardForVendor;

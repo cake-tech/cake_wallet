@@ -31,7 +31,6 @@ import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dar
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
@@ -301,7 +300,7 @@ class CakePayBuyCardPage extends BasePage {
                   methods.length <= 1 || selected == null
                       ? const SizedBox.shrink()
                       : _buildPaymentMethodWidget(methods, selected),
-                  if (FeatureFlag.hasDevOptions)
+                  if (FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled)
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
                       child: LoadingPrimaryButton(

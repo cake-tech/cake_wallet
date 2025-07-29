@@ -19,15 +19,21 @@ abstract class CakePayBuyCardViewModelBase with Store {
   CakePayBuyCardViewModelBase(
       {required this.vendor, required this.cakePayService, required this.sendViewModel})
       : walletType = sendViewModel.walletType,
-        amount = vendor.card!.denominations.isNotEmpty
-            ? double.parse(vendor.card!.denominations.first)
+        card = vendor.card!,
+        amount = vendor.card!.hasDenominations
+            ? vendor.card!.denominationItems.first.value
             : 0,
         quantity = 1,
-        min = double.parse(vendor.card!.minValue ?? '0'),
-        max = double.parse(vendor.card!.maxValue ?? '0'),
-        card = vendor.card! {
+        min = _toDouble(vendor.card!.minValue) ?? 0,
+        max = _toDouble(vendor.card!.maxValue) ?? 0 {
     selectedPaymentMethod = availableMethods.isNotEmpty ? availableMethods.first : null;
   }
+
+  static double? _toDouble(String? value) {
+    if (value == null || value.isEmpty) return null;
+    return double.tryParse(value.replaceAll(',', '.'));
+  }
+
 
   final CakePayVendor vendor;
   final SendViewModel sendViewModel;
@@ -78,7 +84,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
   double get totalAmount => amount * quantity;
 
   @computed
-  bool get isSimulating => isSimulatingFlow && FeatureFlag.hasDevOptions;
+  bool get isSimulating => isSimulatingFlow && FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled;
 
   @computed
   List<CakePayPaymentMethod> get availableMethods {
