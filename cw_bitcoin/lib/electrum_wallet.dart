@@ -42,6 +42,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
@@ -221,7 +222,7 @@ abstract class ElectrumWalletBase
   @override
   bool isTestnet;
 
-  bool get hasSilentPaymentsScanning => type == WalletType.bitcoin;
+  bool get hasSilentPaymentsScanning => type == WalletType.bitcoin && keys.privateKey.isNotEmpty;
 
   @observable
   bool nodeSupportsSilentPayments = true;
@@ -287,11 +288,26 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  BitcoinWalletKeys get keys => BitcoinWalletKeys(
-        wif: WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer),
-        privateKey: hd.privateKey.toHex(),
-        publicKey: hd.publicKey.toHex(),
-      );
+  BitcoinWalletKeys get keys {
+    String? wif;
+    String? privateKey;
+    String? publicKey;
+    try {
+      wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
+    } catch (_) {}
+    try {
+      privateKey = hd.privateKey.toHex();
+    } catch (_) {}
+    try {
+      publicKey = hd.publicKey.toHex();
+    } catch (_) {}
+    return BitcoinWalletKeys(
+      wif: wif ?? '',
+      privateKey: privateKey ?? '',
+      publicKey: publicKey ?? '',
+      xpub: xpub,
+    );
+  }
 
   String _password;
   List<BitcoinUnspent> unspentCoins;
@@ -677,7 +693,7 @@ abstract class ElectrumWalletBase
         );
         spendsSilentPayment = true;
         isSilentPayment = true;
-      } else if (!isHardwareWallet) {
+      } else if (!isHardwareWallet && keys.privateKey.isNotEmpty) {
         privkey =
             generateECPrivate(hd: hd, index: utx.bitcoinAddressRecord.index, network: network);
       }
@@ -785,7 +801,11 @@ abstract class ElectrumWalletBase
     }
 
     if (outputs.length == 1) {
-      outputs[0] = BitcoinOutput(address: outputs.last.address, value: BigInt.from(amount));
+      outputs[0] = BitcoinOutput(
+        address: outputs.last.address,
+        value: BigInt.from(amount),
+        isSilentPayment: hasSilentPayment,
+      );
     }
 
     return EstimatedTxResult(
@@ -893,7 +913,17 @@ abstract class ElectrumWalletBase
     );
 
     updatedOutputs.clear();
-    updatedOutputs.addAll(temp);
+    for (int i = 0; i < temp.length; i++) {
+      final output = temp[i];
+      final oldOutput = outputs[i];
+
+      updatedOutputs.add(BitcoinOutput(
+        address: output.address,
+        value: output.value,
+        isSilentPayment: oldOutput.isSilentPayment,
+        isChange: output.isChange,
+      ));
+    }
 
     if (fee == 0) {
       throw BitcoinTransactionNoFeeException();
@@ -1093,6 +1123,14 @@ abstract class ElectrumWalletBase
         );
       }
 
+      for (final output in updatedOutputs) {
+        // TODO: get from server
+        // if (output.isSilentPayment && output.value.toInt() > silentPaymentsMin) {
+        if (output.isSilentPayment && output.value.toInt() <= 1000) {
+          throw BitcoinTransactionNoDustException();
+        }
+      }
+
       if (walletInfo.isHardwareWallet) {
         final transaction = await buildHardwareWalletTransaction(
           utxos: estimatedTx.utxos,
@@ -1103,6 +1141,7 @@ abstract class ElectrumWalletBase
           memo: estimatedTx.memo,
           outputOrdering: BitcoinOrdering.none,
           enableRBF: true,
+          cwOutputs: transactionCredentials.outputs,
         );
 
         return PendingBitcoinTransaction(
@@ -1115,7 +1154,8 @@ abstract class ElectrumWalletBase
           network: network,
           hasChange: estimatedTx.hasChange,
           isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot
+          hasTaprootInputs: false, // ToDo: (Konsti) Support Taproot,
+          isViewOnly: false,
         )..addListener((transaction) async {
             transactionHistory.addOne(transaction);
             await updateBalance();
@@ -1149,6 +1189,7 @@ abstract class ElectrumWalletBase
       bool hasTaprootInputs = false;
 
       final transaction = txb.buildTransaction((txDigest, utxo, publicKey, sighash) {
+        if (keys.privateKey.isEmpty) return "";
         String error = "Cannot find private key.";
 
         ECPrivateInfo? key;
@@ -1186,18 +1227,21 @@ abstract class ElectrumWalletBase
         }
       });
 
-      return PendingBitcoinTransaction(transaction, type,
-          electrumClient: electrumClient,
-          amount: estimatedTx.amount,
-          fee: estimatedTx.fee,
-          feeRate: feeRateInt.toString(),
-          network: network,
-          hasChange: estimatedTx.hasChange,
-          isSendAll: estimatedTx.isSendAll,
-          hasTaprootInputs: hasTaprootInputs,
-          utxos: estimatedTx.utxos,
-          publicKeys: estimatedTx.publicKeys)
-        ..addListener((transaction) async {
+      return PendingBitcoinTransaction(
+        transaction,
+        type,
+        electrumClient: electrumClient,
+        amount: estimatedTx.amount,
+        fee: estimatedTx.fee,
+        feeRate: feeRateInt.toString(),
+        network: network,
+        hasChange: estimatedTx.hasChange,
+        isSendAll: estimatedTx.isSendAll,
+        hasTaprootInputs: hasTaprootInputs,
+        utxos: estimatedTx.utxos,
+        publicKeys: estimatedTx.publicKeys,
+        isViewOnly: keys.privateKey.isEmpty,
+      )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {
             transactionHistory.transactions.values.forEach((tx) {
@@ -1225,6 +1269,7 @@ abstract class ElectrumWalletBase
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
+    required List<OutputInfo> cwOutputs,
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
     String? memo,
     bool enableRBF = false,
@@ -1362,6 +1407,8 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> rescan({required int height, bool? doSingleScan}) async {
+    if (keys.privateKey.isEmpty) return;
+
     silentPaymentsScanningActive = true;
     _setListeners(height, doSingleScan: doSingleScan);
   }
@@ -1858,6 +1905,7 @@ abstract class ElectrumWalletBase
         network: network,
         hasChange: changeOutputs.isNotEmpty,
         feeRate: newFee.toString(),
+        isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
           transactionHistory.transactions.values.forEach((tx) {
             if (tx.id == hash) {
@@ -2306,6 +2354,26 @@ abstract class ElectrumWalletBase
     printV("updateBalance() called!");
     balance[currency] = await fetchBalances();
     await save();
+  }
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      final addresses = walletAddresses.allAddresses
+          .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
+          .toList();
+      
+      if (addresses.isEmpty) {
+        return false;
+      }
+      
+      final firstAddress = addresses.first;
+      final sh = firstAddress.getScriptHash(network);
+      await electrumClient.getBalance(sh, throwOnError: true);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override

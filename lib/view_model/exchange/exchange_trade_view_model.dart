@@ -95,13 +95,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
-  @computed
-  String get extraInfo => switch (trade.from) {
-    CryptoCurrency.xlm => '\n\n' + S.current.xlm_extra_info,
-    CryptoCurrency.xrp => '\n\n' + S.current.xrp_extra_info,
-    CryptoCurrency.ton => '\n\n' + S.current.ton_extra_info,
-    _ => ''
-  };
+  String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
+      ? '\n\n' + S.current.exchange_extra_info
+      : '';
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
@@ -203,10 +199,9 @@ abstract class ExchangeTradeViewModelBase with Store {
       ),
     ]);
 
-    if (trade.extraId != null) {
-      final shouldAddExtraId = trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm || trade.from == CryptoCurrency.ton;
+    final isExtraIdExist = trade.extraId != null && trade.extraId!.isNotEmpty;
 
-      if (shouldAddExtraId) {
+    if (isExtraIdExist) {
         final title = trade.from == CryptoCurrency.xrp
             ? S.current.destination_tag
             : trade.from == CryptoCurrency.xlm || trade.from == CryptoCurrency.ton
@@ -215,14 +210,12 @@ abstract class ExchangeTradeViewModelBase with Store {
 
         items.add(
           ExchangeTradeItem(
-            title: title,
-            data: '${trade.extraId}',
-            isCopied: true,
-            isReceiveDetail: !shouldAddExtraId,
-            isExternalSendDetail: shouldAddExtraId
-          ),
+              title: title,
+              data: trade.extraId ?? '',
+              isCopied: true,
+              isReceiveDetail: !isExtraIdExist,
+              isExternalSendDetail: isExtraIdExist),
         );
-      }
     }
 
     items.add(

@@ -182,9 +182,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction != null) {
         final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[currency]!,
-            cryptoAmount: pendingTransaction!.feeFormattedValue,
-          );
+          price: _fiatConversationStore.prices[currency]!,
+          cryptoAmount: pendingTransaction!.feeFormattedValue,
+        );
         return fiat;
       } else {
         return '0.00';
@@ -210,8 +210,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   CryptoCurrency get currency => wallet.currency;
 
-  Validator<String> get amountValidator =>
-      AmountValidator(currency: walletTypeToCryptoCurrency(wallet.type));
+  Validator<String> amountValidator(Output output) => AmountValidator(
+        currency: walletTypeToCryptoCurrency(wallet.type),
+        minValue: isSendToSilentPayments(output)
+            ?
+            //  TODO: get from server
+            // bitcoin!.silentPaymentsMinAmount
+            '0.00001'
+            : null,
+      );
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
@@ -289,6 +296,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.syncStatus is SyncedSyncStatus ||
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
+
+  bool isSendToSilentPayments(Output output) =>
+      wallet.type == WalletType.bitcoin &&
+      (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
+          RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+              .hasMatch(output.extractedAddress) ||
+          (output.parsedAddress.addresses.isNotEmpty &&
+              RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+                  .hasMatch(output.parsedAddress.addresses[0])));
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates

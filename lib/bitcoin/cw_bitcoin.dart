@@ -19,6 +19,14 @@ class CWBitcoin extends Bitcoin {
       );
 
   @override
+  WalletCredentials createBitcoinWalletFromKeys({
+    required String name,
+    required String password,
+    required String xpub,
+  }) =>
+      BitcoinWalletFromKeysCredentials(name: name, password: password, xpub: xpub);
+
+  @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
           {required String name,
           required String password,
@@ -62,11 +70,7 @@ class CWBitcoin extends Bitcoin {
     final bitcoinWallet = wallet as ElectrumWallet;
     final keys = bitcoinWallet.keys;
 
-    return <String, String>{
-      'wif': keys.wif,
-      'privateKey': keys.privateKey,
-      'publicKey': keys.publicKey
-    };
+    return bitcoinWallet.keys.toJson();
   }
 
   @override
@@ -126,7 +130,8 @@ class CWBitcoin extends Bitcoin {
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,
                 formattedCryptoAmount: out.formattedCryptoAmount,
-                memo: out.memo))
+                memo: out.memo,
+                extra: out.extra))
             .toList(),
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
@@ -287,7 +292,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<ReceivePageOption> getBitcoinReceivePageOptions() => BitcoinReceivePageOption.all;
+  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final keys = bitcoinWallet.keys;
+    if (keys.privateKey.isEmpty) {
+      return BitcoinReceivePageOption.allViewOnly;
+    }
+    return BitcoinReceivePageOption.all;
+  }
 
   @override
   List<ReceivePageOption> getLitecoinReceivePageOptions() {
@@ -737,6 +749,12 @@ class CWBitcoin extends Bitcoin {
     } catch (_) {
       return null;
     }
+  }
+
+  @override
+  Future<void> commitPsbtUR(Object wallet, List<String> urCodes) {
+    final _wallet = wallet as BitcoinWalletBase;
+    return _wallet.commitPsbtUR(urCodes);
   }
 
   @override

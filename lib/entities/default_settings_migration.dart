@@ -511,15 +511,15 @@ Future<void> defaultSettingsMigration(
             providerName: "SwapTrade",
             enabled: true,
           );
-			    break;
+          break;
         case 50:
+          migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
           await addWalletNodeList(nodes: nodes, type: WalletType.dogecoin);
           await _changeDefaultNode(
             nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.dogecoin,
             currentNodePreferenceKey: PreferencesKey.currentDogecoinNodeIdKey,
-            // will pick dogecoinDefaultUri above
           );
           break;
         default:
@@ -1105,7 +1105,7 @@ Future<void> checkCurrentNodes(
 
   if (currentBitcoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     await nodeSource.add(cakeWalletElectrum);
     final cakeWalletElectrumTestnet =
         Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
@@ -1211,7 +1211,7 @@ Future<void> resetBitcoinElectrumServer(
 
   if (cakeWalletNode == null) {
     cakeWalletNode =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     // final cakeWalletElectrumTestnet =
     //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
     // await nodeSource.add(cakeWalletElectrumTestnet);
@@ -1295,3 +1295,47 @@ Future<void> removeMoneroWorld(
     );
   }
 }
+
+Future<void> migrateExistingNodesToUseAutoSwitching(
+    {required Box<Node> nodes, required Box<Node> powNodes}) async {
+  final listOfDefaultNodesWithAutoSwitching = [
+    'bitcoincash.stackwallet.com:50002',
+    'bch.aftrek.org:50002',
+    'btc-electrum.cakewallet.com:50002',
+    'fulcrum.sethforprivacy.com:50002',
+    'default-spv-nodes',
+    'dcrd.sethforprivacy.com:9108',
+    'ethereum-rpc.publicnode.com',
+    'eth.nownodes.io',
+    'ltc-electrum.cakewallet.com:50002',
+    'litecoin.stackwallet.com:20063',
+    'nano.nownodes.io',
+    'rpc.nano.to',
+    'node.nautilus.io',
+    'rpc.nano.to',
+    'workers.perish.co',
+    'worker.nanoriver.cc',
+    'xmr-node.cakewallet.com:18081',
+    'node.sethforprivacy.com:443',
+    'nodes.hashvault.pro:18081',
+    'polygon-bor-rpc.publicnode.com',
+    'matic.nownodes.io',
+    'api.mainnet-beta.solana.com:443',
+    'solana-rpc.publicnode.com:443',
+    'solana-mainnet.core.chainstack.com',
+    'api.trongrid.io',
+    'trx.nownodes.io',
+    'node3.monerodevs.org:34568',
+    'node2.monerodevs.org:34568',
+    '37.27.100.59:10500',
+    'zano.cakewallet.com:11211',
+    'electrum.cakewallet.com:50002',
+  ];
+  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
+    if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
+      node.isEnabledForAutoSwitching = true;
+      await node.save();
+    }
+  }
+}
+

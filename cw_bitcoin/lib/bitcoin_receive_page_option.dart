@@ -28,6 +28,16 @@ class BitcoinReceivePageOption implements ReceivePageOption {
     BitcoinReceivePageOption.p2pkh
   ];
 
+  static const allViewOnly = [
+    BitcoinReceivePageOption.p2wpkh,
+    // TODO: uncomment this after we properly derive keys and not use m/84 for
+    // all of them (as this breaks cupcake)
+    // BitcoinReceivePageOption.p2tr,
+    // BitcoinReceivePageOption.p2wsh,
+    // BitcoinReceivePageOption.p2sh,
+    // BitcoinReceivePageOption.p2pkh
+  ];
+
   static const allLitecoin = [
     BitcoinReceivePageOption.p2wpkh,
     BitcoinReceivePageOption.mweb,

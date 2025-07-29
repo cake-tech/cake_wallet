@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:convert/convert.dart';
+import 'package:cw_core/output_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:ledger_bitcoin/psbt.dart';
 
@@ -9,7 +11,7 @@ class PSBTTransactionBuild {
   final PsbtV2 psbt = PsbtV2();
 
   PSBTTransactionBuild(
-      {required List<PSBTReadyUtxoWithAddress> inputs, required List<BitcoinBaseOutput> outputs, bool enableRBF = true}) {
+      {required List<PSBTReadyUtxoWithAddress> inputs, required List<BitcoinBaseOutput> outputs, required List<OutputInfo> cwOutputs, bool enableRBF = true}) {
     psbt.setGlobalTxVersion(2);
     psbt.setGlobalInputCount(inputs.length);
     psbt.setGlobalOutputCount(outputs.length);
@@ -24,7 +26,7 @@ class PSBTTransactionBuild {
       psbt.setInputPreviousTxId(i, Uint8List.fromList(hex.decode(input.utxo.txHash).reversed.toList()));
       psbt.setInputOutputIndex(i, input.utxo.vout);
       psbt.setInputSequence(i, enableRBF ? 0x1 : 0xffffffff);
-
+      
 
       if (input.utxo.isSegwit()) {
         setInputSegwit(i, input);
@@ -43,6 +45,33 @@ class PSBTTransactionBuild {
       if (output is BitcoinOutput) {
         psbt.setOutputScript(i, Uint8List.fromList(output.address.toScriptPubKey().toBytes()));
         psbt.setOutputAmount(i, output.value.toInt());
+        if (cwOutputs.isNotEmpty) {
+          try {
+            final cwOutput = cwOutputs
+            .where((e) => [e.address, e.extractedAddress]
+              .map((e) => e?.toLowerCase())
+              .contains(output.address.toAddress().toLowerCase()))
+            .firstOrNull;
+            if (cwOutput != null) {
+              final bip353Name = utf8.encode(cwOutput.extra['bip353_name'] as String);
+              final bip353Proof = base64.decode(cwOutput.extra['bip353_proof'] as String);
+
+              if (bip353Name.length > 255) {
+                printV('BIP353 name is too long, skipping');
+                continue;
+              }
+              final proof = Uint8List.fromList([
+                bip353Name.length,
+                ...bip353Name,
+                ...bip353Proof,
+              ]);
+
+              psbt.setOutputDNSSECProof(i, proof);
+            }
+          } catch (e) {
+            printV('Error setting DNSSEC proof: $e');
+          }
+        }
       }
     }
   }

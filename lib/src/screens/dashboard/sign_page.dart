@@ -159,12 +159,14 @@ class SignPage extends BasePage {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             showPopUp<void>(
                 context: context,
-                builder: (_) {
+                builder: (_context) {
                   return AlertWithOneAction(
                     alertTitle: S.current.successful,
                     alertContent: S.current.message_verified,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop(),
+                    buttonText: S.of(_context).ok,
+                    buttonAction: () {
+                      if (_context.mounted) Navigator.of(_context).pop();
+                    },
                   );
                 });
           });
