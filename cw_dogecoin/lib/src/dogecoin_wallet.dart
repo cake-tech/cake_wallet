@@ -28,7 +28,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
-    String derivationPath = "m/44'/3'/0'",
     String? passphrase,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
