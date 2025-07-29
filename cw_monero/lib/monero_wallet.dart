@@ -354,14 +354,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return retStatus;
   }
 
-  String exportOutputsUR(bool all) {
-    final str = currentWallet!.exportOutputsUR(all: all);
-    final status = currentWallet!.status();
+  Map<String, String> exportOutputsUR() {
+    final str = currentWallet!.exportOutputsUR(all: false);
+    int status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw MoneroTransactionCreationException("unable to export UR: $err");
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
     }
-    return str;
+    final strAll = currentWallet!.exportOutputsUR(all: true);
+    status = currentWallet!.status();
+    if (status != 0) {
+      final err = currentWallet!.errorString();
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
+    }
+    return {
+      "Outputs (partial)": str,
+      "Outputs (all)": strAll,
+    };
   }
 
   bool needExportOutputs(int amount) {

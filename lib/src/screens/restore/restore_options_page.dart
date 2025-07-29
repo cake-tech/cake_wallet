@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -53,13 +54,40 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     return true;
   }
 
+  String get imageRestoreHWPath =>
+      widget.themeType == ThemeType.dark
+          ? 'assets/images/restore_hw_dark.png'
+          : 'assets/images/restore_hw.png';
+
+  String get imageRestoreCupcakePath =>
+      widget.themeType == ThemeType.dark
+          ? 'assets/images/restore_cupcake_dark.png'
+          : 'assets/images/restore_cupcake.png';
+
+  String get imageRestoreQRPath =>
+      widget.themeType == ThemeType.dark
+          ? 'assets/images/restore_qr_dark.png'
+          : 'assets/images/restore_qr.png';
+
+
+  String get imageRestoreHotWalletPath =>
+      widget.themeType == ThemeType.dark
+          ? 'assets/images/restore_hot_wallet_dark.png'
+          : 'assets/images/restore_hot_wallet.png';
+
+
+  String get imageRestoreBackupPath =>
+      widget.themeType == ThemeType.dark
+          ? 'assets/images/restore_backup_dark.png'
+          : 'assets/images/restore_backup.png';
+
   @override
   Widget build(BuildContext context) {
-    final imageColor = Theme.of(context).colorScheme.primary;
-    final imageLedger = Image.asset('assets/images/hardware_wallet/ledger_nano_x.png',
-        width: 40, color: imageColor);
-    final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
-    final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
+    final imageRestoreHW = Image.asset(imageRestoreHWPath, width: 55);
+    final imageRestoreCupcake = Image.asset(imageRestoreCupcakePath, width: 55);
+    final imageRestoreQR = Image.asset(imageRestoreQRPath, width: 55);
+    final imageSeedKeys = Image.asset(imageRestoreHotWalletPath, width: 55);
+    final imageRestoreBackup = Image.asset(imageRestoreBackupPath, width: 55);
 
     return Center(
       child: Container(
@@ -76,15 +104,16 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   title: S.of(context).restore_title_from_seed_keys,
                   description: S.of(context).restore_description_from_seed_keys,
                 ),
-                if (widget.isNewInstall)
+                if (FeatureFlag.hasBitcoinViewOnly && DeviceInfo.instance.isMobile)
                   Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
-                      key: ValueKey('restore_options_from_backup_button_key'),
-                      onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
-                      image: imageBackup,
-                      title: S.of(context).restore_title_from_backup,
-                      description: S.of(context).restore_description_from_backup,
+                      key: ValueKey('restore_options_from_cupcake_button_key'),
+                      onPressed: () => _onScanQRCode(context),
+                      image: imageRestoreCupcake,
+                      title: S.of(context).restore_title_from_cupcake,
+                      description: S.of(context).restore_description_from_cupcake,
+                      tag: S.of(context).new_tag,
                     ),
                   ),
                 if (_doesSupportHardwareWallets)
@@ -94,9 +123,20 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                       key: ValueKey('restore_options_from_hardware_wallet_button_key'),
                       onPressed: () =>
                           Navigator.pushNamed(context, Routes.restoreWalletFromHardwareWallet),
-                      image: imageLedger,
+                      image: imageRestoreHW,
                       title: S.of(context).restore_title_from_hardware_wallet,
                       description: S.of(context).restore_description_from_hardware_wallet,
+                    ),
+                  ),
+                if (widget.isNewInstall)
+                  Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: OptionTile(
+                      key: ValueKey('restore_options_from_backup_button_key'),
+                      onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
+                      image: imageRestoreBackup,
+                      title: S.of(context).restore_title_from_backup,
+                      description: S.of(context).restore_description_from_backup,
                     ),
                   ),
                 if (DeviceInfo.instance.isMobile)
@@ -105,14 +145,11 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     child: OptionTile(
                         key: ValueKey('restore_options_from_qr_button_key'),
                         onPressed: () => _onScanQRCode(context),
-                        icon: Icon(
-                          Icons.qr_code_rounded,
-                          color: imageColor,
-                          size: 50,
-                        ),
+                        image: imageRestoreQR,
                         title: S.of(context).scan_qr_code,
-                        description: S.of(context).cold_or_recover_wallet),
-                  )
+                        description: S.of(context).cold_or_recover_wallet,
+                    ),
+                  ),
               ],
             ),
           )),
