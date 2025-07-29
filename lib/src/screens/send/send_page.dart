@@ -450,7 +450,7 @@ class SendPage extends BasePage {
                                 }
                                 if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                                   await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-                                      arguments: 'export-outputs');
+                                      arguments: monero!.exportOutputsUR(sendViewModel.wallet));
                                   await Future.delayed(
                                       Duration(seconds: 1)); // wait for monero to refresh the state
                                 }
@@ -570,6 +570,7 @@ class SendPage extends BasePage {
                 return ConfirmSendingBottomSheet(
                   key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
+                  accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
                   currentTheme: currentTheme,
                   footerType: FooterType.slideActionButton,
                   walletType: sendViewModel.walletType,
