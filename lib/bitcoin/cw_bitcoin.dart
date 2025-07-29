@@ -129,9 +129,7 @@ class CWBitcoin extends Bitcoin {
     String? payjoinUri,
   }) {
     final bitcoinFeeRate =
-        priority == BitcoinTransactionPriority.custom && feeRate != null
-            ? feeRate
-            : null;
+        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
@@ -250,12 +248,12 @@ class CWBitcoin extends Bitcoin {
       Box<UnspentCoinsInfo> unspentCoinSource,
       Box<PayjoinSession> payjoinSessionSource,
       bool isDirect) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource,
-        payjoinSessionSource, isDirect);
+    return BitcoinWalletService(
+        walletInfoSource, unspentCoinSource, payjoinSessionSource, isDirect);
   }
 
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+  WalletService createLitecoinWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
     return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 
@@ -787,5 +785,21 @@ class CWBitcoin extends Bitcoin {
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
     (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
+  }
+
+  @override
+  String? getTransactionAddress(Object wallet, TransactionInfo tx) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    final bitcoinTx = tx as ElectrumTransactionInfo;
+
+    if (bitcoinTx.unspents == null || bitcoinTx.unspents!.isEmpty) {
+      return null;
+    }
+
+    // final bitcoinSPAddrs =
+    //     bitcoinTx.unspents!.first.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
+    final bitcoinSPAddrs = wallet.walletAddresses as BitcoinWalletAddresses;
+    final bitcoinSPAddr = bitcoinSPAddrs.silentAddresses.first;
+    return bitcoinSPAddr.address;
   }
 }
