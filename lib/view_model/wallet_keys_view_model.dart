@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -8,7 +9,6 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -65,8 +65,7 @@ abstract class WalletKeysViewModelBase with Store {
   bool get isLegacySeedOnly =>
       [WalletType.monero, WalletType.wownero].contains(_wallet.type) &&
       _wallet.seed != null &&
-      !(Polyseed.isValidSeed(_wallet.seed!) ||
-          _wallet.seed!.split(' ').length == 12);
+      !(Polyseed.isValidSeed(_wallet.seed!) || _wallet.seed!.split(' ').length == 12);
 
   String get legacySeed {
     if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
@@ -75,7 +74,7 @@ abstract class WalletKeysViewModelBase with Store {
       final langName = PolyseedLang.getByPhrase(_wallet.seed!).nameEnglish;
 
       if (_wallet.type == WalletType.monero) {
-        return (_wallet as MoneroWalletBase).seedLegacy(langName);
+        return monero!.seedLegacy(_wallet, langName);
       } else if (_wallet.type == WalletType.wownero) {
         return wownero!.getLegacySeed(_wallet, langName);
       }
@@ -160,6 +159,8 @@ abstract class WalletKeysViewModelBase with Store {
         ]);
         break;
       case WalletType.bitcoin:
+        keys = bitcoin!.getSilentPaymentKeys(_appStore.wallet!);
+        break;
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.none:

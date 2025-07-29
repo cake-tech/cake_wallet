@@ -70,6 +70,19 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Map<String, String> getSilentPaymentKeys(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final keysOwner = bitcoinWallet.walletAddresses.silentAddress!;
+
+    return <String, String>{
+      'privateSpendKey': keysOwner.b_spend.toHex(),
+      'publicSpendKey': keysOwner.B_spend.toHex(),
+      'privateViewKey': keysOwner.b_scan.toHex(),
+      'publicViewKey': keysOwner.B_scan.toHex(),
+    };
+  }
+
+  @override
   List<TransactionPriority> getTransactionPriorities() => BitcoinTransactionPriority.all;
 
   @override
