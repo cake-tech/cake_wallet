@@ -9,6 +9,7 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -48,6 +49,8 @@ abstract class WalletKeysViewModelBase with Store {
     }
   }
 
+  bool get isBitcoin => _wallet.type == WalletType.bitcoin;
+
   final ObservableList<StandartListItem> items;
 
   final String title;
@@ -74,7 +77,7 @@ abstract class WalletKeysViewModelBase with Store {
       final langName = PolyseedLang.getByPhrase(_wallet.seed!).nameEnglish;
 
       if (_wallet.type == WalletType.monero) {
-        return monero!.seedLegacy(_wallet, langName);
+        return (_wallet as MoneroWalletBase).seedLegacy(langName);
       } else if (_wallet.type == WalletType.wownero) {
         return wownero!.getLegacySeed(_wallet, langName);
       }
@@ -163,18 +166,16 @@ abstract class WalletKeysViewModelBase with Store {
         break;
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
-          final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
-        
-          items.addAll([
-            if ((keys['wif']??'').isNotEmpty)
-              StandartListItem(title: "WIF", value: keys['wif']!),
-            if ((keys['privateKey']??'').isNotEmpty)
-              StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
-            if (keys['publicKey'] != null)
-              StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-            if (keys['xpub'] != null)
-              StandartListItem(title: "xPub", value: keys['xpub']!),
-          ]);
+        final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
+
+        items.addAll([
+          if ((keys['wif'] ?? '').isNotEmpty) StandartListItem(title: "WIF", value: keys['wif']!),
+          if ((keys['privateKey'] ?? '').isNotEmpty)
+            StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+          if (keys['publicKey'] != null)
+            StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
+          if (keys['xpub'] != null) StandartListItem(title: "xPub", value: keys['xpub']!),
+        ]);
         break;
       case WalletType.none:
       case WalletType.haven:
