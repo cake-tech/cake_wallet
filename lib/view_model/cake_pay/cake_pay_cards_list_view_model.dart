@@ -64,16 +64,17 @@ abstract class CakePayCardsListViewModelBase with Store {
               caption: S.current.gift_cards,
               onChanged: toggleGiftCards),
         ],
-        S.current.value_type: [
-          FilterItem(
-              value: () => displayDenominationsCards,
-              caption: S.current.denominations,
-              onChanged: toggleDenominationsCards),
-          FilterItem(
-              value: () => displayCustomValueCards,
-              caption: S.current.custom_value,
-              onChanged: toggleCustomValueCards),
-        ],
+        // Uncomment if will be added to backend
+        // S.current.value_type: [
+        //   FilterItem(
+        //       value: () => displayDenominationsCards,
+        //       caption: S.current.denominations,
+        //       onChanged: toggleDenominationsCards),
+        //   FilterItem(
+        //       value: () => displayCustomValueCards,
+        //       caption: S.current.custom_value,
+        //       onChanged: toggleCustomValueCards),
+        // ],
       };
 
   String searchString;
