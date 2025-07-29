@@ -544,7 +544,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (ocpRequest != null) {
       state = TransactionCommitting();
-      if (selectedCryptoCurrency == CryptoCurrency.xmr) {
+      if (OpenCryptoPayService.requiresClientCommit(selectedCryptoCurrency)) {
         await pendingTransaction!.commit();
       }
 
