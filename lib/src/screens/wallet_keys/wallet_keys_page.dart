@@ -82,7 +82,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     showLegacySeedTab = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
     isLegacySeedOnly = widget.walletKeysViewModel.isLegacySeedOnly;
 
-    final totalTabs = 1 + (showKeyTab ? 1 : 0) + (showLegacySeedTab ? 1 : 0);
+    final totalTabs = (_hasSeeds ? 1 : 0) + (showKeyTab ? 1 : 0) + (showLegacySeedTab ? 1 : 0);
 
     _tabController = TabController(length: totalTabs, vsync: this);
   }
@@ -124,14 +124,9 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               dividerColor: Colors.transparent,
               padding: EdgeInsets.zero,
               tabs: [
-                Tab(text: S.of(context).widgets_seed, key: ValueKey('wallet_keys_page_seed')),
-                if (showKeyTab)
-                  Tab(
-                    text: S.of(context).keys,
-                    key: ValueKey('wallet_keys_page_keys'),
-                  ),
-                if (showLegacySeedTab)
-                  Tab(text: S.of(context).legacy, key: ValueKey('wallet_keys_page_seed_legacy')),
+                if (_hasSeeds) Tab(text: S.of(context).widgets_seed, key: ValueKey('wallet_keys_page_seed')),
+                if (showKeyTab) Tab(text: S.of(context).keys, key: ValueKey('wallet_keys_page_keys'),),
+                if (showLegacySeedTab) Tab(text: S.of(context).legacy, key: ValueKey('wallet_keys_page_seed_legacy')),
               ],
             ),
           ),
@@ -140,10 +135,11 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
             child: TabBarView(
               controller: _tabController,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 22, right: 22),
-                  child: _buildSeedTab(context, false),
-                ),
+                if (_hasSeeds)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 22, right: 22),
+                    child: _buildSeedTab(context, false),
+                  ),
                 if (showKeyTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),

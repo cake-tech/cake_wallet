@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -29,6 +31,7 @@ class Root extends StatefulWidget {
     required this.authService,
     required this.linkViewModel,
     required this.tradeMonitor,
+    required this.nodeSwitchingService,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -38,6 +41,7 @@ class Root extends StatefulWidget {
   final Widget child;
   final LinkViewModel linkViewModel;
   final TradeMonitor tradeMonitor;
+  final NodeSwitchingService nodeSwitchingService;
 
   @override
   RootState createState() => RootState();
@@ -161,6 +165,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         }
 
         widget.tradeMonitor.resumeTradeMonitoring();
+
+        // Trigger node health check when app resumes
+        widget.nodeSwitchingService.performHealthCheck();
+
         break;
       default:
         break;

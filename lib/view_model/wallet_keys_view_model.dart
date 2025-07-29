@@ -163,18 +163,21 @@ abstract class WalletKeysViewModelBase with Store {
         break;
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+          final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
+        
+          items.addAll([
+            if ((keys['wif']??'').isNotEmpty)
+              StandartListItem(title: "WIF", value: keys['wif']!),
+            if ((keys['privateKey']??'').isNotEmpty)
+              StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+            if (keys['publicKey'] != null)
+              StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
+            if (keys['xpub'] != null)
+              StandartListItem(title: "xPub", value: keys['xpub']!),
+          ]);
+        break;
       case WalletType.none:
       case WalletType.haven:
-        //   final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
-        //
-        //   items.addAll([
-        //     if (keys['wif'] != null)
-        //       StandartListItem(title: "WIF", value: keys['wif']!),
-        //     if (keys['privateKey'] != null)
-        //       StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
-        //     if (keys['publicKey'] != null)
-        //       StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-        //   ]);
         break;
     }
 
