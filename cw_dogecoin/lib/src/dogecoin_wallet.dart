@@ -28,7 +28,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
-    String derivationPath = "m/44'/3'/0'",
     String? passphrase,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -136,27 +135,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       unspentCoinsInfo: unspentCoinsInfo,
-      initialAddresses: snp?.addresses.map((addr) {
-        try {
-          return BitcoinAddressRecord(
-            addr.address,
-            index: addr.index,
-            isHidden: addr.isHidden,
-            name: addr.name,
-            type: P2pkhAddressType.p2pkh,
-            network: DogecoinNetwork.mainnet,
-          );
-        } catch (_) {
-          return BitcoinAddressRecord(
-            addr.address,
-            index: addr.index,
-            isHidden: addr.isHidden,
-            name: addr.name,
-            type: P2pkhAddressType.p2pkh,
-            network: DogecoinNetwork.mainnet,
-          );
-        }
-      }).toList(),
+      initialAddresses: snp?.addresses,
       initialBalance: snp?.balance,
       seedBytes: await MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
       encryptionFileUtils: encryptionFileUtils,

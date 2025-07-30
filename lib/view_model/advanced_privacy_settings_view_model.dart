@@ -37,6 +37,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     switch (type) {
       case WalletType.ethereum:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
@@ -44,7 +45,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
       case WalletType.bitcoin:
       case WalletType.litecoin:
-      case WalletType.dogecoin:
         return _settingsStore.bitcoinSeedType == BitcoinSeedType.bip39;
 
       case WalletType.nano:

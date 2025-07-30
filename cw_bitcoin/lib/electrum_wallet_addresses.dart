@@ -463,7 +463,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-  void addBitcoinCashAddressTypes() {
+  void addP2PKHAddressTypes() {
     final lastP2pkh = _addresses.firstWhere(
         (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
     if (lastP2pkh.address != address) {
@@ -492,10 +492,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addLitecoinAddressTypes();
           break;
         case WalletType.bitcoinCash:
-          addBitcoinCashAddressTypes();
+          addP2PKHAddressTypes();
           break;
         case WalletType.dogecoin:
-          addBitcoinCashAddressTypes();
+          addP2PKHAddressTypes();
           break;
         default:
           break;
