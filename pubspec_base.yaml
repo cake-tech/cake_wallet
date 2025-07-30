@@ -177,7 +177,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v10
+      ref: cake-update-v11
   ffi: 2.1.0
   ledger_flutter_plus:
     git:
@@ -223,6 +223,7 @@ flutter:
     - assets/wownero_node_list.yml
     - assets/zano_node_list.yml
     - assets/decred_node_list.yml
+    - assets/dogecoin_electrum_server_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

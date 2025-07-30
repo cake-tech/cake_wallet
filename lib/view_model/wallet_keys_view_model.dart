@@ -163,6 +163,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
           final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
         
           items.addAll([
@@ -256,6 +257,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'zano-wallet';
       case WalletType.decred:
         return 'decred-wallet';
+      case WalletType.dogecoin:
+        return 'dogecoin-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }

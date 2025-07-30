@@ -3,7 +3,6 @@ import 'dart:io' show Platform;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -30,6 +29,10 @@ const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
 ];
 
 const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
+  P2pkhAddressType.p2pkh,
+];
+
+const List<BitcoinAddressType> DOGECOIN_ADDRESS_TYPES = [
   P2pkhAddressType.p2pkh,
 ];
 
@@ -253,6 +256,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
         await _generateInitialAddresses(type: SegwitAddresType.mweb);
       }
+    } else if (walletInfo.type == WalletType.dogecoin) {
+      await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.bitcoin) {
       await _generateInitialAddresses();
       if (!isHardwareWallet) {
@@ -458,7 +463,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-  void addBitcoinCashAddressTypes() {
+  void addP2PKHAddressTypes() {
     final lastP2pkh = _addresses.firstWhere(
         (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
     if (lastP2pkh.address != address) {
@@ -487,7 +492,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addLitecoinAddressTypes();
           break;
         case WalletType.bitcoinCash:
-          addBitcoinCashAddressTypes();
+          addP2PKHAddressTypes();
+          break;
+        case WalletType.dogecoin:
+          addP2PKHAddressTypes();
           break;
         default:
           break;
