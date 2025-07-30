@@ -340,6 +340,9 @@ abstract class ElectrumWalletBase
   @action
   Future<void> _setListeners(int height, {int? chainTipParam, bool? doSingleScan}) async {
     if (this is! BitcoinWallet) return;
+    if (isHardwareWallet) return;
+    if (seed?.isEmpty ?? true) return;
+
     final chainTip = chainTipParam ?? await getUpdatedChainTip();
 
     if (chainTip == height) {

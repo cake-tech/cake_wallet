@@ -6,6 +6,7 @@ class PendingSolanaTransaction with PendingTransaction {
   final String destinationAddress;
   final Function sendTransaction;
   final double fee;
+  String? _sig;
 
   PendingSolanaTransaction({
     required this.fee,
@@ -28,7 +29,7 @@ class PendingSolanaTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    return await sendTransaction();
+    _sig = await sendTransaction();
   }
 
   @override
@@ -41,7 +42,7 @@ class PendingSolanaTransaction with PendingTransaction {
   String get hex => serializedTransaction;
 
   @override
-  String get id => '';
+  String get id => _sig ?? '';
   
   @override
   Future<Map<String, String>> commitUR() {
