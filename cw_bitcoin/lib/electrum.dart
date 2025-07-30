@@ -453,7 +453,7 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (!_isConnected) {
+    if (!_isConnected || socket == null) {
       SocketHealthLogger().logHealthCheck(
         walletType: WalletType.bitcoin,//This is a placeholder
         walletName: 'ElectrumClient',
@@ -479,7 +479,7 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (!_isConnected) {
+      if (!_isConnected || socket == null) {
         SocketHealthLogger().logHealthCheck(
           walletType: WalletType.bitcoin,//This is a placeholder
           walletName: 'ElectrumClient',
