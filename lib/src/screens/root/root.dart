@@ -5,7 +5,6 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -174,27 +173,22 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         // Electrum Wallet socket health check and reconnection flow
         final wallet = widget.appStore.wallet;
         if (wallet != null && isElectrumWallet(wallet.type)) {
-          SocketHealthLogger()
-              .logHealthCheck(
+          SocketHealthLogger().logHealthCheck(
             walletType: wallet.type,
             walletName: wallet.name,
-            isHealthy: true, // We don't know yet, will be updated
             syncStatus: wallet.syncStatus.toString(),
             wasReconnected: false,
             trigger: 'app_resume',
-          )
-              .then((_) {
-            wallet.checkSocketHealth().then(
-              (isHealthy) {
-                SocketHealthLogger().logHealthCheck(
-                  walletType: wallet.type,
-                  walletName: wallet.name,
-                  isHealthy: isHealthy,
-                  syncStatus: wallet.syncStatus.toString(),
-                  wasReconnected: true,
-                  trigger: 'app_resume_socket_health_check',
-                );
-              },
+          );
+
+          wallet.checkSocketHealth().then((isHealthy) {
+            SocketHealthLogger().logHealthCheck(
+              walletType: wallet.type,
+              walletName: wallet.name,
+              isHealthy: isHealthy,
+              syncStatus: wallet.syncStatus.toString(),
+              wasReconnected: true,
+              trigger: 'app_resume_socket_health_check',
             );
           });
         }

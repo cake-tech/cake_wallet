@@ -6,7 +6,6 @@ part 'socket_health_logs_view_model.g.dart';
 class SocketHealthLogsViewModel = SocketHealthLogsViewModelBase with _$SocketHealthLogsViewModel;
 
 abstract class SocketHealthLogsViewModelBase with Store {
-  final SocketHealthLogger _logger = SocketHealthLogger();
 
   @observable
   bool isLoading = false;
@@ -15,36 +14,16 @@ abstract class SocketHealthLogsViewModelBase with Store {
   String? error;
 
   @observable
-  List<SocketHealthLogEntry> logs = [];
+  ObservableList<SocketHealthLogEntry> logs = ObservableList<SocketHealthLogEntry>();
 
   @computed
   int get totalLogs => logs.length;
 
   @computed
-  int get unhealthyLogs => logs.where((log) => !log.isHealthy).length;
+  int get unhealthyLogs => logs.where((log) => log.isHealthy == false).length;
 
   @computed
   int get healthyLogs => totalLogs - unhealthyLogs;
-
-  @action
-  Future<void> loadLogs() async {
-    isLoading = true;
-    error = null;
-
-    try {
-      logs = await _logger.getLogs();
-    } catch (e) {
-      error = e.toString();
-    } finally {
-      isLoading = false;
-    }
-  }
-
-  @action
-  Future<void> clearLogs() async {
-    await _logger.clearLogs();
-    await loadLogs();
-  }
 
   String getLogsAsText() {
     if (logs.isEmpty) return 'No logs available';
@@ -62,5 +41,17 @@ abstract class SocketHealthLogsViewModelBase with Store {
     }
 
     return buffer.toString();
+  }
+
+  @action
+  void loadLogs() {
+    this.logs.clear();
+    this.logs.addAll(SocketHealthLogger.logs);
+  }
+
+  @action
+  void clearLogs() {
+    SocketHealthLogger().clearLogs();
+    this.logs.clear();
   }
 }

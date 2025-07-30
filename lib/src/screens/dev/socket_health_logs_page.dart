@@ -1,3 +1,4 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
-import 'package:get_it/get_it.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 
@@ -23,14 +23,6 @@ class DevSocketHealthLogsPage extends BasePage {
   Widget body(BuildContext context) {
     return Observer(
       builder: (_) {
-        if (viewModel.isLoading) {
-          return Center(child: CircularProgressIndicator());
-        }
-
-        if (viewModel.error != null) {
-          return Center(child: Text("Error: ${viewModel.error}"));
-        }
-
         if (viewModel.logs.isEmpty) {
           return Center(
             child: Column(
@@ -62,9 +54,9 @@ class DevSocketHealthLogsPage extends BasePage {
 }
 
 class _StatsCard extends StatelessWidget {
-  final SocketHealthLogsViewModel viewModel;
+  const _StatsCard(this.viewModel);
 
-  _StatsCard(this.viewModel);
+  final SocketHealthLogsViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -98,11 +90,11 @@ class _StatsCard extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
+  const _StatItem(this.label, this.value, this.color);
+
   final String label;
   final String value;
   final Color color;
-
-  _StatItem(this.label, this.value, this.color);
 
   @override
   Widget build(BuildContext context) {
@@ -129,9 +121,9 @@ class _StatItem extends StatelessWidget {
 }
 
 class _LogsList extends StatelessWidget {
-  final SocketHealthLogsViewModel viewModel;
+  const _LogsList(this.viewModel);
 
-  _LogsList(this.viewModel);
+  final SocketHealthLogsViewModel viewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -155,9 +147,9 @@ class _LogsList extends StatelessWidget {
 }
 
 class _LogItem extends StatelessWidget {
-  final SocketHealthLogEntry log;
+  const _LogItem(this.log);
 
-  _LogItem(this.log);
+  final SocketHealthLogEntry log;
 
   @override
   Widget build(BuildContext context) {
@@ -166,14 +158,14 @@ class _LogItem extends StatelessWidget {
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      color: isHealthy ? Colors.green[50] : Colors.red[50],
+      color: isHealthy != null ? (isHealthy ? Colors.green[50] : Colors.red[50]) : Colors.grey[50],
       child: ListTile(
         title: Text(
           log.toLogString(),
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
                 fontFamily: 'Monospace',
                 fontSize: 11,
-                color: isHealthy ? Colors.green : Colors.red,
+                color: isHealthy != null ? (isHealthy ? Colors.green : Colors.red) : Colors.grey,
               ),
         ),
         subtitle: Column(
@@ -191,8 +183,8 @@ class _LogItem extends StatelessWidget {
           ],
         ),
         leading: Icon(
-          isHealthy ? Icons.check_circle : Icons.error,
-          color: isHealthy ? Colors.green : Colors.red,
+          isHealthy != null ? (isHealthy ? Icons.check_circle : Icons.error) : Icons.help,
+          color: isHealthy != null ? (isHealthy ? Colors.green : Colors.red) : Colors.grey,
         ),
       ),
     );
@@ -217,7 +209,7 @@ class _ActionButtons extends StatelessWidget {
   }
 
   void _testEnhancedHealthCheck(BuildContext context) async {
-    final wallet = GetIt.instance<AppStore>().wallet;
+    final wallet = getIt.get<AppStore>().wallet;
     if (wallet == null || !isElectrumWallet(wallet.type)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -231,7 +223,7 @@ class _ActionButtons extends StatelessWidget {
     try {
       final isHealthy = await wallet.checkSocketHealth();
 
-      await SocketHealthLogger().logHealthCheck(
+      SocketHealthLogger().logHealthCheck(
         walletType: wallet.type,
         walletName: wallet.name,
         isHealthy: isHealthy,
@@ -247,8 +239,7 @@ class _ActionButtons extends StatelessWidget {
         ),
       );
 
-      // Refresh the logs
-      await viewModel.loadLogs();
+      viewModel.loadLogs();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -259,8 +250,8 @@ class _ActionButtons extends StatelessWidget {
     }
   }
 
-  void _refreshLogs(BuildContext context) async {
-    await viewModel.loadLogs();
+  void _refreshLogs(BuildContext context) {
+    viewModel.loadLogs();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

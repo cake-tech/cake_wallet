@@ -4,11 +4,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
-import 'package:cw_core/utils/socket_health_logger.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -216,11 +214,11 @@ class ElectrumClient {
       if (result is Map<String, dynamic>) {
         return result;
       }
-      
+
       if (throwOnError) {
         throw Exception('Invalid response format for getBalance');
       }
-      
+
       return <String, dynamic>{};
     } catch (e) {
       if (throwOnError) {
@@ -453,19 +451,8 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (!_isConnected || socket == null) {
-      SocketHealthLogger().logHealthCheck(
-        walletType: WalletType.bitcoin,//This is a placeholder
-        walletName: 'ElectrumClient',
-        isHealthy: false,
-        syncStatus: _connectionStatus.toString(),
-        wasReconnected: false,
-        trigger: 'call_connection_lost',
-        error: 'ElectrumClient: call() returning null - _isConnected is false | socket is null',
-      );
+    if (!_isConnected || socket == null) return null;
 
-      return null;
-    }
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
@@ -479,19 +466,8 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (!_isConnected || socket == null) {
-        SocketHealthLogger().logHealthCheck(
-          walletType: WalletType.bitcoin,//This is a placeholder
-          walletName: 'ElectrumClient',
-          isHealthy: false,
-          syncStatus: _connectionStatus.toString(),
-          wasReconnected: false,
-          trigger: 'callWithTimeout_connection_lost',
-          error:
-              'ElectrumClient: callWithTimeout() returning null - _isConnected is false | socket is null',
-        );
-        return null;
-      }
+      if (!_isConnected || socket == null) return null;
+
       final completer = Completer<dynamic>();
       _id += 1;
       final id = _id;

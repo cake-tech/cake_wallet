@@ -2356,13 +2356,14 @@ abstract class ElectrumWalletBase
   Future<bool> checkNodeHealth() async {
     try {
       final addresses = walletAddresses.allAddresses
-          .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
+          .where(
+              (address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
           .toList();
-      
+
       if (addresses.isEmpty) {
         return false;
       }
-      
+
       final firstAddress = addresses.first;
       final sh = firstAddress.getScriptHash(network);
       await electrumClient.getBalance(sh, throwOnError: true);
@@ -2599,10 +2600,9 @@ abstract class ElectrumWalletBase
   @override
   Future<bool> checkSocketHealth() async {
     try {
-      await SocketHealthLogger().logHealthCheck(
+      SocketHealthLogger().logHealthCheck(
         walletType: type,
         walletName: name,
-        isHealthy: true,
         syncStatus: syncStatus.toString(),
         wasReconnected: false,
         trigger: 'socket_health_check_start',
@@ -2610,7 +2610,7 @@ abstract class ElectrumWalletBase
 
       if (!electrumClient.isConnected || !electrumClient.isInternalStateConsistent) {
         if (!electrumClient.isConnected) {
-          await SocketHealthLogger().logHealthCheck(
+          SocketHealthLogger().logHealthCheck(
             walletType: type,
             walletName: name,
             isHealthy: false,
@@ -2621,7 +2621,7 @@ abstract class ElectrumWalletBase
         }
 
         if (!electrumClient.isInternalStateConsistent) {
-          await SocketHealthLogger().logHealthCheck(
+          SocketHealthLogger().logHealthCheck(
             walletType: type,
             walletName: name,
             isHealthy: false,
@@ -2633,7 +2633,7 @@ abstract class ElectrumWalletBase
 
         await _performFullReconnection();
 
-        await SocketHealthLogger().logHealthCheck(
+        SocketHealthLogger().logHealthCheck(
           walletType: type,
           walletName: name,
           isHealthy: true,
@@ -2658,7 +2658,7 @@ abstract class ElectrumWalletBase
           throw Exception('Call mechanism test returned null');
         }
 
-        await SocketHealthLogger().logHealthCheck(
+        SocketHealthLogger().logHealthCheck(
           walletType: type,
           walletName: name,
           isHealthy: true,
@@ -2669,7 +2669,7 @@ abstract class ElectrumWalletBase
 
         return true;
       } catch (e) {
-        await SocketHealthLogger().logHealthCheck(
+        SocketHealthLogger().logHealthCheck(
           walletType: type,
           walletName: name,
           isHealthy: false,
@@ -2681,7 +2681,7 @@ abstract class ElectrumWalletBase
 
         await _performFullReconnection();
 
-        await SocketHealthLogger().logHealthCheck(
+        SocketHealthLogger().logHealthCheck(
           walletType: type,
           walletName: name,
           isHealthy: true,
@@ -2699,10 +2699,9 @@ abstract class ElectrumWalletBase
 
   Future<void> _performFullReconnection() async {
     try {
-      await SocketHealthLogger().logHealthCheck(
+      SocketHealthLogger().logHealthCheck(
         walletType: type,
         walletName: name,
-        isHealthy: true,
         syncStatus: syncStatus.toString(),
         wasReconnected: true,
         trigger: 'full_reconnection_start',
@@ -2719,7 +2718,7 @@ abstract class ElectrumWalletBase
 
         await startSync();
 
-        await SocketHealthLogger().logHealthCheck(
+        SocketHealthLogger().logHealthCheck(
           walletType: type,
           walletName: name,
           isHealthy: true,
@@ -2729,7 +2728,7 @@ abstract class ElectrumWalletBase
         );
       }
     } catch (e) {
-      await SocketHealthLogger().logHealthCheck(
+      SocketHealthLogger().logHealthCheck(
         walletType: type,
         walletName: name,
         isHealthy: false,
