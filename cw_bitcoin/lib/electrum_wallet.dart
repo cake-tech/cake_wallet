@@ -49,6 +49,7 @@ import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:sp_scanner/sp_scanner.dart';
 import 'package:hex/hex.dart';
+import 'package:cw_core/utils/socket_health_logger.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -2522,13 +2523,152 @@ abstract class ElectrumWalletBase
     return bitcoinAmountToString(amount: amountInt);
   }
 
+  /// Checks the health of the socket connection
+  /// and triggers a full reconnection if needed
   @override
   Future<bool> checkSocketHealth() async {
     try {
-      await electrumClient.ping();
-      return electrumClient.isConnected;
+      await SocketHealthLogger().logHealthCheck(
+        walletType: type,
+        walletName: name,
+        isHealthy: true,
+        syncStatus: syncStatus.toString(),
+        wasReconnected: false,
+        trigger: 'socket_health_check_start',
+      );
+
+      if (!electrumClient.isConnected || !electrumClient.isInternalStateConsistent) {
+        if (!electrumClient.isConnected) {
+          await SocketHealthLogger().logHealthCheck(
+            walletType: type,
+            walletName: name,
+            isHealthy: false,
+            syncStatus: syncStatus.toString(),
+            wasReconnected: false,
+            trigger: 'socket_health_check_socket_not_connected',
+          );
+        }
+
+        if (!electrumClient.isInternalStateConsistent) {
+          await SocketHealthLogger().logHealthCheck(
+            walletType: type,
+            walletName: name,
+            isHealthy: false,
+            syncStatus: syncStatus.toString(),
+            wasReconnected: false,
+            trigger: 'socket_health_check_internal_state_inconsistent',
+          );
+        }
+
+        await _performFullReconnection();
+
+        await SocketHealthLogger().logHealthCheck(
+          walletType: type,
+          walletName: name,
+          isHealthy: true,
+          syncStatus: syncStatus.toString(),
+          wasReconnected: true,
+          trigger:
+              'socket_health_check_reconnection_success_for_unhealthy_basic_check_or_internal_state_inconsistent',
+        );
+
+        return true;
+      }
+
+      // Make a call to the server to check if the connection is healthy
+      // If the call fails, we need to reconnect
+      try {
+        final result = await electrumClient.call(
+          method: 'server.version',
+          params: ['', '1.4'],
+        );
+
+        if (result == null) {
+          throw Exception('Call mechanism test returned null');
+        }
+
+        await SocketHealthLogger().logHealthCheck(
+          walletType: type,
+          walletName: name,
+          isHealthy: true,
+          syncStatus: syncStatus.toString(),
+          wasReconnected: false,
+          trigger: 'socket_health_check_server_state_ok',
+        );
+
+        return true;
+      } catch (e) {
+        await SocketHealthLogger().logHealthCheck(
+          walletType: type,
+          walletName: name,
+          isHealthy: false,
+          error: e.toString(),
+          syncStatus: syncStatus.toString(),
+          wasReconnected: false,
+          trigger: 'socket_health_check_server_state_failed',
+        );
+
+        await _performFullReconnection();
+
+        await SocketHealthLogger().logHealthCheck(
+          walletType: type,
+          walletName: name,
+          isHealthy: true,
+          syncStatus: syncStatus.toString(),
+          wasReconnected: true,
+          trigger: 'socket_health_check_reconnection_success_for_server_state_failed',
+        );
+
+        return true;
+      }
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<void> _performFullReconnection() async {
+    try {
+      await SocketHealthLogger().logHealthCheck(
+        walletType: type,
+        walletName: name,
+        isHealthy: true,
+        syncStatus: syncStatus.toString(),
+        wasReconnected: true,
+        trigger: 'full_reconnection_start',
+      );
+
+      await _receiveStream?.cancel();
+
+      await electrumClient.close();
+
+      if (node != null) {
+        electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
+
+        await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
+
+        await startSync();
+
+        await SocketHealthLogger().logHealthCheck(
+          walletType: type,
+          walletName: name,
+          isHealthy: true,
+          syncStatus: syncStatus.toString(),
+          wasReconnected: true,
+          trigger: 'full_reconnection_success',
+        );
+      }
+    } catch (e) {
+      await SocketHealthLogger().logHealthCheck(
+        walletType: type,
+        walletName: name,
+        isHealthy: false,
+        error: e.toString(),
+        syncStatus: syncStatus.toString(),
+        wasReconnected: false,
+        trigger: 'full_reconnection_failed',
+      );
+
+      syncStatus = FailedSyncStatus();
     }
   }
 }

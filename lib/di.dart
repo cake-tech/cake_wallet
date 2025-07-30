@@ -277,6 +277,8 @@ import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart'
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/reset_service.dart';
+import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
+import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -1502,6 +1504,9 @@ Future<void> setup({
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
   
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
+  
+  getIt.registerFactory(() => SocketHealthLogsViewModel());
+  getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));
   
   getIt.registerFactory(() => DevNetworkRequests());
 

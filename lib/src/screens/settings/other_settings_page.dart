@@ -95,6 +95,12 @@ class OtherSettingsPage extends BasePage {
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
+                  title: '[dev] socket health logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSocketHealthLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
                   title: '[dev] network requests logs',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devNetworkRequests),
