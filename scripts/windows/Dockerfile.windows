@@ -4,7 +4,7 @@
 
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
-ENV FLUTTER_VERSION=3.27.0
+ENV FLUTTER_VERSION=3.27.4
 ENV GIT_VERSION=2.47.1
 ENV VS_INSTALLED_DIR="C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"
 ENV PATH="C:\Users\ContainerAdministrator\.cargo\bin;C:\ProgramData\chocolatey\bin;C:\flutter\flutter\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps"
