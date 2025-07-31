@@ -15,12 +15,14 @@ class NodeSwitchingService {
 
   static const int _healthCheckIntervalSeconds = 30;
 
-  // The number of times we want to reset the overall used trusted nodes list. 
+  // The number of times we want to reset the overall used trusted nodes list.
   // We don't want an infinite loop if all trusted nodes are down.
   static const int _usedTrustedNodeResetCount = 2;
 
   // State to manage the reset count
   int _resetCount = 0;
+
+  String walletName = '';
 
   Timer? _healthCheckTimer;
 
@@ -70,6 +72,10 @@ class NodeSwitchingService {
   /// Switch to the next available trusted node
   Future<void> _switchToNextTrustedNode() async {
     _isSwitching = true;
+
+    if (walletName.isNotEmpty && (walletName != appStore.wallet!.name)) _resetCount = 0;
+
+    walletName = appStore.wallet!.name;
 
     try {
       final walletType = appStore.wallet!.type;
