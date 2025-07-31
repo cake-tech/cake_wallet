@@ -22,7 +22,7 @@ abstract class ReceiveOptionViewModelBase with Store {
     switch (walletType) {
       case WalletType.bitcoin:
         _options = [
-          ...bitcoin!.getBitcoinReceivePageOptions(),
+          ...bitcoin!.getBitcoinReceivePageOptions(_wallet),
           ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
         ];
         break;

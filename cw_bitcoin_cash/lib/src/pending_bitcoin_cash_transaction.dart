@@ -89,7 +89,7 @@ class PendingBitcoinCashTransaction with PendingTransaction {
       isReplaced: false,
       );
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }

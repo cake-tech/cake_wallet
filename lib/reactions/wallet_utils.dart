@@ -21,3 +21,14 @@ bool isBIP39Wallet(WalletType walletType) {
       return false;
   }
 }
+
+bool isElectrumWallet(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.bitcoin:
+    case WalletType.litecoin:
+    case WalletType.bitcoinCash:
+      return true;
+    default:
+      return false;
+  }
+}
