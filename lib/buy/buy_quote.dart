@@ -1,6 +1,7 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/core/selectable_option.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/provider_types.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -96,7 +97,7 @@ class Quote extends SelectableOption {
 
   @override
   String get topLeftSubTitle =>
-      this.rate > 0 ? '1 ${cryptoCurrency.toString()} = ${rate.toStringAsFixed(2)} ${fiatCurrency.toString()}' : '';
+      this.rate > 0 ? '1 ${cryptoCurrency.toString()} = ${formatWithCommas(rate.toStringAsFixed(2))} ${fiatCurrency.toString()}' : '';
 
   @override
   String get bottomLeftSubTitle {
