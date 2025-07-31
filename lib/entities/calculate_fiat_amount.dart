@@ -29,10 +29,10 @@ String calculateFiatAmount({double? price, String? cryptoAmount}) {
   return result > 0.01 ? formatted : '< 0.01';
 }
 
-String formatWithCommas(String number) {
-  if (number.isEmpty) return number;
+String formatWithCommas(String? number) {
+  if (number?.isEmpty ?? true) return '';
 
-  final parts = number.split('.');
+  final parts = number!.split('.');
   final integerPart = parts[0];
   final decimalPart = parts.length > 1 ? parts[1] : '';
 
