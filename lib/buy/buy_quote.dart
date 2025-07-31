@@ -97,7 +97,7 @@ class Quote extends SelectableOption {
 
   @override
   String get topLeftSubTitle =>
-      this.rate > 0 ? '1 $cryptoName = ${formatWithCommas(rate.toStringAsFixed(2))} $fiatName' : '';
+      this.rate > 0 ? '1 ${cryptoCurrency.toString()} = ${formatWithCommas(rate.toStringAsFixed(2))} ${fiatCurrency.toString()}' : '';
 
   @override
   String get bottomLeftSubTitle {
@@ -108,10 +108,6 @@ class Quote extends SelectableOption {
     }
     return '';
   }
-
-  String get fiatName => isBuyAction ? fiatCurrency.toString() : cryptoCurrency.toString();
-
-  String get cryptoName => isBuyAction ? cryptoCurrency.toString() : fiatCurrency.toString();
 
   @override
   String? get topRightSubTitle => '';
