@@ -41,31 +41,31 @@ class CakePayCard {
     final howToUse = stripHtmlIfNeeded(json['how_to_use'] as String? ?? '');
     final fiatCurrency = FiatCurrency.deserialize(raw: json['currency_code'] as String? ?? '');
 
-      final raw = (json['denominations'] as List?) ?? const [];
-      final denominations = <Denomination>[];
-      for (final item in raw) {
-        if (item is Map) {
-          denominations.add(Denomination.fromJson(Map<String, dynamic>.from(item)));
-        }
+    final raw = (json['denominations'] as List?) ?? const [];
+    final denominations = <Denomination>[];
+    for (final item in raw) {
+      if (item is Map) {
+        denominations.add(Denomination.fromJson(Map<String, dynamic>.from(item)));
       }
-
-      return CakePayCard(
-        id: json['id'] as int? ?? 0,
-        name: name,
-        description: description,
-        termsAndConditions: termsAndConditions,
-        howToUse: howToUse,
-        expiryAndValidity: json['expiry_and_validity'] as String?,
-        cardImageUrl: json['card_image_url'] as String?,
-        country: json['country'] as String?,
-        fiatCurrency: fiatCurrency,
-        minValueUsd: json['min_value_usd'] as String?,
-        maxValueUsd: json['max_value_usd'] as String?,
-        minValue: json['min_value'] as String?,
-        maxValue: json['max_value'] as String?,
-        denominationItems: denominations,
-      );
     }
+
+    return CakePayCard(
+      id: json['id'] as int? ?? 0,
+      name: name,
+      description: description,
+      termsAndConditions: termsAndConditions,
+      howToUse: howToUse,
+      expiryAndValidity: json['expiry_and_validity'] as String?,
+      cardImageUrl: json['card_image_url'] as String?,
+      country: json['country'] as String?,
+      fiatCurrency: fiatCurrency,
+      minValueUsd: json['min_value_usd'] as String?,
+      maxValueUsd: json['max_value_usd'] as String?,
+      minValue: json['min_value'] as String?,
+      maxValue: json['max_value'] as String?,
+      denominationItems: denominations,
+    );
+  }
 
   List<Denomination> get denominationItemsWithUniqueValue {
     if (denominationItems.isEmpty) return const [];
@@ -79,7 +79,6 @@ class CakePayCard {
         result.add(item);
       }
     }
-
 
     final perValue = <String, Denomination>{};
     for (final item in result) {
@@ -125,8 +124,8 @@ class Denomination {
 
   factory Denomination.fromJson(Map<String, dynamic> json) {
     return Denomination(
-      value: _toDouble(json['value']) ?? 0.0,
-      cardId: _toDouble(json['card_id'])?.toInt(),
+      value: _toDouble(json['value']) ?? 0,
+      cardId: json['card_id'] is int ? json['card_id'] as int : int.tryParse('${json['card_id']}'),
       usdValue: _toDouble(json['usd_value']),
     );
   }
