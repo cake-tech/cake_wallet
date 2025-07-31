@@ -6,7 +6,7 @@ import 'cake_pay_card.dart';
 class CakePayVendor {
   final int id;
   final String name;
-  final bool unavailable;
+  final bool available;
   final String? cakeWarnings;
   final String country;
   final CakePayCard? card;
@@ -14,25 +14,26 @@ class CakePayVendor {
   CakePayVendor({
     required this.id,
     required this.name,
-    required this.unavailable,
+    required this.available,
     this.cakeWarnings,
     required this.country,
     this.card,
   });
 
-  factory CakePayVendor.fromJson(Map<String, dynamic> json, String countryCode) {
+  factory CakePayVendor.fromJson(Map<String, dynamic> json) {
     final name = stripHtmlIfNeeded(json['name'] as String);
-    final country = Country.fromCountryCode(countryCode)?.fullName ?? countryCode;
+
+    final parsedCountry = json['country'] as String;
+    final country = Country.normalizeName(parsedCountry);
 
     var cardsJson = json['cards'] as List?;
     CakePayCard? cardForVendor;
 
     if (cardsJson != null && cardsJson.isNotEmpty) {
       try {
-        cardForVendor = CakePayCard.fromJson(cardsJson.where((element) {
-          final elementCountry = element['country'] as String?;
-          return elementCountry != null && Country.normalizeName(elementCountry) == country;
-        }).first as Map<String, dynamic>);
+        cardForVendor = CakePayCard.fromJson(cardsJson.firstWhere((card) {
+          return Country.normalizeName(card['country'] as String) == country;
+        }) as Map<String, dynamic>);
       } catch (e) {
         printV('Error parsing card for vendor: $e');
       }
@@ -41,7 +42,7 @@ class CakePayVendor {
     return CakePayVendor(
       id: json['id'] as int,
       name: name,
-      unavailable: json['unavailable'] as bool? ?? false,
+      available: json['available'] as bool? ?? false,
       cakeWarnings: json['cake_warnings'] as String?,
       country: country,
       card: cardForVendor,

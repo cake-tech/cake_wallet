@@ -249,7 +249,7 @@ class CakePayApi {
     }
 
     return (bodyJson['results'] as List)
-        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>, countryCode))
+        .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 }

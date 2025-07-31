@@ -215,6 +215,7 @@ abstract class CakePayCardsListViewModelBase with Store {
 
       cakePayVendors = newVendors.where((vendor) {
         if (vendor.card == null) return false;
+        if (vendor.available != true) return false;
         return true;
       }).toList();
     } catch (e) {
@@ -241,6 +242,7 @@ abstract class CakePayCardsListViewModelBase with Store {
 
       cakePayVendors.addAll(newVendors.where((vendor) {
         if (vendor.card == null) return false;
+        if (vendor.available != true) return false;
         return true;
       }).toList());
     } catch (error) {

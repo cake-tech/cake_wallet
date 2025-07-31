@@ -1,3 +1,4 @@
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
 import 'package:cake_wallet/typography.dart';
@@ -20,7 +21,7 @@ class DenominationsAmountWidget extends StatefulWidget {
   });
 
   final String fiatCurrency;
-  final List<String> denominations;
+  final List<Denomination> denominations;
   final FocusNode amountFieldFocus;
   final TextEditingController amountController;
   final FocusNode quantityFieldFocus;
@@ -34,16 +35,21 @@ class DenominationsAmountWidget extends StatefulWidget {
 }
 
 class _DenominationsAmountWidgetState extends State<DenominationsAmountWidget> {
-  late String _selected;
+  late (String, int?) _selected;
 
   @override
   void initState() {
     super.initState();
-    _selected = widget.amountController.text.isNotEmpty
+
+    final first = widget.denominations.first;
+    final amount = widget.amountController.text.isNotEmpty
         ? widget.amountController.text
-        : widget.denominations.first;
-    widget.amountController.text = _selected;
-    widget.onAmountChanged(_selected);
+        : first.value.toString();
+    _selected = (amount, first.cardId);
+    widget.cakePayBuyCardViewModel.selectedDenomination = _selected;
+
+    widget.amountController.text = _selected.$1;
+    widget.onAmountChanged(_selected.$1);
   }
 
   @override
@@ -59,13 +65,18 @@ class _DenominationsAmountWidgetState extends State<DenominationsAmountWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownFilterList(
-                  items: widget.denominations,
+                  items: widget.denominations
+                      .map((e) => e.value.toString())
+                      .toList(),
                   itemPrefix: widget.fiatCurrency,
-                  selectedItem: _selected,
+                  selectedItem: _selected.$1,
                   onItemSelected: (value) {
-                    setState(() => _selected = value);
+                    setState(() => _selected = (value, widget.denominations
+                        .firstWhere((e) => e.value.toString() == value)
+                        .cardId));
                     widget.amountController.text = value;
                     widget.onAmountChanged(value);
+                    widget.cakePayBuyCardViewModel.selectedDenomination = (_selected.$1, _selected.$2);
                   },
                 ),
                 const SizedBox(height: 4),
