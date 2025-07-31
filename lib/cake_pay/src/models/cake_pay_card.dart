@@ -135,8 +135,6 @@ class Denomination {
   factory Denomination.fromJson(Map<String, dynamic> json) {
     return Denomination(
       value: _toDouble(json['value']) ??
-          _toDouble(json['amount']) ??
-          _toDouble(json['denomination']) ??
           0,
       cardId: json['card_id'] is int ? json['card_id'] as int : int.tryParse('${json['card_id']}'),
       usdValue:
