@@ -138,7 +138,7 @@ class Denomination {
           0,
       cardId: json['card_id'] is int ? json['card_id'] as int : int.tryParse('${json['card_id']}'),
       usdValue:
-          _toDouble(json['usd_value']) ?? _toDouble(json['value_usd']) ?? _toDouble(json['usd']),
+          _toDouble(json['usd_value']),
     );
   }
 }
