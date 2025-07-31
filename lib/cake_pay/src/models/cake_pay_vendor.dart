@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/country.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 import 'cake_pay_card.dart';
 
@@ -28,10 +29,13 @@ class CakePayVendor {
 
     if (cardsJson != null && cardsJson.isNotEmpty) {
       try {
-          cardForVendor = CakePayCard.fromJson(cardsJson
-            .where((element) => element['country'] == country)
-            .first as Map<String, dynamic>);
-        } catch (_) {}
+        cardForVendor = CakePayCard.fromJson(cardsJson.where((element) {
+          final elementCountry = element['country'] as String?;
+          return elementCountry != null && Country.normalizeName(elementCountry) == country;
+        }).first as Map<String, dynamic>);
+      } catch (e) {
+        printV('Error parsing card for vendor: $e');
+      }
     }
 
     return CakePayVendor(

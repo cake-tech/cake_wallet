@@ -10,6 +10,8 @@ class Country extends EnumerableItem<String> with Serializable<String> {
 
   static List<Country> get all => _all.values.toList();
 
+      .toList();
+
   static const afghanistan = Country(code: 'afg', countryCode: 'AF', fullName: "Afghanistan");
   static const andorra = Country(code: 'and', countryCode: 'AD', fullName: "Andorra");
   static const angola = Country(code: 'ago', countryCode: 'AO', fullName: "Angola");
@@ -352,25 +354,12 @@ class Country extends EnumerableItem<String> with Serializable<String> {
     'CuraÃ§ao': "Curacao",
   };
 
+  static String normalizeName(String name) {
+    final key = name.trim();
+    return _cakePayNames[key] ?? key;
+  }
+
   static Country deserialize({required String raw}) => _all[raw]!;
-
-  static final Map<String, Country> countryByName = {
-    for (var country in _all.values) country.fullName: country,
-  };
-
-  static Country? fromCakePayName(String name) {
-    final normalizedName = _cakePayNames[name] ?? name;
-    return countryByName[normalizedName];
-  }
-
-  static String getCakePayName(Country country) {
-    return _cakePayNames.entries
-        .firstWhere(
-          (entry) => entry.value == country.fullName,
-          orElse: () => MapEntry(country.fullName, country.fullName),
-        )
-        .key;
-  }
 
   static Country? fromCode(String countryCode) {
     return _all.values.firstWhereOrNull((element) => element.raw == countryCode.toLowerCase());

@@ -22,7 +22,7 @@ abstract class CakePayCardsListViewModelBase with Store {
     required this.settingsStore,
   })  : cakePayVendors = [],
         userCards = [],
-        availableCountries = ObservableList<Country>.of(Country.all),
+        availableCountries = ObservableList<Country>.of(Country.allForCakePay),
         page = 1,
         displayPrepaidCards = true,
         displayGiftCards = true,
