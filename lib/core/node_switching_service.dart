@@ -15,6 +15,13 @@ class NodeSwitchingService {
 
   static const int _healthCheckIntervalSeconds = 30;
 
+  // The number of times we want to reset the overall used trusted nodes list. 
+  // We don't want an infinite loop if all trusted nodes are down.
+  static const int _usedTrustedNodeResetCount = 2;
+
+  // State to manage the reset count
+  int _resetCount = 0;
+
   Timer? _healthCheckTimer;
 
   bool _isSwitching = false;
@@ -98,6 +105,10 @@ class NodeSwitchingService {
       // If all trusted nodes have been used, reset the list and start over
       if (nextNode == null) {
         printV('All trusted nodes have been tried, resetting and starting over');
+        _resetCount++;
+
+        if (_resetCount > _usedTrustedNodeResetCount) return;
+
         _usedNodeKeys[walletType]!.clear();
         nextNode = trustedNodes.first;
       }

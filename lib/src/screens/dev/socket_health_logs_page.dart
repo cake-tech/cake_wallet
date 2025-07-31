@@ -200,23 +200,27 @@ class _ActionButtons extends StatelessWidget {
     final logsText = viewModel.getLogsAsText();
     Clipboard.setData(ClipboardData(text: logsText));
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Logs copied to clipboard'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logs copied to clipboard'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void _testEnhancedHealthCheck(BuildContext context) async {
     final wallet = getIt.get<AppStore>().wallet;
     if (wallet == null || !isElectrumWallet(wallet.type)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No Electrum wallet found'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('No Electrum wallet found'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 
@@ -241,24 +245,28 @@ class _ActionButtons extends StatelessWidget {
 
       viewModel.loadLogs();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Enhanced health check failed: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Enhanced health check failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
   void _refreshLogs(BuildContext context) {
     viewModel.loadLogs();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Logs refreshed'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logs refreshed'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   @override
