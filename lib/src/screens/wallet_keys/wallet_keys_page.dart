@@ -108,13 +108,11 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               isScrollable: true,
               labelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 18,
-                     
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
               unselectedLabelStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 18,
-                     
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
                   ),
@@ -163,7 +161,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
   Widget _buildSeedTab(BuildContext context, bool isLegacySeed) {
     return Column(
       children: [
-        if (isLegacySeedOnly || isLegacySeed) ...[
+        if (isLegacySeedOnly || isLegacySeed || widget.walletKeysViewModel.isBitcoin) ...[
           _buildHeightBox(),
           const SizedBox(height: 20),
         ],
