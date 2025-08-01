@@ -1,5 +1,4 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 
 class CakePayCard {
   final int id;
@@ -40,7 +39,10 @@ class CakePayCard {
     final termsAndConditions = stripHtmlIfNeeded(json['terms_and_conditions'] as String? ?? '');
     final howToUse = stripHtmlIfNeeded(json['how_to_use'] as String? ?? '');
     final fiatCurrency = FiatCurrency.deserialize(raw: json['currency_code'] as String? ?? '');
-
+    final parsedMinValue = _toDouble(json['min_value'] as String?);
+    final minValue = fiatCurrency == FiatCurrency.usd && parsedMinValue != null && parsedMinValue < 10.00
+        ? '10.00'
+        : json['min_value'] as String?;
     final raw = (json['denominations'] as List?) ?? const [];
     final denominations = <Denomination>[];
     for (final item in raw) {
@@ -61,7 +63,7 @@ class CakePayCard {
       fiatCurrency: fiatCurrency,
       minValueUsd: json['min_value_usd'] as String?,
       maxValueUsd: json['max_value_usd'] as String?,
-      minValue: json['min_value'] as String?,
+      minValue: minValue,
       maxValue: json['max_value'] as String?,
       denominationItems: denominations,
     );
@@ -102,6 +104,11 @@ class CakePayCard {
 
   static String stripHtmlIfNeeded(String text) {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
+  }
+  static double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString());
   }
 }
 

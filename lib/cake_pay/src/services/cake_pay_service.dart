@@ -110,6 +110,9 @@ class CakePayService {
   }
 
   ///Simulate Purchase Gift Card
-  Future<String> simulatePayment({required String orderId}) async => await cakePayApi.simulatePayment(
-      CSRFToken: CSRFToken, authorization: authorization, orderId: orderId);
+  Future<String> simulatePayment({required String orderId}) async {
+    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
+    return await cakePayApi.simulatePayment(
+        CSRFToken: CSRFToken, authorization: authorization, token: token, orderId: orderId);
+  }
 }

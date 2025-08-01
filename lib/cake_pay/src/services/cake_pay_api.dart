@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 
 class CakePayApi {
-  static const testBaseUri = false;
+  static const testBaseUri = FeatureFlag.hasDevOptions;
 
   static const baseTestCakePayUri = 'api-stg.cakepay.com';
   static const baseProdCakePayUri = 'api-prod.cakepay.com';
@@ -19,7 +20,7 @@ class CakePayApi {
   static final verifyEmailPath = '/api/accounts/auth/verify';
   static final logoutPath = '/api/accounts/logout';
   static final createOrderPath = '/api/orders/order';
-  static final simulatePaymentPath = '/api/simulate_payment';
+  static final simulatePaymentPath = '/api/orders/simulate-payment';
 
   /// AuthenticateUser
   Future<String> authenticateUser({required String email, required String apiKey}) async {
@@ -156,16 +157,27 @@ class CakePayApi {
 
   ///Simulate Payment
   Future<String> simulatePayment(
-      {required String CSRFToken, required String authorization, required String orderId}) async {
-    final uri = Uri.https(baseCakePayUri, simulatePaymentPath + '/$orderId');
+      {required String CSRFToken,
+      required String authorization,
+      required String orderId,
+      required String token}) async {
+    final uri = Uri.https(baseCakePayUri, simulatePaymentPath);
 
     final headers = {
-      'accept': 'application/json',
-      'authorization': authorization,
-      'X-CSRFToken': CSRFToken,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Token $token',
     };
 
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final body = json.encode({
+      'order_id': orderId,
+    });
+
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: body,
+    );
 
     printV('Response: ${response.statusCode}');
 
