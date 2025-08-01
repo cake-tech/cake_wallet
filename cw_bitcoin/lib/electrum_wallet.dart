@@ -2834,6 +2834,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       scanData.silentAddress.B_spend.toHex(),
       scanData.network == BitcoinNetwork.testnet,
       scanData.labelIndexes,
+      scanData.labelIndexes.length,
     );
 
     log(
