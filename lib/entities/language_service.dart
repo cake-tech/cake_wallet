@@ -32,6 +32,7 @@ class LanguageService {
     'tl': 'Filipino (Tagalog)',
     'hy': 'Հայերեն (Armenian)',
     'vi': 'Tiếng Việt (Vietnamese)',
+    'eo': 'Esperanto',
   };
 
   static const Map<String, String> localeCountryCode = {
@@ -63,6 +64,7 @@ class LanguageService {
     'tl': 'phl',
     'hy': 'arm',
     'vi': 'vnm',
+    'eo': 'xxx',
   };
 
   static final list = <String, String>{};
