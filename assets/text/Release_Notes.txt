@@ -1,5 +1,7 @@
-Silent Payment sync bug fixes
-New Cake Pay mobile UI
-Monero enhancements
-dEURO savings module improvements
-Integrated exchange bug fixes
+Enable Ledger for Desktop
+Enable Bitcoin view-only wallets
+Monero, Bitcoin, and Ethereum enhancements
+Allow automatic node switching between trusted nodes
+Enhance node connectivity
+UI enhancements
+Bug fixes

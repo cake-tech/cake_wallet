@@ -1,3 +1,6 @@
-New Cake Pay mobile UI
+Enable Ledger for Desktop
 Monero enhancements
-Integrated exchange bug fixes
+Allow automatic node switching between trusted nodes
+Enhance node connectivity
+UI enhancements
+Bug fixes
