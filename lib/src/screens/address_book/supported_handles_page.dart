@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/handles_list_widget.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';

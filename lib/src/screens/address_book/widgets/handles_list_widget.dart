@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 
 class HandlesListWidget extends StatefulWidget {

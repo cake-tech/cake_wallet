@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_refresh_page.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_welcome_page.dart';

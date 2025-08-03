@@ -1,7 +1,7 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';

@@ -14,6 +14,7 @@ const supportedSources = [
   AddressSource.yatRecord,
   AddressSource.openAlias,
   AddressSource.wellKnown,
+  AddressSource.nostr,
 ];
 
 ///Do not use '-' in the label, it is used to separate the label from the alias.
@@ -81,7 +82,15 @@ enum AddressSource {
   nostr(
       label: 'Nostr',
       iconPath: 'assets/images/nostr.png',
-      supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
+      supportedCurrencies: [
+        CryptoCurrency.xmr,
+        CryptoCurrency.btc,
+        CryptoCurrency.ltc,
+        CryptoCurrency.eth,
+        CryptoCurrency.bnb,
+        CryptoCurrency.sol,
+        CryptoCurrency.maticpoly
+      ]),
   thorChain(
       label: 'ThorChain',
       iconPath: 'assets/images/thorchain.png',

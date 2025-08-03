@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/contact_list_tab_widget.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/wallet_contacts_list_tab_widget.dart';

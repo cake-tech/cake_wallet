@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/keyable.dart';

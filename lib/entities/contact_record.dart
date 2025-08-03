@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/entities/record.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';

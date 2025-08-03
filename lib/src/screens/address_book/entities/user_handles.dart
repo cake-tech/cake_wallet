@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 
 class UserHandles {
   factory UserHandles({required String handleKey}) {

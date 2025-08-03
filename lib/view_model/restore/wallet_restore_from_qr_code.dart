@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/core/seed_validator.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';

@@ -4,19 +4,20 @@ import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:cake_wallet/entities/ens_record.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
+import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 
-import 'bip_353_record.dart';
+import '../entities/bip_353_record.dart';
 
 class AddressResolverService {
   AddressResolverService({required this.yatService, required this.settingsStore}) {
@@ -260,7 +261,7 @@ class AddressResolverService {
       ),
       LookupEntry(
         source: AddressSource.nostr,
-        currencies: [CryptoCurrency.btc],
+        currencies: AddressSource.nostr.supportedCurrencies,
         applies: (q) => settingsStore.lookupsNostr && isEmailFormat(q),
         // Nostr handle example: name@domain
         run: _lookupsNostr,
@@ -641,25 +642,30 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupsNostr(
-      String text, List<CryptoCurrency> currency, WalletBase _) async {
-    //TODO implement Nostr lookup logic
-    // final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
-    // if (nostrProfile?.relays != null) {
-    //   final nostrUserData =
-    //   await NostrProfileHandler.processRelays(context, nostrProfile!, text);
-    //
-    //   if (nostrUserData != null) {
-    //     String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
-    //     if (addressFromBio != null && addressFromBio.isNotEmpty) {
-    //       return ParsedAddress.nostrAddress(
-    //           address: addressFromBio,
-    //           name: text,
-    //           profileImageUrl: nostrUserData.picture,
-    //           profileName: nostrUserData.name);
-    //     }
-    //   }
-    // }
-    return null;
+      String text, List<CryptoCurrency> currencies, WalletBase _) async {
+    final profile = await NostrProfileHandler.queryProfile(text);
+    if (profile == null) return null;
+
+    final data = await NostrProfileHandler.processRelays(profile, text);
+    if (data == null) return null;
+
+    final result = <CryptoCurrency, String>{};
+
+    for (final cur in currencies) {
+      final addr = extractAddressByType(raw: data.about, type: cur);
+      if (addr != null && addr.isNotEmpty) {
+        result[cur] = addr;
+      }
+    }
+    if (result.isEmpty) return null;
+
+    return ParsedAddress(
+      parsedAddressByCurrencyMap: result,
+      addressSource: AddressSource.nostr,
+      handle: text,
+      profileImageUrl: data.picture,
+      profileName: data.name ?? '',
+    );
   }
 }
 

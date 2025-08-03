@@ -1,5 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/address_book/sheet_page.dart';
 import 'package:cake_wallet/src/screens/address_book/widgets/addresses_expansion_tile_widget.dart';
