@@ -10,7 +10,6 @@ import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
-import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -642,33 +641,25 @@ class AddressResolverService {
   }
 
   Future<ParsedAddress?> _lookupsNostr(
-    String nip05,
-    List<CryptoCurrency> currencies,
-    WalletBase _,
-  ) async {
-    final profile = await NostrProfileHandler.queryProfile(nip05);
-    if (profile == null) return null;
-
-    final meta = await NostrProfileHandler.fetchUserMetadata(profile);
-    if (meta == null) return null;
-
-    final result = <CryptoCurrency, String>{};
-    final bio = meta.about ?? '';
-
-    for (final cur in currencies) {
-      final addr = extractAddressByType(raw: bio, type: cur);
-      if (addr != null && addr.isNotEmpty) result[cur] = addr;
-    }
-
-    if (result.isEmpty) return null;
-
-    return ParsedAddress(
-      parsedAddressByCurrencyMap: result,
-      addressSource: AddressSource.nostr,
-      handle: nip05,
-      profileImageUrl: meta.picture,
-      profileName: meta.name,
-    );
+      String text, List<CryptoCurrency> currency, WalletBase _) async {
+    //TODO implement Nostr lookup logic
+    // final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
+    // if (nostrProfile?.relays != null) {
+    //   final nostrUserData =
+    //   await NostrProfileHandler.processRelays(context, nostrProfile!, text);
+    //
+    //   if (nostrUserData != null) {
+    //     String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
+    //     if (addressFromBio != null && addressFromBio.isNotEmpty) {
+    //       return ParsedAddress.nostrAddress(
+    //           address: addressFromBio,
+    //           name: text,
+    //           profileImageUrl: nostrUserData.picture,
+    //           profileName: nostrUserData.name);
+    //     }
+    //   }
+    // }
+    return null;
   }
 }
 
