@@ -174,8 +174,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               onPressed: () async {
                 Navigator.of(context).pushNamed(Routes.exchangeTradeExternalSendPage);
               },
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+              color: widget.exchangeTradeViewModel.isSendable
+                  ? Theme.of(context).colorScheme.surfaceContainer
+                  : Theme.of(context).colorScheme.primary,
+              textColor: widget.exchangeTradeViewModel.isSendable
+                  ? Theme.of(context).colorScheme.onSecondaryContainer
+                  : Theme.of(context).colorScheme.onPrimary,
             ),
             SizedBox(height: 16),
             Observer(
@@ -183,18 +187,19 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 final trade = widget.exchangeTradeViewModel.trade;
                 final sendingState = widget.exchangeTradeViewModel.sendViewModel.state;
 
-                return widget.exchangeTradeViewModel.isSendable &&
-                        !(sendingState is TransactionCommitted)
-                    ? LoadingPrimaryButton(
-                        key: ValueKey('exchange_trade_page_send_from_cake_button_key'),
-                        isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty,
-                        isLoading: sendingState is IsExecutingState,
-                        onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
-                        text: S.current.send_from_cake_wallet,
-                        color: Theme.of(context).colorScheme.primary,
-                        textColor: Theme.of(context).colorScheme.onPrimary,
-                      )
-                    : Offstage();
+                return Offstage(
+                  offstage: !(widget.exchangeTradeViewModel.isSendable &&
+                      !(sendingState is TransactionCommitted)),
+                  child: LoadingPrimaryButton(
+                    key: ValueKey('exchange_trade_page_send_from_cake_button_key'),
+                    isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty,
+                    isLoading: sendingState is IsExecutingState,
+                    onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
+                    text: S.current.send_from_cake_wallet,
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                );
               },
             ),
           ],

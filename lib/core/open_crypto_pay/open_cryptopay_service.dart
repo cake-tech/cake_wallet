@@ -12,6 +12,9 @@ class OpenCryptoPayService {
       value.toLowerCase().contains("lightning=lnurl") ||
       value.toLowerCase().startsWith("lnurl");
 
+  static bool requiresClientCommit(CryptoCurrency currency) =>
+      [CryptoCurrency.xmr, CryptoCurrency.sol].contains(currency) || currency.tag == "SOL";
+
   Future<String> commitOpenCryptoPayRequest(
     String txHex, {
     required String txId,
@@ -39,7 +42,7 @@ class OpenCryptoPayService {
       throw OpenCryptoPayException(body.toString());
     }
     throw OpenCryptoPayException(
-        "Unexpected status code ${response.statusCode} ${response}");
+        "Unexpected status code ${response.statusCode} ${response.body}");
   }
 
   Future<void> cancelOpenCryptoPayRequest(OpenCryptoPayRequest request) async {
@@ -162,6 +165,10 @@ class OpenCryptoPayService {
         return "Ethereum";
       case "POL":
         return "Polygon";
+      case "TRX":
+        return "Tron";
+      case "SOL":
+        return "Solana";
       default:
         return asset.fullName!;
     }

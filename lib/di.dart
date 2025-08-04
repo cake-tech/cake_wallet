@@ -23,6 +23,7 @@ import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -286,6 +287,8 @@ import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart'
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/reset_service.dart';
+import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
+import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -986,7 +989,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
-  getIt.registerFactoryParam<AnimatedURPage, String, void>((String urQr, _) =>
+  getIt.registerFactoryParam<AnimatedURPage, Map<String, String>, void>((Map<String, String> urQr, _) =>
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
   getIt.registerFactoryParam<ContactViewModel, AddressEditRequest?, void>(
@@ -1572,6 +1575,9 @@ Future<void> setup({
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
 
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
+  
+  getIt.registerFactory(() => SocketHealthLogsViewModel());
+  getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));
 
   getIt.registerFactory(() => DevNetworkRequests());
 
@@ -1585,6 +1591,12 @@ Future<void> setup({
   ));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
+
+  getIt.registerLazySingleton(() => NodeSwitchingService(
+    appStore: getIt.get<AppStore>(),
+    settingsStore: getIt.get<SettingsStore>(),
+    nodeSource: _nodeSource,
+  ));
 
   _isSetupFinished = true;
 }

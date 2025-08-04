@@ -27,21 +27,25 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   static const all = [
     CryptoCurrency.xmr,
-    CryptoCurrency.ada,
-    CryptoCurrency.bch,
-    CryptoCurrency.bnb,
     CryptoCurrency.btc,
+    CryptoCurrency.eth,
+    CryptoCurrency.ltc,
+    CryptoCurrency.doge,
+    CryptoCurrency.usdterc20,
+    CryptoCurrency.usdtbsc,
+    CryptoCurrency.usdttrc20,
+    CryptoCurrency.usdc,
+    CryptoCurrency.deuro,
+    CryptoCurrency.maticpoly,
+    CryptoCurrency.sol,
+    CryptoCurrency.trx,
+    CryptoCurrency.bch,
+    CryptoCurrency.ada,
+    CryptoCurrency.bnb,
     CryptoCurrency.dai,
     CryptoCurrency.dash,
     CryptoCurrency.eos,
-    CryptoCurrency.eth,
-    CryptoCurrency.ltc,
     CryptoCurrency.nano,
-    CryptoCurrency.trx,
-    CryptoCurrency.usdt,
-    CryptoCurrency.usdterc20,
-    CryptoCurrency.sol,
-    CryptoCurrency.maticpoly,
     CryptoCurrency.xlm,
     CryptoCurrency.xrp,
     CryptoCurrency.xhv,
@@ -49,12 +53,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.avaxc,
     CryptoCurrency.btt,
     CryptoCurrency.bttc,
-    CryptoCurrency.doge,
     CryptoCurrency.firo,
-    CryptoCurrency.usdttrc20,
+    CryptoCurrency.usdt,
     CryptoCurrency.hbar,
     CryptoCurrency.sc,
-    CryptoCurrency.usdc,
     CryptoCurrency.usdcsol,
     CryptoCurrency.zaddr,
     CryptoCurrency.zec,
@@ -111,8 +113,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.zano,
     CryptoCurrency.ton,
     CryptoCurrency.flip,
-    CryptoCurrency.deuro,
-    CryptoCurrency.usdtbsc,
+    CryptoCurrency.ndeps,
+    CryptoCurrency.deps,
   ];
 
   static const havenCurrencies = [
@@ -235,6 +237,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 97, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
   static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png', decimals: 18);
   static const usdtbsc = CryptoCurrency(title: 'USDT', tag: 'BSC', fullName: 'USDT Binance coin', raw: 99, name: 'usdtbsc', iconPath: 'assets/images/usdtbsc_icon.png', decimals: 18);
+  static const ndeps = CryptoCurrency(title: 'NDEPS', tag: 'ETH', fullName: 'Native Decentralized Euro Protocol Share', raw: 100, name: 'ndeps', iconPath: 'assets/images/ndeps_icon.png', decimals: 18);
+  static const deps = CryptoCurrency(title: 'DEPS', tag: 'ETH', fullName: 'Decentralized Euro Protocol Share', raw: 101, name: 'deps', iconPath: 'assets/images/deps_icon.png', decimals: 18);
+
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap =
     [...all, ...havenCurrencies].fold<Map<int, CryptoCurrency>>(<int, CryptoCurrency>{}, (acc, item) {

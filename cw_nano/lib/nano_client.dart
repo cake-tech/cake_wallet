@@ -92,7 +92,7 @@ class NanoClient {
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
 
-  Future<AccountInfoResponse?> getAccountInfo(String address) async {
+  Future<AccountInfoResponse?> getAccountInfo(String address, {bool throwOnError = false}) async {
     try {
       final response = await ProxyWrapper().post(
         clearnetUri: _node!.uri,
@@ -110,6 +110,9 @@ class NanoClient {
       return AccountInfoResponse.fromJson(data);
     } catch (e) {
       printV("error while getting account info $e");
+      if (throwOnError) {
+        rethrow;
+      }
       return null;
     }
   }

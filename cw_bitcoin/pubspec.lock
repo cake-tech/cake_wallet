@@ -45,7 +45,16 @@ packages:
       sha256: d2872f9c19731c2e5f10444b14686eb7cc85c76274bd6c16e1816bff9a3bab63
       url: "https://pub.dev"
     source: hosted
-    version: "2.12.0"
+    version: "2.11.0"
+  bbqrdart:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+      resolved-ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+      url: "https://github.com/mrcyjanek/bbqrdart"
+    source: git
+    version: "1.0.0"
   bech32:
     dependency: "direct main"
     description:
@@ -588,8 +597,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/ledger-bitcoin"
-      ref: trunk
-      resolved-ref: e93254f3ff3f996fb91f65a1e7ceffb9f510b4c8
+      ref: e8ab1a98493dfdd2277edde07a66b8d378ca70f6
+      resolved-ref: e8ab1a98493dfdd2277edde07a66b8d378ca70f6
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -1101,6 +1110,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.0"
+  ur:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "5738f70d0ec3d50977ac3dd01fed62939600238b"
+      resolved-ref: "5738f70d0ec3d50977ac3dd01fed62939600238b"
+      url: "https://github.com/bukata-sa/bc-ur-dart"
+    source: git
+    version: "0.1.0"
   vector_math:
     dependency: transitive
     description:
@@ -1182,5 +1200,5 @@ packages:
     source: hosted
     version: "2.2.2"
 sdks:
-  dart: ">=3.7.0-0 <4.0.0"
+  dart: ">=3.6.2 <4.0.0"
   flutter: ">=3.27.0"

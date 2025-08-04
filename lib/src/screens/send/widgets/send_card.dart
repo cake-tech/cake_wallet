@@ -257,7 +257,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
                 currencyValueValidator: output.sendAll
                     ? sendViewModel.allAmountValidator
-                    : sendViewModel.amountValidator,
+                    : sendViewModel.amountValidator(output),
                 allAmountCallback: () async =>
                     output.setSendAll(await sendViewModel.sendingBalance),
               ),

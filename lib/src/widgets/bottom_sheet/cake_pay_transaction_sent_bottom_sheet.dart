@@ -1,9 +1,11 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/rounded_icon_button.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CakePayTransactionSentBottomSheet extends StatelessWidget {
   const CakePayTransactionSentBottomSheet({
@@ -39,18 +41,36 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
   final String paymentId;
   final String paymentIdValue;
 
-  TextStyle _titleStyle(BuildContext ctx) => Theme.of(ctx).textTheme.bodyLarge!;
+  TextStyle _titleStyle(BuildContext ctx) =>
+      Theme
+          .of(ctx)
+          .textTheme
+          .bodyLarge!;
 
-  TextStyle _valueStyle(BuildContext ctx) => Theme.of(ctx).textTheme.titleMedium!.copyWith(
+  TextStyle _valueStyle(BuildContext ctx) =>
+      Theme
+          .of(ctx)
+          .textTheme
+          .titleMedium!
+          .copyWith(
         fontSize: 18,
         fontWeight: FontWeight.w600,
       );
 
-  TextStyle _subStyle(BuildContext ctx) => Theme.of(ctx).textTheme.labelSmall!.copyWith(
-        color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+  TextStyle _subStyle(BuildContext ctx) =>
+      Theme
+          .of(ctx)
+          .textTheme
+          .labelSmall!
+          .copyWith(
+        color: Theme
+            .of(ctx)
+            .colorScheme
+            .onSurfaceVariant,
       );
 
-  Widget _buildHeader(BuildContext ctx) => Column(
+  Widget _buildHeader(BuildContext ctx) =>
+      Column(
         children: [
           const SizedBox(height: 12),
           Container(
@@ -58,7 +78,10 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
             height: 5,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Theme.of(ctx).colorScheme.onSurface,
+              color: Theme
+                  .of(ctx)
+                  .colorScheme
+                  .onSurface,
             ),
           ),
           const SizedBox(height: 20),
@@ -69,11 +92,15 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 titleText,
-                style: Theme.of(ctx).textTheme.titleLarge!.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.none,
-                    ),
+                style: Theme
+                    .of(ctx)
+                    .textTheme
+                    .titleLarge!
+                    .copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.none,
+                ),
               ),
             ],
           ),
@@ -81,7 +108,8 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
         ],
       );
 
-  Widget _buildBody(BuildContext context) => Padding(
+  Widget _buildBody(BuildContext context) =>
+      Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
           children: [
@@ -112,25 +140,49 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
               itemSubTitleStyle: _subStyle(context),
               imagePath: output.parsedAddress.profileImageUrl,
             ),
+            const SizedBox(height: 8),
+            _StandardTile(
+              itemTitle: paymentId + ': \n' + paymentIdValue,
+              titleStyle: _titleStyle(context).copyWith(
+                  fontSize: 14
+              ),
+              itemValue: '',
+              itemValueStyle: _valueStyle(context),
+              copyButton: true,
+              copyButtonOnPressed: () async =>
+                  await Clipboard.setData(ClipboardData(text: paymentIdValue)),
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
                 children: [
-                  Text(paymentId + ': ' + paymentIdValue,
-                      style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center),
                   const SizedBox(height: 18),
                   Image.asset('assets/images/envelope.png'),
                   const SizedBox(height: 18),
                   Text(
-                    S.of(context).cake_pay_card_email_delivered_message,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    S
+                        .of(context)
+                        .cake_pay_card_email_delivered_message,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   PrimaryButton(
-                    text: S.of(context).close,
-                    color: Theme.of(context).colorScheme.primary,
-                    textColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                    text: S
+                        .of(context)
+                        .close,
+                    color: Theme
+                        .of(context)
+                        .colorScheme
+                        .primary,
+                    textColor: Theme
+                        .of(context)
+                        .colorScheme
+                        .onPrimaryContainer,
                     onPressed: onClose,
                   ),
                 ],
@@ -142,12 +194,18 @@ class CakePayTransactionSentBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.of(context).size.height * 0.9;
+    final maxHeight = MediaQuery
+        .of(context)
+        .size
+        .height * 0.9;
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       child: Material(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme
+            .of(context)
+            .colorScheme
+            .surface,
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxHeight),
           child: SingleChildScrollView(
@@ -174,6 +232,8 @@ class _StandardTile extends StatelessWidget {
     this.itemSubTitle,
     this.itemSubTitleStyle,
     this.imagePath,
+    this.copyButton = false,
+    this.copyButtonOnPressed,
   });
 
   final String itemTitle;
@@ -183,6 +243,8 @@ class _StandardTile extends StatelessWidget {
   final String? itemSubTitle;
   final TextStyle? itemSubTitleStyle;
   final String? imagePath;
+  final bool copyButton;
+  final VoidCallback? copyButtonOnPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -193,12 +255,17 @@ class _StandardTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Theme.of(context).colorScheme.surfaceContainerLowest.withAlpha(80)),
+            color: Theme
+                .of(context)
+                .colorScheme
+                .surfaceContainerLowest
+                .withAlpha(80)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Row(
+                mainAxisAlignment: copyButton ? MainAxisAlignment.spaceBetween : MainAxisAlignment.start,
                 children: [
                   if (imagePath != null)
                     Padding(
@@ -216,10 +283,19 @@ class _StandardTile extends StatelessWidget {
                           itemTitle,
                           style: titleStyle,
                           overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          softWrap: false,
+                          maxLines: 2,
+                          softWrap: true,
                         )),
                   ),
+                  SizedBox(width: 8),
+                  if (copyButton)
+                    RoundedIconButton(
+                      icon: Icons.copy_all_outlined,
+                      onPressed: copyButtonOnPressed ?? () {},
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
                 ],
               ),
             ),

@@ -9,7 +9,6 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -30,10 +29,6 @@ abstract class LedgerViewModelBase with Store {
   late final sdk.LedgerInterface ledgerPlusUSB;
 
   bool get _doesSupportHardwareWallets {
-    if (!DeviceInfo.instance.isMobile) {
-      return false;
-    }
-
     if (isMoneroOnly) {
       return DeviceConnectionType.supportedConnectionTypes(
               WalletType.monero, Platform.isIOS)
@@ -65,6 +60,8 @@ abstract class LedgerViewModelBase with Store {
     if (bleIsEnabled && !_bleIsInitialized) {
       ledgerPlusBLE = sdk.LedgerInterface.ble(
         onPermissionRequest: (_) async {
+          if (Platform.isMacOS) return true;
+
           Map<Permission, PermissionStatus> statuses = await [
             Permission.bluetoothScan,
             Permission.bluetoothConnect,
@@ -176,7 +173,14 @@ abstract class LedgerViewModelBase with Store {
     }
   }
 
-  String? interpretErrorCode(String errorCode) {
+  String? interpretErrorCode(String error) {
+    if (error.contains("Make sure no other program is communicating with the Ledger")) {
+      return error;
+    }
+
+    var errorRegex = RegExp(r'0x\S*?(?= )').firstMatch(error.toString());
+
+    String errorCode = errorRegex?.group(0).toString().replaceAll("0x", "") ?? "";
     if (errorCode.contains("6985")) {
       return S.current.ledger_error_tx_rejected_by_user;
     } else if (errorCode.contains("5515")) {
