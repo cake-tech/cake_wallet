@@ -79,50 +79,59 @@ class ContactPage extends SheetPage {
   }
 
   @override
-  Widget body(BuildContext context) {
-    const double _iconSize = 24;
-    const double _iconOffset = 12;
-    return Observer(builder: (_) {
-      return SingleChildScrollView(
-        child: Padding(
+  Widget body(BuildContext context) => Observer(builder: (_) {
+    const iconSize = 24.0;
+    const iconOffset = 12.0;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height * 0.35,
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+      ),
+      child: Scrollbar(
+        thumbVisibility: true,
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (contactViewModel.manual.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: ContactAddressesExpansionTile(
                     key: ValueKey(contactViewModel.name),
-                    title: Text('Manual Addresses'),
+                    title: const Text('Manual Addresses'),
                     initiallyExpanded: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainer,
+                    fillColor:
+                    Theme.of(context).colorScheme.surfaceContainer,
                     addressByCurrency: contactViewModel.manual,
-                    onCopyPressed: (address) async =>
-                        await Clipboard.setData(ClipboardData(text: address)),
-                    onEditPressed: (cur, lbl) {
-                      Navigator.pushNamed(
-                        context,
-                        Routes.editAddressPage,
-                        arguments: [contactViewModel, cur, lbl],
-                      );
-                    },
+                    onCopyPressed: (addr) =>
+                        Clipboard.setData(ClipboardData(text: addr)),
+                    onEditPressed: (cur, lbl) => Navigator.pushNamed(
+                      context,
+                      Routes.editAddressPage,
+                      arguments: [contactViewModel, cur, lbl],
+                    ),
                   ),
                 ),
               ...contactViewModel.parsedBlocks.entries.map((entry) {
                 final handleKey = entry.key;
                 final srcLabel = handleKey.split('-').first;
                 final byCurrency = entry.value;
-                final src = AddressSourceNameParser.fromLabel(srcLabel);
+                final src =
+                AddressSourceNameParser.fromLabel(srcLabel);
 
                 final currencies = byCurrency.keys.toList();
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainer,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -138,51 +147,58 @@ class ContactPage extends SheetPage {
                           child: Text(
                             handleKey,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  fontSize: 12,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                              fontSize: 12,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
                           ),
                         ),
                         contactViewModel.state is IsExecutingState
                             ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )
                             : SizedBox(
-                                width: _iconSize + _iconOffset * (currencies.length - 1),
-                                height: _iconSize,
-                                child: Stack(
-                                  children: [
-                                    for (int i = 0; i < currencies.length; ++i)
-                                      Positioned(
-                                        left: i * _iconOffset,
-                                        child: CircleAvatar(
-                                          radius: _iconSize / 2,
-                                          backgroundColor: Colors.transparent,
-                                          child: ImageUtil.getImageFromPath(
-                                            imagePath: currencies[i].iconPath ?? '',
-                                            height: _iconSize - 4,
-                                            width: _iconSize - 4,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
+                          width: iconSize +
+                              iconOffset * (currencies.length - 1),
+                          height: iconSize,
+                          child: Stack(
+                            children: [
+                              for (int i = 0;
+                              i < currencies.length;
+                              ++i)
+                                Positioned(
+                                  left: i * iconOffset,
+                                  child: CircleAvatar(
+                                    radius: iconSize / 2,
+                                    backgroundColor: Colors.transparent,
+                                    child: ImageUtil.getImageFromPath(
+                                      imagePath:
+                                      currencies[i].iconPath ?? '',
+                                      height: iconSize - 4,
+                                      width: iconSize - 4,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(width: 8),
                         RoundedIconButton(
                           icon: Icons.edit,
-                          onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              Routes.editAliasPage,
-                              arguments: [contactViewModel, handleKey],
-                            );
-                          },
+                          onPressed: () => Navigator.pushNamed(
+                            context,
+                            Routes.editAliasPage,
+                            arguments: [contactViewModel, handleKey],
+                          ),
                         ),
                         const SizedBox(width: 8),
                       ],
@@ -190,10 +206,11 @@ class ContactPage extends SheetPage {
                   ),
                 );
               }).toList(),
+              const SizedBox(height: 16),
             ],
           ),
         ),
-      );
-    });
-  }
+      ),
+    );
+  });
 }
