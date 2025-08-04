@@ -137,7 +137,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                   isEditable: contactListViewModel.isEditable,
                 ),
                 ContactListBody(
-                  contactListViewModel: widget.contactListViewModel,
+                  contactListViewModel: contactListViewModel,
                   tabController: _tabController,
                 ),
               ],

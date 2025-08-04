@@ -97,7 +97,7 @@ enum AddressSource {
       supportedCurrencies: CryptoCurrency.all),
   wellKnown(
       label: '.wellknown',
-      iconPath: 'assets/icons/wk.svg',
+      iconPath: '', // TODO provide an icon
       supportedCurrencies: [CryptoCurrency.nano]),
   zanoAlias(
       label: 'Zano Alias',

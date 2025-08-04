@@ -31,7 +31,7 @@ class _ContactListBodyState extends State<ContactListBody> {
 
   bool get _contactsTab => widget.tabController.index == 1;
 
-  ContactListViewModel get _vm => widget.contactListViewModel;
+  ContactListViewModel get _viewModel => widget.contactListViewModel;
 
   @override
   void initState() {
@@ -44,8 +44,8 @@ class _ContactListBodyState extends State<ContactListBody> {
   void dispose() {
     widget.tabController.removeListener(() {});
     _searchCtrl.dispose();
-    if (_vm.settingsStore.contactListOrder == FilterListOrderType.Custom) {
-      _vm.saveCustomOrder();
+    if (_viewModel.settingsStore.contactListOrder == FilterListOrderType.Custom) {
+      _viewModel.saveCustomOrder();
     }
     super.dispose();
   }
@@ -53,9 +53,9 @@ class _ContactListBodyState extends State<ContactListBody> {
   @override
   Widget build(BuildContext context) {
     final query = _searchCtrl.text.trim().toLowerCase();
-    final editable = _vm.isEditable && query.isEmpty;
+    final editable = _viewModel.isEditable && query.isEmpty;
     final list = ObservableList<ContactRecord>.of(
-      _vm.contacts.where((c) => c.name.toLowerCase().contains(query)),
+      _viewModel.contactsToShow.where((c) => c.name.toLowerCase().contains(query)),
     );
 
     return Scaffold(
@@ -72,7 +72,7 @@ class _ContactListBodyState extends State<ContactListBody> {
               child: FilteredList(
                 list: list,
                 canReorder: editable,
-                updateFunction: _vm.reorderAccordingToContactList,
+                updateFunction: _viewModel.reorderAccordingToContactList,
                 itemBuilder: (ctx, i) => _item(ctx, list[i]),
               ),
             ),
@@ -83,7 +83,7 @@ class _ContactListBodyState extends State<ContactListBody> {
   }
 
   Widget _item(BuildContext ctx, ContactRecord c) {
-    final cur = _vm.selectedCurrency;
+    final cur = _viewModel.selectedCurrency;
     final bg = Theme.of(ctx).colorScheme.surfaceContainer;
 
     return Material(
@@ -152,11 +152,11 @@ class _ContactListBodyState extends State<ContactListBody> {
             await showPopUp<void>(
               context: ctx,
               builder: (_) => FilterListWidget(
-                initalType: _vm.orderType,
-                initalAscending: _vm.ascending,
+                initalType: _viewModel.orderType,
+                initalAscending: _viewModel.ascending,
                 onClose: (asc, type) async {
-                  _vm.setAscending(asc);
-                  await _vm.setOrderType(type);
+                  _viewModel.setAscending(asc);
+                  await _viewModel.setOrderType(type);
                 },
                 showGroupByType: false,
               ),
