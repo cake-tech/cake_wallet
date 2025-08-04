@@ -1,6 +1,6 @@
-import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:cw_core/format_fixed.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:web3dart/crypto.dart';
 import 'package:hex/hex.dart' as Hex;
@@ -27,23 +27,17 @@ class PendingEVMChainTransaction with PendingTransaction {
   @override
   String get amountFormatted {
     if (isInfiniteApproval) return "∞";
-    final _amount = (BigInt.parse(amount) / BigInt.from(pow(10, exponent))).toString();
-    return _amount.substring(0, min(10, _amount.length));
+    return formatFixed(BigInt.parse(amount), exponent);
   }
 
   @override
   Future<void> commit() async => await sendTransaction();
 
   @override
-  String get feeFormatted {
-    return "$feeFormattedValue $feeCurrency";
-  }
+  String get feeFormatted => "$feeFormattedValue $feeCurrency";
 
   @override
-  String get feeFormattedValue {
-    final _fee = (fee / BigInt.from(pow(10, 18))).toString();
-    return _fee.substring(0, min(10, _fee.length));
-  }
+  String get feeFormattedValue => formatFixed(fee, 18, fractionalDigits: 10);
 
   @override
   String get hex => bytesToHex(signedTransaction, include0x: true);
@@ -53,13 +47,13 @@ class PendingEVMChainTransaction with PendingTransaction {
     final String eip1559Hex = '0x02${hex.substring(2)}';
     final Uint8List bytes = Uint8List.fromList(Hex.HEX.decode(eip1559Hex.substring(2)));
 
-    var txid = keccak256(bytes);
+    final txid = keccak256(bytes);
 
     return '0x${Hex.HEX.encode(txid)}';
   }
   
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }

@@ -185,6 +185,24 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void>? updateBalance() => null;
 
   @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check if the wallet is currently connected to the daemon
+      final isConnected = await monero_wallet.isConnected();
+      
+      if (!isConnected) {
+        return false; // It's not connected to daemon
+      }
+      
+      // Check to get current node height to ensure daemon is responsive
+      final nodeHeight = await monero_wallet.getNodeHeight();
+      return nodeHeight > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
   Future<void> close({bool shouldCleanup = false}) async {
     if (isHardwareWallet) {
       disableLedgerExchange();
@@ -336,14 +354,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return retStatus;
   }
 
-  String exportOutputsUR(bool all) {
-    final str = currentWallet!.exportOutputsUR(all: all);
-    final status = currentWallet!.status();
+  Map<String, String> exportOutputsUR() {
+    final str = currentWallet!.exportOutputsUR(all: false);
+    int status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw MoneroTransactionCreationException("unable to export UR: $err");
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
     }
-    return str;
+    final strAll = currentWallet!.exportOutputsUR(all: true);
+    status = currentWallet!.status();
+    if (status != 0) {
+      final err = currentWallet!.errorString();
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
+    }
+    return {
+      "Outputs (partial)": str,
+      "Outputs (all)": strAll,
+    };
   }
 
   bool needExportOutputs(int amount) {
@@ -804,28 +831,39 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     throw Exception("height isn't > $MIN_RESTORE_HEIGHT!");
   }
 
-  void _setHeightFromDate() {
+  void _setHeightFromDate({int tryNum = 0}) {
     if (walletInfo.isRecovery) {
       return;
     }
 
     int height = 0;
     try {
-      height = _getHeightByDate(walletInfo.date);
-    } catch (_) {}
+      height = _getHeightByDate(walletInfo.date.subtract(Duration(days: 14)));
+      if (height <= 0) {
+        throw Exception("height is <= 0");
+      }
+      monero_wallet.setRefreshFromBlockHeight(height: height);
+    } catch (_) {
+      if (tryNum <= 3) {
+        printV("Failed to set height from date, retrying... $tryNum");
+        unawaited(() async {
+          await Future.delayed(Duration(seconds: 10));
+          _setHeightFromDate(tryNum: tryNum + 1);
+        }());
+      }
+    }
 
     monero_wallet.setRecoveringFromSeed(isRecovery: true);
-    monero_wallet.setRefreshFromBlockHeight(height: height);
     setupBackgroundSync(password, currentWallet!);
   }
 
   int _getHeightDistance(DateTime date) {
     final distance =
-        DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
+        DateTime.now().difference(date).inSeconds;
     final daysTmp = (distance / 86400).round();
     final days = daysTmp < 1 ? 1 : daysTmp;
 
-    return days * 1000;
+    return days * 720; // there are720 blocks per day on xmr
   }
 
   int _getHeightByDate(DateTime date) {
@@ -841,10 +879,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _askForUpdateBalance() {
-    final unlockedBalance = _getUnlockedBalance();
+    final _ub = _getUnlockedBalance();
+    final _fb =_getFrozenBalance();
+    final unlockedBalance = _ub - _fb;
     final fullBalance = monero_wallet.getFullBalance(
-      accountIndex: walletAddresses.account!.id);
-    final frozenBalance = _getFrozenBalance();
+      accountIndex: walletAddresses.account!.id) - _fb;
+    final frozenBalance = _fb;
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {

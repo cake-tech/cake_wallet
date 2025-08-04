@@ -450,7 +450,7 @@ class SendPage extends BasePage {
                                 }
                                 if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                                   await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-                                      arguments: 'export-outputs');
+                                      arguments: monero!.exportOutputsUR(sendViewModel.wallet));
                                   await Future.delayed(
                                       Duration(seconds: 1)); // wait for monero to refresh the state
                                 }
@@ -470,9 +470,7 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: sendViewModel.payjoinUri != null
-                                ? S.of(context).send_payjoin
-                                : S.of(context).send,
+                            text: _sendButtonText(context),
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: sendViewModel.state is IsExecutingState ||
@@ -568,8 +566,9 @@ class SendPage extends BasePage {
               isScrollControlled: true,
               builder: (BuildContext bottomSheetContext) {
                 return ConfirmSendingBottomSheet(
-                  key: ValueKey('send_page_confirm_sending_dialog_key'),
+                  key: ValueKey('send_page_confirm_sending_bottom_sheet_key'),
                   titleText: S.of(bottomSheetContext).confirm_transaction,
+                  accessibleNavigationModeSlideActionButtonText: S.of(bottomSheetContext).send,
                   currentTheme: currentTheme,
                   footerType: FooterType.slideActionButton,
                   walletType: sendViewModel.walletType,
@@ -614,69 +613,73 @@ class SendPage extends BasePage {
 
           bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
 
-              await showModalBottomSheet<void>(
-                context: context,
-                isDismissible: false,
-                builder: (BuildContext bottomSheetContext) {
-                  return showContactSheet && sendViewModel.ocpRequest == null
-                      ? InfoBottomSheet(
-                    currentTheme: currentTheme,
-                    footerType: FooterType.doubleActionButton,
-                    titleText: S.of(bottomSheetContext).transaction_sent,
-                    contentImage: 'assets/images/contact.png',
-                    contentImageColor: Theme.of(context).colorScheme.onSurface,
-                    content: S.of(bottomSheetContext).add_contact_to_address_book,
-                    bottomActionPanel: Padding(
-                      padding: const EdgeInsets.only(left: 34.0),
-                      child: Row(
-                        children: [
-                          SimpleCheckbox(
-                              onChanged: (value) =>
-                                  sendViewModel.setShowAddressBookPopup(!value)),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Don’t ask me next time',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).textTheme.titleLarge!.color,
-                              decoration: TextDecoration.none,
+          await showModalBottomSheet<void>(
+            context: context,
+            isDismissible: false,
+            builder: (BuildContext bottomSheetContext) {
+              return showContactSheet && sendViewModel.ocpRequest == null
+                  ? InfoBottomSheet(
+                      currentTheme: currentTheme,
+                      footerType: FooterType.doubleActionButton,
+                      titleText: S.of(bottomSheetContext).transaction_sent,
+                      contentImage: 'assets/images/contact.png',
+                      contentImageColor: Theme.of(context).colorScheme.onSurface,
+                      content: S.of(bottomSheetContext).add_contact_to_address_book,
+                      leftActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_no_button_key'),
+                      rightActionButtonKey:
+                          ValueKey('send_page_add_contact_bottom_sheet_yes_button_key'),
+                      bottomActionPanel: Padding(
+                        padding: const EdgeInsets.only(left: 34.0),
+                        child: Row(
+                          children: [
+                            SimpleCheckbox(
+                                onChanged: (value) =>
+                                    sendViewModel.setShowAddressBookPopup(!value)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Don’t ask me next time',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: 'Lato',
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.titleLarge!.color,
+                                decoration: TextDecoration.none,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    doubleActionLeftButtonText: 'No',
-                    doubleActionRightButtonText: 'Yes',
-                    onLeftActionButtonPressed: () {
-                      Navigator.of(bottomSheetContext).pop();
-                      if (context.mounted) {
-                        Navigator.of(context)
-                            .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
-                      }
-                      RequestReviewHandler.requestReview();
-                      newContactAddress = null;
-                    },
-                    onRightActionButtonPressed: () {
-                      Navigator.of(bottomSheetContext).pop();
-                      RequestReviewHandler.requestReview();
-                      if (context.mounted) {
-                        Navigator.of(context).pushNamed(Routes.addressBookAddContact,
-                            arguments: newContactAddress);
-                      }
-                      newContactAddress = null;
-                    },
-                  )
+                      doubleActionLeftButtonText: 'No',
+                      doubleActionRightButtonText: 'Yes',
+                      onLeftActionButtonPressed: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                        }
+                        RequestReviewHandler.requestReview();
+                        newContactAddress = null;
+                      },
+                      onRightActionButtonPressed: () {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        if (context.mounted) {
+                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                              arguments: newContactAddress);
+                        }
+                        newContactAddress = null;
+                      },
+                    )
                   : InfoBottomSheet(
                       currentTheme: currentTheme,
                       footerType: FooterType.singleActionButton,
                       titleText: S.of(bottomSheetContext).transaction_sent,
                       contentImage: 'assets/images/birthday_cake.png',
-                    singleActionButtonText: S.of(bottomSheetContext).close,
+                      singleActionButtonText: S.of(bottomSheetContext).close,
                       singleActionButtonKey: ValueKey('send_page_transaction_sent_button_key'),
-                    onSingleActionButtonPressed: () {
+                      onSingleActionButtonPressed: () {
                         Navigator.of(bottomSheetContext).pop();
                         Future.delayed(Duration.zero, () {
                           if (context.mounted) {
@@ -835,5 +838,16 @@ class SendPage extends BasePage {
     }
 
     return isValid;
+  }
+
+  String _sendButtonText(BuildContext context) {
+    if (!sendViewModel.isReadyForSend) {
+      return S.of(context).synchronizing;
+    }
+    if (sendViewModel.payjoinUri != null) {
+      return S.of(context).send_payjoin;
+    } else {
+      return S.of(context).send;
+    }
   }
 }

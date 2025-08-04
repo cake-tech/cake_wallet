@@ -123,12 +123,12 @@ abstract class SettingsStoreBase with Store {
       required this.showPayjoinCard,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
-      required this.silentPaymentsAlwaysScan,
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
       required this.mwebEnabled,
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
+      required bool initialEnableAutomaticNodeSwitching,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -187,6 +187,7 @@ abstract class SettingsStoreBase with Store {
         currentSyncMode = initialSyncMode,
         currentSyncAll = initialSyncAll,
         currentBuiltinTor = initialBuiltinTor,
+        enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -593,11 +594,6 @@ abstract class SettingsStoreBase with Store {
     });
 
     reaction(
-        (_) => silentPaymentsAlwaysScan,
-        (bool silentPaymentsAlwaysScan) => _sharedPreferences.setBool(
-            PreferencesKey.silentPaymentsAlwaysScan, silentPaymentsAlwaysScan));
-
-    reaction(
         (_) => mwebAlwaysScan,
         (bool mwebAlwaysScan) =>
             _sharedPreferences.setBool(PreferencesKey.mwebAlwaysScan, mwebAlwaysScan));
@@ -619,6 +615,11 @@ abstract class SettingsStoreBase with Store {
         (_) => mwebNodeUri,
         (String mwebNodeUri) =>
             _sharedPreferences.setString(PreferencesKey.mwebNodeUri, mwebNodeUri));
+    
+    reaction(
+        (_) => enableAutomaticNodeSwitching,
+        (bool enableAutomaticNodeSwitching) => _sharedPreferences.setBool(
+            PreferencesKey.enableAutomaticNodeSwitching, enableAutomaticNodeSwitching));
 
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
@@ -851,9 +852,6 @@ abstract class SettingsStoreBase with Store {
   bool silentPaymentsCardDisplay;
 
   @observable
-  bool silentPaymentsAlwaysScan;
-
-  @observable
   bool mwebAlwaysScan;
 
   @observable
@@ -867,6 +865,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   String mwebNodeUri;
+
+  @observable
+  bool enableAutomaticNodeSwitching;
 
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
@@ -1036,8 +1037,6 @@ abstract class SettingsStoreBase with Store {
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
-    final silentPaymentsAlwaysScan =
-        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     final mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;
@@ -1045,6 +1044,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.hasEnabledMwebBefore) ?? false;
     final mwebNodeUri = sharedPreferences.getString(PreferencesKey.mwebNodeUri) ??
         "ltc-electrum.cakewallet.com:9333";
+    final enableAutomaticNodeSwitching =
+        sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1341,12 +1342,12 @@ abstract class SettingsStoreBase with Store {
       showPayjoinCard: showPayjoinCard,
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
-      silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
       mwebEnabled: mwebEnabled,
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
+      initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialZanoTransactionPriority: zanoTransactionPriority,
@@ -1490,6 +1491,9 @@ abstract class SettingsStoreBase with Store {
     actionlistDisplayMode = ObservableList<ActionListDisplayMode>();
     actionlistDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ?? defaultActionsMode));
+    enableAutomaticNodeSwitching =
+        sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ??
+            enableAutomaticNodeSwitching;
     var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1525,8 +1529,6 @@ abstract class SettingsStoreBase with Store {
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
-    silentPaymentsAlwaysScan =
-        sharedPreferences.getBool(PreferencesKey.silentPaymentsAlwaysScan) ?? false;
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     mwebEnabled = sharedPreferences.getBool(PreferencesKey.mwebEnabled) ?? false;

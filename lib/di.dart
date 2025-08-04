@@ -23,6 +23,7 @@ import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -76,7 +77,6 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -277,6 +277,9 @@ import 'src/screens/buy/buy_sell_page.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/core/reset_service.dart';
+import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
+import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -551,6 +554,14 @@ Future<void> setup({
     () => AuthService(
       secureStorage: getIt.get<SecureStorage>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
+      settingsStore: getIt.get<SettingsStore>(),
+    ),
+  );
+
+  getIt.registerFactory<ResetService>(
+    () => ResetService(
+      secureStorage: getIt.get<SecureStorage>(),
+      authenticationStore: getIt.get<AuthenticationStore>(),
       settingsStore: getIt.get<SettingsStore>(),
     ),
   );
@@ -969,7 +980,7 @@ Future<void> setup({
   
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
-  getIt.registerFactoryParam<AnimatedURPage, String, void>((String urQr, _) =>
+  getIt.registerFactoryParam<AnimatedURPage, Map<String, String>, void>((Map<String, String> urQr, _) =>
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
   getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
@@ -1119,14 +1130,12 @@ Future<void> setup({
           _walletInfoSource,
           _unspentCoinsInfoSource,
           _payjoinSessionSource,
-          getIt.get<SettingsStore>().silentPaymentsAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(
           _walletInfoSource,
           _unspentCoinsInfoSource,
-          getIt.get<SettingsStore>().mwebAlwaysScan,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.ethereum:
@@ -1497,6 +1506,9 @@ Future<void> setup({
   
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
   
+  getIt.registerFactory(() => SocketHealthLogsViewModel());
+  getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));
+  
   getIt.registerFactory(() => DevNetworkRequests());
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
@@ -1509,6 +1521,12 @@ Future<void> setup({
   ));
 
   getIt.registerFactory(() => DEuroSavingsPage(getIt<DEuroViewModel>()));
+
+  getIt.registerLazySingleton(() => NodeSwitchingService(
+    appStore: getIt.get<AppStore>(),
+    settingsStore: getIt.get<SettingsStore>(),
+    nodeSource: _nodeSource,
+  ));
 
   _isSetupFinished = true;
 }

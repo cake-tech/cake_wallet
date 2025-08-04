@@ -454,7 +454,7 @@ class Libwallet {
     return res.payload;
   }
 
-  Future<Map> balance(String walletName) async {
+  Future<Map> balance(String walletName, {bool throwOnError = false}) async {
     if (_closed) throw StateError('Closed');
     final completer = Completer<Object?>.sync();
     final id = _idCounter++;
@@ -468,6 +468,9 @@ class Libwallet {
     try {
       return jsonDecode(res.payload);
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return {};
     }
   }

@@ -163,6 +163,7 @@ abstract class Bitcoin {
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
+  WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -192,8 +193,8 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool alwaysScan, bool isDirect);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -206,7 +207,7 @@ abstract class Bitcoin {
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
-  List<ReceivePageOption> getBitcoinReceivePageOptions();
+  List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet);
   List<ReceivePageOption> getLitecoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   bool isPayjoinAvailable(Object wallet);
@@ -216,6 +217,8 @@ abstract class Bitcoin {
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
   Future<void> setScanningActive(Object wallet, bool active);
+  Future<void> setIsAlwaysScanningSP(Object wallet, bool active);
+  bool getIsAlwaysScanningSP(Object wallet);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
@@ -244,6 +247,7 @@ abstract class Bitcoin {
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
+  Future<void> commitPsbtUR(Object wallet, List<String> urCodes);
 
   void updatePayjoinState(Object wallet, bool state);
   String getPayjoinEndpoint(Object wallet);
@@ -399,7 +403,7 @@ abstract class Monero {
 
   Future<bool> commitTransactionUR(Object wallet, String ur);
 
-  String exportOutputsUR(Object wallet, bool all);
+  Map<String, String> exportOutputsUR(Object wallet);
 
   bool needExportOutputs(Object wallet, int amount);
 

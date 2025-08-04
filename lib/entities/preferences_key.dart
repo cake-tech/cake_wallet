@@ -54,7 +54,6 @@ class PreferencesKey {
   static const decredTransactionPriority = 'current_fee_priority_decred';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
-  static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
   static const mwebCardDisplay = 'mwebCardDisplay';
   static const mwebEnabled = 'mwebEnabled';
   static const hasEnabledMwebBefore = 'hasEnabledMwebBefore';
@@ -113,4 +112,5 @@ class PreferencesKey {
       '${PreferencesKey.walletConnectPairingTopicsList}_${publicKey}';
   static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
   static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
+  static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
 }

@@ -14,6 +14,7 @@ class RestoreFromSeedOrKeysPageRobot {
 
   Future<void> isRestoreFromSeedKeyPage() async {
     await commonTestCases.isSpecificPage<WalletRestorePage>();
+    await commonTestCases.takeScreenshots('wallet_restore_page');
   }
 
   Future<void> confirmViewComponentsDisplayProperlyPerPageView() async {

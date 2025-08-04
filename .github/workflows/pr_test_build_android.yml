@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.0-go1.24.1-ruststablenightly
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -161,6 +161,7 @@ jobs:
           echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const zanoTestWalletSeeds = '${{ secrets.ZANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
