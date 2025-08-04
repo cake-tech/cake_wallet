@@ -564,6 +564,8 @@ class AddressResolverService {
       String text, List<CryptoCurrency> currencies, WalletBase _) async {
     final Map<CryptoCurrency, String> result = {};
 
+    final dnsProof = await Bip353Record.fetchDnsProof(text);
+
     for (final cur in currencies) {
       final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, cur.title);
 
@@ -584,6 +586,7 @@ class AddressResolverService {
         parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.bip353,
         handle: text,
+        description: dnsProof ?? '',
       );
     }
     return null;

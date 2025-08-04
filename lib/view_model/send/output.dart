@@ -300,9 +300,9 @@ abstract class OutputBase with Store {
 
   Map<String, dynamic> get extra {
     final fields = <String, dynamic>{};
-    if (parsedAddress.parseFrom == ParseFrom.bip353) {
-      fields['bip353_name'] = parsedAddress.name;
-      fields['bip353_proof'] = parsedAddress.bip353DnsProof;
+    if (parsedAddress.addressSource == AddressSource.bip353) {
+      fields['bip353_name'] = parsedAddress.handle;
+      fields['bip353_proof'] = parsedAddress.description;
     }
     return fields;
   }
