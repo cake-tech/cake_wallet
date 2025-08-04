@@ -78,18 +78,13 @@ void startAuthenticationStateChange(
                   await loadCurrentWallet();
                   tryOpening = false;
                 } on Exception catch (e) {
-                  final errorCode = RegExp(r'0x\S*?(?= )').firstMatch(
-                      e.toString());
-
-                  final errorMessage = ledgerVM.interpretErrorCode(
-                      errorCode?.group(0).toString().replaceAll("0x", "") ??
-                          "");
-                  if (errorMessage != null) {
+                  final ledgerErrorMessage = ledgerVM.interpretErrorCode(e.toString());
+                  if (ledgerErrorMessage != null) {
                     await showPopUp<void>(
                       context: context,
                       builder: (context) => AlertWithTwoActions(
                         alertTitle: "Ledger Error",
-                        alertContent: errorMessage,
+                        alertContent: ledgerErrorMessage,
                         leftButtonText: S.of(context).try_again,
                         alertBarrierDismissible: false,
                         actionLeftButton: () => Navigator.of(context).pop(),
