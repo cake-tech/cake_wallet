@@ -177,6 +177,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 return AddressTextField(
                   contentPadding: EdgeInsets.symmetric(vertical: 8),
                   hasUnderlineBorder: true,
+                  keyboardType: TextInputType.text,
                   fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   addressKey: ValueKey('send_page_address_textfield_key'),
                   focusNode: addressFocusNode,
@@ -215,9 +216,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   onPushAddressBookButton: (context) async {
                     output.resetParsedAddress();
                   },
-                  onSelectedContact: (contact) {
-                    output.loadContact(contact);
-                  },
+                  onSelectedContact: (contact) => output.loadContact(contact),
                   validator: validator,
                   selectedCurrency: sendViewModel.selectedCryptoCurrency,
                 );

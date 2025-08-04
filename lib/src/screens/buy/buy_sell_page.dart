@@ -2,7 +2,7 @@ import 'package:cake_wallet/buy/sell_buy_states.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -509,8 +509,8 @@ class BuySellPage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    final address = await extractAddressFromParsed(context, parsedAddress);
-    return address;
+    final parsedAddress = await getIt.get<AddressResolverService>().resolve(query: domain,wallet: buySellViewModel.wallet, currency: currency);
+
+    return ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
   }
 }
