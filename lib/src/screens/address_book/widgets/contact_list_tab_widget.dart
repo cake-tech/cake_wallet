@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class ContactListBody extends StatefulWidget {
@@ -29,6 +30,9 @@ class ContactListBody extends StatefulWidget {
 class _ContactListBodyState extends State<ContactListBody> {
   final _searchCtrl = TextEditingController();
 
+  late final VoidCallback _tabListener;
+  late final VoidCallback _searchListener;
+
   bool get _contactsTab => widget.tabController.index == 1;
 
   ContactListViewModel get _viewModel => widget.contactListViewModel;
@@ -36,15 +40,28 @@ class _ContactListBodyState extends State<ContactListBody> {
   @override
   void initState() {
     super.initState();
-    widget.tabController.addListener(() => setState(() {}));
-    _searchCtrl.addListener(() => setState(() {}));
+
+    _tabListener = () {
+      if (!mounted) return;
+      setState(() {});
+    };
+    widget.tabController.addListener(_tabListener);
+
+    _searchListener = () {
+      if (!mounted) return;
+      setState(() {});
+    };
+    _searchCtrl.addListener(_searchListener);
   }
 
   @override
   void dispose() {
-    widget.tabController.removeListener(() {});
+    widget.tabController.removeListener(_tabListener);
+    _searchCtrl.removeListener(_searchListener);
     _searchCtrl.dispose();
-    if (_viewModel.settingsStore.contactListOrder == FilterListOrderType.Custom) {
+
+    if (_viewModel.settingsStore.contactListOrder ==
+        FilterListOrderType.Custom) {
       _viewModel.saveCustomOrder();
     }
     super.dispose();
@@ -54,9 +71,7 @@ class _ContactListBodyState extends State<ContactListBody> {
   Widget build(BuildContext context) {
     final query = _searchCtrl.text.trim().toLowerCase();
     final editable = _viewModel.isEditable && query.isEmpty;
-    final list = ObservableList<ContactRecord>.of(
-      _viewModel.contactsToShow.where((c) => c.name.toLowerCase().contains(query)),
-    );
+
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -69,11 +84,20 @@ class _ContactListBodyState extends State<ContactListBody> {
             SearchBarWidget(key: const ValueKey('contact_search'), searchController: _searchCtrl),
             const SizedBox(height: 8),
             Expanded(
-              child: FilteredList(
-                list: list,
-                canReorder: editable,
-                updateFunction: _viewModel.reorderAccordingToContactList,
-                itemBuilder: (ctx, i) => _item(ctx, list[i]),
+              child: Observer(
+                builder: (_) {
+                  final list = ObservableList<ContactRecord>.of(
+                    _viewModel.contactsToShow
+                        .where((c) => c.name.toLowerCase().contains(query)),
+                  );
+
+                  return FilteredList(
+                    list: list,
+                    canReorder: editable,
+                    updateFunction: _viewModel.reorderAccordingToContactList,
+                    itemBuilder: (context, i) => _item(context, list[i]),
+                  );
+                },
               ),
             ),
           ],
