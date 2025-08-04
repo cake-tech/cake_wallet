@@ -1,16 +1,18 @@
 import 'dart:async';
 
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
@@ -18,10 +20,11 @@ import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.da
 import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_provider_unsupported_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -36,13 +39,13 @@ abstract class TradeDetailsViewModelBase with Store {
   TradeDetailsViewModelBase({
     required Trade tradeForDetails,
     required this.trades,
-    required this.settingsStore,
+    required this.appStore,
   })  : items = ObservableList<StandartListItem>(),
         trade = trades.values.firstWhereOrNull((element) => element.id == tradeForDetails.id) ??
             tradeForDetails {
     switch (trade.provider) {
       case ExchangeProviderDescription.changeNow:
-        _provider = ChangeNowExchangeProvider(settingsStore: settingsStore);
+        _provider = ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
         break;
       case ExchangeProviderDescription.sideShift:
         _provider = SideShiftExchangeProvider();
@@ -59,13 +62,19 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.thorChain:
         _provider = ThorChainExchangeProvider(tradesStore: trades);
         break;
-      case ExchangeProviderDescription.quantex:
-        _provider = QuantexExchangeProvider();
+      case ExchangeProviderDescription.swapTrade:
+        _provider = SwapTradeExchangeProvider();
       case ExchangeProviderDescription.letsExchange:
         _provider = LetsExchangeExchangeProvider();
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
+        break;
+      case ExchangeProviderDescription.chainflip:
+        _provider = ChainflipExchangeProvider(tradesStore: trades);
+        break;
+      case ExchangeProviderDescription.xoSwap:
+        _provider = XOSwapExchangeProvider();
         break;
     }
 
@@ -91,12 +100,16 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://exolix.com/transaction/${trade.id}';
       case ExchangeProviderDescription.thorChain:
         return 'https://track.ninerealms.com/${trade.id}';
-      case ExchangeProviderDescription.quantex:
-        return 'https://myquantex.com/send/${trade.id}';
+      case ExchangeProviderDescription.swapTrade:
+        return 'https://swaptrade.io/send/${trade.id}';
       case ExchangeProviderDescription.letsExchange:
         return 'https://letsexchange.io/?transactionId=${trade.id}';
       case ExchangeProviderDescription.stealthEx:
         return 'https://stealthex.io/exchange/?id=${trade.id}';
+      case ExchangeProviderDescription.chainflip:
+        return 'https://scan.chainflip.io/channels/${trade.id}';
+      case ExchangeProviderDescription.xoSwap:
+        return  'https://orders.xoswap.com/${trade.id}';
     }
     return null;
   }
@@ -113,7 +126,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
   Timer? timer;
 
-  final SettingsStore settingsStore;
+  final AppStore appStore;
 
   @action
   Future<void> _updateTrade() async {
@@ -134,7 +147,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
       _updateItems();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -152,6 +165,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
     items.add(TradeDetailsListCardItem.tradeDetails(
       id: trade.id,
+      extraId: trade.extraId,
       createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
       from: trade.from,
       to: trade.to,

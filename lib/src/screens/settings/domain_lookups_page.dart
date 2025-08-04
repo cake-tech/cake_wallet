@@ -45,6 +45,14 @@ class DomainLookupsPage extends BasePage {
                   title: 'Ethereum Name Service',
                   value: _privacySettingsViewModel.looksUpENS,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsENS(value)),
+              SettingsSwitcherCell(
+                  title: '.well-known',
+                  value: _privacySettingsViewModel.looksUpWellKnown,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsWellKnown(value)),
+              SettingsSwitcherCell(
+                  title: 'Zano Aliases',
+                  value: _privacySettingsViewModel.lookupsZanoAlias,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsZanoAlias(value)),
 
               //if (!isHaven) it does not work correctly
             ],

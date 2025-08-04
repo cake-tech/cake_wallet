@@ -1,57 +1,98 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CakeImageWidget extends StatelessWidget {
-  CakeImageWidget({
-    required this.imageUrl,
-    Widget? displayOnError,
+  const CakeImageWidget({
+    super.key,
+    this.imageUrl,
     this.height,
     this.width,
-  }) : _displayOnError = displayOnError ?? Icon(Icons.error);
+    this.fit,
+    this.loadingWidget,
+    this.errorWidget,
+    this.color,
+    this.borderRadius = 24.0,
+  });
 
   final String? imageUrl;
   final double? height;
   final double? width;
-  final Widget? _displayOnError;
+  final BoxFit? fit;
+  final Widget? loadingWidget;
+  final Widget? errorWidget;
+  final Color? color;
+  final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
-    try {
-      if (imageUrl == null || imageUrl!.isEmpty) return _displayOnError!;
-
-      if (imageUrl!.contains('assets/images')) {
-        return Image.asset(
-          imageUrl!,
-          height: height,
-          width: width,
-        );
-      }
-
-      if (imageUrl!.contains('.svg')) {
-        return SvgPicture.network(
-          imageUrl!,
-          height: height,
-          width: width,
-        );
-      }
-
-      return Image.network(
-        imageUrl!,
-        fit: BoxFit.cover,
-        height: height,
-        width: width,
-        loadingBuilder: (BuildContext _, Widget child, ImageChunkEvent? loadingProgress) {
-          if (loadingProgress == null) {
-            return child;
-          } else {
-            return CupertinoActivityIndicator(animating: true);
-          }
-        },
-        errorBuilder: (_, __, ___) => Icon(Icons.error),
-      );
-    } catch (_) {
-      return _displayOnError!;
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return _buildErrorWidget(context);
     }
+
+    final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
+    final isAsset = imageUrl!.startsWith('assets/');
+
+    Widget imageWidget;
+    if (isAsset) {
+      imageWidget = isSvg
+          ? SvgPicture.asset(
+              imageUrl!,
+              height: height,
+              width: width,
+              fit: fit ?? BoxFit.contain,
+            )
+          : Image.asset(
+              imageUrl!,
+              height: height,
+              width: width,
+              fit: fit,
+              color: color,
+            );
+    } else {
+      imageWidget = isSvg
+          ? SvgPicture.network(
+              imageUrl!,
+              height: height,
+              width: width,
+              fit: fit ?? BoxFit.contain,
+              placeholderBuilder: (_) {
+                return loadingWidget ?? const Center(child: CircularProgressIndicator());
+              },
+              errorBuilder: (_, __, ___) => _buildErrorWidget(context),
+            )
+          : Image.network(
+              imageUrl!,
+              height: height,
+              width: width,
+              fit: fit ?? BoxFit.cover,
+              color: color,
+              loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
+                if (progress == null) return child;
+                return loadingWidget ?? const Center(child: CircularProgressIndicator());
+              },
+              errorBuilder: (_, __, ___) => _buildErrorWidget(context),
+            );
+    }
+
+    return imageWidget;
+  }
+
+  Widget _buildErrorWidget(BuildContext context) {
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      ),
+      child: Center(
+        child: errorWidget ??
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 24,
+            ),
+      ),
+    );
   }
 }

@@ -1,5 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardExpandableList<T> extends StatelessWidget {
@@ -18,21 +16,18 @@ class StandardExpandableList<T> extends StatelessWidget {
     return Container(
       decoration: decoration ??
           BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
           ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          iconColor: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-          collapsedIconColor:
-              Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+          iconColor: Theme.of(context).colorScheme.onSurface,
+          collapsedIconColor: Theme.of(context).colorScheme.onSurface,
           title: Text(
             title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
             textAlign: TextAlign.left,
           ),
           children: expandableItems.map((item) {
@@ -43,10 +38,10 @@ class StandardExpandableList<T> extends StatelessWidget {
                 child: Text(
                   item.toString(),
                   maxLines: 1,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
+                      color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             );

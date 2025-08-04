@@ -39,14 +39,14 @@ class CWMoneroAccountList extends MoneroAccountList {
   @override
   Future<void> addAccount(Object wallet, {required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.accountList.addAccount(label: label);
+    moneroWallet.walletAddresses.accountList.addAccount(label: label);
   }
 
   @override
   Future<void> setLabelAccount(Object wallet,
       {required int accountIndex, required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.accountList
+    moneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
   }
 }
@@ -61,7 +61,13 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses {
     final moneroWallet = _wallet as MoneroWallet;
     final subAddresses = moneroWallet.walletAddresses.subaddressList.subaddresses
-        .map((sub) => Subaddress(id: sub.id, address: sub.address, label: sub.label))
+        .map((sub) => Subaddress(
+          id: sub.id,
+          address: sub.address,
+          label: sub.label,
+          received: sub.balance??"unknown",
+          txCount: sub.txCount??0,
+        ))
         .toList();
     return ObservableList<Subaddress>.of(subAddresses);
   }
@@ -83,7 +89,12 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.walletAddresses.subaddressList
         .getAll()
-        .map((sub) => Subaddress(id: sub.id, label: sub.label, address: sub.address))
+        .map((sub) => Subaddress(
+          id: sub.id,
+          label: sub.label,
+          address: sub.address,
+          txCount: sub.txCount??0,
+          received: sub.balance??'unknown'))
         .toList();
   }
 
@@ -91,7 +102,7 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   Future<void> addSubaddress(Object wallet,
       {required int accountIndex, required String label}) async {
     final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.walletAddresses.subaddressList
+    return await moneroWallet.walletAddresses.subaddressList
         .addSubaddress(accountIndex: accountIndex, label: label);
   }
 
@@ -215,32 +226,59 @@ class CWMonero extends Monero {
           height: height);
 
   @override
+  WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({
+    required String name,
+    required String password,
+    required int height,
+    required ledger.LedgerConnection ledgerConnection,
+  }) =>
+      MoneroRestoreWalletFromHardwareCredentials(
+          name: name,
+          password: password,
+          height: height,
+          ledgerConnection: ledgerConnection);
+
+  @override
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,
+          required String passphrase,
           required int height,
           required String mnemonic}) =>
       MoneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, height: height, mnemonic: mnemonic);
+          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({
     required String name,
     required String language,
-    required bool isPolyseed,
-    String? password}) =>
+    required int seedType,
+    required String? passphrase,
+    String? password,
+    String? mnemonic,
+  }) =>
       MoneroNewWalletCredentials(
-        name: name, password: password, language: language, isPolyseed: isPolyseed);
+        name: name,
+        password: password,
+        language: language,
+        seedType: seedType == 1
+            ? MoneroSeedType.polyseed
+            : (seedType == 3 ? MoneroSeedType.bip39 : MoneroSeedType.legacy),
+        passphrase: passphrase,
+        mnemonic: mnemonic,
+      );
 
   @override
   Map<String, String> getKeys(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     final keys = moneroWallet.keys;
     return <String, String>{
+      'primaryAddress': keys.primaryAddress,
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,
-      'publicViewKey': keys.publicViewKey
+      'publicViewKey': keys.publicViewKey,
+      'passphrase': keys.passphrase
     };
   }
 
@@ -327,7 +365,7 @@ class CWMonero extends Monero {
   @override
   Map<String, String> pendingTransactionInfo(Object transaction) {
     final ptx = transaction as PendingMoneroTransaction;
-    return {'id': ptx.id, 'hex': ptx.hex, 'key': ptx.txKey};
+    return {'id': ptx.id, 'hex': ptx.hex};
   }
 
   @override
@@ -346,9 +384,62 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
+  
+  @override
+  bool importKeyImagesUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.importKeyImagesUR(ur);
+  }
+
+
+  @override
+  Future<bool> commitTransactionUR(Object wallet, String ur) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.submitTransactionUR(ur);
+  }
+
+  @override
+  Map<String, String> exportOutputsUR(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.exportOutputsUR();
+  }
+
+  @override
+  bool needExportOutputs(Object wallet, int amount) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.needExportOutputs(amount);
+  }
 
   @override
   void monerocCheck() {
     checkIfMoneroCIsFine();
+  }
+
+  @override
+  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection) {
+    final moneroWallet = wallet as MoneroWallet;
+    moneroWallet.setLedgerConnection(connection);
+  }
+
+  @override
+  void resetLedgerConnection() {
+    disableLedgerExchange();
+  }
+
+  @override
+  void setGlobalLedgerConnection(ledger.LedgerConnection connection) {
+    gLedger = connection;
+  }
+
+  @override
+  String? getLastLedgerCommand() => latestLedgerCommand;
+
+  bool isViewOnly() {
+    return isViewOnlyBySpendKey(null);
+  }
+
+  @override
+  Map<String, List<int>> debugCallLength() {
+    return monero_wallet_api.debugCallLength();
   }
 }

@@ -1,6 +1,7 @@
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 // FIXME: Hardcoded values; Works only for monero
 
@@ -152,7 +153,7 @@ int getMoneroHeigthByDate({required DateTime date}) {
       height = startHeight + daysHeight - heightPerDay;
     }
   } catch (e) {
-    print(e.toString());
+    printV(e.toString());
   }
 
   return height;
@@ -233,10 +234,14 @@ int getHavenHeightByDate({required DateTime date}) {
 }
 
 Future<int> getHavenCurrentHeight() async {
-  final response = await http.get(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'));
+  final req = await ProxyWrapper().getHttpClient()
+    .getUrl(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'))
+    .timeout(Duration(seconds: 15));
+  final response = await req.close();
+  final stringResponse = await response.transform(utf8.decoder).join();
 
   if (response.statusCode == 200) {
-    final info = jsonDecode(response.body);
+    final info = jsonDecode(stringResponse);
     return info['data']['height'] as int;
   } else {
     throw Exception('Failed to load current blockchain height');
@@ -268,13 +273,13 @@ const bitcoinDates = {
 };
 
 Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
-  final response = await http.get(
-    Uri.parse(
-      "http://mempool.cakewallet.com:8999/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
-    ),
-  );
+  final req = await ProxyWrapper().getHttpClient()
+    .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}"))
+    .timeout(Duration(seconds: 15));
+  final response = await req.close();
+  final stringResponse = await response.transform(utf8.decoder).join();
 
-  return jsonDecode(response.body)['height'] as int;
+  return jsonDecode(stringResponse)['height'] as int;
 }
 
 int getBitcoinHeightByDate({required DateTime date}) {
@@ -308,6 +313,11 @@ DateTime getDateByBitcoinHeight(int height) {
   }
 
   return estimatedDate;
+}
+
+int getLtcHeightByDate({required DateTime date}) {
+  // TODO: use the proxy layer to get the height with a binary search of blocked header heights
+  return 0;
 }
 
 // TODO: enhance all of this global const lists

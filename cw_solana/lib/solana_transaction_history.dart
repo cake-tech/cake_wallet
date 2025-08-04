@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:mobx/mobx.dart';
@@ -25,7 +26,10 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
   final EncryptionFileUtils encryptionFileUtils;
   String _password;
 
-  Future<void> init() async => await _load();
+  Future<void> init() async {
+    clear();
+    await _load();
+  }
 
   @override
   Future<void> save() async {
@@ -36,8 +40,8 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
       final data = json.encode({'transactions': transactionMaps});
       await encryptionFileUtils.write(path: path, password: _password, data: data);
     } catch (e, s) {
-      print('Error while saving solana transaction history: ${e.toString()}');
-      print(s);
+      printV('Error while saving solana transaction history: ${e.toString()}');
+      printV(s);
     }
   }
 
@@ -72,7 +76,7 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
         }
       });
     } catch (e) {
-      print(e);
+      printV(e);
     }
   }
 

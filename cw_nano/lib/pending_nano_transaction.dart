@@ -29,12 +29,20 @@ class PendingNanoTransaction with PendingTransaction {
   }
 
   @override
-  String get feeFormatted => "0";
+  String get feeFormatted => "$feeFormattedValue XNO";
+
+  @override
+  String get feeFormattedValue => "0";
 
   @override
   Future<void> commit() async {
     for (var block in blocks) {
       await nanoClient.processBlock(block, "send");
     }
+  }
+  
+  @override
+  Future<Map<String, String>> commitUR() {
+    throw UnimplementedError();
   }
 }

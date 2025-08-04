@@ -81,6 +81,8 @@ class WalletInfo extends HiveObject {
     this.derivationInfo,
     this.hardwareWalletType,
     this.parentAddress,
+    this.hashedWalletIdentifier,
+    this.isNonSeedWallet,
   ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
@@ -99,6 +101,8 @@ class WalletInfo extends HiveObject {
     DerivationInfo? derivationInfo,
     HardwareWalletType? hardwareWalletType,
     String? parentAddress,
+    String? hashedWalletIdentifier,
+    bool? isNonSeedWallet,
   }) {
     return WalletInfo(
       id,
@@ -116,6 +120,8 @@ class WalletInfo extends HiveObject {
       derivationInfo,
       hardwareWalletType,
       parentAddress,
+      hashedWalletIdentifier,
+      isNonSeedWallet ?? false,
     );
   }
 
@@ -189,6 +195,18 @@ class WalletInfo extends HiveObject {
 
   @HiveField(22)
   String? parentAddress;
+  
+  @HiveField(23)
+  List<String>? hiddenAddresses;
+
+  @HiveField(24)
+  List<String>? manualAddresses;
+
+  @HiveField(25)
+  String? hashedWalletIdentifier;
+
+  @HiveField(26, defaultValue: false)
+  bool isNonSeedWallet;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 

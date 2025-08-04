@@ -1,5 +1,6 @@
-import 'package:cake_wallet/entities/update_haven_rate.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -13,25 +14,27 @@ ReactionDisposer? _onWalletSyncStatusChangeReaction;
 
 void startWalletSyncStatusChangeReaction(
     WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
-    FiatConversionStore fiatConversionStore) {
+    SettingsStore settingsStore) {
   _onWalletSyncStatusChangeReaction?.reaction.dispose();
   _onWalletSyncStatusChangeReaction = reaction((_) => wallet.syncStatus, (SyncStatus status) async {
     try {
       if (status is ConnectedSyncStatus) {
         await wallet.startSync();
-
-        if (wallet.type == WalletType.haven) {
-          await updateHavenRate(fiatConversionStore);
-        }
       }
-      if (status is SyncingSyncStatus) {
+      if (status is SyncingSyncStatus || status is ProcessingSyncStatus) {
         await WakelockPlus.enable();
       }
       if (status is SyncedSyncStatus || status is FailedSyncStatus) {
         await WakelockPlus.disable();
       }
+
+      if (status is SyncedSyncStatus &&
+          wallet.type == WalletType.bitcoin &&
+          settingsStore.usePayjoin) {
+        bitcoin!.resumePayjoinSessions(wallet);
+      }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }

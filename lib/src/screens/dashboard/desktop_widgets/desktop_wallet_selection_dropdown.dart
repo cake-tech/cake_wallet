@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/entities/desktop_dropdown_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -10,8 +9,6 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_
 import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -46,20 +43,22 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
+  final decredIcon = Image.asset('assets/images/decred_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
         'assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       );
 
   Image _restoreWalletImage(BuildContext context) => Image.asset(
         'assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+        color: Theme.of(context).colorScheme.onSurface,
       );
 
   Flushbar<void>? _progressBar;
@@ -100,6 +99,11 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         ),
       ];
 
+      final selectedItem = dropDownItems.firstWhere(
+        (element) => element.isSelected,
+        orElse: () => dropDownItems.first,
+      );
+
       return DropdownButton<DesktopDropdownItem>(
         items: dropDownItems
             .map(
@@ -112,10 +116,10 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         onChanged: (item) {
           item?.onSelected();
         },
-        dropdownColor: themeData.extension<CakeMenuTheme>()!.backgroundColor,
-        style: TextStyle(color: themeData.extension<CakeTextTheme>()!.titleColor),
+        dropdownColor: themeData.colorScheme.surface,
+        style: themeData.textTheme.bodyMedium,
         selectedItemBuilder: (context) => dropDownItems.map((item) => item.child).toList(),
-        value: dropDownItems.firstWhere((element) => element.isSelected),
+        value: selectedItem,
         underline: const SizedBox(),
         focusColor: Colors.transparent,
         borderRadius: BorderRadius.circular(15.0),
@@ -153,6 +157,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return bitcoinIcon;
       case WalletType.monero:
         return moneroIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       case WalletType.litecoin:
         return litecoinIcon;
       case WalletType.haven:
@@ -171,8 +177,10 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return solanaIcon;
       case WalletType.tron:
         return tronIcon;
-      case WalletType.wownero:
-        return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
+      case WalletType.decred:
+        return decredIcon;
       default:
         return nonWalletTypeIcon;
     }
@@ -236,16 +244,11 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void _navigateToRestoreWallet() {
-    if (isSingleCoin) {
-      Navigator.of(context)
-          .pushNamed(Routes.restoreWallet, arguments: widget.walletListViewModel.currentWalletType);
-    } else {
-      Navigator.of(context).pushNamed(Routes.restoreWalletType);
-    }
+    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, duration: null)..show(context);
+    _progressBar = createBar<void>(text,context, duration: null)..show(context);
   }
 
   void hideProgressText() {

@@ -1,8 +1,11 @@
 import 'package:cw_core/account.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/subaddress.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
+import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:cw_monero/monero_subaddress_list.dart';
@@ -27,6 +30,33 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
   @observable
   String address;
 
+  @override
+  String get primaryAddress => getAddress(accountIndex: account?.id ?? 0, addressIndex: 0);
+
+  @override
+  String get latestAddress {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address)) {
+      addressIndex++;
+      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id??0);
+    }
+    return address;
+  }
+
+  @override
+  String get addressForExchange {
+    var addressIndex = subaddress_list.numSubaddresses(account?.id??0) - 1;
+    var address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+    while (hiddenAddresses.contains(address) || manualAddresses.contains(address) || subaddress_list.getRawLabel(accountIndex: account?.id??0, addressIndex: addressIndex).isNotEmpty) {
+      addressIndex++;
+      address = getAddress(accountIndex: account?.id??0, addressIndex: addressIndex);
+      subaddressList.update(accountIndex: account?.id??0);
+    }
+    return address;
+  }
+
   @observable
   Account? account;
 
@@ -37,10 +67,12 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   MoneroAccountList accountList;
 
+  Set<String> usedAddresses = Set();
+
   @override
   Future<void> init() async {
     accountList.update();
-    account = accountList.accounts.first;
+    account = accountList.accounts.isEmpty ? Account(id: 0, label: "Primary address") : accountList.accounts.first;
     updateSubaddressList(accountIndex: account?.id ?? 0);
     await updateAddressesInBox();
   }
@@ -65,7 +97,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
       await saveAddressesInBox();
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -89,16 +121,17 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   void updateSubaddressList({required int accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    subaddress = subaddressList.subaddresses.first;
-    address = subaddress!.address;
+    address = subaddressList.subaddresses.isNotEmpty
+        ? subaddressList.subaddresses.first.address
+        : getAddress();
   }
 
   Future<void> updateUsedSubaddress() async {
     final transactions = _moneroTransactionHistory.transactions.values.toList();
 
     transactions.forEach((element) {
-      final accountIndex = element.accountIndex;
-      final addressIndex = element.addressIndex;
+      final accountIndex = element.additionalInfo['accountIndex'] as int? ?? 0;
+      final addressIndex = element.additionalInfo['addressIndex'] as int? ?? 0;
       usedAddresses.add(getAddress(accountIndex: accountIndex, addressIndex: addressIndex));
     });
   }
@@ -109,7 +142,10 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         accountIndex: accountIndex,
         defaultLabel: defaultLabel,
         usedAddresses: usedAddresses.toList());
-    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel) : subaddressList.subaddresses.last;
+    subaddress = (subaddressList.subaddresses.isEmpty) ? Subaddress(id: 0, address: address, label: defaultLabel, balance: '0', txCount: 0) : subaddressList.subaddresses.last;
+    if (num.tryParse(subaddress!.balance??'0') != 0) {
+      getAddress(accountIndex: accountIndex, addressIndex: (subaddress?.id??0)+1);
+    }
     address = subaddress!.address;
   }
 

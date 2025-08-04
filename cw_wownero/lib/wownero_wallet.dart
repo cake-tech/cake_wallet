@@ -15,10 +15,13 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
 import 'package:cw_core/wownero_balance.dart';
+import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:cw_wownero/api/transaction_history.dart' as transaction_history;
@@ -59,7 +62,7 @@ abstract class WowneroWalletBase
         _isTransactionUpdating = false,
         _hasSyncAfterStartup = false,
         _password = password,
-        isEnabledAutoGenerateSubaddress = false,
+        isEnabledAutoGenerateSubaddress = true,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
         this.unspentCoinsInfo = unspentCoinsInfo,
@@ -81,6 +84,10 @@ abstract class WowneroWalletBase
 
     reaction((_) => isEnabledAutoGenerateSubaddress, (bool enabled) {
       _updateSubAddress(enabled, account: walletAddresses.account);
+    });
+
+    _onTxHistoryChangeReaction = reaction((_) => transactionHistory, (__) {
+      _updateSubAddress(isEnabledAutoGenerateSubaddress, account: walletAddresses.account);
     });
   }
 
@@ -112,17 +119,30 @@ abstract class WowneroWalletBase
 
   String get password => _password;
 
+  @override
+  String get passphrase => wownero_wallet.getPassphrase();
+
   String _password;
 
   @override
+  bool get hasRescan => true;
+
+  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
+      primaryAddress: wownero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: wownero_wallet.getSecretSpendKey(),
       privateViewKey: wownero_wallet.getSecretViewKey(),
       publicSpendKey: wownero_wallet.getPublicSpendKey(),
-      publicViewKey: wownero_wallet.getPublicViewKey());
+      publicViewKey: wownero_wallet.getPublicViewKey(),
+      passphrase: wownero_wallet.getPassphrase());
+
+  int? get restoreHeight =>
+      transactionHistory.transactions.values.firstOrNull?.height ?? wownero.Wallet_getRefreshFromBlockHeight(wptr!);
+
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
+  ReactionDisposer? _onTxHistoryChangeReaction;
   bool _isTransactionUpdating;
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
@@ -155,14 +175,41 @@ abstract class WowneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
-  void close() async {
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check if the wallet is currently connected to the daemon
+      final isConnected = wownero_wallet.isConnectedSync();
+
+      if (!isConnected) {
+        return false; // It's not connected to daemon
+      }
+
+      // Check to get current node height to ensure daemon is responsive
+      final nodeHeight = await wownero_wallet.getNodeHeight();
+      return nodeHeight > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> close({bool shouldCleanup = false}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
+    _onTxHistoryChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();
   }
 
   @override
   Future<void> connectToNode({required Node node}) async {
+    String socksProxy = node.socksProxyAddress ?? '';
+    printV("bootstrapped: ${CakeTor.instance.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance.enabled}");
+    printV("        port: ${CakeTor.instance.port}");
+    printV("     started: ${CakeTor.instance.started}");
+    if (CakeTor.instance.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance.port}";
+    }
     try {
       syncStatus = ConnectingSyncStatus();
       await wownero_wallet.setupNode(
@@ -172,13 +219,13 @@ abstract class WowneroWalletBase
           useSSL: node.isSSL,
           isLightWallet: false,
           // FIXME: hardcoded value
-          socksProxyAddress: node.socksProxyAddress);
+          socksProxyAddress: socksProxy);
 
       wownero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
     }
   }
 
@@ -209,7 +256,7 @@ abstract class WowneroWalletBase
       _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
-      print(e);
+      printV(e);
       rethrow;
     }
   }
@@ -342,8 +389,8 @@ abstract class WowneroWalletBase
     try {
       await backupWalletFiles(name);
     } catch (e) {
-      print("¯\\_(ツ)_/¯");
-      print(e);
+      printV("¯\\_(ツ)_/¯");
+      printV(e);
     }
   }
 
@@ -352,7 +399,7 @@ abstract class WowneroWalletBase
     final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
     if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
       // NOTE: this is realistically only required on windows.
-      print("closing wallet");
+      printV("closing wallet");
       final wmaddr = wmPtr.address;
       final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
       await Isolate.run(() {
@@ -360,7 +407,7 @@ abstract class WowneroWalletBase
             Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
       });
       openedWalletsByPath.remove("$currentWalletDirPath/$name");
-      print("wallet closed");
+      printV("wallet closed");
     }
     try {
       // -- rename the waller folder --
@@ -492,7 +539,7 @@ abstract class WowneroWalletBase
       await _refreshUnspentCoinsInfo();
       _askForUpdateBalance();
     } catch (e, s) {
-      print(e.toString());
+      printV(e.toString());
       onError?.call(FlutterErrorDetails(
         exception: e,
         stack: s,
@@ -539,7 +586,7 @@ abstract class WowneroWalletBase
         await unspentCoinsInfo.deleteAll(keys);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -549,7 +596,7 @@ abstract class WowneroWalletBase
   @override
   Future<Map<String, WowneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
+    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, WowneroTransactionInfo>>(<String, WowneroTransactionInfo>{},
             (Map<String, WowneroTransactionInfo> acc, WowneroTransactionInfo tx) {
       acc[tx.id] = tx;
@@ -564,13 +611,13 @@ abstract class WowneroWalletBase
       }
 
       _isTransactionUpdating = true;
-      transactionHistory.clear();
       final transactions = await fetchTransactions();
+      transactionHistory.clear();
       transactionHistory.addMany(transactions);
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
-      print(e);
+      printV(e);
       _isTransactionUpdating = false;
     }
   }
@@ -578,9 +625,9 @@ abstract class WowneroWalletBase
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<WowneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
-      transaction_history
-          .getAllTransactions()
+  Future<List<WowneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async =>
+      (await transaction_history
+          .getAllTransactions())
           .map(
             (row) => WowneroTransactionInfo(
               row.hash,
@@ -710,7 +757,7 @@ abstract class WowneroWalletBase
         syncStatus = SyncingSyncStatus(blocksLeft, ptc);
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -720,7 +767,7 @@ abstract class WowneroWalletBase
       _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 
@@ -749,5 +796,10 @@ abstract class WowneroWalletBase
     if (address == null) return false;
 
     return wownero_wallet.verifyMessage(message, address, signature);
+  }
+
+  @override
+  String formatCryptoAmount(String amount) {
+    return wowneroAmountToString(amount: int.parse(amount));
   }
 }

@@ -12,3 +12,4 @@ android/.cxx/
 
 macos/cw_monero.podspec
 macos/External/
+*monero_libwallet2_api_c.*

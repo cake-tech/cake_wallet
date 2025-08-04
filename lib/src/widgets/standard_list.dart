@@ -1,10 +1,15 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
-  StandardListRow({required this.title, required this.isSelected, this.onTap, this.decoration});
+  StandardListRow({
+    required this.title,
+    required this.isSelected,
+    this.onTap,
+    this.decoration,
+    super.key,
+  });
 
   final String title;
   final bool isSelected;
@@ -15,16 +20,19 @@ class StandardListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
-
-    return InkWell(
-      onTap: () => onTap?.call(context),
-      child: Container(
-        height: 56,
-        padding: EdgeInsets.only(left: 24, right: 24),
-        decoration: decoration ??
-            BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
+    return Container(
+      height: 56,
+      padding: EdgeInsets.only(left: 12, right: 12),
+      child: TextButton(
+        onPressed: () => onTap?.call(context),
+        style: ButtonStyle(
+          //backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.surfaceContainer),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
+          ),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -48,11 +56,10 @@ class StandardListRow extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-                color: titleColor(context),
-              ),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: titleColor(context),
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                  ),
             ),
           )
         ],
@@ -62,9 +69,8 @@ class StandardListRow extends StatelessWidget {
 
   Widget? buildTrailing(BuildContext context) => null;
 
-  Color titleColor(BuildContext context) => isSelected
-      ? Theme.of(context).primaryColor
-      : Theme.of(context).extension<CakeTextTheme>()!.titleColor;
+  Color titleColor(BuildContext context) =>
+      isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface;
 }
 
 class SectionHeaderListRow extends StatelessWidget {
@@ -74,7 +80,7 @@ class SectionHeaderListRow extends StatelessWidget {
         Container(
           width: double.infinity,
           height: 40,
-          color: Theme.of(context).colorScheme.background,
+          color: Theme.of(context).colorScheme.surface,
         ),
         //StandardListSeparator(padding: EdgeInsets.only(left: 24))
       ]);
@@ -91,10 +97,10 @@ class StandardListSeparator extends StatelessWidget {
     return Container(
       height: height,
       padding: padding,
-      color: Theme.of(context).colorScheme.background,
+      color: Colors.transparent,
       child: Container(
         height: height,
-        color: Theme.of(context).extension<CakeTextTheme>()!.textfieldUnderlineColor,
+        color: Colors.transparent,
       ),
     );
   }
@@ -134,6 +140,7 @@ class SectionStandardList extends StatelessWidget {
 
   final int sectionCount;
   final bool hasTopSeparator;
+
   final int Function(int sectionIndex) itemCounter;
   final Widget Function(int sectionIndex, int itemIndex) itemBuilder;
   final Widget Function(int sectionIndex)? sectionTitleBuilder;

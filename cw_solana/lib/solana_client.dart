@@ -1,280 +1,577 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/solana_rpc_http_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
+import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
-import 'package:http/http.dart' as http;
-import 'package:solana/dto.dart';
-import 'package:solana/encoder.dart';
-import 'package:solana/solana.dart';
+import 'package:cw_solana/spl_token.dart';
+import 'package:on_chain/solana/solana.dart';
+import 'package:on_chain/solana/src/instructions/associated_token_account/constant.dart';
+import 'package:on_chain/solana/src/models/pda/pda.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:on_chain/solana/src/rpc/models/models/confirmed_transaction_meta.dart';
 import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {
-  final httpClient = http.Client();
-  SolanaClient? _client;
+  // Minimum amount in SOL to consider a transaction valid (to filter spam)
+  static const double minValidAmount = 0.00000003;
+  final httpClient = ProxyWrapper().getHttpClient();
+  SolanaRPC? _provider;
 
   bool connect(Node node) {
     try {
-      Uri? rpcUri;
-      String webSocketUrl;
-      bool isModifiedNodeUri = false;
+      String formattedUrl;
+      String protocolUsed = node.isSSL ? "https" : "http";
 
       if (node.uriRaw == 'rpc.ankr.com') {
-        isModifiedNodeUri = true;
         String ankrApiKey = secrets.ankrApiKey;
 
-        rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
-        webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
+        formattedUrl = '$protocolUsed://${node.uriRaw}/$ankrApiKey';
+      } else if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
+        String chainStackApiKey = secrets.chainStackApiKey;
+
+        formattedUrl = '$protocolUsed://${node.uriRaw}/$chainStackApiKey';
       } else {
-        webSocketUrl = 'wss://${node.uriRaw}';
+        formattedUrl = '$protocolUsed://${node.uriRaw}';
       }
 
-      _client = SolanaClient(
-        rpcUrl: isModifiedNodeUri ? rpcUri! : node.uri,
-        websocketUrl: Uri.parse(webSocketUrl),
-        timeout: const Duration(minutes: 2),
-      );
+      _provider = SolanaRPC(SolanaRPCHTTPService(url: formattedUrl));
+
       return true;
     } catch (e) {
       return false;
     }
   }
 
-  Future<double> getBalance(String address) async {
+  Future<double> getBalance(String walletAddress, {bool throwOnError = false}) async {
     try {
-      final balance = await _client!.rpcClient.getBalance(address);
+      final balance = await _provider!.requestWithContext(
+        SolanaRPCGetBalance(
+          account: SolAddress(walletAddress),
+        ),
+      );
 
-      final solBalance = balance.value / lamportsPerSol;
+      final balInLamp = balance.result.toDouble();
+
+      final solBalance = balInLamp / SolanaUtils.lamportsPerSol;
 
       return solBalance;
     } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return 0.0;
     }
   }
 
-  Future<ProgramAccountsResult?> getSPLTokenAccounts(String mintAddress, String publicKey) async {
+  Future<List<TokenAccountResponse>?> getSPLTokenAccounts(
+      String mintAddress, String publicKey) async {
     try {
-      final tokenAccounts = await _client!.rpcClient.getTokenAccountsByOwner(
-        publicKey,
-        TokenAccountsFilter.byMint(mintAddress),
-        commitment: Commitment.confirmed,
-        encoding: Encoding.jsonParsed,
+      final result = await _provider!.request(
+        SolanaRPCGetTokenAccountsByOwner(
+          account: SolAddress(publicKey),
+          mint: SolAddress(mintAddress),
+          commitment: Commitment.confirmed,
+          encoding: SolanaRPCEncoding.base64,
+        ),
       );
-      return tokenAccounts;
+
+      return result;
     } catch (e) {
       return null;
     }
   }
 
-  Future<SolanaBalance?> getSplTokenBalance(String mintAddress, String publicKey) async {
-    // Fetch the token accounts (a token can have multiple accounts for various uses)
-    final tokenAccounts = await getSPLTokenAccounts(mintAddress, publicKey);
+  Future<SolanaBalance?> getSplTokenBalance(
+      String mintAddress, String walletAddress, {bool throwOnError = false}) async {
+    try {
+      // Fetch the token accounts (a token can have multiple accounts for various uses)
+      final tokenAccounts = await getSPLTokenAccounts(mintAddress, walletAddress);
 
-    // Handle scenario where there is no token account
-    if (tokenAccounts == null || tokenAccounts.value.isEmpty) {
+      // Handle scenario where there is no token account
+      if (tokenAccounts == null || tokenAccounts.isEmpty) {
+        return null;
+      }
+
+      // Sum the balances of all accounts with the specified mint address
+      double totalBalance = 0.0;
+
+      for (var tokenAccount in tokenAccounts) {
+        final tokenAmountResult = await _provider!.request(
+          SolanaRPCGetTokenAccountBalance(account: tokenAccount.pubkey),
+        );
+
+        final balance = tokenAmountResult.uiAmountString;
+
+        final balanceAsDouble = double.tryParse(balance ?? '0.0') ?? 0.0;
+
+        totalBalance += balanceAsDouble;
+      }
+
+      return SolanaBalance(totalBalance);
+    } catch (_) {
+      if (throwOnError) {
+        rethrow;
+      }
       return null;
     }
-
-    // Sum the balances of all accounts with the specified mint address
-    double totalBalance = 0.0;
-
-    for (var programAccount in tokenAccounts.value) {
-      final tokenAmountResult =
-          await _client!.rpcClient.getTokenAccountBalance(programAccount.pubkey);
-
-      final balance = tokenAmountResult.value.uiAmountString;
-
-      final balanceAsDouble = double.tryParse(balance ?? '0.0') ?? 0.0;
-
-      totalBalance += balanceAsDouble;
-    }
-
-    return SolanaBalance(totalBalance);
   }
 
   Future<double> getFeeForMessage(String message, Commitment commitment) async {
     try {
-      final feeForMessage =
-          await _client!.rpcClient.getFeeForMessage(message, commitment: commitment);
-      final fee = (feeForMessage ?? 0.0) / lamportsPerSol;
+      final feeForMessage = await _provider!.request(
+        SolanaRPCGetFeeForMessage(
+          encodedMessage: message,
+          commitment: commitment,
+        ),
+      );
+
+      final fee =
+          (feeForMessage?.toDouble() ?? 0.0) / SolanaUtils.lamportsPerSol;
       return fee;
     } catch (_) {
       return 0.0;
     }
   }
 
-  Future<double> getEstimatedFee(Ed25519HDKeyPair ownerKeypair) async {
-    const commitment = Commitment.confirmed;
+  Future<double> getEstimatedFee(
+      SolanaPublicKey publicKey, Commitment commitment) async {
+    final message = await _getMessageForNativeTransaction(
+      publicKey: publicKey,
+      destinationAddress: publicKey.toAddress().address,
+      lamports: SolanaUtils.lamportsPerSol,
+      commitment: commitment,
+    );
 
-    final message =
-        _getMessageForNativeTransaction(ownerKeypair, ownerKeypair.address, lamportsPerSol);
-
-    final recentBlockhash = await _getRecentBlockhash(commitment);
-
-    final estimatedFee =
-        _getFeeFromCompiledMessage(message, ownerKeypair.publicKey, recentBlockhash, commitment);
+    final estimatedFee = await _getFeeFromCompiledMessage(
+      message,
+      commitment,
+    );
     return estimatedFee;
+  }
+
+  Future<SolanaTransactionModel?> parseTransaction({
+    VersionedTransactionResponse? txResponse,
+    required String walletAddress,
+    String? splTokenSymbol,
+  }) async {
+    if (txResponse == null) return null;
+
+    try {
+      final blockTime = txResponse.blockTime;
+      final meta = txResponse.meta;
+      final transaction = txResponse.transaction;
+
+      if (meta == null || transaction == null) return null;
+
+      final int fee = meta.fee;
+      final feeInSol = fee / SolanaUtils.lamportsPerSol;
+
+      final message = transaction.message;
+      final instructions = message.compiledInstructions;
+
+      String signature = (txResponse.transaction?.signatures.isEmpty ?? true)
+          ? ""
+          : Base58Encoder.encode(txResponse.transaction!.signatures.first);
+
+
+      for (final instruction in instructions) {
+        final programId = message.accountKeys[instruction.programIdIndex];
+
+        if (programId == SystemProgramConst.programId ||
+            programId == ComputeBudgetConst.programId) {
+          // For native solana transactions
+          if (instruction.accounts.length < 2) continue;
+
+          // Get the fee payer index based on transaction type
+          // For legacy transfers, the first account is usually the fee payer
+          // For versioned, the first account in instruction is usually the fee payer
+          final feePayerIndex =
+              txResponse.version == TransactionType.legacy ? 0 : instruction.accounts[0];
+
+          final transactionModel = await _parseNativeTransaction(
+            message: message,
+            meta: meta,
+            fee: fee,
+            feeInSol: feeInSol,
+            feePayerIndex: feePayerIndex,
+            walletAddress: walletAddress,
+            signature: signature,
+            blockTime: blockTime,
+          );
+
+          if (transactionModel != null) {
+            return transactionModel;
+          }
+        } else if (programId == SPLTokenProgramConst.tokenProgramId) {
+          // For SPL Token transactions
+          if (instruction.accounts.length < 2) continue;
+
+          final transactionModel = await _parseSPLTokenTransaction(
+            message: message,
+            meta: meta,
+            fee: fee,
+            feeInSol: feeInSol,
+            instruction: instruction,
+            walletAddress: walletAddress,
+            signature: signature,
+            blockTime: blockTime,
+            splTokenSymbol: splTokenSymbol,
+          );
+
+          if (transactionModel != null) {
+            return transactionModel;
+          }
+        } else if (programId == AssociatedTokenAccountProgramConst.associatedTokenProgramId) {
+          // For ATA program, we need to check if this is a create account transaction
+          // or if it's part of a normal token transfer
+
+          // We skip this transaction if this is the only instruction (this means that it's a create account transaction)
+          if (instructions.length == 1) {
+            return null;
+          }
+
+          // We look for a token transfer instruction in the same transaction
+          bool hasTokenTransfer = false;
+          for (final otherInstruction in instructions) {
+            final otherProgramId = message.accountKeys[otherInstruction.programIdIndex];
+            if (otherProgramId == SPLTokenProgramConst.tokenProgramId) {
+              hasTokenTransfer = true;
+              break;
+            }
+          }
+
+          // If there's no token transfer instruction, it means this is just an ATA creation transaction
+          if (!hasTokenTransfer) {
+            return null;
+          }
+
+          continue;
+        } else {
+          return null;
+        }
+      }
+    } catch (e, s) {
+      printV("Error parsing transaction: $e\n$s");
+    }
+
+    return null;
+  }
+
+  Future<SolanaTransactionModel?> _parseNativeTransaction({
+    required VersionedMessage message,
+    required ConfirmedTransactionMeta meta,
+    required int fee,
+    required double feeInSol,
+    required int feePayerIndex,
+    required String walletAddress,
+    required String signature,
+    required BigInt? blockTime,
+  }) async {
+    // Calculate total balance changes across all accounts
+    BigInt totalBalanceChange = BigInt.zero;
+    String? sender;
+    String? receiver;
+
+    for (int i = 0; i < meta.preBalances.length; i++) {
+      final preBalance = meta.preBalances[i];
+      final postBalance = meta.postBalances[i];
+      final balanceChange = preBalance - postBalance;
+
+      if (balanceChange > BigInt.zero) {
+        // This account sent funds
+        sender = message.accountKeys[i].address;
+        totalBalanceChange += balanceChange;
+      } else if (balanceChange < BigInt.zero) {
+        // This account received funds
+        receiver = message.accountKeys[i].address;
+      }
+    }
+
+    // We subtract the fee from total balance change if the fee payer is the sender
+    if (sender == message.accountKeys[feePayerIndex].address) {
+      totalBalanceChange -= BigInt.from(fee);
+    }
+
+    if (sender == null || receiver == null) {
+      return null;
+    }
+
+    final amount = totalBalanceChange / BigInt.from(1e9);
+    final amountInSol = amount.abs().toDouble();
+
+    // Skip transactions with very small amounts (likely spam)
+    if (amountInSol < minValidAmount) {
+      return null;
+    }
+
+    return SolanaTransactionModel(
+      isOutgoingTx: sender == walletAddress,
+      from: sender,
+      to: receiver,
+      id: signature,
+      amount: amountInSol,
+      programId: SystemProgramConst.programId.address,
+      tokenSymbol: 'SOL',
+      blockTimeInInt: blockTime?.toInt() ?? 0,
+      fee: feeInSol,
+    );
+  }
+
+  Future<SolanaTransactionModel?> _parseSPLTokenTransaction({
+    required VersionedMessage message,
+    required ConfirmedTransactionMeta meta,
+    required int fee,
+    required double feeInSol,
+    required CompiledInstruction instruction,
+    required String walletAddress,
+    required String signature,
+    required BigInt? blockTime,
+    String? splTokenSymbol,
+  }) async {
+    final preBalances = meta.preTokenBalances;
+    final postBalances = meta.postTokenBalances;
+
+    double amount = 0.0;
+    bool isOutgoing = false;
+    String? mintAddress;
+
+    double userPreAmount = 0.0;
+    if (preBalances != null && preBalances.isNotEmpty) {
+      for (final preBal in preBalances) {
+        if (preBal.owner?.address == walletAddress) {
+          userPreAmount = preBal.uiTokenAmount.uiAmount ?? 0.0;
+
+          mintAddress = preBal.mint.address;
+          break;
+        }
+      }
+    }
+
+    double userPostAmount = 0.0;
+    if (postBalances != null && postBalances.isNotEmpty) {
+      for (final postBal in postBalances) {
+        if (postBal.owner?.address == walletAddress) {
+          userPostAmount = postBal.uiTokenAmount.uiAmount ?? 0.0;
+
+          mintAddress ??= postBal.mint.address;
+          break;
+        }
+      }
+    }
+
+    final diff = userPreAmount - userPostAmount;
+    final rawAmount = diff.abs();
+
+    final amountInString = rawAmount.toStringAsFixed(6);
+    amount = double.parse(amountInString);
+
+    isOutgoing = diff > 0;
+
+    if (mintAddress == null && instruction.accounts.length >= 4) {
+      final mintIndex = instruction.accounts[3];
+      mintAddress = message.accountKeys[mintIndex].address;
+    }
+
+    final sender = message.accountKeys[instruction.accounts[0]].address;
+    final receiver = message.accountKeys[instruction.accounts[1]].address;
+
+    String? tokenSymbol = splTokenSymbol;
+
+    if (tokenSymbol == null && mintAddress != null) {
+      final token = await getTokenInfo(mintAddress);
+      tokenSymbol = token?.symbol;
+    }
+
+    return SolanaTransactionModel(
+      isOutgoingTx: isOutgoing,
+      from: sender,
+      to: receiver,
+      id: signature,
+      amount: amount,
+      programId: SPLTokenProgramConst.tokenProgramId.address,
+      blockTimeInInt: blockTime?.toInt() ?? 0,
+      tokenSymbol: tokenSymbol ?? '',
+      fee: feeInSol,
+    );
   }
 
   /// Load the Address's transactions into the account
   Future<List<SolanaTransactionModel>> fetchTransactions(
-    Ed25519HDPublicKey publicKey, {
+    SolAddress address, {
     String? splTokenSymbol,
     int? splTokenDecimal,
+    Commitment? commitment,
+    SolAddress? walletAddress,
+    required void Function(List<SolanaTransactionModel>) onUpdate,
   }) async {
     List<SolanaTransactionModel> transactions = [];
-
     try {
-      final response = await _client!.rpcClient.getTransactionsList(
-        publicKey,
-        commitment: Commitment.confirmed,
-        limit: 1000,
+      final signatures = await _provider!.request(
+        SolanaRPCGetSignaturesForAddress(
+          account: address,
+          commitment: commitment,
+        ),
       );
 
-      for (final tx in response) {
-        if (tx.transaction is ParsedTransaction) {
-          final parsedTx = (tx.transaction as ParsedTransaction);
-          final message = parsedTx.message;
+      // The maximum concurrent batch size.
+      const int batchSize = 10;
 
-          final fee = (tx.meta?.fee ?? 0) / lamportsPerSol;
+      for (int i = 0; i < signatures.length; i += batchSize) {
+        final batch = signatures.skip(i).take(batchSize).toList();
 
-          for (final instruction in message.instructions) {
-            if (instruction is ParsedInstruction) {
-              instruction.map(
-                system: (systemData) {
-                  systemData.parsed.map(
-                    transfer: (transferData) {
-                      ParsedSystemTransferInformation transfer = transferData.info;
-                      bool isOutgoingTx = transfer.source == publicKey.toBase58();
-
-                      double amount = transfer.lamports.toDouble() / lamportsPerSol;
-
-                      transactions.add(
-                        SolanaTransactionModel(
-                          id: parsedTx.signatures.first,
-                          from: transfer.source,
-                          to: transfer.destination,
-                          amount: amount,
-                          isOutgoingTx: isOutgoingTx,
-                          blockTimeInInt: tx.blockTime!,
-                          fee: fee,
-                          programId: SystemProgram.programId,
-                          tokenSymbol: 'SOL',
-                        ),
-                      );
-                    },
-                    transferChecked: (_) {},
-                    unsupported: (_) {},
-                  );
-                },
-                splToken: (splTokenData) {
-                  if (splTokenSymbol != null) {
-                    splTokenData.parsed.map(
-                      transfer: (transferData) {
-                        SplTokenTransferInfo transfer = transferData.info;
-                        bool isOutgoingTx = transfer.source == publicKey.toBase58();
-
-                        double amount = (double.tryParse(transfer.amount) ?? 0.0) /
-                            pow(10, splTokenDecimal ?? 9);
-
-                        transactions.add(
-                          SolanaTransactionModel(
-                            id: parsedTx.signatures.first,
-                            fee: fee,
-                            from: transfer.source,
-                            to: transfer.destination,
-                            amount: amount,
-                            isOutgoingTx: isOutgoingTx,
-                            programId: TokenProgram.programId,
-                            blockTimeInInt: tx.blockTime!,
-                            tokenSymbol: splTokenSymbol,
-                          ),
-                        );
-                      },
-                      transferChecked: (transferCheckedData) {
-                        SplTokenTransferCheckedInfo transfer = transferCheckedData.info;
-                        bool isOutgoingTx = transfer.source == publicKey.toBase58();
-                        double amount =
-                            double.tryParse(transfer.tokenAmount.uiAmountString ?? '0.0') ?? 0.0;
-
-                        transactions.add(
-                          SolanaTransactionModel(
-                            id: parsedTx.signatures.first,
-                            fee: fee,
-                            from: transfer.source,
-                            to: transfer.destination,
-                            amount: amount,
-                            isOutgoingTx: isOutgoingTx,
-                            programId: TokenProgram.programId,
-                            blockTimeInInt: tx.blockTime!,
-                            tokenSymbol: splTokenSymbol,
-                          ),
-                        );
-                      },
-                      generic: (genericData) {},
-                    );
-                  }
-                },
-                memo: (_) {},
-                unsupported: (a) {},
-              );
-            }
+        final batchResponses = await Future.wait(batch.map((signature) async {
+          try {
+            return await _provider!.request(
+              SolanaRPCGetTransaction(
+                transactionSignature: signature['signature'],
+                encoding: SolanaRPCEncoding.jsonParsed,
+                maxSupportedTransactionVersion: 0,
+              ),
+            );
+          } catch (e) {
+            // printV("Error fetching transaction: $e");
+            return null;
           }
+        }));
+
+        final versionedBatchResponses =
+            batchResponses.whereType<VersionedTransactionResponse>();
+
+        final parsedTransactionsFutures =
+            versionedBatchResponses.map((tx) => parseTransaction(
+                  txResponse: tx,
+                  splTokenSymbol: splTokenSymbol,
+                  walletAddress: walletAddress?.address ?? address.address,
+                ));
+
+        final parsedTransactions = await Future.wait(parsedTransactionsFutures);
+
+        transactions.addAll(
+            parsedTransactions.whereType<SolanaTransactionModel>().toList());
+
+        // Only update UI if we have new valid transactions
+        if (parsedTransactions.isNotEmpty) {
+          onUpdate(List<SolanaTransactionModel>.from(transactions));
+        }
+
+        if (i + batchSize < signatures.length) {
+          await Future.delayed(const Duration(milliseconds: 300));
         }
       }
 
       return transactions;
-    } catch (err) {
+    } catch (err, s) {
+      printV('Error fetching transactions: $err \n$s');
       return [];
     }
   }
 
-  Future<List<SolanaTransactionModel>> getSPLTokenTransfers(
-    String address,
-    String splTokenSymbol,
-    int splTokenDecimal,
-    Ed25519HDKeyPair ownerKeypair,
-  ) async {
-    final tokenMint = Ed25519HDPublicKey.fromBase58(address);
-
-    ProgramAccount? associatedTokenAccount;
-
+  Future<List<SolanaTransactionModel>> getSPLTokenTransfers({
+    required String mintAddress,
+    required String splTokenSymbol,
+    required int splTokenDecimal,
+    required SolanaPrivateKey privateKey,
+    required void Function(List<SolanaTransactionModel>) onUpdate,
+  }) async {
+    ProgramDerivedAddress? associatedTokenAccount;
+    final ownerWalletAddress = privateKey.publicKey().toAddress();
     try {
-      associatedTokenAccount = await _client!.getAssociatedTokenAccount(
-        mint: tokenMint,
-        owner: ownerKeypair.publicKey,
-        commitment: Commitment.confirmed,
+      associatedTokenAccount = await _getOrCreateAssociatedTokenAccount(
+        payerPrivateKey: privateKey,
+        mintAddress: SolAddress(mintAddress),
+        ownerAddress: ownerWalletAddress,
+        shouldCreateATA: false,
       );
-    } catch (_) {}
+    } catch (e, s) {
+      printV('$e \n $s');
+    }
 
     if (associatedTokenAccount == null) return [];
 
-    final accountPublicKey = Ed25519HDPublicKey.fromBase58(associatedTokenAccount.pubkey);
+    final accountPublicKey = associatedTokenAccount.address;
 
     final tokenTransactions = await fetchTransactions(
       accountPublicKey,
       splTokenSymbol: splTokenSymbol,
       splTokenDecimal: splTokenDecimal,
+      walletAddress: ownerWalletAddress,
+      onUpdate: onUpdate,
     );
 
     return tokenTransactions;
   }
 
+  final Map<String, SPLToken?> tokenInfoCache = {};
+
+  Future<SPLToken?> getTokenInfo(String mintAddress) async {
+    if (tokenInfoCache.containsKey(mintAddress)) {
+      return tokenInfoCache[mintAddress];
+    } else {
+      final token = await fetchSPLTokenInfo(mintAddress);
+      if (token != null) {
+        tokenInfoCache[mintAddress] = token;
+      }
+      return token;
+    }
+  }
+
+  Future<SPLToken?> fetchSPLTokenInfo(String mintAddress) async {
+    final programAddress = MetaplexTokenMetaDataProgramUtils.findMetadataPda(
+        mint: SolAddress(mintAddress));
+
+    final token = await _provider!.request(
+      SolanaRPCGetMetadataAccount(
+        account: programAddress.address,
+        commitment: Commitment.confirmed,
+      ),
+    );
+
+    if (token == null) {
+      return null;
+    }
+
+    final metadata = token.data;
+
+    String? iconPath;
+    //TODO(Further explore fetching images)
+    // try {
+    //   iconPath = await _client.getIconImageFromTokenUri(metadata.uri);
+    // } catch (_) {}
+
+    String filteredTokenSymbol = metadata.symbol
+        .replaceFirst(RegExp('^\\\$'), '')
+        .replaceAll('\u0000', '');
+
+    return SPLToken.fromMetadata(
+      name: metadata.name,
+      mint: metadata.symbol,
+      symbol: filteredTokenSymbol,
+      mintAddress: token.mint.address,
+      iconPath: iconPath,
+    );
+  }
+
   void stop() {}
 
-  SolanaClient? get getSolanaClient => _client;
+  SolanaRPC? get getSolanaProvider => _provider;
 
   Future<PendingSolanaTransaction> signSolanaTransaction({
     required String tokenTitle,
     required int tokenDecimals,
     required double inputAmount,
     required String destinationAddress,
-    required Ed25519HDKeyPair ownerKeypair,
+    required SolanaPrivateKey ownerPrivateKey,
     required bool isSendAll,
+    required double solBalance,
     String? tokenMint,
     List<String> references = const [],
   }) async {
@@ -282,132 +579,194 @@ class SolanaWalletClient {
 
     if (tokenTitle == CryptoCurrency.sol.title) {
       final pendingNativeTokenTransaction = await _signNativeTokenTransaction(
-        tokenTitle: tokenTitle,
-        tokenDecimals: tokenDecimals,
         inputAmount: inputAmount,
         destinationAddress: destinationAddress,
-        ownerKeypair: ownerKeypair,
+        ownerPrivateKey: ownerPrivateKey,
         commitment: commitment,
         isSendAll: isSendAll,
+        solBalance: solBalance,
       );
       return pendingNativeTokenTransaction;
     } else {
       final pendingSPLTokenTransaction = _signSPLTokenTransaction(
-        tokenTitle: tokenTitle,
         tokenDecimals: tokenDecimals,
         tokenMint: tokenMint!,
         inputAmount: inputAmount,
+        ownerPrivateKey: ownerPrivateKey,
         destinationAddress: destinationAddress,
-        ownerKeypair: ownerKeypair,
         commitment: commitment,
+        solBalance: solBalance,
       );
       return pendingSPLTokenTransaction;
     }
   }
 
-  Future<RecentBlockhash> _getRecentBlockhash(Commitment commitment) async {
-    final latestBlockhash =
-        await _client!.rpcClient.getLatestBlockhash(commitment: commitment).value;
-
-    final recentBlockhash = RecentBlockhash(
-      blockhash: latestBlockhash.blockhash,
-      feeCalculator: const FeeCalculator(lamportsPerSignature: 500),
+  Future<SolAddress> _getLatestBlockhash(Commitment commitment) async {
+    final latestBlockhash = await _provider!.request(
+      const SolanaRPCGetLatestBlockhash(),
     );
 
-    return recentBlockhash;
+    return latestBlockhash.blockhash;
   }
 
-  Message _getMessageForNativeTransaction(
-    Ed25519HDKeyPair ownerKeypair,
-    String destinationAddress,
-    int lamports,
-  ) {
+  Future<Message> _getMessageForNativeTransaction({
+    required SolanaPublicKey publicKey,
+    required String destinationAddress,
+    required int lamports,
+    required Commitment commitment,
+  }) async {
     final instructions = [
-      SystemInstruction.transfer(
-        fundingAccount: ownerKeypair.publicKey,
-        recipientAccount: Ed25519HDPublicKey.fromBase58(destinationAddress),
-        lamports: lamports,
+      SystemProgram.transfer(
+        from: publicKey.toAddress(),
+        layout: SystemTransferLayout(lamports: BigInt.from(lamports)),
+        to: SolAddress(destinationAddress),
       ),
     ];
 
-    final message = Message(instructions: instructions);
+    final latestBlockhash = await _getLatestBlockhash(commitment);
+
+    final message = Message.compile(
+      transactionInstructions: instructions,
+      payer: publicKey.toAddress(),
+      recentBlockhash: latestBlockhash,
+    );
+    return message;
+  }
+
+  Future<Message> _getMessageForSPLTokenTransaction({
+    required SolAddress ownerAddress,
+    required SolAddress destinationAddress,
+    required int tokenDecimals,
+    required SolAddress mintAddress,
+    required SolAddress sourceAccount,
+    required int amount,
+    required Commitment commitment,
+  }) async {
+    final instructions = [
+      SPLTokenProgram.transferChecked(
+        layout: SPLTokenTransferCheckedLayout(
+          amount: BigInt.from(amount),
+          decimals: tokenDecimals,
+        ),
+        mint: mintAddress,
+        source: sourceAccount,
+        destination: destinationAddress,
+        owner: ownerAddress,
+      )
+    ];
+
+    final latestBlockhash = await _getLatestBlockhash(commitment);
+
+    final message = Message.compile(
+      transactionInstructions: instructions,
+      payer: ownerAddress,
+      recentBlockhash: latestBlockhash,
+    );
     return message;
   }
 
   Future<double> _getFeeFromCompiledMessage(
-    Message message,
-    Ed25519HDPublicKey feePayer,
-    RecentBlockhash recentBlockhash,
-    Commitment commitment,
-  ) async {
-    final compile = message.compile(
-      recentBlockhash: recentBlockhash.blockhash,
-      feePayer: feePayer,
-    );
-
-    final base64Message = base64Encode(compile.toByteArray().toList());
+      Message message, Commitment commitment) async {
+    final base64Message = base64Encode(message.serialize());
 
     final fee = await getFeeForMessage(base64Message, commitment);
 
     return fee;
   }
 
+  Future<bool> hasSufficientFundsLeftForRent({
+    required double inputAmount,
+    required double solBalance,
+    required double fee,
+  }) async {
+    final rent = await _provider!.request(
+      SolanaRPCGetMinimumBalanceForRentExemption(
+        size: SolanaTokenAccountUtils.accountSize,
+      ),
+    );
+
+    final rentInSol = (rent.toDouble() / SolanaUtils.lamportsPerSol).toDouble();
+
+    final remnant = solBalance - (inputAmount + fee);
+
+    if (remnant > rentInSol) return true;
+
+    return false;
+  }
+
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
-    required String tokenTitle,
-    required int tokenDecimals,
     required double inputAmount,
     required String destinationAddress,
-    required Ed25519HDKeyPair ownerKeypair,
+    required SolanaPrivateKey ownerPrivateKey,
     required Commitment commitment,
     required bool isSendAll,
+    required double solBalance,
   }) async {
     // Convert SOL to lamport
-    int lamports = (inputAmount * lamportsPerSol).toInt();
+    int lamports = (inputAmount * SolanaUtils.lamportsPerSol).toInt();
 
-    Message message = _getMessageForNativeTransaction(ownerKeypair, destinationAddress, lamports);
+    Message message = await _getMessageForNativeTransaction(
+      publicKey: ownerPrivateKey.publicKey(),
+      destinationAddress: destinationAddress,
+      lamports: lamports,
+      commitment: commitment,
+    );
 
-    final signers = [ownerKeypair];
-
-    RecentBlockhash recentBlockhash = await _getRecentBlockhash(commitment);
+    SolAddress latestBlockhash = await _getLatestBlockhash(commitment);
 
     final fee = await _getFeeFromCompiledMessage(
       message,
-      signers.first.publicKey,
-      recentBlockhash,
       commitment,
     );
 
-    SignedTx signedTx;
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: inputAmount,
+      fee: fee,
+      solBalance: solBalance,
+    );
+
+    if (!hasSufficientFundsLeft) {
+      throw SolanaSignNativeTokenTransactionRentException();
+    }
+
+    String serializedTransaction;
     if (isSendAll) {
-      final feeInLamports = (fee * lamportsPerSol).toInt();
+      final feeInLamports = (fee * SolanaUtils.lamportsPerSol).toInt();
       final updatedLamports = lamports - feeInLamports;
 
-      final updatedMessage =
-          _getMessageForNativeTransaction(ownerKeypair, destinationAddress, updatedLamports);
+      final transaction = _constructNativeTransaction(
+        ownerPrivateKey: ownerPrivateKey,
+        destinationAddress: destinationAddress,
+        latestBlockhash: latestBlockhash,
+        lamports: updatedLamports,
+      );
 
-      signedTx = await _signTransactionInternal(
-        message: updatedMessage,
-        signers: signers,
-        commitment: commitment,
-        recentBlockhash: recentBlockhash,
+      serializedTransaction = await _signTransactionInternal(
+        ownerPrivateKey: ownerPrivateKey,
+        transaction: transaction,
       );
     } else {
-      signedTx = await _signTransactionInternal(
-        message: message,
-        signers: signers,
-        commitment: commitment,
-        recentBlockhash: recentBlockhash,
+      final transaction = _constructNativeTransaction(
+        ownerPrivateKey: ownerPrivateKey,
+        destinationAddress: destinationAddress,
+        latestBlockhash: latestBlockhash,
+        lamports: lamports,
+      );
+
+      serializedTransaction = await _signTransactionInternal(
+        ownerPrivateKey: ownerPrivateKey,
+        transaction: transaction,
       );
     }
 
     sendTx() async => await sendTransaction(
-          signedTransaction: signedTx,
+          serializedTransaction: serializedTransaction,
           commitment: commitment,
         );
 
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,
-      signedTransaction: signedTx,
+      serializedTransaction: serializedTransaction,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
       fee: fee,
@@ -416,87 +775,200 @@ class SolanaWalletClient {
     return pendingTransaction;
   }
 
+  SolanaTransaction _constructNativeTransaction({
+    required SolanaPrivateKey ownerPrivateKey,
+    required String destinationAddress,
+    required SolAddress latestBlockhash,
+    required int lamports,
+  }) {
+    final owner = ownerPrivateKey.publicKey().toAddress();
+
+    /// Create a transfer instruction to move funds from the owner to the receiver.
+    final transferInstruction = SystemProgram.transfer(
+      from: owner,
+      layout: SystemTransferLayout(lamports: BigInt.from(lamports)),
+      to: SolAddress(destinationAddress),
+    );
+
+    /// Construct a Solana transaction with the transfer instruction.
+    return SolanaTransaction(
+      instructions: [transferInstruction],
+      recentBlockhash: latestBlockhash,
+      payerKey: ownerPrivateKey.publicKey().toAddress(),
+      type: TransactionType.v0,
+    );
+  }
+
+  Future<ProgramDerivedAddress?> _getOrCreateAssociatedTokenAccount({
+    required SolanaPrivateKey payerPrivateKey,
+    required SolAddress ownerAddress,
+    required SolAddress mintAddress,
+    required bool shouldCreateATA,
+  }) async {
+    final associatedTokenAccount =
+        AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+      mint: mintAddress,
+      owner: ownerAddress,
+    );
+
+    SolanaAccountInfo? accountInfo;
+    try {
+      accountInfo = await _provider!.request(
+        SolanaRPCGetAccountInfo(
+          account: associatedTokenAccount.address,
+          commitment: Commitment.confirmed,
+        ),
+      );
+    } catch (e) {
+      accountInfo = null;
+    }
+
+    // If account exists, we return the associated token account
+    if (accountInfo != null) return associatedTokenAccount;
+
+    if (!shouldCreateATA) return null;
+
+    final payerAddress = payerPrivateKey.publicKey().toAddress();
+
+    final createAssociatedTokenAccount = AssociatedTokenAccountProgram.associatedTokenAccount(
+      payer: payerAddress,
+      associatedToken: associatedTokenAccount.address,
+      owner: ownerAddress,
+      mint: mintAddress,
+    );
+
+    final blockhash = await _getLatestBlockhash(Commitment.confirmed);
+
+    final transaction = SolanaTransaction(
+      payerKey: payerAddress,
+      instructions: [createAssociatedTokenAccount],
+      recentBlockhash: blockhash,
+      type: TransactionType.v0,
+    );
+
+    final serializedTransaction = await _signTransactionInternal(
+      ownerPrivateKey: payerPrivateKey,
+      transaction: transaction,
+    );
+
+    await sendTransaction(
+      serializedTransaction: serializedTransaction,
+      commitment: Commitment.confirmed,
+    );
+
+    // Wait for confirmation
+    await Future.delayed(const Duration(seconds: 2));
+
+    return associatedTokenAccount;
+  }
+
   Future<PendingSolanaTransaction> _signSPLTokenTransaction({
-    required String tokenTitle,
     required int tokenDecimals,
     required String tokenMint,
     required double inputAmount,
     required String destinationAddress,
-    required Ed25519HDKeyPair ownerKeypair,
+    required SolanaPrivateKey ownerPrivateKey,
     required Commitment commitment,
+    required double solBalance,
   }) async {
-    final destinationOwner = Ed25519HDPublicKey.fromBase58(destinationAddress);
-    final mint = Ed25519HDPublicKey.fromBase58(tokenMint);
+    final mintAddress = SolAddress(tokenMint);
 
-    ProgramAccount? associatedRecipientAccount;
-    ProgramAccount? associatedSenderAccount;
-
-    associatedRecipientAccount = await _client!.getAssociatedTokenAccount(
-      mint: mint,
-      owner: destinationOwner,
-      commitment: commitment,
-    );
-
-    associatedSenderAccount = await _client!.getAssociatedTokenAccount(
-      owner: ownerKeypair.publicKey,
-      mint: mint,
-      commitment: commitment,
-    );
+    // Input by the user
+    final amount = (inputAmount * math.pow(10, tokenDecimals)).toInt();
+    ProgramDerivedAddress? associatedSenderAccount;
+    try {
+      associatedSenderAccount =
+          AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+        mint: mintAddress,
+        owner: ownerPrivateKey.publicKey().toAddress(),
+      );
+    } catch (e) {
+      associatedSenderAccount = null;
+    }
 
     // Throw an appropriate exception if the sender has no associated
     // token account
     if (associatedSenderAccount == null) {
-      throw NoAssociatedTokenAccountException(ownerKeypair.address, mint.toBase58());
+      throw SolanaNoAssociatedTokenAccountException(
+        ownerPrivateKey.publicKey().toAddress().address,
+        mintAddress.address,
+      );
     }
 
+    ProgramDerivedAddress? associatedRecipientAccount;
     try {
-      associatedRecipientAccount ??= await _client!.createAssociatedTokenAccount(
-        mint: mint,
-        owner: destinationOwner,
-        funder: ownerKeypair,
+      associatedRecipientAccount = await _getOrCreateAssociatedTokenAccount(
+        payerPrivateKey: ownerPrivateKey,
+        mintAddress: mintAddress,
+        ownerAddress: SolAddress(destinationAddress),
+        shouldCreateATA: true,
       );
     } catch (e) {
-      throw Exception('Insufficient SOL balance to complete this transaction: ${e.toString()}');
+      associatedRecipientAccount = null;
+
+      throw SolanaCreateAssociatedTokenAccountException(e.toString());
     }
 
-    // Input by the user
-    final amount = (inputAmount * pow(10, tokenDecimals)).toInt();
+    if (associatedRecipientAccount == null) {
+      throw SolanaCreateAssociatedTokenAccountException(
+        'Error fetching recipient associated token account',
+      );
+    }
 
-    final instruction = TokenInstruction.transfer(
-      source: Ed25519HDPublicKey.fromBase58(associatedSenderAccount.pubkey),
-      destination: Ed25519HDPublicKey.fromBase58(associatedRecipientAccount.pubkey),
-      owner: ownerKeypair.publicKey,
+    final transferInstructions = SPLTokenProgram.transferChecked(
+      layout: SPLTokenTransferCheckedLayout(
+        amount: BigInt.from(amount),
+        decimals: tokenDecimals,
+      ),
+      mint: mintAddress,
+      source: associatedSenderAccount.address,
+      destination: associatedRecipientAccount.address,
+      owner: ownerPrivateKey.publicKey().toAddress(),
+    );
+
+    final latestBlockHash = await _getLatestBlockhash(commitment);
+
+    final transaction = SolanaTransaction(
+      payerKey: ownerPrivateKey.publicKey().toAddress(),
+      instructions: [transferInstructions],
+      recentBlockhash: latestBlockHash,
+    );
+
+    final message = await _getMessageForSPLTokenTransaction(
+      ownerAddress: ownerPrivateKey.publicKey().toAddress(),
+      tokenDecimals: tokenDecimals,
+      mintAddress: mintAddress,
+      destinationAddress: associatedRecipientAccount.address,
+      sourceAccount: associatedSenderAccount.address,
       amount: amount,
-    );
-
-    final message = Message(instructions: [instruction]);
-
-    final signers = [ownerKeypair];
-
-    RecentBlockhash recentBlockhash = await _getRecentBlockhash(commitment);
-
-    final fee = await _getFeeFromCompiledMessage(
-      message,
-      signers.first.publicKey,
-      recentBlockhash,
-      commitment,
-    );
-
-    final signedTx = await _signTransactionInternal(
-      message: message,
-      signers: signers,
       commitment: commitment,
-      recentBlockhash: recentBlockhash,
+    );
+
+    final fee = await _getFeeFromCompiledMessage(message, commitment);
+
+    bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
+      inputAmount: 0,
+      fee: fee,
+      solBalance: solBalance,
+    );
+
+    if (!hasSufficientFundsLeft) {
+      throw SolanaSignSPLTokenTransactionRentException();
+    }
+
+    final serializedTransaction = await _signTransactionInternal(
+      ownerPrivateKey: ownerPrivateKey,
+      transaction: transaction,
     );
 
     sendTx() async => await sendTransaction(
-          signedTransaction: signedTx,
+          serializedTransaction: serializedTransaction,
           commitment: commitment,
         );
 
     final pendingTransaction = PendingSolanaTransaction(
       amount: inputAmount,
-      signedTransaction: signedTx,
+      serializedTransaction: serializedTransaction,
       destinationAddress: destinationAddress,
       sendTransaction: sendTx,
       fee: fee,
@@ -504,39 +976,45 @@ class SolanaWalletClient {
     return pendingTransaction;
   }
 
-  Future<SignedTx> _signTransactionInternal({
-    required Message message,
-    required List<Ed25519HDKeyPair> signers,
-    required Commitment commitment,
-    required RecentBlockhash recentBlockhash,
+  Future<String> _signTransactionInternal({
+    required SolanaPrivateKey ownerPrivateKey,
+    required SolanaTransaction transaction,
   }) async {
-    final signedTx = await signTransaction(recentBlockhash, message, signers);
+    /// Sign the transaction with the owner's private key.
+    final ownerSignature = ownerPrivateKey.sign(transaction.serializeMessage());
 
-    return signedTx;
+    transaction.addSignature(ownerPrivateKey.publicKey().toAddress(), ownerSignature);
+
+    /// Serialize the transaction.
+    final serializedTransaction = transaction.serializeString();
+
+    return serializedTransaction;
   }
 
   Future<String> sendTransaction({
-    required SignedTx signedTransaction,
+    required String serializedTransaction,
     required Commitment commitment,
   }) async {
     try {
-      final signature = await _client!.rpcClient.sendTransaction(
-        signedTransaction.encode(),
-        preflightCommitment: commitment,
+      /// Send the transaction to the Solana network.
+      final signature = await _provider!.request(
+        SolanaRPCSendTransaction(
+          encodedTransaction: serializedTransaction,
+          commitment: commitment,
+        ),
       );
-
-      _client!.waitForSignatureStatus(signature, status: commitment);
-
       return signature;
     } catch (e) {
-      print('Error while sending transaction: ${e.toString()}');
       throw Exception(e);
     }
   }
 
   Future<String?> getIconImageFromTokenUri(String uri) async {
+    if (uri.isEmpty || uri == '…') return null;
+
     try {
-      final response = await httpClient.get(Uri.parse(uri));
+      final client = ProxyWrapper().getHttpIOClient();
+      final response = await client.get(Uri.parse(uri));
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
@@ -546,7 +1024,7 @@ class SolanaWalletClient {
         return null;
       }
     } catch (e) {
-      print('Error occurred while fetching token image: \n${e.toString()}');
+      printV('Error occurred while fetching token image: \n${e.toString()}');
       return null;
     }
   }

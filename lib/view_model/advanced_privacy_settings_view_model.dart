@@ -54,10 +54,11 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
+      case WalletType.zano:
+      case WalletType.decred:
         return false;
     }
   }
-
 
   bool get isMoneroSeedTypeOptionsEnabled => [
         WalletType.monero,
@@ -75,6 +76,13 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
+        WalletType.ethereum,
+        WalletType.polygon,
+        WalletType.tron,
+        WalletType.solana,
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.zano,
       ].contains(type);
 
   @computed

@@ -6,11 +6,6 @@ bool get isMoneroOnly {
      	&& availableWalletTypes.first == WalletType.monero;
 }
 
-bool get isHaven {
-    return availableWalletTypes.length == 1
-        && availableWalletTypes.first == WalletType.haven;
-}
-
 
 bool get isSingleCoin {
      return availableWalletTypes.length == 1;
@@ -23,10 +18,6 @@ bool get hasMonero {
 String get approximatedAppName {
     if (isMoneroOnly) {
         return 'Monero.com';   
-    }
-
-    if (isHaven) {
-        return 'Haven';
     }
      
     return 'Cake Wallet';

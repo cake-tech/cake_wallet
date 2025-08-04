@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_authentication/flutter_local_authentication.dart';
 
@@ -9,7 +10,7 @@ class BiometricAuth {
       final authenticated = await _flutterLocalAuthenticationPlugin.authenticate();
       return authenticated;
     } catch (e) {
-      print(e);
+      printV(e);
     }
     return false;
   }
@@ -20,7 +21,7 @@ class BiometricAuth {
       canAuthenticate = await _flutterLocalAuthenticationPlugin.canAuthenticate();
       await _flutterLocalAuthenticationPlugin.setTouchIDAuthenticationAllowableReuseDuration(0);
     } catch (error) {
-      print("Exception checking support. $error");
+      printV("Exception checking support. $error");
       canAuthenticate = false;
     }
 

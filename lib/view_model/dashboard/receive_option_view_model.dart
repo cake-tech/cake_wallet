@@ -11,19 +11,44 @@ class ReceiveOptionViewModel = ReceiveOptionViewModelBase with _$ReceiveOptionVi
 abstract class ReceiveOptionViewModelBase with Store {
   ReceiveOptionViewModelBase(this._wallet, this.initialPageOption)
       : selectedReceiveOption = initialPageOption ??
-            (_wallet.type == WalletType.bitcoin
+            (_wallet.type == WalletType.bitcoin ||
+             _wallet.type == WalletType.litecoin
                 ? bitcoin!.getSelectedAddressType(_wallet)
-                : ReceivePageOption.mainnet),
+                    : (_wallet.type == WalletType.decred && _wallet.isTestnet)
+                    ? ReceivePageOption.testnet
+                    : ReceivePageOption.mainnet),
         _options = [] {
     final walletType = _wallet.type;
-    _options = walletType == WalletType.haven
-        ? [ReceivePageOption.mainnet]
-        : walletType == WalletType.bitcoin
-            ? [
-                ...bitcoin!.getBitcoinReceivePageOptions(),
-                ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
-              ]
-            : ReceivePageOptions;
+    switch (walletType) {
+      case WalletType.bitcoin:
+        _options = [
+          ...bitcoin!.getBitcoinReceivePageOptions(_wallet),
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ];
+        break;
+      case WalletType.litecoin:
+        _options = [
+          ...bitcoin!.getLitecoinReceivePageOptions(),
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ];
+        break;
+      case WalletType.haven:
+        _options = [ReceivePageOption.mainnet];
+        break;
+      case WalletType.decred:
+        if (_wallet.isTestnet) {
+          _options = [
+            ReceivePageOption.testnet,
+            ...ReceivePageOptions.where(
+                (element) => element != ReceivePageOption.mainnet)
+          ];
+        } else {
+          _options = ReceivePageOptions;
+        }
+        break;
+      default:
+        _options = ReceivePageOptions;
+    }
   }
 
   final WalletBase _wallet;

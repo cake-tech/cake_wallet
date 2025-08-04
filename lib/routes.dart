@@ -1,5 +1,7 @@
 class Routes {
   static const welcome = '/welcome';
+  static const welcomeWallet = '/welcome_create_restore_wallet';
+  static const welcomePage = '/welcome_page';
   static const newWallet = '/new_wallet';
   static const setupPin = '/setup_pin_code';
   static const newWalletFromWelcome = '/new_wallet_from_welcome';
@@ -13,12 +15,14 @@ class Routes {
   static const dashboard = '/dashboard';
   static const send = '/send';
   static const transactionDetails = '/transaction_info';
+  static const payjoinDetails = '/transaction_info/payjoin';
   static const bumpFeePage = '/bump_fee_page';
   static const receive = '/receive';
   static const newSubaddress = '/new_subaddress';
   static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
+  static const readThirdPartyDisclaimer = '/disclaimer/third_party';
   static const changeRep = '/change_representative';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
@@ -51,6 +55,7 @@ class Routes {
   static const restoreWalletType = '/restore_wallet_type';
   static const restoreWallet = '/restore_wallet';
   static const preSeedPage = '/pre_seed_page';
+  static const transactionSuccessPage = '/transaction_success_info_page';
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
@@ -59,6 +64,8 @@ class Routes {
   static const supportOtherLinks = '/support/other';
   static const orderDetails = '/order_details';
   static const buySellPage = '/buy_sell_page';
+  static const buyOptionsPage = '/buy_sell_options';
+  static const paymentMethodOptionsPage = '/payment_method_options';
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
@@ -68,11 +75,13 @@ class Routes {
   static const cakePayLoginPage = '/cake_pay_login_page';
   static const cakePayCardsPage = '/cake_pay_cards_page';
   static const cakePayBuyCardPage = '/cake_pay_buy_card_page';
-  static const cakePayBuyCardDetailPage = '/cake_pay_buy_card_detail_page';
   static const cakePayVerifyOtpPage = '/cake_pay_verify_otp_page';
   static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
+  static const mwebSettings = '/mweb_settings';
+  static const mwebLogs = '/mweb_logs';
+  static const mwebNode = '/mweb_node';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const privacyPage = '/privacy_page';
@@ -101,10 +110,26 @@ class Routes {
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
-  static const torPage = '/tor_page';
+  static const backgroundSync = '/background_sync';
+  static const startTor = '/start_tor';
+
+  static const devMoneroBackgroundSync = '/dev/monero_background_sync';
+  static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+
+  static const devSharedPreferences = '/dev/shared_preferences';
+  static const devSecurePreferences = '/dev/secure_preferences';
+  static const devBackgroundSyncLogs = '/dev/background_sync_logs';
+  static const devSocketHealthLogs = '/dev/socket_health_logs';
+  static const devNetworkRequests = '/dev/network_requests';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
+  static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
+  static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
+  static const walletSeedVerificationPage = '/wallet_seed_verification_page';
+  static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
+
+  static const dEuroSavings = '/integration/dEuro/savings';
 }

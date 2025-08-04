@@ -5,7 +5,7 @@ Last modified: January 24, 2024
 Introduction
 ============
 
-	Cake Labs LLC ("Cake Labs", "Company", or "We") respect your privacy and are committed to protecting it through our compliance with this policy.
+	Cake Labs LLC ("Cake Labs", "Company", or "We") respects your privacy and are committed to protecting it through our compliance with this policy.
 
 	This policy describes the types of information we may collect from you or that you may provide when you use the App (our "App") and our practices for collecting, using, maintaining, protecting, and disclosing that information.
 
@@ -13,7 +13,7 @@ Introduction
 		- On this App.
 		- In email, text, and other electronic messages between you and this App.
 	It does not apply to information collected by:
-		- Us offline or through any other means, including on any other App operated by Company or any third party (including our affiliates and subsidiaries); or 
+		- Us offline or through any other means, including on any other App operated by the Company or any third party (including our affiliates and subsidiaries); or 
 		- Any third party (including our affiliates and subsidiaries), including through any application or content (including advertising) that may link to or be accessible from or on the App.
 	Please read this policy carefully to understand our policies and practices regarding your information and how we will treat it. If you do not agree with our policies and practices, you have the choice to not use the App. By accessing or using this App, you agree to this privacy policy. This policy may change from time to time. Your continued use of this App after we make changes is deemed to be acceptance of those changes, so please check the policy periodically for updates.
 

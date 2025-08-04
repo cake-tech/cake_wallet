@@ -1,15 +1,11 @@
 import 'package:cake_wallet/entities/list_order_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 
 class FilterListWidget extends StatefulWidget {
   FilterListWidget({
@@ -18,9 +14,9 @@ class FilterListWidget extends StatefulWidget {
     required this.onClose,
   });
 
-  final WalletListOrderType? initalType;
+  final FilterListOrderType? initalType;
   final bool initalAscending;
-  final Function(bool, WalletListOrderType) onClose;
+  final Function(bool, FilterListOrderType) onClose;
 
   @override
   FilterListWidgetState createState() => FilterListWidgetState();
@@ -28,7 +24,7 @@ class FilterListWidget extends StatefulWidget {
 
 class FilterListWidgetState extends State<FilterListWidget> {
   late bool ascending;
-  late WalletListOrderType? type;
+  late FilterListOrderType? type;
 
   @override
   void initState() {
@@ -37,7 +33,7 @@ class FilterListWidgetState extends State<FilterListWidget> {
     type = widget.initalType;
   }
 
-  void setSelectedOrderType(WalletListOrderType? orderType) {
+  void setSelectedOrderType(FilterListOrderType? orderType) {
     setState(() {
       type = orderType;
     });
@@ -57,22 +53,20 @@ class FilterListWidgetState extends State<FilterListWidget> {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(24)),
             child: Container(
-              color: Theme.of(context).extension<CakeMenuTheme>()!.backgroundColor,
+              color: Theme.of(context).colorScheme.surface,
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Padding(
                   padding: EdgeInsets.all(24.0),
                   child: Text(
                     S.of(context).order_by,
-                    style: TextStyle(
-                      color:
-                          Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
-                      fontSize: 16,
-                      fontFamily: 'Lato',
-                      decoration: TextDecoration.none,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          decoration: TextDecoration.none,
+                        ),
                   ),
                 ),
-                if (type != WalletListOrderType.Custom) ...[
+                if (type != FilterListOrderType.Custom) ...[
                   sectionDivider,
                   SettingsChoicesCell(
                     ChoicesListItem<ListOrderMode>(
@@ -89,64 +83,60 @@ class FilterListWidgetState extends State<FilterListWidget> {
                 ],
                 sectionDivider,
                 RadioListTile(
-                  value: WalletListOrderType.CreationDate,
+                  value: FilterListOrderType.CreationDate,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.CreationDate.toString(),
-                    style: TextStyle(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none),
+                    FilterListOrderType.CreationDate.toString(),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 RadioListTile(
-                  value: WalletListOrderType.Alphabetical,
+                  value: FilterListOrderType.Alphabetical,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.Alphabetical.toString(),
-                    style: TextStyle(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none),
+                    FilterListOrderType.Alphabetical.toString(),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 RadioListTile(
-                  value: WalletListOrderType.GroupByType,
+                  value: FilterListOrderType.GroupByType,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.GroupByType.toString(),
-                    style: TextStyle(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none),
+                    FilterListOrderType.GroupByType.toString(),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 RadioListTile(
-                  value: WalletListOrderType.Custom,
+                  value: FilterListOrderType.Custom,
                   groupValue: type,
                   title: Text(
-                    WalletListOrderType.Custom.toString(),
-                    style: TextStyle(
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        fontSize: 16,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none),
+                    FilterListOrderType.Custom.toString(),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   onChanged: setSelectedOrderType,
-                  activeColor: Theme.of(context).primaryColor,
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
               ]),
             ),

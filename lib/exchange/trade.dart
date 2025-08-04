@@ -143,6 +143,7 @@ class Trade extends HiveObject {
       isRefund: map['isRefund'] as bool?,
       isSendAll: map['isSendAll'] as bool?,
       router: map['router'] as String?,
+      extraId: map['extra_id'] as String?,
     );
   }
 
@@ -162,10 +163,12 @@ class Trade extends HiveObject {
       'isRefund': isRefund,
       'isSendAll': isSendAll,
       'router': router,
+      'extra_id': extraId,
     };
   }
 
   String amountFormatted() => formatAmount(amount);
+  String receiveAmountFormatted() => formatAmount(receiveAmount ?? '');
 }
 
 class TradeAdapter extends TypeAdapter<Trade> {

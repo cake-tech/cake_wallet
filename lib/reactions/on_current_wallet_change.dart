@@ -1,18 +1,19 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/update_haven_rate.dart';
+import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/reactions/check_connection.dart';
 import 'package:cake_wallet/reactions/on_wallet_sync_status_change.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -49,7 +50,7 @@ void startCurrentWalletChangeReaction(
   //  appStore.wallet.walletInfo.yatLastUsedAddress = address;
   //  await appStore.wallet.walletInfo.save();
   //} catch (e) {
-  //  print(e.toString());
+  //  printV(e.toString());
   //}
   //});
 
@@ -61,31 +62,36 @@ void startCurrentWalletChangeReaction(
         return;
       }
 
+      await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
+
       final node = settingsStore.getCurrentNode(wallet.type);
 
-      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
+      startWalletSyncStatusChangeReaction(wallet, settingsStore);
       startCheckConnectionReaction(wallet, settingsStore);
-      await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
-      await getIt
-          .get<SharedPreferences>()
-          .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+
+      await Future.delayed(Duration.zero);
 
       if (wallet.type == WalletType.monero ||
           wallet.type == WalletType.wownero ||
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
-          wallet.type == WalletType.bitcoinCash) {
+          wallet.type == WalletType.bitcoinCash ||
+          wallet.type == WalletType.decred) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
 
+      if (wallet.type == WalletType.bitcoin) {
+        bitcoin!.updatePayjoinState(wallet, settingsStore.usePayjoin);
+      }
+
+      if (settingsStore.currentBuiltinTor) {
+        await ensureTorStarted(context: null);
+      }
+      
       await wallet.connectToNode(node: node);
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);
         await wallet.connectToPowNode(node: powNode);
-      }
-
-      if (wallet.type == WalletType.haven) {
-        await updateHavenRate(fiatConversionStore);
       }
 
       if (wallet.walletInfo.address.isEmpty) {
@@ -96,7 +102,7 @@ void startCurrentWalletChangeReaction(
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 
@@ -143,7 +149,7 @@ void startCurrentWalletChangeReaction(
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }
@@ -152,11 +158,6 @@ void _setAutoGenerateSubaddressStatus(
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet,
   SettingsStore settingsStore,
 ) async {
-  final walletHasAddresses = await wallet.walletAddresses.addressesMap.length > 1;
-  if (settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized &&
-      walletHasAddresses) {
-    settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
-  }
   wallet.isEnabledAutoGenerateSubaddress =
       settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled ||
           settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.initialized;

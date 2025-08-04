@@ -27,6 +27,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -52,6 +53,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       );
 
       await wallet.init();
+      wallet.addInitialTokens(true);
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -144,6 +146,7 @@ class EthereumWalletService extends EVMChainWalletService<EthereumWallet> {
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      passphrase: credentials.passphrase,
       client: client,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

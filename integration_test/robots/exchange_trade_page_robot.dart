@@ -16,6 +16,7 @@ class ExchangeTradePageRobot {
 
   Future<void> isExchangeTradePage() async {
     await commonTestCases.isSpecificPage<ExchangeTradePage>();
+    await commonTestCases.takeScreenshots('exchange_trade_page');
   }
 
   void hasInformationDialog() {
@@ -27,11 +28,19 @@ class ExchangeTradePageRobot {
     await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> onConfirmSendingButtonPressed() async {
-    tester.printToConsole('Now confirming sending');
+  Future<void> onSendFromExternalButtonPressed() async {
+    tester.printToConsole('Routing to send from external details page');
 
     await commonTestCases.tapItemByKey(
-      'exchange_trade_page_confirm_sending_button_key',
+      'exchange_trade_page_send_from_external_button_key',
+    );
+  }
+
+  Future<void> onSendFromCakeButtonPressed() async {
+    tester.printToConsole('Now sending from cake');
+
+    await commonTestCases.tapItemByKey(
+      'exchange_trade_page_send_from_cake_button_key',
       shouldPumpAndSettle: false,
     );
 
@@ -134,7 +143,7 @@ class ExchangeTradePageRobot {
 
       await commonTestCases.defaultSleepTime();
 
-      await onConfirmSendingButtonPressed();
+      await onSendFromCakeButtonPressed();
       tester.printToConsole('Confirm sending button tapped');
 
       hasError = await hasErrorWhileSending();

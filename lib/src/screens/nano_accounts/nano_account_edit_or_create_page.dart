@@ -34,31 +34,34 @@ class NanoAccountEditOrCreatePage extends BasePage {
           child: Column(
             children: <Widget>[
               Expanded(
-                  child: Center(
-                      child: BaseTextFormField(
-                controller: _textController,
-                hintText: S.of(context).account,
-                validator: MoneroLabelValidator(),
-              ))),
+                child: Center(
+                  child: BaseTextFormField(
+                    controller: _textController,
+                    hintText: S.of(context).account,
+                    validator: MoneroLabelValidator(),
+                  ),
+                ),
+              ),
               Observer(
-                  builder: (_) => LoadingPrimaryButton(
-                        onPressed: () async {
-                          if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
-                            return;
-                          }
+                builder: (_) => LoadingPrimaryButton(
+                  onPressed: () async {
+                    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+                      return;
+                    }
 
-                          await nanoAccountCreationViewModel.save();
+                    await nanoAccountCreationViewModel.save();
 
-                          Navigator.of(context).pop(_textController.text);
-                        },
-                        text: nanoAccountCreationViewModel.isEdit
-                            ? S.of(context).rename
-                            : S.of(context).add,
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
-                        isLoading: nanoAccountCreationViewModel.state is IsExecutingState,
-                        isDisabled: nanoAccountCreationViewModel.label?.isEmpty ?? true,
-                      ))
+                    Navigator.of(context).pop(_textController.text);
+                  },
+                  text: nanoAccountCreationViewModel.isEdit
+                      ? S.of(context).rename
+                      : S.of(context).add,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                  isLoading: nanoAccountCreationViewModel.state is IsExecutingState,
+                  isDisabled: nanoAccountCreationViewModel.label?.isEmpty ?? true,
+                ),
+              ),
             ],
           ),
         ),

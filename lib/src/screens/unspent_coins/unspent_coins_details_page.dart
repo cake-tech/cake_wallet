@@ -44,7 +44,6 @@ class UnspentCoinsDetailsPage extends BasePage {
             return TextFieldListRow(
               title: item.title,
               value: item.value,
-              onTapOutside: item.onSubmitted,
               onSubmitted: item.onSubmitted,
             );
           }

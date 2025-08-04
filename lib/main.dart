@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/background_sync.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -15,33 +20,44 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
-import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/test_asset_bundles.dart';
+import 'package:cake_wallet/themes/utils/theme_provider.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
+import 'package:logging/logging.dart';
+import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/core/reset_service.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -65,9 +81,35 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
       return true;
     };
+    await FlutterDaemon().unmarkBackgroundSync();
     await initializeAppAtRoot();
 
-    runApp(App(key: topLevelKey));
+    if (kDebugMode) {
+      final appDocDir = await getAppDir();
+
+      final ledgerFile = File('${appDocDir.path}/ledger_log.txt');
+      if (!ledgerFile.existsSync()) ledgerFile.createSync();
+      Logger.root.onRecord.listen((event) async {
+        final content = ledgerFile.readAsStringSync();
+        ledgerFile.writeAsStringSync("$content\n${event.message}");
+      });
+    }
+
+    if (FeatureFlag.hasDevOptions) {
+      ProxyWrapper.logger = MemoryProxyLogger();
+    }
+
+    // Basically when we're running a test
+    if (topLevelKey != null) {
+      runApp(
+        DefaultAssetBundle(
+          bundle: TestAssetBundle(),
+          child: App(key: topLevelKey),
+        ),
+      );
+    } else {
+      runApp(App(key: topLevelKey));
+    }
 
     isAppRunning = true;
   }, (error, stackTrace) async {
@@ -77,7 +119,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       );
     }
 
-    ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
+    await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stackTrace));
   });
 }
 
@@ -87,7 +129,7 @@ Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
   await initializeAppConfigs();
 }
 
-Future<void> initializeAppConfigs() async {
+Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   setRootDirFromEnv();
   final appDir = await getAppDir();
   CakeHive.init(appDir.path);
@@ -152,6 +194,18 @@ Future<void> initializeAppConfigs() async {
     CakeHive.registerAdapter(AnonpayInvoiceInfoAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(HavenSeedStore.typeId)) {
+    CakeHive.registerAdapter(HavenSeedStoreAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
+    CakeHive.registerAdapter(MwebUtxoAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(PayjoinSession.typeId)) {
+    CakeHive.registerAdapter(PayjoinSessionAdapter());
+  }
+
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -171,8 +225,15 @@ Future<void> initializeAppConfigs() async {
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+  final payjoinSessionSource = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
+
+  final havenSeedStoreBoxKey =
+      await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
+  final havenSeedStore = await CakeHive.openBox<HavenSeedStore>(HavenSeedStore.boxName,
+      encryptionKey: havenSeedStoreBoxKey);
 
   await initialSetup(
+    loadWallet: loadWallet,
     sharedPreferences: await SharedPreferences.getInstance(),
     nodes: nodes,
     powNodes: powNodes,
@@ -186,27 +247,33 @@ Future<void> initializeAppConfigs() async {
     exchangeTemplates: exchangeTemplates,
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
+    payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
-    initialMigrationVersion: 40,
+    havenSeedStore: havenSeedStore,
+    initialMigrationVersion: 50,
   );
 }
 
-Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences,
-    required Box<Node> nodes,
-    required Box<Node> powNodes,
-    required Box<WalletInfo> walletInfoSource,
-    required Box<Contact> contactSource,
-    required Box<Trade> tradesSource,
-    required Box<Order> ordersSource,
-    // required FiatConvertationService fiatConvertationService,
-    required Box<Template> templates,
-    required Box<ExchangeTemplate> exchangeTemplates,
-    required Box<TransactionDescription> transactionDescriptions,
-    required SecureStorage secureStorage,
-    required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    int initialMigrationVersion = 15}) async {
+Future<void> initialSetup({
+  required bool loadWallet,
+  required SharedPreferences sharedPreferences,
+  required Box<Node> nodes,
+  required Box<Node> powNodes,
+  required Box<WalletInfo> walletInfoSource,
+  required Box<Contact> contactSource,
+  required Box<Trade> tradesSource,
+  required Box<Order> ordersSource,
+  // required FiatConvertationService fiatConvertationService,
+  required Box<Template> templates,
+  required Box<ExchangeTemplate> exchangeTemplates,
+  required Box<TransactionDescription> transactionDescriptions,
+  required SecureStorage secureStorage,
+  required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
+  required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+  required Box<PayjoinSession> payjoinSessionSource,
+  required Box<HavenSeedStore> havenSeedStore,
+  int initialMigrationVersion = 15,
+}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
@@ -216,7 +283,8 @@ Future<void> initialSetup(
       contactSource: contactSource,
       tradeSource: tradesSource,
       nodes: nodes,
-      powNodes: powNodes);
+      powNodes: powNodes,
+      havenSeedStore: havenSeedStore);
   await setup(
     walletInfoSource: walletInfoSource,
     nodeSource: nodes,
@@ -229,11 +297,18 @@ Future<void> initialSetup(
     ordersSource: ordersSource,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
+    payjoinSessionSource: payjoinSessionSource,
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey);
-  monero?.onStartup();
+
+  await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
+
+  await bootstrapOffline();
+  final settingsStore = getIt<SettingsStore>();
+  if (!settingsStore.currentBuiltinTor) {
+    bootstrapOnline(navigatorKey, loadWallet: loadWallet);
+  }
 }
 
 class App extends StatefulWidget {
@@ -247,47 +322,59 @@ class App extends StatefulWidget {
 class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (BuildContext context) {
-      final appStore = getIt.get<AppStore>();
-      final authService = getIt.get<AuthService>();
-      final linkViewModel = getIt.get<LinkViewModel>();
-      final settingsStore = appStore.settingsStore;
-      final statusBarColor = Colors.transparent;
-      final authenticationStore = getIt.get<AuthenticationStore>();
-      final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
-          ? Routes.disclaimer
-          : Routes.login;
-      final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      final statusBarIconBrightness =
-          currentTheme.type == ThemeType.dark ? Brightness.light : Brightness.dark;
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-          statusBarColor: statusBarColor,
-          statusBarBrightness: statusBarBrightness,
-          statusBarIconBrightness: statusBarIconBrightness));
+    return Observer(
+      builder: (BuildContext context) {
+        final appStore = getIt.get<AppStore>();
+        final authService = getIt.get<AuthService>();
+        final linkViewModel = getIt.get<LinkViewModel>();
+        final tradeMonitor = getIt.get<TradeMonitor>();
+        final nodeSwitchingService = getIt.get<NodeSwitchingService>();
+        final settingsStore = appStore.settingsStore;
+        final statusBarColor = Colors.transparent;
+        final authenticationStore = getIt.get<AuthenticationStore>();
+        final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
+            ? Routes.welcome
+            : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
+        final currentTheme = appStore.themeStore.currentTheme;
+        final statusBarBrightness =
+            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
+        final statusBarIconBrightness =
+            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
+        SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+            statusBarColor: statusBarColor,
+            statusBarBrightness: statusBarBrightness,
+            statusBarIconBrightness: statusBarIconBrightness));
 
-      return Root(
+        return Root(
           key: widget.key ?? rootKey,
           appStore: appStore,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           authService: authService,
           linkViewModel: linkViewModel,
-          child: MaterialApp(
-            navigatorObservers: [routeObserver],
-            navigatorKey: navigatorKey,
-            debugShowCheckedModeBanner: false,
-            theme: settingsStore.theme,
-            localizationsDelegates: localizationDelegates,
-            supportedLocales: S.delegate.supportedLocales,
-            locale: Locale(settingsStore.languageCode),
-            onGenerateRoute: (settings) => Router.createRoute(settings),
-            initialRoute: initialRoute,
-            scrollBehavior: AppScrollBehavior(),
-            home: _Home(),
-          ));
-    });
+          tradeMonitor: tradeMonitor,
+          nodeSwitchingService: nodeSwitchingService,
+          child: ThemeProvider(
+            themeStore: appStore.themeStore,
+            materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(
+              navigatorObservers: [routeObserver],
+              navigatorKey: navigatorKey,
+              debugShowCheckedModeBanner: false,
+              theme: theme,
+              darkTheme: darkTheme,
+              themeMode: themeMode,
+              localizationsDelegates: localizationDelegates,
+              supportedLocales: S.delegate.supportedLocales,
+              locale: Locale(appStore.settingsStore.languageCode),
+              onGenerateRoute: (settings) => Router.createRoute(settings),
+              initialRoute: initialRoute,
+              scrollBehavior: AppScrollBehavior(),
+              home: _Home(),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -347,11 +434,15 @@ class TopLevelErrorWidget extends StatelessWidget {
               children: [
                 Text(
                   'Error:\n${error.toString()}',
-                  style: TextStyle(fontSize: 22),
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontSize: 22,
+                      ),
                 ),
                 Text(
                   'Stack trace:\n${stackTrace.toString()}',
-                  style: TextStyle(fontSize: 16),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                      ),
                 ),
               ],
             ),
@@ -359,5 +450,36 @@ class TopLevelErrorWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+@pragma('vm:entry-point')
+Future<void> backgroundSync() async {
+  bool shouldUnmark = false;
+  try {
+    printV("Background sync triggered");
+    printV("- WidgetsFlutterBinding.ensureInitialized()");
+    WidgetsFlutterBinding.ensureInitialized();
+    printV("- DartPluginRegistrant.ensureInitialized()");
+    DartPluginRegistrant.ensureInitialized();
+    printV("- FlutterDaemon.markBackgroundSync()");
+    final val = await FlutterDaemon().markBackgroundSync();
+    if (val) {
+      printV("Background sync already in progress");
+      return;
+    }
+    shouldUnmark = true;
+    printV("Starting background sync");
+    final backgroundSync = BackgroundSync();
+    await initializeAppConfigs(loadWallet: false);
+    await backgroundSync.sync();
+    printV("Background sync completed");
+  } finally {
+    if (shouldUnmark) {
+      printV("Unmarking background sync");
+      await FlutterDaemon().unmarkBackgroundSync();
+    } else {
+      printV("Not unmarking background sync");
+    }
   }
 }

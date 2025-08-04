@@ -1,6 +1,3 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/filter_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:flutter/material.dart';
 
@@ -40,15 +37,15 @@ class SelectButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = color ?? (isSelected ? Colors.green : Theme.of(context).cardColor);
+    final backgroundColor = color ?? (isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainer);
     final effectiveTextColor = textColor ??
         (isSelected
-            ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-            : Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurface);
     final effectiveArrowColor = arrowColor ??
         (isSelected
-            ? Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor
-            : Theme.of(context).extension<FilterTheme>()!.titlesColor);
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurface);
 
     final trailingIcons = <Image>[];
     final selectArrowImage =
@@ -70,9 +67,9 @@ class SelectButton extends StatelessWidget {
         padding: padding ?? EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(30)),
+          borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(15)),
           color: backgroundColor,
-          border: borderColor != null ? Border.all(color: borderColor!) : null,
+          border: borderColor != null ? Border.all(color: borderColor!, width: 2) : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -89,7 +86,7 @@ class SelectButton extends StatelessWidget {
                     padding: image != null ? EdgeInsets.only(left: 15) : EdgeInsets.only(left: 0),
                     child: Text(
                       text,
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: textSize,
                         fontWeight: FontWeight.w500,
                         color: effectiveTextColor,

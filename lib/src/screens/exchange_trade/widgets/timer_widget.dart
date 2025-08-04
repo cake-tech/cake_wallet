@@ -14,10 +14,10 @@ class TimerWidget extends StatefulWidget {
 
 class TimerWidgetState extends State<TimerWidget> {
   TimerWidgetState()
-    : _leftSeconds = 0,
-    _minutes = 0,
-    _seconds = 0,
-    _isExpired = false;
+      : _leftSeconds = 0,
+        _minutes = 0,
+        _seconds = 0,
+        _isExpired = false;
 
   int _leftSeconds;
   int _minutes;
@@ -56,17 +56,19 @@ class TimerWidgetState extends State<TimerWidget> {
   @override
   Widget build(BuildContext context) {
     return _isExpired
-        ? Text(S.of(context).expired,
-            style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.w500,
-                color: Colors.red))
+        ? Text(
+            S.of(context).expired,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).colorScheme.errorContainer,
+            ),
+          )
         : Text(
             S.of(context).time(_minutes.toString(), _seconds.toString()),
-            style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.w500,
-                color: widget.color),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: widget.color,
+                ),
           );
   }
 

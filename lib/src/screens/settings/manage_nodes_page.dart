@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_list_row.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -34,8 +35,23 @@ class ManageNodesPage extends BasePage {
               onTap: (_) async => await Navigator.of(context).pushNamed(Routes.newNode),
             ),
           ),
-          const StandardListSeparator(padding: EdgeInsets.symmetric(horizontal: 24)),
-          SizedBox(height: 20),
+          Observer(
+            builder: (_) => SettingsSwitcherCell(
+              key: ValueKey('manage_nodes_page_enable_auto_node_switching_button_key'),
+              title: S.current.enable_auto_node_switching,
+              value: isPow
+                  ? powNodeListViewModel!.enableAutomaticNodeSwitching
+                  : nodeListViewModel!.enableAutomaticNodeSwitching,
+              onValueChange: (BuildContext context, bool value) {
+                if (isPow) {
+                  powNodeListViewModel!.setEnableAutomaticNodeSwitching(value);
+                } else {
+                  nodeListViewModel!.setEnableAutomaticNodeSwitching(value);
+                }
+              },
+            ),
+          ),
+          SizedBox(height: 8),
           Observer(
             builder: (BuildContext context) {
               int itemsCount =

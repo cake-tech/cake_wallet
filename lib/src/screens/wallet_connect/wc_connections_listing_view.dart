@@ -1,27 +1,25 @@
-import 'dart:developer';
-import 'package:cake_wallet/core/wallet_connect/web3wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/enter_wallet_connect_uri_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 
-import 'widgets/pairing_item_widget.dart';
+import 'widgets/wc_pairing_item_widget.dart';
 import 'wc_pairing_detail_page.dart';
 
 class WalletConnectConnectionsView extends StatelessWidget {
-  final Web3WalletService web3walletService;
+  final WalletKitService walletKitService;
 
-  WalletConnectConnectionsView({required this.web3walletService, Uri? launchUri, Key? key})
+  WalletConnectConnectionsView({required this.walletKitService, Uri? launchUri, Key? key})
       : super(key: key) {
     _triggerPairingFromDeeplink(launchUri);
   }
@@ -39,42 +37,38 @@ class WalletConnectConnectionsView extends StatelessWidget {
 
     final uriData = Uri.parse(uri);
 
-    await web3walletService.pairWithUri(uriData);
+    await walletKitService.pairWithUri(uriData);
   }
 
   @override
   Widget build(BuildContext context) {
-    return WCPairingsWidget(web3walletService: web3walletService);
+    return WCPairingsWidget(walletKitService: walletKitService);
   }
 }
 
 class WCPairingsWidget extends BasePage {
-  WCPairingsWidget({required this.web3walletService, Key? key})
-      : web3wallet = web3walletService.getWeb3Wallet();
+  WCPairingsWidget({required this.walletKitService, Key? key})
+      : walletKit = walletKitService.walletKit;
 
-  final Web3Wallet web3wallet;
-  final Web3WalletService web3walletService;
+  final ReownWalletKit walletKit;
+  final WalletKitService walletKitService;
 
   @override
   String get title => S.current.walletConnect;
 
-  Future<void> _onScanQrCode(BuildContext context, Web3Wallet web3Wallet) async {
+  Future<void> _onScanQrCode(BuildContext context, ReownWalletKit web3Wallet) async {
     final String? uri;
 
     if (DeviceInfo.instance.isMobile) {
       bool isCameraPermissionGranted =
-      await PermissionHandler.checkPermission(Permission.camera, context);
+          await PermissionHandler.checkPermission(Permission.camera, context);
       if (!isCameraPermissionGranted) return;
-      uri = await presentQRScanner();
+      uri = await presentQRScanner(context);
     } else {
       uri = await _showEnterWalletConnectURIPopUp(context);
     }
 
-    if (uri == null) return _invalidUriToast(context, S.current.nullURIError);
-
-    log('_onFoundUri: $uri');
-    final Uri uriData = Uri.parse(uri);
-    await web3walletService.pairWithUri(uriData);
+    await _handleWalletConnectURI(uri, context);
   }
 
   Future<String?> _showEnterWalletConnectURIPopUp(BuildContext context) async {
@@ -85,6 +79,17 @@ class WCPairingsWidget extends BasePage {
       },
     );
     return walletConnectURI;
+  }
+
+  Future<void> _handleWalletConnectURI(
+    String? walletConnectURI,
+    BuildContext context,
+  ) async {
+    if (walletConnectURI == null) return _invalidUriToast(context, S.current.nullURIError);
+
+    log('_onFoundUri: $walletConnectURI');
+    final Uri uriData = Uri.parse(walletConnectURI);
+    await walletKitService.pairWithUri(uriData);
   }
 
   Future<void> _invalidUriToast(BuildContext context, String message) async {
@@ -115,42 +120,53 @@ class WCPairingsWidget extends BasePage {
                   SizedBox(height: 24),
                   Text(
                     S.current.connectWalletPrompt,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   SizedBox(height: 16),
                   PrimaryButton(
                     text: S.current.newConnection,
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                    onPressed: () => _onScanQrCode(context, web3wallet),
+                    color: Theme.of(context).colorScheme.primary,
+                    textColor: Theme.of(context).colorScheme.onPrimary,
+                    onPressed: () => _onScanQrCode(context, walletKit),
+                  ),
+                  SizedBox(height: 4),
+                  TextButton(
+                    onPressed: () async {
+                      final uri = await _showEnterWalletConnectURIPopUp(context);
+                      await _handleWalletConnectURI(uri, context);
+                    },
+                    child: Text(
+                      'Click to paste WalletConnect Link',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 48),
+            SizedBox(height: 16),
             Expanded(
               child: Visibility(
-                visible: web3walletService.pairings.isEmpty,
+                visible: walletKitService.pairings.isEmpty,
                 child: Center(
                   child: Text(
                     S.current.activeConnectionsPrompt,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
                 replacement: ListView.builder(
-                  itemCount: web3walletService.pairings.length,
+                  itemCount: walletKitService.pairings.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final pairing = web3walletService.pairings[index];
-                    return PairingItemWidget(
+                    final pairing = walletKitService.pairings[index];
+                    return WCPairingItemWidget(
                       key: ValueKey(pairing.topic),
                       pairing: pairing,
                       onTap: () {
@@ -159,7 +175,7 @@ class WCPairingsWidget extends BasePage {
                           MaterialPageRoute(
                             builder: (context) => WalletConnectPairingDetailsPage(
                               pairing: pairing,
-                              web3walletService: web3walletService,
+                              walletKitService: walletKitService,
                             ),
                           ),
                         );

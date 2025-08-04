@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -10,7 +9,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -28,15 +27,11 @@ Future<void> startFiatRateUpdate(
         return;
       }
 
-      if (appStore.wallet!.type == WalletType.haven) {
-        await updateHavenRate(fiatConversionStore);
-      } else {
-        fiatConversionStore.prices[appStore.wallet!.currency] =
-            await FiatConversionService.fetchPrice(
-                crypto: appStore.wallet!.currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
-      }
+      fiatConversionStore.prices[appStore.wallet!.currency] =
+          await FiatConversionService.fetchPrice(
+              crypto: appStore.wallet!.currency,
+              fiat: settingsStore.fiatCurrency,
+              torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
 
       Iterable<CryptoCurrency>? currencies;
       if (appStore.wallet!.type == WalletType.ethereum) {
@@ -59,9 +54,12 @@ Future<void> startFiatRateUpdate(
             tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
       }
 
-
       if (currencies != null) {
         for (final currency in currencies) {
+          // skip potential scams:
+          if (currency.isPotentialScam) {
+            continue;
+          }
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
                 crypto: currency,
@@ -71,7 +69,7 @@ Future<void> startFiatRateUpdate(
         }
       }
     } catch (e) {
-      print(e);
+      printV(e);
     }
   };
 

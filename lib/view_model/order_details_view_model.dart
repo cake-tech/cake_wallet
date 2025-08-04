@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -65,7 +66,7 @@ abstract class OrderDetailsViewModelBase with Store {
         _updateItems();
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

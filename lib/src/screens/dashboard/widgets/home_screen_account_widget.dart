@@ -1,6 +1,5 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 
@@ -32,11 +31,9 @@ class HomeScreenAccountWidget extends StatelessWidget {
                 Container(
                   child: Text(
                     walletName ?? '',
-                    style: TextStyle(
-                      fontSize: 22.0,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Lato',
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -46,11 +43,9 @@ class HomeScreenAccountWidget extends StatelessWidget {
                 Container(
                   child: Text(
                     accountName ?? '',
-                    style: TextStyle(
-                      fontSize: 14.0,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Lato',
-                      color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -59,7 +54,7 @@ class HomeScreenAccountWidget extends StatelessWidget {
             Container(
               child: Icon(
                 Icons.keyboard_arrow_down,
-                color: Theme.of(context).extension<DashboardPageTheme>()!.pageTitleTextColor,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],

@@ -1,11 +1,9 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/seed_widget_theme.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -68,19 +66,16 @@ class _ImportNFTPage extends BasePage {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-       
           Text(
             S.current.address,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Lato',
-              fontWeight: FontWeight.w800,
-              color:
-                  Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
-              height: 1,
-            ),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1,
+                ),
           ),
+          SizedBox(height: 8),
           AddressTextField(
             controller: tokenAddressController,
             options: [AddressTextFieldOption.paste],
@@ -92,75 +87,63 @@ class _ImportNFTPage extends BasePage {
                 tokenAddressController.text = tokenAddress;
               }
             },
-            borderColor: Theme.of(context)
-                .extension<CakeTextTheme>()!
-                .textfieldUnderlineColor,
-            iconColor: Theme.of(context).primaryColor,
+            fillColor: Theme.of(context).colorScheme.surfaceContainer,
+            iconColor: Theme.of(context).colorScheme.primary,
             placeholder: '0x...',
-            textStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
-            ),
-            hintStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
-            ),
+            textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+            hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
-      
-          SizedBox(height: 48),
-          Text(
-            S.current.tokenID,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Lato',
-              fontWeight: FontWeight.w800,
-              color: Theme.of(context).extension<SeedWidgetTheme>()!.hintTextColor,
-              height: 1,
+          if (nftViewModel.appStore.wallet!.type != WalletType.solana) ...[
+            SizedBox(height: 48),
+            Text(
+              S.current.tokenID,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1,
+                  ),
             ),
-          ),
-          AddressTextField(
-            controller: tokenIDController,
-            options: [AddressTextFieldOption.paste],
-            onPushPasteButton: (context) async {
-              final clipboard = await Clipboard.getData('text/plain');
-              final tokenID = clipboard?.text ?? '';
+            SizedBox(height: 8),
+            AddressTextField(
+              controller: tokenIDController,
+              options: [AddressTextFieldOption.paste],
+              onPushPasteButton: (context) async {
+                final clipboard = await Clipboard.getData('text/plain');
+                final tokenID = clipboard?.text ?? '';
 
-              if (tokenID.isNotEmpty) {
-                tokenIDController.text = tokenID;
-              }
-            },
-            borderColor: Theme.of(context)
-                .extension<CakeTextTheme>()!
-                .textfieldUnderlineColor,
-            iconColor: Theme.of(context).primaryColor,
-            placeholder: S.current.enterTokenID,
-            textStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
+                if (tokenID.isNotEmpty) {
+                  tokenIDController.text = tokenID;
+                }
+              },
+              iconColor: Theme.of(context).colorScheme.primary,
+              placeholder: S.current.enterTokenID,
+              textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+              hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
-            hintStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: PaletteDark.darkCyanBlue,
-            ),
-          ),
+          ],
           Spacer(),
           Observer(builder: (context) {
             return LoadingPrimaryButton(
               isLoading: nftViewModel.isImportNFTLoading,
               text: S.current.import,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
               onPressed: () async {
                 await nftViewModel.importNFT(tokenAddressController.text, tokenIDController.text);
                 Navigator.pop(context);
               },
             );
           }),
+          SizedBox(height: 16),
         ],
       ),
     );

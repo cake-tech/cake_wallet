@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class ActionButton extends StatelessWidget {
   ActionButton({
@@ -21,8 +20,8 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+    return TextButton(
+      onPressed: () {
         if (route?.isNotEmpty ?? false) {
           Navigator.of(context, rootNavigator: true).pushNamed(route!);
         } else {
@@ -31,11 +30,12 @@ class ActionButton extends StatelessWidget {
       },
       child: Container(
         color: Colors.transparent,
-        padding: EdgeInsets.only(top: 14, bottom: 16, left: 10, right: 10),
+        padding: EdgeInsets.only(top: 5, bottom: 4, left: 0, right: 0),
         alignment: alignment,
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
               alignment: Alignment.center,
@@ -46,10 +46,11 @@ class ActionButton extends StatelessWidget {
             SizedBox(height: 4),
             Text(
               title,
-              style: TextStyle(
-                  fontSize: 10,
-                  color: textColor ??
-                      Theme.of(context).extension<DashboardPageTheme>()!.cardTextColor),
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: textColor ?? Theme.of(context).colorScheme.onSurface),
+              textAlign: TextAlign.center,
             )
           ],
         ),

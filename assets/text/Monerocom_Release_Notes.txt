@@ -1,2 +1,6 @@
-Enhance auto-address generation for Monero
-Bug fixes and enhancements
+Enable Ledger for Desktop
+Monero enhancements
+Allow automatic node switching between trusted nodes
+Enhance node connectivity
+UI enhancements
+Bug fixes

@@ -9,8 +9,10 @@ import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -33,38 +35,57 @@ class TransactionDetailsPage extends BasePage {
       children: [
         Expanded(
           child: SectionStandardList(
-              sectionCount: 1,
-              itemCounter: (int _) => transactionDetailsViewModel.items.length,
-              itemBuilder: (__, index) {
-                final item = transactionDetailsViewModel.items[index];
+            sectionCount: 1,
+            itemCounter: (int _) => transactionDetailsViewModel.items.length,
+            itemBuilder: (__, index) {
+              final item = transactionDetailsViewModel.items[index];
 
-                if (item is StandartListItem) {
-                  return GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: item.value));
-                      showBar<void>(context, S.of(context).transaction_details_copied(item.title));
-                    },
-                    child: ListRow(title: '${item.title}:', value: item.value),
-                  );
-                }
+              if (item is StandartListItem) {
+                Widget? addressTextWidget;
 
-                if (item is BlockExplorerListItem) {
-                  return GestureDetector(
-                    onTap: item.onTap,
-                    child: ListRow(title: '${item.title}:', value: item.value),
-                  );
-                }
-
-                if (item is TextFieldListItem) {
-                  return TextFieldListRow(
-                    title: item.title,
+                if (item.title.toLowerCase() == 'recipient addresses' ||
+                    item.title.toLowerCase() == 'source address') {
+                  addressTextWidget = getFormattedAddress(
+                    context: context,
                     value: item.value,
-                    onSubmitted: item.onSubmitted,
+                    walletType: transactionDetailsViewModel.sendViewModel.walletType,
                   );
                 }
 
-                return Container();
-              }),
+                return GestureDetector(
+                  key: item.key,
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: item.value));
+                    showBar<void>(context, S.of(context).transaction_details_copied(item.title));
+                  },
+                  child: ListRow(
+                    title: '${item.title}:',
+                    value: item.value,
+                    textWidget: addressTextWidget,
+                  ),
+                );
+              }
+
+              if (item is BlockExplorerListItem) {
+                return GestureDetector(
+                  key: item.key,
+                  onTap: item.onTap,
+                  child: ListRow(title: '${item.title}:', value: item.value),
+                );
+              }
+
+              if (item is TextFieldListItem) {
+                return TextFieldListRow(
+                  key: item.key,
+                  title: item.title,
+                  value: item.value,
+                  onSubmitted: item.onSubmitted,
+                );
+              }
+
+              return Container();
+            },
+          ),
         ),
         Observer(
           builder: (_) {
@@ -85,6 +106,82 @@ class TransactionDetailsPage extends BasePage {
           },
         ),
       ],
+    );
+  }
+
+  Widget getFormattedAddress({
+    required BuildContext context,
+    required String value,
+    required WalletType walletType,
+  }) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium!.copyWith(
+      fontSize: 16,
+      fontWeight: FontWeight.w500,
+      color: Theme.of(context).colorScheme.onSurface,
+    );
+    final List<Widget> children = [];
+    final bool hasDoubleNewline = value.contains('\n\n');
+
+    if (hasDoubleNewline) {
+      final blocks = value
+          .split('\n\n')
+          .map((b) => b.trim())
+          .where((b) => b.isNotEmpty)
+          .toList();
+      for (final block in blocks) {
+        final lines = block
+            .split('\n')
+            .map((l) => l.trim())
+            .where((l) => l.isNotEmpty)
+            .toList();
+        if (lines.length > 1) {
+          children.add(Text(lines.first, style: textStyle));
+          for (int i = 1; i < lines.length; i++) {
+            children.add(
+              AddressFormatter.buildSegmentedAddress(
+                address: lines[i],
+                walletType: walletType,
+                evenTextStyle: textStyle,
+              ),
+            );
+          }
+        } else {
+          children.add(
+            AddressFormatter.buildSegmentedAddress(
+              address: lines.first,
+              walletType: walletType,
+              evenTextStyle: textStyle,
+            ),
+          );
+        }
+        children.add(SizedBox(height: 8));
+      }
+    } else {
+      final lines = value
+          .split('\n')
+          .map((l) => l.trim())
+          .where((l) => l.isNotEmpty)
+          .toList();
+      bool firstLineIsContactName = (lines.length > 1 && lines.first.length < 20);
+      int startIndex = 0;
+      if (firstLineIsContactName) {
+        children.add(Text(lines.first, style: textStyle));
+        startIndex = 1;
+      }
+      for (int i = startIndex; i < lines.length; i++) {
+        children.add(
+          AddressFormatter.buildSegmentedAddress(
+            address: lines[i],
+            walletType: walletType,
+            evenTextStyle: textStyle,
+          ),
+        );
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
     );
   }
 }

@@ -13,7 +13,6 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -85,7 +84,9 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
 
 class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBody> {
   final TextEditingController passphraseController = TextEditingController();
+  final TextEditingController confirmPassphraseController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _passphraseFormKey = GlobalKey<FormState>();
   bool? testnetValue;
 
   bool obscurePassphrase = true;
@@ -93,9 +94,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
   @override
   void initState() {
     passphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
-
-    passphraseController
-        .addListener(() => widget.seedTypeViewModel.setPassphrase(passphraseController.text));
+    confirmPassphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
 
     if (widget.isChildWallet) {
       if (widget.privacySettingsViewModel.type == WalletType.bitcoin) {
@@ -136,7 +135,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
             Observer(builder: (_) {
               return SettingsChoicesCell(
                 ChoicesListItem<ExchangeApiMode>(
-                  title: S.current.exchange,
+                  title: S.current.swap,
                   items: ExchangeApiMode.all,
                   selectedItem: widget.privacySettingsViewModel.exchangeStatus,
                   onItemSelected: (ExchangeApiMode mode) =>
@@ -144,7 +143,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ),
               );
             }),
-            if (widget.privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled)
+            if (widget.privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled &&
+                !widget.isChildWallet)
               Observer(builder: (_) {
                 return SettingsChoicesCell(
                   ChoicesListItem<MoneroSeedType>(
@@ -152,6 +152,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     items: MoneroSeedType.all,
                     selectedItem: widget.seedTypeViewModel.moneroSeedType,
                     onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
+                    displayItem: (seedType) => seedType.shortTitle ?? seedType.toString(),
                   ),
                 );
               }),
@@ -189,7 +190,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   ),
                 );
               }),
-            if (!widget.isFromRestore) ...[
+            if (!widget.isFromRestore)
               Observer(builder: (_) {
                 if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
                   return SettingsPickerCell<SeedPhraseLength>(
@@ -202,34 +203,61 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   );
                 return Container();
               }),
-              if (widget.privacySettingsViewModel.hasPassphraseOption)
-                Padding(
-                  padding: EdgeInsets.all(24),
-                  child: BaseTextFormField(
-                    hintText: S.current.passphrase,
-                    controller: passphraseController,
-                    obscureText: obscurePassphrase,
-                    suffixIcon: GestureDetector(
-                      onTap: () => setState(() {
-                        obscurePassphrase = !obscurePassphrase;
-                      }),
-                      child: Icon(
-                        Icons.remove_red_eye,
-                        color: obscurePassphrase ? Colors.black54 : Colors.black26,
+            if (widget.privacySettingsViewModel.hasPassphraseOption && !widget.isFromRestore)
+              Padding(
+                padding: EdgeInsets.all(24),
+                child: Form(
+                  key: _passphraseFormKey,
+                  child: Column(
+                    children: [
+                      BaseTextFormField(
+                        hintText: S.of(context).passphrase,
+                        controller: passphraseController,
+                        obscureText: obscurePassphrase,
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(() {
+                            obscurePassphrase = !obscurePassphrase;
+                          }),
+                          child: Icon(
+                            Icons.remove_red_eye,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      BaseTextFormField(
+                        hintText: S.of(context).confirm_passphrase,
+                        controller: confirmPassphraseController,
+                        obscureText: obscurePassphrase,
+                        validator: (text) {
+                          if (text == passphraseController.text) {
+                            return null;
+                          }
+
+                          return S.of(context).passphrases_doesnt_match;
+                        },
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(() {
+                            obscurePassphrase = !obscurePassphrase;
+                          }),
+                          child: Icon(
+                            Icons.remove_red_eye,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-            ],
+              ),
             Observer(builder: (_) {
               return Column(
                 children: [
                   SettingsSwitcherCell(
-                      title: S.current.disable_bulletin,
-                      value: widget.privacySettingsViewModel.disableBulletin,
-                      onValueChange: (BuildContext _, bool value) {
-                        widget.privacySettingsViewModel.setDisableBulletin(value);
-                      }),
+                    title: S.current.disable_bulletin,
+                    value: widget.privacySettingsViewModel.disableBulletin,
+                    onValueChange: (BuildContext _, bool value) {
+                      widget.privacySettingsViewModel.setDisableBulletin(value);
+                    },
+                  ),
                   SettingsSwitcherCell(
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,
@@ -246,7 +274,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ],
               );
             }),
-            if (widget.privacySettingsViewModel.type == WalletType.bitcoin)
+            if (widget.privacySettingsViewModel.type == WalletType.bitcoin ||
+                widget.privacySettingsViewModel.type == WalletType.decred)
               Builder(builder: (_) {
                 final val = testnetValue ?? false;
                 return SettingsSwitcherCell(
@@ -264,6 +293,20 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
         bottomSectionPadding: EdgeInsets.all(24),
         bottomSection: Column(
           children: [
+            const SizedBox(height: 24),
+            LayoutBuilder(
+              builder: (_, constraints) => SizedBox(
+                width: constraints.maxWidth * 0.8,
+                child: Text(
+                  S.of(context).settings_can_be_changed_later,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             LoadingPrimaryButton(
               onPressed: () {
                 if (widget.privacySettingsViewModel.addCustomNode) {
@@ -272,7 +315,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   }
 
                   widget.nodeViewModel.save();
-                } else if (testnetValue == true) {
+                }
+                if (testnetValue == true &&
+                    widget.privacySettingsViewModel.type == WalletType.bitcoin) {
                   // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
                   // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;
@@ -280,26 +325,22 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
                   widget.nodeViewModel.save();
                 }
+                if (passphraseController.text.isNotEmpty) {
+                  if (_passphraseFormKey.currentState != null &&
+                      !_passphraseFormKey.currentState!.validate()) {
+                    return;
+                  }
+                }
+
+                widget.seedTypeViewModel.setPassphrase(passphraseController.text);
 
                 Navigator.pop(context);
               },
               text: S.of(context).continue_text,
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
             ),
-            const SizedBox(height: 25),
-            LayoutBuilder(
-              builder: (_, constraints) => SizedBox(
-                width: constraints.maxWidth * 0.8,
-                child: Text(
-                  S.of(context).settings_can_be_changed_later,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                  ),
-                ),
-              ),
-            )
+            SizedBox(height: 16),
           ],
         ),
       ),
@@ -317,12 +358,5 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
             buttonAction: () => Navigator.of(context).pop(),
           );
         });
-  }
-
-  @override
-  void dispose() {
-    passphraseController
-        .removeListener(() => widget.seedTypeViewModel.setPassphrase(passphraseController.text));
-    super.dispose();
   }
 }

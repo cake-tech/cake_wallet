@@ -7,24 +7,30 @@ class TronNewWalletCredentials extends WalletCredentials {
     WalletInfo? walletInfo,
     String? password,
     this.mnemonic,
-    String? parentAddress,
+    String? passphrase,
   }) : super(
           name: name,
           walletInfo: walletInfo,
           password: password,
-          parentAddress: parentAddress,
+          passphrase: passphrase,
         );
 
   final String? mnemonic;
 }
 
 class TronRestoreWalletFromSeedCredentials extends WalletCredentials {
-  TronRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String password,
-      required this.mnemonic,
-      WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
+  TronRestoreWalletFromSeedCredentials({
+    required String name,
+    required String password,
+    required this.mnemonic,
+    WalletInfo? walletInfo,
+    String? passphrase,
+  }) : super(
+          name: name,
+          password: password,
+          walletInfo: walletInfo,
+          passphrase: passphrase,
+        );
 
   final String mnemonic;
 }

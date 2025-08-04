@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -38,7 +39,14 @@ abstract class NodeListViewModelBase with Store {
 
   String getAlertContent(String uri) =>
       S.current.change_current_node(uri) +
-      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
+      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + (CakeTor.instance.enabled ? '' : S.current.orbot_running_alert) : ''}';
+
+  @computed
+  bool get enableAutomaticNodeSwitching => settingsStore.enableAutomaticNodeSwitching;
+
+  @action
+  void setEnableAutomaticNodeSwitching(bool value) =>
+      settingsStore.enableAutomaticNodeSwitching = value;
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
@@ -49,47 +57,10 @@ abstract class NodeListViewModelBase with Store {
     await resetToDefault(_nodeSource);
 
     Node node;
-
-    switch (_appStore.wallet!.type) {
-      case WalletType.bitcoin:
-        if (_appStore.wallet!.isTestnet) {
-          node = getBitcoinTestnetDefaultElectrumServer(nodes: _nodeSource)!;
-        } else {
-          node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
-        }
-        break;
-      case WalletType.monero:
-        node = getMoneroDefaultNode(nodes: _nodeSource);
-        break;
-      case WalletType.litecoin:
-        node = getLitecoinDefaultElectrumServer(nodes: _nodeSource)!;
-        break;
-      case WalletType.haven:
-        node = getHavenDefaultNode(nodes: _nodeSource)!;
-        break;
-      case WalletType.ethereum:
-        node = getEthereumDefaultNode(nodes: _nodeSource)!;
-        break;
-      case WalletType.bitcoinCash:
-        node = getBitcoinCashDefaultElectrumServer(nodes: _nodeSource)!;
-        break;
-      case WalletType.nano:
-        node = getNanoDefaultNode(nodes: _nodeSource)!;
-        break;
-      case WalletType.polygon:
-        node = getPolygonDefaultNode(nodes: _nodeSource)!;
-        break;
-      case WalletType.solana:
-        node = getSolanaDefaultNode(nodes: _nodeSource)!;
-        break;
-      case WalletType.tron:
-        node = getTronDefaultNode(nodes: _nodeSource)!;
-        break;
-      case WalletType.wownero:
-        node = getWowneroDefaultNode(nodes: _nodeSource);
-        break;
-      default:
-        throw Exception('Unexpected wallet type: ${_appStore.wallet!.type}');
+    if (_appStore.wallet!.type == WalletType.bitcoin && _appStore.wallet!.isTestnet) {
+      node = getBitcoinTestnetDefaultElectrumServer(nodes: _nodeSource)!;
+    } else {
+      node = getDefaultNode(nodes: _nodeSource, type: _appStore.wallet!.type)!;
     }
 
     await setAsCurrent(node);

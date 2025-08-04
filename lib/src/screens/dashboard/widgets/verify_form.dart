@@ -15,7 +15,7 @@ class VerifyForm extends StatefulWidget {
   VerifyFormState createState() => VerifyFormState();
 }
 
-class VerifyFormState extends State<VerifyForm> {
+class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMixin {
   VerifyFormState()
       : formKey = GlobalKey<FormState>(),
         messageController = TextEditingController(),
@@ -38,7 +38,11 @@ class VerifyFormState extends State<VerifyForm> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       padding: EdgeInsets.only(left: 24, right: 24),
       child: Form(
@@ -49,13 +53,15 @@ class VerifyFormState extends State<VerifyForm> {
               controller: messageController,
               placeholder: S.current.message,
               options: [AddressTextFieldOption.paste],
-              buttonColor: Theme.of(context).hintColor,
+              buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              fillColor: Theme.of(context).colorScheme.surface,
             ),
             const SizedBox(height: 20),
             AddressTextField(
               controller: addressController,
               options: [AddressTextFieldOption.paste, AddressTextFieldOption.walletAddresses],
-              buttonColor: Theme.of(context).hintColor,
+              buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              fillColor: Theme.of(context).colorScheme.surface,
               onSelectedContact: (contact) {
                 addressController.text = contact.address;
               },
@@ -66,7 +72,8 @@ class VerifyFormState extends State<VerifyForm> {
               controller: signatureController,
               placeholder: S.current.signature,
               options: [AddressTextFieldOption.paste],
-              buttonColor: Theme.of(context).hintColor,
+              buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              fillColor: Theme.of(context).colorScheme.surface,
             ),
           ],
         ),

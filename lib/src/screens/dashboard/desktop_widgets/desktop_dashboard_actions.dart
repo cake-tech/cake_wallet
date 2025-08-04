@@ -15,18 +15,26 @@ class DesktopDashboardActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: Observer(
         builder: (_) {
           return Column(
             children: [
               const SizedBox(height: 16),
               DesktopActionButton(
-                title: MainActions.exchangeAction.name(context),
-                image: MainActions.exchangeAction.image,
-                canShow: MainActions.exchangeAction.canShow?.call(dashboardViewModel),
-                isEnabled: MainActions.exchangeAction.isEnabled?.call(dashboardViewModel),
-                onTap: () async => await MainActions.exchangeAction.onTap(context, dashboardViewModel),
+                title: MainActions.showWalletsAction.name(context),
+                image: MainActions.showWalletsAction.image,
+                canShow: MainActions.showWalletsAction.canShow?.call(dashboardViewModel),
+                isEnabled: MainActions.showWalletsAction.isEnabled?.call(dashboardViewModel),
+                onTap: () async =>
+                    await MainActions.showWalletsAction.onTap(context, dashboardViewModel),
+              ),
+              DesktopActionButton(
+                title: MainActions.swapAction.name(context),
+                image: MainActions.swapAction.image,
+                canShow: MainActions.swapAction.canShow?.call(dashboardViewModel),
+                isEnabled: MainActions.swapAction.isEnabled?.call(dashboardViewModel),
+                onTap: () async => await MainActions.swapAction.onTap(context, dashboardViewModel),
               ),
               Row(
                 children: [
@@ -55,20 +63,11 @@ class DesktopDashboardActions extends StatelessWidget {
                 children: [
                   Expanded(
                     child: DesktopActionButton(
-                      title: MainActions.buyAction.name(context),
-                      image: MainActions.buyAction.image,
-                      canShow: MainActions.buyAction.canShow?.call(dashboardViewModel),
-                      isEnabled: MainActions.buyAction.isEnabled?.call(dashboardViewModel),
-                      onTap: () async => await MainActions.buyAction.onTap(context, dashboardViewModel),
-                    ),
-                  ),
-                  Expanded(
-                    child: DesktopActionButton(
-                      title: MainActions.sellAction.name(context),
-                      image: MainActions.sellAction.image,
-                      canShow: MainActions.sellAction.canShow?.call(dashboardViewModel),
-                      isEnabled: MainActions.sellAction.isEnabled?.call(dashboardViewModel),
-                      onTap: () async => await MainActions.sellAction.onTap(context, dashboardViewModel),
+                      title: MainActions.tradeAction.name(context),
+                      image: MainActions.tradeAction.image,
+                      canShow: MainActions.tradeAction.canShow?.call(dashboardViewModel),
+                      isEnabled: MainActions.tradeAction.isEnabled?.call(dashboardViewModel),
+                      onTap: () async => await MainActions.tradeAction.onTap(context, dashboardViewModel),
                     ),
                   ),
                 ],

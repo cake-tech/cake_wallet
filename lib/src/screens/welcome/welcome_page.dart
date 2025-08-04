@@ -1,164 +1,183 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
-import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/src/widgets/gradient_background.dart';
 
 class WelcomePage extends BasePage {
-  static const aspectRatioImage = 1.25;
-  final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
-  final welcomeImageDark = Image.asset('assets/images/welcome.png');
-
-  String appTitle(BuildContext context) {
-    if (isMoneroOnly) {
-      return S.of(context).monero_com;
-    }
-
-    if (isHaven) {
-      return S.of(context).haven_app;
-    }
-
-    return S.of(context).cake_wallet;
-  }
-
-  String appDescription(BuildContext context) {
-    if (isMoneroOnly) {
-      return S.of(context).monero_com_wallet_text;
-    }
-
-    if (isHaven) {
-      return S.of(context).haven_app_wallet_text;
-    }
-
-    return S.of(context).new_first_wallet_text;
-  }
+  static const aspectRatioImage = 1.5;
+  final welcomeImageLight = 'assets/images/welcome_wallet_light.png';
+  final welcomeImageDark = 'assets/images/welcome_wallet_dark.png';
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        resizeToAvoidBottomInset: false,
-        body: body(context));
+  String? get title => S.current.wallet;
+
+  @override
+  bool get gradientBackground => true;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+
+  @override
+  bool get resizeToAvoidBottomInset => false;
+
+  @override
+  Widget trailing(BuildContext context) {
+    final Uri _url =
+        Uri.parse('https://docs.cakewallet.com/get-started/setup/create-first-wallet/');
+    return IconButton(
+      icon: Icon(Icons.info_outline, size: 26,),
+      onPressed: () async {
+        await launchUrl(_url);
+      },
+    );
   }
 
   @override
   Widget body(BuildContext context) {
-    final welcomeImage = currentTheme.type == ThemeType.dark ? welcomeImageDark : welcomeImageLight;
+    final welcomeImage = currentTheme.isDark ? welcomeImageDark : welcomeImageLight;
 
-    final newWalletImage = Image.asset('assets/images/new_wallet.png',
-        height: 12,
-        width: 12,
-        color: Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor);
-    final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
-        height: 12, width: 12, color: Theme.of(context).extension<CakeTextTheme>()!.titleColor);
-
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: ScrollableWithBottomSection(
-        content: Container(
-          alignment: Alignment.center,
-          padding: EdgeInsets.only(top: 64, bottom: 24, left: 24, right: 24),
-          child: ConstrainedBox(
-            constraints:
-                BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    AspectRatio(
-                      aspectRatio: aspectRatioImage,
-                      child: FittedBox(child: welcomeImage, fit: BoxFit.contain),
+    return ScrollableWithBottomSection(
+      content: Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.only(top: 64, bottom: 24, left: 24, right: 24),
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  AspectRatio(
+                    aspectRatio: aspectRatioImage,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: CakeImageWidget(imageUrl: welcomeImage),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
-                      child: Text(
-                        S.of(context).welcome,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 48),
+                    child: highlightText(
+                      context,
+                      S.of(context).welcome_subtitle_new_wallet,
+                      S.of(context).create_new,
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Text(
-                        appTitle(context),
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                  ),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: EdgeInsets.only(top: 5),
+                    child: highlightText(
+                      context,
+                      S.of(context).welcome_subtitle_restore_wallet,
+                      S.of(context).restore_existing_wallet,
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Text(
-                        appDescription(context),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
-        bottomSection: Column(
-          children: <Widget>[
-            Text(
-              S.of(context).please_make_selection,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 24),
-              child: PrimaryImageButton(
-                key: ValueKey('welcome_page_create_new_wallet_button_key'),
-                onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
-                image: newWalletImage,
-                text: S.of(context).create_new,
-                color: Theme.of(context)
-                    .extension<WalletListTheme>()!
-                    .createNewWalletButtonBackgroundColor,
-                textColor:
-                    Theme.of(context).extension<WalletListTheme>()!.restoreWalletButtonTextColor,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: PrimaryImageButton(
-                key: ValueKey('welcome_page_restore_wallet_button_key'),
-                  onPressed: () {
-                    Navigator.pushNamed(context, Routes.restoreOptions, arguments: true);
-                  },
-                  image: restoreWalletImage,
-                  text: S.of(context).restore_wallet,
-                  color: Theme.of(context).cardColor,
-                  textColor: Theme.of(context).extension<CakeTextTheme>()!.titleColor),
-            )
-          ],
-        ),
       ),
+      bottomSection: Column(
+        children: <Widget>[
+          Text(
+            'Please make selection below \nto create or recover your wallet.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 24),
+            child: PrimaryButton(
+              key: ValueKey('welcome_page_restore_wallet_button_key'),
+              onPressed: () {
+                Navigator.pushNamed(context, Routes.restoreOptions, arguments: true);
+              },
+              text: S.of(context).restore_restore_wallet,
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: PrimaryButton(
+              key: ValueKey('welcome_page_create_new_wallet_button_key'),
+              onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
+              text: S.of(context).create_new,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ),
+          SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  RichText highlightText(BuildContext context, String text, String highlightWord) {
+    final regex = RegExp(highlightWord, caseSensitive: false);
+    final matches = regex.allMatches(text);
+
+    if (matches.isEmpty) {
+      return RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          text: text,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+        ),
+      );
+    }
+
+    List<InlineSpan> spans = [];
+    int lastMatchEnd = 0;
+
+    for (final match in matches) {
+      final start = match.start;
+      final end = match.end;
+
+      if (start > lastMatchEnd) {
+        spans.add(
+          TextSpan(
+            text: text.substring(lastMatchEnd, start),
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+          ),
+        );
+      }
+
+      spans.add(
+        TextSpan(
+          text: text.substring(start, end),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                height: 1.5,
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+      );
+
+      lastMatchEnd = end;
+    }
+
+    if (lastMatchEnd < text.length) {
+      spans.add(
+        TextSpan(
+          text: text.substring(lastMatchEnd),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.5),
+        ),
+      );
+    }
+
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(children: spans),
     );
   }
 }

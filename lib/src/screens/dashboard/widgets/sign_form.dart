@@ -20,7 +20,7 @@ class SignForm extends StatefulWidget {
   SignFormState createState() => SignFormState();
 }
 
-class SignFormState extends State<SignForm> {
+class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
   SignFormState()
       : formKey = GlobalKey<FormState>(),
         messageController = TextEditingController(),
@@ -43,7 +43,11 @@ class SignFormState extends State<SignForm> {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       padding: EdgeInsets.only(left: 24, right: 24),
       child: Column(
@@ -56,7 +60,8 @@ class SignFormState extends State<SignForm> {
                     controller: messageController,
                     placeholder: S.current.message,
                     options: [AddressTextFieldOption.paste],
-                    buttonColor: Theme.of(context).hintColor,
+                    buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    fillColor: Theme.of(context).colorScheme.surface,
                   ),
                   if (widget.includeAddress) ...[
                     const SizedBox(height: 20),
@@ -66,11 +71,12 @@ class SignFormState extends State<SignForm> {
                         AddressTextFieldOption.paste,
                         AddressTextFieldOption.walletAddresses
                       ],
-                      buttonColor: Theme.of(context).hintColor,
+                      buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       onSelectedContact: (contact) {
                         addressController.text = contact.address;
                       },
                       selectedCurrency: walletTypeToCryptoCurrency(widget.type),
+                      fillColor: Theme.of(context).colorScheme.surface,
                     ),
                   ],
                 ],

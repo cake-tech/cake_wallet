@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:cake_wallet/core/backup_service.dart';
+import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:intl/intl.dart';
@@ -14,10 +16,10 @@ import 'package:path_provider/path_provider.dart';
 part 'backup_view_model.g.dart';
 
 class BackupExportFile {
-  BackupExportFile(this.content, {required this.name});
+  BackupExportFile(this.file, {required this.name});
 
   final String name;
-  final List<int> content;
+  final File file;
 }
 
 class BackupViewModel = BackupViewModelBase with _$BackupViewModel;
@@ -37,7 +39,7 @@ abstract class BackupViewModelBase with Store {
 
   final SecureStorage secureStorage;
   final SecretStore secretStore;
-  final BackupService backupService;
+  final BackupServiceV3 backupService;
 
   @observable
   ExecutionState state;
@@ -58,16 +60,16 @@ abstract class BackupViewModelBase with Store {
   Future<BackupExportFile?> exportBackup() async {
     try {
       state = IsExecutingState();
-      final backupContent = await backupService.exportBackup(backupPassword);
+      final backupFile = await backupService.exportBackupFile(backupPassword);
       state = ExecutedSuccessfullyState();
       final now = DateTime.now();
       final formatter = DateFormat('yyyy-MM-dd_Hm');
       final snakeAppName = approximatedAppName.replaceAll(' ', '_').toLowerCase();
-      final fileName = '${snakeAppName}_backup_${formatter.format(now)}';
+      final fileName = '${snakeAppName}_backup_${formatter.format(now)}.zip';
 
-      return BackupExportFile(backupContent.toList(), name: fileName);
+      return BackupExportFile(backupFile, name: fileName);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       state = FailureState(e.toString());
       return null;
     }
@@ -76,26 +78,35 @@ abstract class BackupViewModelBase with Store {
   Future<String> saveBackupFileLocally(BackupExportFile backup) async {
     final appDir = await getAppDir();
     final path = '${appDir.path}/${backup.name}';
-    final backupFile = File(path);
-    await backupFile.writeAsBytes(backup.content);
+    if (File(path).existsSync()) {
+      File(path).deleteSync();
+    }
+    await backup.file.copy(path);
     return path;
   }
 
   Future<void> removeBackupFileLocally(BackupExportFile backup) async {
     final appDir = await getAppDir();
     final path = '${appDir.path}/${backup.name}';
-    final backupFile = File(path);
-    await backupFile.delete();
+    if (File(path).existsSync()) {
+      File(path).deleteSync();
+    }
   }
 
   @action
   void showMasterPassword() => isBackupPasswordVisible = true;
 
   @action
-  Future<void> saveToDownload(String name, List<int> content) async {
+  Future<void> saveToDownload(String name, File file) async {
+    if (!Platform.isAndroid) {
+      return;
+    }
     const downloadDirPath = '/storage/emulated/0/Download'; // For Android
     final filePath = '$downloadDirPath/${name}';
-    final file = File(filePath);
-    await file.writeAsBytes(content);
+    final downloadFile = File(filePath);
+    if (downloadFile.existsSync()) {
+      downloadFile.deleteSync();
+    }
+    await file.copy(filePath);
   }
 }

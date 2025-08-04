@@ -24,15 +24,29 @@ class PinCodeWidgetRobot {
     commonTestCases.hasValueKey('pin_code_button_0_key');
   }
 
-  Future<void> pushPinButton(int index) async {
-    await commonTestCases.tapItemByKey('pin_code_button_${index}_key');
+  Future<void> enterPassword(String password, {int pumpDuration = 100}) async {
+    await commonTestCases.enterText(
+      password,
+      'enter_wallet_password',
+    );
+    await tester.pumpAndSettle();
+    await commonTestCases.tapItemByKey(
+      'unlock',
+    );
+    await tester.pumpAndSettle();
+
+    await commonTestCases.defaultSleepTime();
   }
 
-  Future<void> enterPinCode(List<int> pinCode, bool isFirstEntry) async {
+  Future<void> enterPinCode(List<int> pinCode, {int pumpDuration = 100}) async {
     for (int pin in pinCode) {
-      await pushPinButton(pin);
+      await commonTestCases.tapItemByKey(
+        'pin_code_button_${pin}_key',
+        pumpDuration: pumpDuration,
+      );
     }
 
+    await commonTestCases.takeScreenshots('pin_code_widget');
     await commonTestCases.defaultSleepTime();
   }
 }

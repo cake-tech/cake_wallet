@@ -10,8 +10,8 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart' as http;
 
 class StealthExExchangeProvider extends ExchangeProvider {
   StealthExExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -63,8 +63,12 @@ class StealthExExchangeProvider extends ExchangeProvider {
     };
 
     try {
-      final response = await http.post(Uri.parse(_baseUrl + _rangePath),
-          headers: headers, body: json.encode(body));
+      final response = await ProxyWrapper().post(
+        clearnetUri: Uri.parse(_baseUrl + _rangePath),
+        headers: headers,
+        body: json.encode(body),
+      );
+      
       if (response.statusCode != 200) {
         throw Exception('StealthEx fetch limits failed: ${response.body}');
       }
@@ -129,13 +133,17 @@ class StealthExExchangeProvider extends ExchangeProvider {
         if (isFixedRateMode) 'rate_id': rateId,
         'amount':
             isFixedRateMode ? double.parse(request.toAmount) : double.parse(request.fromAmount),
-        'address': request.toAddress,
-        'refund_address': request.refundAddress,
+        'address': _normalizeAddress(request.toAddress),
+        'refund_address': _normalizeAddress(request.refundAddress),
         'additional_fee_percent': _additionalFeePercent,
       };
 
-      final response = await http.post(Uri.parse(_baseUrl + _exchangesPath),
-          headers: headers, body: json.encode(body));
+      final response = await ProxyWrapper().post(
+        clearnetUri: Uri.parse(_baseUrl + _exchangesPath),
+        headers: headers,
+        body: json.encode(body),
+      );
+      
 
       if (response.statusCode != 201) {
         throw Exception('StealthEx create trade failed: ${response.body}');
@@ -154,10 +162,11 @@ class StealthExExchangeProvider extends ExchangeProvider {
       final receiveAmount = toDouble(withdrawal['amount']);
       final status = responseJSON['status'] as String;
       final createdAtString = responseJSON['created_at'] as String;
+      final extraId = deposit['extra_id'] as String?;
 
-      final createdAt = DateTime.parse(createdAtString);
+      final createdAt = DateTime.parse(createdAtString).toLocal();
       final expiredAt = validUntil != null
-          ? DateTime.parse(validUntil)
+          ? DateTime.parse(validUntil).toLocal()
           : DateTime.now().add(Duration(minutes: 5));
 
 
@@ -188,6 +197,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         state: TradeState.deserialize(raw: status),
         createdAt: createdAt,
         expiredAt: expiredAt,
+        extraId: extraId,
       );
     } catch (e) {
       log(e.toString());
@@ -200,8 +210,9 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final headers = {'Authorization': apiKey, 'Content-Type': 'application/json'};
 
     final uri = Uri.parse('$_baseUrl$_exchangesPath/$id');
-    final response = await http.get(uri, headers: headers);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    
+    
     if (response.statusCode != 200) {
       throw Exception('StealthEx fetch trade failed: ${response.body}');
     }
@@ -219,7 +230,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final receiveAmount = toDouble(withdrawal['amount']);
     final status = responseJSON['status'] as String;
     final createdAtString = responseJSON['created_at'] as String;
-    final createdAt = DateTime.parse(createdAtString);
+    final createdAt = DateTime.parse(createdAtString).toLocal();
+    final extraId = deposit['extra_id'] as String?;
 
     return Trade(
       id: respId,
@@ -234,6 +246,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
       state: TradeState.deserialize(raw: status),
       createdAt: createdAt,
       isRefund: status == 'refunded',
+      extraId: extraId,
     );
   }
 
@@ -256,8 +269,12 @@ class StealthExExchangeProvider extends ExchangeProvider {
     };
 
     try {
-      final response = await http.post(Uri.parse(_baseUrl + _amountPath),
-          headers: headers, body: json.encode(body));
+      final response = await ProxyWrapper().post(
+        clearnetUri: Uri.parse(_baseUrl + _amountPath),
+        headers: headers,
+        body: json.encode(body),
+      );
+      
       if (response.statusCode != 200) return {};
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final rate = responseJSON['rate'] as Map<String, dynamic>?;
@@ -296,4 +313,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     return currency.tag!.toLowerCase();
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

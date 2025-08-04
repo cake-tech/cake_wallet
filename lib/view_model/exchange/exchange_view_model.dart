@@ -3,51 +3,51 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cake_wallet/core/create_trade_result.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/sync_status.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
-import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/quantex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'exchange_view_model.g.dart';
 
@@ -68,6 +68,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this._settingsStore,
     this.sharedPreferences,
     this.contactListViewModel,
+    this.unspentCoinsListViewModel,
+    this.feesViewModel,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
         isFixedRateMode = false,
@@ -100,6 +102,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     ];
     _initialPairBasedOnWallet();
 
+    unspentCoinsListViewModel.initialSetup().then((_) {
+      unspentCoinsListViewModel.resetUnspentCoinsInfoSelections();
+    });
+
     final Map<String, dynamic> exchangeProvidersSelection =
         json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
             as Map<String, dynamic>;
@@ -113,15 +119,25 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         .toList());
 
     _setAvailableProviders();
-    _calculateBestRate();
 
-    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => _calculateBestRate());
+    autorun((_) {
+      if (selectedProviders.any((provider) => provider is TrocadorExchangeProvider)) {
+        final trocadorProvider =
+        selectedProviders.firstWhere((provider) => provider is TrocadorExchangeProvider)
+        as TrocadorExchangeProvider;
+
+        updateAllTrocadorProviderStates(trocadorProvider);
+      }
+    });
+
+    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => calculateBestRate());
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress =
+        depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     provider = providersForCurrentPair().first;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
@@ -140,9 +156,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     _defineIsReceiveAmountEditable();
     loadLimits();
     reaction((_) => isFixedRateMode, (Object _) {
+      bestRate = 0.0;
       loadLimits();
-      _bestRate = 0;
-      _calculateBestRate();
     });
 
     if (isElectrumWallet) {
@@ -151,9 +166,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get isElectrumWallet =>
-      wallet.type == WalletType.bitcoin ||
-      wallet.type == WalletType.litecoin ||
-      wallet.type == WalletType.bitcoinCash;
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+
+  bool get hideAddressAfterExchange =>
+      [WalletType.monero, WalletType.wownero].contains(wallet.type);
 
   bool _useTorOnly;
   final Box<Trade> trades;
@@ -162,17 +178,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final SharedPreferences sharedPreferences;
 
   List<ExchangeProvider> get _allProviders => [
-    ChangeNowExchangeProvider(settingsStore: _settingsStore),
-    SideShiftExchangeProvider(),
-    SimpleSwapExchangeProvider(),
-    ThorChainExchangeProvider(tradesStore: trades),
-    if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
-    QuantexExchangeProvider(),
-    LetsExchangeExchangeProvider(),
-    StealthExExchangeProvider(),
-    TrocadorExchangeProvider(
-        useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
-  ];
+        ChangeNowExchangeProvider(settingsStore: _settingsStore),
+        SideShiftExchangeProvider(),
+        ThorChainExchangeProvider(tradesStore: trades),
+        ChainflipExchangeProvider(tradesStore: trades),
+        if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
+        SwapTradeExchangeProvider(),
+        StealthExExchangeProvider(),
+        XOSwapExchangeProvider(),
+        TrocadorExchangeProvider(
+            useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
+      ];
 
   @observable
   ExchangeProvider? provider;
@@ -189,6 +205,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       SplayTreeMap<double, ExchangeProvider>((double a, double b) => b.compareTo(a));
 
   final List<ExchangeProvider> _tradeAvailableProviders = [];
+
+  Map<ExchangeProvider, Limits> _providerLimits = {};
 
   @observable
   ObservableList<ExchangeProvider> selectedProviders;
@@ -290,33 +308,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get hasAllAmount =>
-      (wallet.type == WalletType.bitcoin ||
-          wallet.type == WalletType.litecoin ||
-          wallet.type == WalletType.bitcoinCash) &&
+      [
+        WalletType.monero,
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+      ].contains(wallet.type) &&
       depositCurrency == wallet.currency;
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
-
-  bool get isLowFee {
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.wownero:
-      case WalletType.haven:
-        return transactionPriority == monero!.getMoneroTransactionPrioritySlow();
-      case WalletType.bitcoin:
-        return transactionPriority == bitcoin!.getBitcoinTransactionPrioritySlow();
-      case WalletType.litecoin:
-        return transactionPriority == bitcoin!.getLitecoinTransactionPrioritySlow();
-      case WalletType.ethereum:
-        return transactionPriority == ethereum!.getEthereumTransactionPrioritySlow();
-      case WalletType.bitcoinCash:
-        return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
-      case WalletType.polygon:
-        return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
-      default:
-        return false;
-    }
-  }
 
   List<CryptoCurrency> receiveCurrencies;
 
@@ -328,7 +328,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   final ContactListViewModel contactListViewModel;
 
-  double _bestRate = 0.0;
+  final UnspentCoinsListViewModel unspentCoinsListViewModel;
+
+  final FeesViewModel feesViewModel;
+
+  @observable
+  double bestRate = 0.0;
 
   late Timer bestRateSync;
 
@@ -360,15 +365,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
-    if (_bestRate == 0) {
+    if (bestRate == 0) {
       depositAmount = S.current.fetching;
 
-      await _calculateBestRate();
+      await calculateBestRate();
     }
     _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
 
     depositAmount = _cryptoNumberFormat
-        .format(_enteredAmount / _bestRate)
+        .format(_enteredAmount / bestRate)
         .toString()
         .replaceAll(RegExp('\\,'), '');
   }
@@ -386,15 +391,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
     /// in case the best rate was not calculated yet
-    if (_bestRate == 0) {
+    if (bestRate == 0) {
       receiveAmount = S.current.fetching;
 
-      await _calculateBestRate();
+      await calculateBestRate();
     }
     _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
 
     receiveAmount = _cryptoNumberFormat
-        .format(_bestRate * _enteredAmount)
+        .format(bestRate * _enteredAmount)
         .toString()
         .replaceAll(RegExp('\\,'), '');
   }
@@ -411,10 +416,25 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     return true;
   }
 
-  Future<void> _calculateBestRate() async {
-    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ?? 1;
+  Future<void> calculateBestRate() async {
+    if (depositCurrency == receiveCurrency) {
+      bestRate = 0.0;
+      return;
+    }
+    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount)
+        ?? initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
-    final _providers = _tradeAvailableProviders
+    final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
+      final limits = _providerLimits[provider];
+
+      if (limits == null) return false;
+      if (limits.min != null && amount < limits.min!) return false;
+      if (limits.max != null && amount > limits.max!) return false;
+
+      return true;
+    }).toList();
+
+    final _providers = validProvidersForAmount
         .where((element) => !isFixedRateMode || element.supportsFixedRate)
         .toList();
 
@@ -447,11 +467,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
       }
     }
-    if (_sortedAvailableProviders.isNotEmpty) _bestRate = _sortedAvailableProviders.keys.first;
+    if (_sortedAvailableProviders.isNotEmpty) bestRate = _sortedAvailableProviders.keys.first;
   }
 
   @action
   Future<void> loadLimits() async {
+    if (depositCurrency == receiveCurrency) {
+      limitsState = LimitsLoadedSuccessfully(limits: Limits(min: 0, max: 0));
+      return;
+    }
     if (selectedProviders.isEmpty) return;
 
     limitsState = LimitsIsLoading();
@@ -463,23 +487,27 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     double? highestMax = 0.0;
 
     try {
-      final result = await Future.wait(
-        selectedProviders.where((provider) => providersForCurrentPair().contains(provider)).map(
-              (provider) => provider
-                  .fetchLimits(
-                    from: from,
-                    to: to,
-                    isFixedRateMode: isFixedRateMode,
-                  )
-                  .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
-                  .timeout(
-                    Duration(seconds: 7),
-                    onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
-                  ),
-            ),
-      );
+      final futures = selectedProviders
+          .where((provider) => providersForCurrentPair().contains(provider))
+          .map((provider) async {
+        final limits = await provider
+            .fetchLimits(
+          from: from,
+          to: to,
+          isFixedRateMode: isFixedRateMode,
+        )
+            .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
+            .timeout(
+          Duration(seconds: 7),
+          onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+        );
+        return MapEntry(provider, limits);
+      }).toList();
 
-      result.forEach((tempLimits) {
+      final entries = await Future.wait(futures);
+      _providerLimits = Map.fromEntries(entries);
+
+      _providerLimits.values.forEach((tempLimits) {
         if (lowestMin != null && (tempLimits.min ?? -1) < lowestMin!) {
           lowestMin = tempLimits.min;
         }
@@ -504,10 +532,18 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     } else {
       limitsState = LimitsLoadedFailure(error: 'Limits loading failed');
     }
+
+    calculateBestRate();
   }
 
   @action
   Future<void> createTrade() async {
+    if (depositCurrency == receiveCurrency) {
+      tradeState = TradeIsCreatedFailure(
+          title: S.current.trade_not_created,
+          error: 'Can\'t exchange the same currency');
+      return;
+    }
     if (isSendAllEnabled) {
       await calculateDepositAllAmount();
       final amount = double.tryParse(depositAmount);
@@ -527,7 +563,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
         if (!(await provider.checkIsAvailable())) continue;
 
-        _bestRate = providerRate;
+        bestRate = providerRate;
         await changeDepositAmount(amount: depositAmount);
 
         final request = TradeRequest(
@@ -539,6 +575,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           toAddress: receiveAddress,
           isFixedRate: isFixedRateMode,
         );
+
+        if (hideAddressAfterExchange) {
+          wallet.walletAddresses.hiddenAddresses.add(depositAddress);
+          await wallet.walletAddresses.saveAddressesInBox();
+        }
 
         var amount = isFixedRateMode ? receiveAmount : depositAmount;
         amount = amount.replaceAll(',', '.');
@@ -603,8 +644,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.walletAddresses.address : '';
-    receiveAddress = receiveCurrency == wallet.currency ? wallet.walletAddresses.address : '';
+    depositAddress =
+        depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
+    receiveAddress =
+        receiveCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isFixedRateMode = false;
     _onPairChange();
@@ -625,14 +668,25 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> calculateDepositAllAmount() async {
-    if (wallet.type == WalletType.litecoin ||
-        wallet.type == WalletType.bitcoin ||
-        wallet.type == WalletType.bitcoinCash) {
+    if ([
+      WalletType.litecoin,
+      WalletType.bitcoin,
+      WalletType.bitcoinCash,
+    ].contains(wallet.type)) {
       final priority = _settingsStore.priority[wallet.type]!;
 
-      final amount = await bitcoin!.estimateFakeSendAllTxAmount(wallet, priority);
+      final amount = await bitcoin!.estimateFakeSendAllTxAmount(
+        wallet,
+        priority,
+        coinTypeToSpendFrom:
+            wallet.type == WalletType.litecoin ? UnspentCoinType.nonMweb : UnspentCoinType.any,
+      );
 
-      changeDepositAmount(amount: bitcoin!.formatterBitcoinAmountToString(amount: amount));
+      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
+    } else if (wallet.type == WalletType.monero) {
+      final amount = await unspentCoinsListViewModel.getSendingBalance(UnspentCoinType.any);
+
+      changeDepositAmount(amount: wallet.formatCryptoAmount(amount.toString()));
     }
   }
 
@@ -673,10 +727,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void _onPairChange() {
     depositAmount = '';
     receiveAmount = '';
+    bestRate = 0.0;
     loadLimits();
     _setAvailableProviders();
-    _bestRate = 0;
-    _calculateBestRate();
   }
 
   void _initialPairBasedOnWallet() {
@@ -729,6 +782,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.wow;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.zano:
+        depositCurrency = CryptoCurrency.zano;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.decred:
+        depositCurrency = CryptoCurrency.dcr;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.none:
         break;
     }
@@ -766,9 +827,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveAmount = '';
     isFixedRateMode = false;
     _defineIsReceiveAmountEditable();
+    bestRate = 0.0;
     loadLimits();
-    _bestRate = 0;
-    _calculateBestRate();
 
     final Map<String, dynamic> exchangeProvidersSelection =
         json.decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
@@ -784,6 +844,17 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     );
   }
 
+  @action
+  Future<void> updateAllTrocadorProviderStates(TrocadorExchangeProvider trocadorProvider) async {
+    try {
+      var providers = await trocadorProvider.fetchProviders();
+      var providerNames = providers.map((e) => e.name).toList();
+      await _settingsStore.updateAllTrocadorProviderStates(providerNames);
+    } catch (e) {
+      printV('Error updating trocador provider states: $e');
+    }
+  }
+
   bool get isAvailableInSelected {
     final providersForPair = providersForCurrentPair();
     return selectedProviders
@@ -795,34 +866,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     _tradeAvailableProviders.addAll(
         selectedProviders.where((provider) => providersForCurrentPair().contains(provider)));
-  }
-
-  @action
-  void setDefaultTransactionPriority() {
-    switch (wallet.type) {
-      case WalletType.monero:
-      case WalletType.haven:
-      case WalletType.wownero:
-        _settingsStore.priority[wallet.type] = monero!.getMoneroTransactionPriorityAutomatic();
-        break;
-      case WalletType.bitcoin:
-        _settingsStore.priority[wallet.type] = bitcoin!.getBitcoinTransactionPriorityMedium();
-        break;
-      case WalletType.litecoin:
-        _settingsStore.priority[wallet.type] = bitcoin!.getLitecoinTransactionPriorityMedium();
-        break;
-      case WalletType.ethereum:
-        _settingsStore.priority[wallet.type] = ethereum!.getDefaultTransactionPriority();
-        break;
-      case WalletType.bitcoinCash:
-        _settingsStore.priority[wallet.type] = bitcoinCash!.getDefaultTransactionPriority();
-        break;
-      case WalletType.polygon:
-        _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();
-        break;
-      default:
-        break;
-    }
   }
 
   void _setProviders() {
@@ -907,8 +950,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<bool> _isContractAddress(String chainName, String contractAddress) async {
-    final httpClient = http.Client();
-
     final uri = Uri.https(
       'deep-index.moralis.io',
       '/api/v2.2/erc20/metadata',
@@ -919,13 +960,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     );
 
     try {
-      final response = await httpClient.get(
-        uri,
+      final response = await ProxyWrapper().get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
+      
 
       final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
@@ -935,8 +977,25 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       return isContractAddress;
     } catch (e) {
-      print(e);
+      printV(e);
       return false;
     }
   }
+
+  double initialAmountByAssets (CryptoCurrency ticker) {
+    final amount = switch (ticker) {
+      CryptoCurrency.trx => 1000,
+      CryptoCurrency.nano => 10,
+      CryptoCurrency.zano => 10,
+      CryptoCurrency.wow => 1000,
+      CryptoCurrency.ada => 1000,
+      CryptoCurrency.dash => 10,
+      CryptoCurrency.rune => 10,
+
+      _ => 1
+    };
+    return amount.toDouble();
+  }
+
+
 }

@@ -1,6 +1,4 @@
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:flutter/material.dart';
 
 class WalletConnectTile extends StatelessWidget {
@@ -27,16 +25,14 @@ class WalletConnectTile extends StatelessWidget {
             Expanded(
               child: Text(
                 S.current.walletConnect,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
             Image.asset(
               'assets/images/select_arrow.png',
-              color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             )
           ],
         ),

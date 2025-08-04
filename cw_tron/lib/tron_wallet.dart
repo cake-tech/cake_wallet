@@ -47,6 +47,7 @@ abstract class TronWalletBase
     required String password,
     TronBalance? initialBalance,
     required this.encryptionFileUtils,
+    this.passphrase,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
@@ -113,6 +114,7 @@ abstract class TronWalletBase
       mnemonic: _mnemonic,
       privateKey: _hexPrivateKey,
       password: _password,
+      passphrase: passphrase,
     );
 
     _tronPublicKey = _tronPrivateKey.publicKey();
@@ -142,15 +144,16 @@ abstract class TronWalletBase
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = TronBalance.fromJSON(data?['balance'] as String) ?? TronBalance(BigInt.zero);
+    final balance = TronBalance.fromJSON(data?['balance'] as String?) ?? TronBalance(BigInt.zero);
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -165,6 +168,7 @@ abstract class TronWalletBase
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
+      passphrase: keysData.passphrase,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
     );
@@ -190,12 +194,13 @@ abstract class TronWalletBase
     String? mnemonic,
     String? privateKey,
     required String password,
+    String? passphrase,
   }) async {
     assert(mnemonic != null || privateKey != null);
 
     if (privateKey != null) return TronPrivateKey(privateKey);
 
-    final seed = bip39.mnemonicToSeed(mnemonic!);
+    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     // Derive a TRON private key from the seed
     final bip44 = Bip44.fromSeed(seed, Bip44Coins.tron);
@@ -212,7 +217,7 @@ abstract class TronWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() => _transactionsUpdateTimer?.cancel();
+  Future<void> close({bool shouldCleanup = false}) async => _transactionsUpdateTimer?.cancel();
 
   @action
   @override
@@ -271,6 +276,13 @@ abstract class TronWalletBase
   Future<void> startSync() async {
     try {
       syncStatus = AttemptingSyncStatus();
+      
+      // Verify node health before attempting to sync
+      final isHealthy = await checkNodeHealth();
+      if (!isHealthy) {
+        syncStatus = FailedSyncStatus();
+        return;
+      }
       await _updateBalance();
       await fetchTransactions();
       fetchTrc20ExcludedTransactions();
@@ -457,12 +469,17 @@ abstract class TronWalletBase
   String get privateKey => _tronPrivateKey.toHex();
 
   @override
-  WalletKeysData get walletKeysData => WalletKeysData(mnemonic: _mnemonic, privateKey: privateKey);
+  WalletKeysData get walletKeysData => WalletKeysData(
+        mnemonic: _mnemonic,
+        privateKey: privateKey,
+        passphrase: passphrase,
+      );
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
         'private_key': privateKey,
         'balance': balance[currency]!.toJSON(),
+        'passphrase': passphrase,
       });
 
   Future<void> _updateBalance() async {
@@ -495,15 +512,35 @@ abstract class TronWalletBase
   @override
   Future<void>? updateBalance() async => await _updateBalance();
 
+  @override
+  Future<bool> checkNodeHealth() async {
+    try {
+      // Check native balance
+      await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
+      
+      // Check USDT token balance
+      const usdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+      await _client.fetchTronTokenBalances(_tronAddress, usdtContractAddress, throwOnError: true);
+      
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   List<TronToken> get tronTokenCurrencies => tronTokensBox.values.toList();
 
   Future<void> addTronToken(TronToken token) async {
     String? iconPath;
-    try {
-      iconPath = CryptoCurrency.all
-          .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-          .iconPath;
-    } catch (_) {}
+    if ((token.iconPath == null || token.iconPath!.isEmpty) && !token.isPotentialScam) {
+      try {
+        iconPath = CryptoCurrency.all
+            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
+            .iconPath;
+      } catch (_) {}
+    } else if (!token.isPotentialScam) {
+      iconPath = token.iconPath;
+    }
 
     final newToken = TronToken(
       name: token.name,
@@ -513,6 +550,7 @@ abstract class TronWalletBase
       enabled: token.enabled,
       tag: token.tag ?? "TRX",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
 
     await tronTokensBox.put(newToken.contractAddress, newToken);
@@ -607,4 +645,7 @@ abstract class TronWalletBase
 
   @override
   String get password => _password;
+
+  @override
+  final String? passphrase;
 }

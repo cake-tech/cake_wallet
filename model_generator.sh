@@ -1,14 +1,24 @@
 #!/bin/bash
-cd cw_core; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_evm; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_monero; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_bitcoin; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_haven; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_nano; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_bitcoin_cash; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_solana; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_tron; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_wownero; flutter pub get; flutter packages pub run build_runner build --delete-conflicting-outputs; cd ..
-cd cw_polygon; flutter pub get; cd ..
-cd cw_ethereum; flutter pub get; cd ..
-flutter packages pub run build_runner build --delete-conflicting-outputs
+set -x -e
+
+for cwcoin in cw_{core,evm,monero,bitcoin,nano,bitcoin_cash,solana,tron,wownero,zano,decred}
+do
+    if [[ "x$1" == "xasync" ]];
+    then
+        bash -c "cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd .." &
+    else
+        cd $cwcoin; flutter pub get; dart run build_runner build --delete-conflicting-outputs; cd ..
+    fi
+done
+for cwcoin in cw_{polygon,ethereum,mweb};
+do
+    if [[ "x$1" == "xasync" ]];
+    then
+        bash -c "cd $cwcoin; flutter pub get; cd .." &
+    else
+        cd $cwcoin; flutter pub get; cd ..
+    fi
+done
+
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs

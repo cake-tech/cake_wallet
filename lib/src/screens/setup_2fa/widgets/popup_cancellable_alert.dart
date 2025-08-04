@@ -1,9 +1,6 @@
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
-
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 
 class PopUpCancellableAlertDialog extends StatelessWidget {
@@ -27,11 +24,11 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
     return Text(
       contentText,
       textAlign: TextAlign.center,
-      style: TextStyle(
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
         fontSize: 16,
         fontWeight: FontWeight.normal,
-        fontFamily: 'Lato',
-        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
+         
+        color: Theme.of(context).colorScheme.onSurface,
         decoration: TextDecoration.none,
       ),
     );
@@ -56,7 +53,7 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
                       child: Container(
                         width: 340,
                         padding: EdgeInsets.all(10),
-                        color: Theme.of(context).dialogBackgroundColor,
+                        color: Theme.of(context).colorScheme.surface,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
@@ -69,8 +66,8 @@ class PopUpCancellableAlertDialog extends StatelessWidget {
                                 PrimaryButton(
                                   onPressed: buttonAction,
                                   text: actionButtonText,
-                                  color: Color(0xffE9F2FC),
-                                  textColor: Palette.darkBlueCraiola,
+                                  color: Theme.of(context).colorScheme.primaryContainer,
+                                  textColor: Theme.of(context).colorScheme.onPrimaryContainer,
                                 ),
                               ],
                             ),

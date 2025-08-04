@@ -11,13 +11,11 @@ class BitcoinNewWalletCredentials extends WalletCredentials {
     String? derivationPath,
     String? passphrase,
     this.mnemonic,
-    String? parentAddress,
   }) : super(
           name: name,
           walletInfo: walletInfo,
           password: password,
           passphrase: passphrase,
-          parentAddress: parentAddress,
         );
 
   final String? mnemonic;
@@ -54,6 +52,17 @@ class BitcoinRestoreWalletFromWIFCredentials extends WalletCredentials {
   }) : super(name: name, password: password, walletInfo: walletInfo);
 
   final String wif;
+}
+
+class BitcoinWalletFromKeysCredentials extends WalletCredentials {
+  BitcoinWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required this.xpub,
+    WalletInfo? walletInfo,
+  }) : super(name: name, password: password, walletInfo: walletInfo);
+
+  final String xpub;
 }
 
 class BitcoinRestoreWalletFromHardware extends WalletCredentials {

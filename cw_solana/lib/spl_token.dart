@@ -1,12 +1,12 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
-import 'package:solana/metaplex.dart';
 
 part 'spl_token.g.dart';
 
 @HiveType(typeId: SPLToken.typeId)
 class SPLToken extends CryptoCurrency with HiveObjectMixin {
+  @override
   @HiveField(0)
   final String name;
 
@@ -25,11 +25,17 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
   @HiveField(5)
   final String mint;
 
+  @override
   @HiveField(6)
   final String? iconPath;
 
+  @override
   @HiveField(7)
   final String? tag;
+
+  @override
+  @HiveField(8, defaultValue: false)
+  final bool isPotentialScam;
 
   SPLToken({
     required this.name,
@@ -40,6 +46,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     this.iconPath,
     this.tag = 'SOL',
     bool enabled = true,
+    this.isPotentialScam = false,
   })  : _enabled = enabled,
         super(
           name: mint.toLowerCase(),
@@ -48,6 +55,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
           tag: tag,
           iconPath: iconPath,
           decimals: decimal,
+          isPotentialScam: isPotentialScam,
         );
 
   factory SPLToken.fromMetadata({
@@ -55,7 +63,8 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     required String mint,
     required String symbol,
     required String mintAddress,
-    String? iconPath
+    String? iconPath,
+    bool isPotentialScam = false,
   }) {
     return SPLToken(
       name: name,
@@ -64,28 +73,14 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
       decimal: 0,
       mint: mint,
       iconPath: iconPath,
+      isPotentialScam: isPotentialScam,
     );
   }
 
-  factory SPLToken.cryptoCurrency({
-    required String name,
-    required String symbol,
-    required int decimals,
-    required String iconPath,
-    required String mint,
-  }) {
-    return SPLToken(
-      name: name,
-      symbol: symbol,
-      decimal: decimals,
-      mint: mint,
-      iconPath: iconPath,
-      mintAddress: '',
-    );
-  }
-
+  @override
   bool get enabled => _enabled;
 
+  @override
   set enabled(bool value) => _enabled = value;
 
   SPLToken.copyWith(SPLToken other, String? icon, String? tag)
@@ -97,6 +92,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
         mint = other.mint,
         tag = other.tag,
         iconPath = icon,
+        isPotentialScam = other.isPotentialScam,
         super(
           title: other.symbol.toUpperCase(),
           name: other.symbol.toLowerCase(),
@@ -104,6 +100,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
           fullName: other.name,
           tag: other.tag,
           iconPath: icon,
+          isPotentialScam: other.isPotentialScam,
         );
 
   static const typeId = SPL_TOKEN_TYPE_ID;
@@ -116,32 +113,4 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
 
   @override
   int get hashCode => mintAddress.hashCode;
-}
-
-class NFT extends SPLToken {
-  final ImageInfo? imageInfo;
-
-  NFT(
-    String mint,
-    String name,
-    String symbol,
-    String mintAddress,
-    int decimal,
-    String iconPath,
-    this.imageInfo,
-  ) : super(
-          name: name,
-          symbol: symbol,
-          mintAddress: mintAddress,
-          decimal: decimal,
-          mint: mint,
-          iconPath: iconPath,
-        );
-}
-
-class ImageInfo {
-  final String uri;
-  final OffChainMetadata? data;
-
-  const ImageInfo(this.uri, this.data);
 }

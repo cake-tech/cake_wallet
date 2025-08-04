@@ -33,10 +33,7 @@ class TronWalletService extends WalletService<
   WalletType getType() => WalletType.tron;
 
   @override
-  Future<TronWallet> create(
-    TronNewWalletCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+  Future<TronWallet> create(TronNewWalletCredentials credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final mnemonic = credentials.mnemonic ?? bip39.generateMnemonic(strength: strength);
@@ -45,6 +42,7 @@ class TronWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -120,6 +118,7 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 

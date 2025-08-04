@@ -61,4 +61,8 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
       return '';
     }
   }
+
+  /// Check if the Wallet requires a hardware wallet to be connected during
+  /// the opening flow. (Currently only the case for Monero)
+  bool requireHardwareWalletConnection(String name) => false;
 }

@@ -36,7 +36,7 @@ class BitcoinCashWalletService extends WalletService<
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
     final wallet = await BitcoinCashWalletBase.create(
-      mnemonic: credentials.mnemonic ?? await MnemonicBip39.generate(strength: strength),
+      mnemonic: credentials.mnemonic ?? MnemonicBip39.generate(strength: strength),
       password: credentials.password!,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
@@ -85,6 +85,15 @@ class BitcoinCashWalletService extends WalletService<
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
+
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
+            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+
+    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
+
+    if (keysToDelete.isNotEmpty) {
+      await unspentCoinsInfoSource.deleteAll(keysToDelete);
+    }
   }
 
   @override

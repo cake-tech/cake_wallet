@@ -11,8 +11,8 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
 
 class SimpleSwapExchangeProvider extends ExchangeProvider {
   SimpleSwapExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -34,10 +34,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   String get title => 'SimpleSwap';
 
   @override
-  bool get isAvailable => true;
+  bool get isAvailable => false;
 
   @override
-  bool get isEnabled => true;
+  bool get isEnabled => false;
 
   @override
   bool get supportsFixedRate => false;
@@ -48,7 +48,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   @override
   Future<bool> checkIsAvailable() async {
     final uri = Uri.https(apiAuthority, getEstimatePath, <String, String>{'api_key': apiKey});
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
 
     return !(response.statusCode == 403);
   }
@@ -66,7 +66,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
     };
     final uri = Uri.https(apiAuthority, rangePath, params);
 
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
 
     if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -104,10 +105,10 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         'fixed': isFixedRateMode.toString()
       };
       final uri = Uri.https(apiAuthority, getEstimatePath, params);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
 
       if (response.body == "null") return 0.00;
-
       final data = json.decode(response.body) as String;
 
       return double.parse(data) / amount;
@@ -129,12 +130,17 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       "currency_to": _normalizeCurrency(request.toCurrency),
       "amount": request.fromAmount,
       "fixed": isFixedRateMode,
-      "user_refund_address": request.refundAddress,
-      "address_to": request.toAddress
+      "user_refund_address": _normalizeAddress(request.refundAddress),
+      "address_to": _normalizeAddress(request.toAddress)
     };
     final uri = Uri.https(apiAuthority, createExchangePath, params);
 
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -176,8 +182,9 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final params = {'api_key': apiKey, 'id': id};
     final uri = Uri.https(apiAuthority, getExchangePath, params);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
+    
     if (response.statusCode == 404) {
       throw TradeNotFoundException(id, provider: description);
     }
@@ -243,4 +250,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
         return currency.title.toLowerCase();
     }
   }
+
+  String _normalizeAddress(String address) =>
+      address.startsWith('bitcoincash:') ? address.replaceFirst('bitcoincash:', '') : address;
 }

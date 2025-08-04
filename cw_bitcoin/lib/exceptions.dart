@@ -45,6 +45,6 @@ class BitcoinTransactionCommitFailedVoutNegative extends TransactionCommitFailed
 
 class BitcoinTransactionCommitFailedBIP68Final extends TransactionCommitFailedBIP68Final {}
 
-class BitcoinTransactionCommitFailedLessThanMin extends TransactionCommitFailedBIP68Final {}
+class BitcoinTransactionCommitFailedLessThanMin extends TransactionCommitFailedLessThanMin {}
 
 class BitcoinTransactionSilentPaymentsNotSupported extends TransactionInputNotSupported {}

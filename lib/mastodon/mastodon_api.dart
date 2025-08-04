@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/mastodon/mastodon_user.dart';
 
 class MastodonAPI {
@@ -19,7 +20,8 @@ class MastodonAPI {
         queryParameters: queryParams,
       );
 
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
 
       if (response.statusCode != 200) return null;
 
@@ -27,7 +29,7 @@ class MastodonAPI {
 
       return MastodonUser.fromJson(responseJSON);
     } catch (e) {
-      print('Error in lookupUserByUserName: $e');
+      printV('Error in lookupUserByUserName: $e');
       return null;
     }
   }
@@ -46,7 +48,8 @@ class MastodonAPI {
         queryParameters: queryParams,
       );
 
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
 
       if (response.statusCode != 200) {
         throw Exception('Unexpected HTTP status: ${response.statusCode}');
@@ -56,7 +59,7 @@ class MastodonAPI {
 
       return responseJSON.map((json) => PinnedPost.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('Error in getPinnedPosts: $e');
+      printV('Error in getPinnedPosts: $e');
       throw e;
     }
   }

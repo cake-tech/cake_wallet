@@ -1,6 +1,8 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
@@ -10,10 +12,12 @@ part 'transaction_filter_store.g.dart';
 class TransactionFilterStore = TransactionFilterStoreBase with _$TransactionFilterStore;
 
 abstract class TransactionFilterStoreBase with Store {
-  TransactionFilterStoreBase()
+  TransactionFilterStoreBase(this._appStore)
       : displayIncoming = true,
         displayOutgoing = true,
         displaySilentPayments = true;
+
+  final AppStore _appStore;
 
   @observable
   bool displayIncoming;
@@ -87,12 +91,15 @@ abstract class TransactionFilterStoreBase with Store {
 
         if (allowed && (!displayAll)) {
           if (item is TransactionListItem) {
+            final canShowSilentPayment = _appStore.wallet?.type == WalletType.bitcoin &&
+                (bitcoin?.txIsReceivedSilentPayment(item.transaction) ?? false);
+
             allowed =
                 (displayOutgoing && item.transaction.direction == TransactionDirection.outgoing) ||
                     (displayIncoming &&
                         item.transaction.direction == TransactionDirection.incoming &&
-                        !bitcoin!.txIsReceivedSilentPayment(item.transaction)) ||
-                    (displaySilentPayments && bitcoin!.txIsReceivedSilentPayment(item.transaction));
+                        !canShowSilentPayment) ||
+                    (displaySilentPayments && canShowSilentPayment);
           } else if (item is AnonpayTransactionListItem) {
             allowed = displayIncoming;
           }

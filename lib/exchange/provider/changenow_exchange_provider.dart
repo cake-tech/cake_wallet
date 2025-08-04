@@ -11,11 +11,11 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/distribution_info.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider({required SettingsStore settingsStore})
@@ -29,7 +29,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   ];
 
   static final apiKey =
-      DeviceInfo.instance.isMobile ? secrets.changeNowApiKey : secrets.changeNowApiKeyDesktop;
+      isMoneroOnly ? secrets.changeNowMoneroApiKey : secrets.changeNowCakeWalletApiKey;
   static const apiAuthority = 'api.changenow.io';
   static const createTradePath = '/v2/exchange';
   static const findTradeByIdPath = '/v2/exchange/by-id';
@@ -72,7 +72,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'flow': _getFlow(isFixedRateMode)
     };
     final uri = Uri.https(apiAuthority, rangePath, params);
-    final response = await get(uri, headers: headers);
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -117,7 +117,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         params['fromAmount'] = amount.toString();
 
       final uri = Uri.https(apiAuthority, estimatedAmountPath, params);
-      final response = await get(uri, headers: headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['fromAmount'].toString());
       final toAmount = double.parse(responseJSON['toAmount'].toString());
@@ -127,7 +128,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
       return isReverse ? (amount / fromAmount) : (toAmount / amount);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return 0.0;
     }
   }
@@ -176,7 +177,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     final uri = Uri.https(apiAuthority, createTradePath);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -219,7 +224,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final headers = {apiHeaderKey: apiKey};
     final params = <String, String>{'id': id};
     final uri = Uri.https(apiAuthority, findTradeByIdPath, params);
-    final response = await get(uri, headers: headers);
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
 
     if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 

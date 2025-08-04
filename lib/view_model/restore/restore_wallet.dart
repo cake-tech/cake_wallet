@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -10,6 +12,7 @@ class RestoredWallet {
       this.spendKey,
       this.viewKey,
       this.mnemonicSeed,
+      this.passphrase,
       this.txAmount,
       this.txDescription,
       this.recipientName,
@@ -23,6 +26,7 @@ class RestoredWallet {
   final String? spendKey;
   final String? viewKey;
   final String? mnemonicSeed;
+  final String? passphrase;
   final String? txAmount;
   final String? txDescription;
   final String? recipientName;
@@ -30,6 +34,17 @@ class RestoredWallet {
   final String? privateKey;
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
+    try {
+      final codeParsed = jsonDecode(json['raw_qr'].toString());
+      if (codeParsed["version"] == 0) {
+        json['address'] = codeParsed["primaryAddress"];
+        json['view_key'] = codeParsed["privateViewKey"];
+        json['height'] = codeParsed["restoreHeight"].toString();
+      }
+    } catch (e) {
+      // fine, we don't care, it is only for monero anyway
+    }
+    json['view_key'] ??= json['xpub'];
     final height = json['height'] as String?;
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
@@ -37,7 +52,7 @@ class RestoredWallet {
       address: json['address'] as String?,
       spendKey: json['spend_key'] as String?,
       viewKey: json['view_key'] as String?,
-      height: height != null ? int.parse(height) : 0,
+      height: height != null ? int.tryParse(height) ?? 0 : 0,
       privateKey: json['private_key'] as String?,
     );
   }
@@ -46,11 +61,13 @@ class RestoredWallet {
     final height = json['height'] as String?;
     final mnemonic_seed = json['mnemonic_seed'] as String?;
     final seed = json['seed'] as String? ?? json['hexSeed'] as String?;
+    final passphrase = json['passphrase'] as String?;
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
       type: json['type'] as WalletType,
       address: json['address'] as String?,
       mnemonicSeed: mnemonic_seed ?? seed,
+      passphrase: passphrase,
       height: height != null ? int.parse(height) : 0,
     );
   }

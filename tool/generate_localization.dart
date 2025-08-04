@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
+import './print_verbose_dummy.dart';
+
 import 'localization/localization_constants.dart';
 import 'utils/utils.dart';
 
@@ -35,7 +37,7 @@ Future<void> main(List<String> args) async {
 
   extraInfo.forEach((key, dynamic value) async {
     if (key != srcDir) {
-      print('Wrong key: $key');
+      printV('Wrong key: $key');
       return;
     }
 
@@ -43,7 +45,7 @@ Future<void> main(List<String> args) async {
     final dir = Directory(dirPath);
 
     if (!await dir.exists()) {
-      print('Wrong directory path: $dirPath');
+      printV('Wrong directory path: $dirPath');
       return;
     }
 
@@ -53,12 +55,12 @@ Future<void> main(List<String> args) async {
         final shortLocale = element.path.split('_',)[1].split('.')[0];
         localePath[shortLocale] = element.path;
       } catch (e) {
-        print('Wrong file: ${element.path}');
+        printV('Wrong file: ${element.path}');
       }
     });
 
     if (!localePath.keys.contains(defaultLocale)) {
-      print("Locale list doesn't contain $defaultLocale");
+      printV("Locale list doesn't contain $defaultLocale");
       return;
     }
 
@@ -115,7 +117,7 @@ Future<void> main(List<String> args) async {
 
       await File(outputPath + localeListFileName).writeAsString(locales);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   });
 }

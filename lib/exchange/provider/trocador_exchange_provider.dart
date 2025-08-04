@@ -8,8 +8,10 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
@@ -18,7 +20,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         super(pairList: supportedPairs(_notSupported));
 
   bool useTorOnly;
-  final Map<String, bool> providerStates;
+  Map<String, bool> providerStates;
 
   static const List<String> availableProviders = [
     'Swapter',
@@ -50,14 +52,17 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     CryptoCurrency.zaddr,
   ];
 
-  static const apiKey = secrets.trocadorApiKey;
-  static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
-  static const clearNetAuthority = 'trocador.app';
+  static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
+  static const clearNetAuthority = 'api.trocador.app';
+  static const onionApiAuthority = clearNetAuthority;
+  // static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
   static const markup = secrets.trocadorExchangeMarkup;
-  static const newRatePath = '/api/new_rate';
-  static const createTradePath = 'api/new_trade';
-  static const tradePath = 'api/trade';
-  static const coinPath = 'api/coin';
+  static const newRatePath = '/new_rate';
+  static const createTradePath = '/new_trade';
+  static const tradePath = '/trade';
+  static const coinPath = '/coin';
+  static const providersListPath = '/exchanges';
+
 
   String _lastUsedRateId;
   List<dynamic> _provider;
@@ -89,13 +94,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     final params = {
-      'api_key': apiKey,
       'ticker': _normalizeCurrency(from),
       'name': from.name,
     };
 
     final uri = await _getUri(coinPath, params);
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
+    
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
@@ -107,8 +112,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
     return Limits(
-      min: coinJson['minimum'] as double,
-      max: coinJson['maximum'] as double,
+      min: coinJson['minimum'] as double?,
+      // TODO: remove hardcoded value and call `api/new_rate` when Trocador adds min and max to it
+      max: from == CryptoCurrency.zano ? 2600 : coinJson['maximum'] as double?,
     );
   }
 
@@ -123,7 +129,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (amount == 0) return 0.0;
 
       final params = <String, String>{
-        'api_key': apiKey,
         'ticker_from': _normalizeCurrency(from),
         'ticker_to': _normalizeCurrency(to),
         'network_from': _networkFor(from),
@@ -136,20 +141,29 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       };
 
       final uri = await _getUri(newRatePath, params);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
+      
+
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';
 
       var quotes = responseJSON['quotes']['quotes'] as List;
-      _provider = quotes.map((quote) => quote['provider']).toList();
+      _provider = quotes
+          .where((quote) => providerStates[quote['provider']] != false)
+          .map((quote) => quote['provider'])
+          .toList();
+
+      if (_provider.isEmpty) {
+        throw Exception('No enabled providers found for the selected trade.');
+      }
 
       if (rateId.isNotEmpty) _lastUsedRateId = rateId;
 
       return isReceiveAmount ? (amount / fromAmount) : (toAmount / amount);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
       return 0.0;
     }
   }
@@ -161,7 +175,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required bool isSendAll,
   }) async {
     final params = {
-      'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
       'ticker_to': _normalizeCurrency(request.toCurrency),
       'network_from': _networkFor(request.fromCurrency),
@@ -172,7 +185,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       if (!isFixedRateMode) 'amount_from': request.fromAmount,
       if (isFixedRateMode) 'amount_to': request.toAmount,
       'address': request.toAddress,
-      'refund': request.refundAddress
+      'refund': request.refundAddress,
+      'refund_memo' : '0',
     };
 
     if (isFixedRateMode) {
@@ -186,24 +200,16 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-    String firstAvailableProvider = '';
-
-    for (var provider in _provider) {
-      if (providerStates.containsKey(provider) && providerStates[provider] == true) {
-        firstAvailableProvider = provider as String;
-        break;
-      }
-    }
-
-    if (firstAvailableProvider.isEmpty) {
+    if (_provider.isEmpty) {
       throw Exception('No available provider is enabled');
     }
 
-    params['provider'] = firstAvailableProvider;
+    params['provider'] = _provider.first as String;
 
     final uri = await _getUri(createTradePath, params);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
+    
+    
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
@@ -226,6 +232,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final providerName = responseJSON['provider'] as String;
     final amount = responseJSON['amount_from']?.toString();
     final receiveAmount = responseJSON['amount_to']?.toString();
+    final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
     return Trade(
       id: id,
@@ -243,15 +250,17 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
+      extraId: addressProviderMemo,
     );
   }
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final uri = await _getUri(tradePath, {'api_key': apiKey, 'id': id});
-    return get(uri).then((response) {
+    final uri = await _getUri(tradePath, {'id': id});
+    return ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
+      
 
       final responseListJson = json.decode(response.body) as List;
       final responseJSON = responseListJson.first;
@@ -263,6 +272,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final password = responseJSON['password'] as String;
       final providerId = responseJSON['id_provider'] as String;
       final providerName = responseJSON['provider'] as String;
+      final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
       return Trade(
         id: id,
@@ -278,8 +288,28 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         password: password,
         providerId: providerId,
         providerName: providerName,
+        extraId: addressProviderMemo,
       );
     });
+  }
+
+  Future<List<TrocadorPartners>> fetchProviders() async {
+    final uri = await _getUri(providersListPath, {'api_key': apiKey});
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
+
+    if (response.statusCode != 200)
+      throw Exception('Unexpected http status: ${response.statusCode}');
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+
+    final providersJsonList = responseJSON['list'] as List<dynamic>;
+    final filteredProvidersList = providersJsonList
+        .map((providerJson) => TrocadorPartners.fromJson(providerJson as Map<String, dynamic>))
+        .where((provider) => provider.rating != 'D')
+        .toList();
+    filteredProvidersList.sort((a, b) => a.rating.compareTo(b.rating));
+    return filteredProvidersList;
   }
 
   String _networkFor(CryptoCurrency currency) {
@@ -318,6 +348,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'TRC20';
       case 'LN':
         return 'Lightning';
+      case 'BSC':
+        return 'BEP20';
       default:
         return tag.toLowerCase();
     }
@@ -329,11 +361,37 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     if (useTorOnly) return uri;
 
     try {
-      await get(uri);
+      await ProxyWrapper().get(clearnetUri: uri);
 
       return uri;
     } catch (e) {
       return Uri.https(clearNetAuthority, path, queryParams);
     }
+  }
+}
+
+class TrocadorPartners {
+  final String name;
+  final String rating;
+  final double? insurance;
+  final bool? enabledMarkup;
+  final double? eta;
+
+  TrocadorPartners({
+    required this.name,
+    required this.rating,
+    required this.insurance,
+    required this.enabledMarkup,
+    required this.eta,
+  });
+
+  factory TrocadorPartners.fromJson(Map<String, dynamic> json) {
+    return TrocadorPartners(
+      name: json['name'] as String? ?? '',
+      rating: json['rating'] as String? ?? 'N/A',
+      insurance: json['insurance'] as double?,
+      enabledMarkup: json['enabledmarkup'] as bool?,
+      eta: json['eta'] as double?,
+    );
   }
 }

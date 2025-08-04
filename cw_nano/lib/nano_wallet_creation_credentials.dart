@@ -8,14 +8,14 @@ class NanoNewWalletCredentials extends WalletCredentials {
     String? password,
     DerivationType? derivationType,
     this.mnemonic,
-    String? parentAddress,
+    String? passphrase,
   }) : super(
           name: name,
           password: password,
           walletInfo: walletInfo,
-          parentAddress: parentAddress,
+          passphrase: passphrase,
         );
-        
+
   final String? mnemonic;
 }
 
@@ -25,10 +25,12 @@ class NanoRestoreWalletFromSeedCredentials extends WalletCredentials {
     required this.mnemonic,
     String? password,
     required DerivationType derivationType,
+    String? passphrase,
   }) : super(
           name: name,
           password: password,
           derivationInfo: DerivationInfo(derivationType: derivationType),
+          passphrase: passphrase,
         );
 
   final String mnemonic;

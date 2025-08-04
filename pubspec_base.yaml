@@ -3,45 +3,49 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.18.0
-  url_launcher: ^6.1.4
+  intl: ^0.19.0
+  url_launcher: 6.3.1
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
       ref: cake-4.0.2
       version: 4.0.2
-  shared_preferences: ^2.0.15
+  shared_preferences: 2.5.3
   # provider: ^6.0.3
-  rxdart: ^0.27.4
+  rxdart: ^0.28.0
   yaml: ^3.1.1
-  #barcode_scan: any
-  barcode_scan2: ^4.2.1
+  fast_scanner:
+    git:
+      url: https://github.com/MrCyjaneK/fast_scanner
+      ref: 69b3276b090fa6ac01b4483ca3adca93a8e615be
   http: ^1.1.0
   path_provider: ^2.0.11
   mobx: ^2.1.4
-  flutter_mobx: ^2.0.6+5
+  flutter_mobx: 2.0.6+5
   flutter_slidable: ^3.0.1
   share_plus: ^10.0.0
   # date_range_picker: ^1.0.6
   #https://api.flutter.dev/flutter/material/showDateRangePicker.html
-  dio: ^4.0.6
+  dio: ^5.7.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  local_auth_android: 1.0.21
+  local_auth_android: ^1.0.46
   flutter_local_authentication:
     git:
       url: https://github.com/cake-tech/flutter_local_authentication
   package_info_plus: ^8.0.1
-  devicelocale:
-    git:
-      url: https://github.com/cake-tech/flutter-devicelocale
+  devicelocale: 0.8.1
   auto_size_text: ^3.0.0
   dotted_border: ^2.0.0+2
   smooth_page_indicator: ^1.0.0+2
-  flutter_inappwebview: ^6.0.0
+  flutter_inappwebview: ^6.1.5
   flutter_spinkit: ^5.1.0
-  uni_links: ^0.5.1
-  lottie: ^1.3.0
+  uni_links:
+    git:
+      url: https://github.com/MrCyjaneK/uni_links
+      ref: 8e9efa4d9beb19e4ac44009576337f1ce51c22e2
+      path: uni_links
+  lottie: ^3.3.1
   animate_do: ^2.1.0
   cupertino_icons: ^1.0.5
   encrypt: 5.0.2
@@ -50,23 +54,25 @@ dependencies:
   basic_utils: ^5.6.1
   get_it: ^7.2.0
   # connectivity: ^3.0.3
-  connectivity_plus: ^5.0.2
+  connectivity_plus: ^6.1.3
   keyboard_actions: ^4.0.1
   another_flushbar: ^1.12.29
-  archive: ^3.3.0
+  archive: ^4.0.3
   cryptography: ^2.0.5
   file_picker:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git
-      ref: master
-  permission_handler: ^10.0.0
+      ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
+  permission_handler: 11.4.0
   device_display_brightness:
-    git:
-      url: https://github.com/cake-tech/device_display_brightness.git
-      ref: master
-  workmanager: ^0.5.1
+   git:
+     url: https://github.com/MrCyjaneK/device_display_brightness.git
+     ref: 4cac18c446ce686f3d75b1565badbd7da439bbd9
   wakelock_plus: ^1.2.5
-  flutter_mailer: ^2.0.2
+  flutter_mailer:       
+    git:
+      url: https://github.com/taljacobson/flutter_mailer
+      ref: 9c4ed111a9151a2bbfb9afe2c18a37599c6f84f3
   device_info_plus: ^9.1.0
   base32: 2.1.3
   in_app_review: ^2.0.6
@@ -75,34 +81,67 @@ dependencies:
       url: https://github.com/cake-tech/cake_backup.git
       ref: main
       version: 1.0.0
-  flutter_plugin_android_lifecycle: 2.0.9
+  flutter_plugin_android_lifecycle: 2.0.23
   path_provider_android: ^2.2.1
-  shared_preferences_android: 2.0.17
-  url_launcher_android: 6.0.24
+  shared_preferences_android: ^2.4.8
+  url_launcher_android: 6.3.14
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
-  sensitive_clipboard: ^1.0.0
-  walletconnect_flutter_v2: ^2.1.4
+  sensitive_clipboard:
+    git:
+      url: https://github.com/MrCyjaneK/sensitive_clipboard
+      ref: 288c7ee2d63b459bc735f7dc89321b29a1f12fae
   eth_sig_util: ^0.0.9
   ens_dart:
     git:
-      url: https://github.com/cake-tech/ens_dart.git
-      ref: main
-  fluttertoast: 8.1.4
+      url: https://github.com/MrCyjaneK/ens_dart.git
+      ref: 9fa09b9db69b8645d5d50a844652aa570451d101
+  fluttertoast: 8.2.12
 #  tor:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
 #      ref: main
-  socks5_proxy: ^1.0.4
-  flutter_svg: ^2.0.9
-  polyseed: ^0.0.6
-  nostr_tools: ^1.0.9
-  solana: ^0.30.1
-  bitcoin_base:
+  socks5_proxy:
     git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v7
-  ledger_flutter: ^1.0.1
+      url: https://github.com/LacticWhale/socks_dart
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
+  flutter_svg: ^2.0.9
+  polyseed: ^0.0.7
+  nostr_tools:
+    git:
+      url: https://github.com/MrCyjaneK/nostr_tools.git
+      ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
+  solana: ^0.31.0+1
+  ledger_flutter_plus:
+    git:
+      url: https://github.com/vespr-wallet/ledger-flutter-plus
+      ref: 60817d4b20144f9da9029f5034790272795b9d38
   hashlib: ^1.19.2
+  on_chain:
+    git:
+      url: https://github.com/cake-tech/on_chain.git
+      ref: cake-update-v2
+  reown_walletkit: ^1.1.5+1
+  blockchain_utils:
+    git:
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: cake-update-v2
+  flutter_daemon:
+    git:
+      url: https://github.com/MrCyjaneK/flutter_daemon
+      ref: c24ee99f2f3070ea02d8108bbdd7727d73f7e5f1
+  flutter_local_notifications: ^19.0.0
+  ur:
+    git:
+      url: https://github.com/bukata-sa/bc-ur-dart
+      ref: 5738f70d0ec3d50977ac3dd01fed62939600238b
+  bbqrdart:
+    git:
+      url: https://github.com/mrcyjanek/bbqrdart
+      ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+  dnssec_proof:
+    git:
+      url: https://github.com/MrCyjaneK/dnssec_proof.git
+      ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
 
 dev_dependencies:
   flutter_test:
@@ -110,10 +149,10 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mocktail: ^1.0.4
-  build_runner: ^2.3.3
+  build_runner: ^2.4.15
   logging: ^1.2.0
   mobx_codegen: ^2.1.1
-  build_resolvers: ^2.0.9
+  build_resolvers: ^2.4.4
   hive_generator: ^2.0.1
   # flutter_launcher_icons: ^0.11.0
   # check flutter_launcher_icons for usage
@@ -123,25 +162,37 @@ dev_dependencies:
     git:
       url: https://github.com/cake-tech/google-translator.git
       version: 1.0.0
-  archive: ^3.6.1
+  msix: ^3.16.9
 
 dependency_overrides:
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
-  ledger_flutter:
-    git:
-      url: https://github.com/cake-tech/ledger-flutter.git
-      ref: cake-v3
   web3dart:
     git:
       url: https://github.com/cake-tech/web3dart.git
       ref: cake
   flutter_secure_storage_platform_interface: 1.0.2
+  protobuf: ^3.1.0
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v7
+      ref: cake-update-v10
+  ffi: 2.1.0
+  ledger_flutter_plus:
+    git:
+      url: https://github.com/vespr-wallet/ledger-flutter-plus
+      ref: 60817d4b20144f9da9029f5034790272795b9d38
+  socks5_proxy:
+    git:
+      url: https://github.com/LacticWhale/socks_dart.git
+      ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
+  tor_binary:
+    git:
+      url: https://github.com/MrCyjaneK/flutter-tor_binary
+      ref: cb811c610871a9517d47134b87c2f590c15c96c5
+  web_socket_channel: ^3.0.2
+  freezed_annotation: 2.4.4
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"
@@ -157,6 +208,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/flags/
+    - assets/images/hardware_wallet/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
@@ -169,6 +221,8 @@ flutter:
     - assets/solana_node_list.yml
     - assets/tron_node_list.yml
     - assets/wownero_node_list.yml
+    - assets/zano_node_list.yml
+    - assets/decred_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/
@@ -180,3 +234,12 @@ flutter:
         - asset: assets/fonts/Lato-Medium.ttf
         - asset: assets/fonts/Lato-Semibold.ttf
         - asset: assets/fonts/Lato-Bold.ttf
+
+msix_config:
+  display_name: Cake Wallet
+  publisher_display_name: Cake Labs
+  identity_name: com.cakewallet.wallet
+  msix_version: 1.0.0.1
+  logo_path: assets/images/app_logo.png
+  trim_logo: false
+  capabilities: internetClient

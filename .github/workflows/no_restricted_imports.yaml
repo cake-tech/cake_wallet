@@ -1,0 +1,47 @@
+name: No restricted imports in lib directory
+
+on: [pull_request]
+
+jobs:
+  check_restricted_imports:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for restricted imports in lib directory
+        if: github.event_name == 'pull_request'
+        run: |
+          RESTRICTED_PACKAGES=(
+            "cw_bitcoin"
+            "cw_bitcoin_cash"
+            "cw_ethereum"
+            "cw_evm"
+            "cw_haven"
+            "cw_mweb"
+            "cw_nano"
+            "cw_polygon"
+            "cw_solana"
+            "cw_tron"
+            "cw_wownero"
+            "cw_zano"
+          )
+          
+          FOUND_RESTRICTED=false
+          
+          for package in "${RESTRICTED_PACKAGES[@]}"; do
+            GREP_RESULT=$(find lib -type f -name "*.dart" -exec grep -l "import.*package:$package" {} \; || true)
+            
+            if [ -n "$GREP_RESULT" ]; then
+              echo "Found restricted import of '$package' in the following files:"
+              echo "$GREP_RESULT"
+              FOUND_RESTRICTED=true
+            fi
+          done
+          
+          if [ "$FOUND_RESTRICTED" = true ]; then
+            echo "Error: Restricted package imports found in lib/ directory"
+            echo "Please remove these imports as they are not allowed in the lib/ directory"
+            exit 1
+          else
+            echo "No restricted imports found. All good!"
+          fi 

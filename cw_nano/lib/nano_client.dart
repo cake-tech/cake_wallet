@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cw_core/nano_account_info_response.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_nano/nano_block_info_response.dart';
 import 'package:cw_core/n2_node.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_transaction_model.dart';
-import 'package:http/http.dart' as http;
 import 'package:cw_core/node.dart';
 import 'package:nanoutil/nanoutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,21 +54,21 @@ class NanoClient {
     }
   }
 
-  Map<String, String> getHeaders() {
+  Map<String, String> getHeaders(String host) {
     final headers = Map<String, String>.from(CAKE_HEADERS);
-    if (_node!.uri.host == "rpc.nano.to") {
+    if (host == "rpc.nano.to") {
       headers["key"] = nano_secrets.nano2ApiKey;
     }
-    if (_node!.uri.host == "nano.nownodes.io") {
+    if (host == "nano.nownodes.io") {
       headers["api-key"] = nano_secrets.nanoNowNodesApiKey;
     }
     return headers;
   }
 
   Future<NanoBalance> getBalance(String address) async {
-    final response = await http.post(
-      _node!.uri,
-      headers: getHeaders(),
+    final response = await ProxyWrapper().post(
+      clearnetUri: _node!.uri,
+      headers: getHeaders(_node!.uri.host),
       body: jsonEncode(
         {
           "action": "account_balance",
@@ -75,7 +76,8 @@ class NanoClient {
         },
       ),
     );
-    final data = await jsonDecode(response.body);
+    
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200 ||
         data["error"] != null ||
         data["balance"] == null ||
@@ -90,11 +92,11 @@ class NanoClient {
     return NanoBalance(currentBalance: cur, receivableBalance: rec);
   }
 
-  Future<AccountInfoResponse?> getAccountInfo(String address) async {
+  Future<AccountInfoResponse?> getAccountInfo(String address, {bool throwOnError = false}) async {
     try {
-      final response = await http.post(
-        _node!.uri,
-        headers: getHeaders(),
+      final response = await ProxyWrapper().post(
+        clearnetUri: _node!.uri,
+        headers: getHeaders(_node!.uri.host),
         body: jsonEncode(
           {
             "action": "account_info",
@@ -103,19 +105,23 @@ class NanoClient {
           },
         ),
       );
-      final data = await jsonDecode(response.body);
-      return AccountInfoResponse.fromJson(data as Map<String, dynamic>);
+      
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return AccountInfoResponse.fromJson(data);
     } catch (e) {
-      print("error while getting account info $e");
+      printV("error while getting account info $e");
+      if (throwOnError) {
+        rethrow;
+      }
       return null;
     }
   }
 
   Future<BlockContentsResponse?> getBlockContents(String block) async {
     try {
-      final response = await http.post(
-        _node!.uri,
-        headers: CAKE_HEADERS,
+      final response = await ProxyWrapper().post(
+        clearnetUri: _node!.uri,
+        headers: getHeaders(_node!.uri.host),
         body: jsonEncode(
           {
             "action": "block_info",
@@ -124,10 +130,11 @@ class NanoClient {
           },
         ),
       );
-      final data = await jsonDecode(response.body);
+      
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       return BlockContentsResponse.fromJson(data["contents"] as Map<String, dynamic>);
     } catch (e) {
-      print("error while getting block info $e");
+      printV("error while getting block info $e");
       return null;
     }
   }
@@ -180,9 +187,9 @@ class NanoClient {
   }
 
   Future<String> requestWork(String hash) async {
-    final response = await http.post(
-      _powNode!.uri,
-      headers: getHeaders(),
+    final response = await ProxyWrapper().post(
+      clearnetUri: _powNode!.uri,
+      headers: getHeaders(_powNode!.uri.host),
       body: json.encode(
         {
           "action": "work_generate",
@@ -190,8 +197,9 @@ class NanoClient {
         },
       ),
     );
+    
     if (response.statusCode == 200) {
-      final Map<String, dynamic> decoded = json.decode(response.body) as Map<String, dynamic>;
+      final decoded = jsonDecode(response.body) as Map<String, dynamic>;
       if (decoded.containsKey("error")) {
         throw Exception("Received error ${decoded["error"]}");
       }
@@ -223,13 +231,13 @@ class NanoClient {
       "block": block,
     });
 
-    final processResponse = await http.post(
-      _node!.uri,
-      headers: getHeaders(),
+    final processResponse = await ProxyWrapper().post(
+      clearnetUri: _node!.uri,
+      headers: getHeaders(_node!.uri.host),
       body: processBody,
     );
 
-    final Map<String, dynamic> decoded = json.decode(processResponse.body) as Map<String, dynamic>;
+    final Map<String, dynamic> decoded = jsonDecode(processResponse.body) as Map<String, dynamic>;
     if (decoded.containsKey("error")) {
       throw Exception("Received error ${decoded["error"]}");
     }
@@ -422,12 +430,11 @@ class NanoClient {
       "subtype": "receive",
       "block": receiveBlock,
     });
-    final processResponse = await http.post(
-      _node!.uri,
-      headers: getHeaders(),
+    final processResponse = await ProxyWrapper().post(
+      clearnetUri: _node!.uri,
+      headers: getHeaders(_node!.uri.host),
       body: processBody,
     );
-
     final Map<String, dynamic> decoded = json.decode(processResponse.body) as Map<String, dynamic>;
     if (decoded.containsKey("error")) {
       throw Exception("Received error ${decoded["error"]}");
@@ -439,16 +446,17 @@ class NanoClient {
     required String destinationAddress,
     required String privateKey,
   }) async {
-    final receivableResponse = await http.post(_node!.uri,
-        headers: getHeaders(),
-        body: jsonEncode({
-          "action": "receivable",
-          "account": destinationAddress,
-          "count": "-1",
-          "source": true,
-        }));
-
-    final receivableData = await jsonDecode(receivableResponse.body);
+    final receivableResponse = await ProxyWrapper().post(
+      clearnetUri: _node!.uri,
+      headers: getHeaders(_node!.uri.host),
+      body: jsonEncode({
+        "action": "receivable",
+        "account": destinationAddress,
+        "count": "-1",
+        "source": true,
+      }),
+    );
+    final receivableData = jsonDecode(receivableResponse.body) as Map<String, dynamic>;
     if (receivableData["blocks"] == "" || receivableData["blocks"] == null) {
       return 0;
     }
@@ -491,15 +499,18 @@ class NanoClient {
 
   Future<List<NanoTransactionModel>> fetchTransactions(String address) async {
     try {
-      final response = await http.post(_node!.uri,
-          headers: getHeaders(),
-          body: jsonEncode({
-            "action": "account_history",
-            "account": address,
-            "count": "100",
-            // "raw": true,
-          }));
-      final data = await jsonDecode(response.body);
+      final response = await ProxyWrapper().post(
+        clearnetUri: _node!.uri,
+        headers: getHeaders(_node!.uri.host),
+        body: jsonEncode({
+          "action": "account_history",
+          "account": address,
+          "count": "100",
+          // "raw": true,
+        }),
+      );
+      
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
       final transactions = data["history"] is List ? data["history"] as List<dynamic> : [];
 
       // Map the transactions list to NanoTransactionModel using the factory
@@ -508,19 +519,21 @@ class NanoClient {
           .map<NanoTransactionModel>((transaction) => NanoTransactionModel.fromJson(transaction))
           .toList();
     } catch (e) {
-      print(e);
-      return [];
+      printV("error fetching transactions: $e");
+      rethrow;
     }
   }
 
   Future<List<N2Node>> getN2Reps() async {
-    final response = await http.post(
-      Uri.parse(N2_REPS_ENDPOINT),
-      headers: CAKE_HEADERS,
+    final uri = Uri.parse(N2_REPS_ENDPOINT);
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: getHeaders(uri.host),
       body: jsonEncode({"action": "reps"}),
     );
     try {
-      final List<N2Node> nodes = (json.decode(response.body) as List<dynamic>)
+      
+      final List<N2Node> nodes = (jsonDecode(response.body) as List<dynamic>)
           .map((dynamic e) => N2Node.fromJson(e as Map<String, dynamic>))
           .toList();
       return nodes;
@@ -530,16 +543,18 @@ class NanoClient {
   }
 
   Future<int> getRepScore(String rep) async {
-    final response = await http.post(
-      Uri.parse(N2_REPS_ENDPOINT),
-      headers: CAKE_HEADERS,
+    final uri = Uri.parse(N2_REPS_ENDPOINT);
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: getHeaders(uri.host),
       body: jsonEncode({
         "action": "rep_info",
         "account": rep,
       }),
     );
     try {
-      final N2Node node = N2Node.fromJson(json.decode(response.body) as Map<String, dynamic>);
+      
+      final N2Node node = N2Node.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
       return node.score ?? 100;
     } catch (error) {
       return 100;

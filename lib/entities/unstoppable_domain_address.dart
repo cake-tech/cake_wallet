@@ -1,17 +1,16 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
-
-const channel = MethodChannel('com.cake_wallet/native_utils');
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 
 Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
   var address = '';
 
   try {
     final uri = Uri.parse("https://api.unstoppabledomains.com/profile/public/${Uri.encodeQueryComponent(domain)}?fields=records");
-    final jsonString = await http.read(uri);
-    final jsonParsed = json.decode(jsonString) as Map<String, dynamic>;
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
+    final jsonParsed = json.decode(response.body) as Map<String, dynamic>;
     if (jsonParsed["records"] == null) {
       throw Exception(".records response from $uri is empty");
     };
@@ -23,7 +22,7 @@ Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async
 
     return records[key] as String? ?? '';
   } catch (e) {
-    print('Unstoppable domain error: ${e.toString()}');
+    printV('Unstoppable domain error: ${e.toString()}');
     address = '';
   }
 

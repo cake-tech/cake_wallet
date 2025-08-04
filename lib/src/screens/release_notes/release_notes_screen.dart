@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,9 +33,9 @@ class ReleaseNotesScreen extends StatelessWidget {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
                   gradient: LinearGradient(colors: [
-                    Theme.of(context).extension<DashboardPageTheme>()!.firstGradientBackgroundColor,
-                    Theme.of(context).extension<DashboardPageTheme>()!.secondGradientBackgroundColor,
-                  ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+                    Theme.of(context).colorScheme.surface,
+                    Theme.of(context).colorScheme.surfaceContainer,
+                  ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Stack(
@@ -47,12 +46,12 @@ class ReleaseNotesScreen extends StatelessWidget {
                         child: Container(
                           alignment: Alignment.bottomCenter,
                           child: DefaultTextStyle(
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                               decoration: TextDecoration.none,
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'Lato',
-                              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+                        
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             child: Text(title),
                           ),
@@ -115,11 +114,11 @@ class ReleaseNotesScreen extends StatelessWidget {
     return Column(
       children: [
         DefaultTextStyle(
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               decoration: TextDecoration.none,
               fontSize: 16.0,
-              fontFamily: 'Lato',
-              color: Theme.of(context).extension<DashboardPageTheme>()!.textColor,
+               
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

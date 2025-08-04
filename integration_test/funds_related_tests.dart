@@ -9,6 +9,7 @@ import 'robots/dashboard_page_robot.dart';
 import 'robots/exchange_confirm_page_robot.dart';
 import 'robots/exchange_page_robot.dart';
 import 'robots/exchange_trade_page_robot.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +33,11 @@ void main() {
 
       await commonTestFlows.startAppFlow(ValueKey('funds_exchange_test_app_key'));
 
-      await commonTestFlows.restoreWalletThroughSeedsFlow();
+      await commonTestFlows.welcomePageToRestoreWalletThroughSeedsFlow(
+        CommonTestConstants.testWalletType,
+        secrets.solanaTestWalletSeeds,
+        CommonTestConstants.pin,
+      );
 
       // ----------- RestoreFromSeedOrKeys Page -------------
       await dashboardPageRobot.navigateToExchangePage();
@@ -44,8 +49,10 @@ void main() {
       exchangePageRobot.confirmRightComponentsDisplayOnDepositExchangeCards();
       exchangePageRobot.confirmRightComponentsDisplayOnReceiveExchangeCards();
 
-      await exchangePageRobot.selectDepositCurrency(CommonTestConstants.testDepositCurrency);
-      await exchangePageRobot.selectReceiveCurrency(CommonTestConstants.testReceiveCurrency);
+      await exchangePageRobot
+          .selectDepositCurrency(CommonTestConstants.exchangeTestDepositCurrency);
+      await exchangePageRobot
+          .selectReceiveCurrency(CommonTestConstants.exchangeTestReceiveCurrency);
 
       await exchangePageRobot.enterDepositAmount(CommonTestConstants.exchangeTestAmount);
       await exchangePageRobot.enterDepositRefundAddress(
@@ -59,7 +66,12 @@ void main() {
 
       final onAuthPage = authPageRobot.onAuthPage();
       if (onAuthPage) {
-        await authPageRobot.enterPinCode(CommonTestConstants.pin, false);
+        await authPageRobot.enterPinCode(CommonTestConstants.pin);
+      }
+
+      final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+      if (onAuthPageDesktop) {
+        await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
       }
 
       // ----------- Exchange Confirm Page -------------
@@ -74,7 +86,7 @@ void main() {
       exchangeTradePageRobot.hasInformationDialog();
       await exchangeTradePageRobot.onGotItButtonPressed();
 
-      await exchangeTradePageRobot.onConfirmSendingButtonPressed();
+      await exchangeTradePageRobot.onSendFromCakeButtonPressed();
 
       await exchangeTradePageRobot.handleConfirmSendResult();
 

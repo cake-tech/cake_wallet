@@ -5,16 +5,21 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/entities/wellknown_record.dart';
+import 'package:cake_wallet/entities/zano_alias.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:flutter/cupertino.dart';
+
+import 'bip_353_record.dart';
 
 class AddressResolver {
   AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})
@@ -26,30 +31,152 @@ class AddressResolver {
   final SettingsStore settingsStore;
 
   static const unstoppableDomains = [
-    'crypto',
-    'zil',
-    'x',
-    'wallet',
-    'bitcoin',
-    '888',
-    'nft',
-    'dao',
-    'blockchain',
-    'polygon',
-    'klever',
-    'hi',
-    'kresus',
-    'anime',
-    'manga',
-    'binanceus'
+    "888",
+    "academy",
+    "agency",
+    "altimist",
+    "anime",
+    "austin",
+    "bald",
+    "bay",
+    "benji",
+    "bet",
+    "binanceus",
+    "bitcoin",
+    "bitget",
+    "bitscrunch",
+    "blockchain",
+    "boomer",
+    "boston",
+    "ca",
+    "caw",
+    "cc",
+    "chat",
+    "chomp",
+    "clay",
+    "club",
+    "co",
+    "com",
+    "company",
+    "crypto",
+    "dao",
+    "design",
+    "dfz",
+    "digital",
+    "doga",
+    "donut",
+    "dream",
+    "email",
+    "emir",
+    "eth",
+    "ethermail",
+    "family",
+    "farms",
+    "finance",
+    "fun",
+    "fyi",
+    "games",
+    "global",
+    "go",
+    "group",
+    "guru",
+    "hi",
+    "hockey",
+    "host",
+    "info",
+    "io",
+    "klever",
+    "kresus",
+    "kryptic",
+    "lfg",
+    "life",
+    "live",
+    "llc",
+    "ltc",
+    "ltd",
+    "manga",
+    "me",
+    "media",
+    "metropolis",
+    "miami",
+    "miku",
+    "money",
+    "moon",
+    "mumu",
+    "net",
+    "network",
+    "news",
+    "nft",
+    "npc",
+    "onchain",
+    "online",
+    "org",
+    "podcast",
+    "pog",
+    "polygon",
+    "press",
+    "privacy",
+    "pro",
+    "propykeys",
+    "pudgy",
+    "pw",
+    "quantum",
+    "rad",
+    "raiin",
+    "retardio",
+    "rip",
+    "rocks",
+    "secret",
+    "services",
+    "site",
+    "smobler",
+    "social",
+    "solutions",
+    "space",
+    "stepn",
+    "store",
+    "studio",
+    "systems",
+    "tball",
+    "tea",
+    "team",
+    "tech",
+    "technology",
+    "today",
+    "tribe",
+    "u",
+    "ubu",
+    "uno",
+    "unstoppable",
+    "vip",
+    "wallet",
+    "website",
+    "wif",
+    "wifi",
+    "witg",
+    "work",
+    "world",
+    "wrkx",
+    "wtf",
+    "x",
+    "xmr",
+    "xyz",
+    "zil",
+    "zone"
   ];
 
-  static String? extractAddressByType({required String raw, required CryptoCurrency type}) {
-    final addressPattern = AddressValidator.getAddressFromStringPattern(type);
+  static String? extractAddressByType(
+      {required String raw,
+      required CryptoCurrency type,
+      bool requireSurroundingWhitespaces = true}) {
+    var addressPattern = AddressValidator.getAddressFromStringPattern(type);
 
     if (addressPattern == null) {
       throw Exception('Unexpected token: $type for getAddressFromStringPattern');
     }
+
+    if (requireSurroundingWhitespaces)
+      addressPattern = "$BEFORE_REGEX$addressPattern$AFTER_REGEX";
 
     final match = RegExp(addressPattern, multiLine: true).firstMatch(raw);
     return match?.group(0)?.replaceAllMapped(RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'),
@@ -75,14 +202,25 @@ class AddressResolver {
   Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
     final ticker = currency.title;
     try {
+      // twitter handle example: @username
       if (text.startsWith('@') && !text.substring(1).contains('@')) {
+        if (currency == CryptoCurrency.zano && settingsStore.lookupsZanoAlias) {
+          final formattedName = text.substring(1);
+          final zanoAddress = await ZanoAlias.fetchZanoAliasAddress(formattedName);
+          if (zanoAddress != null && zanoAddress.isNotEmpty) {
+            return ParsedAddress.zanoAddress(
+              address: zanoAddress,
+              name: text,
+            );
+          }
+        }
         if (settingsStore.lookupsTwitter) {
           final formattedName = text.substring(1);
           final twitterUser = await TwitterApi.lookupUserByName(userName: formattedName);
           final addressFromBio = extractAddressByType(
               raw: twitterUser.description,
               type: CryptoCurrency.fromString(ticker, walletCurrency: wallet.currency));
-          if (addressFromBio != null) {
+          if (addressFromBio != null && addressFromBio.isNotEmpty) {
             return ParsedAddress.fetchTwitterAddress(
                 address: addressFromBio,
                 name: text,
@@ -106,6 +244,7 @@ class AddressResolver {
         }
       }
 
+      // Mastodon example: @username@hostname.xxx
       if (text.startsWith('@') && text.contains('@', 1) && text.contains('.', 1)) {
         if (settingsStore.lookupsMastodon) {
           final subText = text.substring(1);
@@ -119,7 +258,7 @@ class AddressResolver {
           if (mastodonUser != null) {
             String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: currency);
 
-            if (addressFromBio != null) {
+            if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.fetchMastodonAddress(
                   address: addressFromBio,
                   name: text,
@@ -134,7 +273,7 @@ class AddressResolver {
                 String? addressFromPinnedPost =
                     extractAddressByType(raw: userPinnedPostsText, type: currency);
 
-                if (addressFromPinnedPost != null) {
+                if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
                   return ParsedAddress.fetchMastodonAddress(
                       address: addressFromPinnedPost,
                       name: text,
@@ -143,6 +282,17 @@ class AddressResolver {
                 }
               }
             }
+          }
+        }
+      }
+
+      // .well-known scheme:
+      if (text.contains('.') && text.contains('@')) {
+        if (settingsStore.lookupsWellKnown) {
+          final record =
+              await WellKnownRecord.fetchAddressAndName(formattedName: text, currency: currency);
+          if (record != null) {
+            return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
           }
         }
       }
@@ -164,7 +314,7 @@ class AddressResolver {
       }
 
       final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
-      if (thorChainAddress != null) {
+      if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
         String? address =
             thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
         if (address != null) {
@@ -183,7 +333,24 @@ class AddressResolver {
       if (unstoppableDomains.any((domain) => name.trim() == domain)) {
         if (settingsStore.lookupsUnstoppableDomains) {
           final address = await fetchUnstoppableDomainAddress(text, ticker);
-          return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+          if (address.isNotEmpty) {
+            return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
+          }
+        }
+      }
+
+      final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, ticker);
+
+      if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
+        final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
+        if (chosenAddress != null) {
+          try {
+            final dnsProof = await Bip353Record.fetchDnsProof(text);
+            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text, dnsProof: dnsProof);
+          } catch (e) {
+            printV('Bip353Record.fetchBip353AddressAddress error: $e');
+            return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
+          }
         }
       }
 
@@ -199,6 +366,7 @@ class AddressResolver {
       if (formattedName.contains(".")) {
         if (settingsStore.lookupsOpenAlias) {
           final txtRecord = await OpenaliasRecord.lookupOpenAliasRecord(formattedName);
+
           if (txtRecord != null) {
             final record = await OpenaliasRecord.fetchAddressAndName(
                 formattedName: formattedName, ticker: ticker.toLowerCase(), txtRecord: txtRecord);
@@ -214,7 +382,7 @@ class AddressResolver {
 
           if (nostrUserData != null) {
             String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);
-            if (addressFromBio != null) {
+            if (addressFromBio != null && addressFromBio.isNotEmpty) {
               return ParsedAddress.nostrAddress(
                   address: addressFromBio,
                   name: text,
@@ -225,7 +393,7 @@ class AddressResolver {
         }
       }
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
 
     return ParsedAddress(addresses: [text]);

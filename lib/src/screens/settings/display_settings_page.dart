@@ -28,16 +28,17 @@ class DisplaySettingsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
-                  title: S.current.settings_display_balance,
-                  value: _displaySettingsViewModel.shouldDisplayBalance,
-                  onValueChange: (_, bool value) {
-                    _displaySettingsViewModel.setShouldDisplayBalance(value);
-                  }),
-              SettingsSwitcherCell(
                 title: S.current.show_market_place,
                 value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
                 onValueChange: (_, bool value) {
                   _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
+                },
+              ),
+              SettingsSwitcherCell(
+                title: S.of(context).show_address_book_popup,
+                value: _displaySettingsViewModel.showAddressBookPopup,
+                onValueChange: (_, bool value) {
+                  _displaySettingsViewModel.setShowAddressBookPopup(value);
                 },
               ),
               //if (!isHaven) it does not work correctly
@@ -75,8 +76,21 @@ class DisplaySettingsPage extends BasePage {
                   return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;
                 },
               ),
-              if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile)
-                Semantics(label: S.current.color_theme, child: SettingsThemeChoicesCell(_displaySettingsViewModel)),
+
+              if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
+                SettingsSwitcherCell(
+                  title: S.current.use_device_theme,
+                  value: _displaySettingsViewModel.themeMode == ThemeMode.system,
+                  onValueChange: (_, bool value) {
+                    _displaySettingsViewModel
+                        .setThemeMode(value ? ThemeMode.system : ThemeMode.dark);
+                  },
+                ),
+                Semantics(
+                  label: S.current.color_theme,
+                  child: SettingsThemeChoicesCell(_displaySettingsViewModel),
+                ),
+              ],
             ],
           ),
         );

@@ -1,7 +1,6 @@
-import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import 'package:cake_wallet/utils/responsive_layout_util.dart';
 
 class PickerInnerWrapperWidget extends StatelessWidget {
   PickerInnerWrapperWidget(
@@ -32,20 +31,21 @@ class PickerInnerWrapperWidget extends StatelessWidget {
             child: Text(
               title!,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Lato',
-                  decoration: TextDecoration.none,
-                  color: Colors.white),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    decoration: TextDecoration.none,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
             ),
           ),
+          SizedBox(height: 8),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),
             child: ClipRRect(
               borderRadius: BorderRadius.all(Radius.circular(14)),
               child: Container(
-                color: Theme.of(context).dialogTheme.backgroundColor,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxHeight:
@@ -73,7 +73,7 @@ class PickerInnerWrapperWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(14)),
             child: Container(
-              color: Theme.of(context).dialogTheme.backgroundColor,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxHeight: containerHeight,

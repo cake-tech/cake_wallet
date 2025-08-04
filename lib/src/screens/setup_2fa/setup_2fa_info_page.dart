@@ -1,9 +1,14 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/InfoPage.dart';
+import 'package:cake_wallet/src/screens/Info_page.dart';
 import 'package:flutter/cupertino.dart';
 
 class Setup2FAInfoPage extends InfoPage {
+  Setup2FAInfoPage()
+      : super(
+          imageLightPath: 'assets/images/2fa_warning_light.svg',
+          imageDarkPath: 'assets/images/2fa_warning_dark.svg',
+        );
 
   @override
   String get pageTitle => S.current.pre_seed_title;
@@ -15,6 +20,9 @@ class Setup2FAInfoPage extends InfoPage {
   String get buttonText => S.current.understand;
 
   @override
-  void Function(BuildContext) get onPressed => (BuildContext context) =>
-      Navigator.of(context).popAndPushNamed(Routes.setup_2faPage);
+  Key? get buttonKey => ValueKey('setup_2fa_info_page_button_key');
+
+  @override
+  void Function(BuildContext) get onPressed =>
+      (BuildContext context) => Navigator.of(context).popAndPushNamed(Routes.setup_2faPage);
 }

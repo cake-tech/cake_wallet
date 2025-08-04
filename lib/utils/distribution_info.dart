@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cake_wallet/utils/package_info.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 enum DistributionType { googleplay, github, appstore, fdroid }
 
@@ -32,7 +33,7 @@ class DistributionInfo {
       final packageInfo = await PackageInfo.fromPlatform();
       return packageInfo.packageName == 'com.android.vending';
     } catch (e) {
-      print('Error: $e');
+      printV('Error: $e');
       return false;
     }
   }

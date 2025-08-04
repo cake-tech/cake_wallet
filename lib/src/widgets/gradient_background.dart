@@ -1,4 +1,4 @@
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 
 class GradientBackground extends StatelessWidget {
@@ -9,22 +9,20 @@ class GradientBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        gradient: LinearGradient(
           colors: [
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .firstGradientBackgroundColor,
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .secondGradientBackgroundColor,
-            Theme.of(context)
-                .extension<DashboardPageTheme>()!
-                .thirdGradientBackgroundColor,
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).brightness == Brightness.dark
+                ? CustomThemeColors.backgroundGradientColorDark
+                : CustomThemeColors.backgroundGradientColorLight,
           ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        )),
-        child: scaffold);
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: scaffold,
+    );
   }
 }

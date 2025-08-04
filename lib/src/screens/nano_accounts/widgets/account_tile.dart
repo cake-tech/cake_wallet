@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/extensions/account_list_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -22,11 +21,11 @@ class AccountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isCurrent
-        ? Theme.of(context).extension<AccountListTheme>()!.currentAccountBackgroundColor
-        : Theme.of(context).extension<AccountListTheme>()!.tilesBackgroundColor;
+        ? Theme.of(context).colorScheme.primaryContainer
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
     final textColor = isCurrent
-        ? Theme.of(context).extension<AccountListTheme>()!.currentAccountTextColor
-        : Theme.of(context).extension<AccountListTheme>()!.tilesTextColor;
+        ? Theme.of(context).colorScheme.onPrimaryContainer
+        : Theme.of(context).colorScheme.onSurfaceVariant;
 
     final Widget cell = GestureDetector(
       onTap: onTap,
@@ -44,13 +43,12 @@ class AccountTile extends StatelessWidget {
             Container(
               child: Text(
                 accountName,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Lato',
-                  color: textColor,
-                  decoration: TextDecoration.none,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                      decoration: TextDecoration.none,
+                    ),
               ),
             ),
             if (accountBalance != null)
@@ -58,13 +56,12 @@ class AccountTile extends StatelessWidget {
                 child: Text(
                   '${accountBalance.toString()} $currency',
                   textAlign: TextAlign.end,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Lato',
-                    color: Theme.of(context).textTheme.headlineMedium!.color!,
-                    decoration: TextDecoration.none,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).textTheme.headlineMedium!.color!,
+                        decoration: TextDecoration.none,
+                      ),
                 ),
               ),
           ],
@@ -73,24 +70,20 @@ class AccountTile extends StatelessWidget {
     );
 
     // return cell;
-    return Slidable(
-        key: Key(accountName),
-        child: cell,
-        endActionPane: _actionPane(context)
-    );
+    return Slidable(key: Key(accountName), child: cell, endActionPane: _actionPane(context));
   }
 
   ActionPane _actionPane(BuildContext context) => ActionPane(
-    motion: const ScrollMotion(),
-    extentRatio: 0.3,
-    children: [
-      SlidableAction(
-        onPressed: (_) => onEdit.call(),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        icon: Icons.edit,
-        label: S.of(context).edit,
-      ),
-    ],
-  );
+        motion: const ScrollMotion(),
+        extentRatio: 0.3,
+        children: [
+          SlidableAction(
+            onPressed: (_) => onEdit.call(),
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+            icon: Icons.edit,
+            label: S.of(context).edit,
+          ),
+        ],
+      );
 }

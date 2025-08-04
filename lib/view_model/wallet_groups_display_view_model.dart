@@ -1,11 +1,12 @@
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
-import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -47,8 +48,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   @observable
   WalletInfo? selectedSingleWallet;
 
-  @observable
-  String? parentAddress;
 
   @observable
   bool isFetchingMnemonic;
@@ -76,9 +75,6 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         walletToUse.type,
         walletToUse.name,
       );
-
-      parentAddress =
-          isGroupSelected ? selectedWalletGroup!.parentAddress : selectedSingleWallet!.address;
 
       return wallet.seed;
     } catch (e) {
@@ -130,11 +126,18 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         // Check that selected wallet type is not present already in group
         bool isSameTypeAsSelectedWallet = wallet.type == type;
 
+        bool isNonSeedWallet = wallet.isNonSeedWallet;
+
+        bool isNotMoneroBip39Wallet = wallet.type == WalletType.monero &&
+            wallet.derivationInfo?.derivationType != DerivationType.bip39;
+
         // Exclude if any of these conditions are true
         return isNonBIP39Wallet ||
             isNanoDerivationType ||
             isElectrumDerivationType ||
-            isSameTypeAsSelectedWallet;
+            isSameTypeAsSelectedWallet ||
+            isNonSeedWallet ||
+            isNotMoneroBip39Wallet;
       });
 
       if (shouldExcludeGroup) continue;
@@ -160,6 +163,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
+      isHardware: info.isHardwareWallet,
     );
   }
 }

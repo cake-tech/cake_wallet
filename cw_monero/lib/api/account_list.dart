@@ -1,28 +1,37 @@
-import 'package:cw_monero/api/wallet.dart';
-import 'package:monero/monero.dart' as monero;
+import 'dart:async';
 
-monero.wallet? wptr = null;
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_monero/api/wallet.dart';
+import 'package:cw_monero/monero_account_list.dart';
+import 'package:monero/src/wallet2.dart';
+import 'package:monero/src/monero.dart';
+
+Wallet2Wallet? currentWallet = null;
+bool get isViewOnly => int.tryParse(currentWallet!.secretSpendKey()) == 0;
 
 int _wlptrForW = 0;
-monero.WalletListener? _wlptr = null;
+Wallet2WalletListener? _wlptr = null;
 
-monero.WalletListener getWlptr() {
-  if (wptr!.address == _wlptrForW) return _wlptr!;
-  _wlptrForW = wptr!.address;
-  _wlptr = monero.MONERO_cw_getWalletListener(wptr!);
-  return _wlptr!;
+Wallet2WalletListener? getWlptr() {
+  if (currentWallet == null) return null;
+  if (_wlptrForW == currentWallet!.ffiAddress()) {
+    return _wlptr;
+  } else {
+    _wlptrForW = currentWallet!.ffiAddress();
+    _wlptr = currentWallet!.getWalletListener();
+    return _wlptr;
+  }
 }
 
-
-monero.SubaddressAccount? subaddressAccount;
+Wallet2SubaddressAccount? subaddressAccount;
 
 bool isUpdating = false;
 
 void refreshAccounts() {
   try {
     isUpdating = true;
-    subaddressAccount = monero.Wallet_subaddressAccount(wptr!);
-    monero.SubaddressAccount_refresh(subaddressAccount!);
+    subaddressAccount = currentWallet?.subaddressAccount();
+    subaddressAccount?.refresh();
     isUpdating = false;
   } catch (e) {
     isUpdating = false;
@@ -30,43 +39,28 @@ void refreshAccounts() {
   }
 }
 
-List<monero.SubaddressAccountRow> getAllAccount() {
+  List<Wallet2SubaddressAccountRow> getAllAccount() {
   // final size = monero.Wallet_numSubaddressAccounts(wptr!);
   refreshAccounts();
-  int size = monero.SubaddressAccount_getAll_size(subaddressAccount!);
+  int size = subaddressAccount!.getAll_size();
   if (size == 0) {
-    monero.Wallet_addSubaddressAccount(wptr!);
-    return getAllAccount();
+    currentWallet!.addSubaddressAccount();
+    currentWallet!.status();
+    return [];
   }
   return List.generate(size, (index) {
-    return monero.SubaddressAccount_getAll_byIndex(subaddressAccount!, index: index);
+    return subaddressAccount!.getAll_byIndex(index);
   });
 }
 
-void addAccountSync({required String label}) {
-  monero.Wallet_addSubaddressAccount(wptr!, label: label);
+void addAccount({required String label}) {
+  currentWallet!.addSubaddressAccount(label: label);
+  unawaited(store());
 }
 
-void setLabelForAccountSync({required int accountIndex, required String label}) {
-  // TODO(mrcyjanek): this may be wrong function?
-  monero.Wallet_setSubaddressLabel(wptr!, accountIndex: accountIndex, addressIndex: 0, label: label);
-}
-
-void _addAccount(String label) => addAccountSync(label: label);
-
-void _setLabelForAccount(Map<String, dynamic> args) {
-  final label = args['label'] as String;
-  final accountIndex = args['accountIndex'] as int;
-
-  setLabelForAccountSync(label: label, accountIndex: accountIndex);
-}
-
-Future<void> addAccount({required String label}) async {
-  _addAccount(label);
-  await store();
-}
-
-Future<void> setLabelForAccount({required int accountIndex, required String label}) async {
-    _setLabelForAccount({'accountIndex': accountIndex, 'label': label});
-    await store();
+void setLabelForAccount({required int accountIndex, required String label}) {
+  subaddressAccount!.setLabel(accountIndex: accountIndex, label: label);
+  MoneroAccountListBase.cachedAccounts[currentWallet!.ffiAddress()] = [];
+  refreshAccounts();
+  unawaited(store());
 }

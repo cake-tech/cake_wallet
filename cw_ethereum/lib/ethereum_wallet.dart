@@ -27,14 +27,18 @@ class EthereumWallet extends EVMChainWallet {
     super.initialBalance,
     super.privateKey,
     required super.encryptionFileUtils,
+    super.passphrase,
   }) : super(nativeCurrency: CryptoCurrency.eth);
 
   @override
-  void addInitialTokens() {
+  void addInitialTokens([bool isMigration = false]) {
     final initialErc20Tokens = DefaultEthereumErc20Tokens().initialErc20Tokens;
 
-    for (var token in initialErc20Tokens) {
-      evmChainErc20TokensBox.put(token.contractAddress, token);
+    for (final token in initialErc20Tokens) {
+      if (!evmChainErc20TokensBox.containsKey(token.contractAddress)) {
+        if (isMigration) token.enabled = false;
+        evmChainErc20TokensBox.put(token.contractAddress, token);
+      }
     }
   }
 
@@ -75,8 +79,12 @@ class EthereumWallet extends EVMChainWallet {
     await erc20TokensBox.deleteFromDisk();
 
     // Add all the previous tokens with configs to the new box
-    evmChainErc20TokensBox.addAll(allValues);
+    await evmChainErc20TokensBox.addAll(allValues);
   }
+
+  @override
+  List<String> get getDefaultTokenContractAddresses =>
+      DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
 
   @override
   EVMChainTransactionInfo getTransactionInfo(
@@ -114,6 +122,7 @@ class EthereumWallet extends EVMChainWallet {
       enabled: token.enabled,
       tag: token.tag ?? "ETH",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
   }
 
@@ -150,8 +159,9 @@ class EthereumWallet extends EVMChainWallet {
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -166,6 +176,7 @@ class EthereumWallet extends EVMChainWallet {
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
+      passphrase: keysData.passphrase,
       initialBalance: balance,
       client: EthereumClient(),
       encryptionFileUtils: encryptionFileUtils,

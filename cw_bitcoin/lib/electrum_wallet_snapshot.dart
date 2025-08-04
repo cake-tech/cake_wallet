@@ -23,6 +23,8 @@ class ElectrumWalletSnapshot {
     required this.addressPageType,
     required this.silentAddresses,
     required this.silentAddressIndex,
+    required this.mwebAddresses,
+    required this.alwaysScan,
     this.passphrase,
     this.derivationType,
     this.derivationPath,
@@ -44,6 +46,9 @@ class ElectrumWalletSnapshot {
 
   List<BitcoinAddressRecord> addresses;
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
+  List<BitcoinAddressRecord> mwebAddresses;
+  bool alwaysScan;
+
   ElectrumBalance balance;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
@@ -51,15 +56,16 @@ class ElectrumWalletSnapshot {
   DerivationType? derivationType;
   String? derivationPath;
 
-  static Future<ElectrumWalletSnapshot> load(
-      EncryptionFileUtils encryptionFileUtils, String name, WalletType type, String password, BasedUtxoNetwork network) async {
+  static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils, String name,
+      WalletType type, String password, BasedUtxoNetwork network) async {
     final path = await pathForWallet(name: name, type: type);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
-    final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final mnemonic = data['mnemonic'] as String?;
     final xpub = data['xpub'] as String?;
     final passphrase = data['passphrase'] as String? ?? '';
+
+    final addressesTmp = data['addresses'] as List? ?? <Object>[];
     final addresses = addressesTmp
         .whereType<String>()
         .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
@@ -70,6 +76,14 @@ class ElectrumWalletSnapshot {
         .whereType<String>()
         .map((addr) => BitcoinSilentPaymentAddressRecord.fromJSON(addr, network: network))
         .toList();
+
+    final mwebAddressTmp = data['mweb_addresses'] as List? ?? <Object>[];
+    final mwebAddresses = mwebAddressTmp
+        .whereType<String>()
+        .map((addr) => BitcoinAddressRecord.fromJSON(addr, network: network))
+        .toList();
+
+    final alwaysScan = data['alwaysScan'] as bool? ?? false;
 
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?) ??
         ElectrumBalance(confirmed: 0, unconfirmed: 0, frozen: 0);
@@ -113,6 +127,8 @@ class ElectrumWalletSnapshot {
       derivationPath: derivationPath,
       silentAddresses: silentAddresses,
       silentAddressIndex: silentAddressIndex,
+      mwebAddresses: mwebAddresses,
+      alwaysScan: alwaysScan,
     );
   }
 }

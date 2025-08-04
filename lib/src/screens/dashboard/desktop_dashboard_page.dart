@@ -8,7 +8,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/version_comparator.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/pages/balance/balance_page.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/router.dart' as Router;
@@ -35,7 +35,7 @@ class DesktopDashboardPage extends StatelessWidget {
     _setEffects(context);
 
     return Container(
-      color: Theme.of(context).colorScheme.background,
+      color: Theme.of(context).colorScheme.surface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

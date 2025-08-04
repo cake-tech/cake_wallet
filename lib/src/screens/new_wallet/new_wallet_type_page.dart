@@ -3,7 +3,7 @@ import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
@@ -11,8 +11,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_aler
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
@@ -40,15 +39,15 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Function(BuildContext)? get pushToNextWidget => (context) {
-    FocusScopeNode currentFocus = FocusScope.of(context);
-    if (!currentFocus.hasPrimaryFocus) {
-      currentFocus.focusedChild?.unfocus();
-    }
-  };
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
 
   @override
   Widget body(BuildContext context) => WalletTypeForm(
-        walletImage: currentTheme.type == ThemeType.dark ? walletTypeImage : walletTypeLightImage,
+        walletImage: currentTheme.isDark ? walletTypeImage : walletTypeLightImage,
         isCreate: newWalletTypeArguments.isCreate,
         newWalletTypeViewModel: newWalletTypeViewModel,
         onTypeSelected: newWalletTypeArguments.onTypeSelected,
@@ -117,16 +116,14 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               child: Text(
                 S.of(context).choose_wallet_currency,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                ),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(24, 24, 24, 12),
-              child: SearchBarWidget(searchController: searchController, borderRadius: 24),
+              child: SearchBarWidget(searchController: searchController),
             ),
             Expanded(
               child: ScrollableWithBottomSection(
@@ -163,8 +160,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   key: ValueKey('new_wallet_type_next_button_key'),
                   onPressed: () => onTypeSelected(),
                   text: S.of(context).seed_language_next,
-                  color: Theme.of(context).primaryColor,
-                  textColor: Colors.white,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
                   isDisabled: selected == null,
                 ),
               ),

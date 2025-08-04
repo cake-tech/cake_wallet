@@ -32,6 +32,13 @@ class DefaultPolygonErc20Tokens {
       enabled: true,
     ),
     Erc20Token(
+      name: "Decentralized Euro",
+      symbol: "DEURO",
+      contractAddress: "0xC2ff25dD99e467d2589b2c26EDd270F220F14E47",
+      decimal: 18,
+      enabled: true,
+    ),
+    Erc20Token(
       name: "Avalanche Token",
       symbol: "AVAX",
       contractAddress: "0x2C89bbc92BD86F8075d1DEcc58C7F4E0107f286b",
@@ -77,6 +84,6 @@ class DefaultPolygonErc20Tokens {
               .iconPath;
         } catch (_) {}
 
-        return Erc20Token.copyWith(token, iconPath, 'POLY');
+        return Erc20Token.copyWith(token, iconPath, 'POL');
       }).toList();
 }

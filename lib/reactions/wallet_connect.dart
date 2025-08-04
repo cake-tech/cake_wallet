@@ -1,11 +1,24 @@
-import 'package:cake_wallet/core/wallet_connect/chain_service/eth/evm_chain_id.dart';
-import 'package:cake_wallet/core/wallet_connect/chain_service/solana/solana_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_supported_methods.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_chain_id.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
 import 'package:cw_core/wallet_type.dart';
 
 bool isEVMCompatibleChain(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
     case WalletType.ethereum:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool isNFTACtivatedChain(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.polygon:
+    case WalletType.ethereum:
+    case WalletType.solana:
       return true;
     default:
       return false;
@@ -36,6 +49,19 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType) {
   }
 }
 
+List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.ethereum:
+      return EVMSupportedMethods.values.map((e) => e.name).toList();
+    case WalletType.polygon:
+      return EVMSupportedMethods.values.map((e) => e.name).toList();
+    case WalletType.solana:
+      return SolanaSupportedMethods.values.map((e) => e.name).toList();
+    default:
+      return [];
+  }
+}
+
 int getChainIdBasedOnWalletType(WalletType walletType) {
   switch (walletType) {
     case WalletType.polygon:
@@ -55,7 +81,7 @@ String getChainNameBasedOnWalletType(WalletType walletType) {
     case WalletType.polygon:
       return 'polygon';
     case WalletType.solana:
-      return 'solana';
+      return 'mainnet';
     default:
       return '';
   }

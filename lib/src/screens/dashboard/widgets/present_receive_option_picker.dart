@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/rounded_checkbox.dart';
+import 'package:cake_wallet/src/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -26,10 +25,10 @@ class PresentReceiveOptionPicker extends StatelessWidget {
     return TextButton(
       onPressed: () => _showPicker(context),
       style: ButtonStyle(
-        padding: MaterialStateProperty.all(EdgeInsets.zero),
+        padding: WidgetStateProperty.all(EdgeInsets.zero),
         splashFactory: NoSplash.splashFactory,
-        foregroundColor: MaterialStateProperty.all(Colors.transparent),
-        overlayColor: MaterialStateProperty.all(Colors.transparent),
+        foregroundColor: WidgetStateProperty.all(Colors.transparent),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -41,18 +40,27 @@ class PresentReceiveOptionPicker extends StatelessWidget {
             children: <Widget>[
               Text(
                 S.current.receive,
-                style: TextStyle(
-                    fontSize: 18.0, fontWeight: FontWeight.bold, fontFamily: 'Lato', color: color),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
               ),
               Observer(
-                  builder: (_) => Text(
-                      receiveOptionViewModel.selectedReceiveOption
-                          .toString()
-                          .replaceAll(RegExp(r'silent payments', caseSensitive: false),
-                              S.current.silent_payments)
-                          .replaceAll(
-                              RegExp(r'default', caseSensitive: false), S.current.string_default),
-                      style: TextStyle(fontSize: 10.0, fontWeight: FontWeight.w500, color: color)))
+                builder: (_) => Text(
+                  receiveOptionViewModel.selectedReceiveOption
+                      .toString()
+                      .replaceAll(RegExp(r'silent payments', caseSensitive: false),
+                          S.current.silent_payments)
+                      .replaceAll(
+                          RegExp(r'default', caseSensitive: false), S.current.string_default),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 10.0,
+                        fontWeight: FontWeight.w500,
+                        color: color,
+                      ),
+                ),
+              )
             ],
           ),
           SizedBox(width: 5),
@@ -83,7 +91,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                     margin: EdgeInsets.symmetric(horizontal: 24),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
-                      color: Theme.of(context).colorScheme.background,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.only(top: 24, bottom: 24),
@@ -117,9 +125,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
                                                 S.current.string_default),
                                         textAlign: TextAlign.left,
                                         style: textSmall(
-                                          color: Theme.of(context)
-                                              .extension<CakeTextTheme>()!
-                                              .titleColor,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ).copyWith(
                                           fontWeight:
                                               value == option ? FontWeight.w800 : FontWeight.w500,

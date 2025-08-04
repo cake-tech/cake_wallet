@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import './print_verbose_dummy.dart';
+
 import 'utils/translation/arb_file_utils.dart';
 import 'utils/translation/translation_constants.dart';
 import 'utils/translation/translation_utils.dart';
@@ -32,5 +34,5 @@ void main(List<String> args) async {
   }
 
   appendStringsToArbFile(targetFileName, translations);
-  print("Success! Please add your Language Code to lib/entities/language_service.dart");
+  printV("Success! Please add your Language Code to lib/entities/language_service.dart");
 }

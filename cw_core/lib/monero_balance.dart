@@ -3,36 +3,25 @@ import 'package:cw_core/monero_amount_format.dart';
 
 class MoneroBalance extends Balance {
   MoneroBalance({required this.fullBalance, required this.unlockedBalance, this.frozenBalance = 0})
-      : formattedFullBalance = moneroAmountToString(amount: fullBalance),
-        formattedUnlockedBalance = moneroAmountToString(amount: unlockedBalance - frozenBalance),
-        formattedLockedBalance =
-            moneroAmountToString(amount: frozenBalance + fullBalance - unlockedBalance),
+      : formattedUnconfirmedBalance = moneroAmountToString(amount: fullBalance - unlockedBalance),
+        formattedUnlockedBalance = moneroAmountToString(amount: unlockedBalance),
+        formattedFrozenBalance = moneroAmountToString(amount: frozenBalance),
         super(unlockedBalance, fullBalance);
-
-  MoneroBalance.fromString(
-      {required this.formattedFullBalance,
-      required this.formattedUnlockedBalance,
-      this.formattedLockedBalance = '0.0'})
-      : fullBalance = moneroParseAmount(amount: formattedFullBalance),
-        unlockedBalance = moneroParseAmount(amount: formattedUnlockedBalance),
-        frozenBalance = moneroParseAmount(amount: formattedLockedBalance),
-        super(moneroParseAmount(amount: formattedUnlockedBalance),
-            moneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
   final int unlockedBalance;
   final int frozenBalance;
-  final String formattedFullBalance;
+  final String formattedUnconfirmedBalance;
   final String formattedUnlockedBalance;
-  final String formattedLockedBalance;
+  final String formattedFrozenBalance;
 
   @override
   String get formattedUnAvailableBalance =>
-      formattedLockedBalance == '0.0' ? '' : formattedLockedBalance;
+      formattedFrozenBalance == '0.0' ? '' : formattedFrozenBalance;
 
   @override
   String get formattedAvailableBalance => formattedUnlockedBalance;
 
   @override
-  String get formattedAdditionalBalance => formattedFullBalance;
+  String get formattedAdditionalBalance => formattedUnconfirmedBalance;
 }

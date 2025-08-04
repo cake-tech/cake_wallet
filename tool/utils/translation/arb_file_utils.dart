@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-void appendStringToArbFile(String fileName, String name, String text) {
+import '../../print_verbose_dummy.dart';
+
+void appendStringToArbFile(String fileName, String name, String text, {bool force = false}) {
   final file = File(fileName);
   final arbObj = readArbFile(file);
 
-  if (arbObj.containsKey(name)) {
-    print("String $name already exists in $fileName!");
+  if (arbObj.containsKey(name) && !force) {
+    printV("String $name already exists in $fileName!");
     return;
   }
 

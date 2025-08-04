@@ -36,20 +36,21 @@ class NanoAccountListPage extends StatelessWidget {
                 final account = accounts[index];
 
                 return AccountTile(
-                    isCurrent: account.isSelected,
-                    accountName: account.label,
-                    accountBalance: account.balance ?? '0.00',
-                    currency: accountListViewModel.currency.toString(),
-                    onTap: () {
-                      if (account.isSelected) {
-                        return;
-                      }
+                  isCurrent: account.isSelected,
+                  accountName: account.label,
+                  accountBalance: account.balance ?? '0.00',
+                  currency: accountListViewModel.currency.toString(),
+                  onTap: () {
+                    if (account.isSelected) {
+                      return;
+                    }
 
-                      accountListViewModel.select(account);
-                      Navigator.of(context).pop();
-                    },
-                    onEdit: () async => await Navigator.of(context)
-                        .pushNamed(Routes.nanoAccountCreation, arguments: account));
+                    accountListViewModel.select(account);
+                    Navigator.of(context).pop();
+                  },
+                  onEdit: () async => await Navigator.of(context)
+                      .pushNamed(Routes.nanoAccountCreation, arguments: account),
+                );
               },
             ),
           )),
@@ -57,7 +58,7 @@ class NanoAccountListPage extends StatelessWidget {
             onTap: () async => await Navigator.of(context).pushNamed(Routes.nanoAccountCreation),
             child: Container(
               height: buttonHeight,
-              color: Theme.of(context).cardColor,
+              color: Theme.of(context).colorScheme.primary,
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Center(
                 child: Row(
@@ -65,19 +66,18 @@ class NanoAccountListPage extends StatelessWidget {
                   children: <Widget>[
                     Icon(
                       Icons.add,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 5),
                       child: Text(
                         S.of(context).create_new_account,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Lato',
-                          color: Colors.white,
-                          decoration: TextDecoration.none,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.none,
+                            ),
                       ),
                     )
                   ],

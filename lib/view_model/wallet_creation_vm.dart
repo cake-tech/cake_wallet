@@ -2,14 +2,17 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
+import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
+import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -56,15 +59,15 @@ abstract class WalletCreationVMBase with Store {
   final SeedSettingsViewModel seedSettingsViewModel;
 
   bool isPolyseed(String seed) =>
-      (type == WalletType.monero || type == WalletType.wownero) &&
+      [WalletType.monero, WalletType.wownero].contains(type) &&
       (Polyseed.isValidSeed(seed) || (seed.split(" ").length == 14));
 
   bool nameExists(String name) => walletCreationService.exists(name);
 
   bool typeExists(WalletType type) => walletCreationService.typeExists(type);
 
-  Future<void> create({dynamic options, RestoredWallet? restoreWallet}) async {
-    final type = restoreWallet?.type ?? this.type;
+  Future<void> create({dynamic options}) async {
+    final type = this.type;
     try {
       state = IsExecutingState();
       if (name.isEmpty) {
@@ -82,9 +85,8 @@ abstract class WalletCreationVMBase with Store {
       walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
-      final credentials = restoreWallet != null
-          ? getCredentialsFromRestoredWallet(options, restoreWallet)
-          : getCredentials(options);
+
+      final credentials = getCredentials(options);
 
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
@@ -99,21 +101,27 @@ abstract class WalletCreationVMBase with Store {
         showIntroCakePayCard: (!walletCreationService.typeExists(type)) && type != WalletType.haven,
         derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
         hardwareWalletType: credentials.hardwareWalletType,
-        parentAddress: credentials.parentAddress,
       );
 
       credentials.walletInfo = walletInfo;
-      final wallet = restoreWallet != null
-          ? await processFromRestoredWallet(credentials, restoreWallet)
-          : await process(credentials);
+      final wallet = await process(credentials);
+
+      final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
+      walletInfo.isNonSeedWallet = isNonSeedWallet;
+      walletInfo.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);
-      getIt.get<BackgroundTasks>().registerSyncTask();
-      _appStore.authenticationStore.allowed();
+      _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
-    } catch (e, _) {
-      state = FailureState(e.toString());
+    } catch (e, s) {
+      printV("error: $e");
+      printV("stack: $s");
+      String message = e.toString();
+      if (e is RestoreFromSeedException) {
+        message = e.message;
+      }
+      state = FailureState(message);
     }
   }
 
@@ -185,17 +193,40 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
+  Future<List<DerivationInfo>> getDerivationInfoFromQRCredentials(
+      RestoredWallet restoreWallet) async {
+    var list = <DerivationInfo>[];
+    final walletType = restoreWallet.type;
+    var appStore = getIt.get<AppStore>();
+    var node = appStore.settingsStore.getCurrentNode(walletType);
+
+    switch (walletType) {
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        final derivationList = await bitcoin!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+          passphrase: restoreWallet.passphrase,
+        );
+
+        if (derivationList.firstOrNull?.transactionsCount == 0 && derivationList.length > 1)
+          return [];
+        return derivationList;
+
+      case WalletType.nano:
+        return nanoUtil!.getDerivationsFromMnemonic(
+          mnemonic: restoreWallet.mnemonicSeed!,
+          node: node,
+        );
+      default:
+        break;
+    }
+    return list;
+  }
+
   WalletCredentials getCredentials(dynamic options) => throw UnimplementedError();
 
   Future<WalletBase> process(WalletCredentials credentials) => throw UnimplementedError();
-
-  WalletCredentials getCredentialsFromRestoredWallet(
-          dynamic options, RestoredWallet restoreWallet) =>
-      throw UnimplementedError();
-
-  Future<WalletBase> processFromRestoredWallet(
-          WalletCredentials credentials, RestoredWallet restoreWallet) =>
-      throw UnimplementedError();
 
   @action
   void toggleUseTestnet(bool? value) {

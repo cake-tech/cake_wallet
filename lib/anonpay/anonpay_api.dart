@@ -6,8 +6,9 @@ import 'package:cake_wallet/anonpay/anonpay_status_response.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -20,17 +21,21 @@ class AnonPayApi {
   final WalletBase wallet;
 
   static const anonpayRef = secrets.anonPayReferralCode;
-  static const onionApiAuthority = 'tqzngtf2hybjbexznel6dhgsvbynjzezoybvtv6iofomx7gchqfssgqd.onion';
   static const clearNetAuthority = 'trocador.app';
+  // static const onionApiAuthority = 'tqzngtf2hybjbexznel6dhgsvbynjzezoybvtv6iofomx7gchqfssgqd.onion';
+  static const onionApiAuthority = clearNetAuthority;
   static const markup = secrets.trocadorExchangeMarkup;
   static const anonPayPath = '/anonpay';
   static const anonPayStatus = '/anonpay/status';
   static const coinPath = 'api/coin';
-  static const apiKey = secrets.trocadorApiKey;
+  static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
 
   Future<AnonpayStatusResponse> paymentStatus(String id) async {
-    final authority = await _getAuthority();
-    final response = await get(Uri.https(authority, "$anonPayStatus/$id"));
+    final response = await ProxyWrapper().get(
+      clearnetUri: Uri.https(clearNetAuthority, "$anonPayStatus/$id"),
+      onionUri: Uri.https(onionApiAuthority, "$anonPayStatus/$id"),
+    );
+    
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final status = responseJSON['Status'] as String;
     final fiatAmount = responseJSON['Fiat_Amount'] as double?;
@@ -69,10 +74,11 @@ class AnonPayApi {
     if (request.fiatEquivalent != null) {
       body['fiat_equiv'] = request.fiatEquivalent;
     }
-    final authority = await _getAuthority();
-
-    final response = await get(Uri.https(authority, anonPayPath, body));
-
+    final response = await ProxyWrapper().get(
+      clearnetUri: Uri.https(clearNetAuthority, anonPayPath, body),
+      onionUri: Uri.https(onionApiAuthority, anonPayPath, body),
+    );
+    
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['ID'] as String;
     final url = responseJSON['url'] as String;
@@ -146,16 +152,15 @@ class AnonPayApi {
       'name': cryptoCurrency.name,
     };
 
-    final String apiAuthority = await _getAuthority();
-    final uri = Uri.https(apiAuthority, coinPath, params);
-
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(
+      clearnetUri: Uri.https(clearNetAuthority, coinPath, params),
+      onionUri: Uri.https(onionApiAuthority, coinPath, params),
+    );
+    
+    final responseJSON = json.decode(response.body) as List<dynamic>;
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
-
-    final responseJSON = json.decode(response.body) as List<dynamic>;
 
     if (responseJSON.isEmpty) {
       throw Exception('No data');
@@ -195,19 +200,6 @@ class AnonPayApi {
         return 'ERC20';
       default:
         return tag.toLowerCase();
-    }
-  }
-
-  Future<String> _getAuthority() async {
-    try {
-      if (useTorOnly) {
-        return onionApiAuthority;
-      }
-      final uri = Uri.https(onionApiAuthority, '/anonpay');
-      await get(uri);
-      return onionApiAuthority;
-    } catch (e) {
-      return clearNetAuthority;
     }
   }
 }

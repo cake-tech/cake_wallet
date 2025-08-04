@@ -1,9 +1,13 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/bip/bip/bip32/bip32.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/utils.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
+import 'package:payjoin_flutter/receive.dart' as payjoin;
 
 part 'bitcoin_wallet_addresses.g.dart';
 
@@ -15,6 +19,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     required super.mainHd,
     required super.sideHd,
     required super.network,
+    required super.isHardwareWallet,
+    required this.payjoinManager,
     super.initialAddresses,
     super.initialRegularAddressIndex,
     super.initialChangeAddressIndex,
@@ -23,9 +29,19 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.masterHd,
   }) : super(walletInfo);
 
+  final PayjoinManager payjoinManager;
+
+  payjoin.Receiver? currentPayjoinReceiver;
+
+  @observable
+  String? payjoinEndpoint = null;
+
   @override
   String getAddress(
-      {required int index, required Bip32Slip10Secp256k1 hd, BitcoinAddressType? addressType}) {
+      {required int index,
+      required Bip32Slip10Secp256k1 hd,
+      BitcoinAddressType? addressType,
+      UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     if (addressType == P2pkhAddressType.p2pkh)
       return generateP2PKHAddress(hd: hd, index: index, network: network);
 
@@ -39,5 +55,37 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       return generateP2SHAddress(hd: hd, index: index, network: network);
 
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
+  }
+
+  bool _isPayjoinConnectivityError(String error) =>
+      ["error sending request for url", "Instance of 'FfiIoError'"].any((e) => error.contains(e));
+
+  @action
+  Future<void> initPayjoin() async {
+    try {
+      await payjoinManager.initPayjoin();
+      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
+      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+
+      payjoinManager.resumeSessions();
+    } catch (e) {
+      printV(e);
+      // Ignore Connectivity errors
+      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
+    }
+  }
+
+  @action
+  Future<void> newPayjoinReceiver() async {
+    try {
+      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
+      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+
+      payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);
+    } catch (e) {
+      printV(e);
+      // Ignore Connectivity errors
+      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
+    }
   }
 }

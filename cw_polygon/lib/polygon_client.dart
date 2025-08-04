@@ -14,11 +14,26 @@ class PolygonClient extends EVMChainClient {
     required EtherAmount amount,
     EtherAmount? maxPriorityFeePerGas,
     Uint8List? data,
+    int? maxGas,
+    EtherAmount? gasPrice,
+    EtherAmount? maxFeePerGas,
   }) {
+    EtherAmount? finalGasPrice = gasPrice;
+
+    if (gasPrice == null && maxFeePerGas != null) {
+      // If we have EIP-1559 parameters but no legacy gasPrice, then use maxFeePerGas as gasPrice
+      finalGasPrice = maxFeePerGas;
+    }
+    
     return Transaction(
       from: from,
       to: to,
       value: amount,
+      data: data,
+      maxGas: maxGas,
+      gasPrice: finalGasPrice,
+      // maxFeePerGas: maxFeePerGas,
+      // maxPriorityFeePerGas: maxPriorityFeePerGas,
     );
   }
 
@@ -32,12 +47,13 @@ class PolygonClient extends EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response = await httpClient.get(Uri.https("api.polygonscan.com", "/api", {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
+        "chainid": "$chainId",
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
         if (contractAddress != null) "contractaddress": contractAddress,
         "address": address,
-        "apikey": secrets.polygonScanApiKey,
+        "apikey": secrets.etherScanApiKey,
       }));
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
@@ -59,11 +75,12 @@ class PolygonClient extends EVMChainClient {
   @override
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
-      final response = await httpClient.get(Uri.https("api.polygonscan.io", "/api", {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
+        "chainid": "$chainId",
         "module": "account",
         "action": "txlistinternal",
         "address": address,
-        "apikey": secrets.polygonScanApiKey,
+        "apikey": secrets.etherScanApiKey,
       }));
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;

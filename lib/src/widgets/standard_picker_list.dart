@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/themes/extensions/picker_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardPickerList<T> extends StatefulWidget {
@@ -68,7 +67,7 @@ class _StandardPickerListState<T> extends State<StandardPickerList<T>> {
             mainAxisAlignment: MainAxisAlignment.center,
             sliderValue: customValue,
             isWrapped: false,
-            borderColor: Theme.of(context).extension<PickerTheme>()!.dividerColor,
+            borderColor: Theme.of(context).colorScheme.outlineVariant,
             onSliderChanged: (newValue) {
               setState(() => customValue = newValue);
               value = widget.onSliderChanged(newValue).toString();

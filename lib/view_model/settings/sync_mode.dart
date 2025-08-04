@@ -1,4 +1,4 @@
-enum SyncType { disabled, unobtrusive, aggressive }
+enum SyncType { aggresive, hourly, daily }
 
 class SyncMode {
   SyncMode(this.name, this.type, this.frequency);
@@ -8,8 +8,10 @@ class SyncMode {
   final Duration frequency;
 
   static final all = [
-    SyncMode("Disabled", SyncType.disabled, Duration.zero),
-    SyncMode("Unobtrusive", SyncType.unobtrusive, Duration(hours: 12)),
-    SyncMode("Aggressive", SyncType.aggressive, Duration(hours: 3)),
+    // **Technically** we could call aggressive option "15 minutes" but OS may "not feel like it",
+    // so instead we will call it aggressive so user knows that it will be as frequent as possible.
+    SyncMode("Aggressive", SyncType.aggresive, Duration(minutes: 15)),
+    SyncMode("Hourly", SyncType.hourly, Duration(hours: 1)),
+    SyncMode("Daily", SyncType.daily, Duration(hours: 18)), // yes this is straight up lie.
   ];
 }

@@ -6,7 +6,6 @@ import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
-import 'package:cake_wallet/themes/extensions/menu_theme.dart';
 
 final _settingsNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -20,7 +19,7 @@ class DesktopSettingsPage extends StatefulWidget {
 }
 
 class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
-  final int itemCount = SettingActions.desktopSettings.length;
+  final int itemCount = SettingActions.all.length;
 
   int? currentPage;
 
@@ -34,6 +33,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        color: Theme.of(context).colorScheme.surface,
         height: MediaQuery.of(context).size.height,
         child: Row(
           children: [
@@ -53,10 +53,17 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                     child: ListView.separated(
                       padding: EdgeInsets.only(top: 0),
                       itemBuilder: (_, index) {
-                        final item = SettingActions.desktopSettings[index];
+                        final item = SettingActions.all[index];
 
                         if (!widget.dashboardViewModel.hasSilentPayments &&
                             item.name(context) == S.of(context).silent_payments_settings) {
+                          return Container();
+                        }
+
+                        if ((!widget.dashboardViewModel.isMoneroViewOnly &&
+                            item.name(context) == S.of(context).export_outputs) ||
+                           (!widget.dashboardViewModel.hasMweb &&
+                            item.name(context) == S.of(context).litecoin_mweb_settings)) {
                           return Container();
                         }
 
@@ -79,8 +86,8 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                         );
                       },
                       separatorBuilder: (_, index) => Container(
-                        height: 1,
-                        color: Theme.of(context).extension<CakeMenuTheme>()!.dividerColor,
+                        height: 0.0,
+                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       itemCount: itemCount,
                     ),

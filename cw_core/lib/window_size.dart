@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/services.dart';
 
 const MethodChannel _channel = MethodChannel('com.cake_wallet/native_utils');
@@ -14,9 +15,9 @@ Future<void> setDefaultMinimumWindowSize() async {
     ) as bool;
 
     if (!result) {
-      print("Failed to set minimum window size.");
+      printV("Failed to set minimum window size.");
     }
   } on PlatformException catch (e) {
-    print("Failed to set minimum window size: '${e.message}'.");
+    printV("Failed to set minimum window size: '${e.message}'.");
   }
 }

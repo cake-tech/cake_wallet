@@ -8,6 +8,7 @@ import 'package:cw_core/sec_random_native.dart';
 import 'package:cw_core/utils/text_normalizer.dart';
 
 const segwit = '100';
+const mweb = 'eb';
 final wordlist = englishWordlist;
 
 double logBase(num x, num base) => log(x) / log(base);
@@ -125,7 +126,7 @@ Future<Uint8List> mnemonicToSeedBytes(String mnemonic,
   return Uint8List.fromList(bytes);
 }
 
-bool matchesAnyPrefix(String mnemonic) => prefixMatches(mnemonic, [segwit]).any((el) => el);
+bool matchesAnyPrefix(String mnemonic) => prefixMatches(mnemonic, [segwit, mweb]).any((el) => el);
 
 bool validateMnemonic(String mnemonic, {String prefix = segwit}) {
   try {

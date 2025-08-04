@@ -65,29 +65,32 @@ class LinkViewModel {
     if (isNanoGptLink) {
       switch (currentLink?.authority ?? '') {
         case "exchange":
-        case "send":
           return PaymentRequest.fromUri(currentLink);
+        case "send":
+          return {"paymentRequest": PaymentRequest.fromUri(currentLink)};
         case "buy":
           return true;
       }
     }
 
     if (_isValidPaymentUri) {
-      return PaymentRequest.fromUri(currentLink);
+      return {"paymentRequest": PaymentRequest.fromUri(currentLink)};
     }
 
     return null;
   }
 
   Future<void> _errorToast(String message, {double fontSize = 16}) async {
-    Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.SNACKBAR,
-      backgroundColor: Colors.black,
-      textColor: Colors.white,
-      fontSize: fontSize,
-    );
+    try {
+      await Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: fontSize,
+      );
+    } catch (_) {}
   }
 
   Future<void> handleLink() async {

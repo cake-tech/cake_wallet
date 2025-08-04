@@ -8,6 +8,8 @@ import 'choose_yat_address_alert.dart';
 Future<String> extractAddressFromParsed(
     BuildContext context,
     ParsedAddress parsedAddress) async {
+  if (!context.mounted) return parsedAddress.addresses.first;
+
   var title = '';
   var content = '';
   var address = '';
@@ -28,6 +30,11 @@ Future<String> extractAddressFromParsed(
     case ParseFrom.openAlias:
       title = S.of(context).address_detected;
       content = S.of(context).extracted_address_content('${parsedAddress.name} (OpenAlias)');
+      address = parsedAddress.addresses.first;
+      break;
+    case ParseFrom.wellKnown:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Well-Known)');
       address = parsedAddress.addresses.first;
       break;
     case ParseFrom.fio:
@@ -61,6 +68,16 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).extracted_address_content('${parsedAddress.name} (ThorChain)');
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.zanoAlias:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Zano Alias)');
+      address = parsedAddress.addresses.first;
+      break;
+    case ParseFrom.bip353:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (BIP-353)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
         title = S.of(context).yat_error;
@@ -80,16 +97,17 @@ Future<String> extractAddressFromParsed(
       content += S.of(context).choose_address;
 
       address = await showPopUp<String?>(
-          context: context,
-          builder: (BuildContext context) {
-
-            return WillPopScope(
+            context: context,
+            builder: (context) => PopScope(
               child: ChooseYatAddressAlert(
                 alertTitle: title,
                 alertContent: content,
-                addresses: parsedAddress.addresses),
-              onWillPop: () async => false);
-          }) ?? '';
+                addresses: parsedAddress.addresses,
+              ),
+              canPop: false,
+            ),
+          ) ??
+          '';
 
       if (address.isEmpty) {
         return parsedAddress.name;
@@ -98,22 +116,20 @@ Future<String> extractAddressFromParsed(
       return address;
     case ParseFrom.contact:
     case ParseFrom.notParsed:
-      address = parsedAddress.addresses.first;
-      return address;
+      return parsedAddress.addresses.first;
   }
 
   await showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-
-        return AlertWithOneAction(
-            alertTitle: title,
-            headerTitleText: profileName.isEmpty ? null : profileName,
-            headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
-            alertContent: content,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop());
-      });
+    context: context,
+    builder: (context) => AlertWithOneAction(
+      alertTitle: title,
+      headerTitleText: profileName.isEmpty ? null : profileName,
+      headerImageProfileUrl: profileImageUrl.isEmpty ? null : profileImageUrl,
+      alertContent: content,
+      buttonText: S.of(context).ok,
+      buttonAction: () => Navigator.of(context).pop(),
+    ),
+  );
 
   return address;
 }

@@ -4,7 +4,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cw_core/wallet_type.dart';
 
 part 'wallet_address_edit_or_create_view_model.g.dart';
@@ -27,13 +27,12 @@ class AddressEditOrCreateStateFailure extends AddressEditOrCreateState {
 }
 
 abstract class WalletAddressEditOrCreateViewModelBase with Store {
-  WalletAddressEditOrCreateViewModelBase(
-      {required WalletBase wallet, WalletAddressListItem? item})
+  WalletAddressEditOrCreateViewModelBase({required WalletBase wallet, WalletAddressListItem? item})
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
         label = item?.name ?? '',
         _item = item,
-         _wallet = wallet;
+        _wallet = wallet;
 
   @observable
   AddressEditOrCreateState state;
@@ -46,7 +45,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   final WalletAddressListItem? _item;
   final WalletBase _wallet;
 
-  bool get isElectrum => _wallet.type == WalletType.bitcoin ||
+  bool get isElectrum =>
+      _wallet.type == WalletType.bitcoin ||
       _wallet.type == WalletType.bitcoinCash ||
       _wallet.type == WalletType.litecoin;
 
@@ -69,35 +69,39 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _createNew() async {
     final wallet = _wallet;
 
-    if (isElectrum) await bitcoin!.generateNewAddress(wallet, label);
+    if (isElectrum) {
+      await bitcoin!.generateNewAddress(wallet, label);
+      await wallet.save();
+    }
+
+    if (wallet.type == WalletType.decred) {
+      await decred!.generateNewAddress(wallet, label);
+      await wallet.save();
+    }
 
     if (wallet.type == WalletType.monero) {
-      await monero
-          !.getSubaddressList(wallet)
-          .addSubaddress(
-            wallet,
-            accountIndex: monero!.getCurrentAccount(wallet).id,
-            label: label);
+      await monero!
+          .getSubaddressList(wallet)
+          .addSubaddress(wallet, accountIndex: monero!.getCurrentAccount(wallet).id, label: label);
+      final addr = await monero!
+          .getSubaddressList(wallet)
+          .subaddresses
+          .first
+          .address; // first because the order is reversed
+      wallet.walletAddresses.manualAddresses.add(addr);
       await wallet.save();
     }
 
     if (wallet.type == WalletType.wownero) {
-      await wownero
-          !.getSubaddressList(wallet)
-          .addSubaddress(
-            wallet,
-            accountIndex: wownero!.getCurrentAccount(wallet).id,
-            label: label);
-      await wallet.save();
-    }
-
-    if (wallet.type == WalletType.haven) {
-      await haven
-          !.getSubaddressList(wallet)
-          .addSubaddress(
-            wallet,
-            accountIndex: haven!.getCurrentAccount(wallet).id,
-            label: label);
+      await wownero!
+          .getSubaddressList(wallet)
+          .addSubaddress(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id, label: label);
+      final addr = await wownero!
+          .getSubaddressList(wallet)
+          .subaddresses
+          .first
+          .address; // first because the order is reversed
+      wallet.walletAddresses.manualAddresses.add(addr);
       await wallet.save();
     }
   }
@@ -106,6 +110,12 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     final wallet = _wallet;
 
     if (isElectrum) await bitcoin!.updateAddress(wallet, _item!.address, label);
+
+    if (wallet.type == WalletType.decred) {
+      await decred!.updateAddress(wallet, _item!.address, label);
+      await wallet.save();
+      return;
+    }
 
     final index = _item?.id;
     if (index != null) {
@@ -117,13 +127,6 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       if (wallet.type == WalletType.wownero) {
         await wownero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
             accountIndex: wownero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
-        await wallet.save();
-      }
-      if (wallet.type == WalletType.haven) {
-        await haven!.getSubaddressList(wallet).setLabelSubaddress(wallet,
-            accountIndex: haven!.getCurrentAccount(wallet).id,
-            addressIndex: index,
-            label: label);
         await wallet.save();
       }
     }

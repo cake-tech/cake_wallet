@@ -1,9 +1,6 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/buy/get_buy_provider_icon.dart';
-import 'package:cake_wallet/themes/extensions/order_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/themes/extensions/dashboard_page_theme.dart';
 
 class OrderRow extends StatelessWidget {
   OrderRow({
@@ -12,7 +9,10 @@ class OrderRow extends StatelessWidget {
     required this.to,
     required this.createdAtFormattedDate,
     this.onTap,
-    this.formattedAmount});
+    this.formattedAmount,
+    super.key,
+  });
+
   final VoidCallback? onTap;
   final BuyProviderDescription provider;
   final String from;
@@ -22,60 +22,64 @@ class OrderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
-        Theme.of(context).extension<OrderTheme>()!.iconColor;
+    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
 
     return InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
-          color: Colors.transparent,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (providerIcon != null) Padding(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
+        color: Colors.transparent,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (providerIcon != null)
+              Padding(
                 padding: EdgeInsets.only(right: 12),
                 child: providerIcon,
               ),
-              Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text('$from → $to',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                )),
-                            formattedAmount != null
-                                ? Text(formattedAmount! + ' ' + to,
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).extension<DashboardPageTheme>()!.textColor
-                                ))
-                                : Container()
-                          ]),
-                      SizedBox(height: 5),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(createdAtFormattedDate,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
-                          ])
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+                    Text(
+                      '$from → $to',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    formattedAmount != null
+                        ? Text(
+                            formattedAmount! + ' ' + to,
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          )
+                        : Container()
+                  ]),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        createdAtFormattedDate,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
                     ],
                   )
-              )
-            ],
-          ),
-        ));
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

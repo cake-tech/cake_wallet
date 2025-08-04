@@ -12,7 +12,10 @@ enum ParseFrom {
   contact,
   mastodon,
   nostr,
-  thorChain
+  thorChain,
+  wellKnown,
+  zanoAlias,
+  bip353
 }
 
 class ParsedAddress {
@@ -23,6 +26,7 @@ class ParsedAddress {
     this.profileImageUrl = '',
     this.profileName = '',
     this.parseFrom = ParseFrom.notParsed,
+    this.bip353DnsProof,
   });
 
   factory ParsedAddress.fetchEmojiAddress({
@@ -50,6 +54,19 @@ class ParsedAddress {
       addresses: [address!],
       name: name,
       parseFrom: ParseFrom.unstoppableDomains,
+    );
+  }
+
+  factory ParsedAddress.fetchBip353AddressAddress ({
+    required String address,
+    required String name,
+    String? dnsProof,
+  }) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.bip353,
+      bip353DnsProof: dnsProof,
     );
   }
 
@@ -142,10 +159,27 @@ class ParsedAddress {
     );
   }
 
+  factory ParsedAddress.zanoAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.zanoAlias,
+    );
+  }
+
+  factory ParsedAddress.fetchWellKnownAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.wellKnown,
+    );
+  }
+
   final List<String> addresses;
   final String name;
   final String description;
   final String profileImageUrl;
   final String profileName;
   final ParseFrom parseFrom;
+  final String? bip353DnsProof;
 }

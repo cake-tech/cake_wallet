@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -6,6 +5,7 @@ class AlertWithTwoActions extends BaseAlertDialog {
   AlertWithTwoActions({
     required this.alertTitle,
     required this.alertContent,
+    this.alertContentTextWidget,
     required this.leftButtonText,
     required this.rightButtonText,
     required this.actionLeftButton,
@@ -21,6 +21,7 @@ class AlertWithTwoActions extends BaseAlertDialog {
 
   final String alertTitle;
   final String alertContent;
+  final Widget? alertContentTextWidget;
   final String leftButtonText;
   final String rightButtonText;
   final VoidCallback actionLeftButton;
@@ -37,6 +38,8 @@ class AlertWithTwoActions extends BaseAlertDialog {
   String get titleText => alertTitle;
   @override
   String get contentText => alertContent;
+  @override
+  Widget? get contentTextWidget => alertContentTextWidget;
   @override
   String get leftActionButtonText => leftButtonText;
   @override

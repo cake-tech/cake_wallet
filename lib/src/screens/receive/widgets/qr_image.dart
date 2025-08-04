@@ -1,3 +1,4 @@
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
@@ -8,7 +9,7 @@ class QrImage extends StatelessWidget {
     this.backgroundColor = Colors.white,
     this.size = 100.0,
     this.version,
-    this.errorCorrectionLevel = qr.QrErrorCorrectLevel.L,
+    this.errorCorrectionLevel = qr.QrErrorCorrectLevel.H,
   });
 
   final double size;
@@ -23,11 +24,12 @@ class QrImage extends StatelessWidget {
     return qr.QrImageView(
       data: data,
       errorCorrectionLevel: errorCorrectionLevel,
-      version: version ?? 9, // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
+      version: version ?? qr.QrVersions.auto,
       size: size,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
       padding: const EdgeInsets.all(8.0),
+      embeddedImage: AssetImage('assets/images/qr-cake.png'),
     );
   }
 }

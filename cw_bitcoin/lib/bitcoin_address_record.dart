@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:mobx/mobx.dart';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 
@@ -16,7 +17,7 @@ abstract class BaseBitcoinAddressRecord {
   })  : _txCount = txCount,
         _balance = balance,
         _name = name,
-        _isUsed = isUsed;
+        _isUsed = Observable(isUsed);
 
   @override
   bool operator ==(Object o) => o is BaseBitcoinAddressRecord && address == o.address;
@@ -27,7 +28,7 @@ abstract class BaseBitcoinAddressRecord {
   int _txCount;
   int _balance;
   String _name;
-  bool _isUsed;
+  final Observable<bool> _isUsed;
   BasedUtxoNetwork? network;
 
   int get txCount => _txCount;
@@ -40,9 +41,9 @@ abstract class BaseBitcoinAddressRecord {
 
   set balance(int value) => _balance = value;
 
-  bool get isUsed => _isUsed;
+  bool get isUsed => _isUsed.value;
 
-  void setAsUsed() => _isUsed = true;
+  void setAsUsed() => _isUsed.value = true;
   void setNewName(String label) => _name = label;
 
   int get hashCode => address.hashCode;

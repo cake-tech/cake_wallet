@@ -1,17 +1,61 @@
+import 'dart:ffi';
+import 'dart:isolate';
+
 import 'package:cw_monero/api/account_list.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:monero/src/wallet2.dart';
+import 'package:mutex/mutex.dart';
 
-monero.Coins? coins = null;
+Wallet2Coins? coins = null;
+final coinsMutex = Mutex();
 
-void refreshCoins(int accountIndex) {
-  coins = monero.Wallet_coins(wptr!);
-  monero.Coins_refresh(coins!);
+Future<void> refreshCoins(int accountIndex) async {
+  if (coinsMutex.isLocked) {
+    return;
+  }
+  coins = currentWallet!.coins();
+  final coinsPtr = coins!.ffiAddress();
+  await coinsMutex.acquire();
+  await Isolate.run(() => monero.Coins_refresh(Pointer.fromAddress(coinsPtr)));
+  coinsMutex.release();
 }
 
-int countOfCoins() => monero.Coins_count(coins!);
+Future<int> countOfCoins() async {
+  await coinsMutex.acquire();
+  final count = coins!.count();
+  coinsMutex.release();
+  return count;
+}
 
-monero.CoinsInfo getCoin(int index) => monero.Coins_coin(coins!, index);
+Future<Wallet2CoinsInfo> getCoin(int index) async {
+  await coinsMutex.acquire();
+  final coin = coins!.coin(index);
+  coinsMutex.release();
+  return coin;
+}
 
-void freezeCoin(int index) => monero.Coins_setFrozen(coins!, index: index);
+Future<int?> getCoinByKeyImage(String keyImage) async {
+  final count = await countOfCoins();
+  for (int i = 0; i < count; i++) {
+    final coin = await getCoin(i);
+    final coinAddress = coin.keyImage;
+    if (keyImage == coinAddress) {
+      return i;
+    }
+  }
+  return null;
+}
 
-void thawCoin(int index) => monero.Coins_thaw(coins!, index: index);
+Future<void> freezeCoin(int index) async {
+  await coinsMutex.acquire();
+  final coinsPtr = coins!.ffiAddress();
+  await Isolate.run(() => monero.Coins_setFrozen(Pointer.fromAddress(coinsPtr), index: index));
+  coinsMutex.release();
+}
+
+Future<void> thawCoin(int index) async {
+  await coinsMutex.acquire();
+  final coinsPtr = coins!.ffiAddress();
+  await Isolate.run(() => monero.Coins_thaw(Pointer.fromAddress(coinsPtr), index: index));
+  coinsMutex.release();
+}

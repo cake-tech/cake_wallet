@@ -36,6 +36,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   ObservableMap<CryptoCurrency, BalanceType> get balance;
 
+  String formatCryptoAmount(String amount) => amount;
+
   SyncStatus get syncStatus;
 
   set syncStatus(SyncStatus status);
@@ -60,12 +62,22 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  bool get hasRescan => false;
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
   Future<void> connectToPowNode({required Node node}) async {}
 
+  // startBackgroundSync is used to start sync in the background, without doing any
+  // extra things in the background.
+  // startSync is used as a fallback.
+  Future<void> startBackgroundSync() => startSync();
+  Future<void> stopBackgroundSync(String password) => stopSync();
+
   Future<void> startSync();
+
+  Future<void> stopSync() async {}
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
@@ -81,7 +93,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   Future<void> rescan({required int height});
 
-  void close();
+  Future<void> close({bool shouldCleanup = false});
 
   Future<void> changePassword(String password);
 
@@ -98,4 +110,16 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<bool> verifyMessage(String message, String signature, {String? address = null});
 
   bool isTestnet = false;
+
+  bool canSend() => true;
+
+  /// Check if the wallet's socket connection is healthy.
+  /// Returns true if the connection is alive, false otherwise.
+  /// Default implementation returns true (no-op for wallets without socket connections).
+  Future<bool> checkSocketHealth() async => true;
+  
+  /// This is used to check if the current node is healthy by making a lightweight RPC call
+  /// Each wallet implementation should override this to make a single, efficient call
+  /// Returns true if the node is healthy, false otherwise
+  Future<bool> checkNodeHealth();
 }

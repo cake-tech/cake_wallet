@@ -1,20 +1,21 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/themes/core/theme_store.dart';
+import 'package:flutter/material.dart';
 
 part 'display_settings_view_model.g.dart';
 
 class DisplaySettingsViewModel = DisplaySettingsViewModelBase with _$DisplaySettingsViewModel;
 
 abstract class DisplaySettingsViewModelBase with Store {
-  DisplaySettingsViewModelBase(
-    this._settingsStore,
-  );
+  DisplaySettingsViewModelBase(this._settingsStore, this._themeStore);
 
   final SettingsStore _settingsStore;
+  final ThemeStore _themeStore;
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
@@ -32,10 +33,16 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get shouldShowMarketPlaceInDashboard => _settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  ThemeBase get theme => _settingsStore.currentTheme;
+  ThemeData get theme => _themeStore.currentTheme.themeData;
+
+  @computed
+  ThemeMode get themeMode => _themeStore.themeMode;
 
   @computed
   bool get disabledFiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
+
+  @computed
+  bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
@@ -55,8 +62,19 @@ abstract class DisplaySettingsViewModelBase with Store {
   }
 
   @action
-  void setTheme(ThemeBase newTheme) {
-    _settingsStore.currentTheme = newTheme;
+  Future<void> onThemeSelected(MaterialThemeBase newTheme) async {
+    await setTheme(newTheme);
+    await setThemeMode(newTheme.themeMode);
+  }
+
+  @action
+  Future<void> setTheme(MaterialThemeBase newTheme) async {
+    await _themeStore.setTheme(newTheme);
+  }
+
+  @action
+  Future<void> setThemeMode(ThemeMode value) async {
+    await _themeStore.setThemeMode(value);
   }
 
   @action
@@ -66,4 +84,7 @@ abstract class DisplaySettingsViewModelBase with Store {
   void setShouldShowMarketPlaceInDashbaord(bool value) {
     _settingsStore.shouldShowMarketPlaceInDashboard = value;
   }
+
+  @action
+  void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
 }

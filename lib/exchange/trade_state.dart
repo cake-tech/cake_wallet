@@ -7,6 +7,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
   bool operator ==(Object other) => other is TradeState && other.raw == raw;
 
   static const pending = TradeState(raw: 'pending', title: 'Pending');
+  static const awaiting = TradeState(raw: 'awaiting', title: 'Awaiting');
   static const confirming = TradeState(raw: 'confirming', title: 'Confirming');
   static const trading = TradeState(raw: 'trading', title: 'Trading');
   static const traded = TradeState(raw: 'traded', title: 'Traded');
@@ -40,8 +41,8 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
   static const exchanging = TradeState(raw: 'exchanging', title: 'Exchanging');
   static const sending = TradeState(raw: 'sending', title: 'Sending');
   static const success = TradeState(raw: 'success', title: 'Success');
-  static TradeState deserialize({required String raw}) {
 
+  static TradeState deserialize({required String raw}) {
     switch (raw) {
       case '1':
         return unpaid;
@@ -100,6 +101,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'waiting':
         return waiting;
       case 'processing':
+      case 'inProgress':
         return processing;
       case 'waitingPayment':
         return waitingPayment;
@@ -131,8 +133,12 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'success':
       case 'done':
         return success;
+      case 'expired':
+        return expired;
+      case 'awaiting':
+        return awaiting;
       default:
-        throw Exception('Unexpected token: $raw in TradeState deserialize');
+        return TradeState(raw: raw, title: raw);
     }
   }
 

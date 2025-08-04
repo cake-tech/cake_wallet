@@ -33,19 +33,18 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setAutoGenerateSubaddresses(bool value) {
     _wallet.isEnabledAutoGenerateSubaddress = value;
-    if (value) {
-      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.enabled;
-    } else {
-      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
-    }
+    _settingsStore.autoGenerateSubaddressStatus =
+        value ? AutoGenerateSubaddressStatus.enabled : AutoGenerateSubaddressStatus.disabled;
   }
 
-  bool get isAutoGenerateSubaddressesVisible =>
-      _wallet.type == WalletType.monero ||
-      _wallet.type == WalletType.wownero ||
-      _wallet.type == WalletType.bitcoin ||
-      _wallet.type == WalletType.litecoin ||
-      _wallet.type == WalletType.bitcoinCash;
+  bool get isAutoGenerateSubaddressesVisible => [
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.decred
+      ].contains(_wallet.type);
 
   bool get isMoneroWallet => _wallet.type == WalletType.monero;
 
@@ -59,10 +58,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get isAppSecure => _settingsStore.isAppSecure;
 
   @computed
-  bool get disableBuy => _settingsStore.disableBuy;
+  bool get disableTradeOption => _settingsStore.disableTradeOption;
 
   @computed
-  bool get disableSell => _settingsStore.disableSell;
+  bool get disableAutomaticExchangeStatusUpdates =>
+      _settingsStore.disableAutomaticExchangeStatusUpdates;
 
   @computed
   bool get disableBulletin => _settingsStore.disableBulletin;
@@ -83,6 +83,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get lookupTwitter => _settingsStore.lookupsTwitter;
 
   @computed
+  bool get lookupsZanoAlias => _settingsStore.lookupsZanoAlias;
+
+  @computed
   bool get looksUpMastodon => _settingsStore.lookupsMastodon;
 
   @computed
@@ -97,6 +100,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get looksUpENS => _settingsStore.lookupsENS;
 
+  @computed
+  bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
+
+  @computed
+  bool get usePayjoin => _settingsStore.usePayjoin;
+
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
@@ -104,6 +113,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
   bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
+
+  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -119,10 +130,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
 
   @action
-  void setDisableBuy(bool value) => _settingsStore.disableBuy = value;
+  void setDisableTradeOption(bool value) => _settingsStore.disableTradeOption = value;
 
   @action
-  void setDisableSell(bool value) => _settingsStore.disableSell = value;
+  void setDisableAutomaticExchangeStatusUpdates(bool value) =>
+      _settingsStore.disableAutomaticExchangeStatusUpdates = value;
 
   @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
@@ -131,10 +143,16 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setLookupsTwitter(bool value) => _settingsStore.lookupsTwitter = value;
 
   @action
+  void setLookupsZanoAlias(bool value) => _settingsStore.lookupsZanoAlias = value;
+
+  @action
   void setLookupsMastodon(bool value) => _settingsStore.lookupsMastodon = value;
 
   @action
   void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
+
+  @action
+  void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
 
   @action
   void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
@@ -164,7 +182,11 @@ abstract class PrivacySettingsViewModelBase with Store {
   }
 
   @action
-  void setUseMempoolFeeAPI(bool value) {
-    _settingsStore.useMempoolFeeAPI = value;
+  void setUseMempoolFeeAPI(bool value) => _settingsStore.useMempoolFeeAPI = value;
+
+  @action
+  void setUsePayjoin(bool value) {
+    _settingsStore.usePayjoin = value;
+    bitcoin!.updatePayjoinState(_wallet, value);
   }
 }

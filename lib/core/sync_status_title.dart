@@ -24,16 +24,19 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_syncronized;
   }
 
+  if (syncStatus is FailedSyncStatus) {
+    if (syncStatus.error != null) {
+      return syncStatus.error!;
+    }
+    return S.current.sync_status_failed_connect;
+  }
+
   if (syncStatus is NotConnectedSyncStatus) {
     return S.current.sync_status_not_connected;
   }
 
   if (syncStatus is AttemptingSyncStatus) {
     return S.current.sync_status_attempting_sync;
-  }
-
-  if (syncStatus is FailedSyncStatus) {
-    return S.current.sync_status_failed_connect;
   }
 
   if (syncStatus is ConnectingSyncStatus) {
@@ -66,6 +69,10 @@ String syncStatusTitle(SyncStatus syncStatus) {
 
   if (syncStatus is AttemptingScanSyncStatus) {
     return S.current.sync_status_attempting_scan;
+  }
+
+  if (syncStatus is ProcessingSyncStatus) {
+    return syncStatus.message ?? S.current.processing;
   }
 
   return '';

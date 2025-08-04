@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_item.dart';
@@ -63,7 +64,7 @@ abstract class BuyViewModelBase with Store {
     try {
       _url = await selectedProvider!.requestUrl(doubleAmount.toString(), fiatCurrency.title);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
 
     return _url;
@@ -77,7 +78,7 @@ abstract class BuyViewModelBase with Store {
       await ordersSource.add(order);
       ordersStore.setOrder(order);
     } catch (e) {
-      print(e.toString());
+      printV(e.toString());
     }
   }
 

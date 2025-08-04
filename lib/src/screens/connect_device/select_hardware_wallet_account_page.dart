@@ -4,11 +4,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
-import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
-import 'package:cake_wallet/themes/extensions/send_page_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
@@ -75,63 +73,50 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                     child: Stack(
                       alignment: Alignment.centerRight,
                       children: [
-                        TextFormField(
+                        BaseTextFormField(
                           onChanged: (value) => _walletHardwareRestoreVM.name = value,
                           controller: _controller,
-                          style: TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                          ),
-                          decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).extension<NewWalletTheme>()!.hintTextColor,
-                            ),
-                            hintText: S.of(context).wallet_name,
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color:
-                                    Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
-                                width: 1.0,
+                          textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color:
-                                    Theme.of(context).extension<NewWalletTheme>()!.underlineColor,
-                                width: 1.0,
+                          placeholderTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                               ),
-                            ),
-                            suffixIcon: Semantics(
-                              label: S.of(context).generate_name,
-                              child: IconButton(
-                                onPressed: () async {
-                                  final rName = await generateName();
-                                  FocusManager.instance.primaryFocus?.unfocus();
+                          hintText: S.of(context).wallet_name,
+                          // enabledBorder: UnderlineInputBorder(
+                          //   borderSide: BorderSide(
+                          //     color: Theme.of(context).colorScheme.outline,
+                          //     width: 100,
+                          //   ),
+                          // ),
+                          suffixIcon: Semantics(
+                            label: S.of(context).generate_name,
+                            child: IconButton(
+                              onPressed: () async {
+                                final rName = await generateName();
+                                FocusManager.instance.primaryFocus?.unfocus();
 
-                                  setState(() {
-                                    _controller.text = rName;
-                                    _walletHardwareRestoreVM.name = rName;
-                                    _controller.selection = TextSelection.fromPosition(
-                                        TextPosition(offset: _controller.text.length));
-                                  });
-                                },
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.0),
-                                    color: Theme.of(context).hintColor,
-                                  ),
-                                  width: 34,
-                                  height: 34,
-                                  child: Image.asset(
-                                    'assets/images/refresh_icon.png',
-                                    color: Theme.of(context)
-                                        .extension<SendPageTheme>()!
-                                        .textFieldButtonIconColor,
-                                  ),
+                                setState(() {
+                                  _controller.text = rName;
+                                  _walletHardwareRestoreVM.name = rName;
+                                  _controller.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: _controller.text.length));
+                                });
+                              },
+                              icon: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                ),
+                                width: 34,
+                                height: 34,
+                                child: Image.asset(
+                                  'assets/images/refresh_icon.png',
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ),
@@ -147,12 +132,11 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                   child: Container(
                     width: double.infinity,
                     child: Text(
-                      "Available accounts",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).extension<CakeTextTheme>()!.titleColor,
-                      ),
+                      S.of(context).select_hw_account_below,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                     ),
                   ),
                 ),
@@ -170,7 +154,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                             width: 24,
                           ),
                           text:
-                          "${address.substring(0, 6)}...${address.substring(address.length - 6)}",
+                              "${acc.accountIndex} - ${address.substring(0, 6)}...${address.substring(address.length - 6)}",
                           showTrailingIcon: false,
                           height: 54,
                           isSelected: _walletHardwareRestoreVM.selectedAccount == acc,
@@ -183,15 +167,17 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 10),
-                  child: Observer(builder: (context) {
-                    return LoadingPrimaryButton(
-                      onPressed: _loadMoreAccounts,
-                      text: S.of(context).load_more,
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      isLoading: _walletHardwareRestoreVM.isLoadingMoreAccounts,
-                    );
-                  }),
+                  child: Observer(
+                    builder: (context) {
+                      return LoadingPrimaryButton(
+                        onPressed: _loadMoreAccounts,
+                        text: S.of(context).load_more,
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                        isLoading: _walletHardwareRestoreVM.isLoadingMoreAccounts,
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
@@ -203,8 +189,8 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
             return LoadingPrimaryButton(
               onPressed: _confirmForm,
               text: S.of(context).seed_language_next,
-              color: Colors.green,
-              textColor: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
               isDisabled: _walletHardwareRestoreVM.name.isEmpty,
             );
           },
@@ -228,11 +214,8 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
     if (_effectsInstalled) return;
 
     reaction((_) => _walletHardwareRestoreVM.error, (String? error) {
-
       if (error != null) {
-
-        if (error == S.current.ledger_connection_error)
-          Navigator.of(context).pop();
+        if (error == S.current.ledger_connection_error) Navigator.of(context).pop();
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(

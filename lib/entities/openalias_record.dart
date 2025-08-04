@@ -1,4 +1,5 @@
 import 'package:basic_utils/basic_utils.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class OpenaliasRecord {
   OpenaliasRecord({
@@ -27,7 +28,7 @@ class OpenaliasRecord {
 
       return txtRecord;
     } catch (e) {
-      print("${e.toString()}");
+      printV("${e.toString()}");
       return null;
     }
   }

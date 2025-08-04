@@ -32,7 +32,10 @@ class PendingWowneroTransaction with PendingTransaction {
       AmountConverter.amountIntToString(CryptoCurrency.wow, pendingTransactionDescription.amount);
 
   @override
-  String get feeFormatted =>
+  String get feeFormatted => "$feeFormattedValue WOW";
+
+  @override
+  String get feeFormattedValue =>
       AmountConverter.amountIntToString(CryptoCurrency.wow, pendingTransactionDescription.fee);
 
   @override
@@ -49,5 +52,10 @@ class PendingWowneroTransaction with PendingTransaction {
 
       rethrow;
     }
+  }
+  
+  @override
+  Future<Map<String, String>> commitUR() {
+    throw UnimplementedError();
   }
 }

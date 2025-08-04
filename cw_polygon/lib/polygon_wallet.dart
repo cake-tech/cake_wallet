@@ -27,6 +27,7 @@ class PolygonWallet extends EVMChainWallet {
     super.privateKey,
     required super.client,
     required super.encryptionFileUtils,
+    super.passphrase,
   }) : super(nativeCurrency: CryptoCurrency.maticpoly);
 
   @override
@@ -40,13 +41,25 @@ class PolygonWallet extends EVMChainWallet {
   }
 
   @override
-  void addInitialTokens() {
+  void addInitialTokens([bool isMigration = false]) {
     final initialErc20Tokens = DefaultPolygonErc20Tokens().initialPolygonErc20Tokens;
 
-    for (var token in initialErc20Tokens) {
-      evmChainErc20TokensBox.put(token.contractAddress, token);
+    for (final token in initialErc20Tokens) {
+      if (evmChainErc20TokensBox.containsKey(token.contractAddress)) {
+        final existingToken = evmChainErc20TokensBox.get(token.contractAddress);
+        if (existingToken?.tag != token.tag) {
+          evmChainErc20TokensBox.put(token.contractAddress, token);
+        }
+      } else {
+        if (isMigration) token.enabled = false;
+        evmChainErc20TokensBox.put(token.contractAddress, token);
+      }
     }
   }
+
+  @override
+  List<String> get getDefaultTokenContractAddresses =>
+      DefaultPolygonErc20Tokens().initialPolygonErc20Tokens.map((e) => e.contractAddress).toList();
 
   @override
   Future<bool> checkIfScanProviderIsEnabled() async {
@@ -67,6 +80,7 @@ class PolygonWallet extends EVMChainWallet {
       enabled: token.enabled,
       tag: token.tag ?? "MATIC",
       iconPath: iconPath,
+      isPotentialScam: token.isPotentialScam,
     );
   }
 
@@ -120,7 +134,7 @@ class PolygonWallet extends EVMChainWallet {
       if (!hasKeysFile) rethrow;
     }
 
-    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String) ??
+    final balance = EVMChainERC20Balance.fromJSON(data?['balance'] as String?) ??
         EVMChainERC20Balance(BigInt.zero);
 
     final WalletKeysData keysData;
@@ -128,8 +142,9 @@ class PolygonWallet extends EVMChainWallet {
     if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
+      final passphrase = data['passphrase'] as String?;
 
-      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey);
+      keysData = WalletKeysData(mnemonic: mnemonic, privateKey: privateKey, passphrase: passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
         name,
@@ -144,6 +159,7 @@ class PolygonWallet extends EVMChainWallet {
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,
+      passphrase: keysData.passphrase,
       initialBalance: balance,
       client: PolygonClient(),
       encryptionFileUtils: encryptionFileUtils,

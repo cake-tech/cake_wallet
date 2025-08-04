@@ -41,39 +41,42 @@ class ValidatableAnnotatedEditableText extends EditableText {
     required this.words,
     this.normalizeSeed = false,
     TextStyle textStyle = const TextStyle(
-        color: Colors.black,
-        backgroundColor: Colors.transparent,
-        fontWeight: FontWeight.normal,
-        fontSize: 16),
+      color: Colors.black,
+      backgroundColor: Colors.transparent,
+      fontWeight: FontWeight.normal,
+      fontSize: 16,
+    ),
     TextSelectionControls? selectionControls,
     Color? selectionColor,
     ValueChanged<String>? onChanged,
     ValueChanged<String>? onSubmitted,
   }) : super(
-            maxLines: null,
-            key: key,
-            focusNode: focusNode,
-            controller: controller,
-            cursorColor: cursorColor,
-            style: validStyle,
-            keyboardType: TextInputType.visiblePassword,
-            autocorrect: false,
-            autofocus: false,
-            selectionColor: selectionColor,
-            selectionControls: selectionControls,
-            backgroundCursorColor: backgroundCursorColor,
-            onChanged: onChanged,
-            onSubmitted: onSubmitted,
-            toolbarOptions: const ToolbarOptions(
-              copy: true,
-              cut: true,
-              paste: true,
-              selectAll: true,
-            ),
-            enableSuggestions: false,
-            enableInteractiveSelection: true,
-            showSelectionHandles: true,
-            showCursor: true);
+          maxLines: null,
+          key: key,
+          focusNode: focusNode,
+          controller: controller,
+          cursorColor: cursorColor,
+          style: validStyle,
+          keyboardType: TextInputType.visiblePassword,
+          autocorrect: false,
+          autofocus: false,
+          selectionColor: selectionColor,
+          selectionControls: selectionControls,
+          backgroundCursorColor: backgroundCursorColor,
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          
+          toolbarOptions: const ToolbarOptions(
+            copy: true,
+            cut: true,
+            paste: true,
+            selectAll: true,
+          ),
+          enableSuggestions: false,
+          enableInteractiveSelection: true,
+          showSelectionHandles: true,
+          showCursor: true,
+        );
 
   final bool normalizeSeed;
   final List<String> words;
@@ -81,27 +84,29 @@ class ValidatableAnnotatedEditableText extends EditableText {
   final TextStyle invalidStyle;
 
   @override
-  ValidatableAnnotatedEditableTextState createState() =>
-      ValidatableAnnotatedEditableTextState();
+  ValidatableAnnotatedEditableTextState createState() => ValidatableAnnotatedEditableTextState();
 }
 
 class ValidatableAnnotatedEditableTextState extends EditableTextState {
   @override
-  ValidatableAnnotatedEditableText get widget =>
-      super.widget as ValidatableAnnotatedEditableText;
+  ValidatableAnnotatedEditableText get widget => super.widget as ValidatableAnnotatedEditableText;
 
   List<Annotation> getRanges() {
     final result = <Annotation>[];
-    final text = textEditingValue.text;
+    // Replace Ideographic Space (U+3000) with a normal space
+    final text = textEditingValue.text.replaceAll("\u3000", " ");
     final source = text
         .split(' ')
         .map((word) {
           final ranges = range(word, text);
           final isValid = validate(word);
 
-          return ranges.map((range) => Annotation(
+          return ranges.map(
+            (range) => Annotation(
               style: isValid ? widget.validStyle : widget.invalidStyle,
-              range: range));
+              range: range,
+            ),
+          );
         })
         .expand((e) => e)
         .toList();
@@ -113,14 +118,20 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
 
       if (prev == null) {
         annotation = Annotation(
-            range: TextRange(start: 0, end: item.range.start),
-            style: TextStyle(
-                color: Colors.black, backgroundColor: Colors.transparent));
+          range: TextRange(start: 0, end: item.range.start),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            backgroundColor: Colors.transparent,
+          ),
+        );
       } else if (prev.range.end < item.range.start) {
         annotation = Annotation(
-            range: TextRange(start: prev.range.end, end: item.range.start),
-            style: TextStyle(
-                color: Colors.red, backgroundColor: Colors.transparent));
+          range: TextRange(start: prev.range.end, end: item.range.start),
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: Theme.of(context).colorScheme.onError,
+            backgroundColor: Colors.transparent,
+          ),
+        );
       }
 
       if (annotation != null) {
@@ -131,9 +142,15 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
     }
 
     if (result.length > 0 && result.last.range.end < text.length) {
-      result.add(Annotation(
+      result.add(
+        Annotation(
           range: TextRange(start: result.last.range.end, end: text.length),
-          style: TextStyle(backgroundColor: Colors.transparent)));
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+      );
     }
 
     return result;
@@ -167,11 +184,16 @@ class ValidatableAnnotatedEditableTextState extends EditableTextState {
 
     if (ranges.isNotEmpty) {
       return TextSpan(
-          style: widget.style,
-          children: ranges
-              .map((item) => TextSpan(
-                  style: item.style, text: item.range.textInside(text)))
-              .toList());
+        style: widget.style,
+        children: ranges
+            .map(
+              (item) => TextSpan(
+                style: item.style,
+                text: item.range.textInside(text),
+              ),
+            )
+            .toList(),
+      );
     }
 
     return TextSpan(style: widget.style, text: text);

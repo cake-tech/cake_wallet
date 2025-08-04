@@ -1,4 +1,5 @@
 #!/bin/bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
@@ -9,7 +10,7 @@ if [ -z "$APP_MACOS_TYPE" ]; then
         exit 1
 fi
 
-cd .. # go to scipts
+cd .. # go to scripts
 ./gen_android_manifest.sh
 cd .. # go to root
 cp -rf ./macos/Runner/InfoBase.plist ./macos/Runner/Info.plist
@@ -24,24 +25,24 @@ cp -rf ./macos/Runner/DebugProfileBase.entitlements ./macos/Runner/DebugProfile.
 cp -rf ./macos/Runner/ReleaseBase.entitlements ./macos/Runner/Release.entitlements
 cp -rf ./macos/Runner/RunnerBase.entitlements ./macos/Runner/Runner.entitlements
 cp -rf ./macos/Runner/Configs/AppInfoBase.xcconfig ./macos/Runner/Configs/AppInfo.xcconfig
-sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/DebugProfile.entitlements
-sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Release.entitlements
-sed -i '' "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Runner.entitlements
-sed -i '' "s/\${PRODUCT_NAME}/${APP_MACOS_NAME}/g" ./macos/Runner/Configs/AppInfo.xcconfig
-sed -i '' "s/\${PRODUCT_BUNDLE_IDENTIFIER}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Configs/AppInfo.xcconfig
+universal_sed "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/DebugProfile.entitlements
+universal_sed "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Release.entitlements
+universal_sed "s/\${BUNDLE_ID}/${APP_MACOS_BUNDLE_ID}/g" ./macos/Runner/Runner.entitlements
+universal_sed "s/\${PRODUCT_NAME}/${APP_MACOS_NAME}/g" ./macos/Runner/Configs/AppInfo.xcconfig
+universal_sed "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $APP_MACOS_BUNDLE_ID;/g" ./macos/Runner/Configs/AppInfo.xcconfig
 CONFIG_ARGS=""
 
 case $APP_MACOS_TYPE in
         $MONERO_COM)
 		CONFIG_ARGS="--monero";;
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero";; #--haven
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero";;
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
-flutter pub run tool/generate_pubspec.dart
+dart run tool/generate_pubspec.dart
 flutter pub get
-flutter packages pub run tool/configure.dart $CONFIG_ARGS
+dart run tool/configure.dart $CONFIG_ARGS
 cd $DIR
 $DIR/app_icon.sh

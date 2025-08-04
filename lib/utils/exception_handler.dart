@@ -1,35 +1,53 @@
 import 'dart:io';
 
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
-import 'package:cake_wallet/utils/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
-  static const _coolDownDurationInDays = 7;
+  static const _coolDownDurationInDays =
+      bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode) ? 0 : 7;
   static File? _file;
 
-  static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
+  static Future<void> _saveException(String? error, StackTrace? stackTrace,
+      {String? library}) async {
     final appDocDir = await getAppDir();
 
     if (_file == null) {
       _file = File('${appDocDir.path}/error.txt');
     }
 
+    String? walletType;
+    CustomTrace? programInfo;
+
+    try {
+      walletType = getIt.get<AppStore>().wallet?.type.name;
+
+      programInfo = CustomTrace(stackTrace ?? StackTrace.current);
+    } catch (_) {}
+
     final exception = {
       "${DateTime.now()}": {
         "Error": "$error\n\n",
+        "WalletType": "$walletType\n\n",
+        "VerboseLog":
+            "${programInfo?.fileName}#${programInfo?.lineNumber}:${programInfo?.columnNumber} ${programInfo?.callerFunctionName}\n\n",
         "Library": "$library\n\n",
         "StackTrace": stackTrace.toString(),
       }
@@ -62,6 +80,14 @@ class ExceptionHandler {
 
       await _addDeviceInfo(_file!);
 
+      // Check if a mail client is available
+      final bool canSend = await FlutterMailer.canSendMail();
+
+      if (Platform.isIOS && !canSend) {
+        printV('Mail app is not available');
+        return;
+      }
+
       final MailOptions mailOptions = MailOptions(
         subject: 'Mobile App Issue',
         recipients: ['support@cakewallet.com'],
@@ -82,14 +108,22 @@ class ExceptionHandler {
     }
   }
 
-  static void onError(FlutterErrorDetails errorDetails) async {
-    if (kDebugMode) {
+  static Future<void> resetLastPopupDate() async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    await sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime(1971).toString());
+  }
+
+  static Future<void> onError(FlutterErrorDetails errorDetails) async {
+    if (await onLedgerError(errorDetails)) return;
+
+    if (kDebugMode || kProfileMode) {
       FlutterError.presentError(errorDetails);
-      debugPrint(errorDetails.toString());
+      printV(errorDetails.toString());
       return;
     }
 
-    if (_ignoreError(errorDetails.exception.toString())) {
+    if (_ignoreError(errorDetails.exception.toString()) ||
+        _ignoreError(errorDetails.stack.toString())) {
       return;
     }
 
@@ -116,35 +150,91 @@ class ExceptionHandler {
     }
     _hasError = true;
 
-    sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
+    await sharedPrefs.setString(PreferencesKey.lastPopupDate, DateTime.now().toString());
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (timeStamp) async {
-        if (navigatorKey.currentContext != null) {
-          await showPopUp<void>(
-            context: navigatorKey.currentContext!,
-            builder: (context) {
-              return AlertWithTwoActions(
-                isDividerExist: true,
-                alertTitle: S.of(context).error,
-                alertContent: S.of(context).error_dialog_content,
-                rightButtonText: S.of(context).send,
-                leftButtonText: S.of(context).do_not_send,
-                actionRightButton: () {
-                  Navigator.of(context).pop();
-                  _sendExceptionFile();
-                },
-                actionLeftButton: () {
-                  Navigator.of(context).pop();
-                },
-              );
+    // Instead of using WidgetsBinding.instance.addPostFrameCallback we
+    // await Future.delayed(Duration.zero), which does essentially the same (
+    // but doesn't wait for actual frame to be rendered), but it allows us to
+    // properly await the execution - which is what we want, without awaiting
+    // other code may call functions like Navigator.pop(), and close the alert
+    // instead of the intended UI.
+    // WidgetsBinding.instance.addPostFrameCallback(
+    //   (timeStamp) async {
+    await Future.delayed(Duration.zero);
+    if (navigatorKey.currentContext != null) {
+      await showPopUp<void>(
+        context: navigatorKey.currentContext!,
+        builder: (context) {
+          return AlertWithTwoActions(
+            isDividerExist: true,
+            alertTitle: S.of(context).error,
+            alertContent: S.of(context).error_dialog_content,
+            rightButtonText: S.of(context).send,
+            leftButtonText: S.of(context).do_not_send,
+            actionRightButton: () {
+              Navigator.of(context).pop();
+              _sendExceptionFile();
+            },
+            actionLeftButton: () {
+              Navigator.of(context).pop();
             },
           );
-        }
+        },
+      );
+    }
 
-        _hasError = false;
-      },
-    );
+    _hasError = false;
+  }
+
+  static const List<String> _ledgerErrors = [
+    'Wrong Device Status',
+    'PlatformException(133, Failed to write: (Unknown Error: 133), null, null)',
+    'PlatformException(IllegalArgument, Unknown deviceId:',
+    'ServiceNotSupportedException(ConnectionType.ble, Required service not supported. Write characteristic: false, Notify characteristic: false)',
+    'Exception: 6e01', // Wrong App
+    'Exception: 6d02',
+    'Exception: 6511',
+    'Exception: 6e00',
+    'Exception: 6985',
+    'Exception: 5515',
+  ];
+
+  static bool isLedgerError(Object exception) =>
+      _ledgerErrors.any((element) => exception.toString().contains(element));
+
+  static Future<bool> onLedgerError(FlutterErrorDetails errorDetails) async {
+    if (!isLedgerError(errorDetails.exception)) return false;
+
+    String? interpretErrorCode(String errorCode) {
+      if (errorCode.contains("6985")) {
+        return S.current.ledger_error_tx_rejected_by_user;
+      } else if (errorCode.contains("5515")) {
+        return S.current.ledger_error_device_locked;
+      } else
+      if (["6e01", "6d02", "6511", "6e00"].any((e) => errorCode.contains(e))) {
+        return S.current.ledger_error_wrong_app;
+      }
+      return null;
+    }
+
+    printV(errorDetails.exception);
+
+    if (navigatorKey.currentContext != null) {
+      await showPopUp<void>(
+        context: navigatorKey.currentContext!,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: "Ledger Error",
+          alertContent:
+              interpretErrorCode(errorDetails.exception.toString()) ??
+                  S.of(context).ledger_connection_error,
+          buttonText: S.of(context).close,
+          buttonAction: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
+
+    _hasError = false;
+    return true;
   }
 
   /// Ignore User related errors or system errors
@@ -165,7 +255,9 @@ class ExceptionHandler {
     "Connection reset by peer",
     "Connection closed before full header was received",
     "Connection terminated during handshake",
+    "OS Error: Connection refused, errno = 61",
     "PERMISSION_NOT_GRANTED",
+    "OS Error: Permission denied",
     "Failed host lookup:",
     "CERTIFICATE_VERIFY_FAILED",
     "Handshake error in client",
@@ -180,11 +272,30 @@ class ExceptionHandler {
     "input stream error",
     "invalid signature",
     "invalid password",
+    "NetworkImage._loadAsync",
+    "SSLV3_ALERT_BAD_RECORD_MAC",
+    "PlatformException(already_active, File picker is already active",
+    // SVG-related errors
+    "SvgParser",
+    "SVG parsing error",
+    "Invalid SVG",
+    "SVG format error",
+    "SvgPicture",
+    // Temporary ignored, More context: Flutter secure storage reads the values as null some times
+    // probably when the device was locked and then opened on Cake
+    // this is solved by a restart of the app
+    // just ignoring until we find a solution to this issue or migrate from flutter secure storage
+    "core/auth_service.dart:64",
+    "core/key_service.dart:14",
+    "Wallet is null",
+    "Wrong Device Status: 0x5515 (UNKNOWN)",
   ];
 
   static Future<void> _addDeviceInfo(File file) async {
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
+    final appName = packageInfo.appName;
+    final package = packageInfo.packageName;
 
     final deviceInfoPlugin = DeviceInfoPlugin();
     Map<String, dynamic> deviceInfo = {};
@@ -207,7 +318,7 @@ class ExceptionHandler {
     }
 
     await file.writeAsString(
-      "App Version: $currentVersion\n\nDevice Info $deviceInfo\n\n",
+      "App Version: $currentVersion\nApp Name: $appName\nPackage: $package\n\nDevice Info $deviceInfo\n\n",
       mode: FileMode.append,
     );
   }
@@ -264,20 +375,18 @@ class ExceptionHandler {
     };
   }
 
-  static void showError(String error, {int? delayInSeconds}) async {
+  static Future<void> showError(String error, {int? delayInSeconds}) async {
     if (_hasError) {
       return;
     }
     _hasError = true;
-
     if (delayInSeconds != null) {
       Future.delayed(Duration(seconds: delayInSeconds), () => _showCopyPopup(error));
       return;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) async => _showCopyPopup(error),
-    );
+    await Future.delayed(Duration.zero);
+    await _showCopyPopup(error);
   }
 
   static Future<void> _showCopyPopup(String content) async {

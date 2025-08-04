@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:flutter/material.dart';
@@ -24,13 +25,14 @@ class TradeDetailsPage extends BasePage {
   final TradeDetailsViewModel tradeDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) => TradeDetailsPageBody(tradeDetailsViewModel);
+  Widget body(BuildContext context) => TradeDetailsPageBody(tradeDetailsViewModel, currentTheme);
 }
 
 class TradeDetailsPageBody extends StatefulWidget {
-  TradeDetailsPageBody(this.tradeDetailsViewModel);
+  TradeDetailsPageBody(this.tradeDetailsViewModel, this.currentTheme);
 
   final TradeDetailsViewModel tradeDetailsViewModel;
+  final MaterialThemeBase currentTheme;
 
   @override
   TradeDetailsPageBodyState createState() => TradeDetailsPageBodyState(tradeDetailsViewModel);
@@ -49,19 +51,43 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(builder: (_) {
-      final itemsCount = tradeDetailsViewModel.items.length;
+    return Observer(
+      builder: (_) {
+        final itemsCount = tradeDetailsViewModel.items.length;
 
-      return SectionStandardList(
+        return SectionStandardList(
           sectionCount: 1,
           itemCounter: (int _) => itemsCount,
           itemBuilder: (__, index) {
             final item = tradeDetailsViewModel.items[index];
 
             if (item is TrackTradeListItem)
-              return GestureDetector(
+              return ListRow(
+                title: '${item.title}',
+                value: '${item.value}',
+                hintTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                textWidget: GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: '${item.value}'));
+                    showBar<void>(context, S.of(context).copied_to_clipboard);
+                  },
+                  child: Text(
+                    '${item.value}',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                image: GestureDetector(
                   onTap: item.onTap,
-                  child: ListRow(title: '${item.title}', value: '${item.value}'));
+                  child: Icon(
+                    Icons.launch_rounded,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              );
 
             if (item is DetailsListStatusItem)
               return StandardListStatusRow(title: item.title, value: item.value);
@@ -69,28 +95,38 @@ class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
             if (item is TradeDetailsListCardItem)
               return TradeDetailsStandardListCard(
                 id: item.id,
+                extraId: item.extraId,
                 create: item.createdAt,
                 pair: item.pair,
-                currentTheme: tradeDetailsViewModel.settingsStore.currentTheme.type,
+                currentTheme: widget.currentTheme.type,
                 onTap: item.onTap,
               );
 
             if (item is TradeProviderUnsupportedItem)
-              return AutoSizeText(item.value,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.red,
-                  ));
+              return AutoSizeText(
+                item.value,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+              );
 
             return GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: '${item.value}'));
-                  showBar<void>(context, S.of(context).copied_to_clipboard);
-                },
-                child: ListRow(title: '${item.title}', value: '${item.value}'));
-          });
-    });
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: '${item.value}'));
+                showBar<void>(context, S.of(context).copied_to_clipboard);
+              },
+              child: ListRow(
+                title: '${item.title}',
+                value: '${item.value}',
+                hintTextColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

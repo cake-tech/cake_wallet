@@ -1,11 +1,23 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:bbqrdart/bbqrdart.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_mweb/cw_mweb.dart';
+import 'package:cw_mweb/mwebd.pb.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_encoder.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
@@ -19,6 +31,12 @@ class PendingBitcoinTransaction with PendingTransaction {
     required this.hasChange,
     this.isSendAll = false,
     this.hasTaprootInputs = false,
+    this.isMweb = false,
+    this.utxos = const [],
+    this.publicKeys,
+    this.commitOverride,
+    this.unsignedPsbt,
+    required this.isViewOnly,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -28,21 +46,49 @@ class PendingBitcoinTransaction with PendingTransaction {
   final int fee;
   final String feeRate;
   final BasedUtxoNetwork? network;
-  final bool hasChange;
   final bool isSendAll;
+  final bool hasChange;
   final bool hasTaprootInputs;
+  final bool isViewOnly;
+  List<UtxoWithAddress> utxos;
+  bool isMweb;
+  String? changeAddressOverride;
+  String? idOverride;
+  String? hexOverride;
+  List<String>? outputAddresses;
+  final Map<String, PublicKeyWithDerivationPath>? publicKeys;
+  Future<void> Function()? commitOverride;
+
+  Uint8List? unsignedPsbt;
 
   @override
-  String get id => _tx.txId();
+  String get id => idOverride ?? _tx.txId();
 
   @override
-  String get hex => _tx.serialize();
+  String get hex => hexOverride ?? _tx.serialize();
 
   @override
   String get amountFormatted => bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => bitcoinAmountToString(amount: fee);
+  String get feeFormatted => "$feeFormattedValue ${_feeCurrency}";
+
+  String get _feeCurrency {
+    switch(type) {
+      case WalletType.bitcoin:
+        return "BTC";
+      case WalletType.litecoin:
+        return "LTC";
+      case WalletType.bitcoinCash:
+        return "BCH";
+      default:
+        return type.name;
+    }
+
+  }
+
+  @override
+  String get feeFormattedValue => bitcoinAmountToString(amount: fee);
 
   @override
   int? get outputCount => _tx.outputs.length;
@@ -54,7 +100,12 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingChange? get change {
     try {
       final change = _tx.outputs.firstWhere((out) => out.isChange);
-      return PendingChange(change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
+      if (changeAddressOverride != null) {
+        return PendingChange(
+            changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
+      }
+      return PendingChange(
+          change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
     } catch (_) {
       return null;
     }
@@ -62,8 +113,7 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
-  @override
-  Future<void> commit() async {
+  Future<void> _commit() async {
     int? callId;
 
     final result = await electrumClient.broadcastTransaction(
@@ -100,11 +150,38 @@ class PendingBitcoinTransaction with PendingTransaction {
 
       throw BitcoinTransactionCommitFailed();
     }
+  }
+
+  Future<void> _ltcCommit() async {
+    try {
+      final resp = await CwMweb.broadcast(
+          BroadcastRequest(rawTx: BytesUtils.fromHexString(hex)));
+      idOverride = resp.txid;
+    } on GrpcError catch (e) {
+      throw BitcoinTransactionCommitFailed(errorMessage: e.message);
+    } catch (e) {
+      throw BitcoinTransactionCommitFailed(
+          errorMessage: "Unknown error: ${e.toString()}");
+    }
+  }
+
+  @override
+  Future<void> commit() async {
+    if (commitOverride != null) {
+      return commitOverride?.call();
+    }
+
+    if (isMweb) {
+      await _ltcCommit();
+    } else {
+      await _commit();
+    }
 
     _listeners.forEach((listener) => listener(transactionInfo()));
   }
 
-  void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
+  void addListener(
+          void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
   ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
@@ -116,5 +193,43 @@ class PendingBitcoinTransaction with PendingTransaction {
       isPending: true,
       isReplaced: false,
       confirmations: 0,
+      inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
+      outputAddresses: outputAddresses,
       fee: fee);
+
+  @override
+  bool shouldCommitUR() => isViewOnly;
+
+  @override
+  Future<Map<String, String>> commitUR() {
+    var sourceBytes = unsignedPsbt!;
+    var cborEncoder = CBOREncoder();
+    cborEncoder.encodeBytes(sourceBytes);
+    var ur = UR("psbt", cborEncoder.getBytes());
+    var urLegacy = UR("crypto-psbt", cborEncoder.getBytes());  
+    // var ur = UR("psbt", Uint8List.fromList(List.generate(64*1024, (int x) => x % 256)));    
+    var encoded = UREncoder(ur, 120);
+    var encodedLegacy = UREncoder(urLegacy, 120);
+    List<String> values = [];
+    List<String> valuesLegacy = [];
+    while (!encoded.isComplete) {
+      values.add(encoded.nextPart());
+      valuesLegacy.add(encodedLegacy.nextPart());
+    }
+
+    final bbqrObj = BBQRPsbt.fromUint8List(sourceBytes);
+    List<String> bbqr = [
+      bbqrObj.asString(),
+    ];
+    while (!bbqrObj.isDone) {
+      bbqrObj.next();
+      bbqr.add(bbqrObj.asString());
+    }
+
+    return Future.value({
+      "PSBT (bcur)": values.join("\n"),
+      "PSBT (bbqr)": bbqr.join("\n"),
+      "PSBT (bcur legacy)": valuesLegacy.join("\n"),
+    });
+  }
 }

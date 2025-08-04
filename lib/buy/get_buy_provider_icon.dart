@@ -10,16 +10,12 @@ Image? getBuyProviderIcon(BuyProviderDescription providerDescription,
     Image.asset('assets/images/moonpay-icon.png', color: iconColor,
         width: 36, height: 34);
 
-  if (providerDescription != null) {
-    switch (providerDescription) {
-      case BuyProviderDescription.wyre:
-        return _wyreIcon;
-      case BuyProviderDescription.moonPay:
-        return _moonPayIcon;
-      default:
-        return null;
-    }
-  } else {
-    return null;
+  switch (providerDescription) {
+    case BuyProviderDescription.wyre:
+      return _wyreIcon;
+    case BuyProviderDescription.moonPay:
+      return _moonPayIcon;
+    default:
+      return null;
   }
 }

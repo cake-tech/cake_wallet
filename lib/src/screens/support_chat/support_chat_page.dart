@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/screens/support_chat/widgets/chatwoot_widget.dar
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:flutter/material.dart';
 
-
 class SupportChatPage extends BasePage {
   SupportChatPage(this.supportViewModel, {required this.secureStorage});
 
@@ -22,17 +21,19 @@ class SupportChatPage extends BasePage {
   Widget body(BuildContext context) => FutureBuilder<String>(
         future: getCookie(),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          print(snapshot.data);
           if (snapshot.hasData)
             return ChatwootWidget(
               secureStorage,
-              supportUrl: supportViewModel.fetchUrl(authToken: snapshot.data!)
+              supportUrl: supportViewModel.fetchUrl(authToken: snapshot.data!),
+              appVersion: supportViewModel.appVersion,
+              fiatApiMode: supportViewModel.fiatApiMode,
+              walletType: supportViewModel.walletType,
+              walletSyncState: supportViewModel.walletSyncState,
             );
           return Container();
         },
       );
 
-  Future<String> getCookie() async {
-    return await secureStorage.read(key: COOKIE_KEY) ?? "";
-  }
+  Future<String> getCookie() async =>
+      await secureStorage.read(key: COOKIE_KEY) ?? "";
 }

@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -17,9 +18,6 @@ class BuyWebViewPage extends BasePage {
 
   @override
   String get title => S.current.buy;
-
-  @override
-  Color get backgroundDarkColor => Colors.white;
 
   @override
   Widget body(BuildContext context) =>
@@ -103,7 +101,7 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
         }
       } catch (e) {
         _isSaving = false;
-        print(e);
+        printV(e);
       }
     });
   }

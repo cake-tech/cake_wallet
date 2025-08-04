@@ -6,24 +6,30 @@ class SolanaNewWalletCredentials extends WalletCredentials {
     required String name,
     WalletInfo? walletInfo,
     String? password,
-    String? parentAddress,
     this.mnemonic,
+    String? passphrase,
   }) : super(
           name: name,
           walletInfo: walletInfo,
           password: password,
-          parentAddress: parentAddress,
+          passphrase: passphrase,
         );
   final String? mnemonic;
 }
 
 class SolanaRestoreWalletFromSeedCredentials extends WalletCredentials {
-  SolanaRestoreWalletFromSeedCredentials(
-      {required String name,
-      required String password,
-      required this.mnemonic,
-      WalletInfo? walletInfo})
-      : super(name: name, password: password, walletInfo: walletInfo);
+  SolanaRestoreWalletFromSeedCredentials({
+    required String name,
+    required String password,
+    required this.mnemonic,
+    WalletInfo? walletInfo,
+    String? passphrase,
+  }) : super(
+          name: name,
+          password: password,
+          walletInfo: walletInfo,
+          passphrase: passphrase,
+        );
 
   final String mnemonic;
 }

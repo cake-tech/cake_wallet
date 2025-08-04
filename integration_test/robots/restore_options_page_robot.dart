@@ -11,17 +11,18 @@ class RestoreOptionsPageRobot {
 
   Future<void> isRestoreOptionsPage() async {
     await commonTestCases.isSpecificPage<RestoreOptionsPage>();
+    await commonTestCases.takeScreenshots('restore_options');
   }
 
   void hasRestoreOptionsButton() {
-    commonTestCases.hasValueKey('restore_options_from_seeds_button_key');
+    commonTestCases.hasValueKey('restore_options_from_seeds_or_keys_button_key');
     commonTestCases.hasValueKey('restore_options_from_backup_button_key');
     commonTestCases.hasValueKey('restore_options_from_hardware_wallet_button_key');
     commonTestCases.hasValueKey('restore_options_from_qr_button_key');
   }
 
-  Future<void> navigateToRestoreFromSeedsPage() async {
-    await commonTestCases.tapItemByKey('restore_options_from_seeds_button_key');
+  Future<void> navigateToRestoreFromSeedsOrKeysPage() async {
+    await commonTestCases.tapItemByKey('restore_options_from_seeds_or_keys_button_key');
     await commonTestCases.defaultSleepTime();
   }
 

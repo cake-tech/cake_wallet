@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -15,6 +16,7 @@ class NodeForm extends StatelessWidget {
     required this.nodeViewModel,
     required this.formKey,
     this.editingNode,
+    this.type,
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
         _pathController = TextEditingController(text: editingNode?.path.toString()),
         _portController = TextEditingController(text: editingNode?.uri.port.toString()),
@@ -30,6 +32,7 @@ class NodeForm extends StatelessWidget {
         ..setLogin((editingNode!.login ?? ''))
         ..setSSL((editingNode!.isSSL))
         ..setTrusted((editingNode!.trusted))
+        ..setIsEnabledForAutoSwitching((editingNode!.isEnabledForAutoSwitching))
         ..setSocksProxy((editingNode!.useSocksProxy))
         ..setSocksProxyAddress((editingNode!.socksProxyAddress ?? ''));
     }
@@ -58,6 +61,12 @@ class NodeForm extends StatelessWidget {
       }
     });
 
+    reaction((_) => nodeViewModel.path, (String path) {
+      if (path != _pathController.text) {
+        _pathController.text = path;
+      }
+    });
+
     _addressController.addListener(() => nodeViewModel.address = _addressController.text);
     _pathController.addListener(() => nodeViewModel.path = _pathController.text);
     _portController.addListener(() => nodeViewModel.port = _portController.text);
@@ -70,6 +79,7 @@ class NodeForm extends StatelessWidget {
   final NodeCreateOrEditViewModel nodeViewModel;
   final GlobalKey<FormState> formKey;
   final Node? editingNode;
+  final WalletType? type;
 
   final TextEditingController _addressController;
   final TextEditingController _pathController;
@@ -90,7 +100,9 @@ class NodeForm extends StatelessWidget {
                 child: BaseTextFormField(
                   controller: _addressController,
                   hintText: S.of(context).node_address,
-                  validator: NodeAddressValidator(),
+                  validator: type == WalletType.decred
+                      ? NodeAddressValidatorDecredBlankException()
+                      : NodeAddressValidator(),
                 ),
               )
             ],
@@ -113,12 +125,13 @@ class NodeForm extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
-                  child: BaseTextFormField(
-                controller: _portController,
-                hintText: S.of(context).node_port,
-                keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
-                validator: NodePortValidator(),
-              ))
+                child: BaseTextFormField(
+                  controller: _portController,
+                  hintText: S.of(context).node_port,
+                  keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                  validator: NodePortValidator(),
+                ),
+              )
             ],
           ),
           SizedBox(height: 10.0),
@@ -131,9 +144,8 @@ class NodeForm extends StatelessWidget {
                 Observer(
                   builder: (_) => StandardCheckbox(
                     value: nodeViewModel.useSSL,
-                    gradientBackground: true,
-                    borderColor: Theme.of(context).dividerColor,
-                    iconColor: Colors.white,
+                    borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    iconColor: Theme.of(context).colorScheme.primary,
                     onChanged: (value) => nodeViewModel.useSSL = value,
                     caption: S.of(context).use_ssl,
                   ),
@@ -142,24 +154,45 @@ class NodeForm extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.0),
+          Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Observer(
+                  builder: (_) => StandardCheckbox(
+                    value: nodeViewModel.isEnabledForAutoSwitching,
+                    borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    iconColor: Theme.of(context).colorScheme.primary,
+                    onChanged: (value) => nodeViewModel.isEnabledForAutoSwitching = value,
+                    caption: S.current.enable_for_auto_switching,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10.0),
           if (nodeViewModel.hasAuthCredentials) ...[
             Row(
               children: <Widget>[
                 Expanded(
-                    child: BaseTextFormField(
-                  controller: _loginController,
-                  hintText: S.of(context).login,
-                ))
+                  child: BaseTextFormField(
+                    controller: _loginController,
+                    hintText: S.of(context).login,
+                  ),
+                )
               ],
             ),
             SizedBox(height: 10.0),
             Row(
               children: <Widget>[
                 Expanded(
-                    child: BaseTextFormField(
-                  controller: _passwordController,
-                  hintText: S.of(context).password,
-                ))
+                  child: BaseTextFormField(
+                    controller: _passwordController,
+                    hintText: S.of(context).password,
+                  ),
+                )
               ],
             ),
             Padding(
@@ -171,9 +204,8 @@ class NodeForm extends StatelessWidget {
                   Observer(
                     builder: (_) => StandardCheckbox(
                       value: nodeViewModel.trusted,
-                      gradientBackground: true,
-                      borderColor: Theme.of(context).dividerColor,
-                      iconColor: Colors.white,
+                      borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      iconColor: Theme.of(context).colorScheme.primary,
                       onChanged: (value) => nodeViewModel.trusted = value,
                       caption: S.of(context).trusted,
                     ),
@@ -184,17 +216,35 @@ class NodeForm extends StatelessWidget {
             Observer(
                 builder: (_) => Column(
                       children: [
+                        if (nodeViewModel.usesEmbeddedProxy) ...[
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                StandardCheckbox(
+                                  value: nodeViewModel.usesEmbeddedProxy,
+                                  gradientBackground: false,
+                                  borderColor: Theme.of(context).dividerColor,
+                                  iconColor: Theme.of(context).colorScheme.primary,
+                                  onChanged: null,
+                                  caption: 'Embedded Tor SOCKS Proxy',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                         Padding(
-                          padding: EdgeInsets.only(top: 20),
+                          padding: EdgeInsets.only(top: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.max,
                             children: [
                               StandardCheckbox(
                                 value: nodeViewModel.useSocksProxy,
-                                gradientBackground: true,
-                                borderColor: Theme.of(context).dividerColor,
-                                iconColor: Colors.white,
+                                borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                iconColor: Theme.of(context).colorScheme.primary,
                                 onChanged: (value) {
                                   if (!value) {
                                     _socksAddressController.text = '';
