@@ -188,7 +188,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<bool> checkNodeHealth() async {
     try {
       // Check if the wallet is currently connected to the daemon
-      final isConnected = monero_wallet.isConnectedSync();
+      final isConnected = await monero_wallet.isConnected();
       
       if (!isConnected) {
         return false; // It's not connected to daemon

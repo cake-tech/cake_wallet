@@ -470,9 +470,7 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: sendViewModel.payjoinUri != null
-                                ? S.of(context).send_payjoin
-                                : S.of(context).send,
+                            text: _sendButtonText(context),
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: sendViewModel.state is IsExecutingState ||
@@ -840,5 +838,16 @@ class SendPage extends BasePage {
     }
 
     return isValid;
+  }
+
+  String _sendButtonText(BuildContext context) {
+    if (!sendViewModel.isReadyForSend) {
+      return S.of(context).synchronizing;
+    }
+    if (sendViewModel.payjoinUri != null) {
+      return S.of(context).send_payjoin;
+    } else {
+      return S.of(context).send;
+    }
   }
 }
