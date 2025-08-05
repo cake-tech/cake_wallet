@@ -24,12 +24,15 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_shee
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -301,6 +304,39 @@ class CakePayBuyCardPage extends BasePage {
                   methods.length <= 1 || selected == null
                       ? const SizedBox.shrink()
                       : _buildPaymentMethodWidget(methods, selected),
+                  if (cakePayBuyCardViewModel.sendViewModel.walletType == WalletType.litecoin)
+                    Observer(
+                      builder: (_) => Padding(
+                        padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
+                        child: GestureDetector(
+                          key: ValueKey('send_page_unspent_coin_button_key'),
+                          onTap: () {
+                            bool value =
+                                cakePayBuyCardViewModel.sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any;
+                            cakePayBuyCardViewModel.sendViewModel.setAllowMwebCoins(!value);
+                          },
+                          child: Container(
+                            color: Colors.transparent,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                StandardCheckbox(
+                                  caption: S.of(context).litecoin_mweb_allow_coins,
+                                  captionColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  borderColor: Theme.of(context).colorScheme.primary,
+                                  iconColor: Theme.of(context).colorScheme.primary,
+                                  value:
+                                  cakePayBuyCardViewModel.sendViewModel.coinTypeToSpendFrom == UnspentCoinType.any,
+                                  onChanged: (bool? value) {
+                                    cakePayBuyCardViewModel.sendViewModel.setAllowMwebCoins(value ?? false);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   if (FeatureFlag.hasDevOptions)
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
@@ -569,7 +605,13 @@ class CakePayBuyCardPage extends BasePage {
                       fiatAmount: '${order?.amountUsd.toString()} USD',
                     ))
                 .toList();
+            
+            if (cakePayBuyCardViewModel.sendViewModel.walletType == WalletType.litecoin) {
+              if (cakePayBuyCardViewModel.selectedPaymentMethod == CakePayPaymentMethod.LTC_MWEB) {
+                cakePayBuyCardViewModel.sendViewModel.setAllowMwebCoins(true);
+              }
 
+            }
             final result = await showModalBottomSheet<bool>(
               context: context,
               isDismissible: false,

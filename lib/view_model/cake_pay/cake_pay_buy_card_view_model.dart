@@ -95,7 +95,12 @@ abstract class CakePayBuyCardViewModelBase with Store {
   }
 
   @action
-  void chooseMethod(CakePayPaymentMethod method) => selectedPaymentMethod = method;
+  void chooseMethod(CakePayPaymentMethod method) {
+    selectedPaymentMethod = method;
+    if (walletType == WalletType.litecoin) {
+      sendViewModel.setAllowMwebCoins(method == CakePayPaymentMethod.LTC_MWEB);
+    }
+  }
 
   @action
   void onQuantityChanged(int? input) => quantity = input ?? 1;
