@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/text_info_box.dart';
@@ -67,6 +68,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late bool showKeyTab;
+  late bool showSilentPaymentsTab;
   late bool showLegacySeedTab;
   late bool isLegacySeedOnly;
 
@@ -79,10 +81,15 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     super.initState();
 
     showKeyTab = widget.walletKeysViewModel.items.isNotEmpty;
+    showSilentPaymentsTab =
+        widget.walletKeysViewModel.isBitcoin && widget.walletKeysViewModel.items.length > 4;
     showLegacySeedTab = widget.walletKeysViewModel.legacySeedSplit.isNotEmpty;
     isLegacySeedOnly = widget.walletKeysViewModel.isLegacySeedOnly;
 
-    final totalTabs = (_hasSeeds ? 1 : 0) + (showKeyTab ? 1 : 0) + (showLegacySeedTab ? 1 : 0);
+    final totalTabs = (_hasSeeds ? 1 : 0) +
+        (showKeyTab ? 1 : 0) +
+        (showLegacySeedTab ? 1 : 0) +
+        (showSilentPaymentsTab ? 1 : 0);
 
     _tabController = TabController(length: totalTabs, vsync: this);
   }
@@ -124,9 +131,20 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               dividerColor: Colors.transparent,
               padding: EdgeInsets.zero,
               tabs: [
-                if (_hasSeeds) Tab(text: S.of(context).widgets_seed, key: ValueKey('wallet_keys_page_seed')),
-                if (showKeyTab) Tab(text: S.of(context).keys, key: ValueKey('wallet_keys_page_keys'),),
-                if (showLegacySeedTab) Tab(text: S.of(context).legacy, key: ValueKey('wallet_keys_page_seed_legacy')),
+                if (_hasSeeds)
+                  Tab(text: S.of(context).widgets_seed, key: ValueKey('wallet_keys_page_seed')),
+                if (showKeyTab)
+                  Tab(
+                    text: S.of(context).keys,
+                    key: ValueKey('wallet_keys_page_keys'),
+                  ),
+                if (showSilentPaymentsTab)
+                  Tab(
+                    text: S.of(context).silent_payments,
+                    key: ValueKey('wallet_keys_silent_payments_keys'),
+                  ),
+                if (showLegacySeedTab)
+                  Tab(text: S.of(context).legacy, key: ValueKey('wallet_keys_page_seed_legacy')),
               ],
             ),
           ),
@@ -143,7 +161,12 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 if (showKeyTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(context),
+                    child: _buildKeysTab(context, widget.walletKeysViewModel.items.sublist(0, 4)),
+                  ),
+                if (showSilentPaymentsTab)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 22, right: 22),
+                    child: _buildKeysTab(context, widget.walletKeysViewModel.items.sublist(4)),
                   ),
                 if (showLegacySeedTab)
                   Padding(
@@ -187,15 +210,15 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     );
   }
 
-  Widget _buildKeysTab(BuildContext context) {
+  Widget _buildKeysTab(BuildContext context, List<StandartListItem> items) {
     return Column(
       children: [
         Expanded(
           child: ListView.separated(
             shrinkWrap: true,
-            itemCount: widget.walletKeysViewModel.items.length,
+            itemCount: items.length,
             itemBuilder: (context, index) {
-              final item = widget.walletKeysViewModel.items[index];
+              final item = items[index];
               return TextInfoBox(
                 key: item.key,
                 title: item.title,
