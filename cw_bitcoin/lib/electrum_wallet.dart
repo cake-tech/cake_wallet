@@ -9,6 +9,7 @@ import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -353,27 +354,32 @@ abstract class ElectrumWalletBase
       runningIsolate.kill(priority: Isolate.immediate);
     }
 
+    final appDir = await getApplicationSupportDirectory();
+    String debugLogPath = "${appDir.path}/logs/debug.log";
+
     final receivePort = ReceivePort();
     _isolate = Isolate.spawn(
-        _handleScanSilentPayments,
-        ScanData(
-          sendPort: receivePort.sendPort,
-          silentAddress: walletAddresses.silentAddress!,
-          network: network,
-          height: height,
-          chainTip: chainTip,
-          electrumClient: electrum.ElectrumClient(),
-          transactionHistoryIds: transactionHistory.transactions.keys.toList(),
-          node: (await getNodeSupportsSilentPayments()) == true
-              ? ScanNode(node!.uri, node!.useSSL)
-              : null,
-          labels: walletAddresses.labels,
-          labelIndexes: walletAddresses.silentAddresses
-              .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.index >= 1)
-              .map((addr) => addr.index)
-              .toList(),
-          isSingleScan: doSingleScan ?? false,
-        ));
+      _handleScanSilentPayments,
+      ScanData(
+        sendPort: receivePort.sendPort,
+        silentAddress: walletAddresses.silentAddress!,
+        network: network,
+        height: height,
+        chainTip: chainTip,
+        electrumClient: electrum.ElectrumClient(),
+        transactionHistoryIds: transactionHistory.transactions.keys.toList(),
+        node: (await getNodeSupportsSilentPayments()) == true
+            ? ScanNode(node!.uri, node!.useSSL)
+            : null,
+        labels: walletAddresses.labels,
+        labelIndexes: walletAddresses.silentAddresses
+            .where((addr) => addr.type == SilentPaymentsAddresType.p2sp && addr.index >= 1)
+            .map((addr) => addr.index)
+            .toList(),
+        isSingleScan: doSingleScan ?? false,
+        debugLogPath: debugLogPath,
+      ),
+    );
 
     await _receiveStream?.cancel();
     _receiveStream = receivePort.listen((var message) async {
@@ -2762,6 +2768,7 @@ class ScanData {
   final Map<String, String> labels;
   final List<int> labelIndexes;
   final bool isSingleScan;
+  final String debugLogPath;
 
   ScanData({
     required this.sendPort,
@@ -2775,6 +2782,7 @@ class ScanData {
     required this.labels,
     required this.labelIndexes,
     required this.isSingleScan,
+    required this.debugLogPath,
   });
 
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
@@ -2790,6 +2798,7 @@ class ScanData {
       labels: scanData.labels,
       labelIndexes: scanData.labelIndexes,
       isSingleScan: scanData.isSingleScan,
+      debugLogPath: scanData.debugLogPath,
     );
   }
 }
@@ -2802,14 +2811,20 @@ class SyncResponse {
 }
 
 Future<void> _handleScanSilentPayments(ScanData scanData) async {
+  var node = Uri.parse("tcp://electrs.cakewallet.com:50001");
+
+  void log(String message, LogLevel level) {
+    printV("[Scanning] $message", file: scanData.debugLogPath, level: level);
+  }
+
   try {
     // if (scanData.shouldSwitchNodes) {
     var scanningClient = await ElectrumProvider.connect(
-      ElectrumTCPService.connect(
-        Uri.parse("tcp://electrs.cakewallet.com:50001"),
-      ),
+      ElectrumTCPService.connect(node),
     );
     // }
+
+    log("connected to ${node.toString()}", LogLevel.info);
 
     int syncHeight = scanData.height;
     int initialSyncHeight = syncHeight;
@@ -2820,6 +2835,11 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       scanData.network == BitcoinNetwork.testnet,
       scanData.labelIndexes,
       scanData.labelIndexes.length,
+    );
+
+    log(
+      "using receiver: b_scan: ${scanData.silentAddress.b_scan.toHex()}, B_scan: ${scanData.silentAddress.B_spend.toHex()}, b_spend: ${scanData.silentAddress.B_spend.toHex()}, B_spend: ${scanData.silentAddress.B_spend.toHex()}, network: ${scanData.network.value}, labelIndexes: ${scanData.labelIndexes}",
+      LogLevel.info,
     );
 
     int getCountToScanPerRequest(int syncHeight) {
@@ -2842,10 +2862,22 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
     var _scanningStream = await scanningClient.subscribe(req);
 
+    log(
+      "initial request: height: $syncHeight, count: ${getCountToScanPerRequest(syncHeight)}",
+      LogLevel.info,
+    );
+
     void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) async {
       final response = req.onResponse(event);
 
       if (response == null || _scanningStream == null) {
+        log(
+          "ending: response = $response, stream = $_scanningStream",
+          LogLevel.error,
+        );
+        scanData.sendPort.send(
+          SyncResponse(scanData.height, LostConnectionSyncStatus()),
+        );
         return;
       }
 
@@ -2854,6 +2886,11 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
       if (noData) {
         if (scanData.isSingleScan) {
+          log("ending: noData and isSingleScan", LogLevel.info);
+
+          scanData.sendPort.send(
+            SyncResponse(scanData.height, LostConnectionSyncStatus()),
+          );
           return;
         }
 
@@ -2861,6 +2898,11 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         final nextHeight = syncHeight + 1;
 
         if (nextHeight <= scanData.chainTip) {
+          log(
+            "resubscribing: nextHeight: $nextHeight, count: ${getCountToScanPerRequest(nextHeight)}",
+            LogLevel.info,
+          );
+
           final nextStream = scanningClient.subscribe(
             ElectrumTweaksSubscribe(
               height: nextHeight,
@@ -2878,6 +2920,10 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
           }
         }
 
+        log(
+          "ending: resubscribing: nextHeight: $nextHeight, count: ${getCountToScanPerRequest(nextHeight)}",
+          LogLevel.info,
+        );
         return;
       }
 
@@ -2894,6 +2940,9 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
       try {
         final blockTweaks = response.blockTweaks;
+
+        var blockDate = DateTime.now();
+        bool isDateNow = true;
 
         for (final txid in blockTweaks.keys) {
           final tweakData = blockTweaks[txid];
@@ -2923,33 +2972,42 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               continue;
             }
 
-            var txDate = DateTime.now();
-            bool isDateNow = true;
+            log(
+              "FOUND: addToWallet: ${addToWallet.length}, txid: $txid, tweak: $tweak, height: $tweakHeight",
+              LogLevel.info,
+            );
 
-            final tweakBlockHash = await ProxyWrapper()
-                .get(
-                  clearnetUri: Uri.parse(
-                    "https://mempool.cakewallet.com/api/v1/block-height/$tweakHeight",
-                  ),
-                )
-                .timeout(Duration(seconds: 15));
-            final blockResponse = await ProxyWrapper()
-                .get(
-                  clearnetUri: Uri.parse(
-                    "https://mempool.cakewallet.com/api/v1/block/${tweakBlockHash.body}",
-                  ),
-                )
-                .timeout(Duration(seconds: 15));
-
-            if (blockResponse.statusCode == 200 &&
-                blockResponse.body.isNotEmpty &&
-                jsonDecode(blockResponse.body)['timestamp'] != null) {
+            // Every tx in the block has the same date (the block date)
+            // So, if blockDate exists, reuse
+            if (isDateNow) {
               try {
-                txDate = DateTime.fromMillisecondsSinceEpoch(
-                  int.parse(jsonDecode(blockResponse.body)['timestamp'].toString()) * 1000,
-                );
-                isDateNow = false;
-              } catch (_) {}
+                final tweakBlockHash = await ProxyWrapper()
+                    .get(
+                      clearnetUri: Uri.parse(
+                        "https://mempool.cakewallet.com/api/v1/block-height/$tweakHeight",
+                      ),
+                    )
+                    .timeout(Duration(seconds: 15));
+                final blockResponse = await ProxyWrapper()
+                    .get(
+                      clearnetUri: Uri.parse(
+                        "https://mempool.cakewallet.com/api/v1/block/${tweakBlockHash.body}",
+                      ),
+                    )
+                    .timeout(Duration(seconds: 15));
+
+                if (blockResponse.statusCode == 200 &&
+                    blockResponse.body.isNotEmpty &&
+                    jsonDecode(blockResponse.body)['timestamp'] != null) {
+                  blockDate = DateTime.fromMillisecondsSinceEpoch(
+                    int.parse(jsonDecode(blockResponse.body)['timestamp'].toString()) * 1000,
+                  );
+                  isDateNow = false;
+                }
+              } catch (e, stacktrace) {
+                printV(stacktrace);
+                printV(e.toString());
+              }
             }
 
             // initial placeholder ElectrumTransactionInfo object to update values based on new scanned unspent(s) on the following loop
@@ -2963,7 +3021,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               isReplaced: false,
               // TODO: fetch block data and get the date from it
               date: scanData.network == BitcoinNetwork.mainnet
-                  ? (isDateNow ? getDateByBitcoinHeight(tweakHeight) : txDate)
+                  ? (isDateNow ? getDateByBitcoinHeight(tweakHeight) : blockDate)
                   : DateTime.now(),
               confirmations: scanData.chainTip - tweakHeight + 1,
               isReceivedSilentPayment: true,
@@ -3026,13 +3084,23 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
             scanData.sendPort.send({txInfo.id: txInfo});
           } catch (e, stacktrace) {
-            printV(stacktrace);
-            printV(e.toString());
+            scanData.sendPort.send(
+              SyncResponse(syncHeight, LostConnectionSyncStatus()),
+            );
+
+            log(stacktrace.toString(), LogLevel.error);
+            log(e.toString(), LogLevel.error);
+            return;
           }
         }
       } catch (e, stacktrace) {
-        printV(stacktrace);
-        printV(e.toString());
+        scanData.sendPort.send(
+          SyncResponse(syncHeight, LostConnectionSyncStatus()),
+        );
+
+        log(stacktrace.toString(), LogLevel.error);
+        log(e.toString(), LogLevel.error);
+        return;
       }
 
       syncHeight = tweakHeight;
@@ -3049,13 +3117,17 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
         _scanningStream?.close();
         _scanningStream = null;
+        log(
+          "ending: syncHeight: $syncHeight, chainTip: ${scanData.chainTip}, isSingleScan: ${scanData.isSingleScan}",
+          LogLevel.info,
+        );
         return;
       }
     }
 
     _scanningStream?.listen((event) => listenFn(event, req));
   } catch (e) {
-    printV("Error in _handleScanSilentPayments: $e");
+    log("Error in _handleScanSilentPayments: $e", LogLevel.error);
     scanData.sendPort.send(SyncResponse(scanData.height, LostConnectionSyncStatus()));
   }
 }
