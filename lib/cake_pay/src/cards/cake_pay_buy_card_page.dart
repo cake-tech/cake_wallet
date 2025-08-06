@@ -154,10 +154,10 @@ class CakePayBuyCardPage extends BasePage {
                 ),
                 bottomCardChild: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: card.denominationItemsWithUniqueValue.isNotEmpty
+                    child: card.denominationItems.isNotEmpty
                         ? DenominationsAmountWidget(
                             fiatCurrency: card.fiatCurrency.title,
-                            denominations: card.denominationItemsWithUniqueValue,
+                            denominations: card.denominationItems,
                             amountFieldFocus: _amountFieldFocus,
                             amountController: _amountController,
                             quantityFieldFocus: _quantityFieldFocus,
