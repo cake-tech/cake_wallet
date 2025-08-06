@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:isolate';
 import 'dart:math';
@@ -422,3 +423,8 @@ bool verifyMessage(String message, String address, String signature) {
 }
 
 Map<String, List<int>> debugCallLength() => monero.debugCallLength;
+
+Map<String, dynamic> getWalletCacheDebug() {
+  final jsonString = monero.MONERO_Wallet_serializeCacheToJson(Pointer.fromAddress(currentWallet!.ffiAddress()));
+  return json.decode(jsonString);
+}
