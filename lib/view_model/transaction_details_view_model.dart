@@ -90,7 +90,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         break;
       case WalletType.none:
       case WalletType.banano:
-      break;
+        break;
     }
 
     final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
@@ -235,9 +235,8 @@ abstract class TransactionDetailsViewModelBase with Store {
   void _addMoneroListItems(TransactionInfo tx, DateFormat dateFormat) {
     final descriptionKey = '${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}';
     final description = transactionDescriptionBox.values.firstWhere(
-      (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
-      orElse: () => TransactionDescription(id: descriptionKey));
-
+        (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+        orElse: () => TransactionDescription(id: descriptionKey));
 
     final key = tx.additionalInfo['key'] as String? ?? description.transactionKey;
     final accountIndex = tx.additionalInfo['accountIndex'] as int;
@@ -343,6 +342,25 @@ abstract class TransactionDetailsViewModelBase with Store {
           key: ValueKey('standard_list_item_transaction_details_fee_key'),
         ),
     ];
+
+    if (wallet.type == WalletType.bitcoin && tx.direction == TransactionDirection.incoming) {
+      try {
+        final address = bitcoin!.getTransactionAddress(wallet, tx);
+
+        if (address != null) {
+          isRecipientAddressShown = true;
+          _items.add(
+            StandartListItem(
+              title: S.current.transaction_details_recipient_address,
+              value: address,
+              key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+            ),
+          );
+        }
+      } catch (e) {
+        printV(e.toString());
+      }
+    }
 
     items.addAll(_items);
   }
