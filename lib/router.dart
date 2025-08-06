@@ -277,10 +277,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.restoreOptions:
-      if (SettingsStoreBase.walletPasswordDirectInput) {
-        return createRoute(RouteSettings(name: Routes.restoreWalletType));
-      }
-
       final isNewInstall = settings.arguments as bool;
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<RestoreOptionsPage>(param1: isNewInstall),
