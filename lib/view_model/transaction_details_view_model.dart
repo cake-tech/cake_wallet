@@ -344,6 +344,27 @@ abstract class TransactionDetailsViewModelBase with Store {
         ),
     ];
 
+    if (wallet.type == WalletType.bitcoin && tx.direction == TransactionDirection.incoming) {
+      try {
+        final addresses = bitcoin!.getTransactionAddresses(wallet, tx);
+
+        if (addresses != null) {
+          isRecipientAddressShown = true;
+          for (final address in addresses) {
+            _items.add(
+              StandartListItem(
+                title: S.current.transaction_details_recipient_address,
+                value: address,
+                key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        printV(e.toString());
+      }
+    }
+
     items.addAll(_items);
   }
 

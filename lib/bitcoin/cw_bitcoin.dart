@@ -775,4 +775,24 @@ class CWBitcoin extends Bitcoin {
     (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
   }
+
+  @override
+  List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx) {
+    final bitcoinWallet = wallet as BitcoinWallet;
+    final bitcoinTx = tx as ElectrumTransactionInfo;
+
+    if (bitcoinTx.unspents == null || bitcoinTx.unspents!.isEmpty) {
+      return null;
+    }
+
+    final addresses = <String>[];
+    final labels = <String>[];
+    bitcoinTx.unspents!.forEach((unspent) {
+      addresses.add(bitcoinWallet.walletAddresses.silentAddresses
+          .firstWhere((address) => address.silentPaymentTweak == unspent.silentPaymentLabel)
+          .address);
+    });
+
+    return addresses;
+  }
 }

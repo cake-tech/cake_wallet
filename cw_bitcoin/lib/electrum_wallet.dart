@@ -2867,6 +2867,23 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       LogLevel.info,
     );
 
+    void endScanningSuccesfully() {
+      if (scanData.isSingleScan)
+        scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
+      else
+        scanData.sendPort.send(
+          SyncResponse(syncHeight, SyncedTipSyncStatus(scanData.chainTip)),
+        );
+
+      _scanningStream?.close();
+      _scanningStream = null;
+
+      log(
+        "ended: syncHeight: $syncHeight, chainTip: ${scanData.chainTip}, isSingleScan: ${scanData.isSingleScan}",
+        LogLevel.info,
+      );
+    }
+
     void listenFn(Map<String, dynamic> event, ElectrumTweaksSubscribe req) async {
       final response = req.onResponse(event);
 
@@ -2874,9 +2891,6 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         log(
           "ending: response = $response, stream = $_scanningStream",
           LogLevel.error,
-        );
-        scanData.sendPort.send(
-          SyncResponse(scanData.height, LostConnectionSyncStatus()),
         );
         return;
       }
@@ -2888,9 +2902,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         if (scanData.isSingleScan) {
           log("ending: noData and isSingleScan", LogLevel.info);
 
-          scanData.sendPort.send(
-            SyncResponse(scanData.height, LostConnectionSyncStatus()),
-          );
+          endScanningSuccesfully();
           return;
         }
 
@@ -3106,22 +3118,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       syncHeight = tweakHeight;
 
       if ((tweakHeight >= scanData.chainTip) || scanData.isSingleScan) {
-        if (tweakHeight >= scanData.chainTip)
-          scanData.sendPort.send(
-            SyncResponse(syncHeight, SyncedTipSyncStatus(scanData.chainTip)),
-          );
-
-        if (scanData.isSingleScan) {
-          scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
-        }
-
-        _scanningStream?.close();
-        _scanningStream = null;
-        log(
-          "ending: syncHeight: $syncHeight, chainTip: ${scanData.chainTip}, isSingleScan: ${scanData.isSingleScan}",
-          LogLevel.info,
-        );
-        return;
+        endScanningSuccesfully();
       }
     }
 

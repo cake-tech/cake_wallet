@@ -253,6 +253,8 @@ abstract class Bitcoin {
   String getPayjoinEndpoint(Object wallet);
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
+  Map<String, String> getSilentPaymentKeys(Object wallet);
+  List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
 }
   """;
 
