@@ -161,7 +161,7 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                 if (showKeyTab)
                   Padding(
                     padding: const EdgeInsets.only(left: 22, right: 22),
-                    child: _buildKeysTab(context, widget.walletKeysViewModel.items.sublist(0, 4)),
+                    child: _buildKeysTab(context, showSilentPaymentsTab ? widget.walletKeysViewModel.items.sublist(0, 4) : widget.walletKeysViewModel.items),
                   ),
                 if (showSilentPaymentsTab)
                   Padding(
