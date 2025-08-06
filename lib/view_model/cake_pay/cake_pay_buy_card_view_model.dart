@@ -55,7 +55,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   bool get isDenominationSelected =>
       card.denominationItems.isNotEmpty &&
-      card.denominationItems.any((item) => item.value == amount && item.cardId == card.id);
+      card.denominationItems.any((item) => item.value == amount);
 
   @observable
   double amount;
