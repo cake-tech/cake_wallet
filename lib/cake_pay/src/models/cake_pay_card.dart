@@ -43,6 +43,10 @@ class CakePayCard {
     final howToUse = stripHtmlIfNeeded(json['how_to_use'] as String? ?? '');
 
     final fiatCurrency = FiatCurrency.deserialize(raw: json['currency_code'] as String? ?? '');
+    final parsedMinValue = _toDouble(json['min_value'] as String?);
+    final minValue = fiatCurrency == FiatCurrency.usd && parsedMinValue != null && parsedMinValue < 10.00
+        ? '10.00'
+        : json['min_value'] as String?;
 
     final List<String> denominationsUsd =
         (json['denominations_usd'] as List?)?.map((e) => e.toString()).toList() ?? [];
@@ -63,12 +67,18 @@ class CakePayCard {
       denominations: denominations,
       minValueUsd: json['min_value_usd'] as String?,
       maxValueUsd: json['max_value_usd'] as String?,
-      minValue: json['min_value'] as String?,
+      minValue: minValue,
       maxValue: json['max_value'] as String?,
     );
   }
 
   static String stripHtmlIfNeeded(String text) {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
+  }
+
+  static double? _toDouble(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString());
   }
 }

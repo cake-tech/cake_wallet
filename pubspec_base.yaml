@@ -115,7 +115,7 @@ dependencies:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
-  hashlib: ^1.19.2
+  hashlib: 1.19.2
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git

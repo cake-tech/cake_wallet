@@ -49,6 +49,8 @@ abstract class WalletKeysViewModelBase with Store {
     }
   }
 
+  bool get isBitcoin => _wallet.type == WalletType.bitcoin;
+
   final ObservableList<StandartListItem> items;
 
   final String title;
@@ -66,8 +68,7 @@ abstract class WalletKeysViewModelBase with Store {
   bool get isLegacySeedOnly =>
       [WalletType.monero, WalletType.wownero].contains(_wallet.type) &&
       _wallet.seed != null &&
-      !(Polyseed.isValidSeed(_wallet.seed!) ||
-          _wallet.seed!.split(' ').length == 12);
+      !(Polyseed.isValidSeed(_wallet.seed!) || _wallet.seed!.split(' ').length == 12);
 
   String get legacySeed {
     if ((_wallet.type == WalletType.monero || _wallet.type == WalletType.wownero) &&
@@ -164,18 +165,22 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
-          final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
-        
-          items.addAll([
-            if ((keys['wif']??'').isNotEmpty)
-              StandartListItem(title: "WIF", value: keys['wif']!),
-            if ((keys['privateKey']??'').isNotEmpty)
-              StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
-            if (keys['publicKey'] != null)
-              StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-            if (keys['xpub'] != null)
-              StandartListItem(title: "xPub", value: keys['xpub']!),
-          ]);
+        if (_wallet.type == WalletType.bitcoin) {
+          keys = bitcoin!.getSilentPaymentKeys(_appStore.wallet!);
+        }
+
+        final electrumKeys = bitcoin!.getWalletKeys(_appStore.wallet!);
+
+        items.addAll([
+          if ((electrumKeys['wif'] ?? '').isNotEmpty)
+            StandartListItem(title: "WIF", value: electrumKeys['wif']!),
+          if ((electrumKeys['privateKey'] ?? '').isNotEmpty)
+            StandartListItem(title: S.current.private_key, value: electrumKeys['privateKey']!),
+          if (electrumKeys['publicKey'] != null)
+            StandartListItem(title: S.current.public_key, value: electrumKeys['publicKey']!),
+          if (electrumKeys['xpub'] != null)
+            StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
+        ]);
         break;
       case WalletType.none:
       case WalletType.haven:
