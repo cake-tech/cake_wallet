@@ -514,6 +514,8 @@ Future<void> defaultSettingsMigration(
           break;
         case 50:
           migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
+          break;
+        case 51:
           await addWalletNodeList(nodes: nodes, type: WalletType.dogecoin);
           await _changeDefaultNode(
             nodes: nodes,
