@@ -130,6 +130,8 @@ abstract class ElectrumWalletBase
               as Bip32Slip10Secp256k1;
         case CryptoCurrency.bch:
           return bitcoinCashHDWallet(seedBytes);
+        case CryptoCurrency.doge:
+          return dogecoinHDWallet(seedBytes);
         default:
           throw Exception("Unsupported currency");
       }
@@ -140,6 +142,9 @@ abstract class ElectrumWalletBase
 
   static Bip32Slip10Secp256k1 bitcoinCashHDWallet(Uint8List seedBytes) =>
       Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/145'/0'") as Bip32Slip10Secp256k1;
+
+  static Bip32Slip10Secp256k1 dogecoinHDWallet(Uint8List seedBytes) =>
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/3'/0'") as Bip32Slip10Secp256k1;
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
@@ -629,9 +634,9 @@ abstract class ElectrumWalletBase
     }
   }
 
-  int get _dustAmount => 546;
+  int get networkDustAmount => 546;
 
-  bool _isBelowDust(int amount) => amount <= _dustAmount && network != BitcoinNetwork.testnet;
+  bool _isBelowDust(int amount) => amount <= networkDustAmount && network != BitcoinNetwork.testnet;
 
   UtxoDetails _createUTXOS({
     required bool sendAll,
@@ -1685,7 +1690,7 @@ abstract class ElectrumWalletBase
     var currentFee = allInputsAmount - totalOutAmount;
 
     int remainingFee = (newFee - currentFee > 0) ? newFee - currentFee : newFee;
-    return totalBalance - receiverAmount - remainingFee >= _dustAmount;
+    return totalBalance - receiverAmount - remainingFee >= networkDustAmount;
   }
 
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
@@ -1773,10 +1778,10 @@ abstract class ElectrumWalletBase
 
           if (isChange) {
             int outputAmount = output.value.toInt();
-            if (outputAmount > _dustAmount) {
-              int deduction = (outputAmount - _dustAmount >= remainingFee)
+            if (outputAmount > networkDustAmount) {
+              int deduction = (outputAmount - networkDustAmount >= remainingFee)
                   ? remainingFee
-                  : outputAmount - _dustAmount;
+                  : outputAmount - networkDustAmount;
               outputs[i] = BitcoinOutput(
                   address: output.address, value: BigInt.from(outputAmount - deduction));
               remainingFee -= deduction;
@@ -1845,10 +1850,10 @@ abstract class ElectrumWalletBase
           final output = outputs[i];
           int outputAmount = output.value.toInt();
 
-          if (outputAmount > _dustAmount) {
-            int deduction = (outputAmount - _dustAmount >= remainingFee)
+          if (outputAmount > networkDustAmount) {
+            int deduction = (outputAmount - networkDustAmount >= remainingFee)
                 ? remainingFee
-                : outputAmount - _dustAmount;
+                : outputAmount - networkDustAmount;
 
             outputs[i] = BitcoinOutput(
                 address: output.address, value: BigInt.from(outputAmount - deduction));
@@ -2051,6 +2056,9 @@ abstract class ElectrumWalletBase
         await Future.wait(LITECOIN_ADDRESS_TYPES
             .where((type) => type != SegwitAddresType.mweb)
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+      } else if (type == WalletType.dogecoin) {
+        await Future.wait(DOGECOIN_ADDRESS_TYPES.map(
+            (type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
       transactionHistory.transactions.values.forEach((tx) async {
