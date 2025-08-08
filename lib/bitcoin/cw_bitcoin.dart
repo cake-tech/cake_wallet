@@ -74,6 +74,21 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Map<String, String> getSilentPaymentKeys(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final keysOwner = bitcoinWallet.walletAddresses.silentAddress;
+
+    if (keysOwner == null) return {};
+
+    return <String, String>{
+      'privateSpendKey': keysOwner.b_spend.toHex(),
+      'publicSpendKey': keysOwner.B_spend.toHex(),
+      'privateViewKey': keysOwner.b_scan.toHex(),
+      'publicViewKey': keysOwner.B_scan.toHex(),
+    };
+  }
+
+  @override
   List<TransactionPriority> getTransactionPriorities() => BitcoinTransactionPriority.all;
 
   @override
@@ -116,9 +131,7 @@ class CWBitcoin extends Bitcoin {
     String? payjoinUri,
   }) {
     final bitcoinFeeRate =
-        priority == BitcoinTransactionPriority.custom && feeRate != null
-            ? feeRate
-            : null;
+        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
     return BitcoinTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
@@ -168,6 +181,18 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
         );
 
+        return estimatedTx.amount;
+      }
+
+
+      if (wallet.type == WalletType.dogecoin) {
+        final dogeAddr =
+        sk.getPublic().toP2pkhAddress();
+        final estimatedTx = await electrumWallet.estimateSendAllTx(
+          [BitcoinOutput(address: dogeAddr, value: BigInt.zero)],
+          getFeeRate(wallet, priority as BitcoinTransactionPriority),
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
         return estimatedTx.amount;
       }
 
@@ -237,12 +262,12 @@ class CWBitcoin extends Bitcoin {
       Box<UnspentCoinsInfo> unspentCoinSource,
       Box<PayjoinSession> payjoinSessionSource,
       bool isDirect) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource,
-        payjoinSessionSource, isDirect);
+    return BitcoinWalletService(
+        walletInfoSource, unspentCoinSource, payjoinSessionSource, isDirect);
   }
 
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+  WalletService createLitecoinWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
     return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
   }
 

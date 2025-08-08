@@ -1,0 +1,12 @@
+-
+  uri: dogecoin.stackwallet.com:50022
+  is_default: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: doge.aftrek.org:50002
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: electrum1.cipig.net:20060
+  useSSL: true
