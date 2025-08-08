@@ -114,6 +114,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
+  bool get isMwebEnabled => balanceViewModel.mwebEnabled;
+
   @action
   void setShowAddressBookPopup(bool value) {
     _settingsStore.showAddressBookPopupEnabled = value;
