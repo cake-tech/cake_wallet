@@ -5,11 +5,15 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DisplaySettingsPage extends BasePage {
   DisplaySettingsPage(this._displaySettingsViewModel);
@@ -77,6 +81,12 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
 
+              StandardListRow(
+                title: "Custom background",
+                isSelected: false,
+                onTap: (_) => _pickImage(context),
+              ),
+
               if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
                 SettingsSwitcherCell(
                   title: S.current.use_device_theme,
@@ -96,5 +106,39 @@ class DisplaySettingsPage extends BasePage {
         );
       }),
     );
+  }
+
+  // Function to pick an image from the gallery
+  Future<void> _pickImage(BuildContext context) async {
+    if (_displaySettingsViewModel.backgroundImage.isNotEmpty) {
+      final bool? shouldReplace = await showPopUp<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithTwoActions(
+                alertTitle: "Replace",
+                alertContent: "You already have a custom background.\nDo you want to replace or remove it?",
+                rightButtonText: "Replace",
+                leftButtonText: "Remove",
+                actionRightButton: () => Navigator.of(context).pop(true),
+                actionLeftButton: () => Navigator.of(context).pop(false));
+          });
+
+      if (shouldReplace == false) {
+        // remove the current background by setting it as an empty string
+        _displaySettingsViewModel.setBackgroundImage("");
+        return;
+      } else if (shouldReplace == null) {
+        // user didn't choose anything, then just return
+        return;
+      }
+    }
+
+    final ImagePicker picker = ImagePicker();
+    // Pick an image from the gallery
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      _displaySettingsViewModel.setBackgroundImage(pickedFile.path);
+    }
   }
 }

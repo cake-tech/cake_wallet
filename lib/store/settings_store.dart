@@ -129,6 +129,7 @@ abstract class SettingsStoreBase with Store {
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
       required bool initialEnableAutomaticNodeSwitching,
+      required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -188,6 +189,7 @@ abstract class SettingsStoreBase with Store {
         currentSyncAll = initialSyncAll,
         currentBuiltinTor = initialBuiltinTor,
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
+        backgroundImage = initialBackgroundImage,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -621,6 +623,11 @@ abstract class SettingsStoreBase with Store {
         (bool enableAutomaticNodeSwitching) => _sharedPreferences.setBool(
             PreferencesKey.enableAutomaticNodeSwitching, enableAutomaticNodeSwitching));
 
+    reaction(
+        (_) => backgroundImage,
+        (String backgroundImage) => _sharedPreferences.setString(
+            PreferencesKey.backgroundImage, backgroundImage));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -869,6 +876,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool enableAutomaticNodeSwitching;
 
+  @observable
+  String backgroundImage;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1046,6 +1056,7 @@ abstract class SettingsStoreBase with Store {
         "ltc-electrum.cakewallet.com:9333";
     final enableAutomaticNodeSwitching =
         sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
+    final backgroundImage = sharedPreferences.getString(PreferencesKey.backgroundImage) ?? '';
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1348,6 +1359,7 @@ abstract class SettingsStoreBase with Store {
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
+      initialBackgroundImage: backgroundImage,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialZanoTransactionPriority: zanoTransactionPriority,
