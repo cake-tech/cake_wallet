@@ -48,7 +48,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   bool get isElectrum =>
       _wallet.type == WalletType.bitcoin ||
       _wallet.type == WalletType.bitcoinCash ||
-      _wallet.type == WalletType.litecoin;
+      _wallet.type == WalletType.litecoin ||
+      _wallet.type == WalletType.dogecoin;
 
   Future<void> save() async {
     try {

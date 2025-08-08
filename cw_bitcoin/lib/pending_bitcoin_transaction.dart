@@ -80,11 +80,14 @@ class PendingBitcoinTransaction with PendingTransaction {
         return "LTC";
       case WalletType.bitcoinCash:
         return "BCH";
+      case WalletType.dogecoin:
+        return "DOGE";
       default:
         return type.name;
     }
 
   }
+
 
   @override
   String get feeFormattedValue => bitcoinAmountToString(amount: fee);
@@ -103,8 +106,7 @@ class PendingBitcoinTransaction with PendingTransaction {
         return PendingChange(
             changeAddressOverride!, BtcUtils.fromSatoshi(change.amount));
       }
-      return PendingChange(
-          change.scriptPubKey.toAddress(), BtcUtils.fromSatoshi(change.amount));
+      return PendingChange(change.scriptPubKey.toAddress(network: network), BtcUtils.fromSatoshi(change.amount));
     } catch (_) {
       return null;
     }
