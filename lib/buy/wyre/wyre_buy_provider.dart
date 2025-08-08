@@ -157,7 +157,7 @@ class WyreBuyProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.wyre,
+        provider: OrderProviderDescription.wyre,
         transferId: transferId,
         from: from,
         to: to,
@@ -165,6 +165,7 @@ class WyreBuyProvider extends BuyProvider {
         createdAt: createdAt,
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
-        walletId: wallet.id);
+        walletId: wallet.id,
+        receiveAmount: '');
   }
 }

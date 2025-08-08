@@ -24,10 +24,10 @@ abstract class OrderDetailsViewModelBase with Store {
     order = orderForDetails {
     if (order.provider != null) {
       switch (order.provider) {
-        case BuyProviderDescription.wyre:
+        case OrderProviderDescription.wyre:
           _provider = WyreBuyProvider(wallet: wallet);
           break;
-        case BuyProviderDescription.moonPay:
+        case OrderProviderDescription.moonPay:
           // _provider = MoonPayProvider(wallet: wallet);// TODO: CW-521
           break;
       }

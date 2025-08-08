@@ -1400,7 +1400,8 @@ Future<void> setup({
       (CakePayVendor vendor, _) {
     return CakePayBuyCardViewModel(vendor: vendor,
         cakePayService: getIt.get<CakePayService>(),
-        sendViewModel: getIt.get<SendViewModel>());
+        sendViewModel: getIt.get<SendViewModel>(),
+        orders: _ordersSource);
   });
 
   getIt.registerFactory(() => CakePayAccountViewModel(cakePayService: getIt.get<CakePayService>()));

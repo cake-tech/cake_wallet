@@ -451,7 +451,7 @@ abstract class DashboardViewModelBase with Store {
     _items.addAll(
         transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
-    _items.addAll(orders);
+    _items.addAll(ordersStore.orders);
 
     if (payjoinTransactions.isNotEmpty) {
       final _payjoinTransactions = payjoinTransactions;

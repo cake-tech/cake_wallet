@@ -15,13 +15,11 @@ class OrderListItem extends ActionListItem {
 
   BalanceDisplayMode get displayMode => settingsStore.balanceDisplayMode;
 
-  String get orderFormattedAmount {
-    return order.amount != null
-        ? displayMode == BalanceDisplayMode.hiddenBalance
-          ? '---'
-          : order.amountFormatted()
-        : order.amount;
-  }
+  String get orderFormattedAmount =>
+      displayMode == BalanceDisplayMode.hiddenBalance ? '---' : order.amount;
+
+  String get orderFormattedReceiveAddress =>
+      displayMode == BalanceDisplayMode.hiddenBalance ? '---' : order.receiveAmount;
 
   @override
   DateTime get date => order.createdAt;

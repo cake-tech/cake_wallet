@@ -83,6 +83,7 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       case 'TO_BE_CREATED':
         return toBeCreated;
       case 'UNPAID':
+      case 'new':
         return unpaid;
       case 'UNDERPAID':
         return underpaid;

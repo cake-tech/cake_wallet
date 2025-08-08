@@ -1,5 +1,8 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/get_buy_provider_icon.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:flutter/material.dart';
 
 class OrderRow extends StatelessWidget {
@@ -10,21 +13,24 @@ class OrderRow extends StatelessWidget {
     required this.createdAtFormattedDate,
     this.onTap,
     this.formattedAmount,
+    this.formattedReceiveAmount,
+    required this.swapState,
     super.key,
   });
 
   final VoidCallback? onTap;
-  final BuyProviderDescription provider;
+  final OrderProviderDescription provider;
   final String from;
   final String to;
-  final String createdAtFormattedDate;
+  final String? createdAtFormattedDate;
   final String? formattedAmount;
+  final String? formattedReceiveAmount;
+  final TradeState swapState;
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
-
-    final providerIcon = getBuyProviderIcon(provider, iconColor: iconColor);
+    final amountCrypto = from.toString();
+    final receiveAmountCrypto = to.toString();
 
     return InkWell(
       onTap: onTap,
@@ -35,43 +41,77 @@ class OrderRow extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (providerIcon != null)
-              Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: providerIcon,
-              ),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: ImageUtil.getImageFromPath(
+                      imagePath: provider.image, height: 36, width: 36),),
+                Positioned(
+                  right: 0,
+                  bottom: 2,
+                  child: Container(
+                    height: 8,
+                    width: 8,
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _statusColor(context, swapState),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    Text(
-                      '$from → $to',
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                    formattedAmount != null
-                        ? Text(
-                            formattedAmount! + ' ' + to,
-                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          )
-                        : Container()
-                  ]),
-                  SizedBox(height: 5),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        createdAtFormattedDate,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                        '${from.toString()} → ${to.toString()}',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.primary),
                       ),
+                      formattedAmount != null
+                          ? Text(
+                        formattedAmount! + ' ' + amountCrypto,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      )
+                          : Container()
+                    ],
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      createdAtFormattedDate != null
+                          ? Text(
+                        createdAtFormattedDate!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      )
+                          : Container(),
+                      formattedReceiveAmount != null
+                          ? Text(
+                        formattedReceiveAmount!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      )
+                          : Container(),
                     ],
                   )
                 ],
@@ -82,4 +122,22 @@ class OrderRow extends StatelessWidget {
       ),
     );
   }
+
+  Color _statusColor(BuildContext context, TradeState status) {
+    switch (status) {
+      case TradeState.complete:
+      case TradeState.completed:
+      case TradeState.finished:
+      case TradeState.success:
+      case TradeState.settled:
+        return PaletteDark.brightGreen;
+      case TradeState.failed:
+      case TradeState.expired:
+      case TradeState.notFound:
+        return Palette.darkRed;
+      default:
+        return const Color(0xffff6600);
+    }
+  }
 }
+

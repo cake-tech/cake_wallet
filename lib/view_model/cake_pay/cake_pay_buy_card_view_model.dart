@@ -1,14 +1,19 @@
 import 'dart:async';
 
+import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'cake_pay_buy_card_view_model.g.dart';
@@ -17,7 +22,10 @@ class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCar
 
 abstract class CakePayBuyCardViewModelBase with Store {
   CakePayBuyCardViewModelBase(
-      {required this.vendor, required this.cakePayService, required this.sendViewModel})
+      {required this.vendor,
+      required this.cakePayService,
+      required this.sendViewModel,
+      required this.orders})
       : walletType = sendViewModel.walletType,
         card = vendor.card!,
         amount = vendor.card!.denominationItems.isNotEmpty
@@ -41,6 +49,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
   final double min;
   final CakePayCard card;
   final WalletType walletType;
+  final Box<Order> orders;
 
   CakePayOrder? order;
   Timer? _timer;
@@ -136,7 +145,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
       final addr = uri.path;
       final price = uri.queryParameters['amount'] ?? data.price;
 
-      return CryptoPaymentData(price: price, address: addr);
+      return CryptoPaymentData(price: price, address: addr, amount: data.amount, paymentUrls: data.paymentUrls);
     }
 
     return data;
@@ -161,6 +170,20 @@ abstract class CakePayBuyCardViewModelBase with Store {
       );
       await confirmSending();
       expirationTime = order!.paymentData.expirationTime;
+
+      final orderRecord = Order(
+          id: order!.orderId,
+          state: TradeState.deserialize(raw: order!.status),
+          provider: OrderProviderDescription.cakePay,
+          transferId: order!.externalId ?? '',
+          from: sendViewModel.selectedCryptoCurrency.toString(),
+          to: order!.fiatCurrencyCode,
+          createdAt: DateTime.now(),
+          amount: getPaymentDataFor(selectedPaymentMethod)?.amount ?? '',
+          receiveAmount: order!.totalReceiveAmount,
+          receiveAddress: getPaymentDataFor(selectedPaymentMethod)?.address ?? '',
+          walletId: sendViewModel.wallet.id);
+      orders.add(orderRecord);
       updateRemainingTime();
       _startExpirationTimer();
     } catch (e) {

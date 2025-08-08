@@ -329,13 +329,14 @@ class MoonPayProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.moonPay,
+        provider: OrderProviderDescription.moonPay,
         transferId: id,
         state: state,
         createdAt: createdAt,
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
-        walletId: wallet.id);
+        walletId: wallet.id,
+        receiveAmount: '');
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {

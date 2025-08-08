@@ -10,22 +10,23 @@ part 'order.g.dart';
 class Order extends HiveObject {
   Order(
       {required this.id,
-        required this.transferId,
-        required this.createdAt,
-        required this.amount,
-        required this.receiveAddress,
-        required this.walletId,
-        BuyProviderDescription? provider,
-        TradeState? state,
-        this.from,
-        this.to}) {
-      if (provider != null) {
-        providerRaw = provider.raw;
-      }
-      if (state != null) {
-        stateRaw = state.raw;
-      }
+      required this.transferId,
+      required this.createdAt,
+      required this.amount,
+      required this.receiveAmount,
+      required this.receiveAddress,
+      required this.walletId,
+      OrderProviderDescription? provider,
+      TradeState? state,
+      this.from,
+      this.to}) {
+    if (provider != null) {
+      providerRaw = provider.raw;
     }
+    if (state != null) {
+      stateRaw = state.raw;
+    }
+  }
 
   static const typeId = ORDER_TYPE_ID;
   static const boxName = 'Orders';
@@ -63,8 +64,10 @@ class Order extends HiveObject {
   @HiveField(9, defaultValue: 0)
   late int providerRaw;
 
-  BuyProviderDescription get provider =>
-      BuyProviderDescription.deserialize(raw: providerRaw);
+  @HiveField(10, defaultValue: '')
+  String receiveAmount;
+
+  OrderProviderDescription get provider => OrderProviderDescription.deserialize(raw: providerRaw);
 
   String amountFormatted() => formatAmount(amount);
 }
