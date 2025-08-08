@@ -19,14 +19,19 @@ abstract class CakePayBuyCardViewModelBase with Store {
   CakePayBuyCardViewModelBase(
       {required this.vendor, required this.cakePayService, required this.sendViewModel})
       : walletType = sendViewModel.walletType,
-        amount = vendor.card!.denominations.isNotEmpty
-            ? double.parse(vendor.card!.denominations.first)
+        card = vendor.card!,
+        amount = vendor.card!.denominationItems.isNotEmpty
+            ? vendor.card!.denominationItems.first.value
             : 0,
         quantity = 1,
-        min = double.parse(vendor.card!.minValue ?? '0'),
-        max = double.parse(vendor.card!.maxValue ?? '0'),
-        card = vendor.card! {
+        min = _toDouble(vendor.card!.minValue) ?? 0,
+        max = _toDouble(vendor.card!.maxValue) ?? 0 {
     selectedPaymentMethod = availableMethods.isNotEmpty ? availableMethods.first : null;
+  }
+
+  static double? _toDouble(String? value) {
+    if (value == null || value.isEmpty) return null;
+    return double.tryParse(value.replaceAll(',', '.'));
   }
 
   final CakePayVendor vendor;
@@ -44,10 +49,13 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool confirmsNoVpn = false;
   bool confirmsVoidedRefund = false;
   bool confirmsTermsAgreed = false;
+  (String, int?) selectedDenomination = ('', null);
 
   String simulatedResponse = '';
 
-  bool get isDenominationSelected => card.denominations.isNotEmpty;
+  bool get isDenominationSelected =>
+      card.denominationItems.isNotEmpty &&
+      card.denominationItems.any((item) => item.value == amount);
 
   @observable
   double amount;
@@ -78,7 +86,10 @@ abstract class CakePayBuyCardViewModelBase with Store {
   double get totalAmount => amount * quantity;
 
   @computed
-  bool get isSimulating => isSimulatingFlow && FeatureFlag.hasDevOptions;
+  bool get isSimulating =>
+      isSimulatingFlow &&
+      FeatureFlag.hasDevOptions &&
+      FeatureFlag.isCakePayPurchaseSimulationEnabled;
 
   @computed
   List<CakePayPaymentMethod> get availableMethods {
@@ -108,7 +119,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   CryptoPaymentData? getPaymentDataFor(CakePayPaymentMethod? method) {
     if (order == null || method == null) return null;
-
 
     final data = switch (method) {
       CakePayPaymentMethod.BTC => order?.paymentData.btc,
@@ -142,8 +152,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
     }
     try {
       order = await cakePayService.createOrder(
-        cardId: card.id,
-        price: amount.toString(),
+        cardId: isDenominationSelected ? selectedDenomination.$2 ?? card.id : card.id,
+        price: isDenominationSelected ? selectedDenomination.$1 : amount.toString(),
         quantity: quantity,
         confirmsNoVpn: confirmsNoVpn,
         confirmsVoidedRefund: confirmsVoidedRefund,
@@ -185,7 +195,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
     try {
       simulatedResponse = await cakePayService.simulatePayment(orderId: order!.orderId);
       sendViewModel.state = TransactionCommitted();
-
     } catch (e) {
       sendViewModel.state = FailureState(
           sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
@@ -222,8 +231,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds
-        .toString().padLeft(2, '0')}';
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   void disposeExpirationTimer() {
