@@ -114,4 +114,5 @@ class PreferencesKey {
   static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
   static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
+  static const backgroundImage = 'background_image';
 }
