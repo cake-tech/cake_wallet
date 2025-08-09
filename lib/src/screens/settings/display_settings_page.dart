@@ -32,7 +32,7 @@ class DisplaySettingsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
-                title: S.current.show_market_place,
+                title: S.of(context).show_market_place,
                 value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
                 onValueChange: (_, bool value) {
                   _displaySettingsViewModel.setShouldShowMarketPlaceInDashbaord(value);
@@ -48,8 +48,8 @@ class DisplaySettingsPage extends BasePage {
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
                 SettingsPickerCell<FiatCurrency>(
-                  title: S.current.settings_currency,
-                  searchHintText: S.current.search_currency,
+                  title: S.of(context).settings_currency,
+                  searchHintText: S.of(context).search_currency,
                   items: FiatCurrency.all,
                   selectedItem: _displaySettingsViewModel.fiatCurrency,
                   onItemSelected: (FiatCurrency currency) =>
@@ -64,8 +64,8 @@ class DisplaySettingsPage extends BasePage {
                   },
                 ),
               SettingsPickerCell<String>(
-                title: S.current.settings_change_language,
-                searchHintText: S.current.search_language,
+                title: S.of(context).settings_change_language,
+                searchHintText: S.of(context).search_language,
                 items: LanguageService.list.keys.toList(),
                 displayItem: (dynamic code) {
                   return LanguageService.list[code] ?? '';
@@ -89,7 +89,7 @@ class DisplaySettingsPage extends BasePage {
 
               if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
                 SettingsSwitcherCell(
-                  title: S.current.use_device_theme,
+                  title: S.of(context).use_device_theme,
                   value: _displaySettingsViewModel.themeMode == ThemeMode.system,
                   onValueChange: (_, bool value) {
                     _displaySettingsViewModel
@@ -97,7 +97,7 @@ class DisplaySettingsPage extends BasePage {
                   },
                 ),
                 Semantics(
-                  label: S.current.color_theme,
+                  label: S.of(context).color_theme,
                   child: SettingsThemeChoicesCell(_displaySettingsViewModel),
                 ),
               ],
@@ -115,10 +115,10 @@ class DisplaySettingsPage extends BasePage {
           context: context,
           builder: (BuildContext context) {
             return AlertWithTwoActions(
-                alertTitle: "Replace",
-                alertContent: "You already have a custom background.\nDo you want to replace or remove it?",
-                rightButtonText: "Replace",
-                leftButtonText: "Remove",
+                alertTitle: S.of(context).replace,
+                alertContent: S.of(context).customBackgroundDescription,
+                rightButtonText: S.of(context).replace,
+                leftButtonText: S.of(context).remove,
                 actionRightButton: () => Navigator.of(context).pop(true),
                 actionLeftButton: () => Navigator.of(context).pop(false));
           });
