@@ -51,6 +51,41 @@ class CakePayOrder {
         fiatCurrencyCode: firstCard['currency_code'] as String? ?? '',
         paymentData: PaymentData.fromMap(map['payment_data'] as Map<String, dynamic>));
   }
+
+  static CryptoPaymentData? getPaymentDataFor({CakePayPaymentMethod? method,CakePayOrder? order}) {
+    if (order == null || method == null) return null;
+
+    final data = switch (method) {
+      CakePayPaymentMethod.BTC => order.paymentData.btc,
+      CakePayPaymentMethod.XMR => order.paymentData.xmr,
+      CakePayPaymentMethod.LTC => order.paymentData.ltc,
+      CakePayPaymentMethod.LTC_MWEB => order.paymentData.ltc_mweb,
+      _ => null
+    };
+
+    if (data == null) return null;
+
+    final bip21 = data.paymentUrls?.bip21;
+    if (bip21 != null && bip21.isNotEmpty) {
+      final uri = Uri.parse(bip21);
+      final addr = uri.path;
+      final price = uri.queryParameters['amount'] ?? data.price;
+
+      return CryptoPaymentData(price: price, address: addr, amount: data.amount, paymentUrls: data.paymentUrls);
+    }
+
+    return data;
+  }
+
+  static String getCurrencyCodeFromPaymentMethod(CakePayPaymentMethod method) {
+    return switch (method) {
+      CakePayPaymentMethod.BTC => 'BTC',
+      CakePayPaymentMethod.BTC_LN => 'BTC',
+      CakePayPaymentMethod.XMR => 'XMR',
+      CakePayPaymentMethod.LTC => 'LTC',
+      CakePayPaymentMethod.LTC_MWEB => 'LTC',
+    };
+  }
 }
 
 class OrderCard {

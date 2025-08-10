@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 
-Image? getBuyProviderIcon(OrderProviderDescription providerDescription,
+Image? getBuyProviderIcon(BuyProviderDescription providerDescription,
    {Color iconColor = Colors.black}) {
 
   final _wyreIcon =
@@ -11,9 +11,9 @@ Image? getBuyProviderIcon(OrderProviderDescription providerDescription,
         width: 36, height: 34);
 
   switch (providerDescription) {
-    case OrderProviderDescription.wyre:
+    case BuyProviderDescription.wyre:
       return _wyreIcon;
-    case OrderProviderDescription.moonPay:
+    case BuyProviderDescription.moonPay:
       return _moonPayIcon;
     default:
       return null;

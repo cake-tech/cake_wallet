@@ -187,14 +187,13 @@ class TransactionsPage extends StatelessWidget {
                               return Observer(
                                 builder: (_) => OrderRow(
                                   key: item.key,
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.orderDetails, arguments: order),
-                                  provider: order.provider,
+                                  onTap: () => Navigator.of(context).pushNamed(Routes.orderDetails, arguments: order),
+                                  providerTitle: order.providerTitle,
+                                  providerIconPath: order.providerIcon,
                                   from: order.from ?? '',
                                   to: order.to ?? '',
-                                  createdAtFormattedDate:
-                                  DateFormat('HH:mm').format(order.createdAt),
-                                  swapState: order.state,
+                                  createdAtFormattedDate: DateFormat('HH:mm').format(order.createdAt),
+                                  state: order.state,
                                   formattedAmount: item.orderFormattedAmount,
                                   formattedReceiveAmount: item.orderFormattedReceiveAddress,
                                 ),

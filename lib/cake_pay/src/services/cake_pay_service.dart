@@ -109,6 +109,11 @@ class CakePayService {
     );
   }
 
+  Future<CakePayOrder> findOrderById({required String orderId}) async {
+    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
+    return await cakePayApi.getOrderById(orderId: orderId, token: token);
+  }
+
   ///Simulate Purchase Gift Card
   Future<String> simulatePayment({required String orderId}) async {
     final token = (await secureStorage.read(key: cakePayUserTokenKey))!;

@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:cake_wallet/buy/buy_provider_description.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order_provider_description.dart';
+import 'package:cake_wallet/order/order.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
@@ -126,31 +128,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
     amount = double.parse(input.replaceAll(',', '.'));
   }
 
-  CryptoPaymentData? getPaymentDataFor(CakePayPaymentMethod? method) {
-    if (order == null || method == null) return null;
-
-    final data = switch (method) {
-      CakePayPaymentMethod.BTC => order?.paymentData.btc,
-      CakePayPaymentMethod.XMR => order?.paymentData.xmr,
-      CakePayPaymentMethod.LTC => order?.paymentData.ltc,
-      CakePayPaymentMethod.LTC_MWEB => order?.paymentData.ltc_mweb,
-      _ => null
-    };
-
-    if (data == null) return null;
-
-    final bip21 = data.paymentUrls?.bip21;
-    if (bip21 != null && bip21.isNotEmpty) {
-      final uri = Uri.parse(bip21);
-      final addr = uri.path;
-      final price = uri.queryParameters['amount'] ?? data.price;
-
-      return CryptoPaymentData(price: price, address: addr, amount: data.amount, paymentUrls: data.paymentUrls);
-    }
-
-    return data;
-  }
-
   @action
   Future<void> createOrder() async {
     if (walletType != WalletType.bitcoin &&
@@ -168,20 +145,24 @@ abstract class CakePayBuyCardViewModelBase with Store {
         confirmsVoidedRefund: confirmsVoidedRefund,
         confirmsTermsAgreed: confirmsTermsAgreed,
       );
-      await confirmSending();
+      final paymentData = CakePayOrder.getPaymentDataFor(method: selectedPaymentMethod, order: order);
+      if (paymentData == null || order == null) throw Exception('Payment data or order is not available.');
+
+      await confirmSending(paymentData);
       expirationTime = order!.paymentData.expirationTime;
 
       final orderRecord = Order(
           id: order!.orderId,
           state: TradeState.deserialize(raw: order!.status),
-          provider: OrderProviderDescription.cakePay,
           transferId: order!.externalId ?? '',
-          from: sendViewModel.selectedCryptoCurrency.toString(),
+          from: CakePayOrder.getCurrencyCodeFromPaymentMethod(selectedPaymentMethod!),
           to: order!.fiatCurrencyCode,
           createdAt: DateTime.now(),
-          amount: getPaymentDataFor(selectedPaymentMethod)?.amount ?? '',
+          amount: paymentData.amount ?? '',
           receiveAmount: order!.totalReceiveAmount,
-          receiveAddress: getPaymentDataFor(selectedPaymentMethod)?.address ?? '',
+          receiveAddress: paymentData.address ?? '',
+          source: OrderSourceDescription.order,
+          giftCardProvider: OrderProviderDescription.cakePay,
           walletId: sendViewModel.wallet.id);
       orders.add(orderRecord);
       updateRemainingTime();
@@ -193,15 +174,12 @@ abstract class CakePayBuyCardViewModelBase with Store {
   }
 
   @action
-  Future<void> confirmSending() async {
-    final cryptoPaymentData = getPaymentDataFor(selectedPaymentMethod);
-    if (order == null || cryptoPaymentData == null) return;
-
+  Future<void> confirmSending(CryptoPaymentData paymentData) async {
     try {
       sendViewModel.clearOutputs();
       final output = sendViewModel.outputs.first;
-      output.address = cryptoPaymentData.address;
-      output.setCryptoAmount(cryptoPaymentData.price);
+      output.address = paymentData.address;
+      output.setCryptoAmount(paymentData.price);
 
       await sendViewModel.createTransaction();
     } catch (e) {

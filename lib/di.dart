@@ -10,7 +10,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
@@ -1326,8 +1326,9 @@ Future<void> setup({
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) {
     final wallet = getIt.get<AppStore>().wallet;
+    final cakePayService = getIt.get<CakePayService>();
 
-    return OrderDetailsViewModel(wallet: wallet!, orderForDetails: order);
+    return OrderDetailsViewModel(wallet: wallet!, orderForDetails: order, cakePayService: cakePayService);
   });
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
