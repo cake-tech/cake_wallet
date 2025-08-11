@@ -23,22 +23,45 @@ class CakePayOrderProviderAdapter implements OrderProvider {
   String get trackUrl => '';
 
   @override
-  Future<Order> findOrderById(String id, {CakePayPaymentMethod? paymentMethod}) async {
-    final order = await cakePayService.findOrderById(orderId: id);
-    final paymentData = CakePayOrder.getPaymentDataFor(method: paymentMethod, order: order);
+  Future<(Order, Object?)> findOrderById(String id) async {
+    final cakePayOrder = await cakePayService.findOrderById(orderId: id);
+    final cards = cakePayOrder.cards;
+    final order = Order(
+      id: cakePayOrder.orderId,
+      state: determineState(cakePayOrder.status),
+      transferId: '',
+      createdAt: DateTime.now(),
+      amount: '',
+      receiveAmount: cakePayOrder.totalReceiveAmount,
+      quantity: cakePayOrder.quantity.toString(),
+      receiveAddress: '',
+      walletId: wallet.id,
+      from: '',
+      to: cakePayOrder.fiatCurrencyCode,
+      source: OrderSourceDescription.order,
+      giftCardProvider: OrderProviderDescription.cakePay,
+    );
+    return (order, cards);
+  }
 
-    return Order(
-        id: order.orderId,
-        state: TradeState.deserialize(raw: order.status),
-        transferId: order.externalId ?? '',
-        from: CakePayOrder.getCurrencyCodeFromPaymentMethod(paymentMethod!),
-        to: order.fiatCurrencyCode,
-        createdAt: DateTime.now(),
-        amount: paymentData?.amount ?? '',
-        receiveAmount: order.totalReceiveAmount,
-        receiveAddress: paymentData?.address ?? '',
-        source: OrderSourceDescription.order,
-        giftCardProvider: OrderProviderDescription.cakePay,
-        walletId: wallet.id);
+  TradeState determineState(String state) {
+    final swapState = switch (state) {
+      'new' => TradeState.pending,
+      'expired_but_still_pending' => TradeState.overdue,
+      'expired' => TradeState.expired,
+      'failed' => TradeState.failed,
+      'paid' => TradeState.paid,
+      'paid_partial' => TradeState.underpaid,
+      'pending_purchase' => TradeState.processing,
+      'purchase_processing' => TradeState.processing,
+      'purchased' => TradeState.confirmed,
+      'pending_email' => TradeState.awaiting,
+      'complete' => TradeState.complete,
+      'pending_refund' => TradeState.refund,
+      'refunded' => TradeState.refunded,
+      _ => TradeState.notFound
+    };
+
+    return swapState;
   }
 }

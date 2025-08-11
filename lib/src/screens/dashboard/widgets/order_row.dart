@@ -11,7 +11,7 @@ class OrderRow extends StatelessWidget {
     required this.from,
     required this.to,
     required this.createdAtFormattedDate,
-    required this.state,
+    this.state,
     this.onTap,
     this.formattedAmount,
     this.formattedReceiveAmount,
@@ -27,7 +27,7 @@ class OrderRow extends StatelessWidget {
   final String? createdAtFormattedDate;
   final String? formattedAmount;
   final String? formattedReceiveAmount;
-  final TradeState state;
+  final TradeState? state;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +43,7 @@ class OrderRow extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 _ProviderIcon(path: providerIconPath, title: providerTitle),
+                if (state != null)
                 Positioned(
                   right: 0,
                   bottom: 2,
@@ -50,7 +51,7 @@ class OrderRow extends StatelessWidget {
                     height: 8,
                     width: 8,
                     decoration: BoxDecoration(
-                      color: _statusColor(context, state),
+                      color: _statusColor(context, state!),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),

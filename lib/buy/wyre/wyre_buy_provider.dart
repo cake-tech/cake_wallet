@@ -168,6 +168,7 @@ class WyreBuyProvider extends BuyProvider {
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
         walletId: wallet.id,
-        receiveAmount: '');
+        receiveAmount: '',
+        quantity: '1');
   }
 }

@@ -17,6 +17,7 @@ class Order extends HiveObject {
     required this.createdAt,
     required this.amount,
     required this.receiveAmount,
+    required this.quantity,
     required this.receiveAddress,
     required this.walletId,
     this.from,
@@ -73,6 +74,9 @@ class Order extends HiveObject {
 
   @HiveField(11, defaultValue: 0)
   late int sourceRaw;
+
+  @HiveField(12, defaultValue: '')
+  String quantity;
 
   OrderSourceDescription get source => OrderSourceDescription.deserialize(raw: sourceRaw);
 

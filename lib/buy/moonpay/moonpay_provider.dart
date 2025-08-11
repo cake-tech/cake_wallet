@@ -338,7 +338,8 @@ class MoonPayProvider extends BuyProvider {
         amount: amount.toString(),
         receiveAddress: wallet.walletAddresses.address,
         walletId: wallet.id,
-        receiveAmount: '');
+        receiveAmount: '',
+        quantity: '1');
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {

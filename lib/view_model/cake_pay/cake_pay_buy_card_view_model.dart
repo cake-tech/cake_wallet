@@ -160,6 +160,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
           createdAt: DateTime.now(),
           amount: paymentData.amount ?? '',
           receiveAmount: order!.totalReceiveAmount,
+          quantity: order!.quantity.toString(),
           receiveAddress: paymentData.address ?? '',
           source: OrderSourceDescription.order,
           giftCardProvider: OrderProviderDescription.cakePay,

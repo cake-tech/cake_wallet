@@ -16,6 +16,7 @@ class CakePayOrder {
   final String? externalId;
   final double amountUsd;
   final String totalReceiveAmount;
+  final int quantity;
   final String status;
   final String? vouchers;
   final String fiatCurrencyCode;
@@ -27,6 +28,7 @@ class CakePayOrder {
     required this.externalId,
     required this.amountUsd,
     required this.totalReceiveAmount,
+    required this.quantity,
     required this.status,
     required this.vouchers,
     required this.fiatCurrencyCode,
@@ -46,6 +48,7 @@ class CakePayOrder {
         externalId: map['external_id'] as String?,
         amountUsd: map['amount_usd'] as double,
         totalReceiveAmount: firstCard['subtotal'] as String? ?? '',
+        quantity: firstCard['quantity'] as int,
         status: map['status'] as String,
         vouchers: map['vouchers'] as String?,
         fiatCurrencyCode: firstCard['currency_code'] as String? ?? '',

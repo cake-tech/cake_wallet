@@ -193,7 +193,6 @@ class TransactionsPage extends StatelessWidget {
                                   from: order.from ?? '',
                                   to: order.to ?? '',
                                   createdAtFormattedDate: DateFormat('HH:mm').format(order.createdAt),
-                                  state: order.state,
                                   formattedAmount: item.orderFormattedAmount,
                                   formattedReceiveAmount: item.orderFormattedReceiveAddress,
                                 ),

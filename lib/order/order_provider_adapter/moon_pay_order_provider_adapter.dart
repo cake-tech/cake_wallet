@@ -1,6 +1,5 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_provider.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
@@ -27,9 +26,9 @@ class MoonPayOrderProviderAdapter implements OrderProvider {
   String get trackUrl => _inner.trackUrl;
 
   @override
-  Future<Order> findOrderById(String id, {CakePayPaymentMethod? paymentMethod}) async {
+  Future<(Order, Object?)> findOrderById(String id) async {
     final buyOrder = await _inner.findOrderById(id);
-    return Order(
+    final order = Order(
       id: buyOrder.id,
       transferId: buyOrder.transferId,
       createdAt: buyOrder.createdAt,
@@ -43,5 +42,6 @@ class MoonPayOrderProviderAdapter implements OrderProvider {
       source: OrderSourceDescription.buy,
       buyProvider: BuyProviderDescription.moonPay,
     );
+    return (order, null);
   }
 }
