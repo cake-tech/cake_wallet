@@ -403,6 +403,9 @@ abstract class ElectrumWalletBase
               existingTxInfo.confirmations = tx.confirmations;
               existingTxInfo.height = tx.height;
               existingTxInfo.date = tx.date;
+              existingTxInfo.isReceivedSilentPayment = tx.isReceivedSilentPayment;
+              existingTxInfo.direction = tx.direction;
+              existingTxInfo.isPending = tx.isPending;
 
               final newUnspents = tx.unspents!
                   .where((unspent) => !(existingTxInfo.unspents?.any((element) =>
@@ -2057,8 +2060,8 @@ abstract class ElectrumWalletBase
             .where((type) => type != SegwitAddresType.mweb)
             .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       } else if (type == WalletType.dogecoin) {
-        await Future.wait(DOGECOIN_ADDRESS_TYPES.map(
-            (type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
+        await Future.wait(DOGECOIN_ADDRESS_TYPES
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
       transactionHistory.transactions.values.forEach((tx) async {
