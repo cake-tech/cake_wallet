@@ -313,12 +313,16 @@ class AddressResolver {
         }
       }
 
-      final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
-      if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
-        String? address =
-            thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
-        if (address != null) {
-          return ParsedAddress.thorChainAddress(address: address, name: text);
+      final isNormalAddress = extractAddressByType(raw: text, type: currency)?.isNotEmpty ?? false;
+
+      if (text.length <= 30 && !isNormalAddress) {
+        final thorChainAddress = await ThorChainExchangeProvider.lookupAddressByName(text);
+        if (thorChainAddress != null && thorChainAddress.isNotEmpty) {
+          String? address =
+              thorChainAddress[ticker] ?? (ticker == 'RUNE' ? thorChainAddress['THOR'] : null);
+          if (address != null) {
+            return ParsedAddress.thorChainAddress(address: address, name: text);
+          }
         }
       }
 

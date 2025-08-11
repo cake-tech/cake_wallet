@@ -76,7 +76,9 @@ class CWBitcoin extends Bitcoin {
   @override
   Map<String, String> getSilentPaymentKeys(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    final keysOwner = bitcoinWallet.walletAddresses.silentAddress!;
+    final keysOwner = bitcoinWallet.walletAddresses.silentAddress;
+
+    if (keysOwner == null) return {};
 
     return <String, String>{
       'privateSpendKey': keysOwner.b_spend.toHex(),
@@ -179,6 +181,18 @@ class CWBitcoin extends Bitcoin {
           getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
         );
 
+        return estimatedTx.amount;
+      }
+
+
+      if (wallet.type == WalletType.dogecoin) {
+        final dogeAddr =
+        sk.getPublic().toP2pkhAddress();
+        final estimatedTx = await electrumWallet.estimateSendAllTx(
+          [BitcoinOutput(address: dogeAddr, value: BigInt.zero)],
+          getFeeRate(wallet, priority as BitcoinTransactionPriority),
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
         return estimatedTx.amount;
       }
 

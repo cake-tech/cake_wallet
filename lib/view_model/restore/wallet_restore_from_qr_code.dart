@@ -47,6 +47,9 @@ class WalletRestoreFromQRCode {
     'decred': WalletType.decred,
     'decred-wallet': WalletType.decred,
     'decred_wallet': WalletType.decred,
+    'dogecoin': WalletType.dogecoin,
+    'dogecoin-wallet': WalletType.dogecoin,
+    'dogecoin_wallet': WalletType.dogecoin
   };
 
   static WalletType? _extractWalletType(String code) {
