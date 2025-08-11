@@ -14,7 +14,7 @@ cd "$SCRIPT_DIR"
 BUILD_AMD64=false
 BUILD_ARM64=false
 APP_TYPE="cakewallet"
-DOCKER_IMAGE="ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1"
+DOCKER_IMAGE="ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly"
 
 # Parse arguments
 for arg in "$@"

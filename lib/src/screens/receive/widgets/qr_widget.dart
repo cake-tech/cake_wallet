@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dar
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
@@ -114,7 +115,8 @@ class QRWidget extends StatelessWidget {
                                       ),
                                     ),
                                     if (addressListViewModel.isPayjoinUnavailable &&
-                                        !addressListViewModel.isSilentPayments) ...[
+                                        !addressListViewModel.isSilentPayments &&
+                                        !addressListViewModel.isCupcake) ...[
                                       GestureDetector(
                                         onTap: () => _onPayjoinInactivePressed(context),
                                         child: Row(
@@ -211,6 +213,8 @@ class QRWidget extends StatelessWidget {
                                 hasUnderlineBorder: true,
                                 borderWidth: 0.0,
                                 selectedCurrency: _currencyName,
+                                selectedCurrencyDecimals:
+                                    addressListViewModel.selectedCurrency.decimals,
                                 amountFocusNode: amountTextFieldFocusNode,
                                 amountController: amountController,
                                 padding: EdgeInsets.only(top: 20, left: _width / 4),
@@ -317,14 +321,13 @@ class QRWidget extends StatelessWidget {
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
         currentTheme: currentTheme,
-        isTwoAction: true,
-        leftButtonText: S.of(context).learn_more,
-        actionLeftButton: () => launchUrl(
-          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
-          mode: LaunchMode.externalApplication,
-        ),
-        rightButtonText: S.of(context).ok,
-        actionRightButton: () => Navigator.of(context).pop(),
+        footerType: FooterType.doubleActionButton,
+        doubleActionLeftButtonText: S.of(context).learn_more,
+        onLeftActionButtonPressed: () => launchUrl(
+            Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+            mode: LaunchMode.externalApplication),
+        doubleActionRightButtonText: S.of(context).ok,
+        onRightActionButtonPressed: () => Navigator.of(context).pop(),
       ),
     );
   }

@@ -247,6 +247,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                 currencyAmountTextFieldWidgetKey:
                     ValueKey('send_page_crypto_currency_amount_textfield_widget_key'),
                 selectedCurrency: sendViewModel.selectedCryptoCurrency.title,
+                selectedCurrencyDecimals: sendViewModel.selectedCryptoCurrency.decimals,
                 amountFocusNode: widget.cryptoAmountFocus,
                 amountController: cryptoAmountController,
                 isAmountEditable: true,
@@ -257,7 +258,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     !sendViewModel.isBatchSending && sendViewModel.shouldDisplaySendALL,
                 currencyValueValidator: output.sendAll
                     ? sendViewModel.allAmountValidator
-                    : sendViewModel.amountValidator,
+                    : sendViewModel.amountValidator(output),
                 allAmountCallback: () async =>
                     output.setSendAll(await sendViewModel.sendingBalance),
               ),
@@ -308,6 +309,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   currencyAmountTextFieldWidgetKey:
                       ValueKey('send_page_fiat_currency_amount_textfield_widget_key'),
                   selectedCurrency: sendViewModel.fiat.title,
+                  selectedCurrencyDecimals: sendViewModel.fiat.decimals,
                   amountFocusNode: widget.fiatAmountFocus,
                   amountController: fiatAmountController,
                   hintText: '0.00',
@@ -526,10 +528,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     });
 
     reaction((_) => output.sendAll, (bool all) {
-      if (all) {
-        cryptoAmountController.text = S.current.all;
-        fiatAmountController.text = '';
-      }
+      if (all) cryptoAmountController.text = S.current.all;
     });
 
     reaction((_) => sendViewModel.selectedCryptoCurrency, (Currency currency) async {

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 
 class StandardSlideButton extends StatefulWidget {
@@ -19,17 +20,24 @@ class StandardSlideButton extends StatefulWidget {
   final String accessibleNavigationModeButtonText;
 
   @override
-  _StandardSlideButtonState createState() => _StandardSlideButtonState();
+  StandardSlideButtonState createState() => StandardSlideButtonState();
 }
 
-class _StandardSlideButtonState extends State<StandardSlideButton> {
+class StandardSlideButtonState extends State<StandardSlideButton> {
   double _dragPosition = 0.0;
+  double get dragPosition => _dragPosition;
+
+  double sideMargin = 4.0;
+  double effectiveMaxWidth = 0.0;
+  double sliderWidth = 42.0;
 
   @override
   Widget build(BuildContext context) {
     final bool accessible = MediaQuery.of(context).accessibleNavigation;
 
-    final tileBackgroundColor = Theme.of(context).colorScheme.surfaceContainer;
+    final tileBackgroundColor = widget.currentTheme.isDark
+        ? CustomThemeColors.backgroundGradientColorDark
+        : CustomThemeColors.backgroundGradientColorLight;
 
     return accessible
         ? PrimaryButton(
@@ -66,6 +74,7 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                     Positioned(
                       left: sideMargin + _dragPosition,
                       child: GestureDetector(
+                        key: ValueKey('standard_slide_button_widget_slider_key'),
                         onHorizontalDragUpdate: (details) {
                           setState(() {
                             _dragPosition += details.delta.dx;
@@ -83,14 +92,16 @@ class _StandardSlideButtonState extends State<StandardSlideButton> {
                           }
                         },
                         child: Container(
+                          key: ValueKey('standard_slide_button_widget_slider_container_key'),
                           width: sliderWidth,
                           height: widget.height - 8,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.surface,
                           ),
                           alignment: Alignment.center,
                           child: Icon(
+                            key: ValueKey('standard_slide_button_widget_slider_icon_key'),
                             Icons.arrow_forward,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),

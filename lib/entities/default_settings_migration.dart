@@ -37,7 +37,7 @@ const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 const ethereumDefaultNodeUri = 'ethereum-rpc.publicnode.com';
 const polygonDefaultNodeUri = 'polygon-bor-rpc.publicnode.com';
 const cakeWalletBitcoinCashDefaultNodeUri = 'bitcoincash.stackwallet.com:50002';
-const nanoDefaultNodeUri = 'nano.nownodes.io';
+const nanoDefaultNodeUri = 'rpc.nano.to';
 const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'api.trongrid.io';
@@ -46,6 +46,7 @@ const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = 'zano.cakewallet.com:11211';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
+const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -510,7 +511,19 @@ Future<void> defaultSettingsMigration(
             providerName: "SwapTrade",
             enabled: true,
           );
-			    break;
+          break;
+        case 50:
+          migrateExistingNodesToUseAutoSwitching(nodes: nodes, powNodes: powNodes);
+          break;
+        case 51:
+          await addWalletNodeList(nodes: nodes, type: WalletType.dogecoin);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.dogecoin,
+            currentNodePreferenceKey: PreferencesKey.currentDogecoinNodeIdKey,
+          );
+          break;
         default:
           break;
       }
@@ -617,6 +630,8 @@ String _getDefaultNodeUri(WalletType type) {
       return zanoDefaultNodeUri;
     case WalletType.decred:
       return decredDefaultUri;
+    case WalletType.dogecoin:
+      return dogecoinDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
@@ -1047,6 +1062,8 @@ Future<void> checkCurrentNodes(
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
+  final currentDogecoinNodeId =
+  sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
@@ -1071,6 +1088,8 @@ Future<void> checkCurrentNodes(
       powNodeSource.values.firstWhereOrNull((node) => node.key == currentNanoPowNodeId);
   final currentBitcoinCashNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
+  final currentDogecoinNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentDogecoinNodeId);
   final currentSolanaNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
   final currentTronNodeServer =
@@ -1088,7 +1107,7 @@ Future<void> checkCurrentNodes(
 
   if (currentBitcoinElectrumServer == null) {
     final cakeWalletElectrum =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     await nodeSource.add(cakeWalletElectrum);
     final cakeWalletElectrumTestnet =
         Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
@@ -1140,6 +1159,12 @@ Future<void> checkCurrentNodes(
     await sharedPreferences.setInt(PreferencesKey.currentBitcoinCashNodeIdKey, node.key as int);
   }
 
+  if (currentDogecoinNodeServer == null) {
+    final node = Node(uri: dogecoinDefaultNodeUri, type: WalletType.dogecoin, useSSL: true);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+  }
+
   if (currentPolygonNodeServer == null) {
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
     await nodeSource.add(node);
@@ -1188,7 +1213,7 @@ Future<void> resetBitcoinElectrumServer(
 
   if (cakeWalletNode == null) {
     cakeWalletNode =
-        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false);
+        Node(uri: cakeWalletBitcoinElectrumUri, type: WalletType.bitcoin, useSSL: false, isEnabledForAutoSwitching: true);
     // final cakeWalletElectrumTestnet =
     //     Node(uri: publicBitcoinTestnetElectrumUri, type: WalletType.bitcoin, useSSL: false);
     // await nodeSource.add(cakeWalletElectrumTestnet);
@@ -1272,3 +1297,47 @@ Future<void> removeMoneroWorld(
     );
   }
 }
+
+Future<void> migrateExistingNodesToUseAutoSwitching(
+    {required Box<Node> nodes, required Box<Node> powNodes}) async {
+  final listOfDefaultNodesWithAutoSwitching = [
+    'bitcoincash.stackwallet.com:50002',
+    'bch.aftrek.org:50002',
+    'btc-electrum.cakewallet.com:50002',
+    'fulcrum.sethforprivacy.com:50002',
+    'default-spv-nodes',
+    'dcrd.sethforprivacy.com:9108',
+    'ethereum-rpc.publicnode.com',
+    'eth.nownodes.io',
+    'ltc-electrum.cakewallet.com:50002',
+    'litecoin.stackwallet.com:20063',
+    'nano.nownodes.io',
+    'rpc.nano.to',
+    'node.nautilus.io',
+    'rpc.nano.to',
+    'workers.perish.co',
+    'worker.nanoriver.cc',
+    'xmr-node.cakewallet.com:18081',
+    'node.sethforprivacy.com:443',
+    'nodes.hashvault.pro:18081',
+    'polygon-bor-rpc.publicnode.com',
+    'matic.nownodes.io',
+    'api.mainnet-beta.solana.com:443',
+    'solana-rpc.publicnode.com:443',
+    'solana-mainnet.core.chainstack.com',
+    'api.trongrid.io',
+    'trx.nownodes.io',
+    'node3.monerodevs.org:34568',
+    'node2.monerodevs.org:34568',
+    '37.27.100.59:10500',
+    'zano.cakewallet.com:11211',
+    'electrum.cakewallet.com:50002',
+  ];
+  for (var node in [...nodes.values.toList(), ...powNodes.values.toList()]) {
+    if (listOfDefaultNodesWithAutoSwitching.contains(node.uriRaw)) {
+      node.isEnabledForAutoSwitching = true;
+      await node.save();
+    }
+  }
+}
+

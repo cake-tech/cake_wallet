@@ -15,5 +15,5 @@ jobs:
           [[ "x$GIT_GREP_OUT" == "x" ]] && exit 0
           echo "$GIT_GREP_OUT"
           echo "There are .dart files which use print() statements"
-          echo "Please use printV from package: cw_core/utils/print_verbose.dart"
+          echo "Please use printV from package:cw_core/utils/print_verbose.dart"
           exit 1

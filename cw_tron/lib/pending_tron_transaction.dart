@@ -23,7 +23,10 @@ class PendingTronTransaction with PendingTransaction {
   Future<void> commit() async => await sendTransaction();
 
   @override
-  String get feeFormatted => fee;
+  String get feeFormatted => "$feeFormattedValue TRX";
+
+  @override
+  String get feeFormattedValue => fee;
 
   @override
   String get hex => bytesToHex(signedTransaction);
@@ -32,7 +35,7 @@ class PendingTronTransaction with PendingTransaction {
   String get id => '';
   
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }

@@ -21,8 +21,7 @@ import 'package:cake_wallet/src/screens/buy/buy_sell_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/auth/cake_pay_account_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
@@ -39,17 +38,21 @@ import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/file_explorer.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
+import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/wallet_fuzzer.dart';
+import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
+import 'package:cake_wallet/src/screens/disclaimer/third_party_disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
+import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
@@ -94,7 +97,7 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
+import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -102,6 +105,7 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
+import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/support_chat/support_chat_page.dart';
@@ -152,14 +156,14 @@ import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
 
-Route<dynamic> handleRouteWithPlatformAwareness(
+Route<T> handleRouteWithPlatformAwareness<T>(
   Widget Function(BuildContext) builder, {
   bool fullscreenDialog = false,
 }) {
   if (Platform.isIOS) {
-    return CupertinoPageRoute<void>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return CupertinoPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
   } else {
-    return MaterialPageRoute<void>(builder: builder, fullscreenDialog: fullscreenDialog);
+    return MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog);
   }
 }
 
@@ -418,6 +422,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.readDisclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage(isReadOnly: true));
 
+    case Routes.readThirdPartyDisclaimer:
+      return CupertinoPageRoute<void>(builder: (_) => ThirdPartyDisclaimerPage());
+
     case Routes.changeRep:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<NanoChangeRepPage>());
 
@@ -483,6 +490,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.silentPaymentsSettings:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<SilentPaymentsSettingsPage>(),
+      );
+
+    case Routes.silentPaymentsLogs:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<SilentPaymentsLogPage>(),
       );
 
     case Routes.mwebSettings:
@@ -704,25 +716,20 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (context) => getIt.get<CakePayBuyCardPage>(param1: args),
       );
 
-    case Routes.cakePayBuyCardDetailPage:
-      final args = settings.arguments as List;
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<CakePayBuyCardDetailPage>(param1: args),
-      );
-
     case Routes.cakePayWelcomePage:
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayWelcomePage>(),
       );
 
     case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayVerifyOtpPage>(param1: args),
       );
 
+
     case Routes.cakePayAccountPage:
-      return handleRouteWithPlatformAwareness(
+      return handleRouteWithPlatformAwareness<bool>(
         (context) => getIt.get<CakePayAccountPage>(),
       );
 
@@ -858,9 +865,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
         ),
       );
 
-    case Routes.torPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
-
     case Routes.signPage:
       return MaterialPageRoute<void>(
         builder: (_) => SignPage(
@@ -911,7 +915,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevBackgroundSyncLogsPage>(),
       );
-
+    
+    case Routes.devSocketHealthLogs:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<DevSocketHealthLogsPage>(),
+      );
+    
+    case Routes.devNetworkRequests:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevNetworkRequests>(),
+      );
+    
     case Routes.devMoneroCallProfiler:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
@@ -920,6 +934,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devSecurePreferences:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevSecurePreferencesPage>(),
+      );
+    
+    case Routes.startTor:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<StartTorPage>(),
+      );
+
+    case Routes.dEuroSavings:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DEuroSavingsPage>(),
       );
 
     case Routes.devFileExplorer:

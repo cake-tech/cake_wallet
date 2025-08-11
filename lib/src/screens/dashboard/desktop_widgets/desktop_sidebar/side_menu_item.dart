@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 
 class SideMenuItem extends StatelessWidget {
@@ -46,8 +47,8 @@ class SideMenuItem extends StatelessWidget {
             color: _setColor(context),
             size: 30,
           )
-        : Image.asset(
-            imagePath ?? '',
+        : CakeImageWidget(
+            imageUrl: imagePath ?? '',
             fit: BoxFit.cover,
             height: 30,
             width: 30,

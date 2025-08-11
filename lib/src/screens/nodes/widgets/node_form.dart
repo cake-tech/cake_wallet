@@ -32,6 +32,7 @@ class NodeForm extends StatelessWidget {
         ..setLogin((editingNode!.login ?? ''))
         ..setSSL((editingNode!.isSSL))
         ..setTrusted((editingNode!.trusted))
+        ..setIsEnabledForAutoSwitching((editingNode!.isEnabledForAutoSwitching))
         ..setSocksProxy((editingNode!.useSocksProxy))
         ..setSocksProxyAddress((editingNode!.socksProxyAddress ?? ''));
     }
@@ -153,6 +154,25 @@ class NodeForm extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10.0),
+          Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Observer(
+                  builder: (_) => StandardCheckbox(
+                    value: nodeViewModel.isEnabledForAutoSwitching,
+                    borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    iconColor: Theme.of(context).colorScheme.primary,
+                    onChanged: (value) => nodeViewModel.isEnabledForAutoSwitching = value,
+                    caption: S.current.enable_for_auto_switching,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 10.0),
           if (nodeViewModel.hasAuthCredentials) ...[
             Row(
               children: <Widget>[
@@ -196,8 +216,27 @@ class NodeForm extends StatelessWidget {
             Observer(
                 builder: (_) => Column(
                       children: [
+                        if (nodeViewModel.usesEmbeddedProxy) ...[
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                StandardCheckbox(
+                                  value: nodeViewModel.usesEmbeddedProxy,
+                                  gradientBackground: false,
+                                  borderColor: Theme.of(context).dividerColor,
+                                  iconColor: Theme.of(context).colorScheme.primary,
+                                  onChanged: null,
+                                  caption: 'Embedded Tor SOCKS Proxy',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                         Padding(
-                          padding: EdgeInsets.only(top: 20),
+                          padding: EdgeInsets.only(top: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.max,

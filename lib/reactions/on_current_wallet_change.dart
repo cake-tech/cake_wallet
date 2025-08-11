@@ -7,6 +7,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
@@ -65,7 +66,7 @@ void startCurrentWalletChangeReaction(
 
       final node = settingsStore.getCurrentNode(wallet.type);
 
-      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
+      startWalletSyncStatusChangeReaction(wallet, settingsStore);
       startCheckConnectionReaction(wallet, settingsStore);
 
       await Future.delayed(Duration.zero);
@@ -75,6 +76,7 @@ void startCurrentWalletChangeReaction(
           wallet.type == WalletType.bitcoin ||
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash ||
+          wallet.type == WalletType.dogecoin ||
           wallet.type == WalletType.decred) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
@@ -83,6 +85,10 @@ void startCurrentWalletChangeReaction(
         bitcoin!.updatePayjoinState(wallet, settingsStore.usePayjoin);
       }
 
+      if (settingsStore.currentBuiltinTor) {
+        await ensureTorStarted(context: null);
+      }
+      
       await wallet.connectToNode(node: node);
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);

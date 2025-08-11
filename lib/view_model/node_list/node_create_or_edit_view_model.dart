@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -25,6 +26,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         login = '',
         password = '',
         trusted = false,
+        isEnabledForAutoSwitching = false,
         useSocksProxy = false,
         socksProxyAddress = '';
 
@@ -56,7 +58,13 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool trusted;
 
   @observable
+  bool isEnabledForAutoSwitching;
+
+  @observable
   bool useSocksProxy;
+
+  @computed
+  bool get usesEmbeddedProxy => CakeTor.instance.started;
 
   @observable
   String socksProxyAddress;
@@ -85,6 +93,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
+      case WalletType.dogecoin:
       case WalletType.zano:
       case WalletType.decred:
         return false;
@@ -114,6 +123,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     password = '';
     useSSL = false;
     trusted = false;
+    isEnabledForAutoSwitching = false;
     useSocksProxy = false;
     socksProxyAddress = '';
   }
@@ -140,6 +150,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
+  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
+
+  @action
   void setSocksProxy(bool val) => useSocksProxy = val;
 
   @action
@@ -155,6 +168,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       state = IsExecutingState();
@@ -186,6 +200,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();

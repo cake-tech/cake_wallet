@@ -28,6 +28,7 @@ class SupportChatPage extends BasePage {
               appVersion: supportViewModel.appVersion,
               fiatApiMode: supportViewModel.fiatApiMode,
               walletType: supportViewModel.walletType,
+              walletSyncState: supportViewModel.walletSyncState,
             );
           return Container();
         },

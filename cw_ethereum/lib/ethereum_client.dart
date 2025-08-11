@@ -19,7 +19,7 @@ class EthereumClient extends EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response = await httpClient.get(Uri.https("api.etherscan.io", "/v2/api", {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
@@ -51,7 +51,7 @@ class EthereumClient extends EVMChainClient {
   @override
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
-      final response = await httpClient.get(Uri.https("api.etherscan.io", "/v2/api", {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
         "module": "account",
         "action": "txlistinternal",

@@ -5,11 +5,12 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/dashboard/cake_features_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CakeFeaturesPage extends StatelessWidget {
@@ -58,6 +59,26 @@ class CakeFeaturesPage extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
+                Observer(builder: (_) {
+                  if (dashboardViewModel.type == WalletType.ethereum) {
+                    return DashBoardRoundedCardWidget(
+                      isDarkTheme: dashboardViewModel.isDarkTheme,
+                      shadowBlur: dashboardViewModel.getShadowBlur(),
+                      shadowSpread: dashboardViewModel.getShadowSpread(),
+                      onTap: () => Navigator.of(context).pushNamed(Routes.dEuroSavings),
+                      title: S.of(context).deuro_savings,
+                      subTitle: S.of(context).deuro_savings_subtitle,
+                      image: Image.asset(
+                        'assets/images/deuro_icon.png',
+                        height: 80,
+                        width: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  }
+
+                  return const SizedBox();
+                }),
                 DashBoardRoundedCardWidget(
                   isDarkTheme: dashboardViewModel.isDarkTheme,
                   shadowBlur: dashboardViewModel.getShadowBlur(),

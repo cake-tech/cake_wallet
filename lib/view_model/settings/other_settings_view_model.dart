@@ -70,7 +70,8 @@ abstract class OtherSettingsViewModelBase with Store {
 
     if (_wallet.type == WalletType.bitcoin ||
         _wallet.type == WalletType.litecoin ||
-        _wallet.type == WalletType.bitcoinCash) {
+        _wallet.type == WalletType.bitcoinCash ||
+        _wallet.type == WalletType.dogecoin) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
@@ -83,7 +84,8 @@ abstract class OtherSettingsViewModelBase with Store {
 
     if (_wallet.type == WalletType.bitcoin ||
         _wallet.type == WalletType.litecoin ||
-        _wallet.type == WalletType.bitcoinCash) {
+        _wallet.type == WalletType.bitcoinCash ||
+        _wallet.type == WalletType.dogecoin) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate,
           customRate: customValue);

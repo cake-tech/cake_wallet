@@ -5,18 +5,23 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: "4897882604d919befd350648c7f91926a9d5de99e67b455bf0917cc2362f4bb8"
+      sha256: "16e298750b6d0af7ce8a3ba7c18c69c3785d11b15ec83f6dcd0ad2a0009b3cab"
       url: "https://pub.dev"
     source: hosted
-    version: "47.0.0"
+    version: "76.0.0"
+  _macros:
+    dependency: transitive
+    description: dart
+    source: sdk
+    version: "0.3.3"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
-      sha256: "690e335554a8385bc9d787117d9eb52c0c03ee207a607e593de3c9d71b1cfe80"
+      sha256: "1f14db053a8c23e260789e9b0980fa27f2680dd640932cae5e1137cce0e46e1e"
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.0"
+    version: "6.11.0"
   args:
     dependency: transitive
     description:
@@ -86,26 +91,26 @@ packages:
     dependency: "direct dev"
     description:
       name: build_resolvers
-      sha256: "687cf90a3951affac1bd5f9ecb5e3e90b60487f3d9cdc359bb310f8876bb02a6"
+      sha256: b9e4fda21d846e192628e7a4f6deda6888c36b5b69ba02ff291a01fd529140f0
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.10"
+    version: "2.4.4"
   build_runner:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: "028819cfb90051c6b5440c7e574d1896f8037e3c96cf17aaeb054c9311cfbf4d"
+      sha256: "058fe9dce1de7d69c4b84fada934df3e0153dd000758c4d65964d0166779aa99"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.13"
+    version: "2.4.15"
   build_runner_core:
     dependency: transitive
     description:
       name: build_runner_core
-      sha256: "6d6ee4276b1c5f34f21fdf39425202712d2be82019983d52f351c94aafbc2c41"
+      sha256: "22e3aa1c80e0ada3722fe5b63fd43d9c8990759d0a2cf489c8c5d7b2bdebc021"
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.10"
+    version: "8.0.0"
   built_collection:
     dependency: transitive
     description:
@@ -214,10 +219,10 @@ packages:
     dependency: transitive
     description:
       name: dart_style
-      sha256: "7a03456c3490394c8e7665890333e91ae8a49be43542b616e414449ac358acd4"
+      sha256: "7306ab8a2359a48d22310ad823521d723acfed60ee1f7e37388e8986853b6820"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.4"
+    version: "2.3.8"
   decimal:
     dependency: "direct main"
     description:
@@ -333,10 +338,10 @@ packages:
     dependency: "direct dev"
     description:
       name: hive_generator
-      sha256: "81fd20125cb2ce8fd23623d7744ffbaf653aae93706c9bd3bf7019ea0ace3938"
+      sha256: "06cb8f58ace74de61f63500564931f9505368f45f98958bd7a6c35ba24159db4"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.3"
+    version: "2.0.1"
   http:
     dependency: "direct main"
     description:
@@ -433,6 +438,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  macros:
+    dependency: transitive
+    description:
+      name: macros
+      sha256: "1d9e801cd66f7ea3663c45fc708450db1fa57f988142c64289142c9b7ee80656"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3-main.0"
   matcher:
     dependency: transitive
     description:
@@ -477,16 +490,16 @@ packages:
     dependency: "direct dev"
     description:
       name: mobx_codegen
-      sha256: d4beb9cea4b7b014321235f8fdc7c2193ee0fe1d1198e9da7403f8bc85c4407c
+      sha256: e0abbbc651a69550440f6b65c99ec222a1e2a4afd7baec8ba0f3088c7ca582a8
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.7.1"
   monero:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: a27fbcb24d91143715ed930a05aaa4d853fba1f2
-      resolved-ref: a27fbcb24d91143715ed930a05aaa4d853fba1f2
+      ref: b576312e4d466569cd03482b61c597b39a9f4dc3
+      resolved-ref: b576312e4d466569cd03482b61c597b39a9f4dc3
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"
@@ -667,27 +680,37 @@ packages:
   socks5_proxy:
     dependency: transitive
     description:
-      name: socks5_proxy
-      sha256: "616818a0ea1064a4823b53c9f7eaf8da64ed82dcd51ed71371c7e54751ed5053"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.6"
+      path: "."
+      ref: "27ad7c2efae8d7460325c74b90f660085cbd0685"
+      resolved-ref: "27ad7c2efae8d7460325c74b90f660085cbd0685"
+      url: "https://github.com/LacticWhale/socks_dart"
+    source: git
+    version: "2.1.0"
+  socks_socket:
+    dependency: transitive
+    description:
+      path: "."
+      ref: e6232c53c1595469931ababa878759a067c02e94
+      resolved-ref: e6232c53c1595469931ababa878759a067c02e94
+      url: "https://github.com/sneurlax/socks_socket"
+    source: git
+    version: "1.1.1"
   source_gen:
     dependency: transitive
     description:
       name: source_gen
-      sha256: "2d79738b6bbf38a43920e2b8d189e9a3ce6cc201f4b8fc76be5e4fe377b1c38d"
+      sha256: "14658ba5f669685cd3d63701d01b31ea748310f7ab854e471962670abcf57832"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.6"
+    version: "1.5.0"
   source_helper:
     dependency: transitive
     description:
       name: source_helper
-      sha256: "3b67aade1d52416149c633ba1bb36df44d97c6b51830c2198e934e3fca87ca1f"
+      sha256: "86d247119aedce8e63f4751bd9626fc9613255935558447569ad42f9f5b48b3c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.3"
+    version: "1.3.5"
   source_span:
     dependency: transitive
     description:
@@ -752,6 +775,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  tor_binary:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cb811c610871a9517d47134b87c2f590c15c96c5
+      resolved-ref: cb811c610871a9517d47134b87c2f590c15c96c5
+      url: "https://github.com/MrCyjaneK/flutter-tor_binary"
+    source: git
+    version: "4.7.14"
   tuple:
     dependency: transitive
     description:
@@ -841,5 +873,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.5.0 <4.0.0"
+  dart: ">=3.6.0 <4.0.0"
   flutter: ">=3.24.0"

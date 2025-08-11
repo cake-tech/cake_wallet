@@ -9,14 +9,15 @@ import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:http/http.dart';
 
 class ExolixExchangeProvider extends ExchangeProvider {
   ExolixExchangeProvider() : super(pairList: supportedPairs(_notSupported));
 
-  static final apiKey = secrets.exolixApiKey;
+  static final apiKey = isMoneroOnly ? secrets.exolixMoneroApiKey : secrets.exolixCakeWalletApiKey;
   static const apiBaseUrl = 'exolix.com';
   static const transactionsPath = '/api/v2/transactions';
   static const ratePath = '/api/v2/rate';
@@ -86,8 +87,9 @@ class ExolixExchangeProvider extends ExchangeProvider {
     // Maximum of 2 attempts to fetch limits
     for (int i = 0; i < 2; i++) {
       final uri = Uri.https(apiBaseUrl, ratePath, params);
-      final response = await get(uri);
-
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
+      
       if (response.statusCode == 200) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         final minAmount = responseJSON['minAmount'];
@@ -133,7 +135,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         params['amount'] = amount.toString();
 
       final uri = Uri.https(apiBaseUrl, ratePath, params);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode != 200) {
@@ -172,7 +175,12 @@ class ExolixExchangeProvider extends ExchangeProvider {
       body['amount'] = request.fromAmount;
 
     final uri = Uri.https(apiBaseUrl, transactionsPath);
-    final response = await post(uri, headers: headers, body: json.encode(body));
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode(body),
+    );
+    
 
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -214,8 +222,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
   Future<Trade> findTradeById({required String id}) async {
     final findTradeByIdPath = '$transactionsPath/$id';
     final uri = Uri.https(apiBaseUrl, findTradeByIdPath);
-    final response = await get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    
     if (response.statusCode == 404) throw TradeNotFoundException(id, provider: description);
 
     if (response.statusCode == 400) {

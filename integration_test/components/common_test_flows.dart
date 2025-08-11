@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/entities/seed_type.dart';
-import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cake_wallet/main.dart' as app;
 
 import '../robots/create_pin_welcome_page_robot.dart';
-import '../robots/dashboard_page_robot.dart';
-import '../robots/disclaimer_page_robot.dart';
 import '../robots/new_wallet_page_robot.dart';
 import '../robots/new_wallet_type_page_robot.dart';
 import '../robots/pre_seed_page_robot.dart';
 import '../robots/restore_from_seed_or_key_robot.dart';
 import '../robots/restore_options_page_robot.dart';
+import '../robots/seed_verification_page_robot.dart';
 import '../robots/setup_pin_code_robot.dart';
 import '../robots/wallet_group_description_page_robot.dart';
 import '../robots/wallet_list_page_robot.dart';
@@ -33,13 +32,12 @@ class CommonTestFlows {
         _welcomePageRobot = WelcomePageRobot(_tester),
         _preSeedPageRobot = PreSeedPageRobot(_tester),
         _setupPinCodeRobot = SetupPinCodeRobot(_tester),
-        _dashboardPageRobot = DashboardPageRobot(_tester),
         _newWalletPageRobot = NewWalletPageRobot(_tester),
-        _disclaimerPageRobot = DisclaimerPageRobot(_tester),
         _walletSeedPageRobot = WalletSeedPageRobot(_tester),
         _walletListPageRobot = WalletListPageRobot(_tester),
         _newWalletTypePageRobot = NewWalletTypePageRobot(_tester),
         _restoreOptionsPageRobot = RestoreOptionsPageRobot(_tester),
+        _seedVerificationPageRobot = SeedVerificationPageRobot(_tester),
         _createPinWelcomePageRobot = CreatePinWelcomePageRobot(_tester),
         _restoreFromSeedOrKeysPageRobot = RestoreFromSeedOrKeysPageRobot(_tester),
         _walletGroupDescriptionPageRobot = WalletGroupDescriptionPageRobot(_tester);
@@ -51,28 +49,27 @@ class CommonTestFlows {
   final PreSeedPageRobot _preSeedPageRobot;
   final SetupPinCodeRobot _setupPinCodeRobot;
   final NewWalletPageRobot _newWalletPageRobot;
-  final DashboardPageRobot _dashboardPageRobot;
-  final DisclaimerPageRobot _disclaimerPageRobot;
   final WalletSeedPageRobot _walletSeedPageRobot;
   final WalletListPageRobot _walletListPageRobot;
   final NewWalletTypePageRobot _newWalletTypePageRobot;
   final RestoreOptionsPageRobot _restoreOptionsPageRobot;
   final CreatePinWelcomePageRobot _createPinWelcomePageRobot;
+  final SeedVerificationPageRobot _seedVerificationPageRobot;
   final RestoreFromSeedOrKeysPageRobot _restoreFromSeedOrKeysPageRobot;
   final WalletGroupDescriptionPageRobot _walletGroupDescriptionPageRobot;
 
   //* ========== Handles flow to start the app afresh and accept disclaimer =============
   Future<void> startAppFlow(Key key) async {
-    await app.main(topLevelKey: ValueKey('send_flow_test_app_key'));
+    await app.main(topLevelKey: key);
 
-    await _tester.pumpAndSettle();
+    await _tester.pump(Duration(seconds: 2));
 
-    // --------- Disclaimer Page ------------
-    // Tap checkbox to accept disclaimer
-    await _disclaimerPageRobot.tapDisclaimerCheckbox();
+    // // --------- Disclaimer Page ------------
+    // // Tap checkbox to accept disclaimer
+    // await _disclaimerPageRobot.tapDisclaimerCheckbox();
 
-    // Tap accept button
-    await _disclaimerPageRobot.tapAcceptButton();
+    // // Tap accept button
+    // await _disclaimerPageRobot.tapAcceptButton();
   }
 
   //* ========== Handles flow from welcome to creating a new wallet ===============
@@ -87,7 +84,8 @@ class CommonTestFlows {
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
-    await _commonTestCases.defaultSleepTime();
+
+    await _verifyWalletSeed();
   }
 
   //* ========== Handles flow from welcome to restoring wallet from seeds ===============
@@ -109,14 +107,6 @@ class CommonTestFlows {
     await _restoreFromKeys();
   }
 
-  //* ========== Handles switching to wallet list or menu from dashboard ===============
-  Future<void> switchToWalletMenuFromDashboardPage() async {
-    _tester.printToConsole('Switching to Wallet Menu');
-    await _dashboardPageRobot.openDrawerMenu();
-
-    await _dashboardPageRobot.dashboardMenuWidgetRobot.navigateToWalletMenu();
-  }
-
   void confirmAllAvailableWalletTypeIconsDisplayCorrectly() {
     for (var walletType in availableWalletTypes) {
       final imageUrl = walletTypeToCryptoCurrency(walletType).iconPath;
@@ -136,6 +126,9 @@ class CommonTestFlows {
   //* ========== Handles creating new wallet flow from wallet list/menu ===============
   Future<void> createNewWalletFromWalletMenu(WalletType walletTypeToCreate) async {
     _tester.printToConsole('Creating ${walletTypeToCreate.name} Wallet');
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await _walletListPageRobot.navigateToCreateNewWalletPage();
     await _commonTestCases.defaultSleepTime();
 
@@ -150,6 +143,9 @@ class CommonTestFlows {
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
+
+    await _verifyWalletSeed();
+
     await _commonTestCases.defaultSleepTime();
   }
 
@@ -204,6 +200,10 @@ class CommonTestFlows {
     await _welcomePageRobot.navigateToCreateNewWalletPage();
 
     await _selectWalletTypeForWallet(walletTypeToCreate);
+
+    if (_welcomePageRobot.hasNewSingleSeedButton()) {
+      await _welcomePageRobot.tapNewSingleSeed();
+    }
   }
 
   Future<void> _welcomeToRestoreFromSeedsOrKeysPath(
@@ -224,24 +224,41 @@ class CommonTestFlows {
   //* ============ Handles New Wallet Type Page ==================
   Future<void> _selectWalletTypeForWallet(WalletType type) async {
     // ----------- NewWalletType Page -------------
-    // Confirm scroll behaviour works properly
+    _tester.printToConsole('Selecting wallet type: ${type.name}');
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await _newWalletTypePageRobot.findParticularWalletTypeInScrollableList(type);
 
-    // Select a wallet and route to next page
+    _tester.printToConsole('Tapping wallet type: ${type.name}');
     await _newWalletTypePageRobot.selectWalletType(type);
+    await _tester.pumpAndSettle(Duration(milliseconds: 500));
+
+    _tester.printToConsole('Pressing next button');
     await _newWalletTypePageRobot.onNextButtonPressed();
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 2000));
+
+    _tester.printToConsole('Wallet type selection completed for: ${type.name}');
   }
 
   //* ============ Handles New Wallet Page ==================
   Future<void> _generateNewWalletDetails() async {
+    _tester.printToConsole('Attempting to find NewWalletPage...');
+
+    await _tester.pumpAndSettle(Duration(milliseconds: 1000));
+
     await _newWalletPageRobot.isNewWalletPage();
+    _tester.printToConsole('NewWalletPage found successfully');
 
     await _newWalletPageRobot.generateWalletName();
 
     if (Platform.isLinux) {
       // manual pin input
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
     }
 
     await _newWalletPageRobot.onNextButtonPressed();
@@ -264,13 +281,17 @@ class CommonTestFlows {
 
     // await _walletSeedPageRobot.onCopySeedsButtonPressed();
 
-    await _walletSeedPageRobot.onSeedPageVerifyButtonPressed();
-    // Turns out the popup about "Copied to clipboard" prevents
-    //the button from being pressed on the first try, by just
-    //tapping it again we fix it.
-    // await _walletSeedPageRobot.onSeedPageVerifyButtonPressed();
-    
-    await _walletSeedPageRobot.onOpenWalletButtonPressed();
+    await _walletSeedPageRobot.onVerifySeedButtonPressed();
+  }
+
+  //* ============ Handles Wallet Seed Verification Page ==================
+
+  Future<void> _verifyWalletSeed() async {
+    await _seedVerificationPageRobot.isSeedVerificationPage();
+
+    _seedVerificationPageRobot.hasTitle();
+
+    await _seedVerificationPageRobot.verifyWalletSeeds();
   }
 
   //* Main Restore Actions - On the RestoreFromSeed/Keys Page - Restore from Seeds Action
@@ -293,8 +314,10 @@ class CommonTestFlows {
 
     if (Platform.isLinux) {
       // manual pin input
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
-      await _restoreFromSeedOrKeysPageRobot.enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot
+          .enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
     }
 
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();
@@ -336,8 +359,16 @@ class CommonTestFlows {
         return secrets.nanoTestWalletSeeds;
       case WalletType.wownero:
         return secrets.wowneroTestWalletSeeds;
-      default:
-        return '';
+      case WalletType.zano:
+        return secrets.zanoTestWalletSeeds;
+      case WalletType.decred:
+        return secrets.decredTestWalletSeeds;
+      case WalletType.dogecoin:
+        return secrets.dogeTestWalletSeeds;
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.banano:
+        throw Exception("Unable to get seeds for ${walletType}");
     }
   }
 

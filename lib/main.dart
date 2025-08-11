@@ -6,6 +6,7 @@ import 'package:cake_wallet/app_scroll_behavior.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
+import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
@@ -25,7 +26,9 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/test_asset_bundles.dart';
 import 'package:cake_wallet/themes/utils/theme_provider.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -40,6 +43,8 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -53,6 +58,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/window_size.dart';
 import 'package:logging/logging.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
+import 'package:cake_wallet/core/reset_service.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -93,7 +99,22 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       });
     }
 
-    runApp(App(key: topLevelKey));
+    if (FeatureFlag.hasDevOptions) {
+      ProxyWrapper.logger = MemoryProxyLogger();
+    }
+
+    // Basically when we're running a test
+    if (topLevelKey != null) {
+      runApp(
+        DefaultAssetBundle(
+          bundle: TestAssetBundle(),
+          child: App(key: topLevelKey),
+        ),
+      );
+    } else {
+      runApp(App(key: topLevelKey));
+    }
+
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
@@ -238,7 +259,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 49,
+    initialMigrationVersion: 51,
   );
 }
 
@@ -289,7 +310,14 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
-  await bootstrap(navigatorKey, loadWallet: loadWallet);
+
+  await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
+
+  await bootstrapOffline();
+  final settingsStore = getIt<SettingsStore>();
+  if (!settingsStore.currentBuiltinTor) {
+    bootstrapOnline(navigatorKey, loadWallet: loadWallet);
+  }
 }
 
 class App extends StatefulWidget {
@@ -309,14 +337,18 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         final authService = getIt.get<AuthService>();
         final linkViewModel = getIt.get<LinkViewModel>();
         final tradeMonitor = getIt.get<TradeMonitor>();
+        final nodeSwitchingService = getIt.get<NodeSwitchingService>();
+        final settingsStore = appStore.settingsStore;
         final statusBarColor = Colors.transparent;
         final authenticationStore = getIt.get<AuthenticationStore>();
         final initialRoute = authenticationStore.state == AuthenticationState.uninitialized
             ? Routes.welcome
-            : Routes.login;
+            : settingsStore.currentBuiltinTor ? Routes.startTor : Routes.login;
         final currentTheme = appStore.themeStore.currentTheme;
-        final statusBarBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
-        final statusBarIconBrightness = currentTheme.isDark ? Brightness.light : Brightness.dark;
+        final statusBarBrightness =
+            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
+        final statusBarIconBrightness =
+            currentTheme.type == currentTheme.isDark ? Brightness.light : Brightness.dark;
         SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
             statusBarColor: statusBarColor,
             statusBarBrightness: statusBarBrightness,
@@ -330,6 +362,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           authService: authService,
           linkViewModel: linkViewModel,
           tradeMonitor: tradeMonitor,
+          nodeSwitchingService: nodeSwitchingService,
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(

@@ -15,6 +15,7 @@ class NewWalletTypePageRobot {
 
   Future<void> isNewWalletTypePage() async {
     await commonTestCases.isSpecificPage<NewWalletTypePage>();
+    await commonTestCases.takeScreenshots('new_wallet_type_page');
   }
 
   void displaysCorrectTitle(bool isCreate) {
@@ -37,16 +38,43 @@ class NewWalletTypePageRobot {
   }
 
   Future<void> findParticularWalletTypeInScrollableList(WalletType type) async {
+    await tester.pump(Duration(milliseconds: 1000));
+
     final scrollableWidget = find.descendant(
       of: find.byKey(Key('new_wallet_type_scrollable_key')),
       matching: find.byType(Scrollable),
     );
 
+    final targetWidget = find.byKey(ValueKey('new_wallet_type_${type.name}_button_key'));
+
+    tester.printToConsole('Attempting to scroll to wallet type ${type.name}');
+
+    await tester.pump(Duration(milliseconds: 500));
+
     await tester.scrollUntilVisible(
-      find.byKey(ValueKey('new_wallet_type_${type.name}_button_key')),
+      targetWidget,
       300,
       scrollable: scrollableWidget,
+      maxScrolls: 20,
     );
+
+    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+
+    expect(tester.any(targetWidget), true,
+        reason: 'Wallet type ${type.name} should be visible after scrolling');
+
+    // Additional check to ensure the widget is actually on screen
+    final widgetRect = tester.getRect(targetWidget);
+    final screenSize = tester.view.physicalSize;
+    final screenRect = Rect.fromLTWH(0, 0, screenSize.width, screenSize.height);
+
+    expect(
+      screenRect.overlaps(widgetRect),
+      true,
+      reason: 'Wallet type ${type.name} should be within screen bounds',
+    );
+
+    tester.printToConsole('Wallet type ${type.name} is now visible and tappable');
   }
 
   Future<void> selectWalletType(WalletType type) async {

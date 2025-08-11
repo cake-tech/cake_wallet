@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/route_aware.dart';
@@ -6,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/widgets/nav_bar.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 enum AppBarStyle { regular, withShadow, transparent, completelyTransparent }
 
@@ -173,15 +177,34 @@ abstract class BasePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final root = RouteAwareWidget(
-      child: Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: pageBackgroundColor(context),
-          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-          extendBodyBehindAppBar: extendBodyBehindAppBar,
-          endDrawer: endDrawer,
-          appBar: appBar(context),
-          body: body(context),
-          floatingActionButton: floatingActionButton(context)),
+      child: Observer(
+        builder: (context) {
+          final backgroundImage = getIt.get<SettingsStore>().backgroundImage;
+
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: backgroundImage.isNotEmpty
+                  ? DecorationImage(
+                      image: FileImage(File(backgroundImage)),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              // color: Colors.grey[200],
+            ),
+            child: Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: pageBackgroundColor(context),
+                resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+                extendBodyBehindAppBar: extendBodyBehindAppBar,
+                endDrawer: endDrawer,
+                appBar: appBar(context),
+                body: body(context),
+                floatingActionButton: floatingActionButton(context)),
+          );
+        }
+      ),
       pushToWidget: (context) => pushToWidget?.call(context),
       pushToNextWidget: (context) => pushToNextWidget?.call(context),
       popWidget: (context) => popWidget?.call(context),

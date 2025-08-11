@@ -3,11 +3,12 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/service_status_tile.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,16 +41,17 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                 );
               });
         },
-        child: SvgPicture.asset(
-          "assets/images/notification_icon.svg",
+        child: CakeImageWidget(
+          imageUrl: "assets/images/notif.svg",
           color: Theme.of(context).colorScheme.onSurface,
-          width: 20,
-          placeholderBuilder: (_) => Icon(Icons.error),
+          width: DeviceInfo.instance.isDesktop ? 30 : 20,
         ),
       );
     }
     return Padding(
-      padding: const EdgeInsets.only(left: 16, top: 12, right: 8, bottom: 8),
+      padding: DeviceInfo.instance.isDesktop
+          ? EdgeInsets.zero
+          : EdgeInsets.only(left: 16, top: 12, right: 8, bottom: 8),
       child: FutureBuilder<ServicesResponse>(
         future: widget.servicesResponse,
         builder: (context, state) {
@@ -135,11 +137,10 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
                 : null,
             child: Stack(
               children: [
-                SvgPicture.asset(
-                  "assets/images/notification_icon.svg",
+                CakeImageWidget(
+                  imageUrl: "assets/images/notif.svg",
                   color: Theme.of(context).colorScheme.onSurface,
-                  width: 20,
-                  placeholderBuilder: (_) => Icon(Icons.error),
+                  width: DeviceInfo.instance.isDesktop ? 30 : 20,
                 ),
                 if (state.hasData && state.data!.hasUpdates && !wasOpened)
                   Container(

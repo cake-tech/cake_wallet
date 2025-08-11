@@ -18,13 +18,20 @@ class PolygonClient extends EVMChainClient {
     EtherAmount? gasPrice,
     EtherAmount? maxFeePerGas,
   }) {
+    EtherAmount? finalGasPrice = gasPrice;
+
+    if (gasPrice == null && maxFeePerGas != null) {
+      // If we have EIP-1559 parameters but no legacy gasPrice, then use maxFeePerGas as gasPrice
+      finalGasPrice = maxFeePerGas;
+    }
+    
     return Transaction(
       from: from,
       to: to,
       value: amount,
-      // data: data,
+      data: data,
       maxGas: maxGas,
-      // gasPrice: gasPrice,
+      gasPrice: finalGasPrice,
       // maxFeePerGas: maxFeePerGas,
       // maxPriorityFeePerGas: maxPriorityFeePerGas,
     );
@@ -40,7 +47,7 @@ class PolygonClient extends EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response = await httpClient.get(Uri.https("api.etherscan.io", "/v2/api", {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
@@ -68,7 +75,7 @@ class PolygonClient extends EVMChainClient {
   @override
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
-      final response = await httpClient.get(Uri.https("api.etherscan.io", "/v2/api", {
+      final response = await client.get(Uri.https("api.etherscan.io", "/v2/api", {
         "chainid": "$chainId",
         "module": "account",
         "action": "txlistinternal",

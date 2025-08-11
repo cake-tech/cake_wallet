@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -98,8 +98,8 @@ jobs:
           else
             echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
           fi
-          echo "const changeNowApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const changeNowApiKeyDesktop = '${{ secrets.CHANGE_NOW_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
+          echo "const changeNowCakeWalletApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const changeNowMoneroApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const wyreSecretKey = '${{ secrets.WYRE_SECRET_KEY }}';" >> lib/.secrets.g.dart
           echo "const wyreApiKey = '${{ secrets.WYRE_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const wyreAccountId = '${{ secrets.WYRE_ACCOUNT_ID }}';" >> lib/.secrets.g.dart
@@ -113,6 +113,7 @@ jobs:
           echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
           echo "const twitterBearerToken = '${{ secrets.TWITTER_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const trocadorApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const trocadorMoneroApiKey = '${{ secrets.TROCADOR_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const trocadorExchangeMarkup = '${{ secrets.TROCADOR_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
           echo "const anonPayReferralCode = '${{ secrets.ANON_PAY_REFERRAL_CODE }}';" >> lib/.secrets.g.dart
           echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
@@ -124,7 +125,8 @@ jobs:
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
-          echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const exolixCakeWalletApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const exolixMoneroApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
           echo "const exchangeHelperApiKey = '${{ secrets.ROBINHOOD_CID_CLIENT_SECRET }}';" >> lib/.secrets.g.dart
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
@@ -159,6 +161,7 @@ jobs:
           echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const zanoTestWalletSeeds = '${{ secrets.ZANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
@@ -253,6 +256,11 @@ jobs:
 
       - name: Build generated code
         run: |
+          flutter --version
+          flutter clean
+          rm -rf .dart_tool
+          rm pubspec.lock
+          flutter pub get
           ./model_generator.sh async
 
       - name: Generate key properties

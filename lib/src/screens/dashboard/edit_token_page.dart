@@ -73,6 +73,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
   bool _showDisclaimer = false;
   bool _disclaimerChecked = false;
+  bool isEditingToken = false;
 
   @override
   void initState() {
@@ -88,6 +89,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       _tokenSymbolController.text = widget.token!.title;
       _tokenDecimalController.text = widget.token!.decimals.toString();
       _tokenIconPathController.text = widget.token?.iconPath ?? '';
+
+      isEditingToken = true;
     }
 
     if (widget.initialContractAddress != null) {
@@ -200,6 +203,25 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate() &&
                               (!_showDisclaimer || _disclaimerChecked)) {
+                            final isTokenAlreadyAdded = isEditingToken
+                                ? false
+                                : await widget.homeSettingsViewModel
+                                    .checkIfTokenIsAlreadyAdded(_contractAddressController.text);
+                            if (isTokenAlreadyAdded) {
+                              showPopUp<void>(
+                                context: context,
+                                builder: (dialogContext) {
+                                  return AlertWithOneAction(
+                                    alertTitle: S.current.warning,
+                                    alertContent: S.of(context).token_already_exists,
+                                    buttonText: S.of(context).ok,
+                                    buttonAction: () => Navigator.of(dialogContext).pop(),
+                                  );
+                                },
+                              );
+                              return;
+                            }
+
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 

@@ -35,7 +35,10 @@ class PendingZanoTransaction with PendingTransaction {
   String get amountFormatted => ZanoFormatter.bigIntAmountToString(amount, decimalPoint);
 
   @override
-  String get feeFormatted => ZanoFormatter.bigIntAmountToString(fee);
+  String get feeFormatted => "$feeFormattedValue ZANO";
+
+  @override
+  String get feeFormattedValue => ZanoFormatter.bigIntAmountToString(fee);
 
   TransferResult? transferResult;
 
@@ -46,7 +49,7 @@ class PendingZanoTransaction with PendingTransaction {
   }
   
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }

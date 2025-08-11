@@ -26,10 +26,18 @@ class WCPairingItemWidget extends StatelessWidget {
         '$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}';
 
     return ListTile(
-      leading: CakeImageWidget(
-        imageUrl: metadata.icons.isNotEmpty ? metadata.icons[0] : null,
-        errorWidget: CircleAvatar(
-          backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: SizedBox(
+        width: 60,
+        height: 60,
+        child: CakeImageWidget(
+          borderRadius: 8,
+          width: 60,
+          height: 60,
+          imageUrl: metadata.icons.isNotEmpty ? metadata.icons[0] : null,
+          errorWidget: CircleAvatar(
+            backgroundImage: AssetImage('assets/images/walletconnect_logo.png'),
+          ),
         ),
       ),
       title: Text(
@@ -59,18 +67,20 @@ class WCPairingItemWidget extends StatelessWidget {
           ),
         ],
       ),
-      trailing: Container(
-        height: 40,
+      trailing: SizedBox(
         width: 44,
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        child: Icon(
-          Icons.edit,
-          size: 14,
-          color: Theme.of(context).colorScheme.onPrimary,
+        height: 40,
+        child: Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          child: Icon(
+            Icons.edit,
+            size: 14,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
       ),
       onTap: onTap,

@@ -128,5 +128,7 @@ abstract class SupportViewModelBase with Store {
 
   String get walletType => _appStore.wallet?.type.name ?? 'Unknown';
 
+  String get walletSyncState => _appStore.wallet?.syncStatus.toString() ?? 'Unknown';
+
   List<SettingsListItem> items;
 }

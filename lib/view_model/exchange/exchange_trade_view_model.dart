@@ -95,12 +95,9 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
-  @computed
-  String get extraInfo => trade.from == CryptoCurrency.xlm
-      ? '\n\n' + S.current.xlm_extra_info
-      : trade.from == CryptoCurrency.xrp
-          ? '\n\n' + S.current.xrp_extra_info
-          : '';
+  String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
+      ? '\n\n' + S.current.exchange_extra_info
+      : '';
 
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
@@ -202,31 +199,23 @@ abstract class ExchangeTradeViewModelBase with Store {
       ),
     ]);
 
-    if (trade.extraId != null) {
-      final shouldAddExtraId = trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm;
+    final isExtraIdExist = trade.extraId != null && trade.extraId!.isNotEmpty;
 
-      if (shouldAddExtraId) {
+    if (isExtraIdExist) {
         final title = trade.from == CryptoCurrency.xrp
             ? S.current.destination_tag
-            : trade.from == CryptoCurrency.xlm
+            : trade.from == CryptoCurrency.xlm || trade.from == CryptoCurrency.ton
                 ? S.current.memo
                 : S.current.extra_id;
 
         items.add(
           ExchangeTradeItem(
-            title: title,
-            data: '${trade.extraId}',
-            isCopied: true,
-            isReceiveDetail: (trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm)
-                ? false
-                : true,
-            isExternalSendDetail:
-                (trade.from == CryptoCurrency.xrp || trade.from == CryptoCurrency.xlm)
-                    ? true
-                    : false,
-          ),
+              title: title,
+              data: trade.extraId ?? '',
+              isCopied: true,
+              isReceiveDetail: !isExtraIdExist,
+              isExternalSendDetail: isExtraIdExist),
         );
-      }
     }
 
     items.add(

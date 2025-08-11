@@ -242,6 +242,22 @@ class DecredURI extends PaymentURI {
   }
 }
 
+class DogeURI extends PaymentURI {
+  DogeURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'doge:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -350,6 +366,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
          return ZanoURI(amount: amount, address: address.address);
       case WalletType.decred:
         return DecredURI(amount: amount, address: address.address);
+      case WalletType.dogecoin:
+        return DogeURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -586,12 +604,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.bitcoinCash,
         WalletType.bitcoin,
         WalletType.litecoin,
-        WalletType.decred
+        WalletType.decred,
+        WalletType.dogecoin,
       ].contains(wallet.type);
 
   @computed
   bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type);
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;
@@ -602,6 +621,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get isSilentPayments =>
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
+
+  @computed
+  bool get isCupcake =>
+      wallet.type == WalletType.bitcoin &&
+      (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isEmpty;
 
   @computed
   bool get isAutoGenerateSubaddressEnabled =>

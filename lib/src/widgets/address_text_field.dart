@@ -263,11 +263,17 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     final address = clipboard?.text ?? '';
 
     if (address.isNotEmpty) {
-      try {
-        final uri = Uri.parse(address);
-        controller?.text = uri.path;
-        onURIScanned?.call(uri);
-      } catch (_) {
+      // if it has query parameters then it's a valid uri
+      // added because Uri.parse(address) can parse a normal address string and would still be valid
+      if (address.contains("=")) {
+        try {
+          final uri = Uri.parse(address);
+          controller?.text = uri.path;
+          onURIScanned?.call(uri);
+        } catch (_) {
+          controller?.text = address;
+        }
+      } else {
         controller?.text = address;
       }
     }

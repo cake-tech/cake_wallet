@@ -36,22 +36,22 @@ class OtherSettingsPage extends BasePage {
               if (_otherSettingsViewModel.displayTransactionPriority)
                 _otherSettingsViewModel.walletType == WalletType.bitcoin ?
                   SettingsPriorityPickerCell(
-                    title: S.current.settings_fee_priority,
-                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                    displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
-                    selectedItem: _otherSettingsViewModel.transactionPriority,
-                    customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
-                    onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
-                    customValue: _otherSettingsViewModel.customBitcoinFeeRate,
-                    maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                        displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
+                        onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
+                        customValue: _otherSettingsViewModel.customBitcoinFeeRate,
+                        maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
                   ) :
                   SettingsPickerCell(
-                    title: S.current.settings_fee_priority,
-                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                    displayItem: _otherSettingsViewModel.getDisplayPriority,
-                    selectedItem: _otherSettingsViewModel.transactionPriority,
-                    onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
-                  ),
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                        displayItem: _otherSettingsViewModel.getDisplayPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                      ),
               if (_otherSettingsViewModel.changeRepresentativeEnabled)
                 SettingsCellWithArrow(
                   title: S.current.change_rep,
@@ -116,6 +116,18 @@ class OtherSettingsPage extends BasePage {
                   title: '[dev] wallet fuzzer',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devWalletFuzzer),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] socket health logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSocketHealthLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] network requests logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devNetworkRequests),
                 ),
               Spacer(),
               SettingsVersionCell(

@@ -5,6 +5,8 @@ import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_decred/amount_format.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
@@ -24,7 +26,6 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -307,9 +308,10 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
+      final dirPath = await pathForWalletDir(name: walletInfo.name, type: WalletType.decred);
       final config = {
         "name": walletInfo.name,
-        "datadir": walletInfo.dirPath,
+        "datadir": dirPath,
         "net": network,
         "unsyncedaddrs": true,
       };
@@ -592,6 +594,9 @@ abstract class DecredWalletBase
   }
 
   @override
+  Future<bool> checkNodeHealth() async => await checkSync();
+
+  @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
   Future<void> renameWalletFiles(String newWalletName) async {
@@ -605,22 +610,22 @@ abstract class DecredWalletBase
 
     final sourceDir = Directory(currentDirPath);
     final targetDir = Directory(newDirPath);
-    
+
     if (!targetDir.existsSync()) {
       await targetDir.create(recursive: true);
     }
-    
+
     await for (final entity in sourceDir.list(recursive: true)) {
-      final relativePath = entity.path.substring(sourceDir.path.length+1);
+      final relativePath = entity.path.substring(sourceDir.path.length + 1);
       final targetPath = p.join(targetDir.path, relativePath);
-      
+
       if (entity is File) {
         await entity.rename(targetPath);
       } else if (entity is Directory) {
         await Directory(targetPath).create(recursive: true);
       }
     }
-    
+
     await sourceDir.delete(recursive: true);
   }
 

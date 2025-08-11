@@ -47,12 +47,17 @@ class WalletRestoreFromQRCode {
     'decred': WalletType.decred,
     'decred-wallet': WalletType.decred,
     'decred_wallet': WalletType.decred,
+    'dogecoin': WalletType.dogecoin,
+    'dogecoin-wallet': WalletType.dogecoin,
+    'dogecoin_wallet': WalletType.dogecoin
   };
 
   static WalletType? _extractWalletType(String code) {
     final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
 
     final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
+
+    if (code.startsWith("xpub")) return WalletType.bitcoin;
 
     if (extracted == null) {
       // Special case for view-only monero wallet
@@ -74,7 +79,10 @@ class WalletRestoreFromQRCode {
   static String? _extractAddressFromUrl(String rawString, WalletType type) {
     try {
       return AddressResolver.extractAddressByType(
-          raw: rawString, type: walletTypeToCryptoCurrency(type));
+        raw: rawString,
+        type: walletTypeToCryptoCurrency(type),
+        requireSurroundingWhitespaces: false,
+      );
     } catch (_) {
       return null;
     }
@@ -114,11 +122,15 @@ class WalletRestoreFromQRCode {
 
       formattedUri = seedPhrase != null
           ? '$walletType:?seed=$seedPhrase'
-          : throw Exception('Failed to determine valid seed phrase');
+          : code.startsWith('xpub') 
+            ? '$walletType:?xpub=$code' 
+            : throw Exception('Failed to determine valid seed phrase');
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = '$walletType:?$query';
+      formattedUri = code.startsWith('xpub') 
+        ? '$walletType:?xpub=$code' 
+        :'$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
@@ -153,6 +165,10 @@ class WalletRestoreFromQRCode {
       final txIdValue = credentials['tx_payment_id'] as String? ?? '';
       if (txIdValue.isNotEmpty) return WalletRestoreMode.txids;
       throw Exception('Unexpected restore mode: tx_payment_id is invalid');
+    }
+
+    if (credentials.containsKey("xpub")) {
+      return WalletRestoreMode.keys;
     }
 
     if (credentials['seed'] != null) {

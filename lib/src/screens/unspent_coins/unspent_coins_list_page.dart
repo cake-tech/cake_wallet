@@ -41,14 +41,18 @@ class UnspentCoinsListPage extends BasePage {
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   Future<void> handleOnPopInvoked(BuildContext context) async {
+    final navigator = Navigator.of(context);
     final hasChanged = unspentCoinsListViewModel.hasAdjustableFieldChanged;
     if (unspentCoinsListViewModel.items.isEmpty || !hasChanged) {
-      Navigator.of(context).pop();
-    } else {
-      unspentCoinsListViewModel.setIsDisposing(true);
-      await unspentCoinsListViewModel.dispose();
-      Navigator.of(context).pop();
+      if (navigator.canPop()) navigator.pop();
+      return;
     }
+
+    unspentCoinsListViewModel.setIsDisposing(true);
+    await unspentCoinsListViewModel.dispose();
+
+    if (navigator.canPop()) navigator.pop();
+    if (navigator.canPop()) navigator.pop();
   }
 
   @override

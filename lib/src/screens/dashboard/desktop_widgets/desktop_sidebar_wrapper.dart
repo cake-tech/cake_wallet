@@ -63,9 +63,6 @@ class DesktopSidebarWrapper extends BasePage {
 
   final pageController = PageController();
 
-  final selectedIconPath = 'assets/images/desktop_transactions_solid_icon.png';
-  final unselectedIconPath = 'assets/images/desktop_transactions_outline_icon.png';
-
   double get sideMenuWidth => 76.0;
 
   @override
@@ -103,9 +100,7 @@ class DesktopSidebarWrapper extends BasePage {
                     }
                   },
                   isSelected: desktopSidebarViewModel.currentPage == SidebarItem.transactions,
-                  imagePath: desktopSidebarViewModel.currentPage == SidebarItem.transactions
-                      ? selectedIconPath
-                      : unselectedIconPath,
+                  imagePath: 'assets/images/history.svg',
                 ),
                 SideMenuItem(
                   widget: ServicesUpdatesWidget(

@@ -20,9 +20,8 @@ class PayjoinTransactionListItem extends ActionListItem {
   String get status {
     switch (session.status) {
       case 'success':
-        if (transaction?.isPending == true)
-          return S.current.payjoin_request_awaiting_tx;
-        return S.current.successful;
+        if (transaction?.isPending == false) return S.current.successful;
+        return S.current.payjoin_request_awaiting_tx;
       case 'inProgress':
         return S.current.payjoin_request_in_progress;
       case 'unrecoverable':

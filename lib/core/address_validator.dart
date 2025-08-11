@@ -5,27 +5,30 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+
 const BEFORE_REGEX = '(^|\\s)';
 const AFTER_REGEX = '(\$|\\s)';
 
 class AddressValidator extends TextValidator {
-  AddressValidator({required CryptoCurrency type})
+  AddressValidator({required CryptoCurrency type, bool isTestnet = false})
       : super(
             errorMessage: S.current.error_text_address,
             useAdditionalValidation: type == CryptoCurrency.btc || type == CryptoCurrency.ltc
                 ? (String txt) => BitcoinAddressUtils.validateAddress(
                       address: txt,
                       network: type == CryptoCurrency.btc
-                          ? BitcoinNetwork.mainnet
+                          ? isTestnet
+                              ? BitcoinNetwork.testnet
+                              : BitcoinNetwork.mainnet
                           : LitecoinNetwork.mainnet,
                     )
-                : type == CryptoCurrency.zano 
+                : type == CryptoCurrency.zano
                     ? zano?.validateAddress
                     : null,
-            pattern: getPattern(type),
+            pattern: getPattern(type, isTestnet: isTestnet),
             length: getLength(type));
 
-  static String getPattern(CryptoCurrency type) {
+  static String getPattern(CryptoCurrency type, {bool isTestnet = false}) {
     var pattern = "";
     if (type is Erc20Token) {
       pattern = '0x[0-9a-zA-Z]+';
@@ -37,10 +40,28 @@ class AddressValidator extends TextValidator {
         pattern = '[0-9a-zA-Z]{59}|[0-9a-zA-Z]{92}|[0-9a-zA-Z]{104}'
             '|[0-9a-zA-Z]{105}|addr1[0-9a-zA-Z]{98}';
       case CryptoCurrency.btc:
-        pattern =
-            '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${RegExp(r'(bc|tb)1q[ac-hj-np-z02-9]{25,39}}').pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';
+        if (isTestnet) {
+          pattern = '(^|\s)([mnL][a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|([23M][a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|(tb1q[ac-hj-np-z02-9]{25,39})'
+              '|(tb1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
+              '|(tb1q[ac-hj-np-z02-9]{40,80})'
+              '|(${silentPaymentAddressPatternTestnet})(\$|\s)';
+        } else {
+          pattern = '(^|\s)(1[a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|(3[a-km-zA-HJ-NP-Z1-9]{25,34})'
+              '|(bc1q[ac-hj-np-z02-9]{25,39})'
+              '|(bc1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
+              '|(bc1q[ac-hj-np-z02-9]{40,80})'
+              '|(${silentPaymentAddressPatternMainnet})(\$|\s)';
+        }
       case CryptoCurrency.ltc:
-        pattern = '^${RegExp(r'ltc1q[ac-hj-np-z02-9]{25,39}').pattern}\$|^${MwebAddress.regex.pattern}\$';
+        pattern = '(^|\s)(L[a-km-zA-HJ-NP-Z1-9]{25,34})'
+            '|([3M][a-km-zA-HJ-NP-Z1-9]{25,34})'
+            '|(ltc1q[ac-hj-np-z02-9]{25,39})'
+            '|(ltc1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))'
+            '|(ltc1q[ac-hj-np-z02-9]{40,80})'
+            '|(${MwebAddress.regex.pattern})(\$|\s)';
       case CryptoCurrency.nano:
         pattern = '[0-9a-zA-Z_]+';
       case CryptoCurrency.banano:
@@ -281,9 +302,11 @@ class AddressValidator extends TextValidator {
     }
   }
 
-  static String get silentPaymentAddressPattern => SilentPaymentAddress.regex.pattern;
+  static String get silentPaymentAddressPatternMainnet => 'sp1[0-9a-zA-Z]{113}';
+  static String get silentPaymentAddressPatternTestnet => '(tsp|sprt)1[0-9a-zA-Z]{113}';
   static String get mWebAddressPattern => MwebAddress.regex.pattern;
 
+  // NOTE: not needed to check for network here as it's a general address catcher, validation is separate
   static String? getAddressFromStringPattern(CryptoCurrency type) {
     String? pattern = null;
 
@@ -335,10 +358,6 @@ class AddressValidator extends TextValidator {
         }
     }
 
-    if (pattern != null) {
-      return "$BEFORE_REGEX($pattern)$AFTER_REGEX";
-    }
-
-    return null;
+    return pattern != null ? "($pattern)" : null;
   }
 }

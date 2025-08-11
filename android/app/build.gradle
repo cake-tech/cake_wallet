@@ -38,6 +38,12 @@ android {
     compileSdkVersion 35
     buildToolsVersion "35.0.0"
 
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     lintOptions {
         disable 'InvalidPackage'
     }
@@ -55,7 +61,7 @@ android {
     defaultConfig {
         applicationId appProperties['id']
         minSdkVersion 24
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -88,7 +94,7 @@ android {
        }
    }
 
-    ndkVersion "27.0.12077973"
+    ndkVersion "28.2.13676358"
 }
 
 flutter {

@@ -1,4 +1,4 @@
-# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-go1.24.1
+# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
 
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
@@ -19,7 +19,7 @@ ENV FLUTTER_VERSION=3.27.4
 
 # Pin Android Studio, platform, and build tools versions to latest known-working version
 # Comes from https://developer.android.com/studio/#command-tools
-ENV ANDROID_SDK_TOOLS_VERSION=11076708
+ENV ANDROID_SDK_TOOLS_VERSION=13114758
 # Comes from https://developer.android.com/studio/releases/build-tools
 ENV ANDROID_PLATFORM_VERSION=35
 ENV ANDROID_BUILD_TOOLS_VERSION=34.0.0
@@ -138,11 +138,12 @@ RUN ARCH=$(uname -m) && \
     "build-tools;35.0.0"
 
 # Install extra NDK dependency for sp_scanner
-ENV ANDROID_NDK_VERSION=27.2.12479018
+ENV ANDROID_NDK_VERSION=28.2.13676358
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
     && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
-    "ndk;27.0.12077973"
+    "ndk;27.0.12077973" \
+    "ndk;27.2.12479018"
 
 # Install dependencies for tests
 # Comes from https://github.com/ReactiveCircus/android-emulator-runner
@@ -164,9 +165,12 @@ RUN (addgroup kvm || true) && \
 ENV PATH=${HOME}/.cargo/bin:${PATH}
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     cargo install cargo-ndk && \
+    for toolchain in stable nightly; \
+    do \
     for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu aarch64-unknown-linux-gnu; \
     do \
-        rustup target add --toolchain stable $target; \
+        rustup target add --toolchain $toolchain $target; \
+    done \
     done
 
 # Download and install Flutter
@@ -175,8 +179,11 @@ ENV FLUTTER_HOME=${HOME}/sdks/flutter/${FLUTTER_VERSION}
 ENV FLUTTER_ROOT=$FLUTTER_HOME
 ENV PATH=${PATH}:${FLUTTER_HOME}/bin:${FLUTTER_HOME}/bin/cache/dart-sdk/bin
 
-RUN git clone --depth 1 --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME} \
-    && yes | flutter doctor --android-licenses \
+RUN git clone --branch ${FLUTTER_VERSION} https://github.com/flutter/flutter.git ${FLUTTER_HOME} && \
+    cd ${FLUTTER_HOME} && \
+    git fetch -a
+
+RUN yes | flutter doctor --android-licenses \
     && flutter doctor \
     && chown -R root:root ${FLUTTER_HOME}
 
