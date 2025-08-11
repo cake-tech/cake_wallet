@@ -24,13 +24,13 @@ class NavigationDock extends StatelessWidget {
           return Container(
             height: 150,
             alignment: Alignment.bottomCenter,
-            decoration: BoxDecoration(
+            decoration: dashboardViewModel.settingsStore.backgroundImage.isEmpty ? BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: _getColors(context, !currentTheme.isDark),
               ),
-            ),
+            ) : null,
             //color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
