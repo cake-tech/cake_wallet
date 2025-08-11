@@ -41,7 +41,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
               Text(
                 S.current.receive,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18.0,
+                      fontSize: 17.0,
                       fontWeight: FontWeight.bold,
                       color: color,
                     ),

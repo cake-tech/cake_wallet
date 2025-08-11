@@ -44,6 +44,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   @computed
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
+  @computed
+  String get backgroundImage => _settingsStore.backgroundImage;
+
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
 
@@ -87,4 +90,7 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
+
+  @action
+  void setBackgroundImage(String path) => _settingsStore.backgroundImage = path;
 }

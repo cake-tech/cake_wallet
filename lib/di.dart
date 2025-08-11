@@ -142,6 +142,7 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
+import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -274,6 +275,7 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
+import 'dogecoin/dogecoin.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'package:cake_wallet/view_model/dev/background_sync_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
@@ -1027,6 +1029,8 @@ Future<void> setup({
   getIt.registerFactory(
       () => SilentPaymentsSettingsPage(getIt.get<SilentPaymentsSettingsViewModel>()));
 
+  getIt.registerFactory(() => SilentPaymentsLogPage(getIt.get<SilentPaymentsSettingsViewModel>()));
+
   getIt.registerFactory(() => MwebSettingsPage(getIt.get<MwebSettingsViewModel>()));
 
   getIt.registerFactory(() => MwebLogsPage(getIt.get<MwebSettingsViewModel>()));
@@ -1146,6 +1150,9 @@ Future<void> setup({
             _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource,
+            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.dogecoin:
+        return dogecoin!.createDogeCoinWalletService(_walletInfoSource,
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.nano:
       case WalletType.banano:
