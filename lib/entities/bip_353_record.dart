@@ -5,7 +5,6 @@ import 'package:basic_utils/basic_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:dnssec_proof/dnssec_proof.dart';
-import 'package:flutter/material.dart';
 
 class Bip353Record {
   Bip353Record({

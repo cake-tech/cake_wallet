@@ -86,6 +86,7 @@ class Routes {
   static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
+  static const silentPaymentsLogs = '/silent_payments_logs';
   static const mwebSettings = '/mweb_settings';
   static const mwebLogs = '/mweb_logs';
   static const mwebNode = '/mweb_node';
@@ -134,7 +135,8 @@ class Routes {
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
-  static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
+  static const walletGroupExistingSeedDescriptionPage =
+      '/wallet_group_existing_seed_description_page';
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 

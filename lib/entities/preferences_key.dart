@@ -11,6 +11,7 @@ class PreferencesKey {
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
+  static const currentDogecoinNodeIdKey = 'current_node_id_doge';
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
@@ -117,4 +118,5 @@ class PreferencesKey {
   static String backgroundSyncLastTrigger(String walletId) => 'background_sync_last_trigger_${walletId}';
   static const backgroundSyncNotificationsEnabled = 'background_sync_notifications_enabled';
   static const enableAutomaticNodeSwitching = 'enable_automatic_node_switching';
+  static const backgroundImage = 'background_image';
 }

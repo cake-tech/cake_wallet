@@ -1,9 +1,28 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 
-void printV(dynamic content) {
-  CustomTrace programInfo = CustomTrace(StackTrace.current);
-  print("${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content");
+enum LogLevel { info, debug, warn, error }
+
+/// Pass an optional [file] to also write the log to a file.
+void printV(
+  dynamic content, {
+  String? file,
+  LogLevel level = LogLevel.info,
+}) {
+  final programInfo = CustomTrace(StackTrace.current);
+  final logLine =
+      "[${level.name.toUpperCase()}] ${programInfo.fileName}#${programInfo.lineNumber}:${programInfo.columnNumber} ${programInfo.callerFunctionName}: $content";
+
+  print(logLine);
+
+  if (file != null) {
+    final logFile = File(file);
+    if (!logFile.existsSync()) {
+      logFile.createSync(recursive: true);
+    }
+    logFile.writeAsStringSync("$logLine\n", mode: FileMode.append, flush: true);
+  }
 }
 
 // https://stackoverflow.com/a/59386101
@@ -62,7 +81,8 @@ class CustomTrace {
     var traceString = frames[1];
 
     /* Search through the string and find the index of the file name by looking for the '.dart' regex */
-    var indexOfFileName = traceString.indexOf(RegExp(r'[/A-Za-z_]+.dart'), 1); // 1 to offest and not print the printV function name
+    var indexOfFileName = traceString.indexOf(
+        RegExp(r'[/A-Za-z_]+.dart'), 1); // 1 to offest and not print the printV function name
 
     var fileInfo = traceString.substring(max(0, indexOfFileName));
 
