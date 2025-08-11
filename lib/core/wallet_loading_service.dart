@@ -74,7 +74,7 @@ class WalletLoadingService {
     } catch (error, stack) {
       await ExceptionHandler.resetLastPopupDate();
       final isLedgerError = await ExceptionHandler.isLedgerError(error);
-      if (isLedgerError) rethrow;
+      if (isLedgerError || requireHardwareWalletConnection(type, name)) rethrow;
       await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
 
