@@ -37,7 +37,9 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -73,6 +75,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
+  PaymentViewModel paymentViewModel;
+  WalletSwitcherViewModel walletSwitcherViewModel;
 
   SendViewModelBase(
     AppStore appStore,
@@ -83,6 +87,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.transactionDescriptionBox,
     this.ledgerViewModel,
     this.unspentCoinsListViewModel,
+    this.paymentViewModel,
+    this.walletSwitcherViewModel,
     this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),

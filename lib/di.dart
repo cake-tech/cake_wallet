@@ -280,6 +280,8 @@ import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -804,6 +806,8 @@ Future<void> setup({
       getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
+      getIt.get<PaymentViewModel>(),
+      getIt.get<WalletSwitcherViewModel>(),
       getIt.get<FeesViewModel>(),
     ),
   );
@@ -1120,6 +1124,17 @@ Future<void> setup({
   getIt.registerFactory(() => BackgroundSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(() => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
+
+  getIt.registerFactory(() => PaymentViewModel(
+    appStore: getIt.get<AppStore>(),
+    walletInfoSource: _walletInfoSource,
+  ));
+
+  getIt.registerFactory(() => WalletSwitcherViewModel(
+    appStore: getIt.get<AppStore>(),
+    walletLoadingService: getIt.get<WalletLoadingService>(),
+    walletInfoSource: _walletInfoSource,
+  ));
 
   getIt.registerFactoryParam<WalletService, WalletType, void>((WalletType param1, __) {
     switch (param1) {
