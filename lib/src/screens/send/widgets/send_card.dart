@@ -443,7 +443,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     ),
                   ),
                 ),
-              if (sendViewModel.currency == CryptoCurrency.ltc)
+              if (sendViewModel.currency == CryptoCurrency.ltc && sendViewModel.isMwebEnabled)
                 Observer(
                   builder: (_) => Padding(
                     padding: EdgeInsets.only(top: 14),
