@@ -191,10 +191,11 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
-      case CryptoCurrency.wow:
-      pattern = '^(?:Wo[1-9A-HJ-NP-Za-km-z]{95}'
-          '|Wm[1-9A-HJ-NP-Za-km-z]{94}'
-          '|Wo[1-9A-HJ-NP-Za-km-z]{96})';
+      case CryptoCurrency.wow: {
+        const base58 = r'[1-9A-HJ-NP-Za-km-z]';
+        pattern = '(?:W(?:o|m|W)$base58{94,95}|Wo$base58{106,107})';
+        break;
+      }
       case CryptoCurrency.bch:
         pattern = '(?:bitcoincash:)?(q|p)[0-9a-zA-Z]{41}'
             '|[13][a-km-zA-HJ-NP-Z1-9]{25,34}';
