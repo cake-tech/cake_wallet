@@ -166,7 +166,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash,WalletType.dogecoin ].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
       [WalletType.monero, WalletType.wownero].contains(wallet.type);
@@ -184,6 +184,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChainflipExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
+        LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         TrocadorExchangeProvider(
@@ -313,6 +314,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
+        WalletType.dogecoin,
       ].contains(wallet.type) &&
       depositCurrency == wallet.currency;
 
@@ -672,6 +674,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       WalletType.litecoin,
       WalletType.bitcoin,
       WalletType.bitcoinCash,
+      WalletType.dogecoin,
     ].contains(wallet.type)) {
       final priority = _settingsStore.priority[wallet.type]!;
 
@@ -748,6 +751,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         break;
       case WalletType.bitcoinCash:
         depositCurrency = CryptoCurrency.bch;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      case WalletType.dogecoin:
+        depositCurrency = CryptoCurrency.doge;
         receiveCurrency = CryptoCurrency.xmr;
         break;
       case WalletType.haven:

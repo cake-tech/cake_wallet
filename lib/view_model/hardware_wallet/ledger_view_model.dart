@@ -173,7 +173,14 @@ abstract class LedgerViewModelBase with Store {
     }
   }
 
-  String? interpretErrorCode(String errorCode) {
+  String? interpretErrorCode(String error) {
+    if (error.contains("Make sure no other program is communicating with the Ledger")) {
+      return error;
+    }
+
+    var errorRegex = RegExp(r'(?:0x\S*?|[0-9a-f]{4})(?= )').firstMatch(error.toString());
+
+    String errorCode = errorRegex?.group(0).toString().replaceAll("0x", "") ?? "";
     if (errorCode.contains("6985")) {
       return S.current.ledger_error_tx_rejected_by_user;
     } else if (errorCode.contains("5515")) {

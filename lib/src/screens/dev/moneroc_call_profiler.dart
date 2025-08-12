@@ -116,8 +116,8 @@ max: slowest execution (% of frame)
 
   @override
   void initState() {
-    _buildWidgets();
     super.initState();
+    Future.delayed(Duration.zero).then((_) => _buildWidgets());
   }
 
   SelectableText cw(String text, Color? color) {

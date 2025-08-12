@@ -103,6 +103,9 @@
                 <data android:scheme="decred" />
                 <data android:scheme="decred-wallet" />
                 <data android:scheme="decred_wallet" />
+                <data android:scheme="dogecoin" />
+                <data android:scheme="dogecoin-wallet" />
+                <data android:scheme="dogecoin_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">

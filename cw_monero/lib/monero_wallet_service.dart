@@ -22,7 +22,6 @@ import 'package:cw_monero/ledger.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
-import 'package:monero/src/monero.dart' as m;
 import 'package:monero/monero.dart' as monero;
 import 'package:polyseed/polyseed.dart';
 
