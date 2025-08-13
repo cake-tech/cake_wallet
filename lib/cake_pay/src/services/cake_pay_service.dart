@@ -23,15 +23,11 @@ class CakePayService {
   final SecureStorage secureStorage;
   final CakePayApi cakePayApi;
 
-  /// Get Available Countries
-  Future<List<Country>> getCountries() async =>
-      await cakePayApi.getCountries(apiKey: cakePayApiKey);
-
   /// Get Vendors
   Future<List<CakePayVendor>> getVendors({
-    required String country,
-    int? page,
-    String? countryCode,
+    required int page,
+    required String countryCode,
+    String? country,
     String? search,
     List<String>? vendorIds,
     bool? giftCards,
@@ -114,6 +110,9 @@ class CakePayService {
   }
 
   ///Simulate Purchase Gift Card
-  Future<String> simulatePayment({required String orderId}) async => await cakePayApi.simulatePayment(
-      CSRFToken: CSRFToken, authorization: authorization, orderId: orderId);
+  Future<String> simulatePayment({required String orderId}) async {
+    final token = (await secureStorage.read(key: cakePayUserTokenKey))!;
+    return await cakePayApi.simulatePayment(
+        CSRFToken: CSRFToken, authorization: authorization, token: token, orderId: orderId);
+  }
 }
