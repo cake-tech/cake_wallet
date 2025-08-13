@@ -36,6 +36,7 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
@@ -46,6 +47,7 @@ import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_solana/spl_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -204,6 +206,14 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 
   if (!CakeHive.isAdapterRegistered(PayjoinSession.typeId)) {
     CakeHive.registerAdapter(PayjoinSessionAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
+    CakeHive.registerAdapter(Erc20TokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
+    CakeHive.registerAdapter(SPLTokenAdapter());
   }
 
   final secureStorage = secureStorageShared;

@@ -37,13 +37,17 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_solana/spl_token.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -70,6 +74,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this.contactListViewModel,
     this.unspentCoinsListViewModel,
     this.feesViewModel,
+    this.walletInfoSource,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
         isFixedRateMode = false,
@@ -81,8 +86,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         isDepositAddressEnabled = false,
         isReceiveAmountEditable = false,
         _useTorOnly = false,
-        receiveCurrencies = <CryptoCurrency>[],
-        depositCurrencies = <CryptoCurrency>[],
+        receiveCurrencies = ObservableList<CryptoCurrency>(),
+        depositCurrencies = ObservableList<CryptoCurrency>(),
         limits = Limits(min: 0, max: 0),
         tradeState = ExchangeTradeStateInitial(),
         limitsState = LimitsInitialState(),
@@ -149,10 +154,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     });
     receiveCurrencies = CryptoCurrency.all
         .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
-        .toList();
+        .toList()
+        .asObservable();
     depositCurrencies = CryptoCurrency.all
         .where((cryptoCurrency) => !excludeDepositCurrencies.contains(cryptoCurrency))
-        .toList();
+        .toList()
+        .asObservable();
+
+    _injectUserEthTokensIntoCurrencyLists();
+    _injectUserSplTokensIntoCurrencyLists();
     _defineIsReceiveAmountEditable();
     loadLimits();
     reaction((_) => isFixedRateMode, (Object _) {
@@ -165,8 +175,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
   }
 
-  bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash,WalletType.dogecoin ].contains(wallet.type);
+  bool get isElectrumWallet => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.dogecoin
+      ].contains(wallet.type);
 
   bool get hideAddressAfterExchange =>
       [WalletType.monero, WalletType.wownero].contains(wallet.type);
@@ -320,9 +334,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
 
-  List<CryptoCurrency> receiveCurrencies;
+  @observable
+  ObservableList<CryptoCurrency> receiveCurrencies;
 
-  List<CryptoCurrency> depositCurrencies;
+  @observable
+  ObservableList<CryptoCurrency> depositCurrencies;
 
   final NumberFormat _cryptoNumberFormat;
 
@@ -333,6 +349,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   final FeesViewModel feesViewModel;
+
+  final Box<WalletInfo> walletInfoSource;
 
   @observable
   double bestRate = 0.0;
@@ -720,12 +738,26 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   List<ExchangeProvider> providersForCurrentPair() =>
       _providersForPair(from: depositCurrency, to: receiveCurrency);
 
-  List<ExchangeProvider> _providersForPair(
-          {required CryptoCurrency from, required CryptoCurrency to}) =>
-      providerList
-          .where((provider) =>
-              provider.pairList.where((pair) => pair.from == from && pair.to == to).isNotEmpty)
-          .toList();
+  bool _isEthOrSolNetwork(CryptoCurrency cur) {
+    final tag = (cur.tag ?? '').toUpperCase();
+    return tag == 'ETH' || tag == 'SOL' || cur == CryptoCurrency.eth || cur == CryptoCurrency.sol;
+  }
+
+  List<ExchangeProvider> _providersForPair({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+  }) =>
+      providerList.where((provider) {
+        final hasStatic = provider.pairList.any((pair) => pair.from == from && pair.to == to);
+        if (hasStatic) return true;
+
+        // Allow all currencies for LetsExchange that are ETH or SOL based
+        if (provider is LetsExchangeExchangeProvider) {
+          return _isEthOrSolNetwork(from) || _isEthOrSolNetwork(to);
+        }
+
+        return false;
+      }).toList();
 
   void _onPairChange() {
     depositAmount = '';
@@ -989,7 +1021,120 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
   }
 
-  double initialAmountByAssets (CryptoCurrency ticker) {
+  // Adding user's Erc20 tokens to the list of currencies
+
+  Future<Box<Erc20Token>> _openEthTokensBoxFor(WalletInfo walletInfo) async {
+    final boxName = '${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}';
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<Erc20Token>(boxName);
+    }
+    return CakeHive.openBox<Erc20Token>(boxName);
+  }
+
+  Future<List<Erc20Token>> _loadAllUniqueEthTokens() async {
+    final ethWallets =
+        walletInfoSource.values.where((wallet) => wallet.type == WalletType.ethereum);
+    final tokens = <Erc20Token>[];
+
+    for (final wallet in ethWallets) {
+      final box = await _openEthTokensBoxFor(wallet);
+      tokens.addAll(box.values.where((t) => t.enabled));
+    }
+
+    final seen = <String>{};
+    final unique = <Erc20Token>[];
+    for (final token in tokens) {
+      final key = token.contractAddress.toLowerCase();
+      if (!seen.contains(key)) {
+        seen.add(key);
+        unique.add(token);
+      }
+    }
+    return unique;
+  }
+
+  @action
+  Future<void> _injectUserEthTokensIntoCurrencyLists() async {
+    final userTokens = await _loadAllUniqueEthTokens();
+
+    final toAddReceive = <CryptoCurrency>[];
+    final toAddDeposit = <CryptoCurrency>[];
+
+    for (final token in userTokens) {
+      if (!_listContainsToken(receiveCurrencies, token)) toAddReceive.add(token);
+      if (!_listContainsToken(depositCurrencies, token)) toAddDeposit.add(token);
+    }
+
+    if (toAddReceive.isNotEmpty) receiveCurrencies.addAll(toAddReceive);
+    if (toAddDeposit.isNotEmpty) depositCurrencies.addAll(toAddDeposit);
+  }
+
+  bool _listContainsToken(List<CryptoCurrency> list, Erc20Token token) {
+    return list.any((item) {
+      if (item is Erc20Token) {
+        return item.contractAddress.toLowerCase() == token.contractAddress.toLowerCase();
+      }
+      return item.title.toUpperCase() == token.symbol.toUpperCase();
+    });
+  }
+
+  // Adding user's Solana tokens to the list of currencies
+
+  Future<Box<SPLToken>> _openSolTokensBoxFor(WalletInfo wallet) async {
+    final boxName = '${wallet.name.replaceAll(" ", "_")}_${SPLToken.boxName}';
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<SPLToken>(boxName);
+    }
+    return CakeHive.openBox<SPLToken>(boxName);
+  }
+
+  Future<List<SPLToken>> _loadAllUniqueSolTokens() async {
+    final solWallets = walletInfoSource.values.where((wallet) => wallet.type == WalletType.solana);
+    final tokens = <SPLToken>[];
+
+    for (final wallet in solWallets) {
+      final box = await _openSolTokensBoxFor(wallet);
+      tokens.addAll(box.values.where((t) => t.enabled));
+    }
+
+    final seen = <String>{};
+    final unique = <SPLToken>[];
+    for (final token in tokens) {
+      final key = token.mintAddress.toLowerCase();
+      if (!seen.contains(key)) {
+        seen.add(key);
+        unique.add(token);
+      }
+    }
+    return unique;
+  }
+
+  bool _listContainsSplToken(List<CryptoCurrency> list, SPLToken token) {
+    return list.any((item) {
+      if (item is SPLToken) {
+        return item.mintAddress.toLowerCase() == token.mintAddress.toLowerCase();
+      }
+      return item.title.toUpperCase() == token.symbol.toUpperCase();
+    });
+  }
+
+  @action
+  Future<void> _injectUserSplTokensIntoCurrencyLists() async {
+    final userTokens = await _loadAllUniqueSolTokens();
+
+    final toAddReceive = <CryptoCurrency>[];
+    final toAddDeposit = <CryptoCurrency>[];
+
+    for (final token in userTokens) {
+      if (!_listContainsSplToken(receiveCurrencies, token)) toAddReceive.add(token);
+      if (!_listContainsSplToken(depositCurrencies, token)) toAddDeposit.add(token);
+    }
+
+    if (toAddReceive.isNotEmpty) receiveCurrencies.addAll(toAddReceive);
+    if (toAddDeposit.isNotEmpty) depositCurrencies.addAll(toAddDeposit);
+  }
+
+  double initialAmountByAssets(CryptoCurrency ticker) {
     final amount = switch (ticker) {
       CryptoCurrency.trx => 1000,
       CryptoCurrency.nano => 10,
