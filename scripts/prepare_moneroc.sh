@@ -6,6 +6,7 @@ cd "$(dirname "$0")"
 
 if [[ ! -d "monero_c/.git" ]];
 then
+    rm -rf monero_c
     git clone https://github.com/mrcyjanek/monero_c --branch master monero_c
     cd monero_c
     git checkout b576312e4d466569cd03482b61c597b39a9f4dc3
