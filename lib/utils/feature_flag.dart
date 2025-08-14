@@ -8,7 +8,7 @@ class FeatureFlag {
   static const bool isCakePayRedemptionFlowEnabled = false;
   static const bool isExolixEnabled = true;
   static const bool isBackgroundSyncEnabled = true;
-  static final bool isInAppTorEnabled = CakeTor.instance is! CakeTorDisabled;
+  static bool get isInAppTorEnabled => CakeTor.instance is! CakeTorDisabled;
   static const int verificationWordsCount = kDebugMode ? 0 : 2;
   static const bool hasDevOptions = bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
   static const bool hasBitcoinViewOnly = true;
