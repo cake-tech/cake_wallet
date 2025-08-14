@@ -1433,8 +1433,7 @@ Future<void> setup({
   getIt.registerFactoryParam<CakePayBuyCardPage, List<dynamic>, void>((List<dynamic> args, _) {
     final vendor = args.first as CakePayVendor;
 
-    return CakePayBuyCardPage(
-        getIt.get<CakePayBuyCardViewModel>(param1: vendor), getIt.get<CakePayService>());
+    return CakePayBuyCardPage(getIt.get<CakePayBuyCardViewModel>(param1: vendor));
   });
 
   getIt.registerFactory(() => CakePayCardsPage(getIt.get<CakePayCardsListViewModel>()));

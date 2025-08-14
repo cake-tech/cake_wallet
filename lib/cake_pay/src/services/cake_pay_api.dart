@@ -20,6 +20,7 @@ class CakePayApi {
   static final verifyEmailPath = '/api/accounts/auth/verify';
   static final logoutPath = '/api/accounts/logout';
   static final orderPath = '/api/orders/order';
+  static final createOrderPath = '/api/orders/order';
   static final simulatePaymentPath = '/api/orders/simulate-payment';
 
   /// AuthenticateUser
@@ -158,13 +159,11 @@ class CakePayApi {
   /// Get Order by ID
   Future<CakePayOrder> getOrderById({required String orderId, required String token}) async {
     final uri = Uri.https(baseCakePayUri, '$orderPath/$orderId');
-
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': 'Token $token',
     };
-
     final response = await ProxyWrapper().get(
       clearnetUri: uri,
       headers: headers,

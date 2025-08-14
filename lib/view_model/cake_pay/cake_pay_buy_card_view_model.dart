@@ -10,7 +10,6 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -24,16 +23,13 @@ class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCar
 
 abstract class CakePayBuyCardViewModelBase with Store {
   CakePayBuyCardViewModelBase(
-      {required this.vendor,
-      required this.cakePayService,
-      required this.sendViewModel,
-      required this.orders})
-      : walletType = sendViewModel.walletType,
-        card = vendor.card!,
+      {required this.vendor, required CakePayService cakePayService, required this.sendViewModel})
+      : _cakePayService = cakePayService, walletType = sendViewModel.walletType,
         amount = vendor.card!.denominationItems.isNotEmpty
             ? vendor.card!.denominationItems.first.value
             : 0,
         quantity = 1,
+        card = vendor.card!,
         min = _toDouble(vendor.card!.minValue) ?? 0,
         max = _toDouble(vendor.card!.maxValue) ?? 0 {
     selectedPaymentMethod = availableMethods.isNotEmpty ? availableMethods.first : null;
@@ -46,7 +42,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   final CakePayVendor vendor;
   final SendViewModel sendViewModel;
-  final CakePayService cakePayService;
+  final CakePayService _cakePayService;
   final double max;
   final double min;
   final CakePayCard card;
@@ -67,6 +63,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool get isDenominationSelected =>
       card.denominationItems.isNotEmpty &&
       card.denominationItems.any((item) => item.value == amount);
+
+  Future<bool> get isUserLogged async => await _cakePayService.isLogged();
 
   @observable
   double amount;
@@ -108,7 +106,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
       case WalletType.bitcoin:
         return [CakePayPaymentMethod.BTC];
       case WalletType.litecoin:
-        return [CakePayPaymentMethod.LTC, CakePayPaymentMethod.LTC_MWEB];
+        return [CakePayPaymentMethod.LTC,if (sendViewModel.isMwebEnabled) CakePayPaymentMethod.LTC_MWEB];
       case WalletType.monero:
         return [CakePayPaymentMethod.XMR];
       default:
@@ -117,7 +115,12 @@ abstract class CakePayBuyCardViewModelBase with Store {
   }
 
   @action
-  void chooseMethod(CakePayPaymentMethod method) => selectedPaymentMethod = method;
+  void chooseMethod(CakePayPaymentMethod method) {
+    selectedPaymentMethod = method;
+    if (walletType == WalletType.litecoin) {
+      sendViewModel.setAllowMwebCoins(method == CakePayPaymentMethod.LTC_MWEB);
+    }
+  }
 
   @action
   void onQuantityChanged(int? input) => quantity = input ?? 1;
@@ -137,7 +140,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
           FailureState('Unsupported wallet type, please use Bitcoin, Monero, or Litecoin.');
     }
     try {
-      order = await cakePayService.createOrder(
+      order = await _cakePayService.createOrder(
         cardId: isDenominationSelected ? selectedDenomination.$2 ?? card.id : card.id,
         price: isDenominationSelected ? selectedDenomination.$1 : amount.toString(),
         quantity: quantity,
@@ -195,7 +198,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
     }
 
     try {
-      simulatedResponse = await cakePayService.simulatePayment(orderId: order!.orderId);
+      simulatedResponse = await _cakePayService.simulatePayment(orderId: order!.orderId);
       sendViewModel.state = TransactionCommitted();
     } catch (e) {
       sendViewModel.state = FailureState(
@@ -221,6 +224,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
       formattedRemainingTime = formatDuration(remainingTime!);
     }
   }
+  
+  Future<void> logout() async => await _cakePayService.logout();
 
   void _startExpirationTimer() {
     _timer?.cancel();

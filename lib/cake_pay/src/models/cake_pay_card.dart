@@ -39,10 +39,18 @@ class CakePayCard {
     final termsAndConditions = stripHtmlIfNeeded(json['terms_and_conditions'] as String? ?? '');
     final howToUse = stripHtmlIfNeeded(json['how_to_use'] as String? ?? '');
     final fiatCurrency = FiatCurrency.deserialize(raw: json['currency_code'] as String? ?? '');
-    final parsedMinValue = _toDouble(json['min_value'] as String?);
-    final minValue = fiatCurrency == FiatCurrency.usd && parsedMinValue != null && parsedMinValue < 10.00
-        ? '10.00'
-        : json['min_value'] as String?;
+
+    String? minValue = json['min_value'] as String?;
+
+    final parsedMinValueLocal = _toDouble(json['min_value']);
+    final parsedMinValueUsd = _toDouble(json['min_value_usd']);
+
+    if (parsedMinValueLocal != null && parsedMinValueLocal > 0 && parsedMinValueUsd != null && parsedMinValueUsd > 0 && parsedMinValueUsd < 10.0) {
+      final rate = parsedMinValueLocal / parsedMinValueUsd;
+      final minLocalValueLimit = 10.0 * rate;
+      minValue = minLocalValueLimit.toStringAsFixed(2);
+    }
+
     final raw = (json['denominations'] as List?) ?? const [];
     final denominations = <Denomination>[];
     for (final item in raw) {
