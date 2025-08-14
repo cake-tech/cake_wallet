@@ -1,18 +1,25 @@
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/sync_status.dart';
 
-String syncStatusTitle(SyncStatus syncStatus) {
+String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDisplayMode) {
   if (syncStatus is SyncingSyncStatus) {
     if (syncStatus.blocksLeft == 1) {
       return S.current.block_remaining;
     }
 
-    String eta = syncStatus.getFormattedEta() ?? '';
+    // Check user preference for sync status display
+    if (syncStatusDisplayMode == SyncStatusDisplayMode.eta) {
+      // Get ETA with placeholder while gathering data
+      String eta = syncStatus.getFormattedEtaWithPlaceholder() ?? '';
 
-    if (eta.isEmpty) {
-      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+      if (eta.isEmpty) {
+        return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+      } else {
+        return "${syncStatus.formattedProgress()} - ${S.current.eta} $eta";
+      }
     } else {
-      return "${syncStatus.formattedProgress()} - $eta";
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
     }
   }
 

@@ -45,14 +45,100 @@ class SyncingSyncStatus extends SyncStatus {
 
   static void updateEtaHistory(int blocksLeft) {
     blockHistory[DateTime.now()] = blocksLeft;
-    // keep only the last 25 entries
-    while (blockHistory.length > 25) {
+
+    // keep only the last 30 entries (gives us better statistical accuracy)
+    while (blockHistory.length > 30) {
       blockHistory.remove(blockHistory.keys.first);
     }
   }
 
   static Map<DateTime, int> blockHistory = {};
   static Duration? lastEtaDuration;
+  static const int _minDataPoints = 3;
+  static const int _maxDataAgeMinutes = 2;
+
+  String? getFormattedEtaWithPlaceholder() {
+    _cleanOldEntries();
+
+    // If we have enough data, show actual ETA
+    if (blockHistory.length >= _minDataPoints) {
+      final eta = getFormattedEta();
+      if (eta != null) return eta;
+    }
+
+    // Show the placeholder ETA while gathering data
+    return '--:--';
+  }
+
+  void _cleanOldEntries() {
+    final cutoffTime = DateTime.now().subtract(Duration(minutes: _maxDataAgeMinutes));
+    blockHistory.removeWhere((key, value) => key.isBefore(cutoffTime));
+  }
+
+  String? getFormattedEta() {
+    Duration? duration = getEtaDuration();
+
+    // Don't show ETA for very long durations or very few blocks
+    if (duration.inDays > 0 || blocksLeft < 100) return null;
+
+    // Apply smoothing to prevent ETA jumping
+    duration = _applySmoothing(duration);
+    lastEtaDuration = duration;
+
+    return _formatDuration(duration);
+  }
+
+  Duration getEtaDuration() {
+    DateTime now = DateTime.now();
+    DateTime? completionTime = calculateEta();
+    return completionTime.difference(now);
+  }
+
+  Duration _applySmoothing(Duration newDuration) {
+    if (lastEtaDuration == null) {
+      return newDuration;
+    }
+
+    final currentSeconds = lastEtaDuration!.inSeconds;
+    final newSeconds = newDuration.inSeconds;
+    final diff = (newSeconds - currentSeconds).abs();
+
+    // Apply different smoothing based on the magnitude of change
+    if (diff > 3600) {
+      // If it's more than 1 hour difference, it's a large change so we move by max 30 minutes
+      final direction = newSeconds > currentSeconds ? 1 : -1;
+      final maxChange = 30 * 60;
+      final adjustedSeconds = currentSeconds + (direction * maxChange);
+      return Duration(seconds: adjustedSeconds);
+    } else if (diff > 300) {
+      // If it's more than 5 minutes difference, it's a medium change so we move by max 2 minutes
+      final direction = newSeconds > currentSeconds ? 1 : -1;
+      final maxChange = 2 * 60;
+      final adjustedSeconds = currentSeconds + (direction * maxChange);
+      return Duration(seconds: adjustedSeconds);
+    } else if (diff > 60) {
+      // If it's more than 1 minute difference, it's a small change so we move by max 30 seconds
+      final direction = newSeconds > currentSeconds ? 1 : -1;
+      final maxChange = 30;
+      final adjustedSeconds = currentSeconds + (direction * maxChange);
+      return Duration(seconds: adjustedSeconds);
+    }
+
+    return lastEtaDuration!;
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+
+    final hours = twoDigits(duration.inHours);
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+
+    if (hours == '00') {
+      return '${minutes}m${seconds}s';
+    }
+    return '${hours}h${minutes}m${seconds}s';
+  }
 
   DateTime calculateEta() {
     double rate = _calculateBlockRate();
@@ -64,83 +150,48 @@ class SyncingSyncStatus extends SyncStatus {
     return DateTime.now().add(Duration(seconds: timeRemainingSeconds.round()));
   }
 
-  Duration getEtaDuration() {
-    DateTime now = DateTime.now();
-    DateTime? completionTime = calculateEta();
-    return completionTime.difference(now);
-  }
-
-  String? getFormattedEta() {
-    // throw out any entries that are more than a minute old:
-    blockHistory.removeWhere(
-        (key, value) => key.isBefore(DateTime.now().subtract(const Duration(minutes: 1))));
-
-    // don't show eta if we don't have enough data:
-    if (blockHistory.length < 3) {
-      return null;
-    }
-
-    Duration? duration = getEtaDuration();
-
-    // just show the block count if it's really long:
-    if (duration.inDays > 0) {
-      return null;
-    }
-
-    // show the blocks count if the eta is less than a minute or we only have a few blocks left:
-    if (duration.inMinutes < 1 || blocksLeft < 1000) {
-      return null;
-    }
-
-    // if our new eta is more than a minute off from the last one, only update the by 1 minute so it doesn't jump all over the place
-    if (lastEtaDuration != null) {
-      bool isIncreasing = duration.inSeconds > lastEtaDuration!.inSeconds;
-      bool diffMoreThanOneMinute = (duration.inSeconds - lastEtaDuration!.inSeconds).abs() > 60;
-      bool diffMoreThanOneHour = (duration.inSeconds - lastEtaDuration!.inSeconds).abs() > 3600;
-      if (diffMoreThanOneHour) {
-        duration = Duration(minutes: lastEtaDuration!.inMinutes + (isIncreasing ? 1 : -1));
-      } else if (diffMoreThanOneMinute) {
-        duration = Duration(seconds: lastEtaDuration!.inSeconds + (isIncreasing ? 1 : -1));
-      } else {
-        // if the diff is less than a minute don't change it:
-        duration = lastEtaDuration!;
-      }
-    }
-
-    lastEtaDuration = duration;
-
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-
-    final hours = twoDigits(duration.inHours);
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    if (hours == '00') {
-      return '${minutes}m${seconds}s';
-    }
-    return '${hours}h${minutes}m${seconds}s';
-  }
-
-  // Calculate the rate of block processing (blocks per second)
+  // Enhanced block rate calculation with weighted averages
   double _calculateBlockRate() {
     List<DateTime> timestamps = blockHistory.keys.toList();
     List<int> blockCounts = blockHistory.values.toList();
 
-    double totalTime = 0;
-    int totalBlocksProcessed = 0;
+    if (timestamps.length < 2) return 0;
 
-    for (int i = 0; i < blockCounts.length - 1; i++) {
-      int blocksProcessed = blockCounts[i] - blockCounts[i + 1];
-      Duration timeDifference = timestamps[i + 1].difference(timestamps[i]);
-      totalTime += timeDifference.inMicroseconds;
-      totalBlocksProcessed += blocksProcessed;
+    // Sort by timestamp to ensure chronological order
+    final sortedData =
+        List.generate(timestamps.length, (i) => MapEntry(timestamps[i], blockCounts[i]))
+          ..sort((a, b) => a.key.compareTo(b.key));
+
+    double totalWeightedTime = 0;
+    double totalWeightedBlocks = 0;
+    double totalWeight = 0;
+
+    for (int i = 0; i < sortedData.length - 1; i++) {
+      final current = sortedData[i];
+      final next = sortedData[i + 1];
+
+      final blocksProcessed = current.value - next.value;
+
+      if (blocksProcessed <= 0) continue; // Skip invalid data
+
+      final timeDifference = next.key.difference(current.key);
+      final timeSeconds = timeDifference.inMicroseconds / 1000000;
+
+      if (timeSeconds <= 0) continue; // Skip invalid time
+
+      // Weight recent data more heavily (exponential decay)
+      final weight = 1.0 / (1.0 + (sortedData.length - 1 - i) * 0.1);
+
+      totalWeightedTime += timeSeconds * weight;
+      totalWeightedBlocks += blocksProcessed * weight;
+      totalWeight += weight;
     }
 
-    if (totalTime == 0 || totalBlocksProcessed == 0) {
-      return 0;
-    }
+    if (totalWeight == 0 || totalWeightedTime == 0) return 0;
 
-    double blocksPerSecond = totalBlocksProcessed / (totalTime / 1000000);
-    return blocksPerSecond;
+    final weightedRate = totalWeightedBlocks / totalWeightedTime;
+
+    return weightedRate;
   }
 }
 

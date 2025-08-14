@@ -24,6 +24,7 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -55,6 +56,7 @@ abstract class SettingsStoreBase with Store {
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
+      required SyncStatusDisplayMode initialSyncStatusDisplayMode,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -167,6 +169,7 @@ abstract class SettingsStoreBase with Store {
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
+        syncStatusDisplayMode = initialSyncStatusDisplayMode,
         exchangeStatus = initialExchangeStatus,
         pinCodeLength = initialPinLength,
         languageCode = initialLanguageCode,
@@ -385,6 +388,11 @@ abstract class SettingsStoreBase with Store {
             (_) => showAddressBookPopupEnabled,
             (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
+
+    reaction(
+            (_) => syncStatusDisplayMode,
+            (SyncStatusDisplayMode value) =>
+            sharedPreferences.setString(PreferencesKey.syncStatusDisplayMode, value.toJson()));
 
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
@@ -666,6 +674,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool showAddressBookPopupEnabled;
+
+  @observable
+  SyncStatusDisplayMode syncStatusDisplayMode;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -1002,6 +1013,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.eta.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1289,6 +1302,7 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
+      initialSyncStatusDisplayMode: syncStatusDisplayMode,
       nodes: nodes,
       powNodes: powNodes,
       appVersion: packageInfo.version,
@@ -1485,6 +1499,8 @@ abstract class SettingsStoreBase with Store {
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
+    syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.eta.name);
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
