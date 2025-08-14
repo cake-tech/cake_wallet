@@ -163,17 +163,29 @@ abstract class TradeDetailsViewModelBase with Store {
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
-    items.add(TradeDetailsListCardItem.tradeDetails(
-      id: trade.id,
-      extraId: trade.extraId,
-      createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
-      from: trade.from,
-      to: trade.to,
-      onTap: (BuildContext context) {
-        Clipboard.setData(ClipboardData(text: '${trade.id}'));
-        showBar<void>(context, S.of(context).copied_to_clipboard);
-      },
-    ));
+    final tradeFrom = trade.fromRaw >= 0
+        ? trade.from
+        : trade.userCurrencyFrom;
+
+    final tradeTo = trade.toRaw >= 0
+        ? trade.to
+        : trade.userCurrencyTo;
+
+    if (tradeFrom != null || tradeTo != null) {
+      items.add(TradeDetailsListCardItem.tradeDetails(
+        id: trade.id,
+        extraId: trade.extraId,
+        createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
+        from: tradeFrom!,
+        to: tradeTo!,
+        onTap: (BuildContext context) {
+          Clipboard.setData(ClipboardData(text: '${trade.id}'));
+          showBar<void>(context, S
+              .of(context)
+              .copied_to_clipboard);
+        },
+      ));
+    }
 
     items.add(StandartListItem(
         title: S.current.trade_details_provider, value: trade.provider.toString()));

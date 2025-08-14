@@ -31,6 +31,8 @@ class Trade extends HiveObject {
     this.isRefund,
     this.isSendAll,
     this.router,
+    this.userCurrencyFromRaw,
+    this.userCurrencyToRaw,
   }) {
     if (provider != null) providerRaw = provider.raw;
 
@@ -125,6 +127,46 @@ class Trade extends HiveObject {
 
   @HiveField(23, defaultValue: '')
   String? receiveAmount;
+
+  @HiveField(24, defaultValue: '')
+  String? userCurrencyFromRaw;
+
+  @HiveField(25, defaultValue: '')
+  String? userCurrencyToRaw;
+
+  CryptoCurrency? get userCurrencyFrom {
+    if (userCurrencyFromRaw == null || userCurrencyFromRaw!.isEmpty) {
+      return null;
+    }
+    final underscoreIndex = userCurrencyFromRaw!.indexOf('_');
+    final title = userCurrencyFromRaw!.substring(0, underscoreIndex);
+    final tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
+
+    return CryptoCurrency(
+      title: title,
+      tag: tag.isNotEmpty ? tag : null,
+      name: '',
+      raw: fromRaw,
+      decimals: 1,
+    );
+  }
+
+  CryptoCurrency? get userCurrencyTo {
+    if (userCurrencyToRaw == null || userCurrencyToRaw!.isEmpty) {
+      return null;
+    }
+    final underscoreIndex = userCurrencyToRaw!.indexOf('_');
+    final title = userCurrencyToRaw!.substring(0, underscoreIndex);
+    final tag = userCurrencyToRaw!.substring(underscoreIndex + 1);
+
+    return CryptoCurrency(
+      title: title,
+      tag: tag.isNotEmpty ? tag : null,
+      name: '',
+      raw: toRaw,
+      decimals: 1,
+    );
+  }
 
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
