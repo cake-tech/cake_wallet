@@ -23,8 +23,12 @@ class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCar
 
 abstract class CakePayBuyCardViewModelBase with Store {
   CakePayBuyCardViewModelBase(
-      {required this.vendor, required CakePayService cakePayService, required this.sendViewModel})
-      : _cakePayService = cakePayService, walletType = sendViewModel.walletType,
+      {required this.vendor,
+      required CakePayService cakePayService,
+      required this.sendViewModel,
+      required this.orders})
+      : _cakePayService = cakePayService,
+        walletType = sendViewModel.walletType,
         amount = vendor.card!.denominationItems.isNotEmpty
             ? vendor.card!.denominationItems.first.value
             : 0,
@@ -106,7 +110,10 @@ abstract class CakePayBuyCardViewModelBase with Store {
       case WalletType.bitcoin:
         return [CakePayPaymentMethod.BTC];
       case WalletType.litecoin:
-        return [CakePayPaymentMethod.LTC,if (sendViewModel.isMwebEnabled) CakePayPaymentMethod.LTC_MWEB];
+        return [
+          CakePayPaymentMethod.LTC,
+          if (sendViewModel.isMwebEnabled) CakePayPaymentMethod.LTC_MWEB
+        ];
       case WalletType.monero:
         return [CakePayPaymentMethod.XMR];
       default:
@@ -148,8 +155,10 @@ abstract class CakePayBuyCardViewModelBase with Store {
         confirmsVoidedRefund: confirmsVoidedRefund,
         confirmsTermsAgreed: confirmsTermsAgreed,
       );
-      final paymentData = CakePayOrder.getPaymentDataFor(method: selectedPaymentMethod, order: order);
-      if (paymentData == null || order == null) throw Exception('Payment data or order is not available.');
+      final paymentData =
+          CakePayOrder.getPaymentDataFor(method: selectedPaymentMethod, order: order);
+      if (paymentData == null || order == null)
+        throw Exception('Payment data or order is not available.');
 
       await confirmSending(paymentData);
       expirationTime = order!.paymentData.expirationTime;
