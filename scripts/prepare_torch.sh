@@ -5,7 +5,8 @@ cd "$(dirname "$0")"
 # IMPORTANT: Make sure to update action 'Build Torch` in
 # - .github/workflows/pr_test_build_android.yml 
 # - .github/workflows/pr_test_build_linux.yml
-HASH=b2d0fa5d1727f321226a1ccc63f2568d3aaa26f6
+# https://github.com/MrCyjaneK/torch_dart/releases/download/4f987d4-1-ge071fcf/torch_dart-4f987d4-1-ge071fcf.tar.gz
+HASH=e071fcfb454b0378933005853e29afd797a2022e
 
 if [[ ! -d "torch_dart/.git" ]];
 then
