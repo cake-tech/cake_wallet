@@ -27,19 +27,7 @@ class CwMwebPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    if (call.method == "start") {
-      server?.stop()
-      val dataDir = call.argument("dataDir") ?: ""
-      val nodeUri = call.argument("nodeUri") ?: ""
-      server = server ?: Mwebd.newServer("", dataDir, nodeUri)
-      port = server?.start(0)
-      result.success(port)
-    } else if (call.method == "stop") {
-      server?.stop()
-      server = null
-      port = null
-      result.success(null)
-    } else if (call.method == "address") {
+    if (call.method == "address") {
       // val scanSecret: ByteArray = call.argument<ByteArray>("scanSecret") ?: ByteArray(0)
       // val spendPub: ByteArray = call.argument<ByteArray>("spendPub") ?: ByteArray(0)
       // val index: Int = call.argument<Int>("index") ?: 0
