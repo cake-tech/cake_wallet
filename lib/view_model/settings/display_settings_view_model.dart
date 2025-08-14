@@ -48,6 +48,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   @computed
   SyncStatusDisplayMode get syncStatusDisplayMode => _settingsStore.syncStatusDisplayMode;
 
+  @computed
+  String get backgroundImage => _settingsStore.backgroundImage;
+
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
 
@@ -93,5 +96,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
 
   @action
-  void setSyncStatusDisplayMode(SyncStatusDisplayMode value) => _settingsStore.syncStatusDisplayMode = value;
+  void setSyncStatusDisplayMode(SyncStatusDisplayMode value) =>
+      _settingsStore.syncStatusDisplayMode = value;
+
+  @action
+  void setBackgroundImage(String path) => _settingsStore.backgroundImage = path;
 }

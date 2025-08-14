@@ -131,6 +131,7 @@ abstract class SettingsStoreBase with Store {
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
       required bool initialEnableAutomaticNodeSwitching,
+      required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -191,6 +192,7 @@ abstract class SettingsStoreBase with Store {
         currentSyncAll = initialSyncAll,
         currentBuiltinTor = initialBuiltinTor,
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
+        backgroundImage = initialBackgroundImage,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -629,6 +631,11 @@ abstract class SettingsStoreBase with Store {
         (bool enableAutomaticNodeSwitching) => _sharedPreferences.setBool(
             PreferencesKey.enableAutomaticNodeSwitching, enableAutomaticNodeSwitching));
 
+    reaction(
+        (_) => backgroundImage,
+        (String backgroundImage) => _sharedPreferences.setString(
+            PreferencesKey.backgroundImage, backgroundImage));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -880,6 +887,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool enableAutomaticNodeSwitching;
 
+  @observable
+  String backgroundImage;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1059,6 +1069,7 @@ abstract class SettingsStoreBase with Store {
         "ltc-electrum.cakewallet.com:9333";
     final enableAutomaticNodeSwitching =
         sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
+    final backgroundImage = sharedPreferences.getString(PreferencesKey.backgroundImage) ?? '';
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1083,6 +1094,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
 
     /// get the selected node, if null, then use the default
     final moneroNode = nodeSource.get(nodeId) ??
@@ -1111,6 +1123,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
     final zanoNode = nodeSource.get(zanoNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
+    final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1196,6 +1210,10 @@ abstract class SettingsStoreBase with Store {
 
     if (decredNode != null) {
       nodes[WalletType.decred] = decredNode;
+    }
+
+    if (dogecoinNode != null) {
+      nodes[WalletType.dogecoin] = dogecoinNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1362,6 +1380,7 @@ abstract class SettingsStoreBase with Store {
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
+      initialBackgroundImage: backgroundImage,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialZanoTransactionPriority: zanoTransactionPriority,
@@ -1565,6 +1584,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1578,6 +1598,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNode = nodeSource.get(wowneroNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
     final decredNode = nodeSource.get(decredNodeId);
+    final dogecoinNode = nodeSource.get(dogecoinNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1630,6 +1651,10 @@ abstract class SettingsStoreBase with Store {
 
     if (decredNode != null) {
       nodes[WalletType.decred] = decredNode;
+    }
+
+    if (dogecoinNode != null) {
+      nodes[WalletType.dogecoin] = dogecoinNode;
     }
 
     // MIGRATED:
@@ -1773,6 +1798,10 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.zano:
         await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
+        break;
+      case WalletType.dogecoin:
+        await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+        break;
       default:
         break;
     }

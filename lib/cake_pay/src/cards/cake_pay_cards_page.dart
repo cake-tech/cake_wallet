@@ -303,7 +303,7 @@ class _MyCardsTabState extends State<_MyCardsTab> {
               final cards = viewModel.filteredUserCards;
               if (viewModel.userCardState is UserCakePayCardsStateFetching) return const _Loading();
               if (viewModel.userCardState is UserCakePayCardsStateNoCards)
-                return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
+                return Center(child: Text(S.of(context).no_cards_found));
 
               final showThumb = cards.length > 6;
               final userCardsList = Stack(
@@ -467,7 +467,7 @@ class _ShopTabState extends State<_ShopTab> {
             }
 
             if (vendors.isEmpty)
-              return Expanded(child: Center(child: Text(S.of(context).no_cards_found)));
+              return Center(child: Text(S.of(context).no_cards_found));
 
             final loadingMore = viewModel.isLoadingNextPage;
             final showThumb = vendors.length > 3;
