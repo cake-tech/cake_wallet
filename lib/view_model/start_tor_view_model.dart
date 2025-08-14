@@ -59,7 +59,7 @@ abstract class StartTorViewModelBase with Store {
     await ensureTorStarted(context: null);
     while (true) {
       await Future.delayed(Duration(milliseconds: 250));
-      if (CakeTor.instance.port != -1 && CakeTor.instance.started) {
+      if (CakeTor.instance!.port != -1 && CakeTor.instance!.started) {
         break;
       }
     }
