@@ -178,7 +178,7 @@ abstract class LedgerViewModelBase with Store {
       return error;
     }
 
-    var errorRegex = RegExp(r'0x\S*?(?= )').firstMatch(error.toString());
+    var errorRegex = RegExp(r'(?:0x\S*?|[0-9a-f]{4})(?= )').firstMatch(error.toString());
 
     String errorCode = errorRegex?.group(0).toString().replaceAll("0x", "") ?? "";
     if (errorCode.contains("6985")) {
