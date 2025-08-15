@@ -38,5 +38,11 @@ GOARCH=arm64 \
 CC=${NDK_BIN}/aarch64-linux-android21-clang \
 go build -buildmode=c-shared -o ${ANDROID_OUT}/arm64-v8a/mweb.so .
 
+# Compile for armv7a architecture and place the binary file in the android/src/main/jniLibs/armeabi-v7a folder
+CGO_ENABLED=1 \
+GOOS=android \
+GOARCH=arm \
+CC=${NDK_BIN}/aarch64-linux-android21-clang \
+go build -buildmode=c-shared -o ${ANDROID_OUT}/armeabi-v7a/mweb.so .
 cd ../
 dart run ffigen --config ffigen_config.yaml
