@@ -351,17 +351,19 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     if (wallet.type == WalletType.bitcoin && tx.direction == TransactionDirection.incoming) {
       try {
-        final address = bitcoin!.getTransactionAddress(wallet, tx);
+        final addresses = bitcoin!.getTransactionAddresses(wallet, tx);
 
-        if (address != null) {
+        if (addresses != null) {
           isRecipientAddressShown = true;
-          _items.add(
-            StandartListItem(
-              title: S.current.transaction_details_recipient_address,
-              value: address,
-              key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
-            ),
-          );
+          for (final address in addresses) {
+            _items.add(
+              StandartListItem(
+                title: S.current.transaction_details_recipient_address,
+                value: address,
+                key: ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+              ),
+            );
+          }
         }
       } catch (e) {
         printV(e.toString());
