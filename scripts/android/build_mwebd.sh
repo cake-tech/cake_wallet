@@ -28,4 +28,5 @@ GOARCH=arm64 \
 CC=${NDK_BIN}/aarch64-linux-android21-clang \
 go build -buildmode=c-shared -o ${ANDROID_OUT}/arm64-v8a/mweb.so .
 
-cd ../dart run ffigen --config ffigen_config.yaml
+cd ../
+dart run ffigen --config ffigen_config.yaml
