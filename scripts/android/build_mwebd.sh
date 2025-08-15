@@ -22,7 +22,7 @@ fi
 
 export ANDROID_OUT=../android/src/main/jniLibs
 export ANDROID_SDK="${HOME}/Library/Android/sdk"
-export NDK_BIN="${ANDROID_SDK}/ndk/${ANDROID_NDK_VERSION}/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+export NDK_BIN="${ANDROID_HOME}/ndk/${ANDROID_NDK_VERSION}/toolchains/llvm/prebuilt/$(uname | tr '[:upper:]' '[:lower:]')-x86_64/bin"
 
 # Compile for x86_64 architecture and place the binary file in the android/src/main/jniLibs/x86_64 folder
 CGO_ENABLED=1 \
