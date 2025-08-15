@@ -8,7 +8,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_item.dart';
 import 'package:hive/hive.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
