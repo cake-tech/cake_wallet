@@ -25,6 +25,8 @@ enum DerivationType {
 enum HardwareWalletType {
   @HiveField(0)
   ledger,
+  @HiveField(1)
+  bitbox,
 }
 
 @HiveType(typeId: DerivationInfo.typeId)

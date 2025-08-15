@@ -187,16 +187,8 @@ class CWEthereum extends Ethereum {
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM,
-      {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.connection);
-    try {
-      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } catch (err) {
-      printV(err);
-      throw err;
-    }
-  }
+  HardwareWalletService getHardwareWalletService(LedgerViewModel ledgerVM) =>
+      EVMChainLedgerService(ledgerVM.connection);
 
   @override
   List<String> getDefaultTokenContractAddresses() {

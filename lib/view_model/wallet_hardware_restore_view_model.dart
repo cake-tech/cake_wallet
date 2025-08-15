@@ -68,11 +68,11 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         break;
       case WalletType.ethereum:
         accounts = await ethereum!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+            .getHardwareWalletService(ledgerViewModel).getAvailableAccounts(index: _nextIndex, limit: limit);
         break;
       case WalletType.polygon:
         accounts = await polygon!
-            .getHardwareWalletAccounts(ledgerViewModel, index: _nextIndex, limit: limit);
+            .getHardwareWalletService(ledgerViewModel).getAvailableAccounts(index: _nextIndex, limit: limit);
         break;
       default:
         return;

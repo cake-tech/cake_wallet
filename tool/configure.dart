@@ -91,6 +91,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/output_info.dart';
@@ -680,6 +681,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -701,9 +703,9 @@ import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
-import 'package:cw_evm/evm_chain_hardware_wallet_service.dart';
 import 'package:cw_evm/evm_ledger_credentials.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_service.dart';
 
 import 'package:cw_ethereum/ethereum_client.dart';
 import 'package:cw_ethereum/ethereum_wallet.dart';
@@ -770,7 +772,7 @@ abstract class Ethereum {
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority);
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  HardwareWalletService getHardwareWalletService(LedgerViewModel ledgerVM);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
@@ -801,6 +803,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -822,9 +825,9 @@ import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
-import 'package:cw_evm/evm_chain_hardware_wallet_service.dart';
 import 'package:cw_evm/evm_ledger_credentials.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
+import 'package:cw_evm/hardware/evm_chain_ledger_service.dart';
 
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
@@ -881,7 +884,7 @@ abstract class Polygon {
   String getTokenAddress(CryptoCurrency asset);
   
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  HardwareWalletService getHardwareWalletService(LedgerViewModel ledgerVM);
   List<String> getDefaultTokenContractAddresses();
   bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
 }
