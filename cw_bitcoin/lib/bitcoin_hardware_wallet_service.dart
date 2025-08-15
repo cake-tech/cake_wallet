@@ -4,15 +4,16 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:ledger_bitcoin/ledger_bitcoin.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 
-class BitcoinHardwareWalletService {
+class BitcoinHardwareWalletService extends HardwareWalletService {
   BitcoinHardwareWalletService(this.ledgerConnection);
 
   final LedgerConnection ledgerConnection;
 
+  @override
   Future<List<HardwareAccountData>> getAvailableAccounts(
       {int index = 0, int limit = 5}) async {
     final bitcoinLedgerApp = BitcoinLedgerApp(ledgerConnection);
