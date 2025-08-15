@@ -12,4 +12,5 @@ class FeatureFlag {
   static const int verificationWordsCount = kDebugMode ? 0 : 2;
   static const bool hasDevOptions = bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode);
   static const bool hasBitcoinViewOnly = true;
+  static const bool customBackgroundEnabled = false;
 }
