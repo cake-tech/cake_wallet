@@ -65,6 +65,8 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.bitcoinCash:
       case WalletType.litecoin:
         return 'Bitcoin';
+      case WalletType.zano:
+        return 'Zano';
       default:
         return walletTypeToString(wallet.type);
     }
@@ -131,6 +133,7 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
+      case WalletType.zano:
         return await wallet.signMessage(message, address: walletAddress);
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
@@ -164,27 +167,34 @@ class DFXBuyProvider extends BuyProvider {
 
   Future<Map<String, dynamic>> fetchAssetCredential(String assetsName) async {
     final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain});
+    log('DFX: Fetching asset credential for: $assetsName, blockchain: $blockchain, URL: $url');
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
       
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        log('DFX: Asset API response: $responseData');
 
         if (responseData is List && responseData.isNotEmpty) {
+          log('DFX: Found ${responseData.length} assets');
           for (final i in responseData) {
+            log('DFX: Checking asset: ${i["dexName"]} (buyable: ${i["buyable"]}, sellable: ${i["sellable"]})');
             if (assetsName.toLowerCase() == i["dexName"].toString().toLowerCase()) {
+              log('DFX: Matched asset: $i');
               return i as Map<String, dynamic>;
             }
           }
+          log('DFX: Asset not found, returning first available: ${responseData.first}');
           return responseData.first as Map<String, dynamic>;
         } else if (responseData is Map<String, dynamic>) {
+          log('DFX: Single asset response: $responseData');
           return responseData;
         } else {
           log('DFX: Does not support this asset name : ${blockchain}');
         }
       } else {
-        log('DFX: Failed to fetch assets: ${response.statusCode}');
+        log('DFX: Failed to fetch assets: ${response.statusCode}, body: ${response.body}');
       }
     } catch (e) {
       log('DFX: Error fetching assets: $e');
@@ -265,8 +275,17 @@ class DFXBuyProvider extends BuyProvider {
 
     final assetCredentials = await fetchAssetCredential(cryptoCurrency.title.toString());
     if (assetCredentials['id'] == null) return null;
+    
+    // Check if asset is buyable/sellable for this action
+    final actionKey = isBuyAction ? 'buyable' : 'sellable';
+    if (assetCredentials[actionKey] != true) {
+      log('DFX: Asset ${cryptoCurrency.title} is not ${actionKey} (${actionKey}: ${assetCredentials[actionKey]})');
+      return null;
+    }
 
     log('DFX: Fetching $action quote: ${isBuyAction ? cryptoCurrency : fiatCurrency} -> ${isBuyAction ? fiatCurrency : cryptoCurrency}, amount: $amount, paymentMethod: $paymentMethod');
+    log('DFX: FiatCredentials: $fiatCredentials');
+    log('DFX: AssetCredentials: $assetCredentials');
 
     final url = Uri.https(_baseUrl, '/v1/$action/quote');
     final headers = {'accept': 'application/json', 'Content-Type': 'application/json'};
@@ -278,6 +297,8 @@ class DFXBuyProvider extends BuyProvider {
       'paymentMethod': paymentMethod,
       'discountCode': ''
     });
+    log('DFX: Request URL: $url');
+    log('DFX: Request body: $body');
 
     try {
       final response = await ProxyWrapper().put(
@@ -300,6 +321,8 @@ class DFXBuyProvider extends BuyProvider {
           return null;
         }
       } else {
+        log('DFX: HTTP Status Code: ${response.statusCode}');
+        log('DFX: Response body: ${response.body}');
         if (responseData is Map<String, dynamic> && responseData.containsKey('message')) {
           printV('DFX Error: ${responseData['message']}');
         } else {

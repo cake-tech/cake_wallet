@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert' as convert;
 import 'dart:core';
 import 'dart:io';
 import 'dart:math';
@@ -59,8 +60,51 @@ abstract class ZanoWalletBase
   String get password => _password;
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) {
-    throw UnimplementedError();
+  Future<String> signMessage(String message, {String? address = null}) async {
+    printV('ZANO signMessage called with message: $message, address: $address');
+    
+    try {
+      // Encode message to base64 as required by Zano
+      final messageBase64 = convert.base64.encode(convert.utf8.encode(message));
+      
+      // Call sign_message via invokeMethod
+      final response = await invokeMethod('sign_message', {
+        'buff': messageBase64
+      });
+      
+      printV('ZANO sign_message response: $response');
+      
+      // Parse response
+      final responseData = convert.jsonDecode(response) as Map<String, dynamic>;
+      
+      // Check for errors
+      if (responseData['error'] != null) {
+        printV('ZANO sign_message error: ${responseData['error']}');
+        throw Exception('Zano sign_message failed: ${responseData['error']}');
+      }
+      
+      // Extract signature from response
+      final result = responseData['result'] as Map<String, dynamic>?;
+      if (result == null) {
+        throw Exception('Invalid response from sign_message');
+      }
+      
+      final signature = result['sig'] as String?;
+      final publicKey = result['pkey'] as String?;
+      
+      if (signature == null) {
+        throw Exception('No signature in response');
+      }
+      
+      printV('ZANO signature generated: sig=$signature, pkey=$publicKey');
+      
+      // Return the signature (DFX expects just the signature, not the public key)
+      return signature;
+      
+    } catch (e) {
+      printV('ZANO signMessage error: $e');
+      rethrow;
+    }
   }
 
   @override
