@@ -82,7 +82,7 @@ class CWTron extends Tron {
       symbol: token.title,
       contractAddress: contractAddress,
       decimal: token.decimals,
-      enabled: token.enabled,
+      enabled: true,
       iconPath: token.iconPath,
       isPotentialScam: token.isPotentialScam,
     );

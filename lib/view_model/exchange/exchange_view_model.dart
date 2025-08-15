@@ -48,6 +48,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/spl_token.dart';
+import 'package:cw_tron/tron_token.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -163,6 +164,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     _injectUserEthTokensIntoCurrencyLists();
     _injectUserSplTokensIntoCurrencyLists();
+    _injectUserTronTokensIntoCurrencyLists();
     _defineIsReceiveAmountEditable();
     loadLimits();
     reaction((_) => isFixedRateMode, (Object _) {
@@ -1023,39 +1025,48 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   // Adding user's Erc20 tokens to the list of currencies
 
-  Future<Box<Erc20Token>> _openEthTokensBoxFor(WalletInfo walletInfo) async {
-    final boxName = '${walletInfo.name.replaceAll(" ", "_")}_${Erc20Token.ethereumBoxName}';
+  Future<Box<Erc20Token>> _openEvmTokensBoxFor(WalletInfo walletInfo) async {
+    final walletKey = walletInfo.name.replaceAll(" ", "_");
+
+    final boxName = switch (walletInfo.type) {
+      WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
+      WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
+      _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
+    };
+
     if (CakeHive.isBoxOpen(boxName)) {
       return CakeHive.box<Erc20Token>(boxName);
     }
     return CakeHive.openBox<Erc20Token>(boxName);
   }
 
-  Future<List<Erc20Token>> _loadAllUniqueEthTokens() async {
-    final ethWallets =
-        walletInfoSource.values.where((wallet) => wallet.type == WalletType.ethereum);
-    final tokens = <Erc20Token>[];
-
-    for (final wallet in ethWallets) {
-      final box = await _openEthTokensBoxFor(wallet);
-      tokens.addAll(box.values.where((t) => t.enabled));
-    }
+  Future<List<Erc20Token>> _loadAllUniqueEvmTokens() async {
+    final evmWallets = walletInfoSource.values.where(
+          (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
+    );
 
     final seen = <String>{};
     final unique = <Erc20Token>[];
-    for (final token in tokens) {
-      final key = token.contractAddress.toLowerCase();
-      if (!seen.contains(key)) {
-        seen.add(key);
-        unique.add(token);
+
+    for (final wallet in evmWallets) {
+      final chain = wallet.type == WalletType.ethereum ? 'ETH' : 'POL';
+      final box = await _openEvmTokensBoxFor(wallet);
+
+      for (final t in box.values.where((t) => t.enabled)) {
+        final key = '$chain|${t.contractAddress.toLowerCase()}';
+        if (seen.add(key)) {
+          unique.add(t);
+        }
       }
     }
+
     return unique;
   }
 
+
   @action
   Future<void> _injectUserEthTokensIntoCurrencyLists() async {
-    final userTokens = await _loadAllUniqueEthTokens();
+    final userTokens = await _loadAllUniqueEvmTokens();
 
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
@@ -1128,6 +1139,59 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     for (final token in userTokens) {
       if (!_listContainsSplToken(receiveCurrencies, token)) toAddReceive.add(token);
       if (!_listContainsSplToken(depositCurrencies, token)) toAddDeposit.add(token);
+    }
+
+    if (toAddReceive.isNotEmpty) receiveCurrencies.addAll(toAddReceive);
+    if (toAddDeposit.isNotEmpty) depositCurrencies.addAll(toAddDeposit);
+  }
+
+  // Adding user's Tron tokens to the list of currencies
+
+  Future<Box<TronToken>> _openTronTokensBoxFor(WalletInfo walletInfo) async {
+    final boxName = '${walletInfo.name.replaceAll(" ", "_")}_${TronToken.boxName}';
+    if (CakeHive.isBoxOpen(boxName)) {
+      return CakeHive.box<TronToken>(boxName);
+    }
+    return CakeHive.openBox<TronToken>(boxName);
+  }
+
+  Future<List<TronToken>> _loadAllUniqueTronTokens() async {
+    final tronWallets =
+    walletInfoSource.values.where((w) => w.type == WalletType.tron);
+
+    final seen = <String>{};
+    final unique = <TronToken>[];
+
+    for (final wallet in tronWallets) {
+      final box = await _openTronTokensBoxFor(wallet);
+      for (final t in box.values.where((t) => t.enabled)) {
+        final key = t.contractAddress.toLowerCase();
+        if (seen.add(key)) unique.add(t);
+      }
+    }
+
+    return unique;
+  }
+
+  bool _listContainsTronToken(List<CryptoCurrency> list, TronToken token) {
+    return list.any((item) {
+      if (item is TronToken) {
+        return item.contractAddress.toLowerCase() == token.contractAddress.toLowerCase();
+      }
+      return item.title.toUpperCase() == token.symbol.toUpperCase();
+    });
+  }
+
+  @action
+  Future<void> _injectUserTronTokensIntoCurrencyLists() async {
+    final userTokens = await _loadAllUniqueTronTokens();
+
+    final toAddReceive = <CryptoCurrency>[];
+    final toAddDeposit = <CryptoCurrency>[];
+
+    for (final token in userTokens) {
+      if (!_listContainsTronToken(receiveCurrencies, token)) toAddReceive.add(token);
+      if (!_listContainsTronToken(depositCurrencies, token)) toAddDeposit.add(token);
     }
 
     if (toAddReceive.isNotEmpty) receiveCurrencies.addAll(toAddReceive);

@@ -48,6 +48,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_solana/spl_token.dart';
+import 'package:cw_tron/tron_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -214,6 +215,10 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
 
   if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
     CakeHive.registerAdapter(SPLTokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
+    CakeHive.registerAdapter(TronTokenAdapter());
   }
 
   final secureStorage = secureStorageShared;
