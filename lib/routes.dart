@@ -123,6 +123,8 @@ class Routes {
   static const devSocketHealthLogs = '/dev/socket_health_logs';
   static const devNetworkRequests = '/dev/network_requests';
 
+  static const devFileExplorer = '/dev/file_explorer';
+  static const devWalletFuzzer = '/dev/wallet_fuzzer';
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
   static const urqrAnimatedPage = '/urqr/animated_page';

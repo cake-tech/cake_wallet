@@ -35,12 +35,14 @@ import 'package:cake_wallet/src/screens/dashboard/pages/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
+import 'package:cake_wallet/src/screens/dev/file_explorer.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
+import 'package:cake_wallet/src/screens/dev/wallet_fuzzer.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/third_party_disclaimer_page.dart';
@@ -942,6 +944,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.dEuroSavings:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DEuroSavingsPage>(),
+      );
+
+    case Routes.devFileExplorer:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<FileExplorerPage>(),
+      );
+
+    case Routes.devWalletFuzzer:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<WalletFuzzerPage>(),
       );
 
     default:
