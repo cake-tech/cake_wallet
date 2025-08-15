@@ -76,7 +76,7 @@ class OrderRow extends StatelessWidget {
                       ),
                       if (formattedAmount != null)
                         Text(
-                          '${formattedAmount!} $from',
+                          formattedAmount!,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,

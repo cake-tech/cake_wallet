@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/payjoin_transaction_row.dart';
@@ -183,19 +184,31 @@ class TransactionsPage extends StatelessWidget {
                             }
                             if (item is OrderListItem) {
                               final order = item.order;
-
                               return Observer(
-                                builder: (_) => OrderRow(
+                                builder: (_) {
+
+                                final hide = dashboardViewModel.balanceViewModel.displayMode ==
+                                    BalanceDisplayMode.hiddenBalance;
+
+                                final formattedAmount = hide ? '---' : order.amountFormatted();
+                                final formattedReceiveAmount = hide ? '---' : order.receiveAmount;
+
+                                return OrderRow(
                                   key: item.key,
-                                  onTap: () => Navigator.of(context).pushNamed(Routes.orderDetails, arguments: order),
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.orderDetails, arguments: order),
                                   providerTitle: order.providerTitle,
                                   providerIconPath: order.providerIcon,
                                   from: order.from ?? '',
                                   to: order.to ?? '',
                                   createdAtFormattedDate: DateFormat('HH:mm').format(order.createdAt),
-                                  formattedAmount: item.orderFormattedAmount,
-                                  formattedReceiveAmount: item.orderFormattedReceiveAddress,
-                                ),
+                                  formattedAmount: formattedAmount,
+                                  formattedReceiveAmount: dashboardViewModel.balanceViewModel.isFiatDisabled &&
+                                      order.providerTitle == 'Cake Pay'
+                                      ? ''
+                                      : formattedReceiveAmount,
+                                );
+                              }
                               );
                             }
                             return Container(color: Colors.transparent, height: 1);

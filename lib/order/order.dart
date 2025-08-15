@@ -106,5 +106,5 @@ class Order extends HiveObject {
 
   BuyProviderDescription get provider => BuyProviderDescription.deserialize(raw: providerRaw);
 
-  String amountFormatted() => formatAmount(amount);
+  String amountFormatted() => formatAmount(amount) + ' ${from ?? ''}';
 }
