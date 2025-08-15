@@ -5,9 +5,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_mweb/mweb_ffi.dart';
 import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'cw_mweb_platform_interface.dart';
 import 'mwebd.pbgrpc.dart';
 
 class CwMweb {
@@ -58,7 +58,7 @@ class CwMweb {
     String debugLogPath = "${appDir.path}/logs/debug.log";
     readFileWithTimer(debugLogPath);
 
-    _port = await CwMwebPlatform.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
+    _port = await MWebFfi.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
@@ -109,7 +109,7 @@ class CwMweb {
 
   static Future<void> stop() async {
     try {
-      await CwMwebPlatform.instance.stop();
+      MWebFfi.instance.stop();
       await cleanup();
     } on GrpcError catch (e) {
       printV('Caught grpc error: ${e.message}');
@@ -120,8 +120,8 @@ class CwMweb {
 
   static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
     try {
-      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, index, index + 1))
-          ?.split(',')
+      return MWebFfi.instance.addresses(scanSecret, spendPub, index, index + 1)
+          .split(',')
           .first;
     } on GrpcError catch (e) {
       printV('Caught grpc error: ${e.message}');
@@ -134,8 +134,8 @@ class CwMweb {
   static Future<List<String>?> addresses(
       Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
     try {
-      return (await CwMwebPlatform.instance.addresses(scanSecret, spendPub, fromIndex, toIndex))
-          ?.split(',');
+      return MWebFfi.instance.addresses(scanSecret, spendPub, fromIndex, toIndex)
+          .split(',');
     } on GrpcError catch (e) {
       log('Caught grpc error: ${e.message}');
     } catch (e) {
