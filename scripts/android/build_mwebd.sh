@@ -10,9 +10,19 @@ fi
 
 cd ../../cw_mweb/go
 
+if [[ "x$ANDROID_NDK_VERSION" == "x" ]];
+then
+    echo "ANDROID_NDK_VERSION is missing, please declare it before building"
+    echo "You have these versions installed on your system currently:"
+    ls ${ANDROID_HOME}/ndk/ | cat | awk '{ print "- " $1 }'
+    echo "echo > ~/.zprofile"
+    echo "echo 'export ANDROID_NDK_VERSION=..... > ~/.zprofile"
+    exit 1
+fi
+
 export ANDROID_OUT=../android/src/main/jniLibs
 export ANDROID_SDK="${HOME}/Library/Android/sdk"
-export NDK_BIN="${ANDROID_SDK}/ndk/28.2.13676358/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+export NDK_BIN="${ANDROID_SDK}/ndk/${ANDROID_NDK_VERSION}/toolchains/llvm/prebuilt/darwin-x86_64/bin"
 
 # Compile for x86_64 architecture and place the binary file in the android/src/main/jniLibs/x86_64 folder
 CGO_ENABLED=1 \
