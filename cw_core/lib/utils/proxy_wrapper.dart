@@ -5,8 +5,6 @@ import 'dart:typed_data';
 import 'package:cw_core/utils/proxy_logger/abstract.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
-import 'package:cw_core/utils/tor/android.dart';
-import 'package:cw_core/utils/tor/disabled.dart';
 import 'package:http/http.dart';
 import 'package:socks5_proxy/socks_client.dart';
 import 'package:http/io_client.dart' as ioc;
@@ -37,7 +35,7 @@ class ProxyWrapper {
   }
 
   RequestNetwork requestNetwork() {
-    return CakeTor.instance.started ? RequestNetwork.tor : RequestNetwork.clearnet;
+    return CakeTor.instance!.started ? RequestNetwork.tor : RequestNetwork.clearnet;
   }
 
   ioc.IOClient getHttpIOClient({int? portOverride, bool internal = false}) {
@@ -56,7 +54,7 @@ class ProxyWrapper {
     return ioc.IOClient(httpClient);
   }
 
-  int getPort() => CakeTor.instance.port;
+  int getPort() => CakeTor.instance!.port;
 
   @Deprecated('Use ProxyWrapper().get/post/put methods instead, and provide proper clearnet and onion uri.')
   HttpClient getHttpClient({int? portOverride, bool internal = false}) {
@@ -70,13 +68,13 @@ class ProxyWrapper {
         error: null
       );
     }
-    if (CakeTor.instance.started) {
+    if (CakeTor.instance!.started) {
       // Assign connection factory.
       final client = HttpClient();
       SocksTCPClient.assignToHttpClient(client, [
         ProxySettings(
           InternetAddress.loopbackIPv4,
-          CakeTor.instance.port,
+          CakeTor.instance!.port,
           password: null,
         ),
       ]);
@@ -154,9 +152,9 @@ class ProxyWrapper {
     Uri? onionUri,
   }) async {
     ioc.IOClient? torClient;
-    bool torEnabled = CakeTor.instance.started;
+    bool torEnabled = CakeTor.instance!.started;
 
-    if (CakeTor.instance.started) {
+    if (CakeTor.instance!.started) {
       torEnabled = true;
     } else {
       torEnabled = false;
@@ -238,7 +236,7 @@ class ProxyWrapper {
     ioc.IOClient clearnetClient = ioc.IOClient(cleatnetHttpClient);
 
 
-    bool torEnabled = CakeTor.instance.started;
+    bool torEnabled = CakeTor.instance!.started;
 
     if (torEnabled) {
       try {
@@ -309,7 +307,7 @@ class ProxyWrapper {
     String? body,
   }) async {
     ioc.IOClient? torClient;
-    bool torEnabled = CakeTor.instance.started;
+    bool torEnabled = CakeTor.instance!.started;
 
     if (torEnabled) {
       try {
@@ -375,9 +373,9 @@ class ProxyWrapper {
     Uri? onionUri,
   }) async {
     ioc.IOClient? torClient;
-    bool torEnabled = CakeTor.instance.started;
+    bool torEnabled = CakeTor.instance!.started;
 
-    if (CakeTor.instance.started) {
+    if (CakeTor.instance!.started) {
       torEnabled = true;
     } else {
       torEnabled = false;
@@ -443,5 +441,5 @@ class ProxyWrapper {
 
 
 class CakeTor {
-  static final CakeTorInstance instance = CakeTorInstance.getInstance();
+  static CakeTorInstance? instance;
 }
