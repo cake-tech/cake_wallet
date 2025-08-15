@@ -159,9 +159,18 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
-    final tagFrom =
-        tradesStore.trade!.from.tag != null ? '${tradesStore.trade!.from.tag}' + ' ' : '';
-    final tagTo = tradesStore.trade!.to.tag != null ? '${tradesStore.trade!.to.tag}' + ' ' : '';
+    final trade = tradesStore.trade!;
+    final tradeFrom = trade.fromRaw >= 0
+        ? trade.from
+        : trade.userCurrencyFrom;
+
+    final tradeTo = trade.toRaw >= 0
+        ? trade.to
+        : trade.userCurrencyTo;
+
+    final tagFrom = tradeFrom?.tag != null ? '${tradeFrom!.tag}' + ' ' : '';
+    final tagTo = tradeTo?.tag != null ? '${tradeTo!.tag}' + ' ' : '';
+
     items.clear();
 
     if (trade.provider != ExchangeProviderDescription.thorChain)
@@ -175,36 +184,40 @@ abstract class ExchangeTradeViewModelBase with Store {
         ),
       );
 
-    items.addAll([
-      ExchangeTradeItem(
-        title: S.current.amount,
-        data: '${trade.amount} ${trade.from}',
-        isCopied: false,
-        isReceiveDetail: false,
-        isExternalSendDetail: true,
-      ),
-      ExchangeTradeItem(
-        title: S.current.you_will_receive_estimated_amount + ':',
-        data: '${tradesStore.trade?.receiveAmount} ${trade.to}',
-        isCopied: true,
-        isReceiveDetail: true,
-        isExternalSendDetail: false,
-      ),
-      ExchangeTradeItem(
-        title: S.current.send_to_this_address('${tradesStore.trade!.from}', tagFrom) + ':',
-        data: trade.inputAddress ?? '',
-        isCopied: false,
-        isReceiveDetail: false,
-        isExternalSendDetail: true,
-      ),
-    ]);
+    if (tradeFrom != null || tradeTo != null) {
+      items.addAll([
+        ExchangeTradeItem(
+          title: S.current.amount,
+          data: '${trade.amount} ${tradeFrom}',
+          isCopied: false,
+          isReceiveDetail: false,
+          isExternalSendDetail: true,
+        ),
+        ExchangeTradeItem(
+          title: S.current.you_will_receive_estimated_amount + ':',
+          data: '${tradesStore.trade?.receiveAmount} ${tradeTo}',
+          isCopied: true,
+          isReceiveDetail: true,
+          isExternalSendDetail: false,
+        ),
+        ExchangeTradeItem(
+          title: S.current.send_to_this_address('${tradeFrom}', tagFrom) + ':',
+          data: trade.inputAddress ?? '',
+          isCopied: false,
+          isReceiveDetail: false,
+          isExternalSendDetail: true,
+        ),
+      ]);
+    }
 
     final isExtraIdExist = trade.extraId != null && trade.extraId!.isNotEmpty;
 
     if (isExtraIdExist) {
-        final title = trade.from == CryptoCurrency.xrp
+
+
+      final title = tradeFrom == CryptoCurrency.xrp
             ? S.current.destination_tag
-            : trade.from == CryptoCurrency.xlm || trade.from == CryptoCurrency.ton
+            : tradeFrom == CryptoCurrency.xlm || tradeFrom == CryptoCurrency.ton
                 ? S.current.memo
                 : S.current.extra_id;
 
@@ -220,7 +233,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     items.add(
       ExchangeTradeItem(
-        title: S.current.arrive_in_this_address('${tradesStore.trade!.to}', tagTo) + ':',
+        title: S.current.arrive_in_this_address('${tradeTo}', tagTo) + ':',
         data: trade.payoutAddress ?? '',
         isCopied: true,
         isReceiveDetail: true,
@@ -230,23 +243,29 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   static bool _checkIfCanSend(TradesStore tradesStore, WalletBase wallet) {
+
+    final trade = tradesStore.trade!;
+    final tradeFrom = trade.fromRaw >= 0
+        ? trade.from
+        : trade.userCurrencyFrom;
+
     bool _isEthToken() =>
         wallet.currency == CryptoCurrency.eth &&
         tradesStore.trade!.from.tag == CryptoCurrency.eth.title;
 
     bool _isPolygonToken() =>
         wallet.currency == CryptoCurrency.maticpoly &&
-        tradesStore.trade!.from.tag == CryptoCurrency.maticpoly.tag;
+            tradeFrom?.tag == CryptoCurrency.maticpoly.tag;
 
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx &&
-        tradesStore.trade!.from.tag == CryptoCurrency.trx.title;
+            tradeFrom?.tag == CryptoCurrency.trx.title;
 
     bool _isSplToken() =>
         wallet.currency == CryptoCurrency.sol &&
-        tradesStore.trade!.from.tag == CryptoCurrency.sol.title;
+            tradeFrom?.tag == CryptoCurrency.sol.title;
 
-    return tradesStore.trade!.from == wallet.currency ||
+    return tradeFrom == wallet.currency ||
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||
         _isPolygonToken() ||

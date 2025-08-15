@@ -190,6 +190,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         state: TradeState.created,
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e) {
       printV("error creating trade: ${e.toString()}");

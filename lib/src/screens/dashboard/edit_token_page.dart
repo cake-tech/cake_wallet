@@ -250,7 +250,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                     name: _tokenNameController.text,
                                     title: _tokenSymbolController.text.toUpperCase(),
                                     decimals: int.parse(_tokenDecimalController.text),
-                                    iconPath: _tokenIconPathController.text,
+                                    iconPath: _tokenIconPathController.text.isNotEmpty
+                                        ? _tokenIconPathController.text
+                                        : null,
                                     isPotentialScam: isPotentialScam,
                                   ),
                                   contractAddress: _contractAddressController.text,
