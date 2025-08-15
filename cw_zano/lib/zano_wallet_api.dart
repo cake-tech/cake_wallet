@@ -401,6 +401,35 @@ mixin ZanoWalletApi {
     throw TransferException('Transfer error, empty result');
   }
 
+  Future<String> signMessage(String message, {String? address = null}) async {
+    try {
+      final messageBase64 = convert.base64.encode(convert.utf8.encode(message));
+      final response = await invokeMethod('sign_message', {'buff': messageBase64});
+      final responseData = convert.jsonDecode(response) as Map<String, dynamic>;
+
+      if (responseData['error'] != null) {
+        printV('ZANO sign_message error: ${responseData['error']}');
+        throw Exception('Zano sign_message failed: ${responseData['error']}');
+      }
+
+      final result = responseData['result'] as Map<String, dynamic>?;
+      if (result == null) {
+        throw Exception('Invalid response from sign_message');
+      }
+
+      final signature = result['sig'] as String?;
+
+      if (signature == null) {
+        throw Exception('No signature in response');
+      }
+
+      return signature;
+    } catch (e) {
+      printV('ZANO signMessage error: $e');
+      rethrow;
+    }
+  }
+
   void _checkForErrors(Map<String, dynamic>? map) {
     if (map == null) {
       throw ZanoWalletException('Empty response');

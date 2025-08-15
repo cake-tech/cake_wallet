@@ -65,6 +65,8 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.bitcoinCash:
       case WalletType.litecoin:
         return 'Bitcoin';
+      case WalletType.zano:
+        return 'Zano';
       default:
         return walletTypeToString(wallet.type);
     }
@@ -131,6 +133,7 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
+      case WalletType.zano:
         return await wallet.signMessage(message, address: walletAddress);
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
