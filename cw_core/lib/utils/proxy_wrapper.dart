@@ -100,7 +100,7 @@ class ProxyWrapper {
     try {
       switch (method) {
         case RequestMethod.get:
-          resp = await client. get(
+          resp = await client.get(
             uri,
             headers: headers,
           );

@@ -48,11 +48,19 @@ Future<double> _fetchPrice(String crypto, String fiat, bool torOnly) async {
   }
 }
 
+/// Override specific [CryptoCurrency] to fix its price to the price of another
+/// e.g. nDEPS should have the same price as DEPS, but only DEPS is tracked
+CryptoCurrency _overrideCryptoCurrency(CryptoCurrency crypto) {
+  if (crypto.title == CryptoCurrency.ndeps.title)
+      return CryptoCurrency.deps;
+    return crypto;
+}
+
 class FiatConversionService {
   static Future<double> fetchPrice({
     required CryptoCurrency crypto,
     required FiatCurrency fiat,
     required bool torOnly,
   }) async =>
-      await _fetchPrice(crypto.toString(), fiat.toString(), torOnly);
+      await _fetchPrice(_overrideCryptoCurrency(crypto).toString(), fiat.toString(), torOnly);
 }
