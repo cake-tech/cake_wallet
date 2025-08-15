@@ -157,6 +157,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       payoutAddress: request.toAddress,
       memo: memo,
       isSendAll: isSendAll,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 

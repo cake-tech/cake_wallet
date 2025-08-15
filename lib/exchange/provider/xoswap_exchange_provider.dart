@@ -249,6 +249,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e) {
       printV(e.toString());

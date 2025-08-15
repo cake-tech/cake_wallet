@@ -175,6 +175,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 

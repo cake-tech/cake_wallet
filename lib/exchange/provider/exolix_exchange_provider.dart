@@ -214,6 +214,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }

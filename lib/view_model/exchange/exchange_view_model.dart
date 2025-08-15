@@ -144,7 +144,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     receiveAddress = '';
     depositAddress =
         depositCurrency == wallet.currency ? wallet.walletAddresses.addressForExchange : '';
-    provider = providersForCurrentPair().first;
+
+    provider = providerList.firstOrNull;
     final initialProvider = provider;
     provider!.checkIsAvailable().then((bool isAvailable) {
       if (!isAvailable && provider == initialProvider) {
@@ -510,7 +511,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     try {
       final futures = selectedProviders
-          .where((provider) => providersForCurrentPair().contains(provider))
+          .where((provider) => providerList.contains(provider))
           .map((provider) async {
         final limits = await provider
             .fetchLimits(
@@ -737,30 +738,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void removeTemplate({required ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);
 
-  List<ExchangeProvider> providersForCurrentPair() =>
-      _providersForPair(from: depositCurrency, to: receiveCurrency);
-
-  bool _isEthOrSolNetwork(CryptoCurrency cur) {
-    final tag = (cur.tag ?? '').toUpperCase();
-    return tag == 'ETH' || tag == 'SOL' || cur == CryptoCurrency.eth || cur == CryptoCurrency.sol;
-  }
-
-  List<ExchangeProvider> _providersForPair({
-    required CryptoCurrency from,
-    required CryptoCurrency to,
-  }) =>
-      providerList.where((provider) {
-        final hasStatic = provider.pairList.any((pair) => pair.from == from && pair.to == to);
-        if (hasStatic) return true;
-
-        // Allow all currencies for LetsExchange that are ETH or SOL based
-        if (provider is LetsExchangeExchangeProvider) {
-          return _isEthOrSolNetwork(from) || _isEthOrSolNetwork(to);
-        }
-
-        return false;
-      }).toList();
-
   void _onPairChange() {
     depositAmount = '';
     receiveAmount = '';
@@ -853,7 +830,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void addExchangeProvider(ExchangeProvider provider) {
     selectedProviders.add(provider);
-    if (providersForCurrentPair().contains(provider)) _tradeAvailableProviders.add(provider);
+    if (providerList.contains(provider)) _tradeAvailableProviders.add(provider);
   }
 
   @action
@@ -897,16 +874,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool get isAvailableInSelected {
-    final providersForPair = providersForCurrentPair();
     return selectedProviders
-        .any((element) => element.isAvailable && providersForPair.contains(element));
+        .any((element) => element.isAvailable && providerList.contains(element));
   }
 
   void _setAvailableProviders() {
     _tradeAvailableProviders.clear();
 
     _tradeAvailableProviders.addAll(
-        selectedProviders.where((provider) => providersForCurrentPair().contains(provider)));
+        selectedProviders.where((provider) => providerList.contains(provider)));
   }
 
   void _setProviders() {
