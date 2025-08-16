@@ -157,10 +157,10 @@ class CakePayBuyCardPage extends BasePage {
                 ),
                 bottomCardChild: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: card.denominations.isNotEmpty
+                    child: card.denominationItems.isNotEmpty
                         ? DenominationsAmountWidget(
                             fiatCurrency: card.fiatCurrency.title,
-                            denominations: card.denominations,
+                            denominations: card.denominationItems,
                             amountFieldFocus: _amountFieldFocus,
                             amountController: _amountController,
                             quantityFieldFocus: _quantityFieldFocus,
@@ -335,7 +335,7 @@ class CakePayBuyCardPage extends BasePage {
                         ),
                       ),
                     ),
-                  if (FeatureFlag.hasDevOptions)
+                  if (FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled)
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
                       child: LoadingPrimaryButton(
