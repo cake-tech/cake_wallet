@@ -126,6 +126,9 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
   @observable
   String fiatAmount;
+  
+  @observable
+  String? currencyChangeMessage;
 
   @observable
   String cryptoCurrencyAddress;
@@ -166,6 +169,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
     cryptoCurrency = wallet.currency;
     fiatCurrency = _appStore.settingsStore.fiatCurrency;
     isCryptoCurrencyAddressEnabled = !(cryptoCurrency == wallet.currency);
+    currencyChangeMessage = null;
     _initialize();
   }
 
@@ -429,6 +433,51 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
         .toList();
 
     if (validQuotes.isEmpty) {
+      // If no valid quotes and we're dealing with USD, try EUR fallback for any cryptocurrency
+      if (fiatCurrency == FiatCurrency.usd) {
+        // Test EUR providers by trying to fetch quotes
+        final eurProviders = providerList.where((provider) {
+          if (isBuyAction) {
+            return provider.supportedCryptoList.any((pair) =>
+            pair.from == cryptoCurrency && pair.to == FiatCurrency.eur);
+          } else {
+            return provider.supportedFiatList.any((pair) =>
+            pair.from == FiatCurrency.eur && pair.to == cryptoCurrency);
+          }
+        }).toList();
+        
+        if (eurProviders.isNotEmpty) {
+          // Try to fetch EUR quotes to see if they actually work
+          final eurResult = await Future.wait<List<Quote>?>(eurProviders.map((element) => element
+              .fetchQuote(
+                cryptoCurrency: cryptoCurrency,
+                fiatCurrency: FiatCurrency.eur,
+                amount: amount,
+                paymentType: selectedPaymentMethod?.paymentMethodType,
+                isBuyAction: isBuyAction,
+                walletAddress: wallet.walletAddresses.address,
+                customPaymentMethodType: selectedPaymentMethod?.customPaymentMethodType,
+              )
+              .timeout(
+                Duration(seconds: 10),
+                onTimeout: () => null,
+              )));
+
+          final eurQuotes = eurResult
+              .where((element) => element != null && element.isNotEmpty)
+              .expand((element) => element!)
+              .toList();
+              
+          // Only switch to EUR if we actually get valid quotes
+          if (eurQuotes.isNotEmpty) {
+            fiatCurrency = FiatCurrency.eur;
+            currencyChangeMessage = 'Automatically switched from USD to EUR for better provider support';
+            await calculateBestRate();
+            return;
+          }
+        }
+      }
+      
       buySellQuotState = BuySellQuotFailed();
       return;
     }
