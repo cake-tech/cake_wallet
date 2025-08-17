@@ -70,4 +70,17 @@ DataDirectory ${p.join(dir.path, "tor-data")}
     _proc?.stdout.transform(utf8.decoder).forEach(printV);
     _proc?.stderr.transform(utf8.decoder).forEach(printV);
   }
+
+  @override
+  String toString() {
+    return """
+CakeTorAndroid(
+  port: $port,
+  started: $started,
+  bootstrapped: $bootstrapped,
+  enabled: $enabled,
+  proc: $_proc,
+)
+""";
+  }
 }
