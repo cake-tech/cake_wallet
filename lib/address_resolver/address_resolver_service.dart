@@ -586,7 +586,7 @@ class AddressResolverService {
         parsedAddressByCurrencyMap: result,
         addressSource: AddressSource.bip353,
         handle: text,
-        description: dnsProof ?? '',
+        bip353DnsProof: dnsProof ?? '',
       );
     }
     return null;

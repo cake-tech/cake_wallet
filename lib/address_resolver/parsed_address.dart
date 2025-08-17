@@ -153,6 +153,7 @@ class ParsedAddress {
     this.profileImageUrl = '',
     this.profileName = '',
     this.description = '',
+    this.bip353DnsProof,
   });
 
   final Map<CryptoCurrency, String> parsedAddressByCurrencyMap;
@@ -162,6 +163,7 @@ class ParsedAddress {
   final String profileImageUrl;
   final String profileName;
   final String description;
+  final String? bip353DnsProof;
 
   ParsedAddress copyWith({
     Map<CryptoCurrency, String>? parsedAddressByCurrencyMap,
@@ -171,6 +173,7 @@ class ParsedAddress {
     String? profileImageUrl,
     String? profileName,
     String? description,
+    String? bip353DnsProof,
   }) {
     return ParsedAddress(
       parsedAddressByCurrencyMap: parsedAddressByCurrencyMap ?? this.parsedAddressByCurrencyMap,
@@ -180,6 +183,7 @@ class ParsedAddress {
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       profileName: profileName ?? this.profileName,
       description: description ?? this.description,
+      bip353DnsProof: bip353DnsProof ?? this.bip353DnsProof,
     );
   }
 }
