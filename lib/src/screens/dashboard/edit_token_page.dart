@@ -5,13 +5,18 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -29,7 +34,9 @@ class EditTokenPage extends BasePage {
   final String? initialContractAddress;
 
   @override
-  String? get title => S.current.edit_token;
+  String? get title => (token != null || initialContractAddress != null)
+      ? S.current.edit_token
+      : S.current.add_token;
 
   @override
   Widget body(BuildContext context) {
@@ -37,6 +44,7 @@ class EditTokenPage extends BasePage {
       homeSettingsViewModel: homeSettingsViewModel,
       token: token,
       initialContractAddress: initialContractAddress,
+      currentTheme: currentTheme,
     );
   }
 }
@@ -47,11 +55,13 @@ class EditTokenPageBody extends StatefulWidget {
     required this.homeSettingsViewModel,
     this.token,
     this.initialContractAddress,
+    required this.currentTheme,
   }) : super(key: key);
 
   final HomeSettingsViewModel homeSettingsViewModel;
   final CryptoCurrency? token;
   final String? initialContractAddress;
+  final MaterialThemeBase currentTheme;
 
   @override
   State<EditTokenPageBody> createState() => _EditTokenPageBodyState();
@@ -74,6 +84,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   bool _showDisclaimer = false;
   bool _disclaimerChecked = false;
   bool isEditingToken = false;
+  bool _isTokenVerified = false;
 
   @override
   void initState() {
@@ -91,6 +102,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       _tokenIconPathController.text = widget.token?.iconPath ?? '';
 
       isEditingToken = true;
+
+      _checkIfTokenIsVerified(address);
     }
 
     if (widget.initialContractAddress != null) {
@@ -112,6 +125,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     });
   }
 
+  void _checkIfTokenIsVerified(String? contractAddress) async {
+    if (contractAddress != null) {
+      final isVerified = widget.homeSettingsViewModel.checkIfTokenIsWhitelisted(contractAddress);
+      setState(() {
+        _isTokenVerified = isVerified;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -122,49 +144,26 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
           padding: EdgeInsets.symmetric(horizontal: 25),
           child: Column(
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 28),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Image.asset('assets/images/restore_keys.png'),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            S.of(context).warning,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 5),
-                            child: Text(
-                              S.of(context).add_token_warning,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1.6,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              SizedBox(height: 30),
+              WarningBox(
+                padding: EdgeInsets.all(16),
+                content: S.of(context).add_token_warning,
+                currentTheme: widget.currentTheme,
+                showBorder: false,
+                textWeight: FontWeight.w500,
+                textAlign: TextAlign.start,
+                textColor: widget.currentTheme.isDark
+                    ? CustomThemeColors.warningOutlineColorDark
+                    : CustomThemeColors.warningOutlineColorLight,
+                iconSize: 22,
+                iconSpacing: 16,
               ),
               SizedBox(height: 50),
               _tokenForm(),
             ],
           ),
         ),
-        bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 48),
         bottomSection: Column(
           children: [
             if (_showDisclaimer) ...[
@@ -191,8 +190,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                           Navigator.pop(context);
                         },
                         text: widget.token != null ? S.of(context).delete : S.of(context).cancel,
-                        color: Theme.of(context).colorScheme.errorContainer,
-                        textColor: Theme.of(context).colorScheme.onErrorContainer,
+                        color: isEditingToken
+                            ? Theme.of(context).colorScheme.errorContainer
+                            : Theme.of(context).colorScheme.surfaceContainer,
+                        textColor: isEditingToken
+                            ? Theme.of(context).colorScheme.onErrorContainer
+                            : Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -341,6 +344,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
           _tokenIconPathController.text = token.iconPath ?? '';
         if (_tokenDecimalController.text.isEmpty || isZano)
           _tokenDecimalController.text = token.decimals.toString();
+
+        _checkIfTokenIsVerified(_contractAddressController.text);
       }
     }
   }
@@ -363,12 +368,56 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       key: _formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          _tokenIconPathController.text.isEmpty
+              ? DottedBorder(
+                  borderType: BorderType.Circle,
+                  dashPattern: [6, 4],
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  strokeWidth: 2,
+                  radius: Radius.circular(15),
+                  child: Container(width: 75, height: 75),
+                )
+              : Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    ClipOval(
+                      child: CakeImageWidget(
+                        imageUrl: _tokenIconPathController.text,
+                        width: 75,
+                        height: 75,
+                      ),
+                    ),
+                    if (_isTokenVerified)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.surface,
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+          SizedBox(height: 25),
           AddressTextField(
             controller: _contractAddressController,
             focusNode: _contractAddressFocusNode,
-            placeholder: S.of(context).token_contract_address,
+            placeholder: S.of(context).contract_address,
+            copyImagePath: 'assets/images/copy.png',
             options: [AddressTextFieldOption.paste],
             validator: widget.homeSettingsViewModel.walletType == WalletType.zano
                 ? null
@@ -377,7 +426,32 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               _pasteText();
             },
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
+          isEditingToken
+              ? WarningBox(
+                  padding: EdgeInsets.all(16),
+                  content: S.of(context).tokens_strong_warning,
+                  currentTheme: widget.currentTheme,
+                  showBorder: false,
+                  textWeight: FontWeight.w500,
+                  textColor: widget.currentTheme.isDark
+                      ? CustomThemeColors.warningOutlineColorDark
+                      : CustomThemeColors.warningOutlineColorLight,
+                  showIcon: false,
+                )
+              : Text(
+                  S.of(context).tokens_strong_warning,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                ),
+          const SizedBox(height: 24),
+          Divider(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            height: 1,
+          ),
+          const SizedBox(height: 24),
           BaseTextFormField(
             controller: _tokenNameController,
             focusNode: _tokenNameFocusNode,
@@ -392,7 +466,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               return S.of(context).field_required;
             },
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           BaseTextFormField(
             controller: _tokenSymbolController,
             focusNode: _tokenSymbolFocusNode,
@@ -407,7 +481,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               return S.of(context).field_required;
             },
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           BaseTextFormField(
             controller: _tokenDecimalController,
             focusNode: _tokenDecimalFocusNode,

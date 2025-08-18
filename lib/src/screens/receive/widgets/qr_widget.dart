@@ -63,21 +63,12 @@ class QRWidget extends StatelessWidget {
           children: <Widget>[
             Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    S.of(context).qr_fullscreen,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
                 Row(
                   children: <Widget>[
                     Spacer(flex: 3),
                     Observer(
                       builder: (_) => Flexible(
-                        flex: 5,
+                        flex: 9,
                         child: GestureDetector(
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
@@ -106,10 +97,15 @@ class QRWidget extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     Container(
+                                      clipBehavior: Clip.hardEdge,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12.5),
+                                      ),
                                       padding: EdgeInsets.all(3),
                                       child: AspectRatio(
                                         aspectRatio: 1.0,
                                         child: QrImage(
+                                          embeddedImagePath: addressListViewModel.qrImage,
                                           data: addressUri.toString(),
                                         ),
                                       ),
