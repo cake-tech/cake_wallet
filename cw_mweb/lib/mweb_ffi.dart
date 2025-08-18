@@ -8,7 +8,7 @@ import 'package:ffi/ffi.dart';
 String libPath = (() {
   if (Platform.isWindows) return 'mweb.dll';
   if (Platform.isMacOS) return 'mweb.dylib';
-  if (Platform.isIOS) return 'Mwebd.xcframework/Mwebd';
+  if (Platform.isIOS) return 'Mwebd.framework/Mwebd';
   if (Platform.isAndroid) return 'mweb.so';
   return 'mweb.so';
 })();
