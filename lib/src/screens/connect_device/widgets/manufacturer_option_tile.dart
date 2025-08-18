@@ -1,79 +1,93 @@
+import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 
 class ManufacturerOptionTile extends StatelessWidget {
   const ManufacturerOptionTile({
     required this.onPressed,
-    this.image,
-    this.icon,
-    required this.title,
-    required this.description,
+    required this.image,
+    required this.supportedDevices,
+    required this.isDarkTheme,
     this.tag,
     super.key,
-  }) : assert(image != null || icon != null);
+  });
 
   final VoidCallback onPressed;
-  final Image? image;
-  final Icon? icon;
-  final String title;
-  final String description;
+  final Widget image;
+  final String supportedDevices;
   final String? tag;
+  final bool isDarkTheme;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
-      child: ElevatedButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        borderRadius:BorderRadius.circular(12),
+
+        gradient: LinearGradient(
+          colors: [
+            isDarkTheme
+                ? CustomThemeColors.cardGradientColorPrimaryDark
+                : CustomThemeColors.cardGradientColorPrimaryLight,
+            isDarkTheme
+                ? CustomThemeColors.cardGradientColorSecondaryDark
+                : CustomThemeColors.cardGradientColorSecondaryLight,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
-        onPressed: onPressed,
+      ),
+      padding: EdgeInsets.all(24),
+
+      child: GestureDetector(
+        onTap: onPressed,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            icon ?? image!,
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: 220),
-                          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
-                        ),
-                        if (tag != null) Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: [
+                      Container(height: 25, child: image),
+                      if (tag != null)
+                        Container(
                             decoration: BoxDecoration(
                                 border: Border.all(),
                                 borderRadius: BorderRadius.circular(20),
-                                color: Theme.of(context).colorScheme.onSurfaceVariant
-                            ),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
                             padding: EdgeInsets.symmetric(horizontal: 5),
                             margin: EdgeInsets.only(left: 5),
                             child: Text(tag!))
-                      ],
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Text(
-                        description,
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 5),
+                    child: RichText(
+                      text: TextSpan(children: [
+                        TextSpan(
+                          text: 'Supported: ',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    )
-                  ],
-                ),
+                        TextSpan(
+                          text: supportedDevices,
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ]),
+                    ),
+                  )
+                ],
               ),
-            )
+            ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).primaryColor,)
           ],
         ),
       ),

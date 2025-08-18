@@ -538,7 +538,7 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM,
       {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
+    final hardwareWalletService = BitcoinLedgerService(ledgerVM.connection);
     try {
       return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
     } catch (err) {
