@@ -346,7 +346,7 @@ class DFXBuyProvider extends BuyProvider {
         'asset-out': isBuyAction ? quote.cryptoCurrency.toString() : quote.fiatCurrency.toString(),
         'blockchain': blockchain,
         'asset-in': isBuyAction ? quote.fiatCurrency.toString() : quote.cryptoCurrency.toString(),
-        'amount': amount.toString() //TODO: Amount does not work
+        'amount-in': amount.toString()
       });
 
       if (await canLaunchUrl(uri)) {
