@@ -62,8 +62,6 @@ class DFXBuyProvider extends BuyProvider {
   String get blockchain {
     switch (wallet.type) {
       case WalletType.bitcoin:
-      case WalletType.bitcoinCash:
-      case WalletType.litecoin:
         return 'Bitcoin';
       case WalletType.zano:
         return 'Zano';
