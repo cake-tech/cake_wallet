@@ -14,7 +14,8 @@ class ProxySocketSocks implements ProxySocket {
   ProxyAddress get address => ProxyAddress(host: socket.proxyHost, port: socket.proxyPort);
   
   @override
-  Future<void> close() {
+  Future<void> close() async {
+    if (_isClosed) return;
     _isClosed = true;
     return socket.close();
   }
