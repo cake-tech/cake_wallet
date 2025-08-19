@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/language_service.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -45,6 +46,15 @@ class DisplaySettingsPage extends BasePage {
                 onValueChange: (_, bool value) {
                   _displaySettingsViewModel.setShowAddressBookPopup(value);
                 },
+              ),
+              SettingsPickerCell<SyncStatusDisplayMode>(
+                title: S.current.sync_status_display_mode,
+                items: SyncStatusDisplayMode.values.toList(),
+                selectedItem: _displaySettingsViewModel.syncStatusDisplayMode,
+                onItemSelected: (SyncStatusDisplayMode mode) =>
+                    _displaySettingsViewModel.setSyncStatusDisplayMode(mode),
+                displayItem: (SyncStatusDisplayMode mode) => mode.title,
+                isGridView: false,
               ),
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
