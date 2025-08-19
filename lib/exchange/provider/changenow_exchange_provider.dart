@@ -266,7 +266,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         extraId: extraId,
         expiredAt: expiredAt,
         outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress);
+        payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '$fromCurrency' + '_',
+      userCurrencyToRaw: '$toCurrency' + '_',
+    );
   }
 
   String _getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';

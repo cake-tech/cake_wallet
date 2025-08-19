@@ -216,6 +216,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       state: currentState,
       memo: memo,
       isRefund: isRefund,
+      userCurrencyFromRaw: '${tx['chain'] as String? ?? ''}' + '_',
+      userCurrencyToRaw: '$toAsset' + '_',
     );
   }
 

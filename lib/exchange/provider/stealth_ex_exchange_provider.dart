@@ -249,6 +249,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       createdAt: createdAt,
       isRefund: status == 'refunded',
       extraId: extraId,
+      userCurrencyFromRaw: '$from' + '_',
+      userCurrencyToRaw: '$to' + '_',
     );
   }
 

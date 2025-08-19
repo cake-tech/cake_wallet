@@ -274,7 +274,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         state: TradeState.deserialize(raw: status ?? 'created'),
         expiredAt: expiredAt,
         payoutAddress: settleAddress,
-        extraId: depositMemo);
+        extraId: depositMemo,
+      userCurrencyFromRaw: '$fromCurrency' + '_',
+      userCurrencyToRaw: '$toCurrency' + '_',
+    );
   }
 
   Future<String> _createQuote(TradeRequest request) async {

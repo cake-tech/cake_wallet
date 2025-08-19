@@ -201,6 +201,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final refundAmount = status['refundEgress']?['amount']?.toString() ?? '0.0';
       final isRefund = status['refundEgress'] != null;
       final amount = isRefund ? refundAmount : receiveAmount;
+
+      final from = status['sourceAsset'].toString();
+      final to = status['destinationAsset'].toString();
       
       final newTrade = Trade(
           id: id,
@@ -212,7 +215,10 @@ class ChainflipExchangeProvider extends ExchangeProvider {
           state: currentState,
           payoutAddress: status['destinationAddress'].toString(),
           outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
-          isRefund: isRefund);
+          isRefund: isRefund,
+        userCurrencyFromRaw: '$from' + '_',
+        userCurrencyToRaw: '$to' + '_',
+      );
 
       // Find trade and update receiveAmount with the real value received
       final storedTrade = _getStoredTrade(id);

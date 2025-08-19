@@ -259,7 +259,10 @@ class ExolixExchangeProvider extends ExchangeProvider {
         state: TradeState.deserialize(raw: _prepareStatus(status)),
         extraId: extraId,
         outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress);
+        payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '$coinFrom' + '_',
+      userCurrencyToRaw: '$coinTo' + '_',
+    );
   }
 
   String _getRateType(bool isFixedRate) => isFixedRate ? 'fixed' : 'float';

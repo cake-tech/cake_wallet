@@ -276,10 +276,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final providerName = responseJSON['provider'] as String;
       final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
+      final from = responseJSON['ticker_from'] as String;
+      final to = responseJSON['ticker_to'] as String;
+
       return Trade(
         id: id,
-        from: CryptoCurrency.fromString(responseJSON['ticker_from'] as String),
-        to: CryptoCurrency.fromString(responseJSON['ticker_to'] as String),
+        from: CryptoCurrency.fromString(from),
+        to: CryptoCurrency.fromString(to),
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
@@ -291,6 +294,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         extraId: addressProviderMemo,
+        userCurrencyFromRaw: '$from' + '_',
+        userCurrencyToRaw: '$to' + '_',
       );
     });
   }

@@ -221,6 +221,8 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
       amount: expectedSendAmount,
       state: TradeState.deserialize(raw: status),
       payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '$fromCurrency' + '_',
+      userCurrencyToRaw: '$toCurrency' + '_',
     );
   }
 

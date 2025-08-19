@@ -282,10 +282,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final pairId = responseJSON['pairId'] as String;
       final pairParts = pairId.split('_');
-      final CryptoCurrency fromCurrency =
-          CryptoCurrency.fromString(pairParts.isNotEmpty ? pairParts[0] : "");
-      final CryptoCurrency toCurrency =
-          CryptoCurrency.fromString(pairParts.length > 1 ? pairParts[1] : "");
+      final fromAsset = pairParts.isNotEmpty ? pairParts[0] : '';
+      final toAsset = pairParts.length > 1 ? pairParts[1] : '';
+      final CryptoCurrency fromCurrency = CryptoCurrency.fromString(fromAsset);
+      final CryptoCurrency toCurrency = CryptoCurrency.fromString(toAsset);
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
@@ -313,6 +313,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
+        userCurrencyFromRaw: '$fromAsset' + '_',
+        userCurrencyToRaw: '$toAsset' + '_',
       );
     } catch (e) {
       printV(e.toString());

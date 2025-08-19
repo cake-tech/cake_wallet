@@ -251,6 +251,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
+        userCurrencyFromRaw: '$fromCurrency' + '_',
+        userCurrencyToRaw: '$toCurrency' + '_',
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");
