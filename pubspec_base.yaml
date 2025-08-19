@@ -230,12 +230,18 @@ flutter:
     - assets/animation/
 
   fonts:
-    - family: Lato
+    - family: WixMadeforText
       fonts:
-        - asset: assets/fonts/Lato-Regular.ttf
-        - asset: assets/fonts/Lato-Medium.ttf
-        - asset: assets/fonts/Lato-Semibold.ttf
-        - asset: assets/fonts/Lato-Bold.ttf
+        - asset: assets/fonts/WixMadeforText-Regular.ttf
+        - asset: assets/fonts/WixMadeforText-Medium.ttf
+        - asset: assets/fonts/WixMadeforText-SemiBold.ttf
+        - asset: assets/fonts/WixMadeforText-Bold.ttf
+        - asset: assets/fonts/WixMadeforText-BoldItalic.ttf
+        - asset: assets/fonts/WixMadeforText-MediumItalic.ttf
+        - asset: assets/fonts/WixMadeforText-SemiBoldItalic.ttf
+        - asset: assets/fonts/WixMadeforText-ExtraBold.ttf
+        - asset: assets/fonts/WixMadeforText-MediumItalic.ttf
+        - asset: assets/fonts/WixMadeforText-ExtraBoldItalic.ttf
 
 msix_config:
   display_name: Cake Wallet
