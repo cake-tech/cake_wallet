@@ -40,15 +40,15 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_solana/spl_token.dart';
-import 'package:cw_tron/tron_token.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';

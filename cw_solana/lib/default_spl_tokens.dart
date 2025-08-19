@@ -1,5 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_solana/spl_token.dart';
+import 'package:cw_core/spl_token.dart';
 
 class DefaultSPLTokens {
   final List<SPLToken> _defaultTokens = [
