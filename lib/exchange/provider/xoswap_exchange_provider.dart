@@ -76,21 +76,21 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
       }
-      final assets = json.decode(response.body) as List<dynamic>;
+      final assets = (json.decode(response.body) as List).cast<Map<String, dynamic>>();
 
       final asset = assets.firstWhere(
-        (asset) {
-          final assetSymbol = (asset['symbol'] as String).toUpperCase();
-          return assetSymbol == currency.title.toUpperCase();
-        },
-        orElse: () => null,
+        (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
+        orElse: () => const {},
       );
-      return asset != null ? asset['id'] as String : null;
+
+      return asset.isEmpty ? null : asset['id'] as String;
     } catch (e) {
       printV(e.toString());
       return null;
     }
   }
+
+  String removeNonAlphanumeric(String str) => str.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 
   Future<List<dynamic>> getRatesForPair({
     required CryptoCurrency from,
@@ -117,19 +117,24 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    final rates = await getRatesForPair(from: from, to: to);
-    if (rates.isEmpty) return Limits(min: 0, max: 0);
+    try {
+      final rates = await getRatesForPair(from: from, to: to);
+      if (rates.isEmpty) throw Exception('No rates found for $from to $to');
 
     double minLimit = double.infinity;
     double maxLimit = 0;
 
-    for (var rate in rates) {
-      final double currentMin = double.parse(rate['min']['value'].toString());
-      final double currentMax = double.parse(rate['max']['value'].toString());
-      if (currentMin < minLimit) minLimit = currentMin;
-      if (currentMax > maxLimit) maxLimit = currentMax;
+      for (var rate in rates) {
+        final double currentMin = double.parse(rate['min']['value'].toString());
+        final double currentMax = double.parse(rate['max']['value'].toString());
+        if (currentMin < minLimit) minLimit = currentMin;
+        if (currentMax > maxLimit) maxLimit = currentMax;
+      }
+      return Limits(min: minLimit, max: maxLimit);
+    } catch (e) {
+      printV(e.toString());
+      throw Exception('StealthEx failed to fetch limits');
     }
-    return Limits(min: minLimit, max: maxLimit);
   }
 
   Future<double> fetchRate({
