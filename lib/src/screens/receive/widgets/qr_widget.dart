@@ -77,6 +77,7 @@ class QRWidget extends StatelessWidget {
                                   context,
                                   Routes.fullscreenQR,
                                   arguments: QrViewData(
+                                    embeddedImagePath: addressListViewModel.qrImage,
                                     data: addressUri.toString(),
                                     heroTag: heroTag,
                                   ),
