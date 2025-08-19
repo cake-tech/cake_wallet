@@ -50,8 +50,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b0f3f72911221bafed0ab77359fccd64bc79d524
-      resolved-ref: b0f3f72911221bafed0ab77359fccd64bc79d524
+      ref: e867e3d0156d0b29858100f30adc2625b9dae586
+      resolved-ref: e867e3d0156d0b29858100f30adc2625b9dae586
       url: "https://github.com/mrcyjanek/bbqrdart"
     source: git
     version: "1.0.0"
