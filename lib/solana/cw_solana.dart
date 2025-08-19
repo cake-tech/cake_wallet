@@ -97,7 +97,7 @@ class CWSolana extends Solana {
       mintAddress: contractAddress,
       decimal: token.decimals,
       mint: token.name.toUpperCase(),
-      enabled: true,
+      enabled: token.enabled,
       iconPath: token.iconPath,
       isPotentialScam: token.isPotentialScam,
     );
