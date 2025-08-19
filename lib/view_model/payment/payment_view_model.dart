@@ -32,13 +32,13 @@ abstract class PaymentViewModelBase with Store {
 
   /// Main entry point - detect address type and check compatibility
   @action
-  Future<PaymentFlowResult> processAddress(String address) async {
+  Future<PaymentFlowResult> processAddress(String addressData) async {
     try {
       detectedWalletType = null;
       isProcessing = true;
 
       // Detect address type
-      final detectionResult = UniversalAddressDetector.detectAddress(address);
+      final detectionResult = UniversalAddressDetector.detectAddress(addressData);
 
       if (!detectionResult.isValid || detectionResult.detectedWalletType == null) {
         return PaymentFlowResult.incompatible('Unable to detect address type');

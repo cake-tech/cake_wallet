@@ -9,7 +9,7 @@ void main() {
       test('detects Bitcoin P2PKH address', () {
         const address = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.btc);
         expect(result.detectedWalletType, WalletType.bitcoin);
@@ -19,7 +19,7 @@ void main() {
       test('detects Bitcoin P2SH address', () {
         const address = '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.btc);
         expect(result.detectedWalletType, WalletType.bitcoin);
@@ -29,7 +29,7 @@ void main() {
       test('detects Bitcoin Bech32 address', () {
         const address = 'bc1q56x5hha4mm35wmnqmj8ajkgxykf9cnjmrv3tmj';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.btc);
         expect(result.detectedWalletType, WalletType.bitcoin);
@@ -39,7 +39,7 @@ void main() {
       test('detects Bitcoin URI with amount', () {
         const uri = 'bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?amount=0.001';
         final result = UniversalAddressDetector.detectAddress(uri);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.btc);
         expect(result.detectedWalletType, WalletType.bitcoin);
@@ -50,9 +50,10 @@ void main() {
 
     group('Monero Address Detection', () {
       test('detects Monero address', () {
-        const address = '48HHtdQvxyH5jwX5N6fAQD6rxx7EQT7GKZvsixtgJRkRaD8wHqwKp6eGSuStiUN5MHXR19vF3W4Jc7MumryYTTH7LGTfanS';
+        const address =
+            '48HHtdQvxyH5jwX5N6fAQD6rxx7EQT7GKZvsixtgJRkRaD8wHqwKp6eGSuStiUN5MHXR19vF3W4Jc7MumryYTTH7LGTfanS';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.xmr);
         expect(result.detectedWalletType, WalletType.monero);
@@ -60,9 +61,10 @@ void main() {
       });
 
       test('detects Monero integrated address', () {
-        const address = '88HHtdQvxyH5jwX5N6fAQD6rxx7EQT7GKZvsixtgJRkRaD8wHqwKp6eGSuStiUN5MHXR19vF3W4Jc7MumryYTTH7LGTfanS';
+        const address =
+            '88HHtdQvxyH5jwX5N6fAQD6rxx7EQT7GKZvsixtgJRkRaD8wHqwKp6eGSuStiUN5MHXR19vF3W4Jc7MumryYTTH7LGTfanS';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.xmr);
         expect(result.detectedWalletType, WalletType.monero);
@@ -74,7 +76,7 @@ void main() {
       test('detects Ethereum address', () {
         const address = '0xAE3A8C650CDFad88e87621F8371642bd4B578601';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.eth);
         expect(result.detectedWalletType, WalletType.ethereum);
@@ -84,7 +86,7 @@ void main() {
       test('detects Ethereum URI', () {
         const uri = 'ethereum:0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6?value=1000000000000000000';
         final result = UniversalAddressDetector.detectAddress(uri);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.eth);
         expect(result.detectedWalletType, WalletType.ethereum);
@@ -97,7 +99,7 @@ void main() {
       test('detects Litecoin Bech32 address', () {
         const address = 'ltc1qk4ewr0fjgltsvwymfz7az66q2w73qj0z06cj36';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.ltc);
         expect(result.detectedWalletType, WalletType.litecoin);
@@ -109,7 +111,7 @@ void main() {
       test('detects Bitcoin Cash address', () {
         const address = 'bitcoincash:qqdjjymdpfmqzq69t4vdcxsmrzmlzlwgaucwm878p5';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.bch);
         expect(result.detectedWalletType, WalletType.bitcoinCash);
@@ -119,7 +121,7 @@ void main() {
       test('detects Bitcoin Cash address without prefix', () {
         const address = 'qqdjjymdpfmqzq69t4vdcxsmrzmlzlwgaucwm878p5';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.bch);
         expect(result.detectedWalletType, WalletType.bitcoinCash);
@@ -131,7 +133,7 @@ void main() {
       test('detects Nano address', () {
         const address = 'nano_3gsnr4a3ku3k9hjczobbr5fhhz94c66yczxbpjukeyy3edpxiyp1tqi8angm';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.nano);
         expect(result.detectedWalletType, WalletType.nano);
@@ -143,7 +145,7 @@ void main() {
       test('detects Solana address', () {
         const address = '7TSTXnQZxQDA4JoNqs4DqVqE7oNWk2kmHkMT6DD6vw2S';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.sol);
         expect(result.detectedWalletType, WalletType.solana);
@@ -155,7 +157,7 @@ void main() {
       test('detects Tron address', () {
         const address = 'TF7yQKp7pwLBSXBXthcrXMqTyjtvkJK28V';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.trx);
         expect(result.detectedWalletType, WalletType.tron);
@@ -165,9 +167,10 @@ void main() {
 
     group('Wownero Address Detection', () {
       test('detects Wownero address', () {
-        const address = 'WW3uV9iygJjefkU5bmzeoCFkqZEwg1xC92BKcUFJMcSVF1HQoK4ehDTJScTU28CYvJaZ9sZt5xH8qF1n6vXqXE9G2KMC9JsKh';
+        const address =
+            'WW3uV9iygJjefkU5bmzeoCFkqZEwg1xC92BKcUFJMcSVF1HQoK4ehDTJScTU28CYvJaZ9sZt5xH8qF1n6vXqXE9G2KMC9JsKh';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.wow);
         expect(result.detectedWalletType, WalletType.wownero);
@@ -177,9 +180,10 @@ void main() {
 
     group('Zano Address Detection', () {
       test('detects Zano address', () {
-        const address = 'ZxDREZKHjUAUkRpWrHV9AjJHe12RhtoY9TjUUx2EznNNdwJK9yiHEhuQkqGYnyDXRnFC3Uehu6kLGZmiQab8fWoQ1JrLsuJ1i';
+        const address =
+            'ZxDREZKHjUAUkRpWrHV9AjJHe12RhtoY9TjUUx2EznNNdwJK9yiHEhuQkqGYnyDXRnFC3Uehu6kLGZmiQab8fWoQ1JrLsuJ1i';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.zano);
         expect(result.detectedWalletType, WalletType.zano);
@@ -189,7 +193,7 @@ void main() {
       test('detects Zano alias', () {
         const address = '@testuser';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.zano);
         expect(result.detectedWalletType, WalletType.zano);
@@ -201,46 +205,10 @@ void main() {
       test('detects Decred address', () {
         const address = 'DsW4ZtRV1DcPCuKXVVtGnCy3AtAZHg5N8nR';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.dcr);
         expect(result.detectedWalletType, WalletType.decred);
-        expect(result.address, address);
-      });
-    });
-
-    group('Ravencoin Address Detection', () {
-      test('detects Ravencoin address', () {
-        const address = 'R9cZA1znKykX7w82QeBXc6yKGo8rK8KoFv';
-        final result = UniversalAddressDetector.detectAddress(address);
-        
-        expect(result.isValid, true);
-        expect(result.detectedCurrency, CryptoCurrency.rvn);
-        expect(result.detectedWalletType, null); // No wallet type defined for RVN
-        expect(result.address, address);
-      });
-    });
-
-    group('PIVX Address Detection', () {
-      test('detects PIVX address', () {
-        const address = 'D9t6bwzKQYD5WDJ9wzK3q7q7q7q7q7q7q7';
-        final result = UniversalAddressDetector.detectAddress(address);
-        
-        expect(result.isValid, true);
-        expect(result.detectedCurrency, CryptoCurrency.pivx);
-        expect(result.detectedWalletType, null); // No wallet type defined for PIVX
-        expect(result.address, address);
-      });
-    });
-
-    group('Stacks Address Detection', () {
-      test('detects Stacks address', () {
-        const address = 'SP2J6ZY48GV1EZ5V2V5RB9MP66SW86PYKKNRV9EJ7';
-        final result = UniversalAddressDetector.detectAddress(address);
-        
-        expect(result.isValid, true);
-        expect(result.detectedCurrency, CryptoCurrency.stx);
-        expect(result.detectedWalletType, null); // No wallet type defined for STX
         expect(result.address, address);
       });
     });
@@ -249,7 +217,7 @@ void main() {
       test('handles empty input', () {
         const address = '';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, false);
         expect(result.errorMessage, 'Empty input provided');
       });
@@ -257,7 +225,7 @@ void main() {
       test('handles whitespace only', () {
         const address = '   ';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, false);
         expect(result.errorMessage, 'Empty input provided');
       });
@@ -265,10 +233,10 @@ void main() {
       test('handles random text', () {
         const address = 'this_is_not_an_address_123';
         final result = UniversalAddressDetector.detectAddress(address);
-        
+
         expect(result.isValid, false);
         expect(result.errorMessage, 'Unable to detect valid cryptocurrency address');
       });
     });
   });
-} 
+}

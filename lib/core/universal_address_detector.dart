@@ -93,7 +93,6 @@ class UniversalAddressDetector {
     final rawAddressResult = _detectFromRawAddress(input);
     if (rawAddressResult.isValid) return rawAddressResult;
 
-    // If nothing detected, return invalid result
     return AddressDetectionResult(
       address: input,
       detectedCurrency: null,
@@ -105,17 +104,8 @@ class UniversalAddressDetector {
   /// Detects address from URI format (e.g., bitcoin:address?amount=0.001)
   static AddressDetectionResult _detectFromUri(String input) {
     try {
-      final uri = _parseUri(input);
+      final uri = Uri.parse(input);
 
-      if (uri == null) {
-        return AddressDetectionResult(
-          address: input,
-          detectedCurrency: null,
-          isValid: false,
-        );
-      }
-
-      // Parse payment request
       final paymentRequest = PaymentRequest.fromUri(uri);
 
       // Determine currency from scheme
@@ -143,53 +133,11 @@ class UniversalAddressDetector {
     }
   }
 
-  /// Parse URI with fallback logic
-  static Uri? _parseUri(String input) {
-    // Handle cases where scheme might be missing
-    if (!input.contains('://') && !input.startsWith('bitcoin:') && !input.startsWith('ethereum:')) {
-      // Check if this looks like a raw address first
-      final rawAddressResult = _detectFromRawAddress(input);
-      if (rawAddressResult.isValid) {
-        return null;
-      }
-
-      // Only try to add schemes if the input looks like it could be a cryptocurrency address
-      if (_looksLikeCryptoAddress(input)) {
-        for (final scheme in ['bitcoin:', 'ethereum:', 'litecoin:']) {
-          try {
-            return Uri.parse('$scheme$input');
-          } catch (_) {
-            continue;
-          }
-        }
-      }
-      return null;
-    }
-
-    try {
-      return Uri.parse(input);
-    } catch (e) {
-      // If URI parsing fails, try to detect as raw address
-      final rawAddressResult = _detectFromRawAddress(input);
-
-      // Let raw address detection handle it
-      if (rawAddressResult.isValid) return null;
-      rethrow;
-    }
-  }
-
-  /// Check if input looks like a cryptocurrency address
-  static bool _looksLikeCryptoAddress(String input) {
-    return RegExp(r'^[a-zA-Z0-9@.-]+$').hasMatch(input) &&
-        input.length > 10 &&
-        !input.contains('_');
-  }
-
   /// Detect address from raw address patterns
   static AddressDetectionResult _detectFromRawAddress(String input) {
     final cleanInput = input.trim();
 
-    // Define detection patterns for each currency (ordered by specificity - most specific first)
+    // Detection patterns for each currency (ordered by specificity - most specific first)
     final detectionPatterns = [
       // Lightning Network
       _DetectionPattern(
@@ -245,42 +193,6 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.trx,
       ),
 
-      // Ripple
-      _DetectionPattern(
-        pattern: RegExp(r'^r[a-km-zA-HJ-NP-Z1-9]{25,34}$'),
-        currency: CryptoCurrency.xrp,
-      ),
-
-      // Stellar
-      _DetectionPattern(
-        pattern: RegExp(r'^G[a-km-zA-HJ-NP-Z1-9]{55}$'),
-        currency: CryptoCurrency.xlm,
-      ),
-
-      // Cardano
-      _DetectionPattern(
-        pattern: RegExp(r'^addr1[a-km-zA-HJ-NP-Z1-9]{98}$'),
-        currency: CryptoCurrency.ada,
-      ),
-
-      // Thorchain
-      _DetectionPattern(
-        pattern: RegExp(r'^thor1[a-km-zA-HJ-NP-Z1-9]{38}$'),
-        currency: CryptoCurrency.rune,
-      ),
-
-      // Secret
-      _DetectionPattern(
-        pattern: RegExp(r'^secret1[a-km-zA-HJ-NP-Z1-9]{38}$'),
-        currency: CryptoCurrency.scrt,
-      ),
-
-      // Stacks
-      _DetectionPattern(
-        pattern: RegExp(r'^S[MP][a-km-zA-HJ-NP-Z1-9]+$'),
-        currency: CryptoCurrency.stx,
-      ),
-
       // Zano alias
       _DetectionPattern(
         pattern: RegExp(r'^@[\w\d.-]+$'),
@@ -317,30 +229,6 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.dcr,
       ),
 
-      // Ravencoin
-      _DetectionPattern(
-        pattern: RegExp(r'^R[a-km-zA-HJ-NP-Z1-9]{33}$'),
-        currency: CryptoCurrency.rvn,
-      ),
-
-      // Komodo
-      _DetectionPattern(
-        pattern: RegExp(r'^R[a-km-zA-HJ-NP-Z1-9]{33}$'),
-        currency: CryptoCurrency.kmd,
-      ),
-
-      // PIVX
-      _DetectionPattern(
-        pattern: RegExp(r'^D[a-km-zA-HJ-NP-Z1-9]{33}$'),
-        currency: CryptoCurrency.pivx,
-      ),
-
-      // NEAR
-      _DetectionPattern(
-        pattern: RegExp(r'^[a-km-zA-HJ-NP-Z1-9]{64}$'),
-        currency: CryptoCurrency.near,
-      ),
-
       // Bitcoin P2PKH/P2SH (legacy formats)
       _DetectionPattern(
         pattern: RegExp(r'^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$'),
@@ -353,7 +241,7 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.ltc,
       ),
 
-      // Solana (Base58 format, 32-44 chars) - BROADEST PATTERN LAST
+      // Solana (Base58 format, 32-44 chars)
       _DetectionPattern(
         pattern: RegExp(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$'),
         currency: CryptoCurrency.sol,

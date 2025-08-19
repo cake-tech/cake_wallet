@@ -132,9 +132,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     super.dispose();
   }
 
-  Future<void> _handlePaymentFlow(PaymentRequest paymentRequest) async {
+  Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     try {
-      final result = await sendViewModel.paymentViewModel.processAddress(paymentRequest.address);
+      final result = await sendViewModel.paymentViewModel.processAddress(uri);
 
       switch (result.type) {
         case PaymentFlowType.singleWallet:
@@ -317,10 +317,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (OpenCryptoPayService.isOpenCryptoPayQR(uri.toString())) {
                       sendViewModel.createOpenCryptoPayTransaction(uri.toString());
                     } else {
-                      final paymentRequest = PaymentRequest.fromUri(uri);
-
                       // Process the payment through the new flow
-                      await _handlePaymentFlow(paymentRequest);
+                      await _handlePaymentFlow(
+                        uri.toString(),
+                        PaymentRequest.fromUri(uri),
+                      );
                     }
                   },
                   options: [
@@ -341,9 +342,13 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     output.resetParsedAddress();
                     await output.fetchParsedAddress(context);
 
+                    final address =
+                        output.isParsedAddress ? output.extractedAddress : output.address;
+
                     await _handlePaymentFlow(
+                      address,
                       PaymentRequest(
-                        output.isParsedAddress ? output.extractedAddress : output.address,
+                        address,
                         cryptoAmountController.text,
                         noteController.text,
                         "",
