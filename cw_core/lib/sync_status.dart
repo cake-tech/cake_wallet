@@ -90,7 +90,7 @@ class SyncingSyncStatus extends SyncStatus {
 
   Duration getEtaDuration() {
     DateTime now = DateTime.now();
-    DateTime? completionTime = calculateEta();
+    DateTime completionTime = calculateEta();
     return completionTime.difference(now);
   }
 
@@ -124,7 +124,7 @@ class SyncingSyncStatus extends SyncStatus {
       return Duration(seconds: adjustedSeconds);
     }
 
-    return lastEtaDuration!;
+    return newDuration;
   }
 
   String _formatDuration(Duration duration) {
@@ -175,14 +175,13 @@ class SyncingSyncStatus extends SyncStatus {
       if (blocksProcessed <= 0) continue; // Skip invalid data
 
       final timeDifference = next.key.difference(current.key);
-      final timeSeconds = timeDifference.inMicroseconds / 1000000;
 
-      if (timeSeconds <= 0) continue; // Skip invalid time
+      if (timeDifference.inSeconds <= 0) continue; // Skip invalid time
 
       // Weight recent data more heavily (exponential decay)
       final weight = 1.0 / (1.0 + (sortedData.length - 1 - i) * 0.1);
 
-      totalWeightedTime += timeSeconds * weight;
+      totalWeightedTime += timeDifference.inSeconds * weight;
       totalWeightedBlocks += blocksProcessed * weight;
       totalWeight += weight;
     }
