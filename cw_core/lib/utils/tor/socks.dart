@@ -1,6 +1,7 @@
 import 'package:cw_core/utils/tor/abstract.dart';
 
-class CakeTorTails implements CakeTorInstance {
+class CakeTorSocks implements CakeTorInstance {
+  CakeTorSocks(this.port);
   @override
   bool get bootstrapped => true;
 
@@ -8,7 +9,7 @@ class CakeTorTails implements CakeTorInstance {
   bool get enabled => true;
 
   @override
-  int get port => 9150;
+  int port;
 
   @override
   Future<void> start() async {}
@@ -18,4 +19,16 @@ class CakeTorTails implements CakeTorInstance {
 
   @override
   Future<void> stop() async {}
+
+  @override
+  String toString() {
+    return """
+CakeTorSocks(
+  port: $port,
+  started: $started,
+  bootstrapped: $bootstrapped,
+  enabled: $enabled,
+)
+""";
+  }
 }

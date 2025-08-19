@@ -18,4 +18,16 @@ class CakeTorDisabled implements CakeTorInstance {
 
   @override
   Future<void> stop() => throw UnimplementedError();
+
+  @override
+  String toString() {
+    return """
+CakeTorDisabled(
+  port: $port,
+  started: $started,
+  bootstrapped: $bootstrapped,
+  enabled: $enabled,
+)
+""";
+  }
 }
