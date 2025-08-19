@@ -1,9 +1,7 @@
-Add built-in Tor support (experimental)
-Add dEuro investments
-Solana fixes/enhancements
-Polygon fixes/enhancements
-WalletConnect improvements
-Ledger improvements
-Payjoin improvements
-UI/UX improvements
+Enable Ledger for Desktop
+Enable Bitcoin view-only wallets
+Monero, Bitcoin, and Ethereum enhancements
+Allow automatic node switching between trusted nodes
+Enhance node connectivity
+UI enhancements
 Bug fixes

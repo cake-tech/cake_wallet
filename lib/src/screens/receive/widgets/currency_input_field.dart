@@ -200,8 +200,18 @@ class CurrencyAmountTextField extends StatelessWidget {
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                       validator: isAmountEditable ? currencyValueValidator : null,
-                      onChanged: (value) => amountController.text =
-                          value.replaceAll(',', '.').withMaxDecimals(selectedCurrencyDecimals),
+                      onChanged: (value) {
+                        final sanitized =
+                            value.replaceAll(',', '.').withMaxDecimals(selectedCurrencyDecimals);
+                        if (sanitized != amountController.text) {
+                          // Update text while preserving a sane cursor position to avoid auto-selection
+                          amountController.value = amountController.value.copyWith(
+                            text: sanitized,
+                            selection: TextSelection.collapsed(offset: sanitized.length),
+                            composing: TextRange.empty,
+                          );
+                        }
+                      },
                     ),
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
@@ -61,8 +62,7 @@ class AddressPage extends BasePage {
       color: titleColor(context),
       size: 16,
     );
-    final _closeButton =
-        currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -171,6 +171,69 @@ class AddressPage extends BasePage {
                 }
               },
             ),
+            if (addressListViewModel.hasTokensList) ...[
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CakeImageWidget(
+                          imageUrl: addressListViewModel.monoImage,
+                          height: 16,
+                          width: 16,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${S.current.your} ${addressListViewModel.walletTypeName} ${S.current.address}',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      '${S.current.qr_instruction} ${addressListViewModel.walletTypeName}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                    SizedBox(height: 20),
+                    Center(
+                      child: SizedBox(
+                        height: 40,
+                        width: addressListViewModel.walletImages.length * 30.0,
+                        child: Stack(
+                          children: [
+                            for (int i = addressListViewModel.walletImages.length - 1; i >= 0; i--)
+                              Positioned(
+                                left: i * 25.0,
+                                child: ClipOval(
+                                  child: CakeImageWidget(
+                                    height: 35,
+                                    width: 35,
+                                    imageUrl: addressListViewModel.walletImages[i],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 48),
+            ],
           ],
         ),
       ),

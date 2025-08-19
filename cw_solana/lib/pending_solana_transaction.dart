@@ -6,6 +6,7 @@ class PendingSolanaTransaction with PendingTransaction {
   final String destinationAddress;
   final Function sendTransaction;
   final double fee;
+  String? _sig;
 
   PendingSolanaTransaction({
     required this.fee,
@@ -28,20 +29,23 @@ class PendingSolanaTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    return await sendTransaction();
+    _sig = await sendTransaction();
   }
 
   @override
-  String get feeFormatted => fee.toString();
+  String get feeFormatted => "$feeFormattedValue SOL";
+
+  @override
+  String get feeFormattedValue => fee.toString();
 
   @override
   String get hex => serializedTransaction;
 
   @override
-  String get id => '';
+  String get id => _sig ?? '';
   
   @override
-  Future<String?> commitUR() {
+  Future<Map<String, String>> commitUR() {
     throw UnimplementedError();
   }
 }

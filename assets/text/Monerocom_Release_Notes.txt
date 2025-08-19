@@ -1,4 +1,6 @@
-Add built-in Tor support (experimental)
-Ledger improvements
-UI/UX improvements
+Enable Ledger for Desktop
+Monero enhancements
+Allow automatic node switching between trusted nodes
+Enhance node connectivity
+UI enhancements
 Bug fixes

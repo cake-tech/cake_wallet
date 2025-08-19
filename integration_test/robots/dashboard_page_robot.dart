@@ -18,6 +18,7 @@ class DashboardPageRobot {
 
   Future<void> isDashboardPage() async {
     await commonTestCases.isSpecificPage<DashboardPage>();
+    await commonTestCases.takeScreenshots('dashboard_page');
   }
 
   Future<void> confirmWalletTypeIsDisplayedCorrectly(
@@ -88,22 +89,34 @@ class DashboardPageRobot {
   }
 
   Future<void> navigateToBuyPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.buy}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_buy_action_button_key');
+  }
+
+  Future<void> navigateToWalletsListPage({bool isDrawer = false}) async {
+    await tester.pumpAndSettle(Duration(milliseconds: 1000));
+
+    await commonTestCases.tapItemByKey(
+      isDrawer
+          ? 'dashboard_page_menu_widget_wallet_menu_button_key'
+          : 'dashboard_page__wallet_list_button_key',
+    );
+
+    await tester.pumpAndSettle(Duration(milliseconds: 2000));
   }
 
   Future<void> navigateToSendPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.send}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_send_action_button_key');
   }
 
   Future<void> navigateToSellPage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.sell}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_sell_action_button_key');
   }
 
   Future<void> navigateToReceivePage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.receive}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_receive_action_button_key');
   }
 
   Future<void> navigateToExchangePage() async {
-    await commonTestCases.tapItemByKey('dashboard_page_${S.current.exchange}_action_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_swap_action_button_key');
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
@@ -156,6 +157,9 @@ int cachedNodeHeight = 0;
 bool isHeightRefreshing = false;
 int getNodeHeightSync() {
   if (isHeightRefreshing == false) {
+    if (cachedNodeHeight != 0 && getWlptr()?.height() == 1) {
+      return cachedNodeHeight;
+    }
     (() async {
       try {
         isHeightRefreshing = true;
@@ -171,7 +175,10 @@ int getNodeHeightSync() {
   return cachedNodeHeight;
 }
 
-bool isConnectedSync() => currentWallet?.connected() != 0;
+Future<bool> isConnected() async {
+  final wptrAddress = currentWallet!.ffiAddress();
+  return await Isolate.run(() => monero.Wallet_connected(Pointer.fromAddress(wptrAddress))) == 1;
+}
 
 Future<bool> setupNodeSync(
     {required String address,
@@ -329,7 +336,13 @@ class SyncListener {
         _initialSyncHeight = syncHeight;
       }
 
-      final bchHeight = await getNodeHeightOrUpdate(syncHeight);
+      // in case when node didn't report new height yet
+      // it is a workaround for moving height request to another isolate
+      final nodeHeight = await getNodeHeightOrUpdate(syncHeight);
+      if (nodeHeight == 0) {
+        return;
+      }
+      final bchHeight = max(nodeHeight, syncHeight);
       // printV("syncHeight: $syncHeight, _lastKnownBlockHeight: $_lastKnownBlockHeight, bchHeight: $bchHeight");
       if (_lastKnownBlockHeight == syncHeight) {
         return;
@@ -341,7 +354,8 @@ class SyncListener {
       final ptc = diff <= 0 ? 0.0 : diff / track;
       final left = bchHeight - syncHeight;
 
-      if (syncHeight < 0 || left < 0) {
+      if ((syncHeight < 0 || left < 0)) {
+        printV("not calling onNewBlock: syncHeight: $syncHeight, left: $left");
         return;
       }
 
@@ -384,8 +398,6 @@ Future<bool> _setupNodeSync(Map<String, Object?> args) async {
 void startRefresh() => startRefreshSync();
 
 Future<void> store() async => _storeSync(0);
-
-Future<bool> isConnected() async => isConnectedSync();
 
 Future<int> getNodeHeight() async => getNodeHeightSync();
 

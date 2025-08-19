@@ -11,6 +11,7 @@ class WalletListPageRobot {
 
   Future<void> isWalletListPage() async {
     await commonTestCases.isSpecificPage<WalletListPageRobot>();
+    await commonTestCases.takeScreenshots('wallet_list_page');
   }
 
   void displaysCorrectTitle() {
@@ -18,10 +19,10 @@ class WalletListPageRobot {
   }
 
   Future<void> navigateToCreateNewWalletPage() async {
-    commonTestCases.tapItemByKey('wallet_list_page_create_new_wallet_button_key');
+    await commonTestCases.tapItemByKey('wallet_list_page_create_new_wallet_button_key');
   }
 
   Future<void> navigateToRestoreWalletOptionsPage() async {
-    commonTestCases.tapItemByKey('wallet_list_page_restore_wallet_button_key');
+    await commonTestCases.tapItemByKey('wallet_list_page_restore_wallet_button_key');
   }
 }

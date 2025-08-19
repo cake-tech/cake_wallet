@@ -114,6 +114,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
+  bool get isMwebEnabled => balanceViewModel.mwebEnabled;
+
   @action
   void setShowAddressBookPopup(bool value) {
     _settingsStore.showAddressBookPopupEnabled = value;
@@ -182,9 +184,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction != null) {
         final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[currency]!,
-            cryptoAmount: pendingTransaction!.feeFormatted.substring(0, pendingTransaction!.feeFormatted.indexOf(" ")),
-          );
+          price: _fiatConversationStore.prices[currency]!,
+          cryptoAmount: pendingTransaction!.feeFormattedValue,
+        );
         return fiat;
       } else {
         return '0.00';
@@ -210,12 +212,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   CryptoCurrency get currency => wallet.currency;
 
-  Validator<String> get amountValidator =>
-      AmountValidator(currency: walletTypeToCryptoCurrency(wallet.type));
+  Validator<String> amountValidator(Output output) => AmountValidator(
+        currency: walletTypeToCryptoCurrency(wallet.type),
+        minValue: isSendToSilentPayments(output)
+            ?
+            //  TODO: get from server
+            // bitcoin!.silentPaymentsMinAmount
+            '0.00001'
+            : null,
+      );
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
-  Validator<String> get addressValidator => AddressValidator(type: selectedCryptoCurrency);
+  Validator<String> get addressValidator =>
+      AddressValidator(type: selectedCryptoCurrency, isTestnet: wallet.isTestnet);
 
   Validator<String> get textValidator => TextValidator();
 
@@ -261,6 +271,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
@@ -288,6 +299,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
+  bool isSendToSilentPayments(Output output) =>
+      wallet.type == WalletType.bitcoin &&
+      (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
+          RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+              .hasMatch(output.extractedAddress) ||
+          (output.parsedAddress.addresses.isNotEmpty &&
+              RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+                  .hasMatch(output.parsedAddress.addresses[0])));
+
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
       .where((template) => _isEqualCurrency(template.cryptoCurrency))
@@ -300,12 +320,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.monero,
         WalletType.wownero,
         WalletType.decred,
-        WalletType.bitcoinCash
+        WalletType.bitcoinCash,
+        WalletType.dogecoin
       ].contains(wallet.type);
 
   @computed
   bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type);
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
@@ -543,7 +564,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (ocpRequest != null) {
       state = TransactionCommitting();
-      if (selectedCryptoCurrency == CryptoCurrency.xmr) {
+      if (OpenCryptoPayService.requiresClientCommit(selectedCryptoCurrency)) {
         await pendingTransaction!.commit();
       }
 
@@ -635,6 +656,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
@@ -777,12 +799,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         return S.current.solana_no_associated_token_account_exception;
       }
 
-      if (errorMessage.contains('insufficient funds for rent') && 
-          errorMessage.contains('Transaction simulation failed') && 
+      if (errorMessage.contains('insufficient funds for rent') &&
+          errorMessage.contains('Transaction simulation failed') &&
           errorMessage.contains('account_index')) {
         final accountIndexMatch = RegExp(r'account_index: (\d+)').firstMatch(errorMessage);
         if (accountIndexMatch != null) {
-          return int.parse(accountIndexMatch.group(1)!) == 0 
+          return int.parse(accountIndexMatch.group(1)!) == 0
               ? S.current.insufficientFundsForRentError
               : S.current.insufficientFundsForRentErrorReceiver;
         }

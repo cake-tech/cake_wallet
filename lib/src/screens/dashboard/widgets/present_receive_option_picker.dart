@@ -1,5 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/rounded_checkbox.dart';
+import 'package:cake_wallet/src/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -41,7 +41,7 @@ class PresentReceiveOptionPicker extends StatelessWidget {
               Text(
                 S.current.receive,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18.0,
+                      fontSize: 17.0,
                       fontWeight: FontWeight.bold,
                       color: color,
                     ),

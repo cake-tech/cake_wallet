@@ -23,12 +23,12 @@ class EVMChainTransactionFeesException implements Exception {
   String toString() => exceptionMessage;
 }
 
-class DeuroGasFeeException implements Exception {
+class InsufficientGasFeeException implements Exception {
   final String exceptionMessage;
   final BigInt? requiredGasFee;
   final BigInt? currentBalance;
 
-  DeuroGasFeeException({
+  InsufficientGasFeeException({
     this.requiredGasFee,
     this.currentBalance,
   }) : exceptionMessage = _buildMessage(requiredGasFee, currentBalance);

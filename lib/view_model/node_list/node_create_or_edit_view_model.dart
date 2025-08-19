@@ -26,6 +26,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         login = '',
         password = '',
         trusted = false,
+        isEnabledForAutoSwitching = false,
         useSocksProxy = false,
         socksProxyAddress = '';
 
@@ -55,6 +56,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   bool trusted;
+
+  @observable
+  bool isEnabledForAutoSwitching;
 
   @observable
   bool useSocksProxy;
@@ -89,6 +93,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
+      case WalletType.dogecoin:
       case WalletType.zano:
       case WalletType.decred:
         return false;
@@ -118,6 +123,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     password = '';
     useSSL = false;
     trusted = false;
+    isEnabledForAutoSwitching = false;
     useSocksProxy = false;
     socksProxyAddress = '';
   }
@@ -144,6 +150,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   void setTrusted(bool val) => trusted = val;
 
   @action
+  void setIsEnabledForAutoSwitching(bool val) => isEnabledForAutoSwitching = val;
+
+  @action
   void setSocksProxy(bool val) => useSocksProxy = val;
 
   @action
@@ -159,6 +168,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       state = IsExecutingState();
@@ -190,6 +200,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         password: password,
         useSSL: useSSL,
         trusted: trusted,
+        isEnabledForAutoSwitching: isEnabledForAutoSwitching,
         socksProxyAddress: socksProxyAddress);
     try {
       connectionState = IsExecutingState();

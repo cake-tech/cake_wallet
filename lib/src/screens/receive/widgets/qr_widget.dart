@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dar
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/brightness_util.dart';
@@ -62,21 +63,12 @@ class QRWidget extends StatelessWidget {
           children: <Widget>[
             Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    S.of(context).qr_fullscreen,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
                 Row(
                   children: <Widget>[
                     Spacer(flex: 3),
                     Observer(
                       builder: (_) => Flexible(
-                        flex: 5,
+                        flex: 9,
                         child: GestureDetector(
                           onTap: () {
                             BrightnessUtil.changeBrightnessForFunction(
@@ -85,6 +77,7 @@ class QRWidget extends StatelessWidget {
                                   context,
                                   Routes.fullscreenQR,
                                   arguments: QrViewData(
+                                    embeddedImagePath: addressListViewModel.qrImage,
                                     data: addressUri.toString(),
                                     heroTag: heroTag,
                                   ),
@@ -105,16 +98,22 @@ class QRWidget extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     Container(
+                                      clipBehavior: Clip.hardEdge,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12.5),
+                                      ),
                                       padding: EdgeInsets.all(3),
                                       child: AspectRatio(
                                         aspectRatio: 1.0,
                                         child: QrImage(
+                                          embeddedImagePath: addressListViewModel.qrImage,
                                           data: addressUri.toString(),
                                         ),
                                       ),
                                     ),
                                     if (addressListViewModel.isPayjoinUnavailable &&
-                                        !addressListViewModel.isSilentPayments) ...[
+                                        !addressListViewModel.isSilentPayments &&
+                                        !addressListViewModel.isCupcake) ...[
                                       GestureDetector(
                                         onTap: () => _onPayjoinInactivePressed(context),
                                         child: Row(
@@ -319,14 +318,13 @@ class QRWidget extends StatelessWidget {
         titleText: S.of(context).payjoin_unavailable_sheet_title,
         content: S.of(context).payjoin_unavailable_sheet_content,
         currentTheme: currentTheme,
-        isTwoAction: true,
-        leftButtonText: S.of(context).learn_more,
-        actionLeftButton: () => launchUrl(
-          Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
-          mode: LaunchMode.externalApplication,
-        ),
-        rightButtonText: S.of(context).ok,
-        actionRightButton: () => Navigator.of(context).pop(),
+        footerType: FooterType.doubleActionButton,
+        doubleActionLeftButtonText: S.of(context).learn_more,
+        onLeftActionButtonPressed: () => launchUrl(
+            Uri.parse("https://docs.cakewallet.com/cryptos/bitcoin/#payjoin"),
+            mode: LaunchMode.externalApplication),
+        doubleActionRightButtonText: S.of(context).ok,
+        onRightActionButtonPressed: () => Navigator.of(context).pop(),
       ),
     );
   }

@@ -26,6 +26,7 @@ class Node extends HiveObject with Keyable {
     this.trusted = false,
     this.socksProxyAddress,
     this.path = '',
+    this.isEnabledForAutoSwitching = false,
     String? uri,
     WalletType? type,
   }) {
@@ -44,7 +45,8 @@ class Node extends HiveObject with Keyable {
         password = map['password'] as String?,
         useSSL = map['useSSL'] as bool?,
         trusted = map['trusted'] as bool? ?? false,
-        socksProxyAddress = map['socksProxyPort'] as String?;
+        socksProxyAddress = map['socksProxyPort'] as String?,
+        isEnabledForAutoSwitching = map['isEnabledForAutoSwitching'] as bool? ?? false;
 
   static const typeId = NODE_TYPE_ID;
   static const boxName = 'Nodes';
@@ -82,6 +84,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(10)
   bool? supportsMweb;
 
+  @HiveField(11, defaultValue: false)
+  bool isEnabledForAutoSwitching;
+
   bool get isSSL => useSSL ?? false;
 
   bool get useSocksProxy => socksProxyAddress == null ? false : socksProxyAddress!.isNotEmpty;
@@ -95,6 +100,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         return createUriFromElectrumAddress(uriRaw, path!);
       case WalletType.nano:
       case WalletType.banano:
@@ -165,6 +171,7 @@ class Node extends HiveObject with Keyable {
         case WalletType.polygon:
         case WalletType.solana:
         case WalletType.tron:
+        case WalletType.dogecoin:
           return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();

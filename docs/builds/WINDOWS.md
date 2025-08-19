@@ -6,18 +6,18 @@ The following are the system requirements to build Cake Wallet for your Windows 
 
 ```txt
 Windows 10 or later (64-bit), x86-64 based
-Flutter 3.27.0
+Flutter 3.27.4
 ```
 
 ### 1. Installing Flutter
 
-Install Flutter, specifically version `3.27.0` by following the [official docs](https://docs.flutter.dev/get-started/install/windows).
+Install Flutter, specifically version `3.27.4` by following the [official docs](https://docs.flutter.dev/get-started/install/windows).
 
 In order for Flutter to function, you'll also need to enable Developer Mode:
 
 Start Menu > search for "Run" > type `ms-settings:developers`, and turn on Developer Mode.
 
-NOTE: as `3.27.0` is not the latest version, you'll need to download it from <https://docs.flutter.dev/release/archive> instead of the link in the docs above.
+NOTE: as `3.27.4` is not the latest version, you'll need to download it from <https://docs.flutter.dev/release/archive> instead of the link in the docs above.
 
 ### 2. Install Development Tools
 

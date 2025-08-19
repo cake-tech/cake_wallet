@@ -20,15 +20,14 @@ import 'package:bip39/bip39.dart' as bip39;
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
-    BitcoinRestoreWalletFromWIFCredentials,
+    BitcoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
   BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource,
-      this.payjoinSessionSource, this.alwaysScan, this.isDirect);
+      this.payjoinSessionSource, this.isDirect);
 
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final Box<PayjoinSession> payjoinSessionSource;
-  final bool alwaysScan;
   final bool isDirect;
 
   @override
@@ -84,7 +83,6 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         payjoinBox: payjoinSessionSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -98,7 +96,6 @@ class BitcoinWalletService extends WalletService<
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
         payjoinBox: payjoinSessionSource,
-        alwaysScan: alwaysScan,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -133,7 +130,6 @@ class BitcoinWalletService extends WalletService<
       walletInfo: currentWalletInfo,
       unspentCoinsInfo: unspentCoinsInfoSource,
       payjoinBox: payjoinSessionSource,
-      alwaysScan: alwaysScan,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -169,9 +165,25 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<BitcoinWallet> restoreFromKeys(BitcoinRestoreWalletFromWIFCredentials credentials,
-          {bool? isTestnet}) async =>
-      throw UnimplementedError();
+  Future<BitcoinWallet> restoreFromKeys(BitcoinWalletFromKeysCredentials credentials,
+          {bool? isTestnet}) async {
+    final network = isTestnet == true ? BitcoinNetwork.testnet : BitcoinNetwork.mainnet;
+    credentials.walletInfo?.network = network.value;
+
+    final wallet = await BitcoinWallet(
+      password: credentials.password!,
+      xpub: credentials.xpub,
+      walletInfo: credentials.walletInfo!,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      networkParam: network,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      payjoinBox: payjoinSessionSource,
+    );
+
+    await wallet.save();
+    await wallet.init();
+    return wallet;
+  }
 
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,

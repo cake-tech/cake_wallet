@@ -10,7 +10,7 @@ if [ -z "$APP_MACOS_TYPE" ]; then
         exit 1
 fi
 
-cd .. # go to scipts
+cd .. # go to scripts
 ./gen_android_manifest.sh
 cd .. # go to root
 cp -rf ./macos/Runner/InfoBase.plist ./macos/Runner/Info.plist
@@ -36,7 +36,7 @@ case $APP_MACOS_TYPE in
         $MONERO_COM)
 		CONFIG_ARGS="--monero";;
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero";;
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --dogecoin";;
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml

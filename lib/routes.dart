@@ -22,6 +22,7 @@ class Routes {
   static const walletEdit = '/walletEdit';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
+  static const readThirdPartyDisclaimer = '/disclaimer/third_party';
   static const changeRep = '/change_representative';
   static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
@@ -74,11 +75,11 @@ class Routes {
   static const cakePayLoginPage = '/cake_pay_login_page';
   static const cakePayCardsPage = '/cake_pay_cards_page';
   static const cakePayBuyCardPage = '/cake_pay_buy_card_page';
-  static const cakePayBuyCardDetailPage = '/cake_pay_buy_card_detail_page';
   static const cakePayVerifyOtpPage = '/cake_pay_verify_otp_page';
   static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
+  static const silentPaymentsLogs = '/silent_payments_logs';
   static const mwebSettings = '/mweb_settings';
   static const mwebLogs = '/mweb_logs';
   static const mwebNode = '/mweb_node';
@@ -119,6 +120,7 @@ class Routes {
   static const devSharedPreferences = '/dev/shared_preferences';
   static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
+  static const devSocketHealthLogs = '/dev/socket_health_logs';
   static const devNetworkRequests = '/dev/network_requests';
 
   static const signPage = '/sign_page';
@@ -126,7 +128,8 @@ class Routes {
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
-  static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
+  static const walletGroupExistingSeedDescriptionPage =
+      '/wallet_group_existing_seed_description_page';
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
   static const exchangeTradeExternalSendPage = '/exchange_trade_external_send_page';
 

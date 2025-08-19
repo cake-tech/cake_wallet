@@ -16,6 +16,7 @@ class ExchangeTradePageRobot {
 
   Future<void> isExchangeTradePage() async {
     await commonTestCases.isSpecificPage<ExchangeTradePage>();
+    await commonTestCases.takeScreenshots('exchange_trade_page');
   }
 
   void hasInformationDialog() {
@@ -25,6 +26,14 @@ class ExchangeTradePageRobot {
   Future<void> onGotItButtonPressed() async {
     await commonTestCases.tapItemByKey('information_page_got_it_button_key');
     await commonTestCases.defaultSleepTime();
+  }
+
+  Future<void> onSendFromExternalButtonPressed() async {
+    tester.printToConsole('Routing to send from external details page');
+
+    await commonTestCases.tapItemByKey(
+      'exchange_trade_page_send_from_external_button_key',
+    );
   }
 
   Future<void> onSendFromCakeButtonPressed() async {

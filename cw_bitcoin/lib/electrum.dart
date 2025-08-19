@@ -43,7 +43,7 @@ class ElectrumClient {
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 4);
 
-  bool get isConnected => _isConnected;
+  bool get isConnected => _isConnected && socket != null;
   ProxySocket? socket;
   void Function(ConnectionStatus)? onConnectionStatusChange;
   int _id;
@@ -69,6 +69,9 @@ class ElectrumClient {
   Future<void> connect({required String host, required int port}) async {
     _setConnectionStatus(ConnectionStatus.connecting);
 
+    // Reset internal state to ensure clean connection
+    _resetInternalState();
+
     try {
       await socket?.close();
     } catch (_) {}
@@ -76,7 +79,8 @@ class ElectrumClient {
 
     final ssl = !(useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum")));
     try {
-      socket = await ProxyWrapper().getSocksSocket(ssl, host, port, connectionTimeout: connectionTimeout);
+      socket = await ProxyWrapper()
+          .getSocksSocket(ssl, host, port, connectionTimeout: connectionTimeout);
     } catch (e) {
       printV("connect: $e");
       if (e is HandshakeException) {
@@ -120,6 +124,7 @@ class ElectrumClient {
         printV(errorMsg);
         unterminatedString = '';
         socket = null;
+        _setConnectionStatus(ConnectionStatus.disconnected);
       },
       onDone: () {
         printV("SOCKET CLOSED!!!!!");
@@ -203,15 +208,25 @@ class ElectrumClient {
         return [];
       });
 
-  Future<Map<String, dynamic>> getBalance(String scriptHash) =>
-      call(method: 'blockchain.scripthash.get_balance', params: [scriptHash])
-          .then((dynamic result) {
-        if (result is Map<String, dynamic>) {
-          return result;
-        }
+  Future<Map<String, dynamic>> getBalance(String scriptHash, {bool throwOnError = false}) async {
+    try {
+      final result = await call(method: 'blockchain.scripthash.get_balance', params: [scriptHash]);
+      if (result is Map<String, dynamic>) {
+        return result;
+      }
 
-        return <String, dynamic>{};
-      });
+      if (throwOnError) {
+        throw Exception('Invalid response format for getBalance');
+      }
+
+      return <String, dynamic>{};
+    } catch (e) {
+      if (throwOnError) {
+        rethrow;
+      }
+      return <String, dynamic>{};
+    }
+  }
 
   Future<List<Map<String, dynamic>>> getHistory(String scriptHash) =>
       call(method: 'blockchain.scripthash.get_history', params: [scriptHash])
@@ -436,9 +451,8 @@ class ElectrumClient {
 
   Future<dynamic> call(
       {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
-    if (socket == null) {
-      return null;
-    }
+    if (!_isConnected || socket == null) return null;
+
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
@@ -452,9 +466,8 @@ class ElectrumClient {
   Future<dynamic> callWithTimeout(
       {required String method, List<Object> params = const [], int timeout = 5000}) async {
     try {
-      if (socket == null) {
-        return null;
-      }
+      if (!_isConnected || socket == null) return null;
+
       final completer = Completer<dynamic>();
       _id += 1;
       final id = _id;
@@ -480,6 +493,22 @@ class ElectrumClient {
       socket = null;
     } catch (_) {}
     onConnectionStatusChange = null;
+    // Reset internal state when closing
+    _resetInternalStateCompletely();
+  }
+
+  void _resetInternalState() {
+    // Only clears errors and unterminated string, leaves tasks or reset ID
+    // This preserves active subscriptions while clearing error state
+    _errors.clear();
+    unterminatedString = '';
+  }
+
+  void _resetInternalStateCompletely() {
+    _id = 0;
+    _tasks.clear();
+    _errors.clear();
+    unterminatedString = '';
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -577,6 +606,8 @@ class ElectrumClient {
   }
 
   String getErrorMessage(int id) => _errors[id.toString()] ?? '';
+
+  bool get isInternalStateConsistent => _errors.isEmpty;
 }
 
 // FIXME: move me

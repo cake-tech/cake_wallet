@@ -35,7 +35,7 @@ class RestoredWallet {
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
     try {
-    final codeParsed = jsonDecode(json['raw_qr'].toString());
+      final codeParsed = jsonDecode(json['raw_qr'].toString());
       if (codeParsed["version"] == 0) {
         json['address'] = codeParsed["primaryAddress"];
         json['view_key'] = codeParsed["privateViewKey"];
@@ -44,6 +44,7 @@ class RestoredWallet {
     } catch (e) {
       // fine, we don't care, it is only for monero anyway
     }
+    json['view_key'] ??= json['xpub'];
     final height = json['height'] as String?;
     return RestoredWallet(
       restoreMode: json['mode'] as WalletRestoreMode,
@@ -51,7 +52,7 @@ class RestoredWallet {
       address: json['address'] as String?,
       spendKey: json['spend_key'] as String?,
       viewKey: json['view_key'] as String?,
-      height: height != null ? int.tryParse(height)??0 : 0,
+      height: height != null ? int.tryParse(height) ?? 0 : 0,
       privateKey: json['private_key'] as String?,
     );
   }
