@@ -340,6 +340,16 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   onPushPasteButton: (context) async {
                     output.resetParsedAddress();
                     await output.fetchParsedAddress(context);
+
+                    await _handlePaymentFlow(
+                      PaymentRequest(
+                        output.isParsedAddress ? output.extractedAddress : output.address,
+                        cryptoAmountController.text,
+                        noteController.text,
+                        "",
+                        null,
+                      ),
+                    );
                   },
                   onPushAddressBookButton: (context) async {
                     output.resetParsedAddress();
