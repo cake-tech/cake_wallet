@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.d
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
@@ -91,11 +92,12 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
 
-              StandardListRow(
-                title: "Custom background",
-                isSelected: false,
-                onTap: (_) => _pickImage(context),
-              ),
+              if (FeatureFlag.customBackgroundEnabled)
+                StandardListRow(
+                  title: "Custom background",
+                  isSelected: false,
+                  onTap: (_) => _pickImage(context),
+                ),
 
               if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
                 SettingsSwitcherCell(
