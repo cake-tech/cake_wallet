@@ -7,6 +7,6 @@ fi
 
 ./app_properties.sh
 ./app_icon.sh
-./pubspec_gen.sh
+./pubspec_gen.sh $@
 ./manifest.sh true #force overwrite manifest
 ./inject_app_details.sh

@@ -5,11 +5,9 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 
-import 'package:cw_dogecoin/cw_dogecoin.dart';
 
-part 'cw_dogecoin.dart';
 
-DogeCoin? dogecoin = CWDogeCoin();
+DogeCoin? dogecoin;
 
 abstract class DogeCoin {
 
