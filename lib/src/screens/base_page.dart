@@ -108,9 +108,8 @@ abstract class BasePage extends StatelessWidget {
         ? null
         : Text(
             title!,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontSize: 18.0,
-                  fontWeight: FontWeight.w600,
                   color: titleColor(context),
                 ),
           );

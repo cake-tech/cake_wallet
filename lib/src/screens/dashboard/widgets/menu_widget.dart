@@ -174,7 +174,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                 children: <Widget>[
                                   Text(
                                     widget.dashboardViewModel.name,
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                           fontWeight: FontWeight.w700,
                                         ),
                                   ),

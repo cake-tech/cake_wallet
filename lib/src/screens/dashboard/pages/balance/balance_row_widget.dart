@@ -142,7 +142,7 @@ class BalanceRowWidget extends StatelessWidget {
                             availableBalance,
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurface,
-                                  fontWeight: FontWeight.w900,
+                                  //fontWeight: FontWeight.w700,
                                   fontSize: 24,
                                   height: 1,
                                 ),
@@ -164,7 +164,6 @@ class BalanceRowWidget extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.w500,
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     height: 1,
                                   ),
