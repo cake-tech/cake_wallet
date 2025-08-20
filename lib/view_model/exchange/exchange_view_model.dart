@@ -1061,7 +1061,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (item is Erc20Token) {
         return item.contractAddress.toLowerCase() == token.contractAddress.toLowerCase();
       }
-      return item.title.toUpperCase() == token.symbol.toUpperCase();
+      return item.title.toUpperCase() == token.symbol.toUpperCase() &&
+          (item.tag?.toUpperCase() == token.tag?.toUpperCase() || item.tag == null);
     });
   }
 
@@ -1101,7 +1102,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (item is SPLToken) {
         return item.mintAddress.toLowerCase() == token.mintAddress.toLowerCase();
       }
-      return item.title.toUpperCase() == token.symbol.toUpperCase();
+      return item.title.toUpperCase() == token.symbol.toUpperCase() &&
+          (item.tag?.toUpperCase() == token.tag?.toUpperCase() || item.tag == null);
     });
   }
 
@@ -1154,7 +1156,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (item is TronToken) {
         return item.contractAddress.toLowerCase() == token.contractAddress.toLowerCase();
       }
-      return item.title.toUpperCase() == token.symbol.toUpperCase();
+      return item.title.toUpperCase() == token.symbol.toUpperCase() &&
+          (item.tag?.toUpperCase() == token.tag?.toUpperCase() || item.tag == null);
     });
   }
 
