@@ -22,6 +22,7 @@ VALID_FLAGS=(
 )
 
 SELECTED_FLAGS=()
+NON_COIN_FLAGS=()
 
 is_valid_flag() {
   local flag="$1"
@@ -45,8 +46,8 @@ while [[ $# -gt 0 ]]; do
         SELECTED_FLAGS+=("$1")
         shift
       else
-        echo "Unknown flag: $1"
-        exit 1
+        NON_COIN_FLAGS+=("$1")
+        shift
       fi
       ;;
 
@@ -84,4 +85,22 @@ flutter pub get
 dart run tool/generate_pubspec.dart
 flutter pub get
 dart run tool/configure.dart $CONFIG_ARGS
+
+for flag in "${SELECTED_FLAGS[@]}"; do
+  if [[ "$flag" == "--bitcoin" ]]; then
+    cd cw_bitcoin
+    dart run tool/generate_pubspec.dart
+
+    if [[ ${#NON_COIN_FLAGS[@]} -gt 0 ]]; then
+      echo "Configuring Bitcoin with additional flags: ${NON_COIN_FLAGS[*]}"
+
+      dart run tool/configure.dart "${NON_COIN_FLAGS[@]}"
+    fi
+
+    cd ..
+
+    break
+  fi
+done
+
 cd scripts/android
