@@ -1,15 +1,18 @@
 import 'dart:io';
 
 const payjoinOutputPath = 'lib/payjoin/payjoin.dart';
+const spScannerOutputPath = 'lib/silent_payments/sp.dart';
 const pubspecOutputPath = 'pubspec.yaml';
 
 Future<void> main(List<String> args) async {
   const prefix = '--';
   final hasPayjoin = args.contains('${prefix}payjoin');
+  final hasSpScanner = args.contains('${prefix}sp-scanner');
 
   await generatePayjoin(hasPayjoin);
+  await generateSpScanner(hasSpScanner);
 
-  await generatePubspec(hasPayjoin: hasPayjoin);
+  await generatePubspec(hasPayjoin: hasPayjoin, hasSpScanner: hasSpScanner);
 }
 
 Future<void> generatePayjoin(bool hasImplementation) async {
@@ -206,7 +209,66 @@ class PayjoinPollerSession {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({required bool hasPayjoin}) async {
+Future<void> generateSpScanner(bool hasImplementation) async {
+  final outputFile = File(spScannerOutputPath);
+  var output = "";
+
+  if (!hasImplementation) {
+    final spCommonHeaders = """
+import 'dart:async';
+
+import 'package:cw_bitcoin/electrum_wallet.dart';
+""";
+
+    const spEmptyDefinition = 'SilentPayments? silentPayments;\n';
+
+    final spCommonContent = """
+abstract class SilentPayments {
+  Future<void> handleScanSilentPayments(ScanData scanData);
+}""";
+
+    output = '$spCommonHeaders\n' + '$spEmptyDefinition\n' + '$spCommonContent';
+  } else {
+    final spCwHeaders = """
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:sp_scanner/sp_scanner.dart';
+""";
+
+    final spCwPart = """
+part 'cw_sp.dart';
+""";
+
+    final spCwDefinition = 'SilentPayments? silentPayments = CWSilentPayments();\n';
+
+    final spCwContent = """
+abstract class SilentPayments {
+  Future<void> handleScanSilentPayments(ScanData scanData);
+}""";
+
+    output = '$spCwHeaders\n' + '$spCwPart\n' + '$spCwDefinition\n' + '$spCwContent';
+  }
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
+Future<void> generatePubspec({required bool hasPayjoin, required bool hasSpScanner}) async {
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -225,6 +287,16 @@ Future<void> generatePubspec({required bool hasPayjoin}) async {
       ref: da83a23f3a011cb49eb3b6513cd485b3fb8867ff #cake-v2
     """;
     output += "\n$cwPayjoin";
+  }
+
+  if (hasSpScanner) {
+    final cwSpScanner = """
+  sp_scanner:
+    git:
+      url: https://github.com/cake-tech/sp_scanner
+      ref: sp_v4.0.0
+    """;
+    output += "\n$cwSpScanner";
   }
 
   final outputLines = output.split('\n');
