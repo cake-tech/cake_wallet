@@ -14,6 +14,7 @@ const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
+const dnssecProofPath = 'lib/dnssec_proof/dnssec_proof.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
 
@@ -33,6 +34,7 @@ Future<void> main(List<String> args) async {
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
+  final hasDnssecProof = args.contains('${prefix}dnssecProof');
 
   final hasBitcoin = args.contains('${prefix}bitcoin') || hasLitecoin;
 
@@ -49,6 +51,7 @@ Future<void> main(List<String> args) async {
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
   await generateDogecoin(hasDogecoin);
+  await generateDnssecProof(hasDnssecProof);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -65,6 +68,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasDnssecProof: hasDnssecProof,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -1484,6 +1488,58 @@ abstract class DogeCoin {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateDnssecProof(bool hasImplementation) async {
+  final outputFile = File(dnssecProofPath);
+  var output = "";
+
+  if (!hasImplementation) {
+    const dnssecProofDefinition = 'DnssecProof? dnssecProof;\n';
+
+    final dnssecProofCommonContent = """
+abstract class DnssecProof {
+  Future<String?> fetchDnsProof(String bip353Name);
+}""";
+
+    output = '$dnssecProofDefinition\n' + '$dnssecProofCommonContent';
+  } else {
+    final dnssecProofCwHeaders = """
+import 'dart:convert';
+import 'dart:isolate';
+
+import 'package:basic_utils/basic_utils.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/alert_with_picker_option.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:dnssec_proof/dnssec_proof.dart';
+import 'package:flutter/material.dart';
+""";
+
+    final dnssecProofCwPart = """
+part "cw_dnssec_proof.dart";
+""";
+
+    final dnssecProofCwDefinition = 'DnssecProof? dnssecProof = CWDnssecProof();\n';
+
+    final dnssecProofCwContent = """
+abstract class DnssecProof {
+  Future<String?> fetchDnsProof(String bip353Name);
+}""";
+
+    output = '$dnssecProofCwHeaders\n' +
+        '$dnssecProofCwPart\n' +
+        '$dnssecProofCwDefinition\n' +
+        '$dnssecProofCwContent';
+  }
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1499,6 +1555,7 @@ Future<void> generatePubspec({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasDnssecProof,
 }) async {
   const cwCore = """
   cw_core:
@@ -1637,11 +1694,25 @@ Future<void> generatePubspec({
   }
 
   if (hasEthereum || hasPolygon || hasSolana || hasTron) {
-    output += """
-
+    final cwOnChain = """
   on_chain:
-    path: /home/rafael/Working/On_chain/
+    git:
+      url: https://github.com/cake-tech/on_chain.git
+      ref: cake-update-v2
   """;
+
+    output += '\n$cwOnChain';
+  }
+
+  if (hasDnssecProof) {
+    final dnssecProof = """
+  dnssec_proof:
+    git:
+      url: https://github.com/MrCyjaneK/dnssec_proof.git
+      ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
+  """;
+
+    output += '\n$dnssecProof';
   }
 
   final outputLines = output.split('\n');
