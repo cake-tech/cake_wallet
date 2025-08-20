@@ -92,7 +92,6 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
                             title,
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurface,
-                                  fontSize: 24,
                                 ),
                             softWrap: true,
                           ),

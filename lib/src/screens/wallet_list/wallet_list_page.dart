@@ -247,8 +247,7 @@ class WalletListBodyState extends State<WalletListBody> {
                     padding: const EdgeInsets.only(left: 24),
                     child: Text(
                       S.current.single_seed_wallets_group,
-                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                            fontSize: 18,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
                     ),

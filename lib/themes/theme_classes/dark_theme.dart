@@ -74,25 +74,25 @@ class DarkTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         headlineLarge: TextStyle(
-          fontSize: 32,
+          fontSize: 22,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineMedium: TextStyle(
-          fontSize: 28,
+          fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         headlineSmall: TextStyle(
-          fontSize: 24,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           letterSpacing: 0,
           color: colorScheme.onSurface,
         ),
         titleLarge: TextStyle(
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,
@@ -104,7 +104,7 @@ class DarkTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         titleSmall: TextStyle(
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0,
           color: colorScheme.onSurface,

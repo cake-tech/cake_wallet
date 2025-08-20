@@ -78,7 +78,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                                 children: [
                                   Text(
                                     dashboardViewModel.balanceViewModel.asset,
-                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                                           color: Theme.of(context).colorScheme.onSurface,
                                           height: 1,
                                         ),
