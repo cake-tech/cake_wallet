@@ -74,6 +74,7 @@ build/
 !**/ios/**/default.perspectivev3
 
 /lib/payjoin/payjoin.dart
+/lib/silent_payments/sp.dart
 
 /pubspec.yaml
 /pubspec.lock
