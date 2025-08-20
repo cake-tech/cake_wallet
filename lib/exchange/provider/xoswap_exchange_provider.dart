@@ -76,7 +76,11 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
       }
-      final assets = (json.decode(response.body) as List).cast<Map<String, dynamic>>();
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! List) throw const FormatException('Unexpected response format');
+      final assets = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
 
       final asset = assets.firstWhere(
         (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
@@ -284,8 +288,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final pairParts = pairId.split('_');
       final fromAsset = pairParts.isNotEmpty ? pairParts[0] : '';
       final toAsset = pairParts.length > 1 ? pairParts[1] : '';
-      final CryptoCurrency fromCurrency = CryptoCurrency.fromString(fromAsset);
-      final CryptoCurrency toCurrency = CryptoCurrency.fromString(toAsset);
+      final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromAsset);
+      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAsset);
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;

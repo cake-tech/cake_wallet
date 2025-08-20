@@ -251,8 +251,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.fromString(coinFrom),
-        to: CryptoCurrency.fromString(coinTo),
+        from: CryptoCurrency.safeParseCurrencyFromString(coinFrom),
+        to: CryptoCurrency.safeParseCurrencyFromString(coinTo),
         provider: description,
         inputAddress: inputAddress,
         amount: amount,
@@ -260,8 +260,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
         extraId: extraId,
         outputTransaction: outputTransaction,
         payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '$coinFrom' + '_',
-      userCurrencyToRaw: '$coinTo' + '_',
+      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_',
     );
   }
 

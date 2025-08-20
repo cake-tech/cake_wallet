@@ -213,16 +213,16 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: CryptoCurrency.fromString(fromCurrency),
-      to: CryptoCurrency.fromString(toCurrency),
+      from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
+      to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
       extraId: extraId,
       provider: description,
       inputAddress: inputAddress,
       amount: expectedSendAmount,
       state: TradeState.deserialize(raw: status),
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '$fromCurrency' + '_',
-      userCurrencyToRaw: '$toCurrency' + '_',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
     );
   }
 

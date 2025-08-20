@@ -199,8 +199,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         ? parts[1].split('.')[1].split('-')[0]
         : '';
 
-    final formattedToChain = CryptoCurrency.fromString(toChain);
-    final toAssetWithChain = CryptoCurrency.fromString(toAsset, walletCurrency: formattedToChain);
+    final formattedToChain = CryptoCurrency.safeParseCurrencyFromString(toChain);
+    final toAssetWithChain = CryptoCurrency.safeParseCurrencyFromString(toAsset, walletCurrency: formattedToChain);
 
     final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
     final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;

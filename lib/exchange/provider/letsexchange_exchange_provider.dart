@@ -255,8 +255,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: CryptoCurrency.fromString(from),
-      to: CryptoCurrency.fromString(to),
+      from: CryptoCurrency.safeParseCurrencyFromString(from),
+      to: CryptoCurrency.safeParseCurrencyFromString(to),
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,

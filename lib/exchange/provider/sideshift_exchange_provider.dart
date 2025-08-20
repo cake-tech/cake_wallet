@@ -266,8 +266,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.fromString(fromCurrency),
-        to: CryptoCurrency.fromString(toCurrency),
+        from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
+        to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
         provider: description,
         inputAddress: inputAddress,
         amount: expectedSendAmount ?? '',
@@ -275,8 +275,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         expiredAt: expiredAt,
         payoutAddress: settleAddress,
         extraId: depositMemo,
-      userCurrencyFromRaw: '$fromCurrency' + '_',
-      userCurrencyToRaw: '$toCurrency' + '_',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
     );
   }
 

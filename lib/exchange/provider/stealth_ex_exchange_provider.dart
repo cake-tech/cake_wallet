@@ -237,8 +237,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: respId,
-      from: CryptoCurrency.fromString(from),
-      to: CryptoCurrency.fromString(to),
+      from: CryptoCurrency.safeParseCurrencyFromString(from),
+      to: CryptoCurrency.safeParseCurrencyFromString(to),
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -249,8 +249,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       createdAt: createdAt,
       isRefund: status == 'refunded',
       extraId: extraId,
-      userCurrencyFromRaw: '$from' + '_',
-      userCurrencyToRaw: '$to' + '_',
+      userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${to.toUpperCase()}' + '_',
     );
   }
 

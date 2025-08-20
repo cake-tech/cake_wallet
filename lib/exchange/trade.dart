@@ -146,7 +146,7 @@ class Trade extends HiveObject {
       title: title,
       tag: tag.isNotEmpty ? tag : null,
       name: '',
-      raw: fromRaw,
+      raw: -1,
       decimals: 1,
     );
   }
@@ -163,7 +163,7 @@ class Trade extends HiveObject {
       title: title,
       tag: tag.isNotEmpty ? tag : null,
       name: '',
-      raw: toRaw,
+      raw: -1,
       decimals: 1,
     );
   }
@@ -248,6 +248,8 @@ class TradeAdapter extends TypeAdapter<Trade> {
       isRefund: fields[20] as bool?,
       isSendAll: fields[21] as bool?,
       router: fields[22] as String?,
+      userCurrencyFromRaw: fields[24] as String?,
+      userCurrencyToRaw: fields[25] as String?,
     )
       ..providerRaw = fields[1] == null ? 0 : fields[1] as int
       ..fromRaw = fields[2] == null ? 0 : fields[2] as int
@@ -258,7 +260,7 @@ class TradeAdapter extends TypeAdapter<Trade> {
   @override
   void write(BinaryWriter writer, Trade obj) {
     writer
-      ..writeByte(24)
+      ..writeByte(26)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -306,7 +308,11 @@ class TradeAdapter extends TypeAdapter<Trade> {
       ..writeByte(22)
       ..write(obj.router)
       ..writeByte(23)
-      ..write(obj.receiveAmount);
+      ..write(obj.receiveAmount)
+      ..writeByte(24)
+      ..write(obj.userCurrencyFromRaw)
+      ..writeByte(25)
+      ..write(obj.userCurrencyToRaw);
   }
 
   @override

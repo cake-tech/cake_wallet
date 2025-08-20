@@ -24,6 +24,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -163,26 +164,19 @@ abstract class TradeDetailsViewModelBase with Store {
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
-    final tradeFrom = trade.fromRaw >= 0
-        ? trade.from
-        : trade.userCurrencyFrom;
+    final tradeFrom = _safeFrom(trade);
+    final tradeTo   = _safeTo(trade);
 
-    final tradeTo = trade.toRaw >= 0
-        ? trade.to
-        : trade.userCurrencyTo;
-
-    if (tradeFrom != null || tradeTo != null) {
+    if (tradeFrom != null && tradeTo != null) {
       items.add(TradeDetailsListCardItem.tradeDetails(
         id: trade.id,
         extraId: trade.extraId,
         createdAt: trade.createdAt != null ? dateFormat.format(trade.createdAt!) : '',
-        from: tradeFrom!,
-        to: tradeTo!,
-        onTap: (BuildContext context) {
-          Clipboard.setData(ClipboardData(text: '${trade.id}'));
-          showBar<void>(context, S
-              .of(context)
-              .copied_to_clipboard);
+        from: tradeFrom,
+        to: tradeTo,
+        onTap: (context) {
+          Clipboard.setData(ClipboardData(text: trade.id));
+          showBar<void>(context, S.of(context).copied_to_clipboard);
         },
       ));
     }
@@ -218,5 +212,23 @@ abstract class TradeDetailsViewModelBase with Store {
     try {
       launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {}
+  }
+
+  CryptoCurrency? _safeFrom(Trade trade) {
+    try {
+      final raw = trade.fromRaw;
+      return raw >= 0 ? trade.from : trade.userCurrencyFrom;
+    } catch (_) {
+      return trade.userCurrencyFrom;
+    }
+  }
+
+  CryptoCurrency? _safeTo(Trade trade) {
+    try {
+      final raw = trade.toRaw;
+      return raw >= 0 ? trade.to : trade.userCurrencyTo;
+    } catch (_) {
+      return trade.userCurrencyTo;
+    }
   }
 }

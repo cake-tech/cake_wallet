@@ -242,9 +242,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['fromCurrency'] as String;
-    final from = CryptoCurrency.fromString(fromCurrency);
+    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
     final toCurrency = responseJSON['toCurrency'] as String;
-    final to = CryptoCurrency.fromString(toCurrency);
+    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     final inputAddress = responseJSON['payinAddress'] as String;
     final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
     final status = responseJSON['status'] as String;
@@ -256,19 +256,19 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
 
     return Trade(
-        id: id,
-        from: from,
-        to: to,
-        provider: description,
-        inputAddress: inputAddress,
-        amount: expectedSendAmount,
-        state: state,
-        extraId: extraId,
-        expiredAt: expiredAt,
-        outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '$fromCurrency' + '_',
-      userCurrencyToRaw: '$toCurrency' + '_',
+      id: id,
+      from: from,
+      to: to,
+      provider: description,
+      inputAddress: inputAddress,
+      amount: expectedSendAmount,
+      state: state,
+      extraId: extraId,
+      expiredAt: expiredAt,
+      outputTransaction: outputTransaction,
+      payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
     );
   }
 

@@ -216,8 +216,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
           payoutAddress: status['destinationAddress'].toString(),
           outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
           isRefund: isRefund,
-        userCurrencyFromRaw: '$from' + '_',
-        userCurrencyToRaw: '$to' + '_',
+        userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
+        userCurrencyToRaw: '${to.toUpperCase()}' + '_',
       );
 
       // Find trade and update receiveAmount with the real value received

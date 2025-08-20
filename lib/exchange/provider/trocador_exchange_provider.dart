@@ -281,8 +281,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
       return Trade(
         id: id,
-        from: CryptoCurrency.fromString(from),
-        to: CryptoCurrency.fromString(to),
+        from: CryptoCurrency.safeParseCurrencyFromString(from),
+        to: CryptoCurrency.safeParseCurrencyFromString(to),
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
@@ -294,8 +294,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         extraId: addressProviderMemo,
-        userCurrencyFromRaw: '$from' + '_',
-        userCurrencyToRaw: '$to' + '_',
+        userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
+        userCurrencyToRaw: '${to.toUpperCase()}' + '_',
       );
     });
   }

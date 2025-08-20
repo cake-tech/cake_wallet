@@ -226,9 +226,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final fromCurrency = responseData['coin_send'] as String;
-      final from = CryptoCurrency.fromString(fromCurrency);
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
       final toCurrency = responseData['coin_receive'] as String;
-      final to = CryptoCurrency.fromString(toCurrency);
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
       final inputAddress = responseData['server_address'] as String;
       final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
@@ -251,8 +251,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
-        userCurrencyFromRaw: '$fromCurrency' + '_',
-        userCurrencyToRaw: '$toCurrency' + '_',
+        userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+        userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");

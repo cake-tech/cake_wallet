@@ -300,6 +300,22 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
   }
 
+  static CryptoCurrency? safeParseCurrencyFromString(String? raw, {CryptoCurrency? walletCurrency}) {
+    if (raw == null || raw.isEmpty) return null;
+
+    try {
+      return CryptoCurrency.fromString(raw, walletCurrency: walletCurrency);
+    } catch (_) {}
+
+    // try cleaned (keep only A–Z/0–9)
+    final cleaned = raw.trim().toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    try {
+      return CryptoCurrency.fromString(cleaned, walletCurrency: walletCurrency);
+    } catch (_) {}
+
+    return null;
+  }
+
   CryptoCurrency copyWith({
     String? title,
     int? raw,
