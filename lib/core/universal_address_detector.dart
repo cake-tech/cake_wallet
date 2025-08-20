@@ -57,6 +57,7 @@ class UniversalAddressDetector {
     'wrappedbitcoin': CryptoCurrency.wbtc,
     'wrappedether': CryptoCurrency.weth,
     'shibainu': CryptoCurrency.shib,
+    'doge': CryptoCurrency.doge,
     'dogecoin': CryptoCurrency.doge,
     'dash': CryptoCurrency.dash,
     'zcash': CryptoCurrency.zec,
