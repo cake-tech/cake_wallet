@@ -119,7 +119,7 @@ import 'package:payjoin_flutter/src/generated/api/send/error.dart' as pj_error;
 import 'package:payjoin_flutter/uri.dart' as PayjoinUri;
 import 'package:payjoin_flutter/src/generated/api/receive.dart';
 import 'package:payjoin_flutter/src/generated/api/send.dart';
-import 'package:payjoin_flutter/bitcoin_ffi.dart';
+import 'package:payjoin_flutter/bitcoin_ffi.dart' as bitcoin_ffi;
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
