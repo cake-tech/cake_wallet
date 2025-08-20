@@ -79,7 +79,6 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   Text(
                                     dashboardViewModel.balanceViewModel.asset,
                                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                          fontWeight: FontWeight.w500,
                                           color: Theme.of(context).colorScheme.onSurface,
                                           height: 1,
                                         ),

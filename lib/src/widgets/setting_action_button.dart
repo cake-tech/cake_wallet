@@ -70,7 +70,6 @@ class SettingActionButton extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: color,
                         fontSize: 16,
-                        fontWeight: FontWeight.w800,
                       ),
                 ),
               ),

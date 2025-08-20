@@ -30,7 +30,6 @@ class CakeFeaturesPage extends StatelessWidget {
             child: Text(
               'Cake ${S.of(context).features}',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w500,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),
