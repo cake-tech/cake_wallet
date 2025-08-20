@@ -1,5 +1,4 @@
-import 'package:payjoin_flutter/src/generated/api/receive.dart';
-import 'package:payjoin_flutter/src/generated/api/send.dart';
+part of 'payjoin.dart';
 
 class PayjoinSenderPersister implements DartSenderPersister {
   static DartSenderPersister impl() {
