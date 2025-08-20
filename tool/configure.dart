@@ -19,7 +19,7 @@ const pubspecOutputPath = 'pubspec.yaml';
 
 Future<void> main(List<String> args) async {
   const prefix = '--';
-  final hasBitcoin = args.contains('${prefix}bitcoin');
+  final hasLitecoin = args.contains('${prefix}litecoin');
   final hasMonero = args.contains('${prefix}monero');
   final hasEthereum = args.contains('${prefix}ethereum');
   final hasBitcoinCash = args.contains('${prefix}bitcoinCash');
@@ -33,6 +33,8 @@ Future<void> main(List<String> args) async {
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
+
+  final hasBitcoin = args.contains('${prefix}bitcoin') || hasLitecoin;
 
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
@@ -67,6 +69,7 @@ Future<void> main(List<String> args) async {
   await generateWalletTypes(
     hasMonero: hasMonero,
     hasBitcoin: hasBitcoin,
+    hasLitecoin: hasLitecoin,
     hasEthereum: hasEthereum,
     hasNano: hasNano,
     hasBanano: hasBanano,
@@ -297,7 +300,8 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
-import 'package:polyseed/polyseed.dart';""";
+import 'package:cw_core/monero_wallet_keys.dart';
+""";
   const moneroCWHeaders = """
 import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_core/get_height_by_date.dart';
@@ -426,7 +430,15 @@ abstract class Monero {
     required int height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
-WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
+  WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required int seedType, required String? passphrase, String? password, String? mnemonic});
+  Future<int> getNodeHeight(Object wallet);
+  String seed(Object wallet);
+  String seedLegacy(Object wallet, String? language);
+  MoneroWalletKeys keys(Object wallet);
+  bool isBackgroundSyncRunning(Object wallet);
+  Future<void> rescan(Object wallet, {required int height});
+  Future<void> startBackgroundSync(Object wallet);
+  Future<void> stopBackgroundSync(Object wallet, String password);
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
   Object createMoneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
@@ -1461,9 +1473,7 @@ abstract class DogeCoin {
   final output = '$dogecoinCommonHeaders\n' +
       (hasImplementation ? '$dogecoinCWHeaders\n' : '\n') +
       (hasImplementation ? '$dogecoinCwPart\n\n' : '\n') +
-      (hasImplementation
-          ? dogecoinCWDefinition
-          : dogecoinEmptyDefinition) +
+      (hasImplementation ? dogecoinCWDefinition : dogecoinEmptyDefinition) +
       '\n' +
       dogecoinContent;
 
@@ -1626,6 +1636,14 @@ Future<void> generatePubspec({
     output += '\n$cwDogecoin';
   }
 
+  if (hasEthereum || hasPolygon || hasSolana || hasTron) {
+    output += """
+
+  on_chain:
+    path: /home/rafael/Working/On_chain/
+  """;
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1641,6 +1659,7 @@ Future<void> generatePubspec({
 Future<void> generateWalletTypes({
   required bool hasMonero,
   required bool hasBitcoin,
+  required bool hasLitecoin,
   required bool hasEthereum,
   required bool hasNano,
   required bool hasBanano,
@@ -1675,7 +1694,7 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.ethereum,\n';
   }
 
-  if (hasBitcoin) {
+  if (hasLitecoin) {
     outputContent += '\tWalletType.litecoin,\n';
   }
 

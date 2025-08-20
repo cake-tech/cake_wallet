@@ -9,7 +9,6 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
@@ -77,7 +76,7 @@ abstract class WalletKeysViewModelBase with Store {
       final langName = PolyseedLang.getByPhrase(_wallet.seed!).nameEnglish;
 
       if (_wallet.type == WalletType.monero) {
-        return (_wallet as MoneroWalletBase).seedLegacy(langName);
+        return monero!.seedLegacy(_wallet, langName);
       } else if (_wallet.type == WalletType.wownero) {
         return wownero!.getLegacySeed(_wallet, langName);
       }
