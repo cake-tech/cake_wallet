@@ -33,3 +33,16 @@ bool isElectrumWallet(WalletType walletType) {
       return false;
   }
 }
+
+bool hasTokens(WalletType walletType) {
+  switch (walletType) {
+    case WalletType.ethereum:
+    case WalletType.polygon:
+    case WalletType.solana:
+    case WalletType.tron:
+    case WalletType.zano:
+      return true;
+    default:
+      return false;
+  }
+}

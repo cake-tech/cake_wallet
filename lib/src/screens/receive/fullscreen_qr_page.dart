@@ -70,7 +70,11 @@ class FullscreenQRPage extends BasePage {
                     color: Theme.of(context).colorScheme.surface,
                   ),
                 ),
-                child: QrImage(data: qrViewData.data, version: qrViewData.version),
+                child: QrImage(
+                  data: qrViewData.data,
+                  version: qrViewData.version,
+                  embeddedImagePath: qrViewData.embeddedImagePath,
+                ),
               ),
             ),
           ),
