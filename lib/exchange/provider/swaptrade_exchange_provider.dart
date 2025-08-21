@@ -81,20 +81,20 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final coinsInfo = responseJSON['data'] as List<dynamic>;
 
-      for (var coin in coinsInfo) {
-        if (coin['id'].toString().toUpperCase() == _normalizeCurrency(from)) {
-          return Limits(
-            min: double.parse(coin['min'].toString()),
-            max: double.parse(coin['max'].toString()),
-          );
-        }
-      }
+      final coin = coinsInfo.firstWhere(
+            (coin) => coin['id'].toString().toUpperCase() == _normalizeCurrency(from),
+        orElse: () => null,
+      );
 
-      // coin not found:
-      return Limits(min: 0, max: 0);
+      if (coin == null) throw Exception('Coin not found: ${_normalizeCurrency(from)}');
+
+      return Limits(
+        min: double.parse(coin['min'].toString()),
+        max: double.parse(coin['max'].toString()),
+      );
     } catch (e) {
       printV(e.toString());
-      return Limits(min: 0, max: 0);
+      throw Exception('Error fetching limits: ${e.toString()}');
     }
   }
 

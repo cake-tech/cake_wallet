@@ -36,9 +36,8 @@ class Trade extends HiveObject {
   }) {
     if (provider != null) providerRaw = provider.raw;
 
-    if (from != null) fromRaw = from.raw;
-
-    if (to != null) toRaw = to.raw;
+    fromRaw = from?.raw ?? -1;
+    toRaw   = to?.raw   ?? -1;
 
     if (state != null) stateRaw = state.raw;
   }
@@ -56,15 +55,15 @@ class Trade extends HiveObject {
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  @HiveField(2, defaultValue: 0)
-  late int fromRaw;
+  @HiveField(2, defaultValue: -1)
+  int fromRaw = -1;
 
-  CryptoCurrency get from => CryptoCurrency.deserialize(raw: fromRaw);
+  CryptoCurrency? get from => CryptoCurrency.safeDeserialize(raw: fromRaw);
 
-  @HiveField(3, defaultValue: 0)
-  late int toRaw;
+  @HiveField(3, defaultValue: -1)
+  int toRaw = -1;
 
-  CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw);
+  CryptoCurrency? get to => CryptoCurrency.safeDeserialize(raw: toRaw);
 
   @HiveField(4, defaultValue: '')
   late String stateRaw;
@@ -193,8 +192,8 @@ class Trade extends HiveObject {
     return <String, dynamic>{
       'id': id,
       'provider': provider.serialize(),
-      'input': from.serialize(),
-      'output': to.serialize(),
+      'input': fromRaw,
+      'output': toRaw,
       'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
       'receive_amount': receiveAmount,
@@ -252,8 +251,8 @@ class TradeAdapter extends TypeAdapter<Trade> {
       userCurrencyToRaw: fields[25] as String?,
     )
       ..providerRaw = fields[1] == null ? 0 : fields[1] as int
-      ..fromRaw = fields[2] == null ? 0 : fields[2] as int
-      ..toRaw = fields[3] == null ? 0 : fields[3] as int
+      ..fromRaw = (fields[2] as int?) ?? -1
+      ..toRaw = (fields[3] as int?) ?? -1
       ..stateRaw = fields[4] == null ? '' : fields[4] as String;
   }
 

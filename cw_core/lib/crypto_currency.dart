@@ -287,6 +287,12 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return CryptoCurrency._rawCurrencyMap[raw]!;
   }
 
+  static CryptoCurrency? safeDeserialize({int? raw}) {
+    if (raw == null || raw < 0) return null;
+    return _rawCurrencyMap[raw];
+  }
+
+
   // TODO: refactor this
   static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
 
