@@ -200,8 +200,18 @@ class CWPolygon extends Polygon {
   }
 
   @override
-  HardwareWalletService getHardwareWalletService(LedgerViewModel ledgerVM) =>
-      EVMChainLedgerService(ledgerVM.connection);
+  void setBitboxManager(WalletBase wallet, bitbox.BitboxManager manager) {
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
+        .setBitbox(manager, wallet.walletInfo.derivationInfo?.derivationPath);
+  }
+
+  @override
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
+      EVMChainLedgerService(connection);
+
+  @override
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager) =>
+      EVMChainBitboxService(manager, chainId: 137);
 
   @override
   List<String> getDefaultTokenContractAddresses() => DefaultPolygonErc20Tokens()
