@@ -62,7 +62,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': '1',
-        'affiliate_id': _affiliateId
+        'affiliate_id': _affiliateId,
+        'float': isFixedRateMode ? 'false' : 'true',
       };
 
       final responseJSON = await _getInfo(params, isFixedRateMode);
@@ -91,7 +92,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': amount.toString(),
-        'affiliate_id': _affiliateId
+        'affiliate_id': _affiliateId,
+        'float': isFixedRateMode ? 'false' : 'true',
       };
 
       final responseJSON = await _getInfo(params, isFixedRateMode);
@@ -121,7 +123,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': isFixedRateMode ? request.toAmount.toString() : request.fromAmount.toString(),
-        'affiliate_id': _affiliateId
+        'affiliate_id': _affiliateId,
+        'float': isFixedRateMode ? 'false' : 'true',
       };
 
       final responseInfoJSON = await _getInfo(params, isFixedRateMode);
@@ -141,7 +144,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         'rate_id': rateId,
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
-        'affiliate_id': _affiliateId
+        'affiliate_id': _affiliateId,
+        'float': isFixedRateMode ? 'false' : 'true',
       };
 
       final headers = {
@@ -151,10 +155,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       };
 
       final uri = Uri.https(_baseUrl,
-          isFixedRateMode ? _createTransactionRevertPath : _createTransactionPath, tradeParams);
+          isFixedRateMode ? _createTransactionRevertPath : _createTransactionPath);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         headers: headers,
+        body: json.encode(tradeParams),
       );
       
 
@@ -206,6 +211,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         createdAt: createdAt,
         expiredAt: expiredAt,
         extraId: extraId,
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e) {
       log(e.toString());
@@ -230,7 +237,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final from = responseJSON['coin_from'] as String;
+    final fromNetwork = responseJSON['coin_from_network'] as String;
     final to = responseJSON['coin_to'] as String;
+    final toNetwork = responseJSON['coin_to_network'] as String;
     final payoutAddress = responseJSON['withdrawal'] as String;
     final depositAddress = responseJSON['deposit'] as String;
     final refundAddress = responseJSON['return'] as String;
@@ -246,8 +255,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: id,
-      from: CryptoCurrency.fromString(from),
-      to: CryptoCurrency.fromString(to),
+      from: CryptoCurrency.safeParseCurrencyFromString(from),
+      to: CryptoCurrency.safeParseCurrencyFromString(to),
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -259,6 +268,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       isRefund: status == 'refund',
       extraId: extraId,
+      userCurrencyFromRaw: '$from' + '_' + '$fromNetwork',
+      userCurrencyToRaw: '$to' + '_' + '$toNetwork',
     );
   }
 
@@ -270,10 +281,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     };
 
     try {
-      final uri = Uri.https(_baseUrl, isFixedRateMode ? _infoRevertPath : _infoPath, params);
+      final uri = Uri.https(_baseUrl, isFixedRateMode ? _infoRevertPath : _infoPath);
       final response = await ProxyWrapper().post(
         clearnetUri: uri,
         headers: headers,
+        body: json.encode(params),
       );
       
       if (response.statusCode != 200) {

@@ -184,7 +184,9 @@ class TradeMonitor {
       trade
         ..stateRaw = updated.state.raw
         ..receiveAmount = updated.receiveAmount ?? trade.receiveAmount
-        ..outputTransaction = updated.outputTransaction ?? trade.outputTransaction;
+        ..outputTransaction = updated.outputTransaction ?? trade.outputTransaction
+        ..userCurrencyToRaw = updated.userCurrencyToRaw
+        ..userCurrencyFromRaw = updated.userCurrencyFromRaw;
       printV('Trade ${trade.id} updated: ${trade.state}');
       await trade.save();
 

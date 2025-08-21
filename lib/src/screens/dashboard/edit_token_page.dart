@@ -125,13 +125,16 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     });
   }
 
-  void _checkIfTokenIsVerified(String? contractAddress) async {
-    if (contractAddress != null) {
-      final isVerified = widget.homeSettingsViewModel.checkIfTokenIsWhitelisted(contractAddress);
-      setState(() {
-        _isTokenVerified = isVerified;
-      });
-    }
+  void _checkIfTokenIsVerified(String? contractAddress) {
+    if (contractAddress == null) return;
+
+    final isVerified =
+    widget.homeSettingsViewModel.checkIfTokenIsWhitelisted(contractAddress);
+
+    if (!mounted) return;
+    setState(() {
+      _isTokenVerified = isVerified;
+    });
   }
 
   @override
@@ -253,7 +256,9 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                     name: _tokenNameController.text,
                                     title: _tokenSymbolController.text.toUpperCase(),
                                     decimals: int.parse(_tokenDecimalController.text),
-                                    iconPath: _tokenIconPathController.text,
+                                    iconPath: _tokenIconPathController.text.isNotEmpty
+                                        ? _tokenIconPathController.text
+                                        : null,
                                     isPotentialScam: isPotentialScam,
                                   ),
                                   contractAddress: _contractAddressController.text,
@@ -334,6 +339,8 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   void _getTokenInfo() async {
     if (_contractAddressController.text.isNotEmpty) {
       final token = await widget.homeSettingsViewModel.getToken(_contractAddressController.text);
+
+      if (!mounted) return;
 
       if (token != null) {
         final isZano = widget.homeSettingsViewModel.walletType == WalletType.zano;
