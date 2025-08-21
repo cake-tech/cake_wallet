@@ -272,7 +272,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       isRefund: status == 'refund',
       extraId: extraId,
       userCurrencyFromRaw: '$from' + '_' + normalizedFromNetwork,
-      userCurrencyToRaw: '$to' + '_' + 'normalizedToNetwork',
+      userCurrencyToRaw: '$to' + '_' + '$normalizedToNetwork',
     );
   }
 
