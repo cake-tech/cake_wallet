@@ -242,8 +242,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['fromCurrency'] as String;
+    final fromNetwork = responseJSON['fromNetwork'] as String;
     final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
     final toCurrency = responseJSON['toCurrency'] as String;
+    final toNetwork = responseJSON['toNetwork'] as String;
     final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     final inputAddress = responseJSON['payinAddress'] as String;
     final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
@@ -254,6 +256,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final expiredAtRaw = responseJSON['validUntil'] as String?;
     final payoutAddress = responseJSON['payoutAddress'] as String;
     final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
+
+    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork);
+    final _normalizedToNetwork = _normalizeNetworkType(toNetwork);
 
     return Trade(
       id: id,
@@ -267,8 +272,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       outputTransaction: outputTransaction,
       payoutAddress: payoutAddress,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + '${_normalizedFromNetwork.toUpperCase()}',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + '${_normalizedToNetwork.toUpperCase()}',
     );
   }
 
@@ -307,4 +312,14 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return tag.toLowerCase();
     }
   }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'POLY' => 'MATIC',
+      'AVAXC' => 'CCHAIN',
+      _ => network,
+    };
+  }
+
+
 }

@@ -273,6 +273,13 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.sol &&
             tradeFrom?.tag == CryptoCurrency.sol.title;
 
+    print('res = ${tradeFrom == wallet.currency ||
+        tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
+        _isEthToken() ||
+        _isPolygonToken() ||
+        _isSplToken() ||
+        _isTronToken()}');
+
     return tradeFrom == wallet.currency ||
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||
         _isEthToken() ||

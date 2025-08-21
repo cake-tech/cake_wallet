@@ -253,6 +253,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final createdAt = DateTime.parse(createdAtString).toLocal();
     final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
 
+    final normalizedFromNetwork = _normalizeNetworkType(fromNetwork);
+    final normalizedToNetwork = _normalizeNetworkType(toNetwork);
+
     return Trade(
       id: id,
       from: CryptoCurrency.safeParseCurrencyFromString(from),
@@ -268,8 +271,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       isRefund: status == 'refund',
       extraId: extraId,
-      userCurrencyFromRaw: '$from' + '_' + '$fromNetwork',
-      userCurrencyToRaw: '$to' + '_' + '$toNetwork',
+      userCurrencyFromRaw: '$from' + '_' + '$normalizedFromNetwork',
+      userCurrencyToRaw: '$to' + '_' + '$normalizedToNetwork',
     );
   }
 
@@ -311,6 +314,15 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       }
     }
     return currency.title;
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'ERC20' => 'ETH',
+      'TRC20' => 'TRX',
+      'BEP20' => 'BSC',
+      _ => network,
+    };
   }
 
   String _normalizeBchAddress(String address) =>
