@@ -261,6 +261,24 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       return acc;
     });
 
+  // Scheme to currency mapping for URI scheme
+  static final Map<String, CryptoCurrency> _schemeCurrencyMap = {
+    'bitcoin': btc,
+    'bitcoincash': bch,
+    'polygon': maticpoly,
+    'nano-gpt': nano,
+    'secret': scrt,
+    'stellar': xlm,
+    'avalanche': avaxc,
+    'binance': bnb,
+    'tether': usdt,
+    'usdcoin': usdc,
+    'wrappedbitcoin': wbtc,
+    'wrappedether': weth,
+    'shibainu': shib,
+    'zcash': zec,
+  };
+
   static CryptoCurrency deserialize({required int raw}) {
     if (CryptoCurrency._rawCurrencyMap[raw] == null) {
       final s = 'Unexpected token: $raw for CryptoCurrency deserialize';
@@ -277,6 +295,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   // TODO: refactor this
   static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
+
+    final schemeMatch = _schemeCurrencyMap[name.toLowerCase()];
+    if (schemeMatch != null) return schemeMatch;
+
     try {
       return CryptoCurrency.all.firstWhere((element) =>
           element.title.toLowerCase() == name.toLowerCase() &&
