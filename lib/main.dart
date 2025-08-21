@@ -47,6 +47,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -85,6 +86,11 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       return true;
     };
     await FlutterDaemon().unmarkBackgroundSync();
+    try {
+      CakeTor.instance = await CakeTorInstance.getInstance();
+    } catch (e) {
+      printV("Failed to initialize tor: $e");
+    }
     await initializeAppAtRoot();
 
     if (kDebugMode) {
