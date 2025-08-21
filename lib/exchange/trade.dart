@@ -59,12 +59,12 @@ class Trade extends HiveObject {
   @HiveField(2, defaultValue: 0)
   late int fromRaw;
 
-  CryptoCurrency get from => CryptoCurrency.deserialize(raw: fromRaw);
+  CryptoCurrency? get from => CryptoCurrency.safeDeserialize(raw: fromRaw);
 
   @HiveField(3, defaultValue: 0)
   late int toRaw;
 
-  CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw);
+  CryptoCurrency? get to => CryptoCurrency.safeDeserialize(raw: toRaw);
 
   @HiveField(4, defaultValue: '')
   late String stateRaw;
@@ -193,8 +193,8 @@ class Trade extends HiveObject {
     return <String, dynamic>{
       'id': id,
       'provider': provider.serialize(),
-      'input': from.serialize(),
-      'output': to.serialize(),
+      'input': fromRaw,
+      'output': toRaw,
       'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
       'receive_amount': receiveAmount,

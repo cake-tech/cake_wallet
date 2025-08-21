@@ -128,7 +128,15 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> confirmSending() async {
     if (!isSendable) return;
-    sendViewModel.selectedCryptoCurrency = trade.from;
+
+    final selected = trade.from ?? trade.userCurrencyFrom;
+    if (selected == null) {
+      printV('No selectable currency for trade ${trade.id}');
+      return;
+    }
+
+    sendViewModel.selectedCryptoCurrency = selected;
+
     final pendingTransaction = await sendViewModel.createTransaction(provider: _provider);
     if (_provider is ThorChainExchangeProvider) {
       trade.id = pendingTransaction?.id ?? '';
@@ -251,7 +259,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     bool _isEthToken() =>
         wallet.currency == CryptoCurrency.eth &&
-        tradesStore.trade!.from.tag == CryptoCurrency.eth.title;
+            tradeFrom?.tag == CryptoCurrency.eth.title;
 
     bool _isPolygonToken() =>
         wallet.currency == CryptoCurrency.maticpoly &&
