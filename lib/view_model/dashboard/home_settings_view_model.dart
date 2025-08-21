@@ -102,15 +102,17 @@ abstract class HomeSettingsViewModelBase with Store {
       }
 
       if (_balanceViewModel.wallet.type == WalletType.solana) {
+        final splToken = token.copyWith(enabled: true);
         await solana!.addSPLToken(
           _balanceViewModel.wallet,
-          token,
+          splToken,
           contractAddress,
         );
       }
 
       if (_balanceViewModel.wallet.type == WalletType.tron) {
-        await tron!.addTronToken(_balanceViewModel.wallet, token, contractAddress);
+        final tronToken = token.copyWith(enabled: true);
+        await tron!.addTronToken(_balanceViewModel.wallet, tronToken, contractAddress);
       }
 
       if (_balanceViewModel.wallet.type == WalletType.zano) {
