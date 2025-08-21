@@ -3,7 +3,6 @@
 MONERO_COM=monero.com
 CAKEWALLET=cakewallet
 HAVEN=haven
-CONFIG_ARGS=""
 
 VALID_FLAGS=(
   --monero
@@ -58,25 +57,38 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ ${#SELECTED_FLAGS[@]} -gt 0 ]]; then
-  CONFIG_ARGS="${SELECTED_FLAGS[*]}"
-  echo "Using individual flags: $CONFIG_ARGS"
-else
+if [[ ${#SELECTED_FLAGS[@]} -eq 0 ]]; then
   if [[ -z "$APP_ANDROID_TYPE" ]]; then
     echo "Please set APP_ANDROID_TYPE environment variable"
     exit 1
   fi
 
   case $APP_ANDROID_TYPE in
-          $MONERO_COM)
-                  CONFIG_ARGS="--monero"
-                  ;;
-          $CAKEWALLET)
-                  CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred --dogecoin"
-                  ;;
+    $MONERO_COM)
+      SELECTED_FLAGS=("--monero")
+      ;;
+    $CAKEWALLET)
+      SELECTED_FLAGS=(
+        "--monero"
+        "--bitcoin"
+        "--litecoin"
+        "--bitcoinCash"
+        "--ethereum"
+        "--polygon"
+        "--nano"
+        "--solana"
+        "--tron"
+        "--wownero"
+        "--zano"
+        "--decred"
+        "--dogecoin"
+      )
+      ;;
   esac
 
-  echo "Using default for $APP_ANDROID_TYPE: $CONFIG_ARGS"
+  echo "Using default for $APP_ANDROID_TYPE: ${SELECTED_FLAGS[*]}"
+else
+  echo "Using individual flags: ${SELECTED_FLAGS[*]}"
 fi
 
 cd ../..
@@ -84,7 +96,14 @@ cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
 dart run tool/generate_pubspec.dart
 flutter pub get
-dart run tool/configure.dart $CONFIG_ARGS
+
+if [[ ${#NON_COIN_FLAGS[@]} -gt 0 ]]; then
+  echo "Configuring CW with additional flags: ${NON_COIN_FLAGS[*]}"
+  dart run tool/configure.dart "${SELECTED_FLAGS[@]}" "${NON_COIN_FLAGS[@]}"
+else
+  echo "Configuring CW without additional flags"
+  dart run tool/configure.dart "${SELECTED_FLAGS[@]}"
+fi
 
 for flag in "${SELECTED_FLAGS[@]}"; do
   if [[ "$flag" == "--bitcoin" ]]; then
@@ -93,12 +112,13 @@ for flag in "${SELECTED_FLAGS[@]}"; do
 
     if [[ ${#NON_COIN_FLAGS[@]} -gt 0 ]]; then
       echo "Configuring Bitcoin with additional flags: ${NON_COIN_FLAGS[*]}"
-
       dart run tool/configure.dart "${NON_COIN_FLAGS[@]}"
+    else
+      echo "Configuring Bitcoin without additional flags"
+      dart run tool/configure.dart
     fi
 
     cd ..
-
     break
   fi
 done

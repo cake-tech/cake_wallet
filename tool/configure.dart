@@ -331,6 +331,7 @@ import 'package:cw_monero/mnemonics/portuguese.dart';
 import 'package:cw_monero/mnemonics/french.dart';
 import 'package:cw_monero/mnemonics/italian.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
+import 'package:polyseed/polyseed.dart';
 """;
   const moneroCwPart = "part 'cw_monero.dart';";
   const moneroContent = """
