@@ -337,7 +337,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'tron';
       case 'LN':
         return 'lightning';
-      case 'POLY':
+      case 'POL':
         return 'polygon';
       case 'ZEC':
         return 'zcash';
@@ -353,7 +353,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       'ethereum' => 'ETH',
       'tron' => 'TRX',
       'lightning' => 'LN',
-      'polygon' => 'POLY',
+      'polygon' => 'POL',
       'zcash' => 'ZEC',
       'avax' => 'AVAXC',
       _ => network,
