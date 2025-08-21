@@ -16,6 +16,7 @@ import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -325,12 +326,13 @@ class DFXBuyProvider extends BuyProvider {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,
-                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-                  ledgerVM.setLedger(wallet);
+                hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
+                onConnectDevice: (context, hwwVM) {
+                  hwwVM.initWallet(wallet);
                   Navigator.of(context).pop();
                 }));
       } else {
-        ledgerVM!.setLedger(wallet);
+        ledgerVM!.initWallet(wallet);
       }
     }
 

@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -121,8 +122,9 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_hardware_wallet_button_key'),
-                      onPressed: () =>
-                          Navigator.pushNamed(context, Routes.restoreWalletFromHardwareWallet),
+                      onPressed: () => Navigator.pushNamed(
+                          context, Routes.restoreWalletFromHardwareWallet,
+                          arguments: [HardwareWalletType.bitbox]),
                       image: imageRestoreHW,
                       title: S.of(context).restore_title_from_hardware_wallet,
                       description: S.of(context).restore_description_from_hardware_wallet,

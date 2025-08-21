@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:flutter/material.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
@@ -12,15 +13,15 @@ class DeviceTile extends StatelessWidget {
   final VoidCallback onPressed;
   final String title;
   final String? leading;
-  final ConnectionType? connectionType;
+  final HardwareWalletConnectionType? connectionType;
 
   String? get connectionTypeIcon {
     switch (connectionType) {
-      case ConnectionType.ble:
+      case HardwareWalletConnectionType.ble:
         return 'assets/images/bluetooth.png';
-      case ConnectionType.usb:
+      case HardwareWalletConnectionType.usb:
         return 'assets/images/usb.png';
-      case null:
+      default:
         return null;
     }
   }
