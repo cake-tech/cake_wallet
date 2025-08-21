@@ -254,9 +254,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['depositCoin'] as String;
-    final fromNetwork = responseJSON['depositNetwork'] as String;
+    final fromNetwork = responseJSON['depositNetwork'] as String?;
     final toCurrency = responseJSON['settleCoin'] as String;
-    final toNetwork = responseJSON['settleNetwork'] as String;
+    final toNetwork = responseJSON['settleNetwork'] as String?;
     final inputAddress = responseJSON['depositAddress'] as String;
     final expectedSendAmount = responseJSON['depositAmount'] as String?;
     final status = responseJSON['status'] as String?;
@@ -277,8 +277,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         expiredAt: expiredAt,
         payoutAddress: settleAddress,
         extraId: depositMemo,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(fromNetwork),
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(toNetwork),
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(fromNetwork ?? ''),
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(toNetwork ?? ''),
     );
   }
 

@@ -237,9 +237,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final from = responseJSON['coin_from'] as String;
-    final fromNetwork = responseJSON['coin_from_network'] as String;
+    final fromNetwork = responseJSON['coin_from_network'] as String?;
     final to = responseJSON['coin_to'] as String;
-    final toNetwork = responseJSON['coin_to_network'] as String;
+    final toNetwork = responseJSON['coin_to_network'] as String?;
     final payoutAddress = responseJSON['withdrawal'] as String;
     final depositAddress = responseJSON['deposit'] as String;
     final refundAddress = responseJSON['return'] as String;
@@ -253,8 +253,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final createdAt = DateTime.parse(createdAtString).toLocal();
     final expiredAt = DateTime.fromMillisecondsSinceEpoch(expiredAtTimestamp * 1000).toLocal();
 
-    final normalizedFromNetwork = _normalizeNetworkType(fromNetwork);
-    final normalizedToNetwork = _normalizeNetworkType(toNetwork);
+    final normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
+    final normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
 
     return Trade(
       id: id,
@@ -271,8 +271,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       expiredAt: expiredAt,
       isRefund: status == 'refund',
       extraId: extraId,
-      userCurrencyFromRaw: '$from' + '_' + '$normalizedFromNetwork',
-      userCurrencyToRaw: '$to' + '_' + '$normalizedToNetwork',
+      userCurrencyFromRaw: '$from' + '_' + normalizedFromNetwork,
+      userCurrencyToRaw: '$to' + '_' + 'normalizedToNetwork',
     );
   }
 

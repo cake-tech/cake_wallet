@@ -277,9 +277,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
       final from = responseJSON['ticker_from'] as String;
-      final networkFrom = responseJSON['network_from'] as String;
+      final networkFrom = responseJSON['network_from'] as String?;
       final to = responseJSON['ticker_to'] as String;
-      final networkTo = responseJSON['network_to'] as String;
+      final networkTo = responseJSON['network_to'] as String?;
 
       return Trade(
         id: id,
@@ -296,8 +296,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         extraId: addressProviderMemo,
-        userCurrencyFromRaw: '${from.toUpperCase()}' + '_' + _normalizeNetworkType(networkFrom),
-        userCurrencyToRaw: '${to.toUpperCase()}' + '_' + _normalizeNetworkType(networkTo),
+        userCurrencyFromRaw: '${from.toUpperCase()}' + '_' + _normalizeNetworkType(networkFrom ?? ''),
+        userCurrencyToRaw: '${to.toUpperCase()}' + '_' + _normalizeNetworkType(networkTo ?? ''), // Handle null network
       );
     });
   }

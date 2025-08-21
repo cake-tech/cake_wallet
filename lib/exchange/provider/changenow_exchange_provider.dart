@@ -242,10 +242,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['fromCurrency'] as String;
-    final fromNetwork = responseJSON['fromNetwork'] as String;
+    final fromNetwork = responseJSON['fromNetwork'] as String?;
     final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
     final toCurrency = responseJSON['toCurrency'] as String;
-    final toNetwork = responseJSON['toNetwork'] as String;
+    final toNetwork = responseJSON['toNetwork'] as String?;
     final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     final inputAddress = responseJSON['payinAddress'] as String;
     final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
@@ -257,8 +257,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final payoutAddress = responseJSON['payoutAddress'] as String;
     final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
 
-    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork);
-    final _normalizedToNetwork = _normalizeNetworkType(toNetwork);
+    final _normalizedFromNetwork = _normalizeNetworkType(fromNetwork ?? '');
+    final _normalizedToNetwork = _normalizeNetworkType(toNetwork ?? '');
 
     return Trade(
       id: id,
