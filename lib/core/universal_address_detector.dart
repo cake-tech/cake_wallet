@@ -32,48 +32,6 @@ class AddressDetectionResult {
 
 /// Universal address detector that can identify cryptocurrency addresses from various formats
 class UniversalAddressDetector {
-  static const Map<String, CryptoCurrency> _schemeToCurrency = {
-    'bitcoin': CryptoCurrency.btc,
-    'bitcoincash': CryptoCurrency.bch,
-    'litecoin': CryptoCurrency.ltc,
-    'ethereum': CryptoCurrency.eth,
-    'monero': CryptoCurrency.xmr,
-    'nano': CryptoCurrency.nano,
-    'banano': CryptoCurrency.banano,
-    'solana': CryptoCurrency.sol,
-    'tron': CryptoCurrency.trx,
-    'ripple': CryptoCurrency.xrp,
-    'stellar': CryptoCurrency.xlm,
-    'cardano': CryptoCurrency.ada,
-    'thorchain': CryptoCurrency.rune,
-    'secret': CryptoCurrency.scrt,
-    'near': CryptoCurrency.near,
-    'avalanche': CryptoCurrency.avaxc,
-    'polygon': CryptoCurrency.maticpoly,
-    'binance': CryptoCurrency.bnb,
-    'tether': CryptoCurrency.usdt,
-    'usdcoin': CryptoCurrency.usdc,
-    'dai': CryptoCurrency.dai,
-    'wrappedbitcoin': CryptoCurrency.wbtc,
-    'wrappedether': CryptoCurrency.weth,
-    'shibainu': CryptoCurrency.shib,
-    'doge': CryptoCurrency.doge,
-    'dogecoin': CryptoCurrency.doge,
-    'dash': CryptoCurrency.dash,
-    'zcash': CryptoCurrency.zec,
-    'decred': CryptoCurrency.dcr,
-    'ravencoin': CryptoCurrency.rvn,
-    'komodo': CryptoCurrency.kmd,
-    'pivx': CryptoCurrency.pivx,
-    'verge': CryptoCurrency.xvg,
-    'horizen': CryptoCurrency.zen,
-    'stacks': CryptoCurrency.stx,
-    'kaspa': CryptoCurrency.kaspa,
-    'zano': CryptoCurrency.zano,
-    'wownero': CryptoCurrency.wow,
-    'haven': CryptoCurrency.xhv,
-  };
-
   /// Detects cryptocurrency address from various input formats
   /// Supports: raw addresses, URIs, and QR codes
   static AddressDetectionResult detectAddress(String input) {
@@ -110,12 +68,12 @@ class UniversalAddressDetector {
       final paymentRequest = PaymentRequest.fromUri(uri);
 
       // Determine currency from scheme
-      final currency = _schemeToCurrency[uri.scheme.toLowerCase()];
+      final currency = CryptoCurrency.fromString(uri.scheme.toLowerCase());
 
       return AddressDetectionResult(
         address: paymentRequest.address,
         detectedCurrency: currency,
-        detectedWalletType: currency != null ? cryptoCurrencyToWalletType(currency) : null,
+        detectedWalletType: cryptoCurrencyToWalletType(currency),
         amount: paymentRequest.amount,
         note: paymentRequest.note,
         scheme: paymentRequest.scheme,
@@ -138,7 +96,7 @@ class UniversalAddressDetector {
   static AddressDetectionResult _detectFromRawAddress(String input) {
     final cleanInput = input.trim();
 
-    // Detection patterns for each currency (ordered by specificity - most specific first)
+    // Detection patterns ordered by specificity (most specific first)
     final detectionPatterns = [
       // Lightning Network
       _DetectionPattern(
@@ -146,7 +104,7 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.btcln,
       ),
 
-      // Bitcoin Bech32 (most common Bitcoin format)
+      // Bitcoin Bech32
       _DetectionPattern(
         pattern: RegExp(r'^bc1[a-km-zA-HJ-NP-Z1-9]{25,39}$'),
         currency: CryptoCurrency.btc,
@@ -158,13 +116,7 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.ltc,
       ),
 
-      // Bitcoin Cash (with prefix)
-      _DetectionPattern(
-        pattern: RegExp(r'^bitcoincash:(q|p)[a-z0-9]{41}$'),
-        currency: CryptoCurrency.bch,
-      ),
-
-      // Bitcoin Cash (without prefix)
+      // Bitcoin Cash
       _DetectionPattern(
         pattern: RegExp(r'^(q|p)[a-z0-9]{41}$'),
         currency: CryptoCurrency.bch,
@@ -249,7 +201,7 @@ class UniversalAddressDetector {
       ),
     ];
 
-    // Test each pattern
+    // Test each pattern in order of specificity
     for (final pattern in detectionPatterns) {
       if (pattern.pattern.hasMatch(cleanInput)) {
         return AddressDetectionResult(

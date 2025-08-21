@@ -115,7 +115,7 @@ void main() {
         expect(result.isValid, true);
         expect(result.detectedCurrency, CryptoCurrency.bch);
         expect(result.detectedWalletType, WalletType.bitcoinCash);
-        expect(result.address, address);
+        expect(result.address, 'qqdjjymdpfmqzq69t4vdcxsmrzmlzlwgaucwm878p5');
       });
 
       test('detects Bitcoin Cash address without prefix', () {

@@ -75,8 +75,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
-  PaymentViewModel paymentViewModel;
-  WalletSwitcherViewModel walletSwitcherViewModel;
 
   SendViewModelBase(
     AppStore appStore,
@@ -87,8 +85,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.transactionDescriptionBox,
     this.ledgerViewModel,
     this.unspentCoinsListViewModel,
-    this.paymentViewModel,
-    this.walletSwitcherViewModel,
     this.feesViewModel, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),

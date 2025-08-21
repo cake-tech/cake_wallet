@@ -809,8 +809,6 @@ Future<void> setup({
       getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
-      getIt.get<PaymentViewModel>(),
-      getIt.get<WalletSwitcherViewModel>(),
       getIt.get<FeesViewModel>(),
     ),
   );
@@ -820,6 +818,8 @@ Future<void> setup({
             sendViewModel: getIt.get<SendViewModel>(param1: coinTypeToSpendFrom),
             authService: getIt.get<AuthService>(),
             initialPaymentRequest: initialPaymentRequest,
+            paymentViewModel: getIt.get<PaymentViewModel>(),
+            walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
           ));
 
   getIt.registerFactory(

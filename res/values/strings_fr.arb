@@ -71,7 +71,7 @@
   "auto_generate_subaddresses": "Générer automatiquement des sous-adresses",
   "automatic": "Automatique",
   "available_balance": "Solde disponible",
-  "available_balance_description": "Le "Solde disponible" ou "Solde confirmé" sont les montants que vous pouvez dépenser immédiatement. Si des fonds apparaissent dans le solde inférieur mais pas dans le solde supérieur, vous devez attendre quelques minutes pour que les fonds entrants obtiennent plus de confirmations réseau. Une fois qu’ils ont reçu plus de confirmations, ils seront utilisables.",
+  "available_balance_description": "Le Solde disponible ou Solde confirmé sont les montants que vous pouvez dépenser immédiatement. Si des fonds apparaissent dans le solde inférieur mais pas dans le solde supérieur, vous devez attendre quelques minutes pour que les fonds entrants obtiennent plus de confirmations réseau. Une fois qu’ils ont reçu plus de confirmations, ils seront utilisables.",
   "avg_savings": "Économies moy.",
   "awaitDAppProcessing": "Veuillez attendre que l'application décentralisée (dApp) termine le traitement.",
   "awaiting_payment_confirmation": "En attente de confirmation de paiement",

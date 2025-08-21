@@ -35,6 +35,8 @@ class SendCard extends StatefulWidget {
     Key? key,
     required this.output,
     required this.sendViewModel,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     required this.currentTheme,
     this.initialPaymentRequest,
     this.cryptoAmountFocus,
@@ -43,6 +45,8 @@ class SendCard extends StatefulWidget {
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final PaymentRequest? initialPaymentRequest;
   final FocusNode? cryptoAmountFocus;
   final FocusNode? fiatAmountFocus;
@@ -50,14 +54,16 @@ class SendCard extends StatefulWidget {
 
   @override
   SendCardState createState() => SendCardState(
-      output: output,
-      sendViewModel: sendViewModel,
-      initialPaymentRequest: initialPaymentRequest,
-      currentTheme: currentTheme
-      // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
-      // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
-      // cryptoAmountFocus: FocusNode(),
-      // fiatAmountFocus: FocusNode(),
+        output: output,
+        sendViewModel: sendViewModel,
+        paymentViewModel: paymentViewModel,
+        walletSwitcherViewModel: walletSwitcherViewModel,
+        initialPaymentRequest: initialPaymentRequest,
+        currentTheme: currentTheme,
+        // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
+        // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
+        // cryptoAmountFocus: FocusNode(),
+        // fiatAmountFocus: FocusNode(),
       );
 }
 
@@ -65,6 +71,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   SendCardState({
     required this.output,
     required this.sendViewModel,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     this.initialPaymentRequest,
     required this.currentTheme,
   })  : addressController = TextEditingController(),
@@ -80,6 +88,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final MaterialThemeBase currentTheme;
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final PaymentRequest? initialPaymentRequest;
 
   final TextEditingController addressController;
@@ -104,17 +114,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                  alertTitle: S.of(context).error,
-                  alertContent: S.of(context).unmatched_currencies,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop(),
-                );
-              },
-            );
+            final separator = initialPaymentRequest!.scheme.isNotEmpty ? ":" : "";
+            final uri = initialPaymentRequest!.scheme + separator + initialPaymentRequest!.address;
+            _handlePaymentFlow(uri, initialPaymentRequest!);
           }
         },
       );
@@ -134,15 +136,15 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     try {
-      final result = await sendViewModel.paymentViewModel.processAddress(uri);
+      final result = await paymentViewModel.processAddress(uri);
 
       switch (result.type) {
         case PaymentFlowType.singleWallet:
         case PaymentFlowType.multipleWallets:
         case PaymentFlowType.noWallets:
           await _showPaymentConfirmation(
-            sendViewModel.paymentViewModel,
-            sendViewModel.walletSwitcherViewModel,
+            paymentViewModel,
+            walletSwitcherViewModel,
             paymentRequest,
             result,
           );
