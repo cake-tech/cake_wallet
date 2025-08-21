@@ -17,7 +17,7 @@ class EVMChainBitboxService extends HardwareWalletService {
     final indexRange = List.generate(limit, (i) => i + index);
 
     for (final i in indexRange) {
-      final derivationPath = "m/44'/60'/$i'/0/0";
+      final derivationPath = "m/44'/60'/0'/0/$i";
       final address = await manager.getETHAddress(chainId, derivationPath);
 
       accounts.add(HardwareAccountData(

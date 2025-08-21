@@ -32,7 +32,7 @@ dependencies:
       path: packages/ledger-ethereum
       ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
   bitbox_flutter:
-    path: ../scripts/bitbox_flutter
+    path: ../../bitbox_flutter
 
 dependency_overrides:
   web3dart:
