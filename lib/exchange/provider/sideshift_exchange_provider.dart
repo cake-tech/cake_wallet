@@ -225,7 +225,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
-      extraId: depositMemo
+      extraId: depositMemo,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -264,15 +266,18 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.fromString(fromCurrency),
-        to: CryptoCurrency.fromString(toCurrency),
+        from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
+        to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
         provider: description,
         inputAddress: inputAddress,
         amount: expectedSendAmount ?? '',
         state: TradeState.deserialize(raw: status ?? 'created'),
         expiredAt: expiredAt,
         payoutAddress: settleAddress,
-        extraId: depositMemo);
+        extraId: depositMemo,
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
+    );
   }
 
   Future<String> _createQuote(TradeRequest request) async {

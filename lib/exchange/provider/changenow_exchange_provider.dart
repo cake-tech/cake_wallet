@@ -215,6 +215,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       receiveAmount: toAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }
@@ -240,9 +242,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['fromCurrency'] as String;
-    final from = CryptoCurrency.fromString(fromCurrency);
+    final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
     final toCurrency = responseJSON['toCurrency'] as String;
-    final to = CryptoCurrency.fromString(toCurrency);
+    final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
     final inputAddress = responseJSON['payinAddress'] as String;
     final expectedSendAmount = responseJSON['expectedAmountFrom'].toString();
     final status = responseJSON['status'] as String;
@@ -254,17 +256,20 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final expiredAt = DateTime.tryParse(expiredAtRaw ?? '')?.toLocal();
 
     return Trade(
-        id: id,
-        from: from,
-        to: to,
-        provider: description,
-        inputAddress: inputAddress,
-        amount: expectedSendAmount,
-        state: state,
-        extraId: extraId,
-        expiredAt: expiredAt,
-        outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress);
+      id: id,
+      from: from,
+      to: to,
+      provider: description,
+      inputAddress: inputAddress,
+      amount: expectedSendAmount,
+      state: state,
+      extraId: extraId,
+      expiredAt: expiredAt,
+      outputTransaction: outputTransaction,
+      payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
+    );
   }
 
   String _getFlow(bool isFixedRate) => isFixedRate ? 'fixed-rate' : 'standard';

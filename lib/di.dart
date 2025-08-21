@@ -525,6 +525,7 @@ Future<void> setup({
       getIt.get<ContactListViewModel>(),
       getIt.get<UnspentCoinsListViewModel>(),
       getIt.get<FeesViewModel>(),
+      _walletInfoSource,
     ),
   );
 

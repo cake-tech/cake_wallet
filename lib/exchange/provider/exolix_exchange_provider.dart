@@ -214,6 +214,8 @@ class ExolixExchangeProvider extends ExchangeProvider {
       receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       isSendAll: isSendAll,
     );
   }
@@ -249,15 +251,18 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.fromString(coinFrom),
-        to: CryptoCurrency.fromString(coinTo),
+        from: CryptoCurrency.safeParseCurrencyFromString(coinFrom),
+        to: CryptoCurrency.safeParseCurrencyFromString(coinTo),
         provider: description,
         inputAddress: inputAddress,
         amount: amount,
         state: TradeState.deserialize(raw: _prepareStatus(status)),
         extraId: extraId,
         outputTransaction: outputTransaction,
-        payoutAddress: payoutAddress);
+        payoutAddress: payoutAddress,
+      userCurrencyFromRaw: '${coinFrom.toUpperCase()}' + '_',
+      userCurrencyToRaw: '${coinTo.toUpperCase()}' + '_',
+    );
   }
 
   String _getRateType(bool isFixedRate) => isFixedRate ? 'fixed' : 'float';

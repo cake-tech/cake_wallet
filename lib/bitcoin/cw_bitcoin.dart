@@ -801,7 +801,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  String? getTransactionAddress(Object wallet, TransactionInfo tx) {
+  List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx) {
     final bitcoinWallet = wallet as BitcoinWallet;
     final bitcoinTx = tx as ElectrumTransactionInfo;
 
@@ -809,10 +809,16 @@ class CWBitcoin extends Bitcoin {
       return null;
     }
 
-    // final bitcoinSPAddrs =
-    //     bitcoinTx.unspents!.first.bitcoinAddressRecord as BitcoinSilentPaymentAddressRecord;
-    final bitcoinSPAddrs = wallet.walletAddresses as BitcoinWalletAddresses;
-    final bitcoinSPAddr = bitcoinSPAddrs.silentAddresses.first;
-    return bitcoinSPAddr.address;
+    final addresses = <String>[];
+    final labels = <String>[];
+    try {
+          bitcoinTx.unspents!.forEach((unspent) {
+            addresses.add(bitcoinWallet.walletAddresses.silentAddresses
+                .firstWhere((address) => address.silentPaymentTweak == unspent.silentPaymentLabel)
+                .address);
+          });
+     } catch (e) {}
+
+    return addresses;
   }
 }
