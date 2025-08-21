@@ -1474,12 +1474,16 @@ abstract class ElectrumWalletBase
       }
       unspentCoins = updatedUnspentCoins;
     } else {
-      unspentCoins = handleFailedUtxoFetch(
-        failedCount: failedCount,
-        previousUnspentCoins: previousUnspentCoins,
-        updatedUnspentCoins: updatedUnspentCoins,
-        results: results,
-      );
+      if (updatedUnspentCoins.isEmpty) {
+        unspentCoins = handleFailedUtxoFetch(
+          failedCount: failedCount,
+          previousUnspentCoins: previousUnspentCoins,
+          updatedUnspentCoins: updatedUnspentCoins,
+          results: results,
+        );
+      } else {
+        unspentCoins = updatedUnspentCoins;
+      }
     }
 
     final currentWalletUnspentCoins =
