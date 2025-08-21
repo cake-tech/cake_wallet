@@ -812,11 +812,13 @@ class CWBitcoin extends Bitcoin {
 
     final addresses = <String>[];
     final labels = <String>[];
-    bitcoinTx.unspents!.forEach((unspent) {
-      addresses.add(bitcoinWallet.walletAddresses.silentAddresses
-          .firstWhere((address) => address.silentPaymentTweak == unspent.silentPaymentLabel)
-          .address);
-    });
+    try {
+          bitcoinTx.unspents!.forEach((unspent) {
+            addresses.add(bitcoinWallet.walletAddresses.silentAddresses
+                .firstWhere((address) => address.silentPaymentTweak == unspent.silentPaymentLabel)
+                .address);
+          });
+     } catch (e) {}
 
     return addresses;
   }
