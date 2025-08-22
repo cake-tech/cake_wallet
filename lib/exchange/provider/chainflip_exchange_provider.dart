@@ -69,6 +69,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
+
+    try {
     final assetId = _normalizeCurrency(from);
 
     final assetsResponse = await _getAssets();
@@ -78,7 +80,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
             (asset) => asset['id'] == assetId,
             orElse: () => null)?['minimalAmountNative'] ?? '0';
 
+    if (minAmount == '0') throw Exception('No rates found for $from to $to');
+
     return Limits(min: _amountFromNative(minAmount.toString(), from));
+    } catch (e) {
+      printV(e.toString());
+      throw Exception('Chainflip failed to fetch limits');
+    }
   }
 
   @override
