@@ -103,7 +103,23 @@ class Contact extends HiveObject with Keyable {
 
   Map<String, Map<int, Map<String, String>>> get parsedByHandle => _decodeParsed(_parsedJson);
 
-  Map<int, Map<String, String>> get manualAddresses => _decodeManual(_manualJson);
+  Map<int, Map<String, String>> get manualAddresses {
+    final decoded = _decodeManual(_manualJson);
+    if (decoded.isNotEmpty) return decoded;
+
+    if (address.isNotEmpty) {
+      final cur = CryptoCurrency.deserialize(raw: raw);
+      final lbl = _legacyLabelFor(cur, name);
+      return {
+        raw: {lbl: address}
+      };
+    }
+    return {};
+  }
+
+  String _legacyLabelFor(CryptoCurrency cur, String name) {
+    return (name.isNotEmpty) ? name : cur.title;
+  }
 
   Map<CryptoCurrency, Map<String, String>> get manualByCurrency =>
       manualAddresses.map((k, v) => MapEntry(CryptoCurrency.deserialize(raw: k), v));
