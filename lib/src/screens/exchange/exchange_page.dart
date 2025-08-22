@@ -368,8 +368,12 @@ class ExchangePage extends BasePage {
 
   void applyTemplate(
       BuildContext context, ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
-    final depositCryptoCurrency = CryptoCurrency.fromString(template.depositCurrency);
-    final receiveCryptoCurrency = CryptoCurrency.fromString(template.receiveCurrency);
+    final depositCryptoCurrency = CryptoCurrency.safeParseCurrencyFromString(template.depositCurrency);
+    final receiveCryptoCurrency = CryptoCurrency.safeParseCurrencyFromString(template.receiveCurrency);
+
+    if (depositCryptoCurrency == null || receiveCryptoCurrency == null) { ///TO DO: add support for user tokens
+      return;
+    }
 
     exchangeViewModel.changeDepositCurrency(currency: depositCryptoCurrency);
     exchangeViewModel.changeReceiveCurrency(currency: receiveCryptoCurrency);
