@@ -12,7 +12,7 @@ class QrImage extends StatelessWidget {
     this.embeddedImagePath,
   });
 
-  final double size;
+  final double? size;
   final Color foregroundColor;
   final Color backgroundColor;
   final String data;
