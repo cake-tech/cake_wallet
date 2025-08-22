@@ -10,7 +10,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/buy/robinhood/robinhood_buy_provider.dart';
@@ -43,6 +43,7 @@ import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
 import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
@@ -374,6 +375,7 @@ Future<void> setup({
   getIt.registerFactory(() =>
       PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
+  getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
   getIt.registerSingleton<SendTemplateStore>(SendTemplateStore(templateSource: _templates));
@@ -545,11 +547,12 @@ Future<void> setup({
     balanceViewModel: getIt.get<BalanceViewModel>(),
     appStore: getIt.get<AppStore>(),
     tradesStore: getIt.get<TradesStore>(),
+    ordersStore: getIt.get<OrdersStore>(),
     tradeFilterStore: getIt.get<TradeFilterStore>(),
+    orderFilterStore: getIt.get<OrderFilterStore>(),
     transactionFilterStore: getIt.get<TransactionFilterStore>(),
     settingsStore: settingsStore,
     yatStore: getIt.get<YatStore>(),
-    ordersStore: getIt.get<OrdersStore>(),
     anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
     payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
     sharedPreferences: getIt.get<SharedPreferences>(),
@@ -1349,8 +1352,13 @@ Future<void> setup({
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) {
     final wallet = getIt.get<AppStore>().wallet;
+    final cakePayService = getIt.get<CakePayService>();
 
-    return OrderDetailsViewModel(wallet: wallet!, orderForDetails: order);
+    return OrderDetailsViewModel(
+        wallet: wallet!,
+        orderForDetails: order,
+        cakePayService: cakePayService,
+        orders: _ordersSource);
   });
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>(
@@ -1423,7 +1431,8 @@ Future<void> setup({
       (CakePayVendor vendor, _) {
     return CakePayBuyCardViewModel(vendor: vendor,
         cakePayService: getIt.get<CakePayService>(),
-        sendViewModel: getIt.get<SendViewModel>());
+        sendViewModel: getIt.get<SendViewModel>(),
+        orders: _ordersSource);
   });
 
   getIt.registerFactory(() => CakePayAccountViewModel(cakePayService: getIt.get<CakePayService>()));

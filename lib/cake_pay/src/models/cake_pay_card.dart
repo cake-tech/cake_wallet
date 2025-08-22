@@ -39,6 +39,7 @@ class CakePayCard {
     final termsAndConditions = stripHtmlIfNeeded(json['terms_and_conditions'] as String? ?? '');
     final howToUse = stripHtmlIfNeeded(json['how_to_use'] as String? ?? '');
     final fiatCurrency = FiatCurrency.deserialize(raw: json['currency_code'] as String? ?? '');
+
     String? minValue = json['min_value'] as String?;
 
     final parsedMinValueLocal = _toDouble(json['min_value']);
@@ -74,6 +75,39 @@ class CakePayCard {
       maxValue: json['max_value'] as String?,
       denominationItems: denominations,
     );
+  }
+
+  List<Denomination> get denominationItemsWithUniqueValue {
+    if (denominationItems.isEmpty) return const [];
+
+    // unique by value and cardId
+    final findExact = <String>{};
+    final result = <Denomination>[];
+    for (final item in denominationItems) {
+      final str = '${item.value.toStringAsFixed(2)}|${item.cardId ?? 'null'}';
+      if (findExact.add(str)) {
+        result.add(item);
+      }
+    }
+
+    final perValue = <String, Denomination>{};
+    for (final item in result) {
+      final valueKey = item.value.toStringAsFixed(2);
+      final existing = perValue[valueKey];
+      if (existing == null) {
+        perValue[valueKey] = item;
+      } else {
+        final existingMatches = existing.cardId == id;
+        final currentMatches = item.cardId == id;
+        if (!existingMatches && currentMatches) {
+          perValue[valueKey] = item;
+        }
+      }
+    }
+
+    final list = perValue.values.toList(growable: false)
+      ..sort((a, b) => a.value.compareTo(b.value));
+    return list;
   }
 
   static String stripHtmlIfNeeded(String text) {
