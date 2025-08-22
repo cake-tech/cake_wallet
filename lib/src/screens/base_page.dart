@@ -181,30 +181,30 @@ abstract class BasePage extends StatelessWidget {
         builder: (context) {
           final backgroundImage = getIt.get<SettingsStore>().backgroundImage;
 
-          return SafeArea(
-            child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              image: backgroundImage.isNotEmpty
-                  ? DecorationImage(
-                      image: FileImage(File(backgroundImage)),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-              // color: Colors.grey[200],
-            ),
-            child: Scaffold(
-                key: _scaffoldKey,
-                backgroundColor: pageBackgroundColor(context),
-                resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-                extendBodyBehindAppBar: extendBodyBehindAppBar,
-                endDrawer: endDrawer,
-                appBar: appBar(context),
-                body: body(context),
-                floatingActionButton: floatingActionButton(context)),
-          )
-          );
+          return Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            image: backgroundImage.isNotEmpty
+                ? DecorationImage(
+                    image: FileImage(File(backgroundImage)),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+            // color: Colors.grey[200],
+          ),
+          child: Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: pageBackgroundColor(context),
+              resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+              extendBodyBehindAppBar: extendBodyBehindAppBar,
+              endDrawer: endDrawer,
+              appBar: appBar(context),
+              body: SafeArea(
+                top: false,
+                child: body(context)),
+              floatingActionButton: floatingActionButton(context)),
+                    );
         }
       ),
       pushToWidget: (context) => pushToWidget?.call(context),
