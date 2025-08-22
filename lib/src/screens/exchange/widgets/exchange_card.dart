@@ -44,6 +44,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
     this.allAmount,
     this.currencyRowPadding,
     this.addressRowPadding,
+    this.onSelectedContact,
     this.onPushPasteButton,
     this.onPushAddressBookButton,
     this.onDispose,
@@ -77,6 +78,7 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final VoidCallback? allAmount;
   final EdgeInsets? currencyRowPadding;
   final EdgeInsets? addressRowPadding;
+  final Function((String,String))? onSelectedContact;
   final void Function(BuildContext context)? onPushPasteButton;
   final void Function(BuildContext context)? onPushAddressBookButton;
   final Function()? onDispose;
@@ -330,6 +332,7 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
                               ),
                           buttonColor: widget.addressButtonsColor,
                           validator: widget.addressTextFieldValidator,
+                          onSelectedContact: widget.onSelectedContact,
                           onPushPasteButton: widget.onPushPasteButton,
                           onPushAddressBookButton: widget.onPushAddressBookButton,
                           selectedCurrency: _selectedCurrency,
