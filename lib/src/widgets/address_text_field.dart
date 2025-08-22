@@ -40,6 +40,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.borderWidth = 1.0,
     this.contentPadding,
     this.keyboardType,
+    this.copyImagePath,
   });
 
   static const prefixIconWidth = 34.0;
@@ -65,6 +66,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final T? selectedCurrency;
   final Key? addressKey;
   final TextInputType? keyboardType;
+  final String? copyImagePath;
 
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
@@ -130,7 +132,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
                             borderRadius: BorderRadius.all(Radius.circular(6)),
                           ),
                           child: Image.asset(
-                            'assets/images/paste_ios.png',
+                            copyImagePath ?? 'assets/images/paste_ios.png',
                             color: iconColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),

@@ -1,4 +1,3 @@
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
@@ -10,6 +9,7 @@ class QrImage extends StatelessWidget {
     this.size = 100.0,
     this.version,
     this.errorCorrectionLevel = qr.QrErrorCorrectLevel.H,
+    this.embeddedImagePath,
   });
 
   final double size;
@@ -18,6 +18,7 @@ class QrImage extends StatelessWidget {
   final String data;
   final int? version;
   final int errorCorrectionLevel;
+  final String? embeddedImagePath;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +30,7 @@ class QrImage extends StatelessWidget {
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
       padding: const EdgeInsets.all(8.0),
-      embeddedImage: AssetImage('assets/images/qr-cake.png'),
+      embeddedImage: AssetImage(embeddedImagePath ?? 'assets/images/qr-cake.png'),
     );
   }
 }

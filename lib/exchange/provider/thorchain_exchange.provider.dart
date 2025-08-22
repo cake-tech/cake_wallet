@@ -157,6 +157,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       payoutAddress: request.toAddress,
       memo: memo,
       isSendAll: isSendAll,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -197,8 +199,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
         ? parts[1].split('.')[1].split('-')[0]
         : '';
 
-    final formattedToChain = CryptoCurrency.fromString(toChain);
-    final toAssetWithChain = CryptoCurrency.fromString(toAsset, walletCurrency: formattedToChain);
+    final formattedToChain = CryptoCurrency.safeParseCurrencyFromString(toChain);
+    final toAssetWithChain = CryptoCurrency.safeParseCurrencyFromString(toAsset, walletCurrency: formattedToChain);
 
     final plannedOutTxs = responseJSON['planned_out_txs'] as List<dynamic>?;
     final isRefund = plannedOutTxs?.any((tx) => tx['refund'] == true) ?? false;
@@ -214,6 +216,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       state: currentState,
       memo: memo,
       isRefund: isRefund,
+      userCurrencyFromRaw: '${tx['chain'] as String? ?? ''}' + '_',
+      userCurrencyToRaw: '$toAsset' + '_',
     );
   }
 
