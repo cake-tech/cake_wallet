@@ -29,6 +29,15 @@ abstract class ThemeStoreBase with Store {
   @computed
   bool get isDarkMode => _currentTheme.isDark;
 
+  @computed
+  bool get hasCustomTheme => sharedPreferences.getInt(PreferencesKey.currentTheme) != null;
+
+  @computed
+  MaterialThemeBase? get savedCustomTheme {
+    final raw = sharedPreferences.getInt(PreferencesKey.currentTheme);
+    return raw != null ? ThemeList.deserialize(raw: raw) : null;
+  }
+
   late SharedPreferences sharedPreferences;
 
   @action
@@ -44,11 +53,20 @@ abstract class ThemeStoreBase with Store {
     if (_themeMode == mode) return;
 
     _themeMode = mode;
-
     await _saveThemeModeToPrefs(mode);
 
-    if (mode == ThemeMode.system) {
-      setTheme(getThemeFromSystem());
+    if (!hasCustomTheme) {
+      if (mode == ThemeMode.system) {
+        setTheme(getThemeFromSystem());
+      }
+      return;
+    }
+
+    final savedTheme = savedCustomTheme;
+    if (savedTheme == null) return;
+
+    if (_isThemeCompatibleWithMode(savedTheme, mode)) {
+      setTheme(savedTheme);
     }
   }
 
@@ -109,13 +127,16 @@ abstract class ThemeStoreBase with Store {
   /// Loads the saved theme from SharedPreferences
   Future<void> loadSavedTheme({bool isFromBackup = false}) async {
     try {
-      final savedTheme = sharedPreferences.getInt(PreferencesKey.currentTheme);
-      if (savedTheme == null) {
+      if (!hasCustomTheme) {
         await _setSystemTheme();
         return;
       }
 
-      final theme = ThemeList.deserialize(raw: savedTheme);
+      final theme = savedCustomTheme;
+      if (theme == null) {
+        await _setSystemTheme();
+        return;
+      }
 
       final newThemeMode = _getThemeModeOnStartUp(theme, isFromBackup);
 
@@ -137,6 +158,10 @@ abstract class ThemeStoreBase with Store {
   }
 
   Future<void> _setSystemTheme({bool isNewInstall = false}) async {
+    if (!isNewInstall && hasCustomTheme) {
+      return;
+    }
+
     final systemTheme = getThemeFromSystem();
 
     if (_currentTheme != systemTheme) {
@@ -145,10 +170,9 @@ abstract class ThemeStoreBase with Store {
 
     if (isNewInstall) {
       await _saveThemeModeToPrefs(ThemeMode.system);
-    }
-
-    if (_themeMode != ThemeMode.system) {
-      await setThemeMode(ThemeMode.system);
+      if (_themeMode != ThemeMode.system) {
+        await setThemeMode(ThemeMode.system);
+      }
     }
   }
 
@@ -170,5 +194,17 @@ abstract class ThemeStoreBase with Store {
   MaterialThemeBase getThemeFromSystem() {
     final systemBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
     return systemBrightness == Brightness.dark ? ThemeList.darkTheme : ThemeList.lightTheme;
+  }
+
+  /// Checks if a theme is compatible with a theme mode
+  bool _isThemeCompatibleWithMode(MaterialThemeBase theme, ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return !theme.isDark;
+      case ThemeMode.dark:
+        return theme.isDark;
+      case ThemeMode.system:
+        return true; // All themes are compatible with system mode
+    }
   }
 }
