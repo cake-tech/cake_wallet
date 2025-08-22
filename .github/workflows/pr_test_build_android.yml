@@ -247,6 +247,13 @@ jobs:
             ./build_mwebd.sh --dont-install
           popd
 
+      - name: Build Bitbox Flutter
+        run: |
+          set -x -e
+          pushd scripts
+            ./build_bitbox_flutter.sh
+          popd
+
       - name: Build Decred
         run: |
           set -x -e

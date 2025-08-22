@@ -92,7 +92,7 @@ packages:
   bitbox_flutter:
     dependency: "direct main"
     description:
-      path: "../scripts/bitbox_flutter"
+      path: "../../bitbox_flutter"
       relative: true
     source: path
     version: "0.0.1"
