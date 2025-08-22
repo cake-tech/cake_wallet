@@ -221,7 +221,7 @@ jobs:
         run: |
           set -x -e
           pushd scripts
-            ./build_bitbox_flutter.sh
+            ./build_bitbox_flutter.sh --dont-install
           popd
 
       - name: Install Flutter dependencies

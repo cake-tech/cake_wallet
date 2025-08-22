@@ -233,6 +233,13 @@ jobs:
             ./build_monero_all.sh
           popd
 
+      - name: Build Bitbox Flutter
+        run: |
+          set -x -e
+          pushd scripts
+            ./build_bitbox_flutter.sh --dont-install
+          popd
+
       - name: Install Flutter dependencies
         run: |
           flutter pub get
@@ -245,13 +252,6 @@ jobs:
           pushd scripts/android
             gomobile init;
             ./build_mwebd.sh --dont-install
-          popd
-
-      - name: Build Bitbox Flutter
-        run: |
-          set -x -e
-          pushd scripts
-            ./build_bitbox_flutter.sh
           popd
 
       - name: Build Decred
