@@ -24,7 +24,7 @@ import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_exception.dart';
-import 'package:cw_tron/tron_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
 import 'package:cw_tron/tron_transaction_info.dart';

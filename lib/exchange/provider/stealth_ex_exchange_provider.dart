@@ -198,6 +198,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
         createdAt: createdAt,
         expiredAt: expiredAt,
         extraId: extraId,
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e) {
       log(e.toString());
@@ -222,7 +224,9 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     final respId = responseJSON['id'] as String;
     final from = deposit['symbol'] as String;
+    final fromNetwork = deposit['network'] as String?;
     final to = withdrawal['symbol'] as String;
+    final toNetwork = withdrawal['network'] as String?;
     final payoutAddress = withdrawal['address'] as String;
     final depositAddress = deposit['address'] as String;
     final refundAddress = responseJSON['refund_address'] as String;
@@ -235,8 +239,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
 
     return Trade(
       id: respId,
-      from: CryptoCurrency.fromString(from),
-      to: CryptoCurrency.fromString(to),
+      from: CryptoCurrency.safeParseCurrencyFromString(from),
+      to: CryptoCurrency.safeParseCurrencyFromString(to),
       provider: description,
       inputAddress: depositAddress,
       payoutAddress: payoutAddress,
@@ -247,6 +251,8 @@ class StealthExExchangeProvider extends ExchangeProvider {
       createdAt: createdAt,
       isRefund: status == 'refunded',
       extraId: extraId,
+      userCurrencyFromRaw: '${from.toUpperCase()}' + '_' + '${fromNetwork?.toUpperCase() ?? ''}',
+      userCurrencyToRaw: '${to.toUpperCase()}' + '_' + '${toNetwork?.toUpperCase() ?? ''}',
     );
   }
 

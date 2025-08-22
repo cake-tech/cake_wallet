@@ -19,10 +19,17 @@ class ThemeProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        final theme = themeStore.currentTheme.themeData;
-        final darkTheme = ThemeList.darkTheme.themeData;
+        final currentTheme = themeStore.currentTheme;
+        final theme = currentTheme.themeData;
         final themeMode = themeStore.themeMode;
 
+        final isCustomTheme =
+            currentTheme != ThemeList.lightTheme && currentTheme != ThemeList.darkTheme;
+        if (isCustomTheme) {
+          return materialAppBuilder(context, theme, theme, themeMode);
+        }
+
+        final darkTheme = ThemeList.darkTheme.themeData;
         return materialAppBuilder(context, theme, darkTheme, themeMode);
       },
     );

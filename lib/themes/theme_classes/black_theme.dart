@@ -230,5 +230,5 @@ class BlackTheme extends MaterialThemeBase {
   ThemeType get type => ThemeType.dark;
 
   @override
-  int get raw => 1;
+  int get raw => 12;
 }
