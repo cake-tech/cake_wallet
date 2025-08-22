@@ -29,6 +29,9 @@ class ThemeList {
       case 6:
       case 8:
       case 9:
+      return darkTheme;
+      case 12:
+        return blackTheme;
       default:
         return blackTheme;
     }

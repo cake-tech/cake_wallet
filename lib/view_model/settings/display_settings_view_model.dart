@@ -34,7 +34,7 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get shouldShowMarketPlaceInDashboard => _settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  ThemeData get theme => _themeStore.currentTheme.themeData;
+  MaterialThemeBase get currentTheme => _themeStore.currentTheme;
 
   @computed
   ThemeMode get themeMode => _themeStore.themeMode;
