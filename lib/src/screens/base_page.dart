@@ -181,7 +181,8 @@ abstract class BasePage extends StatelessWidget {
         builder: (context) {
           final backgroundImage = getIt.get<SettingsStore>().backgroundImage;
 
-          return Container(
+          return SafeArea(
+            child: Container(
             width: double.infinity,
             height: double.infinity,
             decoration: BoxDecoration(
@@ -202,6 +203,7 @@ abstract class BasePage extends StatelessWidget {
                 appBar: appBar(context),
                 body: body(context),
                 floatingActionButton: floatingActionButton(context)),
+          )
           );
         }
       ),
