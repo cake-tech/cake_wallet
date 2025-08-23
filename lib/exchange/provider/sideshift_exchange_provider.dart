@@ -225,7 +225,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       payoutAddress: settleAddress,
       createdAt: DateTime.now(),
       isSendAll: isSendAll,
-      extraId: depositMemo
+      extraId: depositMemo,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -252,7 +254,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['depositCoin'] as String;
+    final fromNetwork = responseJSON['depositNetwork'] as String?;
     final toCurrency = responseJSON['settleCoin'] as String;
+    final toNetwork = responseJSON['settleNetwork'] as String?;
     final inputAddress = responseJSON['depositAddress'] as String;
     final expectedSendAmount = responseJSON['depositAmount'] as String?;
     final status = responseJSON['status'] as String?;
@@ -264,15 +268,18 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     return Trade(
         id: id,
-        from: CryptoCurrency.fromString(fromCurrency),
-        to: CryptoCurrency.fromString(toCurrency),
+        from: CryptoCurrency.safeParseCurrencyFromString(fromCurrency),
+        to: CryptoCurrency.safeParseCurrencyFromString(toCurrency),
         provider: description,
         inputAddress: inputAddress,
         amount: expectedSendAmount ?? '',
         state: TradeState.deserialize(raw: status ?? 'created'),
         expiredAt: expiredAt,
         payoutAddress: settleAddress,
-        extraId: depositMemo);
+        extraId: depositMemo,
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(fromNetwork ?? ''),
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(toNetwork ?? ''),
+    );
   }
 
   Future<String> _createQuote(TradeRequest request) async {
@@ -330,7 +337,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'tron';
       case 'LN':
         return 'lightning';
-      case 'POLY':
+      case 'POL':
         return 'polygon';
       case 'ZEC':
         return 'zcash';
@@ -339,5 +346,17 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       default:
         return tag.toLowerCase();
     }
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network) {
+      'ethereum' => 'ETH',
+      'tron' => 'TRX',
+      'lightning' => 'LN',
+      'polygon' => 'POL',
+      'zcash' => 'ZEC',
+      'avax' => 'AVAXC',
+      _ => network,
+    };
   }
 }

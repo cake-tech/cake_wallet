@@ -81,20 +81,20 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final coinsInfo = responseJSON['data'] as List<dynamic>;
 
-      for (var coin in coinsInfo) {
-        if (coin['id'].toString().toUpperCase() == _normalizeCurrency(from)) {
-          return Limits(
-            min: double.parse(coin['min'].toString()),
-            max: double.parse(coin['max'].toString()),
-          );
-        }
-      }
+      final coin = coinsInfo.firstWhere(
+            (coin) => coin['id'].toString().toUpperCase() == _normalizeCurrency(from),
+        orElse: () => null,
+      );
 
-      // coin not found:
-      return Limits(min: 0, max: 0);
+      if (coin == null) throw Exception('Coin not found: ${_normalizeCurrency(from)}');
+
+      return Limits(
+        min: double.parse(coin['min'].toString()),
+        max: double.parse(coin['max'].toString()),
+      );
     } catch (e) {
       printV(e.toString());
-      return Limits(min: 0, max: 0);
+      throw Exception('Error fetching limits: ${e.toString()}');
     }
   }
 
@@ -190,6 +190,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         state: TradeState.created,
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e) {
       printV("error creating trade: ${e.toString()}");
@@ -224,9 +226,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final fromCurrency = responseData['coin_send'] as String;
-      final from = CryptoCurrency.fromString(fromCurrency);
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
       final toCurrency = responseData['coin_receive'] as String;
-      final to = CryptoCurrency.fromString(toCurrency);
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
       final inputAddress = responseData['server_address'] as String;
       final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
@@ -249,6 +251,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
+        userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
+        userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");

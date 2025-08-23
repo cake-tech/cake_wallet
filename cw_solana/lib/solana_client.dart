@@ -12,7 +12,7 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
-import 'package:cw_solana/spl_token.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:on_chain/solana/solana.dart';
 import 'package:on_chain/solana/src/instructions/associated_token_account/constant.dart';
 import 'package:on_chain/solana/src/models/pda/pda.dart';

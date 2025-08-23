@@ -1,6 +1,4 @@
-Enable Ledger for Desktop
-Monero enhancements
-Allow automatic node switching between trusted nodes
-Enhance node connectivity
+Improve payment flow with QR scanning
+Swap flow improvements
 UI enhancements
 Bug fixes

@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -8,12 +10,16 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -29,6 +35,8 @@ class SendCard extends StatefulWidget {
     Key? key,
     required this.output,
     required this.sendViewModel,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     required this.currentTheme,
     this.initialPaymentRequest,
     this.cryptoAmountFocus,
@@ -37,6 +45,8 @@ class SendCard extends StatefulWidget {
 
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final PaymentRequest? initialPaymentRequest;
   final FocusNode? cryptoAmountFocus;
   final FocusNode? fiatAmountFocus;
@@ -44,14 +54,16 @@ class SendCard extends StatefulWidget {
 
   @override
   SendCardState createState() => SendCardState(
-      output: output,
-      sendViewModel: sendViewModel,
-      initialPaymentRequest: initialPaymentRequest,
-      currentTheme: currentTheme
-      // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
-      // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
-      // cryptoAmountFocus: FocusNode(),
-      // fiatAmountFocus: FocusNode(),
+        output: output,
+        sendViewModel: sendViewModel,
+        paymentViewModel: paymentViewModel,
+        walletSwitcherViewModel: walletSwitcherViewModel,
+        initialPaymentRequest: initialPaymentRequest,
+        currentTheme: currentTheme,
+        // cryptoAmountFocus: cryptoAmountFocus ?? FocusNode(),
+        // fiatAmountFocus: fiatAmountFocus ?? FocusNode(),
+        // cryptoAmountFocus: FocusNode(),
+        // fiatAmountFocus: FocusNode(),
       );
 }
 
@@ -59,6 +71,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   SendCardState({
     required this.output,
     required this.sendViewModel,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     this.initialPaymentRequest,
     required this.currentTheme,
   })  : addressController = TextEditingController(),
@@ -74,6 +88,8 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final MaterialThemeBase currentTheme;
   final Output output;
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final PaymentRequest? initialPaymentRequest;
 
   final TextEditingController addressController;
@@ -98,21 +114,139 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                  alertTitle: S.of(context).error,
-                  alertContent: S.of(context).unmatched_currencies,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop(),
-                );
-              },
-            );
+            final separator = initialPaymentRequest!.scheme.isNotEmpty ? ":" : "";
+            final uri = initialPaymentRequest!.scheme + separator + initialPaymentRequest!.address;
+            _handlePaymentFlow(uri, initialPaymentRequest!);
           }
         },
       );
     }
+  }
+
+  @override
+  void dispose() {
+    addressController.dispose();
+    cryptoAmountController.dispose();
+    fiatAmountController.dispose();
+    noteController.dispose();
+    extractedAddressController.dispose();
+    addressFocusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
+    try {
+      final result = await paymentViewModel.processAddress(uri);
+
+      switch (result.type) {
+        case PaymentFlowType.singleWallet:
+        case PaymentFlowType.multipleWallets:
+        case PaymentFlowType.noWallets:
+          await _showPaymentConfirmation(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+            result,
+          );
+          break;
+        case PaymentFlowType.currentWalletCompatible:
+        case PaymentFlowType.error:
+        case PaymentFlowType.incompatible:
+          _applyPaymentRequest(paymentRequest);
+          break;
+      }
+    } catch (e) {
+      printV('Payment flow error: $e');
+      _applyPaymentRequest(paymentRequest);
+    }
+  }
+
+  Future<void> _showPaymentConfirmation(
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+    PaymentFlowResult result,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return PaymentConfirmationBottomSheet(
+          paymentFlowResult: result,
+          paymentViewModel: paymentViewModel,
+          walletSwitcherViewModel: walletSwitcherViewModel,
+          currentTheme: currentTheme,
+          paymentRequest: paymentRequest,
+          onSelectWallet: () => _handleSelectWallet(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+          ),
+          onChangeWallet: () => _handleChangeWallet(
+            paymentViewModel,
+            walletSwitcherViewModel,
+            paymentRequest,
+            result,
+          ),
+          onSwap: () => Navigator.of(context).pushNamed(Routes.exchange, arguments: paymentRequest),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleSelectWallet(
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+  ) async {
+    Navigator.of(context).pop();
+
+    await showModalBottomSheet<WalletInfo>(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      builder: (BuildContext dialogContext) {
+        return WalletSwitcherBottomSheet(
+          viewModel: walletSwitcherViewModel,
+          currentTheme: currentTheme,
+          filterWalletType: paymentViewModel.detectedWalletType,
+        );
+      },
+    );
+
+    final success = await walletSwitcherViewModel.switchToSelectedWallet();
+
+    if (success) {
+      _applyPaymentRequest(paymentRequest);
+    }
+  }
+
+  Future<void> _handleChangeWallet(
+    PaymentViewModel paymentViewModel,
+    WalletSwitcherViewModel walletSwitcherViewModel,
+    PaymentRequest paymentRequest,
+    PaymentFlowResult result,
+  ) async {
+    Navigator.of(context).pop();
+
+    if (result.wallet != null) {
+      walletSwitcherViewModel.selectWallet(result.wallet!);
+      final success = await walletSwitcherViewModel.switchToSelectedWallet();
+      if (success) {
+        _applyPaymentRequest(paymentRequest);
+      }
+    }
+  }
+
+  /// Apply payment request to current form
+  void _applyPaymentRequest(PaymentRequest paymentRequest) {
+    if (sendViewModel.usePayjoin) {
+      sendViewModel.payjoinUri = paymentRequest.pjUri;
+    }
+    addressController.text = paymentRequest.address;
+    cryptoAmountController.text = paymentRequest.amount;
+    noteController.text = paymentRequest.note;
   }
 
   @override
@@ -185,13 +319,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     if (OpenCryptoPayService.isOpenCryptoPayQR(uri.toString())) {
                       sendViewModel.createOpenCryptoPayTransaction(uri.toString());
                     } else {
-                      final paymentRequest = PaymentRequest.fromUri(uri);
-                      if (sendViewModel.usePayjoin) {
-                        sendViewModel.payjoinUri = paymentRequest.pjUri;
-                      }
-                      addressController.text = paymentRequest.address;
-                      cryptoAmountController.text = paymentRequest.amount;
-                      noteController.text = paymentRequest.note;
+                      // Process the payment through the new flow
+                      await _handlePaymentFlow(
+                        uri.toString(),
+                        PaymentRequest.fromUri(uri),
+                      );
                     }
                   },
                   options: [
@@ -211,6 +343,20 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                   onPushPasteButton: (context) async {
                     output.resetParsedAddress();
                     await output.fetchParsedAddress(context);
+
+                    final address =
+                        output.isParsedAddress ? output.extractedAddress : output.address;
+
+                    await _handlePaymentFlow(
+                      address,
+                      PaymentRequest(
+                        address,
+                        cryptoAmountController.text,
+                        noteController.text,
+                        "",
+                        null,
+                      ),
+                    );
                   },
                   onPushAddressBookButton: (context) async {
                     output.resetParsedAddress();
