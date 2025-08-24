@@ -3,14 +3,14 @@ import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:cake_wallet/entities/country.dart';
 
 class CakePayService {
   CakePayService(this.secureStorage, this.cakePayApi);
 
-  static const cakePayEmailStorageKey = 'cake_pay_email';
-  static const cakePayUsernameStorageKey = 'cake_pay_username';
-  static const cakePayUserTokenKey = 'cake_pay_user_token';
+  /// `_v2` was added to log out users so they can login using the new backend
+  static const cakePayEmailStorageKey = 'cake_pay_email_v2';
+  static const cakePayUsernameStorageKey = 'cake_pay_username_v2';
+  static const cakePayUserTokenKey = 'cake_pay_user_token_v2';
 
   static String get testCakePayApiKey => secrets.testCakePayApiKey;
 
