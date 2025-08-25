@@ -254,7 +254,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['depositCoin'] as String;
+    final fromNetwork = responseJSON['depositNetwork'] as String?;
     final toCurrency = responseJSON['settleCoin'] as String;
+    final toNetwork = responseJSON['settleNetwork'] as String?;
     final inputAddress = responseJSON['depositAddress'] as String;
     final expectedSendAmount = responseJSON['depositAmount'] as String?;
     final status = responseJSON['status'] as String?;
@@ -275,8 +277,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         expiredAt: expiredAt,
         payoutAddress: settleAddress,
         extraId: depositMemo,
-      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_',
-      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_',
+      userCurrencyFromRaw: '${fromCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(fromNetwork ?? ''),
+      userCurrencyToRaw: '${toCurrency.toUpperCase()}' + '_' + _normalizeNetworkType(toNetwork ?? ''),
     );
   }
 
@@ -335,7 +337,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return 'tron';
       case 'LN':
         return 'lightning';
-      case 'POLY':
+      case 'POL':
         return 'polygon';
       case 'ZEC':
         return 'zcash';
@@ -344,5 +346,17 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       default:
         return tag.toLowerCase();
     }
+  }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network) {
+      'ethereum' => 'ETH',
+      'tron' => 'TRX',
+      'lightning' => 'LN',
+      'polygon' => 'POL',
+      'zcash' => 'ZEC',
+      'avax' => 'AVAXC',
+      _ => network,
+    };
   }
 }

@@ -147,7 +147,9 @@ class SignPage extends BasePage {
                   alertTitle: S.current.error,
                   alertContent: state.error,
                   buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop(),
+                  buttonAction: () {
+                    if (Navigator.canPop(context)) Navigator.of(context).pop();
+                  },
                 );
               });
         });
