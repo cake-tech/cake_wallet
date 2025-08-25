@@ -2147,6 +2147,7 @@ abstract class ElectrumWalletBase
 
       if (history.isNotEmpty) {
         addressRecord.setAsUsed();
+        walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
 
         await Future.wait(history.map((transaction) async {
           txid = transaction['tx_hash'] as String;
@@ -2353,6 +2354,7 @@ abstract class ElectrumWalletBase
       addressRecord.balance = confirmed + unconfirmed;
       if (confirmed > 0 || unconfirmed > 0) {
         addressRecord.setAsUsed();
+        walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
       }
     }
 

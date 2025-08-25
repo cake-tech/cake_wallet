@@ -122,6 +122,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bool isHardwareWallet;
 
   @observable
+  final ObservableMap<BitcoinAddressType, String> _lockedReceiveAddressByType =
+  ObservableMap.of({});
+
+  @observable
   SilentPaymentOwner? silentAddress;
 
   @observable
@@ -167,6 +171,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return generateNewAddress().address;
     }
 
+    final locked = _lockedReceiveAddressByType[addressPageType];
+    if (locked != null) return locked;
+
     final prev = previousAddressRecord;
     if (prev != null && prev.type == addressPageType && !prev.isUsed) {
       return prev.address;
@@ -199,11 +206,28 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         (addressRecord) => addressRecord.address == addr,
       );
 
+      _lockedReceiveAddressByType.remove(addressPageType);
+
       previousAddressRecord = addressRecord;
       receiveAddresses.remove(addressRecord);
       receiveAddresses.insert(0, addressRecord);
+
+      if (isEnabledAutoGenerateSubaddress &&
+          addressRecord.isUsed &&
+          addressRecord.type == addressPageType) {
+        _lockedReceiveAddressByType[addressPageType] = addr;
+      }
+
     } catch (e) {
       printV("ElectrumWalletAddressBase: set address ($addr): $e");
+    }
+  }
+
+  @action
+  void clearLockIfMatches(BitcoinAddressType type, String address) {
+    final locked = _lockedReceiveAddressByType[type];
+    if (locked != null && locked == address) {
+      _lockedReceiveAddressByType.remove(type);
     }
   }
 
