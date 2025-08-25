@@ -101,7 +101,7 @@ class SyncingSyncStatus extends SyncStatus {
 
     final currentMs = lastEtaDuration!.inMilliseconds;
     final newMs = newDuration.inMilliseconds;
-    final diff = (newMs - currentMs).abs();
+    final diff = ((newMs - currentMs) / 1000).abs();
 
     // Apply different smoothing based on the magnitude of change
     if (diff > 3600) {
