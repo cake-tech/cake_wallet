@@ -1474,12 +1474,16 @@ abstract class ElectrumWalletBase
       }
       unspentCoins = updatedUnspentCoins;
     } else {
-      unspentCoins = handleFailedUtxoFetch(
-        failedCount: failedCount,
-        previousUnspentCoins: previousUnspentCoins,
-        updatedUnspentCoins: updatedUnspentCoins,
-        results: results,
-      );
+      if (updatedUnspentCoins.isEmpty) {
+        unspentCoins = handleFailedUtxoFetch(
+          failedCount: failedCount,
+          previousUnspentCoins: previousUnspentCoins,
+          updatedUnspentCoins: updatedUnspentCoins,
+          results: results,
+        );
+      } else {
+        unspentCoins = updatedUnspentCoins;
+      }
     }
 
     final currentWalletUnspentCoins =
@@ -2951,8 +2955,6 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       }
 
       final tweakHeight = response.block;
-
-      if (initialSyncHeight < tweakHeight) initialSyncHeight = tweakHeight;
 
       // Continuous status UI update, send how many blocks left to scan
       final syncingStatus = scanData.isSingleScan

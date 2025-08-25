@@ -13,7 +13,7 @@ String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDi
       // Get ETA with placeholder while gathering data
       String eta = syncStatus.getFormattedEtaWithPlaceholder() ?? '';
 
-      if (eta.isEmpty) {
+      if (eta.isEmpty || eta == '--:--') {
         return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
       } else {
         return "${syncStatus.formattedProgress()} - ${S.current.eta} $eta";
