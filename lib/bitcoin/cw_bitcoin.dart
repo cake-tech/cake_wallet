@@ -184,10 +184,8 @@ class CWBitcoin extends Bitcoin {
         return estimatedTx.amount;
       }
 
-
       if (wallet.type == WalletType.dogecoin) {
-        final dogeAddr =
-        sk.getPublic().toP2pkhAddress();
+        final dogeAddr = sk.getPublic().toP2pkhAddress();
         final estimatedTx = await electrumWallet.estimateSendAllTx(
           [BitcoinOutput(address: dogeAddr, value: BigInt.zero)],
           getFeeRate(wallet, priority as BitcoinTransactionPriority),
@@ -796,8 +794,9 @@ class CWBitcoin extends Bitcoin {
   @override
   void stopPayjoinSessions(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
-    (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager!.cleanupSessions();
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager!.currentPayjoinReceiver =
+        null;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
   }
 

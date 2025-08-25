@@ -1,21 +1,4 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:isolate';
-
-import 'package:cw_bitcoin/payjoin/manager.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:payjoin_flutter/common.dart';
-import 'package:payjoin_flutter/send.dart';
-import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
-import 'package:payjoin_flutter/src/generated/api/send/error.dart' as pj_error;
-import 'package:payjoin_flutter/uri.dart' as pj_uri;
-
-enum PayjoinSenderRequestTypes {
-  requestPosted,
-  psbtToSign;
-}
+part of 'payjoin.dart';
 
 class PayjoinSenderWorker {
   final SendPort sendPort;
@@ -44,11 +27,11 @@ class PayjoinSenderWorker {
       sendPort.send(e);
     }
   }
+
   final client = ProxyWrapper().getHttpIOClient();
 
   /// Run a payjoin sender (V2 protocol first, fallback to V1).
   Future<String> runSender(Sender sender) async {
-
     try {
       return await _runSenderV2(sender);
     } catch (e) {
@@ -68,13 +51,11 @@ class PayjoinSenderWorker {
   Future<String> _runSenderV2(Sender sender) async {
     try {
       final postRequest = await sender.extractV2(
-        ohttpProxyUrl:
-            await pj_uri.Url.fromStr(PayjoinManager.randomOhttpRelayUrl()),
+        ohttpProxyUrl: await PayjoinUri.Url.fromStr(PayjoinManager.randomOhttpRelayUrl()),
       );
 
       final postResult = await _postRequest(postRequest.$1);
-      final getContext =
-      await postRequest.$2.processResponse(response: postResult);
+      final getContext = await postRequest.$2.processResponse(response: postResult);
 
       sendPort.send({'type': PayjoinSenderRequestTypes.requestPosted, "pj": pjUrl});
 

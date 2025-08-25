@@ -1,13 +1,12 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/bip/bip/bip32/bip32.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
-import 'package:cw_bitcoin/payjoin/manager.dart';
+import 'package:cw_bitcoin/payjoin/payjoin.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
-import 'package:payjoin_flutter/receive.dart' as payjoin;
 
 part 'bitcoin_wallet_addresses.g.dart';
 
@@ -29,9 +28,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.masterHd,
   }) : super(walletInfo);
 
-  final PayjoinManager payjoinManager;
-
-  payjoin.Receiver? currentPayjoinReceiver;
+  final PayjoinManager? payjoinManager;
 
   @observable
   String? payjoinEndpoint = null;
@@ -63,11 +60,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @action
   Future<void> initPayjoin() async {
     try {
-      await payjoinManager.initPayjoin();
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
-      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+      await payjoinManager!.initPayjoin();
+      payjoinManager!.currentPayjoinReceiver =
+          await payjoinManager!.getUnusedReceiver(primaryAddress);
+      payjoinEndpoint =
+          (await payjoinManager!.currentPayjoinReceiver?.pjUri())?.pjEndpoint() as String;
 
-      payjoinManager.resumeSessions();
+      payjoinManager!.resumeSessions();
     } catch (e) {
       printV(e);
       // Ignore Connectivity errors
@@ -78,10 +77,12 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @action
   Future<void> newPayjoinReceiver() async {
     try {
-      currentPayjoinReceiver = await payjoinManager.getUnusedReceiver(primaryAddress);
-      payjoinEndpoint = (await currentPayjoinReceiver?.pjUri())?.pjEndpoint();
+      payjoinManager!.currentPayjoinReceiver =
+          await payjoinManager!.getUnusedReceiver(primaryAddress);
+      payjoinEndpoint =
+          (await payjoinManager!.currentPayjoinReceiver?.pjUri())?.pjEndpoint() as String;
 
-      payjoinManager.spawnReceiver(receiver: currentPayjoinReceiver!);
+      payjoinManager!.spawnReceiver(receiver: payjoinManager!.currentPayjoinReceiver!);
     } catch (e) {
       printV(e);
       // Ignore Connectivity errors
