@@ -71,6 +71,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         currentSilentAddressIndex = initialSilentAddressIndex,
         mwebAddresses =
             ObservableList<BitcoinAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
+        lockedReceiveAddressByType = ObservableMap<BitcoinAddressType, String>(),
         super(walletInfo) {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
@@ -122,8 +123,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bool isHardwareWallet;
 
   @observable
-  final ObservableMap<BitcoinAddressType, String> _lockedReceiveAddressByType =
-  ObservableMap.of({});
+  ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
 
   @observable
   SilentPaymentOwner? silentAddress;
@@ -171,7 +171,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return generateNewAddress().address;
     }
 
-    final locked = _lockedReceiveAddressByType[addressPageType];
+    final locked = lockedReceiveAddressByType[addressPageType];
     if (locked != null) return locked;
 
     final prev = previousAddressRecord;
@@ -206,7 +206,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         (addressRecord) => addressRecord.address == addr,
       );
 
-      _lockedReceiveAddressByType.remove(addressPageType);
+      lockedReceiveAddressByType.remove(addressPageType);
 
       previousAddressRecord = addressRecord;
       receiveAddresses.remove(addressRecord);
@@ -215,7 +215,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       if (isEnabledAutoGenerateSubaddress &&
           addressRecord.isUsed &&
           addressRecord.type == addressPageType) {
-        _lockedReceiveAddressByType[addressPageType] = addr;
+        lockedReceiveAddressByType[addressPageType] = addr;
       }
 
     } catch (e) {
@@ -225,9 +225,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   void clearLockIfMatches(BitcoinAddressType type, String address) {
-    final locked = _lockedReceiveAddressByType[type];
+    final locked = lockedReceiveAddressByType[type];
     if (locked != null && locked == address) {
-      _lockedReceiveAddressByType.remove(type);
+      lockedReceiveAddressByType.remove(type);
     }
   }
 
