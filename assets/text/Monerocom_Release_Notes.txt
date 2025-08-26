@@ -1,4 +1,4 @@
-Improve payment flow with QR scanning
 Swap flow improvements
+Cakepay improvements
 UI enhancements
 Bug fixes
