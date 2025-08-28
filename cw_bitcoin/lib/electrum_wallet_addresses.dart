@@ -71,6 +71,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         currentSilentAddressIndex = initialSilentAddressIndex,
         mwebAddresses =
             ObservableList<BitcoinAddressRecord>.of((initialMwebAddresses ?? []).toSet()),
+        lockedReceiveAddressByType = ObservableMap<BitcoinAddressType, String>(),
         super(walletInfo) {
     if (masterHd != null) {
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
@@ -122,6 +123,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bool isHardwareWallet;
 
   @observable
+  ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
+
+  @observable
   SilentPaymentOwner? silentAddress;
 
   @observable
@@ -167,6 +171,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return generateNewAddress().address;
     }
 
+    final locked = lockedReceiveAddressByType[addressPageType];
+    if (locked != null) return locked;
+
     final prev = previousAddressRecord;
     if (prev != null && prev.type == addressPageType && !prev.isUsed) {
       return prev.address;
@@ -199,11 +206,28 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         (addressRecord) => addressRecord.address == addr,
       );
 
+      lockedReceiveAddressByType.remove(addressPageType);
+
       previousAddressRecord = addressRecord;
       receiveAddresses.remove(addressRecord);
       receiveAddresses.insert(0, addressRecord);
+
+      if (isEnabledAutoGenerateSubaddress &&
+          addressRecord.isUsed &&
+          addressRecord.type == addressPageType) {
+        lockedReceiveAddressByType[addressPageType] = addr;
+      }
+
     } catch (e) {
       printV("ElectrumWalletAddressBase: set address ($addr): $e");
+    }
+  }
+
+  @action
+  void clearLockIfMatches(BitcoinAddressType type, String address) {
+    final locked = lockedReceiveAddressByType[type];
+    if (locked != null && locked == address) {
+      lockedReceiveAddressByType.remove(type);
     }
   }
 
