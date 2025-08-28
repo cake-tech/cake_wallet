@@ -3,15 +3,18 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/routes.dart';
@@ -29,6 +32,8 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -189,7 +194,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
             paymentRequest,
             result,
           ),
-          onSwap: () => Navigator.of(context).pushNamed(Routes.exchange, arguments: paymentRequest),
+          onSwap: () => _handleSwapFlow(paymentViewModel, result),
         );
       },
     );
@@ -247,6 +252,35 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     addressController.text = paymentRequest.address;
     cryptoAmountController.text = paymentRequest.amount;
     noteController.text = paymentRequest.note;
+  }
+
+  Future<void> _handleSwapFlow(PaymentViewModel paymentViewModel, PaymentFlowResult result) async {
+    Navigator.of(context).pop();
+
+    final createdTrade = await showModalBottomSheet<Trade?>(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return getIt.get<SwapConfirmationBottomSheet>(param1: result);
+      },
+    );
+
+    if (createdTrade != null) {
+      final tradesStore = getIt.get<TradesStore>();
+      tradesStore.setTrade(createdTrade);
+
+      if (mounted) {
+        await showModalBottomSheet<void>(
+          context: context,
+          isDismissible: true,
+          isScrollControlled: true,
+          builder: (BuildContext context) {
+            return getIt.get<SwapDetailsBottomSheet>(param1: createdTrade);
+          },
+        );
+      }
+    }
   }
 
   @override

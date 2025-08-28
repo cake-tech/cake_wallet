@@ -43,6 +43,9 @@ import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
+
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
 import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
@@ -516,7 +519,7 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
     () => ExchangeViewModel(
       getIt.get<AppStore>(),
       _tradesSource,
@@ -1129,6 +1132,23 @@ Future<void> setup({
   getIt.registerFactory(() => BackgroundSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(() => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
+
+  getIt.registerFactoryParam<SwapConfirmationBottomSheet, PaymentFlowResult, void>(
+    (paymentFlowResult, _) => SwapConfirmationBottomSheet(
+      paymentFlowResult: paymentFlowResult,
+      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
+      exchangeViewModel: getIt.get<ExchangeViewModel>(),
+      authService: getIt.get<AuthService>(),
+    ),
+  );
+
+  getIt.registerFactoryParam<SwapDetailsBottomSheet, Trade, void>(
+    (trade, _) => SwapDetailsBottomSheet(
+      trade: trade,
+      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
+      exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>(),
+    ),
+  );
 
   getIt.registerFactory(() => PaymentViewModel(
     appStore: getIt.get<AppStore>(),

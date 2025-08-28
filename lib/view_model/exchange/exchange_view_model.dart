@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -129,8 +130,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     autorun((_) {
       if (selectedProviders.any((provider) => provider is TrocadorExchangeProvider)) {
         final trocadorProvider =
-        selectedProviders.firstWhere((provider) => provider is TrocadorExchangeProvider)
-        as TrocadorExchangeProvider;
+            selectedProviders.firstWhere((provider) => provider is TrocadorExchangeProvider)
+                as TrocadorExchangeProvider;
 
         updateAllTrocadorProviderStates(trocadorProvider);
       }
@@ -393,6 +394,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       await calculateBestRate();
     }
+
     _cryptoNumberFormat.maximumFractionDigits = depositMaxDigits;
 
     depositAmount = _cryptoNumberFormat
@@ -444,8 +446,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       bestRate = 0.0;
       return;
     }
-    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount)
-        ?? initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
+    final amount = double.tryParse(isFixedRateMode ? receiveAmount : depositAmount) ??
+        initialAmountByAssets(isFixedRateMode ? receiveCurrency : depositCurrency);
 
     final validProvidersForAmount = _tradeAvailableProviders.where((provider) {
       final limits = _providerLimits[provider];
@@ -515,15 +517,15 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           .map((provider) async {
         final limits = await provider
             .fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode,
-        )
+              from: from,
+              to: to,
+              isFixedRateMode: isFixedRateMode,
+            )
             .onError((error, stackTrace) => Limits(max: 0.0, min: double.maxFinite))
             .timeout(
-          Duration(seconds: 7),
-          onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
-        );
+              Duration(seconds: 7),
+              onTimeout: () => Limits(max: 0.0, min: double.maxFinite),
+            );
         return MapEntry(provider, limits);
       }).toList();
 
@@ -563,8 +565,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   Future<void> createTrade() async {
     if (depositCurrency == receiveCurrency) {
       tradeState = TradeIsCreatedFailure(
-          title: S.current.trade_not_created,
-          error: 'Can\'t exchange the same currency');
+          title: S.current.trade_not_created, error: 'Can\'t exchange the same currency');
       return;
     }
     if (isSendAllEnabled) {
@@ -881,8 +882,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void _setAvailableProviders() {
     _tradeAvailableProviders.clear();
 
-    _tradeAvailableProviders.addAll(
-        selectedProviders.where((provider) => providerList.contains(provider)));
+    _tradeAvailableProviders
+        .addAll(selectedProviders.where((provider) => providerList.contains(provider)));
   }
 
   void _setProviders() {
@@ -984,7 +985,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           "X-API-Key": secrets.moralisApiKey,
         },
       );
-      
 
       final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
 
@@ -1018,7 +1018,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   Future<List<Erc20Token>> _loadAllUniqueEvmTokens() async {
     final evmWallets = walletInfoSource.values.where(
-          (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
+      (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
     );
 
     final seen = <String>{};
@@ -1038,7 +1038,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     return unique;
   }
-
 
   @action
   Future<void> _injectUserEthTokensIntoCurrencyLists() async {
@@ -1134,8 +1133,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<List<TronToken>> _loadAllUniqueTronTokens() async {
-    final tronWallets =
-    walletInfoSource.values.where((w) => w.type == WalletType.tron);
+    final tronWallets = walletInfoSource.values.where((w) => w.type == WalletType.tron);
 
     final seen = <String>{};
     final unique = <TronToken>[];
@@ -1186,11 +1184,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       CryptoCurrency.ada => 1000,
       CryptoCurrency.dash => 10,
       CryptoCurrency.rune => 10,
-
       _ => 1
     };
     return amount.toDouble();
   }
-
-
 }
