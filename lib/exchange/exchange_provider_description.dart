@@ -36,7 +36,11 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       ExchangeProviderDescription(title: 'Chainflip', raw: 12, image: 'assets/images/chainflip.png');
   static const xoSwap =
   ExchangeProviderDescription(title: 'XOSwap', raw: 13, image: 'assets/images/xoswap.svg');
-  
+  static const houdiniCex =
+  ExchangeProviderDescription(title: 'Houdini (CEX)', raw: 14, image: 'assets/images/houdini.png');
+  static const houdiniDex =
+  ExchangeProviderDescription(title: 'Houdini (DEX)', raw: 15, image: 'assets/images/houdini.png');
+
   static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
       case 0:
@@ -67,6 +71,10 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
         return chainflip;
       case 13:
         return xoSwap;
+      case 14:
+        return houdiniCex;
+      case 15:
+        return houdiniDex;
       default:
         throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }

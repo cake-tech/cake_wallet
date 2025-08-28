@@ -5,6 +5,7 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/houdiniswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
@@ -26,7 +27,6 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -77,6 +77,9 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
         break;
+      case ExchangeProviderDescription.houdiniCex:
+        _provider = HoudiniSwapCEXProvider();
+        break;
     }
 
     _updateItems();
@@ -111,6 +114,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://scan.chainflip.io/channels/${trade.id}';
       case ExchangeProviderDescription.xoSwap:
         return  'https://orders.xoswap.com/${trade.id}';
+      case ExchangeProviderDescription.houdiniCex:
+        return 'https://houdiniswap.com/order-details/?houdiniId=${trade.id}';
     }
     return null;
   }

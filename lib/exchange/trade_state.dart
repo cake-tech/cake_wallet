@@ -41,6 +41,8 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
   static const exchanging = TradeState(raw: 'exchanging', title: 'Exchanging');
   static const sending = TradeState(raw: 'sending', title: 'Sending');
   static const success = TradeState(raw: 'success', title: 'Success');
+  static const anonymizing = TradeState(raw: 'anonymizing', title: 'Anonymizing');
+  static const deleted = TradeState(raw: 'deleted', title: 'Deleted');
 
   static TradeState deserialize({required String raw}) {
     switch (raw) {
@@ -137,6 +139,10 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
         return expired;
       case 'awaiting':
         return awaiting;
+      case 'anonymizing':
+        return anonymizing;
+      case 'deleted':
+        return deleted;
       default:
         return TradeState(raw: raw, title: raw);
     }

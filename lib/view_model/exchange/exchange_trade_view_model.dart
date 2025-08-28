@@ -5,6 +5,7 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/houdiniswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -71,6 +72,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
         case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.houdiniCex:
+        _provider = HoudiniSwapCEXProvider();
     }
 
     _updateItems();
