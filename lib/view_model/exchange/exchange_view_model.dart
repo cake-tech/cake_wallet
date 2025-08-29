@@ -202,7 +202,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChainflipExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
-        LetsExchangeExchangeProvider(),
+        // LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         TrocadorExchangeProvider(

@@ -1,6 +1,6 @@
 Add Dogecoin to Cake Wallet
-Improve payment flow with QR scanning
 Swap flow improvements
+Cakepay improvements
 Silent Payment enhancements
 UI enhancements
 Bug fixes
