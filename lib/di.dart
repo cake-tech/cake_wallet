@@ -531,6 +531,7 @@ Future<void> setup({
       getIt.get<UnspentCoinsListViewModel>(),
       getIt.get<FeesViewModel>(),
       _walletInfoSource,
+      getIt.get<FiatConversionStore>(),
     ),
   );
 
@@ -1113,6 +1114,7 @@ Future<void> setup({
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>(),
       feesViewModel: getIt.get<FeesViewModel>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
     ),
   );
 

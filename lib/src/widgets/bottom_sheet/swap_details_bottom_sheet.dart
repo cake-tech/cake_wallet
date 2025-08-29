@@ -1,6 +1,7 @@
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -191,7 +193,6 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
       footerType: FooterType.none,
       maxHeight: 900,
       currentTheme: widget.currentTheme,
-      trade: widget.exchangeTradeViewModel.trade,
       exchangeTradeViewModel: widget.exchangeTradeViewModel,
       onExecuteSwap: _executeSwap,
     );
@@ -229,7 +230,6 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
     required FooterType footerType,
     required double maxHeight,
     MaterialThemeBase? currentTheme,
-    required this.trade,
     required this.exchangeTradeViewModel,
     required this.onExecuteSwap,
   }) : super(
@@ -239,7 +239,6 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
           currentTheme: currentTheme,
         );
 
-  final Trade trade;
   final ExchangeTradeViewModel exchangeTradeViewModel;
   final VoidCallback onExecuteSwap;
 
@@ -247,7 +246,10 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
   Widget contentWidget(BuildContext context) {
     return Column(
       children: [
-        _SwapDetailsContent(trade: trade),
+        _SwapDetailsContent(
+          trade: exchangeTradeViewModel.trade,
+          exchangeTradeViewModel: exchangeTradeViewModel,
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
           child: Observer(
@@ -256,7 +258,7 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
               final isDisabled = !exchangeTradeViewModel.isSendable ||
                   exchangeTradeViewModel.trade.inputAddress == null ||
                   exchangeTradeViewModel.trade.inputAddress!.isEmpty;
-
+    
               if (isDisabled || sendingState is IsExecutingState) {
                 return Container(
                   width: double.infinity,
@@ -279,8 +281,10 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
                   ),
                 );
               }
-
+    
               return StandardSlideButton(
+                tileBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                knobColor: Theme.of(context).colorScheme.primary,
                 buttonText: 'Swipe to swap',
                 onSlideComplete: onExecuteSwap,
                 currentTheme: currentTheme!,
@@ -296,94 +300,108 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
 }
 
 class _SwapDetailsContent extends StatelessWidget {
-  const _SwapDetailsContent({required this.trade});
+  const _SwapDetailsContent({required this.trade, required this.exchangeTradeViewModel});
 
   final Trade trade;
+  final ExchangeTradeViewModel exchangeTradeViewModel;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _SwapDetailsTile(
-            label: 'You Send',
-            value: '${trade.amount} ${trade.from?.title ?? ''}',
-          ),
-          const SizedBox(height: 8),
-          _SwapDetailsTile(
-            label: 'You Get',
-            value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Address',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                      ),
+      child: Observer(
+        builder: (_) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _SwapDetailsTile(
+                label: 'You Send',
+                value: '${trade.amount} ${trade.from?.title ?? ''}',
+                valueFiatFormatted: exchangeTradeViewModel.sendAmountFiatFormatted,
+              ),
+              const SizedBox(height: 8),
+              _SwapDetailsTile(
+                label: 'You Get',
+                value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
+                valueFiatFormatted: exchangeTradeViewModel.receiveAmountFiatFormatted,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                AddressFormatter.buildSegmentedAddress(
-                  address: trade.payoutAddress ?? '',
-                  walletType: trade.to != null ? cryptoCurrencyToWalletType(trade.to!) : null,
-                  evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CakeImageWidget(
-                      imageUrl: trade.provider.image,
-                      width: 36,
-                      height: 36,
-                    ),
-                    const SizedBox(width: 8),
                     Text(
-                      trade.provider.title,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                          ),
+                      'DestinationAddress',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontWeight: FontWeight.w500, fontSize: 16),
+                    ),
+                    const SizedBox(height: 4),
+                    AddressFormatter.buildSegmentedAddress(
+                      address: trade.payoutAddress ?? '',
+                      walletType: trade.to != null ? cryptoCurrencyToWalletType(trade.to!) : null,
+                      evenTextStyle: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                   ],
                 ),
-                Text(
-                  'ID: ${trade.id}',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                      ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ],
-            ),
-          ),
-        ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CakeImageWidget(
+                          imageUrl: trade.provider.image,
+                          width: 36,
+                          height: 36,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          trade.provider.title,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: trade.id));
+                        showBar<void>(context, S.of(context).copied_to_clipboard);
+                      },
+                      child: Text(
+                        'ID: ${trade.id}',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 18,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
       ),
     );
   }
@@ -393,11 +411,12 @@ class _SwapDetailsTile extends StatelessWidget {
   const _SwapDetailsTile({
     required this.label,
     required this.value,
+    required this.valueFiatFormatted,
   });
 
   final String label;
   final String value;
-
+  final String valueFiatFormatted;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -416,12 +435,26 @@ class _SwapDetailsTile extends StatelessWidget {
                   fontSize: 16,
                 ),
           ),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                value,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                    ),
+              ),
+              if (valueFiatFormatted.isNotEmpty)
+                Text(
+                  valueFiatFormatted,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
+            ],
           ),
         ],
       ),

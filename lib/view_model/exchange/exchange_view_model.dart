@@ -7,8 +7,12 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -31,6 +35,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
@@ -77,6 +82,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this.unspentCoinsListViewModel,
     this.feesViewModel,
     this.walletInfoSource,
+    this.fiatConversionStore,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
         isFixedRateMode = false,
@@ -360,6 +366,45 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   double bestRate = 0.0;
 
   late Timer bestRateSync;
+
+  final FiatConversionStore fiatConversionStore;
+
+  FiatCurrency get fiat => _settingsStore.fiatCurrency;
+
+  @computed
+  bool get isFiatDisabled => feesViewModel.isFiatDisabled;
+
+  @action
+  Future<void> fetchFiatPrice(CryptoCurrency currency) async {
+    if (fiatConversionStore.prices[currency] != null) {
+      return;
+    }
+
+    fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+      crypto: currency,
+      fiat: fiat,
+      torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
+    );
+  }
+
+  @computed
+  String get receiveAmountFiatFormatted {
+    var amount = '0.00';
+    try {
+      if (receiveAmount.isNotEmpty) {
+        if (fiatConversionStore.prices[receiveCurrency] == null) {
+          log('Price is null for ${receiveCurrency.title}, fetching price now');
+        }
+        amount = calculateFiatAmount(
+          price: fiatConversionStore.prices[receiveCurrency]!,
+          cryptoAmount: receiveAmount,
+        );
+      }
+    } catch (_) {
+      log('Error calculating receive amount fiat formatted: $_');
+    }
+    return isFiatDisabled ? '' : '$amount';
+  }
 
   @action
   void changeDepositCurrency({required CryptoCurrency currency}) {

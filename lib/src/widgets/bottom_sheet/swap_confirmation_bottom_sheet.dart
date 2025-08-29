@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 
 import 'package:flutter/material.dart';
@@ -41,10 +42,15 @@ class SwapConfirmationBottomSheet extends BaseBottomSheet {
   final AuthService authService;
   @override
   Widget contentWidget(BuildContext context) {
-    return SwapConfirmationContent(
-      paymentFlowResult: paymentFlowResult,
-      exchangeViewModel: exchangeViewModel,
-      authService: authService,
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SwapConfirmationContent(
+        paymentFlowResult: paymentFlowResult,
+        exchangeViewModel: exchangeViewModel,
+        authService: authService,
+      ),
     );
   }
 }
@@ -66,34 +72,61 @@ class SwapConfirmationContent extends StatefulWidget {
 }
 
 class SwapConfirmationContentState extends State<SwapConfirmationContent> {
-  final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
+  late TextEditingController _amountController;
+  late TextEditingController _amountFiatController;
+  late TextEditingController _addressController;
+  late TextEditingController _noteController;
 
   final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
   final FocusNode _amountFocus = FocusNode();
+  final FocusNode _amountFiatFocus = FocusNode();
+  final FocusNode _addressFocus = FocusNode();
+  final FocusNode _noteFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
+
   ReactionDisposer? _receiveAmountReaction;
   ReactionDisposer? _receiveAddressReaction;
   ReactionDisposer? _tradeStateReaction;
   ReactionDisposer? _bestRateReaction;
+  ReactionDisposer? _limitsStateReaction;
+  ReactionDisposer? _receiveAmountFiatReaction;
+
   String? _min;
   String? _max;
   bool _showingFailureDialog = false;
   bool _showingSwapDetailsDialog = false;
 
   @override
+  void initState() {
+    super.initState();
+    _addressController =
+        TextEditingController(text: widget.paymentFlowResult.addressDetectionResult?.address ?? '');
+    _amountController = TextEditingController(
+        text: widget.paymentFlowResult.addressDetectionResult?.amount?.isNotEmpty ?? false
+            ? widget.paymentFlowResult.addressDetectionResult?.amount
+            : '0.00');
+    _amountFiatController =
+        TextEditingController(text: widget.exchangeViewModel.receiveAmountFiatFormatted);
+    _noteController =
+        TextEditingController(text: widget.paymentFlowResult.addressDetectionResult?.note ?? '');
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
+    _amountFiatController.dispose();
     _addressController.dispose();
     _noteController.dispose();
     _amountFocus.dispose();
-
+    _amountFiatFocus.dispose();
+    _addressFocus.dispose();
+    _noteFocus.dispose();
     _receiveAmountReaction?.call();
     _receiveAddressReaction?.call();
     _tradeStateReaction?.call();
     _bestRateReaction?.call();
-
+    _limitsStateReaction?.call();
+    _receiveAmountFiatReaction?.call();
     _showingFailureDialog = false;
     _showingSwapDetailsDialog = false;
     widget.exchangeViewModel.bestRateSync.cancel();
@@ -143,15 +176,14 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                BaseTextFormField(
-                  focusNode: _amountFocus,
-                  alignLabelWithHint: true,
-                  controller: _amountController,
+                SwapConfirmationTextfield(
+                  key: ValueKey('swap_confirmation_bottomsheet_amount_textfield_key'),
                   hintText: 'Amount (${detectedCurrencyName})',
+                  focusNode: _amountFocus,
+                  controller: _amountController,
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 5),
-                  child: Container(
+                if (_min != null || _max != null)
+                  Container(
                     height: 15,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -186,27 +218,41 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                       ],
                     ),
                   ),
-                ),
-
                 const SizedBox(height: 8),
-                //TODO: Not linked yet
-                BaseTextFormField(
-                  alignLabelWithHint: true,
-                  hintText: 'Amount (USD)',
+                SwapConfirmationTextfield(
+                  key: ValueKey('swap_confirmation_bottomsheet_amount_fiat_textfield_key'),
+                  hintText: 'Amount (${widget.exchangeViewModel.fiat.title})',
+                  focusNode: _amountFiatFocus,
+                  controller: _amountFiatController,
                 ),
                 const SizedBox(height: 8),
-                BaseTextFormField(
-                  alignLabelWithHint: true,
+                SwapConfirmationTextfield(
+                  key: ValueKey('swap_confirmation_bottomsheet_address_textfield_key'),
+                  isAddress: true,
+                  walletType: cryptoCurrencyToWalletType(widget.exchangeViewModel.receiveCurrency),
                   hintText: 'Destination Address',
+                  focusNode: _addressFocus,
                   controller: _addressController,
                 ),
                 const SizedBox(height: 8),
-                BaseTextFormField(
-                  alignLabelWithHint: true,
+                SwapConfirmationTextfield(
+                  maxLines: 1,
+                  key: ValueKey('swap_confirmation_bottomsheet_note_textfield_key'),
                   hintText: 'Transaction Note',
+                  focusNode: _noteFocus,
                   controller: _noteController,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    'Tap field to edit values',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          fontSize: 10,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
+                SizedBox(height: 64),
                 SwapConfirmationFooter(
                   exchangeViewModel: widget.exchangeViewModel,
                   formKey: _formKey,
@@ -224,7 +270,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     BuildContext context,
     ExchangeViewModel exchangeViewModel,
     PaymentFlowResult paymentFlowResult,
-  ) {
+  ) async {
     final limitsState = exchangeViewModel.limitsState;
     if (limitsState is LimitsLoadedSuccessfully) {
       _min = limitsState.limits.min != null ? limitsState.limits.min.toString() : null;
@@ -234,6 +280,13 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _receiveAmountReaction = reaction((_) => exchangeViewModel.receiveAmount, (String amount) {
       if (_amountController.text != amount) {
         _amountController.text = amount;
+      }
+    });
+
+    _receiveAmountFiatReaction =
+        reaction((_) => exchangeViewModel.receiveAmountFiatFormatted, (String amount) {
+      if (_amountFiatController.text != amount) {
+        _amountFiatController.text = amount;
       }
     });
 
@@ -271,7 +324,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
         });
       }
 
-      if (state is TradeIsCreatedSuccessfully) { 
+      if (state is TradeIsCreatedSuccessfully) {
         exchangeViewModel.reset();
         if (Navigator.of(context).canPop() && !_showingSwapDetailsDialog) {
           _showingSwapDetailsDialog = true;
@@ -289,7 +342,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
       }
     });
 
-    reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {
+    _limitsStateReaction = reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {
       if (state is LimitsLoadedSuccessfully) {
         _min = state.limits.min != null ? state.limits.min.toString() : null;
         _max = state.limits.max != null ? state.limits.max.toString() : null;
@@ -327,14 +380,78 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     });
 
     exchangeViewModel.receiveCurrency = walletTypeToCryptoCurrency(paymentFlowResult.walletType!);
-    exchangeViewModel.receiveAddress = paymentFlowResult.addressDetectionResult?.address ?? '';
-    if (exchangeViewModel.receiveAmount.isEmpty) {
-      exchangeViewModel.receiveAmount = paymentFlowResult.addressDetectionResult?.amount ?? '0';
-      _amountController.text = exchangeViewModel.receiveAmount;
-    }
-    _addressController.text = exchangeViewModel.receiveAddress;
+    await exchangeViewModel.fetchFiatPrice(exchangeViewModel.receiveCurrency);
+
+    exchangeViewModel.receiveAddress = _addressController.text;
+    exchangeViewModel.receiveAmount = _amountController.text;
+    _amountFiatController.text = exchangeViewModel.receiveAmountFiatFormatted;
     exchangeViewModel.isReceiveAmountEntered = true;
     exchangeViewModel.isFixedRateMode = true;
+  }
+}
+
+class SwapConfirmationTextfield extends StatelessWidget {
+  const SwapConfirmationTextfield({
+    super.key,
+    required this.focusNode,
+    required this.controller,
+    required this.hintText,
+    this.walletType,
+    this.isAddress = false,
+    this.maxLines = 1,
+  });
+
+  final FocusNode focusNode;
+  final TextEditingController controller;
+  final String hintText;
+  final WalletType? walletType;
+  final bool isAddress;
+  final int maxLines;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: ShapeDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: focusNode.hasFocus
+              ? BorderSide(color: Theme.of(context).colorScheme.primary)
+              : BorderSide.none,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            hintText,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  fontSize: 10,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+          if (isAddress) SizedBox(height: 8),
+          isAddress
+              ? AddressFormatter.buildSegmentedAddress(
+                  address: controller.text,
+                  walletType: walletType,
+                  evenTextStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                      ),
+                )
+              : BaseTextFormField(
+                  isDense: true,
+                  hintText: hintText,
+                  focusNode: focusNode,
+                  hasUnderlineBorder: true,
+                  borderWidth: 0.0,
+                  controller: controller,
+                  maxLines: maxLines,
+                ),
+        ],
+      ),
+    );
   }
 }
 
