@@ -51,7 +51,7 @@ class AddressValidator extends TextValidator {
     CryptoCurrency.scrt,
     CryptoCurrency.stx,
     CryptoCurrency.kmd,
-    CryptoCurrency.pivx,
+    CryptoCurrency.doge,
     CryptoCurrency.btcln,
   };
 
