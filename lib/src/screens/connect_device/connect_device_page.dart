@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -9,23 +10,26 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_wid
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
-typedef OnConnectDevice = void Function(BuildContext, LedgerViewModel);
+typedef OnConnectDevice = void Function(BuildContext, HardwareWalletViewModel);
 
 class ConnectDevicePageParams {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
   final bool isReconnect;
+  final HardwareWalletType hardwareWalletType;
 
   ConnectDevicePageParams({
     required this.walletType,
+    required this.hardwareWalletType,
     required this.onConnectDevice,
     this.allowChangeWallet = false,
     this.isReconnect = true,
@@ -37,9 +41,9 @@ class ConnectDevicePage extends BasePage {
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
   final bool isReconnect;
-  final LedgerViewModel ledgerVM;
+  final HardwareWalletViewModel hardwareWalletVM;
 
-  ConnectDevicePage(ConnectDevicePageParams params, this.ledgerVM)
+  ConnectDevicePage(ConnectDevicePageParams params, this.hardwareWalletVM)
       : walletType = params.walletType,
         onConnectDevice = params.onConnectDevice,
         allowChangeWallet = params.allowChangeWallet,
@@ -61,7 +65,7 @@ class ConnectDevicePage extends BasePage {
         walletType,
         onConnectDevice,
         allowChangeWallet,
-        ledgerVM,
+        hardwareWalletVM,
         currentTheme,
       ));
 }
@@ -70,14 +74,14 @@ class ConnectDevicePageBody extends StatefulWidget {
   final WalletType walletType;
   final OnConnectDevice onConnectDevice;
   final bool allowChangeWallet;
-  final LedgerViewModel ledgerVM;
+  final HardwareWalletViewModel hardwareWalletVM;
   final MaterialThemeBase currentTheme;
 
   const ConnectDevicePageBody(
     this.walletType,
     this.onConnectDevice,
     this.allowChangeWallet,
-    this.ledgerVM,
+    this.hardwareWalletVM,
     this.currentTheme,
   );
 
@@ -86,13 +90,13 @@ class ConnectDevicePageBody extends StatefulWidget {
 }
 
 class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
-  var bleDevices = <LedgerDevice>[];
-  var usbDevices = <LedgerDevice>[];
+  var bleDevices = <HardwareWalletDevice>[];
+  var usbDevices = <HardwareWalletDevice>[];
 
   late Timer? _usbRefreshTimer = null;
   late Timer? _bleRefreshTimer = null;
   late Timer? _bleStateTimer = null;
-  late StreamSubscription<LedgerDevice>? _bleRefresh = null;
+  late StreamSubscription<HardwareWalletDevice>? _bleRefresh = null;
 
   bool longWait = false;
   Timer? _longWaitTimer;
@@ -102,7 +106,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _bleStateTimer = Timer.periodic(
-          Duration(seconds: 1), (_) => widget.ledgerVM.updateBleState());
+          Duration(seconds: 1), (_) => widget.hardwareWalletVM.updateBleState());
 
       _bleRefreshTimer =
           Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
@@ -112,10 +116,12 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
             Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
       }
 
-      _longWaitTimer = Timer(Duration(seconds: 10), () {
-        if (widget.ledgerVM.bleIsEnabled && bleDevices.isEmpty)
-          setState(() => longWait = true);
-      });
+      if (widget.hardwareWalletVM.hasBluetooth) {
+        _longWaitTimer = Timer(Duration(seconds: 10), () {
+          if (widget.hardwareWalletVM.isBleEnabled && bleDevices.isEmpty)
+            setState(() => longWait = true);
+        });
+      }
     });
   }
 
@@ -127,29 +133,20 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     _bleRefresh?.cancel();
     _longWaitTimer?.cancel();
 
-    widget.ledgerVM.stopScanning();
+    widget.hardwareWalletVM.stopScanning();
     super.dispose();
   }
 
   Future<void> _refreshUsbDevices() async {
-    final dev = await widget.ledgerVM.ledgerPlusUSB.devices;
+    final dev = await widget.hardwareWalletVM.getAllUsbDevices();
     if (usbDevices.length != dev.length) setState(() => usbDevices = dev);
-    // _usbRefresh = widget.ledgerVM
-    //     .scanForUsbDevices()
-    //     .listen((device) => setState(() => usbDevices.add(device)))
-    //   ..onError((e) {
-    //     throw e.toString();
-    //   });
-    // Keep polling until the lfp lib gets updated
-    // _usbRefreshTimer?.cancel();
-    // _usbRefreshTimer = null;
   }
 
   Future<void> _refreshBleDevices() async {
     try {
-      if (widget.ledgerVM.bleIsEnabled) {
+      if (widget.hardwareWalletVM.isBleEnabled) {
         _bleRefresh =
-            widget.ledgerVM.scanForBleDevices().listen((device) => setState(() {
+            widget.hardwareWalletVM.scanForBleDevices().listen((device) => setState(() {
                   bleDevices.add(device);
                   if (longWait) longWait = false;
                 }))
@@ -164,20 +161,23 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
     }
   }
 
-  Future<void> _connectToDevice(LedgerDevice device) async {
+  Future<void> _connectToDevice(HardwareWalletDevice device) async {
     final isConnected =
-        await widget.ledgerVM.connectLedger(device, widget.walletType);
-    if (isConnected) widget.onConnectDevice(context, widget.ledgerVM);
+        await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
+    if (isConnected) widget.onConnectDevice(context, widget.hardwareWalletVM);
   }
 
-  String _getDeviceTileLeading(LedgerDeviceType deviceInfo) {
-    switch (deviceInfo) {
-      case LedgerDeviceType.nanoX:
+  String _getDeviceTileLeading(HardwareWalletDeviceType deviceType) {
+    switch (deviceType) {
+      case HardwareWalletDeviceType.ledgerNanoX:
         return 'assets/images/hardware_wallet/ledger_nano_x.png';
-      case LedgerDeviceType.stax:
+      case HardwareWalletDeviceType.ledgerStax:
         return 'assets/images/hardware_wallet/ledger_stax.png';
-      case LedgerDeviceType.flex:
+      case HardwareWalletDeviceType.ledgerFlex:
         return 'assets/images/hardware_wallet/ledger_flex.png';
+      case HardwareWalletDeviceType.BitBox02:
+        return 'assets/images/hardware_wallet/bitbox.png';
+
       default:
         return 'assets/images/hardware_wallet/ledger_nano_x.png';
     }
@@ -219,7 +219,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   ),
                   Observer(
                     builder: (_) => Offstage(
-                      offstage: widget.ledgerVM.bleIsEnabled,
+                      offstage: widget.hardwareWalletVM.isBleEnabled || !widget.hardwareWalletVM.hasBluetooth,
                       child: Padding(
                         padding:
                             EdgeInsets.only(left: 20, right: 20, bottom: 20),
@@ -251,7 +251,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                             child: DeviceTile(
                               onPressed: () => _connectToDevice(device),
                               title: device.name,
-                              leading: _getDeviceTileLeading(device.deviceInfo),
+                              leading: _getDeviceTileLeading(device.type),
                               connectionType: device.connectionType,
                             ),
                           ),
@@ -277,7 +277,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                             child: DeviceTile(
                               onPressed: () => _connectToDevice(device),
                               title: device.name,
-                              leading: _getDeviceTileLeading(device.deviceInfo),
+                              leading: _getDeviceTileLeading(device.type),
                               connectionType: device.connectionType,
                             ),
                           ),

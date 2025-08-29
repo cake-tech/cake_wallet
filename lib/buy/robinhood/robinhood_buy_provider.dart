@@ -162,12 +162,13 @@ class RobinhoodBuyProvider extends BuyProvider {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,
-                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-                  ledgerVM.setLedger(wallet);
+                hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
+                onConnectDevice: (context, hwwVM) {
+                  hwwVM.initWallet(wallet);
                   Navigator.of(context).pop();
                 }));
       } else {
-        ledgerVM!.setLedger(wallet);
+        ledgerVM!.initWallet(wallet);
       }
     }
 
