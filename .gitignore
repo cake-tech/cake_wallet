@@ -185,6 +185,8 @@ lib/core/secure_storage.dart
 
 lib/core/secure_storage.dart
 
+lib/dnssec_proof/dnssec_proof.dart
+
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png
