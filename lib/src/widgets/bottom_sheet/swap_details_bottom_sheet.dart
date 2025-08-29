@@ -22,12 +22,10 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 class SwapDetailsBottomSheet extends StatefulWidget {
   SwapDetailsBottomSheet({
     Key? key,
-    required this.trade,
     required this.currentTheme,
     required this.exchangeTradeViewModel,
   }) : super(key: key);
 
-  final Trade trade;
   final MaterialThemeBase currentTheme;
   final ExchangeTradeViewModel exchangeTradeViewModel;
 
@@ -155,7 +153,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) async {
               if (!mounted) return;
- 
+
               await showModalBottomSheet<void>(
                 context: context,
                 isScrollControlled: true,
@@ -193,7 +191,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
       footerType: FooterType.none,
       maxHeight: 900,
       currentTheme: widget.currentTheme,
-      trade: widget.trade,
+      trade: widget.exchangeTradeViewModel.trade,
       exchangeTradeViewModel: widget.exchangeTradeViewModel,
       onExecuteSwap: _executeSwap,
     );

@@ -1142,9 +1142,8 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactoryParam<SwapDetailsBottomSheet, Trade, void>(
-    (trade, _) => SwapDetailsBottomSheet(
-      trade: trade,
+  getIt.registerFactory<SwapDetailsBottomSheet>(
+    () => SwapDetailsBottomSheet(
       currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
       exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>(),
     ),

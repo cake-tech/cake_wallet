@@ -1,8 +1,10 @@
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 
@@ -75,7 +77,10 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   ReactionDisposer? _receiveAddressReaction;
   ReactionDisposer? _tradeStateReaction;
   ReactionDisposer? _bestRateReaction;
+  String? _min;
+  String? _max;
   bool _showingFailureDialog = false;
+  bool _showingSwapDetailsDialog = false;
 
   @override
   void dispose() {
@@ -90,7 +95,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _bestRateReaction?.call();
 
     _showingFailureDialog = false;
-
+    _showingSwapDetailsDialog = false;
     widget.exchangeViewModel.bestRateSync.cancel();
     super.dispose();
   }
@@ -139,10 +144,50 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 ),
                 const SizedBox(height: 16),
                 BaseTextFormField(
+                  focusNode: _amountFocus,
                   alignLabelWithHint: true,
                   controller: _amountController,
                   hintText: 'Amount (${detectedCurrencyName})',
                 ),
+                Padding(
+                  padding: EdgeInsets.only(top: 5),
+                  child: Container(
+                    height: 15,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        _min != null
+                            ? Text(
+                                key: ValueKey('min_limit_text_key'),
+                                S
+                                    .of(context)
+                                    .min_value(_min ?? '', detectedCurrencyName.toString()),
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                      fontSize: 10,
+                                      height: 1.2,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                              )
+                            : Offstage(),
+                        _min != null ? SizedBox(width: 10) : Offstage(),
+                        _max != null
+                            ? Text(
+                                key: ValueKey('max_limit_text_key'),
+                                S
+                                    .of(context)
+                                    .max_value(_max ?? '', detectedCurrencyName.toString()),
+                                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                      fontSize: 10,
+                                      height: 1.2,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                              )
+                            : Offstage(),
+                      ],
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 8),
                 //TODO: Not linked yet
                 BaseTextFormField(
@@ -180,6 +225,12 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     ExchangeViewModel exchangeViewModel,
     PaymentFlowResult paymentFlowResult,
   ) {
+    final limitsState = exchangeViewModel.limitsState;
+    if (limitsState is LimitsLoadedSuccessfully) {
+      _min = limitsState.limits.min != null ? limitsState.limits.min.toString() : null;
+      _max = limitsState.limits.max != null ? limitsState.limits.max.toString() : null;
+    }
+
     _receiveAmountReaction = reaction((_) => exchangeViewModel.receiveAmount, (String amount) {
       if (_amountController.text != amount) {
         _amountController.text = amount;
@@ -220,11 +271,33 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
         });
       }
 
-      if (state is TradeIsCreatedSuccessfully) {
+      if (state is TradeIsCreatedSuccessfully) { 
         exchangeViewModel.reset();
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop(state.trade);
+        if (Navigator.of(context).canPop() && !_showingSwapDetailsDialog) {
+          _showingSwapDetailsDialog = true;
+          Navigator.of(context).pop();
+          showModalBottomSheet<void>(
+            context: context,
+            isDismissible: true,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              _showingSwapDetailsDialog = false;
+              return getIt.get<SwapDetailsBottomSheet>();
+            },
+          );
         }
+      }
+    });
+
+    reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {
+      if (state is LimitsLoadedSuccessfully) {
+        _min = state.limits.min != null ? state.limits.min.toString() : null;
+        _max = state.limits.max != null ? state.limits.max.toString() : null;
+      }
+
+      if (state is LimitsLoadedFailure) {
+        _min = '0';
+        _max = '0';
       }
     });
 
@@ -240,7 +313,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _amountController.addListener(() {
       if (_amountController.text != exchangeViewModel.receiveAmount) {
         _receiveAmountDebounce.run(() {
-          exchangeViewModel.calculateBestRate();
+          exchangeViewModel.loadLimits();
           exchangeViewModel.changeReceiveAmount(amount: _amountController.text);
           exchangeViewModel.isReceiveAmountEntered = true;
         });
@@ -257,9 +330,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     exchangeViewModel.receiveAddress = paymentFlowResult.addressDetectionResult?.address ?? '';
     if (exchangeViewModel.receiveAmount.isEmpty) {
       exchangeViewModel.receiveAmount = paymentFlowResult.addressDetectionResult?.amount ?? '0';
+      _amountController.text = exchangeViewModel.receiveAmount;
     }
     _addressController.text = exchangeViewModel.receiveAddress;
-    _amountController.text = exchangeViewModel.receiveAmount;
     exchangeViewModel.isReceiveAmountEntered = true;
     exchangeViewModel.isFixedRateMode = true;
   }

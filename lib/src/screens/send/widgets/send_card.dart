@@ -257,7 +257,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   Future<void> _handleSwapFlow(PaymentViewModel paymentViewModel, PaymentFlowResult result) async {
     Navigator.of(context).pop();
 
-    final createdTrade = await showModalBottomSheet<Trade?>(
+    await showModalBottomSheet<Trade?>(
       context: context,
       isDismissible: true,
       isScrollControlled: true,
@@ -265,22 +265,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         return getIt.get<SwapConfirmationBottomSheet>(param1: result);
       },
     );
-
-    if (createdTrade != null) {
-      final tradesStore = getIt.get<TradesStore>();
-      tradesStore.setTrade(createdTrade);
-
-      if (mounted) {
-        await showModalBottomSheet<void>(
-          context: context,
-          isDismissible: true,
-          isScrollControlled: true,
-          builder: (BuildContext context) {
-            return getIt.get<SwapDetailsBottomSheet>(param1: createdTrade);
-          },
-        );
-      }
-    }
   }
 
   @override
