@@ -11,6 +11,8 @@ class StandardSlideButton extends StatefulWidget {
     this.height = 48.0,
     required this.currentTheme,
     required this.accessibleNavigationModeButtonText,
+    this.tileBackgroundColor,
+    this.knobColor,
   }) : super(key: key);
 
   final VoidCallback onSlideComplete;
@@ -18,7 +20,9 @@ class StandardSlideButton extends StatefulWidget {
   final double height;
   final MaterialThemeBase currentTheme;
   final String accessibleNavigationModeButtonText;
-
+  final Color? tileBackgroundColor;
+  final Color? knobColor;
+  
   @override
   StandardSlideButtonState createState() => StandardSlideButtonState();
 }
@@ -57,7 +61,7 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                 height: widget.height,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: tileBackgroundColor,
+                  color: widget.tileBackgroundColor ?? tileBackgroundColor,
                 ),
                 child: Stack(
                   alignment: Alignment.centerLeft,
@@ -97,7 +101,7 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                           height: widget.height - 8,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Theme.of(context).colorScheme.surface,
+                            color: widget.knobColor ?? Theme.of(context).colorScheme.surface,
                           ),
                           alignment: Alignment.center,
                           child: Icon(
