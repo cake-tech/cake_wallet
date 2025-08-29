@@ -39,6 +39,11 @@ bool isNewTransactionExist() {
 String getFilename() => currentWallet!.filename();
 
 String getSeed() {
+  // Check if currentWallet is available before accessing it
+  if (currentWallet == null) {
+    return '';
+  }
+
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       currentWallet!.getCacheAttribute(key: "cakewallet.seed");
@@ -83,6 +88,11 @@ String? getSeedLanguage(String? language) {
 }
 
 String getSeedLegacy(String? language) {
+  // Check if currentWallet is available before accessing it
+  if (currentWallet == null) {
+    return '';
+  }
+
   final cakepassphrase = getPassphrase();
   language = getSeedLanguage(language);
   var legacy = currentWallet!.seed(seedOffset: cakepassphrase);
