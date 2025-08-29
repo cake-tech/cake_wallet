@@ -1,12 +1,12 @@
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
@@ -114,9 +114,18 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            final separator = initialPaymentRequest!.scheme.isNotEmpty ? ":" : "";
-            final uri = initialPaymentRequest!.scheme + separator + initialPaymentRequest!.address;
-            _handlePaymentFlow(uri, initialPaymentRequest!);
+            // TODO: revert this as well
+            showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: S.of(context).unmatched_currencies,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop(),
+                );
+              },
+            );
           }
         },
       );
@@ -136,6 +145,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     try {
+      // TODO: just remove this line
+      throw "Pay Anything is temporarily disabled";
+
       final result = await paymentViewModel.processAddress(uri);
 
       switch (result.type) {

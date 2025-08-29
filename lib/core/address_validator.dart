@@ -224,8 +224,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
         pattern = '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       case CryptoCurrency.zano:
-        pattern = '^(?:Z[1-9A-HJ-NP-Za-km-z]{96}'
-        '|Z[1-9A-HJ-NP-Za-km-z]{108})';
+        pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
+      case CryptoCurrency.doge:
+        pattern = r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}';
       default:
         return '';
     }

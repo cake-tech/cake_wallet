@@ -194,11 +194,19 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.ltc,
       ),
 
-      // Solana (Base58 format, 32-44 chars)
+      // Dogecoin P2PKH
       _DetectionPattern(
-        pattern: RegExp(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$'),
-        currency: CryptoCurrency.sol,
+        pattern: RegExp(r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}$'),
+        currency: CryptoCurrency.doge,
       ),
+
+      // TODO: commented out until a better approach is implemented.
+      //  as this will consider most addresses to be a valid Solana address
+      // Solana (Base58 format, 32-44 chars)
+      // _DetectionPattern(
+      //   pattern: RegExp(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$'),
+      //   currency: CryptoCurrency.sol,
+      // ),
     ];
 
     // Test each pattern in order of specificity
