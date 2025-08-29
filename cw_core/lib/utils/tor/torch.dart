@@ -1,18 +1,32 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-import 'package:tor_binary/tor_binary_platform_interface.dart';
+import 'package:torch_dart/abstract_tor.dart';
 
-class CakeTorAndroid implements CakeTorInstance {
-  @override
-  bool get bootstrapped => _proc != null;
+class CakeTorTorch implements CakeTorInstance {
+  final List<Tor> _torList;
+
+  CakeTorTorch(this._torList);
+
+  static Future<CakeTorTorch?> getInstance() async {
+    final list = await Tor.getTorList();
+    if (list.isEmpty) {
+      return null;
+    }
+    return CakeTorTorch(list);
+  }
 
   @override
-  bool get enabled => _proc != null;
+  bool get bootstrapped => isTorRunning;
+
+  @override
+  bool get enabled => isTorRunning;
 
   @override
   int get port => 42142;
@@ -23,63 +37,54 @@ class CakeTorAndroid implements CakeTorInstance {
   }
 
   @override
-  bool get started => _proc != null;
+  bool started = false;
+
+  static bool isTorRunning = false;
 
   @override
   Future<void> stop() async {
-    _proc?.kill();
-    await _proc?.exitCode;
-    _proc = null;
+    started = false;
   }
-
-  static Process? _proc;
 
   Future<void> _runEmbeddedTor() async {
     final dir = await getApplicationCacheDirectory();
 
-    final torBinPath = p.join((await TorBinaryPlatform.instance.getBinaryPath())!, "libtor.so");
-    printV("torPath: $torBinPath");
+    final torList = await Tor.getTorList();
+    printV("tor version: ${torList.first.version}");
 
-    if (started) {
+    if (isTorRunning) {
+      started = true;
       printV("Proxy is running");
       return;
     }
+    isTorRunning = true;
+    started = true;
 
     printV("Starting embedded tor");
     printV("app docs: $dir");
     final torrc = """
 SocksPort $port
-Log notice file ${p.join(dir.path, "tor.log")}
+Log notice stdout
 RunAsDaemon 0
 DataDirectory ${p.join(dir.path, "tor-data")}
 """;
     final torrcPath = p.join(dir.absolute.path, "torrc");
     File(torrcPath).writeAsStringSync(torrc);
 
-    if (_proc != null) {
-      try {
-        _proc?.kill();
-        await _proc?.exitCode;
-        _proc = null;
-      } catch (e) {
-        printV(e);
-      }
-    }
-    printV("path: $torBinPath -f $torrcPath");
-    _proc = await Process.start(torBinPath, ["-f", torrcPath]);
-    _proc?.stdout.transform(utf8.decoder).forEach(printV);
-    _proc?.stderr.transform(utf8.decoder).forEach(printV);
+    final tor = _torList.first;
+    tor.start(["nonexistent", "-f", torrcPath]);
   }
 
   @override
   String toString() {
     return """
-CakeTorAndroid(
+CakeTorTorch(
   port: $port,
   started: $started,
   bootstrapped: $bootstrapped,
   enabled: $enabled,
-  proc: $_proc,
+  torList:
+    - ${_torList.map((e) => e.version).join(",\n    - ")}
 )
 """;
   }

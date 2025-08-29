@@ -155,7 +155,7 @@ class WCCDetailsWidget extends BasePage {
                   backgroundImage: (pairing.peerMetadata!.icons.isNotEmpty
                       ? NetworkImage(pairing.peerMetadata!.icons[0])
                       : AssetImage(
-                        CakeTor.instance.enabled
+                        CakeTor.instance!.enabled
                         ? 'assets/images/tor_logo.svg'
                         : 'assets/images/app_logo.png')) as ImageProvider<Object>,
                 ),
