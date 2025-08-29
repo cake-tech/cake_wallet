@@ -258,7 +258,7 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
               final isDisabled = !exchangeTradeViewModel.isSendable ||
                   exchangeTradeViewModel.trade.inputAddress == null ||
                   exchangeTradeViewModel.trade.inputAddress!.isEmpty;
-    
+
               if (isDisabled || sendingState is IsExecutingState) {
                 return Container(
                   width: double.infinity,
@@ -281,7 +281,7 @@ class _SwapDetailsBottomSheetContent extends BaseBottomSheet {
                   ),
                 );
               }
-    
+
               return StandardSlideButton(
                 tileBackgroundColor: Theme.of(context).colorScheme.surfaceContainer,
                 knobColor: Theme.of(context).colorScheme.primary,
@@ -391,9 +391,7 @@ class _SwapDetailsContent extends StatelessWidget {
                       },
                       child: Text(
                         'ID: ${trade.id}',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 18,
-                            ),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
                       ),
                     ),
                   ],
@@ -401,7 +399,7 @@ class _SwapDetailsContent extends StatelessWidget {
               ),
             ],
           );
-        }
+        },
       ),
     );
   }
@@ -430,10 +428,10 @@ class _SwapDetailsTile extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                ),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(fontWeight: FontWeight.w500, fontSize: 16),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
