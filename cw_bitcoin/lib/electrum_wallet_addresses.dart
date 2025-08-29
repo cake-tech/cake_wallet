@@ -80,7 +80,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         network: network,
       );
 
-      if (silentAddresses.length == 0) {
+      if (!silentAddresses.any((addr) => addr.index == 0 && addr.isHidden == false))
         silentAddresses.add(BitcoinSilentPaymentAddressRecord(
           silentAddress.toString(),
           index: 0,
@@ -90,15 +90,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           network: network,
           type: SilentPaymentsAddresType.p2sp,
         ));
-        silentAddresses.add(BitcoinSilentPaymentAddressRecord(
-          silentAddress!.toLabeledSilentPaymentAddress(0).toString(),
-          index: 0,
-          isHidden: true,
-          name: "",
-          silentPaymentTweak: BytesUtils.toHexString(silentAddress!.generateLabel(0)),
-          network: network,
-          type: SilentPaymentsAddresType.p2sp,
-        ));
+      for (var i = 0; i < 5; i++) {
+        if (!silentAddresses.any((addr) => addr.index == i && addr.isHidden == (i == 0)))
+          silentAddresses.add(BitcoinSilentPaymentAddressRecord(
+            silentAddress!.toLabeledSilentPaymentAddress(i).toString(),
+            index: i,
+            isHidden: i == 0,
+            name: "",
+            silentPaymentTweak: BytesUtils.toHexString(silentAddress!.generateLabel(i)),
+            network: network,
+            type: SilentPaymentsAddresType.p2sp,
+          ));
       }
     }
 
@@ -151,12 +153,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return silentAddress.toString();
     }
 
-    final typeMatchingAddresses = _addresses.where((addr) => !addr.isHidden && _isAddressPageTypeMatch(addr)).toList();
-    final typeMatchingReceiveAddresses = typeMatchingAddresses.where((addr) => !addr.isUsed).toList();
+    final typeMatchingAddresses =
+        _addresses.where((addr) => !addr.isHidden && _isAddressPageTypeMatch(addr)).toList();
+    final typeMatchingReceiveAddresses =
+        typeMatchingAddresses.where((addr) => !addr.isUsed).toList();
 
     if (!isEnabledAutoGenerateSubaddress) {
-      if (previousAddressRecord != null &&
-          previousAddressRecord!.type == addressPageType) {
+      if (previousAddressRecord != null && previousAddressRecord!.type == addressPageType) {
         return previousAddressRecord!.address;
       }
 
