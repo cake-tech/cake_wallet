@@ -76,21 +76,25 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (response.statusCode != 200) {
         throw Exception('Failed to fetch assets for ${currency.title} on ${currency.tag}');
       }
-      final assets = json.decode(response.body) as List<dynamic>;
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! List) throw const FormatException('Unexpected response format');
+      final assets = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+
 
       final asset = assets.firstWhere(
-        (asset) {
-          final assetSymbol = (asset['symbol'] as String).toUpperCase();
-          return assetSymbol == currency.title.toUpperCase();
-        },
-        orElse: () => null,
+        (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
+        orElse: () => const {},
       );
-      return asset != null ? asset['id'] as String : null;
+
+      return asset.isEmpty ? null : asset['id'] as String;
     } catch (e) {
       printV(e.toString());
       return null;
     }
   }
+
+  String removeNonAlphanumeric(String str) => str.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 
   Future<List<dynamic>> getRatesForPair({
     required CryptoCurrency from,
@@ -117,19 +121,24 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    final rates = await getRatesForPair(from: from, to: to);
-    if (rates.isEmpty) return Limits(min: 0, max: 0);
+    try {
+      final rates = await getRatesForPair(from: from, to: to);
+      if (rates.isEmpty) throw Exception('No rates found for $from to $to');
 
     double minLimit = double.infinity;
     double maxLimit = 0;
 
-    for (var rate in rates) {
-      final double currentMin = double.parse(rate['min']['value'].toString());
-      final double currentMax = double.parse(rate['max']['value'].toString());
-      if (currentMin < minLimit) minLimit = currentMin;
-      if (currentMax > maxLimit) maxLimit = currentMax;
+      for (var rate in rates) {
+        final double currentMin = double.parse(rate['min']['value'].toString());
+        final double currentMax = double.parse(rate['max']['value'].toString());
+        if (currentMin < minLimit) minLimit = currentMin;
+        if (currentMax > maxLimit) maxLimit = currentMax;
+      }
+      return Limits(min: minLimit, max: maxLimit);
+    } catch (e) {
+      printV(e.toString());
+      throw Exception('StealthEx failed to fetch limits');
     }
-    return Limits(min: minLimit, max: maxLimit);
   }
 
   Future<double> fetchRate({
@@ -249,6 +258,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount.toString(),
         payoutAddress: payoutAddress,
         extraId: extraId,
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
     } catch (e) {
       printV(e.toString());
@@ -275,10 +286,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final pairId = responseJSON['pairId'] as String;
       final pairParts = pairId.split('_');
-      final CryptoCurrency fromCurrency =
-          CryptoCurrency.fromString(pairParts.isNotEmpty ? pairParts[0] : "");
-      final CryptoCurrency toCurrency =
-          CryptoCurrency.fromString(pairParts.length > 1 ? pairParts[1] : "");
+      final fromAsset = pairParts.isNotEmpty ? pairParts[0] : '';
+      final toAsset = pairParts.length > 1 ? pairParts[1] : '';
+      final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromAsset);
+      final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toAsset);
 
       final amount = responseJSON['amount'] as Map<String, dynamic>;
       final toAmount = responseJSON['toAmount'] as Map<String, dynamic>;
@@ -306,6 +317,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         receiveAmount: receiveAmount,
         payoutAddress: payoutAddress,
         extraId: extraId,
+        userCurrencyFromRaw: '$fromAsset' + '_',
+        userCurrencyToRaw: '$toAsset' + '_',
       );
     } catch (e) {
       printV(e.toString());

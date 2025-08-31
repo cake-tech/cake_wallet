@@ -17,7 +17,7 @@ class NodeSwitchingService {
 
   // The number of times we want to reset the overall used trusted nodes list.
   // We don't want an infinite loop if all trusted nodes are down.
-  static const int _usedTrustedNodeResetCount = 2;
+  static const int _usedTrustedNodeResetCount = 1;
 
   // State to manage the reset count
   int _resetCount = 0;

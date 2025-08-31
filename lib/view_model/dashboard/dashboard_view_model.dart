@@ -16,6 +16,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
@@ -588,7 +589,8 @@ abstract class DashboardViewModelBase with Store {
   bool get showPayjoinCard =>
       wallet.type == WalletType.bitcoin &&
       settingsStore.showPayjoinCard &&
-      !settingsStore.usePayjoin;
+      !settingsStore.usePayjoin &&
+      DeviceInfo.instance.isMobile;
 
   @observable
   bool backgroundSyncEnabled = false;
@@ -1085,7 +1087,7 @@ abstract class DashboardViewModelBase with Store {
       }));
     }
   }
-  
+
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
@@ -1132,7 +1134,7 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
-  static ServicesResponse? cachedServicesResponse; 
+  static ServicesResponse? cachedServicesResponse;
 
   Future<ServicesResponse> getServicesStatus() async {
     if (cachedServicesResponse != null) {

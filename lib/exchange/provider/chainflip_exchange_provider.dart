@@ -69,6 +69,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
+
+    try {
     final assetId = _normalizeCurrency(from);
 
     final assetsResponse = await _getAssets();
@@ -78,7 +80,13 @@ class ChainflipExchangeProvider extends ExchangeProvider {
             (asset) => asset['id'] == assetId,
             orElse: () => null)?['minimalAmountNative'] ?? '0';
 
+    if (minAmount == '0') throw Exception('No rates found for $from to $to');
+
     return Limits(min: _amountFromNative(minAmount.toString(), from));
+    } catch (e) {
+      printV(e.toString());
+      throw Exception('Chainflip failed to fetch limits');
+    }
   }
 
   @override
@@ -167,6 +175,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
           receiveAmount: request.toAmount,
           state: TradeState.waiting,
           payoutAddress: request.toAddress,
+          userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+          userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
           isSendAll: isSendAll);
     } catch (e) {
       printV(e.toString());
@@ -199,6 +209,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       final refundAmount = status['refundEgress']?['amount']?.toString() ?? '0.0';
       final isRefund = status['refundEgress'] != null;
       final amount = isRefund ? refundAmount : receiveAmount;
+
+      final from = status['sourceAsset'].toString();
+      final to = status['destinationAsset'].toString();
       
       final newTrade = Trade(
           id: id,
@@ -210,7 +223,10 @@ class ChainflipExchangeProvider extends ExchangeProvider {
           state: currentState,
           payoutAddress: status['destinationAddress'].toString(),
           outputTransaction: status['swapEgress']?['transactionReference']?.toString(),
-          isRefund: isRefund);
+          isRefund: isRefund,
+        userCurrencyFromRaw: '${from.toUpperCase()}' + '_',
+        userCurrencyToRaw: '${to.toUpperCase()}' + '_',
+      );
 
       // Find trade and update receiveAmount with the real value received
       final storedTrade = _getStoredTrade(id);

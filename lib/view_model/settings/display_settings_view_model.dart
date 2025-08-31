@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:mobx/mobx.dart';
@@ -43,6 +44,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @computed
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
+
+  @computed
+  SyncStatusDisplayMode get syncStatusDisplayMode => _settingsStore.syncStatusDisplayMode;
 
   @computed
   String get backgroundImage => _settingsStore.backgroundImage;
@@ -90,6 +94,10 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
+
+  @action
+  void setSyncStatusDisplayMode(SyncStatusDisplayMode value) =>
+      _settingsStore.syncStatusDisplayMode = value;
 
   @action
   void setBackgroundImage(String path) => _settingsStore.backgroundImage = path;

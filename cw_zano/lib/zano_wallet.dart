@@ -59,9 +59,8 @@ abstract class ZanoWalletBase
   String get password => _password;
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) {
-    throw UnimplementedError();
-  }
+  Future<String> signMessage(String message, {String? address = null}) =>
+      super.signMessage(message, address: address);
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address = null}) {
