@@ -77,39 +77,6 @@ class CakePayCard {
     );
   }
 
-  List<Denomination> get denominationItemsWithUniqueValue {
-    if (denominationItems.isEmpty) return const [];
-
-    // unique by value and cardId
-    final findExact = <String>{};
-    final result = <Denomination>[];
-    for (final item in denominationItems) {
-      final str = '${item.value.toStringAsFixed(2)}|${item.cardId ?? 'null'}';
-      if (findExact.add(str)) {
-        result.add(item);
-      }
-    }
-
-    final perValue = <String, Denomination>{};
-    for (final item in result) {
-      final valueKey = item.value.toStringAsFixed(2);
-      final existing = perValue[valueKey];
-      if (existing == null) {
-        perValue[valueKey] = item;
-      } else {
-        final existingMatches = existing.cardId == id;
-        final currentMatches = item.cardId == id;
-        if (!existingMatches && currentMatches) {
-          perValue[valueKey] = item;
-        }
-      }
-    }
-
-    final list = perValue.values.toList(growable: false)
-      ..sort((a, b) => a.value.compareTo(b.value));
-    return list;
-  }
-
   static String stripHtmlIfNeeded(String text) {
     return text.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
   }
