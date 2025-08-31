@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
@@ -21,9 +20,11 @@ abstract class HoudiniSwap extends ExchangeProvider {
 
   bool get defaultCexOnly;
 
+  String get tokensPath;
+  String get t_getMinMaxPath;
+
   static final apiKey = '68adbcbc19908a02a9909c82:rqQoU2JAL7xfuPfqHSerim';
   static const _apiAuthority = 'api-partner.houdiniswap.com';
-  static const _tokens = '/tokens';
   static const _getMinMax = '/getMinMax';
   static const _quote = '/quote';
   static const _exchange = '/exchange';
@@ -32,7 +33,7 @@ abstract class HoudiniSwap extends ExchangeProvider {
   static final _headers = {'Content-Type': 'application/json', 'authorization': apiKey};
 
   @override
-  String get title => 'HoudiniSwap';
+  String get title;
 
   @override
   bool get supportsFixedRate => false;
@@ -43,25 +44,53 @@ abstract class HoudiniSwap extends ExchangeProvider {
   @override
   bool get isEnabled => true;
 
-  static final List<HoudiniToken> tokensCache = [];
+  static final List<HoudiniToken> cexTokensCache = [];
+  static final List<HoudiniToken> dexTokensCache = [];
 
   @override
   Future<bool> checkIsAvailable() async => true;
 
-  Future<List<HoudiniToken>> _getTokens() async {
-    if (tokensCache.isNotEmpty) return tokensCache;
+  Future<List<HoudiniToken>> _getTokens({String? chain}) async {
+    if (tokensPath == '/tokens') {
+      if (cexTokensCache.isNotEmpty) return cexTokensCache;
 
-    final uri = Uri.https(_apiAuthority, _tokens);
-    final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final uri = Uri.https(_apiAuthority, tokensPath);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
-    if (response.statusCode != 200) return [];
+      if (response.statusCode != 200) return [];
 
-    final decoded = jsonDecode(response.body) as List<dynamic>;
-    final tokens =
-        decoded.map((e) => HoudiniToken.fromJson(Map<String, dynamic>.from(e as Map))).toList();
-    tokensCache.clear();
-    tokensCache.addAll(tokens);
-    return tokensCache;
+      final decoded = jsonDecode(response.body) as List<dynamic>;
+      final tokens = decoded
+          .map((e) => HoudiniToken.fromCexJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+      cexTokensCache
+        ..clear()
+        ..addAll(tokens);
+      return cexTokensCache;
+    } else {
+      if (dexTokensCache.isNotEmpty) return dexTokensCache;
+
+      final params = {
+        if (chain != null) 'chain': chain,
+        'page': '1',
+        'pageSize': '200',
+      };
+
+      final uri = Uri.https(_apiAuthority, tokensPath, params);
+
+      final resp = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      if (resp.statusCode != 200) return [];
+
+      final decoded = jsonDecode(resp.body) as Map<String, dynamic>;
+      final list = (decoded['tokens'] as List<dynamic>)
+          .map((e) => HoudiniToken.fromDexJson(Map<String, dynamic>.from(e as Map)))
+          .toList();
+
+      dexTokensCache
+        ..clear()
+        ..addAll(list);
+      return dexTokensCache;
+    }
   }
 
   @override
@@ -309,31 +338,43 @@ abstract class HoudiniSwap extends ExchangeProvider {
   }
 }
 
-class HoudiniSwapCEXProvider extends HoudiniSwap {
-  HoudiniSwapCEXProvider() : super();
-
-  @override
-  ExchangeProviderDescription get description => ExchangeProviderDescription.houdiniCex;
-
-  @override
-  bool get defaultCexOnly => true;
-}
-
 class HoudiniToken {
-  HoudiniToken({required this.id, required this.symbol, required this.name, required this.network});
+  HoudiniToken(
+      {required this.id,
+      required this.symbol,
+      required this.name,
+      required this.network,
+      this.address,
+      this.decimals,
+      this.hasDex});
 
   final String id;
   final String symbol;
   final String name;
   final String network;
+  final String? address;
+  final int? decimals;
+  final bool? hasDex;
 
-  factory HoudiniToken.fromJson(Map<String, dynamic> json) {
+  factory HoudiniToken.fromCexJson(Map<String, dynamic> json) {
     final network = json['network'] as Map<String, dynamic>;
     return HoudiniToken(
       id: json['id'] as String,
       symbol: json['symbol'] as String,
       name: json['name'] as String,
       network: network['shortName'] as String? ?? '',
+    );
+  }
+
+  factory HoudiniToken.fromDexJson(Map<String, dynamic> json) {
+    final chain = (json['chain'] as String? ?? '').toUpperCase();
+    return HoudiniToken(
+      id: json['_id'] as String,
+      symbol: (json['symbol'] as String? ?? '').toUpperCase(),
+      name: json['name'] as String,
+      network: chain,
+      address: json['address'] as String?,
+      hasDex: json['hasDex'] as bool?,
     );
   }
 
@@ -361,5 +402,6 @@ class HoudiniToken {
   }
 
   @override
-  String toString() => 'HoudiniToken{id: $id, symbol: $symbol, name: $name, network: $network}';
+  String toString() =>
+      'HoudiniToken(id=$id, symbol=$symbol, network=$network, address=$address, decimals=$decimals, hasDex=$hasDex)';
 }

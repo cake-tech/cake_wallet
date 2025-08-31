@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:cake_wallet/exchange/provider/houdiniswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/houdiniswap_cex_provider.dart';
+import 'package:cake_wallet/exchange/provider/houdiniswap_dex_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -65,6 +66,8 @@ class TradeMonitor {
         return XOSwapExchangeProvider();
       case ExchangeProviderDescription.houdiniCex:
         return HoudiniSwapCEXProvider();
+      case ExchangeProviderDescription.houdiniDex:
+        return HoudiniSwapDEXProvider();
     }
     return null;
   }

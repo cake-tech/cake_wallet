@@ -19,7 +19,8 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/houdiniswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/houdiniswap_cex_provider.dart';
+import 'package:cake_wallet/exchange/provider/houdiniswap_dex_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
@@ -208,6 +209,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         TrocadorExchangeProvider(
             useTorOnly: _useTorOnly, providerStates: _settingsStore.trocadorProviderStates),
         HoudiniSwapCEXProvider(),
+        HoudiniSwapDEXProvider(),
       ];
 
   @observable
