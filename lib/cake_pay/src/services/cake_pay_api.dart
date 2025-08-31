@@ -20,7 +20,6 @@ class CakePayApi {
   static final verifyEmailPath = '/api/accounts/auth/verify';
   static final logoutPath = '/api/accounts/logout';
   static final orderPath = '/api/orders/order';
-  static final createOrderPath = '/api/orders/order';
   static final simulatePaymentPath = '/api/orders/simulate-payment';
 
   /// AuthenticateUser
