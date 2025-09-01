@@ -386,8 +386,10 @@ Future<void> setup({
   getIt.registerSingleton<SeedSettingsStore>(SeedSettingsStore());
 
   getIt.registerFactoryParam<HardwareWalletViewModel, HardwareWalletType, void>((type, _) {
-    if (type == HardwareWalletType.bitbox) return getIt<BitboxViewModel>();
-    return getIt<LedgerViewModel>();
+    switch(type) {
+      case HardwareWalletType.bitbox: return getIt<BitboxViewModel>();
+      case HardwareWalletType.ledger: return getIt<LedgerViewModel>();
+    }
   });
 
   getIt.registerLazySingleton(() => LedgerViewModel());
