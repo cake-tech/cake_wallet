@@ -564,7 +564,9 @@ class AddressResolverService {
       String text, List<CryptoCurrency> currencies, WalletBase _) async {
     final Map<CryptoCurrency, String> result = {};
 
-    final dnsProof = await Bip353Record.fetchDnsProof(text);
+    String? dnsProof;
+    try {
+    dnsProof = await Bip353Record.fetchDnsProof(text);
 
     for (final cur in currencies) {
       final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, cur.title);
@@ -579,6 +581,10 @@ class AddressResolverService {
           });
         }
       }
+    }
+    } catch (e) {
+      printV('Error fetching BIP-353 DNS proof: $e');
+      return null;
     }
 
     if (result.isNotEmpty) {

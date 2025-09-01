@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cake_wallet/nostr/nostr_user.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:nostr_tools/nostr_tools.dart';
+import 'dart:async' show Completer, TimeoutException, runZonedGuarded;
 
 class NostrProfileHandler {
   static final relayToDomainMap = {
@@ -52,44 +52,57 @@ class NostrProfileHandler {
 
   static Future<UserMetadata?> _fetchInfoFromRelay(
       String relayUrl, String userPubKey, List<int> kinds) async {
-    try {
-      final relay = RelayApi(relayUrl: _sanitizeRelay(relayUrl));
+    // sanitize so obvious junk (like '#') doesn't reach connect()
+    final clean = _sanitizeRelay(relayUrl);
+    if (clean.isEmpty) return null;
 
-      final stream = await relay.connect().timeout(
-        _relayTimeout,
-        onTimeout: () {
-          relay.close();
-          throw TimeoutException('Relay connect timeout');
-        },
-      );
+    final result = Completer<UserMetadata?>();
 
-      relay.sub([
-        Filter(kinds: kinds, authors: [userPubKey])
-      ]);
+    runZonedGuarded(() async {
+      try {
+        final relay = RelayApi(relayUrl: clean);
 
-      final completer = Completer<UserMetadata?>();
+        final stream = await relay.connect().timeout(
+          _relayTimeout,
+          onTimeout: () {
+            relay.close();
+            throw TimeoutException('Relay connect timeout');
+          },
+        );
 
-      final sub = stream.listen((msg) {
-        if (msg.type == 'EVENT' && !completer.isCompleted) {
-          final event = msg.message as Event;
-          final jsonMap = json.decode(event.content) as Map<String, dynamic>;
-          completer.complete(UserMetadata.fromJson(jsonMap));
-        }
-      }, onError: (_) {
-        if (!completer.isCompleted) completer.complete(null);
-      }, onDone: () {
-        if (!completer.isCompleted) completer.complete(null);
-      });
+        relay.sub([
+          Filter(kinds: kinds, authors: [userPubKey])
+        ]);
 
-      final result = await completer.future.timeout(_relayTimeout, onTimeout: () => null);
+        final sub = stream.listen((msg) {
+          if (msg.type == 'EVENT' && !result.isCompleted) {
+            try {
+              final event = msg.message as Event;
+              final jsonMap = json.decode(event.content) as Map<String, dynamic>;
+              result.complete(UserMetadata.fromJson(jsonMap));
+            } catch (_) {
+              if (!result.isCompleted) result.complete(null);
+            }
+          }
+        }, onError: (_) {
+          if (!result.isCompleted) result.complete(null);
+        }, onDone: () {
+          if (!result.isCompleted) result.complete(null);
+        });
 
-      await sub.cancel();
-      relay.close();
-      return result;
-    } catch (e) {
-      printV('[!] Error with relay $relayUrl: $e');
-      return null;
-    }
+        final value = await result.future.timeout(_relayTimeout, onTimeout: () => null);
+        await sub.cancel();
+        relay.close();
+        if (!result.isCompleted) result.complete(value);
+      } catch (_) {
+        if (!result.isCompleted) result.complete(null);
+      }
+    }, (error, stack) {
+      // swallow ALL async errors from the websocket layer (including "was not upgraded to websocket")
+      if (!result.isCompleted) result.complete(null);
+    });
+
+    return result.future;
   }
 
   static String _sanitizeRelay(String url) {
