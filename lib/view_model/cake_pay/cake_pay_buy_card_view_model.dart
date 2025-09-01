@@ -156,7 +156,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
         confirmsTermsAgreed: confirmsTermsAgreed,
       );
       final paymentData =
-          CakePayOrder.getPaymentDataFor(method: selectedPaymentMethod, order: order);
+          CakePayOrder.getPaymentDataFor(method: selectedPaymentMethod, order: order); // TODO should hande other currencies if added
       if (paymentData == null || order == null)
         throw Exception('Payment data or order is not available.');
 

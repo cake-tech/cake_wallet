@@ -8,8 +8,8 @@ class CakePayDetailsListCardItem extends StandartListItem {
     required String value,
     required this.id,
     required this.createdAt,
-    required this.price,
-    required this.quantity,
+    this.price,
+    this.quantity,
     required this.from,
     required this.to,
     required this.onTap,
@@ -18,8 +18,8 @@ class CakePayDetailsListCardItem extends StandartListItem {
 
   final String id;
   final String createdAt;
-  final String price;
-  final String quantity;
+  final String? price;
+  final String? quantity;
   final String from;
   final String to;
   final void Function(BuildContext) onTap;

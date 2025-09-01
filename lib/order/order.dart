@@ -16,8 +16,8 @@ class Order extends HiveObject {
     required this.transferId,
     required this.createdAt,
     required this.amount,
-    required this.receiveAmount,
-    required this.quantity,
+    this.receiveAmount,
+    this.quantity,
     required this.receiveAddress,
     required this.walletId,
     this.from,
@@ -70,15 +70,15 @@ class Order extends HiveObject {
   late int providerRaw;
 
   @HiveField(10, defaultValue: '')
-  String receiveAmount;
+  String? receiveAmount;
 
   @HiveField(11, defaultValue: 0)
-  late int sourceRaw;
+  late int? sourceRaw;
 
   @HiveField(12, defaultValue: '')
-  String quantity;
+  String? quantity;
 
-  OrderSourceDescription get source => OrderSourceDescription.deserialize(raw: sourceRaw);
+  OrderSourceDescription get source => OrderSourceDescription.deserialize(raw: sourceRaw ?? 0);
 
   BuyProviderDescription? get buyProvider => source == OrderSourceDescription.buy
       ? BuyProviderDescription.deserialize(raw: providerRaw)
@@ -103,8 +103,6 @@ class Order extends HiveObject {
       return orderProvider?.image ?? '';
     }
   }
-
-  BuyProviderDescription get provider => BuyProviderDescription.deserialize(raw: providerRaw);
 
   String amountFormatted() => formatAmount(amount) + ' ${from ?? ''}';
 }

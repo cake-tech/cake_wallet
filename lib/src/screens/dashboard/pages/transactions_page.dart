@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/payjoin_transaction_row.dart';
@@ -193,6 +194,7 @@ class TransactionsPage extends StatelessWidget {
                               return Observer(
                                 builder: (_) {
 
+                                  // TODO: Refactor Amount Hiding Logic it is not working properly for Orders and Trades
                                 final hide = dashboardViewModel.balanceViewModel.displayMode ==
                                     BalanceDisplayMode.hiddenBalance;
 
@@ -210,7 +212,7 @@ class TransactionsPage extends StatelessWidget {
                                   createdAtFormattedDate: DateFormat('HH:mm').format(order.createdAt),
                                   formattedAmount: formattedAmount,
                                   formattedReceiveAmount: dashboardViewModel.balanceViewModel.isFiatDisabled &&
-                                      order.providerTitle == 'Cake Pay'
+                                      order.source == OrderSourceDescription.order
                                       ? ''
                                       : formattedReceiveAmount,
                                 );

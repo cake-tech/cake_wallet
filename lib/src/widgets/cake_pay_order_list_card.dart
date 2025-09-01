@@ -6,8 +6,8 @@ class CakePayOrderListCard extends StatelessWidget {
     Key? key,
     required this.id,
     required this.create,
-    required this.quantity,
-    required this.price,
+    this.quantity,
+    this.price,
     required this.pair,
     required this.onTap,
     required this.currentTheme,
@@ -17,8 +17,8 @@ class CakePayOrderListCard extends StatelessWidget {
 
   final String id;
   final String create;
-  final String quantity;
-  final String price;
+  final String? quantity;
+  final String? price;
   final String pair;
   final ThemeType currentTheme;
   final void Function(BuildContext) onTap;
