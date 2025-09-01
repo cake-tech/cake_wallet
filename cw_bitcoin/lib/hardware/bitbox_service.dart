@@ -1,15 +1,20 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:bitbox_flutter/bitbox_manager.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
+import 'package:cw_bitcoin/psbt/v0_deserialize.dart';
+import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:ledger_bitcoin/ledger_bitcoin.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import 'package:ledger_bitcoin/psbt.dart';
 
-class BitcoinBitboxService extends HardwareWalletService {
+class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWalletService {
   BitcoinBitboxService(this.manager);
 
   final BitboxManager manager;
@@ -35,6 +40,26 @@ class BitcoinBitboxService extends HardwareWalletService {
 
     return accounts;
   }
+
+
+  @override
+  Future<Uint8List> signTransaction({required String transaction}) async {
+    final psbt = PsbtV2()..deserialize(base64Decode(transaction));
+    final signedPsbt = await manager.signBTCPsbt(1, base64Encode(psbt.asPsbtV0()));
+    log(signedPsbt);
+    final transactionRes = PsbtV2()
+      ..deserializeV0(base64Decode(signedPsbt))
+      ..finalizeV0();
+    return transactionRes.extract();
+  }
+
+  @override
+  Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) async {
+    throw UnimplementedError(); // ToDo (Konsti)
+  }
+
+  @override
+  Future<Uint8List> getMasterFingerprint() => manager.getMasterFingerprint();
 }
 
 class LitecoinBitboxService extends HardwareWalletService {

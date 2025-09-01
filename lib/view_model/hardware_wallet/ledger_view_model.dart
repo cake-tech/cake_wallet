@@ -180,6 +180,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.monero:
         return monero!.setLedgerConnection(wallet, connection);
       case WalletType.bitcoin:
+        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
         return bitcoin!.setLedgerConnection(wallet, connection);
       case WalletType.ethereum:

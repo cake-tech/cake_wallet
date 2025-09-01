@@ -90,9 +90,9 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   @override
   void initWallet(WalletBase wallet) {
     switch (wallet.type) {
-      // case WalletType.bitcoin:
-      // case WalletType.litecoin:
-        // return bitcoin!.setLedgerConnection(wallet, connection);
+      case WalletType.bitcoin:
+      case WalletType.litecoin:
+        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
         return ethereum!.setBitboxManager(wallet, bitboxManager);
       case WalletType.polygon:
