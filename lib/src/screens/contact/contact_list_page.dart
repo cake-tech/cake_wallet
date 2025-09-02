@@ -123,14 +123,10 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
                 splashFactory: NoSplash.splashFactory,
                 indicatorSize: TabBarIndicatorSize.label,
                 isScrollable: true,
-                labelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                labelStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                unselectedLabelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                unselectedLabelStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                 indicatorColor: Theme.of(context).colorScheme.primary,
