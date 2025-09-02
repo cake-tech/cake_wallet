@@ -168,6 +168,7 @@
   "collection_description": "集合描述",
   "collection_name": "收集名称",
   "color_theme": "主题",
+  "coming_soon_tag": "即将推出",
   "commit_transaction_amount_fee": "提交交易\n金额: ${amount}\n手续费: ${fee}",
   "confirm": "确认",
   "confirm_delete_template": "此操作将刪除此模板。确定吗？",

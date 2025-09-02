@@ -168,6 +168,7 @@
   "collection_description": "Описание коллекции",
   "collection_name": "Название коллекции",
   "color_theme": "Цветовая тема",
+  "coming_soon_tag": "Вскоре",
   "commit_transaction_amount_fee": "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}",
   "confirm": "Подтвердить",
   "confirm_delete_template": "Это действие удалит шаблон. Вы хотите продолжить?",

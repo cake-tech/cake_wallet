@@ -166,6 +166,7 @@
   "collection_description": "Mô tả bộ sưu tập",
   "collection_name": "Tên bộ sưu tập",
   "color_theme": "Chủ đề màu sắc",
+  "coming_soon_tag": "Sắp ra mắt",
   "commit_transaction_amount_fee": "Cam kết giao dịch\nSố tiền: ${amount}\nPhí: ${fee}",
   "confirm": "Xác nhận",
   "confirm_delete_template": "Thao tác này sẽ xóa mẫu này. Bạn có muốn tiếp tục không?",

@@ -168,6 +168,7 @@
   "collection_description": "컬렉션 설명",
   "collection_name": "컬렉션 이름",
   "color_theme": "색상 테마",
+  "coming_soon_tag": "곧 올 것입니다",
   "commit_transaction_amount_fee": "트랜잭션 커밋\n금액: ${amount}\n수수료: ${fee}",
   "confirm": "확인",
   "confirm_delete_template": "이 작업은 이 템플릿을 삭제합니다. 계속하시겠습니까?",

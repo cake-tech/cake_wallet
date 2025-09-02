@@ -168,6 +168,7 @@
   "collection_description": "جمع کرنے کی تفصیل",
   "collection_name": "جمع کرنے کا نام",
   "color_theme": "رنگین تھیم",
+  "coming_soon_tag": "جلد آرہا ہے",
   "commit_transaction_amount_fee": "لین دین کا ارتکاب کریں\\nرقم: ${amount}\\nفیس: ${fee}",
   "confirm": "تصدیق کریں۔",
   "confirm_delete_template": "یہ عمل اس ٹیمپلیٹ کو حذف کر دے گا۔ کیا آپ جاری رکھنا چاہتے ہیں؟",

@@ -168,6 +168,7 @@
   "collection_description": "Հավաքածուի նկարագրությունը",
   "collection_name": "Հավաքածուի անուն",
   "color_theme": "Գույների տեսք",
+  "coming_soon_tag": "Շուտով",
   "commit_transaction_amount_fee": "Հաստատել գործարքը\nՍկզբնական գումար. ${amount}\nՄիջնորդավճար. ${fee}",
   "confirm": "Հաստատել",
   "confirm_delete_template": "Այս գործողությունը կջնջի այս ձևանմուշը: Ցանկանու՞մ եք շարունակել։",

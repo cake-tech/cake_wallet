@@ -168,6 +168,7 @@
   "collection_description": "Paglalarawan ng Koleksyon",
   "collection_name": "Pangalan ng Koleksyon",
   "color_theme": "Color theme",
+  "coming_soon_tag": "Malapit na",
   "commit_transaction_amount_fee": "Gumawa ng transaksyon\nHalaga: ${amount}\nFee: ${fee}",
   "confirm": "Kumpirmahin",
   "confirm_delete_template": "Tatanggalin ng pagkilos na ito ang template na ito. Gusto mo bang magpatuloy?",

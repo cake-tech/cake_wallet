@@ -168,6 +168,7 @@
   "collection_description": "Опис колекції",
   "collection_name": "Назва колекції",
   "color_theme": "Кольорова тема",
+  "coming_soon_tag": "Незабаром",
   "commit_transaction_amount_fee": "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}",
   "confirm": "Підтвердити",
   "confirm_delete_template": "Ця дія видалить шаблон. Ви хочете продовжити?",

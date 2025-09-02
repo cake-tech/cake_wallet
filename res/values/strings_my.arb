@@ -168,6 +168,7 @@
   "collection_description": "စုဆောင်းခြင်းဖော်ပြချက်",
   "collection_name": "စုဆောင်းခြင်းအမည်",
   "color_theme": "အရောင်အပြင်အဆင်",
+  "coming_soon_tag": "မကြာမီလာမည်",
   "commit_transaction_amount_fee": "ငွေလွှဲခြင်း\nပမာဏ- ${amount}\nအခကြေးငွေ- ${fee}",
   "confirm": "အတည်ပြုပါ။",
   "confirm_delete_template": "ဤလုပ်ဆောင်ချက်သည် ဤပုံစံပြားကို ဖျက်လိုက်ပါမည်။ ဆက်လုပ်လိုပါသလား။",

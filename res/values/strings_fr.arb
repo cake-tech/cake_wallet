@@ -168,6 +168,7 @@
   "collection_description": "Description de la collection",
   "collection_name": "Nom de collection",
   "color_theme": "Thème",
+  "coming_soon_tag": "À venir",
   "commit_transaction_amount_fee": "Valider la transaction\nMontant : ${amount}\nFrais : ${fee}",
   "confirm": "Confirmer",
   "confirm_delete_template": "Cette action va supprimer ce modèle. Souhaitez-vous continuer ?",

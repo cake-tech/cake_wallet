@@ -168,6 +168,7 @@
   "collection_description": "Collection Description",
   "collection_name": "Collection Name",
   "color_theme": "Color theme",
+  "coming_soon_tag": "Coming Soon",
   "commit_transaction_amount_fee": "Commit transaction\nAmount: ${amount}\nFee: ${fee}",
   "confirm": "Confirm",
   "confirm_delete_template": "This action will delete this template. Do you wish to continue?",

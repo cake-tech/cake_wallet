@@ -168,6 +168,7 @@
   "collection_description": "Descrição da coleção",
   "collection_name": "Nome da coleção",
   "color_theme": "Tema de cor",
+  "coming_soon_tag": "Em breve",
   "commit_transaction_amount_fee": "Confirmar transação\nQuantia: ${amount}\nTaxa: ${fee}",
   "confirm": "Confirmar",
   "confirm_delete_template": "Esta ação excluirá este modelo. Você deseja continuar?",

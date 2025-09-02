@@ -168,6 +168,7 @@
   "collection_description": "Bayanin tarin",
   "collection_name": "Sunan tattara",
   "color_theme": "Jigon launi",
+  "coming_soon_tag": "Zuwan nan da sannu",
   "commit_transaction_amount_fee": "Aikata ciniki\nAdadi: ${amount}\nKuda: ${fee}",
   "confirm": "Tabbatar",
   "confirm_delete_template": "Wannan aikin zai share wannan samfuri. Kuna so ku ci gaba?",

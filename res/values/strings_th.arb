@@ -168,6 +168,7 @@
   "collection_description": "คำอธิบายการรวบรวม",
   "collection_name": "ชื่อคอลเลกชัน",
   "color_theme": "ธีมสี",
+  "coming_soon_tag": "เร็วๆ นี้",
   "commit_transaction_amount_fee": "ยืนยันธุรกรรม\nจำนวน: ${amount}\nค่าธรรมเนียม: ${fee}",
   "confirm": "ยืนยัน",
   "confirm_delete_template": "การดำเนินการนี้จะลบแบบฟอร์มนี้ คุณต้องการดำเนินการต่อหรือไม่?",
