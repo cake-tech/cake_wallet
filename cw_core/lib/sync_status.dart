@@ -107,19 +107,19 @@ class SyncingSyncStatus extends SyncStatus {
     if (diff > 3600) {
       // If it's more than 1 hour difference, it's a large change so we move by max 30 minutes
       final direction = newMs > currentMs ? 1 : -1;
-      final maxChange = 30 * 60;
+      final maxChange = 30 * 60 * 1000;
       final adjustedMs = currentMs + (direction * maxChange);
       return Duration(milliseconds: adjustedMs);
     } else if (diff > 300) {
       // If it's more than 5 minutes difference, it's a medium change so we move by max 2 minutes
       final direction = newMs > currentMs ? 1 : -1;
-      final maxChange = 2 * 60;
+      final maxChange = 2 * 60 * 1000;
       final adjustedMs = currentMs + (direction * maxChange);
       return Duration(milliseconds: adjustedMs);
     } else if (diff > 60) {
       // If it's more than 1 minute difference, it's a small change so we move by max 30 ms
       final direction = newMs > currentMs ? 1 : -1;
-      final maxChange = 30;
+      final maxChange = 30 * 1000;
       final adjustedMs = currentMs + (direction * maxChange);
       return Duration(milliseconds: adjustedMs);
     }
