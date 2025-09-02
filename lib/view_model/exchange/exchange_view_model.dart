@@ -448,6 +448,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   @action
+  void setReceiveAmountFromFiat({required String fiatAmount}) {
+    final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
+        fiatConversionStore.prices[receiveCurrency]!;
+    final receiveAmountTmp = _cryptoNumberFormat.format(crypto);
+    if (receiveAmount != receiveAmountTmp) {
+      changeReceiveAmount(amount: receiveAmountTmp);
+    }
+  }
+
+  @action
   Future<void> changeDepositAmount({required String amount}) async {
     depositAmount = amount;
 

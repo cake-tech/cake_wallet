@@ -78,6 +78,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   late TextEditingController _noteController;
 
   final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
+  final _receiveAmountFiatDebounce = Debounce(Duration(milliseconds: 500));
   final FocusNode _amountFocus = FocusNode();
   final FocusNode _amountFiatFocus = FocusNode();
   final FocusNode _addressFocus = FocusNode();
@@ -369,6 +370,15 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
           exchangeViewModel.loadLimits();
           exchangeViewModel.changeReceiveAmount(amount: _amountController.text);
           exchangeViewModel.isReceiveAmountEntered = true;
+        });
+      }
+    });
+
+    _amountFiatController.addListener(() {
+      if (_amountFiatController.text != exchangeViewModel.receiveAmountFiatFormatted) {
+        _receiveAmountFiatDebounce.run(() {
+          exchangeViewModel.loadLimits();
+          exchangeViewModel.setReceiveAmountFromFiat(fiatAmount: _amountFiatController.text);
         });
       }
     });
