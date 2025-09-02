@@ -45,8 +45,9 @@ class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWal
   @override
   Future<Uint8List> signTransaction({required String transaction}) async {
     final psbt = PsbtV2()..deserialize(base64Decode(transaction));
+    log(base64Encode(psbt.asPsbtV0()), name: 'PSBT');
     final signedPsbt = await manager.signBTCPsbt(1, base64Encode(psbt.asPsbtV0()));
-    log(signedPsbt);
+    log(signedPsbt, name: 'signed PSBT');
     final transactionRes = PsbtV2()
       ..deserializeV0(base64Decode(signedPsbt))
       ..finalizeV0();
