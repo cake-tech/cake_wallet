@@ -521,7 +521,7 @@ Future<void> setup({
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
-  getIt.registerFactory(
+  getIt.registerLazySingleton(
     () => ExchangeViewModel(
       getIt.get<AppStore>(),
       _tradesSource,

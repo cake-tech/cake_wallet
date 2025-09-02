@@ -60,6 +60,7 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
       (_) => widget.exchangeTradeViewModel.sendViewModel.state,
       (ExecutionState state) async {
         if (state is! IsExecutingState &&
+            state is! TransactionCommitting &&
             _loadingBottomSheetContext != null &&
             _loadingBottomSheetContext!.mounted) {
           Navigator.of(_loadingBottomSheetContext!).pop();
@@ -108,45 +109,9 @@ class _SwapDetailsBottomSheetState extends State<SwapDetailsBottomSheet> {
         }
 
         if (state is ExecutedSuccessfullyState) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (context.mounted) {
-              showModalBottomSheet<void>(
-                context: context,
-                isDismissible: false,
-                isScrollControlled: true,
-                builder: (BuildContext bottomSheetContext) {
-                  return ConfirmSendingBottomSheet(
-                    key: ValueKey('swap_details_confirm_sending_bottom_sheet_key'),
-                    currentTheme: widget.currentTheme,
-                    footerType: FooterType.slideActionButton,
-                    walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
-                    titleText: S.of(bottomSheetContext).confirm_transaction,
-                    titleIconPath:
-                        widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency.iconPath,
-                    currency: widget.exchangeTradeViewModel.sendViewModel.selectedCryptoCurrency,
-                    amount: S.of(bottomSheetContext).send_amount,
-                    amountValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.amountFormatted,
-                    fiatAmountValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransactionFiatAmountFormatted,
-                    fee:
-                        isEVMCompatibleChain(widget.exchangeTradeViewModel.sendViewModel.walletType)
-                            ? S.of(bottomSheetContext).send_estimated_fee
-                            : S.of(bottomSheetContext).send_fee,
-                    feeValue: widget
-                        .exchangeTradeViewModel.sendViewModel.pendingTransaction!.feeFormatted,
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransactionFeeFiatAmountFormatted,
-                    outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
-                    onSlideActionComplete: () async {
-                      if (bottomSheetContext.mounted) {
-                        Navigator.of(bottomSheetContext).pop();
-                      }
-                      widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
-                    },
-                  );
-                },
-              );
+              await widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
             }
           });
         }
@@ -326,10 +291,10 @@ class _SwapDetailsContent extends StatelessWidget {
                 value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
                 valueFiatFormatted: exchangeTradeViewModel.receiveAmountFiatFormatted,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(10),
@@ -338,7 +303,7 @@ class _SwapDetailsContent extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'DestinationAddress',
+                      'To this Address',
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium!
@@ -356,16 +321,15 @@ class _SwapDetailsContent extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
@@ -384,14 +348,30 @@ class _SwapDetailsContent extends StatelessWidget {
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: trade.id));
-                        showBar<void>(context, S.of(context).copied_to_clipboard);
-                      },
-                      child: Text(
-                        'ID: ${trade.id}',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
+                    Spacer(),
+                    Expanded(
+                      // flex: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: trade.id));
+                          showBar<void>(context, S.of(context).copied_to_clipboard);
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              'ID: ',
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
+                            ),
+                            Expanded(
+                              child: Text(
+                                trade.id,
+                                style:
+                                    Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
+                                    softWrap: true,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -418,7 +398,7 @@ class _SwapDetailsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),

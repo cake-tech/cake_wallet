@@ -392,9 +392,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     var amount = '0.00';
     try {
       if (receiveAmount.isNotEmpty) {
-        if (fiatConversionStore.prices[receiveCurrency] == null) {
-          log('Price is null for ${receiveCurrency.title}, fetching price now');
-        }
+        if (fiatConversionStore.prices[receiveCurrency] == null) return '';
+
         amount = calculateFiatAmount(
           price: fiatConversionStore.prices[receiveCurrency]!,
           cryptoAmount: receiveAmount,

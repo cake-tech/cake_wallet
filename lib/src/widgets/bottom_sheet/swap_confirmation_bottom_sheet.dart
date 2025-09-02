@@ -109,6 +109,14 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
         TextEditingController(text: widget.exchangeViewModel.receiveAmountFiatFormatted);
     _noteController =
         TextEditingController(text: widget.paymentFlowResult.addressDetectionResult?.note ?? '');
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _setUpReactions(
+        context,
+        widget.exchangeViewModel,
+        widget.paymentFlowResult,
+      ),
+    );
   }
 
   @override
@@ -135,14 +143,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => _setUpReactions(
-        context,
-        widget.exchangeViewModel,
-        widget.paymentFlowResult,
-      ),
-    );
-
     return Form(
       key: _formKey,
       child: Observer(
@@ -383,6 +383,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     await exchangeViewModel.fetchFiatPrice(exchangeViewModel.receiveCurrency);
 
     exchangeViewModel.receiveAddress = _addressController.text;
+    exchangeViewModel.depositAddress = exchangeViewModel.wallet.walletAddresses.addressForExchange;
     exchangeViewModel.receiveAmount = _amountController.text;
     _amountFiatController.text = exchangeViewModel.receiveAmountFiatFormatted;
     exchangeViewModel.isReceiveAmountEntered = true;
