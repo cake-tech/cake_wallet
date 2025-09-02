@@ -39,6 +39,7 @@ class CakePayCard {
     final termsAndConditions = stripHtmlIfNeeded(json['terms_and_conditions'] as String? ?? '');
     final howToUse = stripHtmlIfNeeded(json['how_to_use'] as String? ?? '');
     final fiatCurrency = FiatCurrency.deserialize(raw: json['currency_code'] as String? ?? '');
+
     String? minValue = json['min_value'] as String?;
 
     final parsedMinValueLocal = _toDouble(json['min_value']);
