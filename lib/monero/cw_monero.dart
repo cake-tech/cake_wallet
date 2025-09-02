@@ -62,12 +62,12 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
     final moneroWallet = _wallet as MoneroWallet;
     final subAddresses = moneroWallet.walletAddresses.subaddressList.subaddresses
         .map((sub) => Subaddress(
-          id: sub.id,
-          address: sub.address,
-          label: sub.label,
-          received: sub.balance??"unknown",
-          txCount: sub.txCount??0,
-        ))
+              id: sub.id,
+              address: sub.address,
+              label: sub.label,
+              received: sub.balance ?? "unknown",
+              txCount: sub.txCount ?? 0,
+            ))
         .toList();
     return ObservableList<Subaddress>.of(subAddresses);
   }
@@ -90,11 +90,11 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
     return moneroWallet.walletAddresses.subaddressList
         .getAll()
         .map((sub) => Subaddress(
-          id: sub.id,
-          label: sub.label,
-          address: sub.address,
-          txCount: sub.txCount??0,
-          received: sub.balance??'unknown'))
+            id: sub.id,
+            label: sub.label,
+            address: sub.address,
+            txCount: sub.txCount ?? 0,
+            received: sub.balance ?? 'unknown'))
         .toList();
   }
 
@@ -233,10 +233,7 @@ class CWMonero extends Monero {
     required ledger.LedgerConnection ledgerConnection,
   }) =>
       MoneroRestoreWalletFromHardwareCredentials(
-          name: name,
-          password: password,
-          height: height,
-          ledgerConnection: ledgerConnection);
+          name: name, password: password, height: height, ledgerConnection: ledgerConnection);
 
   @override
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
@@ -246,7 +243,11 @@ class CWMonero extends Monero {
           required int height,
           required String mnemonic}) =>
       MoneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
+          name: name,
+          password: password,
+          passphrase: passphrase,
+          height: height,
+          mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({
@@ -267,6 +268,54 @@ class CWMonero extends Monero {
         passphrase: passphrase,
         mnemonic: mnemonic,
       );
+
+  @override
+  Future<int> getNodeHeight(Object wallet) async {
+    final moneroWallet = wallet as MoneroWallet;
+    return await moneroWallet.getNodeHeight();
+  }
+
+  @override
+  String seed(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.seed;
+  }
+
+  @override
+  String seedLegacy(Object wallet, String? language) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.seedLegacy(language);
+  }
+
+  @override
+  MoneroWalletKeys keys(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.keys;
+  }
+
+  @override
+  bool isBackgroundSyncRunning(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.isBackgroundSyncRunning;
+  }
+
+  @override
+  Future<void> rescan(Object wallet, {required int height}) async {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.rescan(height: height);
+  }
+
+  @override
+  Future<void> startBackgroundSync(Object wallet) async {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.startBackgroundSync();
+  }
+
+  @override
+  Future<void> stopBackgroundSync(Object wallet, String password) async {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.stopBackgroundSync(password);
+  }
 
   @override
   Map<String, String> getKeys(Object wallet) {
@@ -384,13 +433,12 @@ class CWMonero extends Monero {
   Future<int> getCurrentHeight() async {
     return monero_wallet_api.getCurrentHeight();
   }
-  
+
   @override
   bool importKeyImagesUR(Object wallet, String ur) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.importKeyImagesUR(ur);
   }
-
 
   @override
   Future<bool> commitTransactionUR(Object wallet, String ur) {

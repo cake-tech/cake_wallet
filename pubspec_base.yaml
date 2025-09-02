@@ -117,10 +117,6 @@ dependencies:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
   hashlib: 1.19.2
-  on_chain:
-    git:
-      url: https://github.com/cake-tech/on_chain.git
-      ref: cake-update-v2
   reown_walletkit: ^1.1.5+1
   blockchain_utils:
     git:
@@ -139,10 +135,6 @@ dependencies:
     git:
       url: https://github.com/mrcyjanek/bbqrdart
       ref: e867e3d0156d0b29858100f30adc2625b9dae586
-  dnssec_proof:
-    git:
-      url: https://github.com/MrCyjaneK/dnssec_proof.git
-      ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
 
 dev_dependencies:
   flutter_test:

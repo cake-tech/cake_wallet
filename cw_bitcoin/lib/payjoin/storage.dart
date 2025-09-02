@@ -1,7 +1,4 @@
-import 'package:cw_core/payjoin_session.dart';
-import 'package:hive/hive.dart';
-import 'package:payjoin_flutter/receive.dart';
-import 'package:payjoin_flutter/send.dart';
+part of 'payjoin.dart';
 
 class PayjoinStorage {
   PayjoinStorage(this._payjoinSessionSources);
@@ -23,16 +20,14 @@ class PayjoinStorage {
         ),
       );
 
-  PayjoinSession? getUnusedActiveReceiverSession(String walletId) =>
-      _payjoinSessionSources.values
-          .where((session) =>
-              session.walletId == walletId &&
-              session.status == PayjoinSessionStatus.created.name &&
-              !session.isSenderSession)
-          .firstOrNull;
+  PayjoinSession? getUnusedActiveReceiverSession(String walletId) => _payjoinSessionSources.values
+      .where((session) =>
+          session.walletId == walletId &&
+          session.status == PayjoinSessionStatus.created.name &&
+          !session.isSenderSession)
+      .firstOrNull;
 
-  Future<void> markReceiverSessionComplete(
-      String sessionId, String txId, String amount) async {
+  Future<void> markReceiverSessionComplete(String sessionId, String txId, String amount) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
 
     session.status = PayjoinSessionStatus.success.name;
@@ -41,8 +36,7 @@ class PayjoinStorage {
     await session.save();
   }
 
-  Future<void> markReceiverSessionUnrecoverable(
-      String sessionId, String reason) async {
+  Future<void> markReceiverSessionUnrecoverable(String sessionId, String reason) async {
     final session = _payjoinSessionSources.get("$_receiverPrefix${sessionId}")!;
 
     session.status = PayjoinSessionStatus.unrecoverable.name;
@@ -92,13 +86,10 @@ class PayjoinStorage {
     await session.save();
   }
 
-  List<PayjoinSession> readAllOpenSessions(String walletId) =>
-      _payjoinSessionSources.values
-          .where((session) =>
-              session.walletId == walletId &&
-              ![
-                PayjoinSessionStatus.success.name,
-                PayjoinSessionStatus.unrecoverable.name
-              ].contains(session.status))
-          .toList();
+  List<PayjoinSession> readAllOpenSessions(String walletId) => _payjoinSessionSources.values
+      .where((session) =>
+          session.walletId == walletId &&
+          ![PayjoinSessionStatus.success.name, PayjoinSessionStatus.unrecoverable.name]
+              .contains(session.status))
+      .toList();
 }
