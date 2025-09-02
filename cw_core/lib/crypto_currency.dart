@@ -261,6 +261,24 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       return acc;
     });
 
+  // Scheme to currency mapping for URI scheme
+  static final Map<String, CryptoCurrency> _schemeCurrencyMap = {
+    'bitcoin': btc,
+    'bitcoincash': bch,
+    'polygon': maticpoly,
+    'nano-gpt': nano,
+    'secret': scrt,
+    'stellar': xlm,
+    'avalanche': avaxc,
+    'binance': bnb,
+    'tether': usdt,
+    'usdcoin': usdc,
+    'wrappedbitcoin': wbtc,
+    'wrappedether': weth,
+    'shibainu': shib,
+    'zcash': zec,
+  };
+
   static CryptoCurrency deserialize({required int raw}) {
     if (CryptoCurrency._rawCurrencyMap[raw] == null) {
       final s = 'Unexpected token: $raw for CryptoCurrency deserialize';
@@ -269,8 +287,18 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     return CryptoCurrency._rawCurrencyMap[raw]!;
   }
 
+  static CryptoCurrency? safeDeserialize({int? raw}) {
+    if (raw == null || raw < 0) return null;
+    return _rawCurrencyMap[raw];
+  }
+
+
   // TODO: refactor this
   static CryptoCurrency fromString(String name, {CryptoCurrency? walletCurrency}) {
+
+    final schemeMatch = _schemeCurrencyMap[name.toLowerCase()];
+    if (schemeMatch != null) return schemeMatch;
+
     try {
       return CryptoCurrency.all.firstWhere((element) =>
           element.title.toLowerCase() == name.toLowerCase() &&
@@ -298,6 +326,46 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       throw  ArgumentError.value(name, 'Fullname', s);
     }
     return CryptoCurrency._fullNameCurrencyMap[name.split("(").first.trim().toLowerCase()]!;
+  }
+
+  static CryptoCurrency? safeParseCurrencyFromString(String? raw, {CryptoCurrency? walletCurrency}) {
+    if (raw == null || raw.isEmpty) return null;
+
+    try {
+      return CryptoCurrency.fromString(raw, walletCurrency: walletCurrency);
+    } catch (_) {}
+
+    // try cleaned (keep only A–Z/0–9)
+    final cleaned = raw.trim().toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    try {
+      return CryptoCurrency.fromString(cleaned, walletCurrency: walletCurrency);
+    } catch (_) {}
+
+    return null;
+  }
+
+  CryptoCurrency copyWith({
+    String? title,
+    int? raw,
+    String? name,
+    String? fullName,
+    String? iconPath,
+    String? tag,
+    int? decimals,
+    bool? enabled,
+    bool? isPotentialScam,
+  }) {
+    return CryptoCurrency(
+      title: title ?? this.title,
+      raw: raw ?? this.raw,
+      name: name ?? this.name,
+      fullName: fullName ?? this.fullName,
+      iconPath: iconPath ?? this.iconPath,
+      tag: tag ?? this.tag,
+      decimals: decimals ?? this.decimals,
+      enabled: enabled ?? this.enabled,
+      isPotentialScam: isPotentialScam ?? this.isPotentialScam,
+    );
   }
 
   @override

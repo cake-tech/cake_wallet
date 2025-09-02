@@ -252,10 +252,17 @@ abstract class EVMChainWalletBase
       // For fixing wrongly classified tokens
       if (!isPotentialScam && token.isPotentialScam) {
         token.isPotentialScam = false;
-        final iconPath = CryptoCurrency.all
-            .firstWhere((element) => element.title.toUpperCase() == token.symbol.toUpperCase())
-            .iconPath;
-        token.iconPath = iconPath;
+
+        if (token.iconPath == null || token.iconPath!.isEmpty) {
+          try {
+            token.iconPath = CryptoCurrency.all
+                .firstWhere((e) => e.title.toUpperCase() == token.symbol.toUpperCase())
+                .iconPath;
+          } catch (_) {
+            printV("Token ${token.symbol} does not have an icon path");
+          }
+        }
+
         await token.save();
       }
     }

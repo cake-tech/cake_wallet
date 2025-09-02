@@ -5,6 +5,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -115,7 +116,7 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
 
-  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin;
+  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin && DeviceInfo.instance.isMobile;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>

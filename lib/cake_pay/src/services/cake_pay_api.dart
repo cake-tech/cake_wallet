@@ -19,7 +19,7 @@ class CakePayApi {
   static const authPath = '/api/accounts/auth';
   static final verifyEmailPath = '/api/accounts/auth/verify';
   static final logoutPath = '/api/accounts/logout';
-  static final createOrderPath = '/api/orders/order';
+  static final orderPath = '/api/orders/order';
   static final simulatePaymentPath = '/api/orders/simulate-payment';
 
   /// AuthenticateUser
@@ -104,7 +104,7 @@ class CakePayApi {
     required bool confirmsVoidedRefund,
     required bool confirmsTermsAgreed,
   }) async {
-    final uri = Uri.https(baseCakePayUri, createOrderPath);
+    final uri = Uri.https(baseCakePayUri, orderPath);
 
     final headers = {
       'Accept': 'application/json',
@@ -153,6 +153,28 @@ class CakePayApi {
     }
 
     throw Exception(message);
+  }
+
+  /// Get Order by ID
+  Future<CakePayOrder> getOrderById({required String orderId, required String token}) async {
+    final uri = Uri.https(baseCakePayUri, '$orderPath/$orderId');
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Token $token',
+    };
+    final response = await ProxyWrapper().get(
+      clearnetUri: uri,
+      headers: headers,
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    }
+
+    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+
+    return CakePayOrder.fromMap(bodyJson);
   }
 
   ///Simulate Payment

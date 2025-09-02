@@ -263,7 +263,7 @@ abstract class Bitcoin {
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
   Map<String, String> getSilentPaymentKeys(Object wallet);
-  String? getTransactionAddress(Object wallet, TransactionInfo tx);
+  List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
 }
   """;
 
@@ -1127,11 +1127,11 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/spl_token.dart';
 import 'package:hive/hive.dart';
 
 """;
   const solanaCWHeaders = """
-import 'package:cw_solana/spl_token.dart';
 import 'package:cw_solana/solana_wallet.dart';
 import 'package:cw_solana/solana_mnemonics.dart';
 import 'package:cw_solana/solana_wallet_service.dart';
@@ -1213,6 +1213,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:hive/hive.dart';
 
 """;
@@ -1223,7 +1224,6 @@ import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
 
 import 'package:cw_tron/tron_client.dart';
-import 'package:cw_tron/tron_token.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_service.dart';
 import 'package:cw_tron/default_tron_tokens.dart';

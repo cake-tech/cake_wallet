@@ -31,12 +31,13 @@ class Trade extends HiveObject {
     this.isRefund,
     this.isSendAll,
     this.router,
+    this.userCurrencyFromRaw,
+    this.userCurrencyToRaw,
   }) {
     if (provider != null) providerRaw = provider.raw;
 
-    if (from != null) fromRaw = from.raw;
-
-    if (to != null) toRaw = to.raw;
+    fromRaw = from?.raw ?? -1;
+    toRaw   = to?.raw   ?? -1;
 
     if (state != null) stateRaw = state.raw;
   }
@@ -54,15 +55,15 @@ class Trade extends HiveObject {
   ExchangeProviderDescription get provider =>
       ExchangeProviderDescription.deserialize(raw: providerRaw);
 
-  @HiveField(2, defaultValue: 0)
-  late int fromRaw;
+  @HiveField(2, defaultValue: -1)
+  int fromRaw = -1;
 
-  CryptoCurrency get from => CryptoCurrency.deserialize(raw: fromRaw);
+  CryptoCurrency? get from => CryptoCurrency.safeDeserialize(raw: fromRaw);
 
-  @HiveField(3, defaultValue: 0)
-  late int toRaw;
+  @HiveField(3, defaultValue: -1)
+  int toRaw = -1;
 
-  CryptoCurrency get to => CryptoCurrency.deserialize(raw: toRaw);
+  CryptoCurrency? get to => CryptoCurrency.safeDeserialize(raw: toRaw);
 
   @HiveField(4, defaultValue: '')
   late String stateRaw;
@@ -126,6 +127,46 @@ class Trade extends HiveObject {
   @HiveField(23, defaultValue: '')
   String? receiveAmount;
 
+  @HiveField(24, defaultValue: '')
+  String? userCurrencyFromRaw;
+
+  @HiveField(25, defaultValue: '')
+  String? userCurrencyToRaw;
+
+  CryptoCurrency? get userCurrencyFrom {
+    if (userCurrencyFromRaw == null || userCurrencyFromRaw!.isEmpty) {
+      return null;
+    }
+    final underscoreIndex = userCurrencyFromRaw!.indexOf('_');
+    final title = userCurrencyFromRaw!.substring(0, underscoreIndex);
+    final tag = userCurrencyFromRaw!.substring(underscoreIndex + 1);
+
+    return CryptoCurrency(
+      title: title,
+      tag: tag.isNotEmpty ? tag : null,
+      name: '',
+      raw: -1,
+      decimals: 1,
+    );
+  }
+
+  CryptoCurrency? get userCurrencyTo {
+    if (userCurrencyToRaw == null || userCurrencyToRaw!.isEmpty) {
+      return null;
+    }
+    final underscoreIndex = userCurrencyToRaw!.indexOf('_');
+    final title = userCurrencyToRaw!.substring(0, underscoreIndex);
+    final tag = userCurrencyToRaw!.substring(underscoreIndex + 1);
+
+    return CryptoCurrency(
+      title: title,
+      tag: tag.isNotEmpty ? tag : null,
+      name: '',
+      raw: -1,
+      decimals: 1,
+    );
+  }
+
   static Trade fromMap(Map<String, Object?> map) {
     return Trade(
       id: map['id'] as String,
@@ -151,8 +192,8 @@ class Trade extends HiveObject {
     return <String, dynamic>{
       'id': id,
       'provider': provider.serialize(),
-      'input': from.serialize(),
-      'output': to.serialize(),
+      'input': fromRaw,
+      'output': toRaw,
       'date': createdAt != null ? createdAt!.millisecondsSinceEpoch : null,
       'amount': amount,
       'receive_amount': receiveAmount,
@@ -206,17 +247,19 @@ class TradeAdapter extends TypeAdapter<Trade> {
       isRefund: fields[20] as bool?,
       isSendAll: fields[21] as bool?,
       router: fields[22] as String?,
+      userCurrencyFromRaw: fields[24] as String?,
+      userCurrencyToRaw: fields[25] as String?,
     )
       ..providerRaw = fields[1] == null ? 0 : fields[1] as int
-      ..fromRaw = fields[2] == null ? 0 : fields[2] as int
-      ..toRaw = fields[3] == null ? 0 : fields[3] as int
+      ..fromRaw = (fields[2] as int?) ?? -1
+      ..toRaw = (fields[3] as int?) ?? -1
       ..stateRaw = fields[4] == null ? '' : fields[4] as String;
   }
 
   @override
   void write(BinaryWriter writer, Trade obj) {
     writer
-      ..writeByte(24)
+      ..writeByte(26)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -264,7 +307,11 @@ class TradeAdapter extends TypeAdapter<Trade> {
       ..writeByte(22)
       ..write(obj.router)
       ..writeByte(23)
-      ..write(obj.receiveAmount);
+      ..write(obj.receiveAmount)
+      ..writeByte(24)
+      ..write(obj.userCurrencyFromRaw)
+      ..writeByte(25)
+      ..write(obj.userCurrencyToRaw);
   }
 
   @override

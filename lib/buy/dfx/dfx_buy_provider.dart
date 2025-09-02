@@ -63,9 +63,9 @@ class DFXBuyProvider extends BuyProvider {
   String get blockchain {
     switch (wallet.type) {
       case WalletType.bitcoin:
-      case WalletType.bitcoinCash:
-      case WalletType.litecoin:
         return 'Bitcoin';
+      case WalletType.zano:
+        return 'Zano';
       default:
         return walletTypeToString(wallet.type);
     }
@@ -132,6 +132,7 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
+      case WalletType.zano:
         return await wallet.signMessage(message, address: walletAddress);
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
@@ -347,7 +348,7 @@ class DFXBuyProvider extends BuyProvider {
         'asset-out': isBuyAction ? quote.cryptoCurrency.toString() : quote.fiatCurrency.toString(),
         'blockchain': blockchain,
         'asset-in': isBuyAction ? quote.fiatCurrency.toString() : quote.cryptoCurrency.toString(),
-        'amount': amount.toString() //TODO: Amount does not work
+        'amount-in': amount.toString()
       });
 
       if (await canLaunchUrl(uri)) {

@@ -1,4 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/anonpay_transaction_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/payjoin_transaction_row.dart';
@@ -164,38 +166,57 @@ class TransactionsPage extends StatelessWidget {
                             if (item is TradeListItem) {
                               final trade = item.trade;
 
-                              return Observer(
-                                builder: (_) => TradeRow(
-                                  key: item.key,
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.tradeDetails, arguments: trade),
-                                    swapState: trade.state,
-                                    provider: trade.provider,
-                                  from: trade.from,
-                                  to: trade.to,
-                                  createdAtFormattedDate: trade.createdAt != null
-                                      ? DateFormat('HH:mm').format(trade.createdAt!)
-                                      : null,
-                                  formattedAmount: item.tradeFormattedAmount, 
-                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount
-                                ),
-                              );
+                              final tradeFrom =
+                                  trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
+
+                              final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
+
+                              return tradeFrom != null && tradeTo != null
+                                  ? Observer(
+                                      builder: (_) => TradeRow(
+                                          key: item.key,
+                                          onTap: () => Navigator.of(context)
+                                              .pushNamed(Routes.tradeDetails, arguments: trade),
+                                          swapState: trade.state,
+                                          provider: trade.provider,
+                                          from: tradeFrom,
+                                          to: tradeTo,
+                                          createdAtFormattedDate: trade.createdAt != null
+                                              ? DateFormat('HH:mm').format(trade.createdAt!)
+                                              : null,
+                                          formattedAmount: item.tradeFormattedAmount,
+                                          formattedReceiveAmount: item.tradeFormattedReceiveAmount),
+                                    )
+                                  : Container();
                             }
                             if (item is OrderListItem) {
                               final order = item.order;
-
                               return Observer(
-                                builder: (_) => OrderRow(
+                                builder: (_) {
+
+                                  // TODO: Refactor Amount Hiding Logic it is not working properly for Orders and Trades
+                                final hide = dashboardViewModel.balanceViewModel.displayMode ==
+                                    BalanceDisplayMode.hiddenBalance;
+
+                                final formattedAmount = hide ? '---' : order.amountFormatted();
+                                final formattedReceiveAmount = hide ? '---' : order.receiveAmount;
+
+                                return OrderRow(
                                   key: item.key,
                                   onTap: () => Navigator.of(context)
                                       .pushNamed(Routes.orderDetails, arguments: order),
-                                  provider: order.provider,
-                                  from: order.from!,
-                                  to: order.to!,
-                                  createdAtFormattedDate:
-                                      DateFormat('HH:mm').format(order.createdAt),
-                                  formattedAmount: item.orderFormattedAmount,
-                                ),
+                                  providerTitle: order.providerTitle,
+                                  providerIconPath: order.providerIcon,
+                                  from: order.from ?? '',
+                                  to: order.to ?? '',
+                                  createdAtFormattedDate: DateFormat('HH:mm').format(order.createdAt),
+                                  formattedAmount: formattedAmount,
+                                  formattedReceiveAmount: dashboardViewModel.balanceViewModel.isFiatDisabled &&
+                                      order.source == OrderSourceDescription.order
+                                      ? ''
+                                      : formattedReceiveAmount,
+                                );
+                              }
                               );
                             }
                             return Container(color: Colors.transparent, height: 1);

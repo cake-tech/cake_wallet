@@ -31,7 +31,9 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -48,10 +50,14 @@ class SendPage extends BasePage {
   SendPage({
     required this.sendViewModel,
     required this.authService,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     this.initialPaymentRequest,
   }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
@@ -179,6 +185,8 @@ class SendPage extends BasePage {
             key: output.key,
             output: output,
             sendViewModel: sendViewModel,
+            paymentViewModel: paymentViewModel,
+            walletSwitcherViewModel: walletSwitcherViewModel,
             initialPaymentRequest: initialPaymentRequest,
             cryptoAmountFocus: cryptoAmountFocus,
             fiatAmountFocus: fiatAmountFocus,
