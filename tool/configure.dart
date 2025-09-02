@@ -246,6 +246,7 @@ abstract class Bitcoin {
   Future<void> updateFeeRates(Object wallet);
   int getMaxCustomFeeRate(Object wallet);
   void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
