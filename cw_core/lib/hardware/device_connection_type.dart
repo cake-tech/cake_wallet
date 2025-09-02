@@ -1,22 +1,39 @@
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
 enum DeviceConnectionType {
   usb,
   ble;
 
-  static List<DeviceConnectionType> supportedConnectionTypes(WalletType walletType,
+  static List<DeviceConnectionType> supportedConnectionTypes(
+      WalletType walletType, HardwareWalletType hardwareType,
       [bool isIOS = false]) {
-    switch (walletType) {
-      case WalletType.monero:
-      case WalletType.bitcoin:
-      case WalletType.litecoin:
-      case WalletType.ethereum:
-      case WalletType.polygon:
-        if (isIOS) return [DeviceConnectionType.ble];
-        return [DeviceConnectionType.ble, DeviceConnectionType.usb];
-      default:
-        return [];
+    bool isSupported = false;
+    switch (hardwareType) {
+      case HardwareWalletType.bitbox:
+        isSupported = [
+          WalletType.bitcoin,
+          WalletType.litecoin,
+          WalletType.ethereum,
+          WalletType.polygon
+        ].contains(walletType);
+        break;
+      case HardwareWalletType.ledger:
+        isSupported = [
+          WalletType.monero,
+          WalletType.bitcoin,
+          WalletType.litecoin,
+          WalletType.ethereum,
+          WalletType.polygon
+        ].contains(walletType);
+        break;
     }
+
+    return isSupported
+        ? (isIOS
+            ? [DeviceConnectionType.ble]
+            : [DeviceConnectionType.ble, DeviceConnectionType.usb])
+        : [];
   }
 
   String get iconString {

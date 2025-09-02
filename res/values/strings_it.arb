@@ -776,6 +776,7 @@
   "select_buy_provider_notice": "Seleziona un provider di acquisto sopra. È possibile saltare questa schermata impostando il provider di acquisto predefinito nelle impostazioni dell'app.",
   "select_destination": "Seleziona la destinazione per il file di backup.",
   "select_hw_account_below": "Seleziona quale account ripristinare:",
+  "select_manufacturer_title": "Seleziona il produttore",
   "select_sell_provider_notice": "Seleziona un provider di vendita sopra. Puoi saltare questa schermata impostando il tuo provider di vendita predefinito nelle impostazioni dell'app.",
   "select_your_country": "Seleziona il tuo paese",
   "selected_trocador_provider": "Provider di Trocador selezionato",

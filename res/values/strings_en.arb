@@ -776,6 +776,7 @@
   "select_buy_provider_notice": "Select a buy provider above. You can skip this screen by setting your default buy provider in app settings.",
   "select_destination": "Please select destination for the backup file.",
   "select_hw_account_below": "Please select which account to restore below:",
+  "select_manufacturer_title": "Select Manufacturer",
   "select_sell_provider_notice": "Select a sell provider above. You can skip this screen by setting your default sell provider in app settings.",
   "select_your_country": "Please select your country",
   "selected_trocador_provider": "selected Trocador provider",

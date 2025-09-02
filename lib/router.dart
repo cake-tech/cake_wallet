@@ -215,7 +215,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
               arguments: NewWalletArguments(type: type),
             ),
             isCreate: true,
-            isHardwareWallet: false,
           ),
         ),
       );
@@ -253,9 +252,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
           param1: type, param2: getIt<HardwareWalletViewModel>(param1: hardwareWallet));
 
       if (type == WalletType.monero)
-        return CupertinoPageRoute<void>(builder: (_) => MoneroHardwareWalletOptionsPage(walletVM));
+        return handleRouteWithPlatformAwareness((_) => MoneroHardwareWalletOptionsPage(walletVM));
 
-      return CupertinoPageRoute<void>(builder: (_) => SelectHardwareWalletAccountPage(walletVM));
+      return handleRouteWithPlatformAwareness((_) => SelectHardwareWalletAccountPage(walletVM));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String)? callback;
@@ -277,7 +276,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
               Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);
             },
             isCreate: false,
-            isHardwareWallet: false,
           ),
         ),
       );
@@ -306,18 +304,20 @@ Route<dynamic> createRoute(RouteSettings settings) {
               Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: arg);
             },
             isCreate: false,
-            isHardwareWallet: false,
           ),
         ),
       );
 
     case Routes.restoreWalletFromHardwareWallet:
+      return handleRouteWithPlatformAwareness((_) => SelectDeviceManufacturerPage());
+
+    case Routes.connectHardwareWallet:
       final arguments = settings.arguments as List<dynamic>;
       final hardwareWalletType = (arguments[0] as HardwareWalletType?) ?? HardwareWalletType.ledger;
 
       if (isSingleCoin) {
-        return MaterialPageRoute<void>(
-          builder: (_) => ConnectDevicePage(
+        return handleRouteWithPlatformAwareness(
+          (_) => ConnectDevicePage(
             ConnectDevicePageParams(
               walletType: availableWalletTypes.first,
               hardwareWalletType: hardwareWalletType,
@@ -330,8 +330,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           ),
         );
       }
-      return CupertinoPageRoute<void>(
-        builder: (_) => getIt.get<NewWalletTypePage>(
+      return handleRouteWithPlatformAwareness(
+        (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
               final arguments = ConnectDevicePageParams(
@@ -346,7 +346,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               Navigator.of(context).pushNamed(Routes.connectDevices, arguments: arguments);
             },
             isCreate: false,
-            isHardwareWallet: true,
+            hardwareWalletType: hardwareWalletType,
           ),
         ),
       );
@@ -358,7 +358,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
             onTypeSelected: (BuildContext context, WalletType type) =>
                 Navigator.of(context).pop(type),
             isCreate: false,
-            isHardwareWallet: false,
           ),
         ),
       );

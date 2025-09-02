@@ -34,7 +34,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
   bool get _doesSupportHardwareWallets {
     if (isMoneroOnly) {
       return DeviceConnectionType.supportedConnectionTypes(
-              WalletType.monero, Platform.isIOS)
+              WalletType.monero, HardwareWalletType.ledger, Platform.isIOS)
           .isNotEmpty;
     }
 
