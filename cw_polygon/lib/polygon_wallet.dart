@@ -78,7 +78,7 @@ class PolygonWallet extends EVMChainWallet {
       contractAddress: token.contractAddress,
       decimal: token.decimal,
       enabled: token.enabled,
-      tag: token.tag ?? "MATIC",
+      tag: token.tag ?? 'POL',
       iconPath: iconPath,
       isPotentialScam: token.isPotentialScam,
     );

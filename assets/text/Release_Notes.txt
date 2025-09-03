@@ -1,5 +1,6 @@
-Silent Payment sync bug fixes
-New Cake Pay mobile UI
-Monero enhancements
-dEURO savings module improvements
-Integrated exchange bug fixes
+Add Dogecoin to Cake Wallet
+Swap flow improvements
+Cakepay improvements
+Silent Payment enhancements
+UI enhancements
+Bug fixes

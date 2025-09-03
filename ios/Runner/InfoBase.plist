@@ -282,6 +282,26 @@
                 <string>decred-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>dogecoin</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>dash</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>dogecoin-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>dogecoin-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/di.dart';
@@ -41,6 +41,7 @@ import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
+import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/third_party_disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
@@ -94,6 +95,7 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
+import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -486,6 +488,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.silentPaymentsSettings:
       return handleRouteWithPlatformAwareness(
         (context) => getIt.get<SilentPaymentsSettingsPage>(),
+      );
+
+    case Routes.silentPaymentsLogs:
+      return handleRouteWithPlatformAwareness(
+        (context) => getIt.get<SilentPaymentsLogPage>(),
       );
 
     case Routes.mwebSettings:
@@ -905,6 +912,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devBackgroundSyncLogs:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevBackgroundSyncLogsPage>(),
+      );
+    
+    case Routes.devSocketHealthLogs:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<DevSocketHealthLogsPage>(),
       );
     
     case Routes.devNetworkRequests:

@@ -3,10 +3,10 @@ enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB }
 extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
   String get label => switch (this) {
         CakePayPaymentMethod.BTC => 'Bitcoin',
-        CakePayPaymentMethod.BTC_LN => 'Bitcoin Lightning',
+        CakePayPaymentMethod.BTC_LN => 'Lightning',
         CakePayPaymentMethod.XMR => 'Monero',
         CakePayPaymentMethod.LTC => 'Litecoin',
-        CakePayPaymentMethod.LTC_MWEB => 'Litecoin MWEB',
+        CakePayPaymentMethod.LTC_MWEB => 'MWEB',
       };
 }
 
@@ -15,8 +15,11 @@ class CakePayOrder {
   final List<OrderCard> cards;
   final String? externalId;
   final double amountUsd;
+  final String totalReceiveAmount;
+  final int quantity;
   final String status;
   final String? vouchers;
+  final String fiatCurrencyCode;
   final PaymentData paymentData;
 
   CakePayOrder({
@@ -24,22 +27,67 @@ class CakePayOrder {
     required this.cards,
     required this.externalId,
     required this.amountUsd,
+    required this.totalReceiveAmount,
+    required this.quantity,
     required this.status,
     required this.vouchers,
+    required this.fiatCurrencyCode,
     required this.paymentData,
   });
 
   factory CakePayOrder.fromMap(Map<String, dynamic> map) {
+
+    final cards = map['cards'] as List<dynamic>;
+    final firstCard = cards.isNotEmpty ? cards.first as Map<String, dynamic> : {};
+
     return CakePayOrder(
         orderId: map['order_id'] as String,
-        cards: (map['cards'] as List<dynamic>)
+        cards: cards
             .map((x) => OrderCard.fromMap(x as Map<String, dynamic>))
             .toList(),
         externalId: map['external_id'] as String?,
         amountUsd: map['amount_usd'] as double,
+        totalReceiveAmount: firstCard['subtotal'] as String? ?? '',
+        quantity: firstCard['quantity'] as int,
         status: map['status'] as String,
         vouchers: map['vouchers'] as String?,
+        fiatCurrencyCode: firstCard['currency_code'] as String? ?? '',
         paymentData: PaymentData.fromMap(map['payment_data'] as Map<String, dynamic>));
+  }
+
+  static CryptoPaymentData? getPaymentDataFor({CakePayPaymentMethod? method,CakePayOrder? order}) {
+    if (order == null || method == null) return null;
+
+    final data = switch (method) {
+      CakePayPaymentMethod.BTC => order.paymentData.btc,
+      CakePayPaymentMethod.XMR => order.paymentData.xmr,
+      CakePayPaymentMethod.LTC => order.paymentData.ltc,
+      CakePayPaymentMethod.LTC_MWEB => order.paymentData.ltc_mweb,
+      _ => null
+    };
+
+    if (data == null) return null;
+
+    final bip21 = data.paymentUrls?.bip21;
+    if (bip21 != null && bip21.isNotEmpty) {
+      final uri = Uri.parse(bip21);
+      final addr = uri.path;
+      final price = uri.queryParameters['amount'] ?? data.price;
+
+      return CryptoPaymentData(price: price, address: addr, amount: data.amount, paymentUrls: data.paymentUrls);
+    }
+
+    return data;
+  }
+
+  static String getCurrencyCodeFromPaymentMethod(CakePayPaymentMethod method) {
+    return switch (method) {
+      CakePayPaymentMethod.BTC => 'BTC',
+      CakePayPaymentMethod.BTC_LN => 'BTC',
+      CakePayPaymentMethod.XMR => 'XMR',
+      CakePayPaymentMethod.LTC => 'LTC',
+      CakePayPaymentMethod.LTC_MWEB => 'LTC',
+    };
   }
 }
 
@@ -112,11 +160,13 @@ class PaymentData {
 
 class CryptoPaymentData {
   final String price;
+  final String amount;
   final PaymentUrl? paymentUrls;
   final String address;
 
   CryptoPaymentData({
     required this.price,
+    required this.amount,
     this.paymentUrls,
     required this.address,
   });
@@ -124,6 +174,7 @@ class CryptoPaymentData {
   factory CryptoPaymentData.fromMap(Map<String, dynamic> map) {
     return CryptoPaymentData(
       price: map['price'] as String,
+      amount: (map['amount_from'] as double?)?.toString() ?? '',
       paymentUrls: PaymentUrl.fromMap(map['paymentUrls'] as Map<String, dynamic>?),
       address: map['address'] as String,
     );

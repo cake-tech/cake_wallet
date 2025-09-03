@@ -5,8 +5,11 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/dev/network_requests_view_model.dart';
 import 'package:cw_core/utils/proxy_logger/abstract.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:on_chain/solana/solana.dart';
 
 class DevNetworkRequests extends BasePage {
   final NetworkRequestsViewModel viewModel = NetworkRequestsViewModel();
@@ -119,6 +122,14 @@ class DevRequestDetails extends BasePage {
 
         _sectionTitle("Network"),
         SelectableText(req.network.toString()),
+
+        if (req.network == RequestNetwork.tor)
+          ...[
+            _sectionTitle("Tor socks server"),
+            SelectableText(CakeTor.instance.runtimeType.toString()),
+            _sectionTitle("Tor socks details"),
+            SelectableText(CakeTor.instance.toString()),
+          ],
 
         _sectionTitle("Body (as UTF-8)"),
         SelectableText(_tryDecodeBody(req.body)),

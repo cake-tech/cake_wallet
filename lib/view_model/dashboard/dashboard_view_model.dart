@@ -13,7 +13,10 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
@@ -71,6 +74,7 @@ abstract class DashboardViewModelBase with Store {
       required this.appStore,
       required this.tradesStore,
       required this.tradeFilterStore,
+      required this.orderFilterStore,
       required this.transactionFilterStore,
       required this.settingsStore,
       required this.yatStore,
@@ -108,6 +112,13 @@ abstract class DashboardViewModelBase with Store {
             //     value: () => false,
             //     caption: S.current.transactions_by_date,
             //     onChanged: null),
+          ],
+          'Orders': [
+            FilterItem(
+                value: () => orderFilterStore.displayCakePay,
+                caption: 'Cake Pay',
+                onChanged: () =>
+                    orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
           ],
           S.current.trades: [
             FilterItem(
@@ -451,7 +462,7 @@ abstract class DashboardViewModelBase with Store {
     _items.addAll(
         transactionFilterStore.filtered(transactions: [...transactions, ...anonpayTransactions]));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
-    _items.addAll(orders);
+    _items.addAll(orderFilterStore.filtered(orders: orders, wallet: wallet));
 
     if (payjoinTransactions.isNotEmpty) {
       final _payjoinTransactions = payjoinTransactions;
@@ -536,7 +547,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
-  bool get hasSilentPayments => wallet.type == WalletType.bitcoin && !wallet.isHardwareWallet;
+  bool get hasSilentPayments =>
+      wallet.type == WalletType.bitcoin &&
+      (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isNotEmpty &&
+      !wallet.isHardwareWallet;
 
   @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
@@ -575,7 +589,8 @@ abstract class DashboardViewModelBase with Store {
   bool get showPayjoinCard =>
       wallet.type == WalletType.bitcoin &&
       settingsStore.showPayjoinCard &&
-      !settingsStore.usePayjoin;
+      !settingsStore.usePayjoin &&
+      DeviceInfo.instance.isMobile;
 
   @observable
   bool backgroundSyncEnabled = false;
@@ -802,6 +817,8 @@ abstract class DashboardViewModelBase with Store {
 
   TradeFilterStore tradeFilterStore;
 
+  OrderFilterStore orderFilterStore;
+
   AnonpayTransactionsStore anonpayTransactionsStore;
 
   TransactionFilterStore transactionFilterStore;
@@ -862,6 +879,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.tron:
       case WalletType.wownero:
       case WalletType.decred:
+      case WalletType.dogecoin:
         return true;
       case WalletType.zano:
       case WalletType.haven:
@@ -1069,7 +1087,7 @@ abstract class DashboardViewModelBase with Store {
       }));
     }
   }
-  
+
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
@@ -1116,7 +1134,7 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
-  static ServicesResponse? cachedServicesResponse; 
+  static ServicesResponse? cachedServicesResponse;
 
   Future<ServicesResponse> getServicesStatus() async {
     if (cachedServicesResponse != null) {

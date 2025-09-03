@@ -99,6 +99,7 @@ abstract class OutputBase with Store {
           case WalletType.bitcoin:
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
+          case WalletType.dogecoin:
             _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.decred:
@@ -166,7 +167,8 @@ abstract class OutputBase with Store {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash) {
+      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash ||
+          _wallet.type == WalletType.dogecoin) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
@@ -289,6 +291,15 @@ abstract class OutputBase with Store {
     }
   }
 
+  Map<String, dynamic> get extra {
+    final fields = <String, dynamic>{};
+    if (parsedAddress.parseFrom == ParseFrom.bip353) {
+      fields['bip353_name'] = parsedAddress.name;
+      fields['bip353_proof'] = parsedAddress.bip353DnsProof;
+    }
+    return fields;
+  }
+
   void _setCryptoNumMaximumFractionDigits() {
     var maximumFractionDigits = 0;
 
@@ -307,6 +318,7 @@ abstract class OutputBase with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         maximumFractionDigits = 8;
         break;
       case WalletType.wownero:

@@ -24,6 +24,7 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
+import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -55,6 +56,7 @@ abstract class SettingsStoreBase with Store {
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
+      required SyncStatusDisplayMode initialSyncStatusDisplayMode,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
       required bool initialSaveRecipientAddress,
@@ -129,6 +131,7 @@ abstract class SettingsStoreBase with Store {
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
       required bool initialEnableAutomaticNodeSwitching,
+      required String initialBackgroundImage,
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
@@ -167,6 +170,7 @@ abstract class SettingsStoreBase with Store {
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
+        syncStatusDisplayMode = initialSyncStatusDisplayMode,
         exchangeStatus = initialExchangeStatus,
         pinCodeLength = initialPinLength,
         languageCode = initialLanguageCode,
@@ -188,6 +192,7 @@ abstract class SettingsStoreBase with Store {
         currentSyncAll = initialSyncAll,
         currentBuiltinTor = initialBuiltinTor,
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
+        backgroundImage = initialBackgroundImage,
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -385,6 +390,11 @@ abstract class SettingsStoreBase with Store {
             (_) => showAddressBookPopupEnabled,
             (bool value) =>
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
+
+    reaction(
+            (_) => syncStatusDisplayMode,
+            (SyncStatusDisplayMode value) =>
+            sharedPreferences.setString(PreferencesKey.syncStatusDisplayMode, value.toJson()));
 
     reaction((_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(PreferencesKey.currentPinLength, pinLength));
@@ -621,6 +631,11 @@ abstract class SettingsStoreBase with Store {
         (bool enableAutomaticNodeSwitching) => _sharedPreferences.setBool(
             PreferencesKey.enableAutomaticNodeSwitching, enableAutomaticNodeSwitching));
 
+    reaction(
+        (_) => backgroundImage,
+        (String backgroundImage) => _sharedPreferences.setString(
+            PreferencesKey.backgroundImage, backgroundImage));
+
     this.nodes.observe((change) {
       if (change.newValue != null && change.key != null) {
         _saveCurrentNode(change.newValue!, change.key!);
@@ -666,6 +681,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool showAddressBookPopupEnabled;
+
+  @observable
+  SyncStatusDisplayMode syncStatusDisplayMode;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -869,6 +887,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool enableAutomaticNodeSwitching;
 
+  @observable
+  String backgroundImage;
+
   final SecureStorage _secureStorage;
   final SharedPreferences _sharedPreferences;
 
@@ -1002,6 +1023,8 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.eta.name);
     final exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1046,6 +1069,7 @@ abstract class SettingsStoreBase with Store {
         "ltc-electrum.cakewallet.com:9333";
     final enableAutomaticNodeSwitching =
         sharedPreferences.getBool(PreferencesKey.enableAutomaticNodeSwitching) ?? true;
+    final backgroundImage = sharedPreferences.getString(PreferencesKey.backgroundImage) ?? '';
 
     // If no value
     if (pinLength == null || pinLength == 0) {
@@ -1070,6 +1094,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
 
     /// get the selected node, if null, then use the default
     final moneroNode = nodeSource.get(nodeId) ??
@@ -1098,6 +1123,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == wowneroDefaultNodeUri);
     final zanoNode = nodeSource.get(zanoNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
+    final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1183,6 +1210,10 @@ abstract class SettingsStoreBase with Store {
 
     if (decredNode != null) {
       nodes[WalletType.decred] = decredNode;
+    }
+
+    if (dogecoinNode != null) {
+      nodes[WalletType.dogecoin] = dogecoinNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1289,6 +1320,7 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
+      initialSyncStatusDisplayMode: syncStatusDisplayMode,
       nodes: nodes,
       powNodes: powNodes,
       appVersion: packageInfo.version,
@@ -1348,6 +1380,7 @@ abstract class SettingsStoreBase with Store {
       mwebNodeUri: mwebNodeUri,
       hasEnabledMwebBefore: hasEnabledMwebBefore,
       initialEnableAutomaticNodeSwitching: enableAutomaticNodeSwitching,
+      initialBackgroundImage: backgroundImage,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
       initialZanoTransactionPriority: zanoTransactionPriority,
@@ -1485,6 +1518,8 @@ abstract class SettingsStoreBase with Store {
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
+    syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
+        sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ?? SyncStatusDisplayMode.eta.name);
     exchangeStatus = ExchangeApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.exchangeStatusKey) ??
             ExchangeApiMode.enabled.raw);
@@ -1549,6 +1584,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
+    final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
@@ -1562,6 +1598,7 @@ abstract class SettingsStoreBase with Store {
     final wowneroNode = nodeSource.get(wowneroNodeId);
     final zanoNode = nodeSource.get(zanoNodeId);
     final decredNode = nodeSource.get(decredNodeId);
+    final dogecoinNode = nodeSource.get(dogecoinNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1614,6 +1651,10 @@ abstract class SettingsStoreBase with Store {
 
     if (decredNode != null) {
       nodes[WalletType.decred] = decredNode;
+    }
+
+    if (dogecoinNode != null) {
+      nodes[WalletType.dogecoin] = dogecoinNode;
     }
 
     // MIGRATED:
@@ -1757,6 +1798,10 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.zano:
         await _sharedPreferences.setInt(PreferencesKey.currentZanoNodeIdKey, node.key as int);
+        break;
+      case WalletType.dogecoin:
+        await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+        break;
       default:
         break;
     }

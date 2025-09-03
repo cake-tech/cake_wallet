@@ -191,6 +191,7 @@ class ExceptionHandler {
     'PlatformException(133, Failed to write: (Unknown Error: 133), null, null)',
     'PlatformException(IllegalArgument, Unknown deviceId:',
     'ServiceNotSupportedException(ConnectionType.ble, Required service not supported. Write characteristic: false, Notify characteristic: false)',
+    'Make sure no other program is communicating with the Ledger',
     'Exception: 6e01', // Wrong App
     'Exception: 6d02',
     'Exception: 6511',

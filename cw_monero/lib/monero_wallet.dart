@@ -188,7 +188,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<bool> checkNodeHealth() async {
     try {
       // Check if the wallet is currently connected to the daemon
-      final isConnected = monero_wallet.isConnectedSync();
+      final isConnected = await monero_wallet.isConnected();
       
       if (!isConnected) {
         return false; // It's not connected to daemon
@@ -354,14 +354,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     return retStatus;
   }
 
-  String exportOutputsUR(bool all) {
-    final str = currentWallet!.exportOutputsUR(all: all);
-    final status = currentWallet!.status();
+  Map<String, String> exportOutputsUR() {
+    final str = currentWallet!.exportOutputsUR(all: false);
+    int status = currentWallet!.status();
     if (status != 0) {
       final err = currentWallet!.errorString();
-      throw MoneroTransactionCreationException("unable to export UR: $err");
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
     }
-    return str;
+    final strAll = currentWallet!.exportOutputsUR(all: true);
+    status = currentWallet!.status();
+    if (status != 0) {
+      final err = currentWallet!.errorString();
+      throw MoneroTransactionCreationException("unable to export outputs: $err");
+    }
+    return {
+      "Outputs (partial)": str,
+      "Outputs (all)": strAll,
+    };
   }
 
   bool needExportOutputs(int amount) {
@@ -870,12 +879,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   void _askForUpdateBalance() {
-    final _ub = _getUnlockedBalance();
-    final _fb =_getFrozenBalance();
-    final unlockedBalance = _ub - _fb;
+    final unlockedBalance = _getUnlockedBalance();
     final fullBalance = monero_wallet.getFullBalance(
-      accountIndex: walletAddresses.account!.id) - _fb;
-    final frozenBalance = _fb;
+      accountIndex: walletAddresses.account!.id);
+    final frozenBalance = _getFrozenBalance();
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.unlockedBalance != unlockedBalance ||
         balance[currency]!.frozenBalance != frozenBalance) {

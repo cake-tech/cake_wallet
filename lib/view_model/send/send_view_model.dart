@@ -37,7 +37,9 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -114,6 +116,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
+  bool get isMwebEnabled => balanceViewModel.mwebEnabled;
+
   @action
   void setShowAddressBookPopup(bool value) {
     _settingsStore.showAddressBookPopupEnabled = value;
@@ -182,9 +186,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction != null) {
         final currency = pendingTransactionFeeCurrency(walletType);
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[currency]!,
-            cryptoAmount: pendingTransaction!.feeFormattedValue,
-          );
+          price: _fiatConversationStore.prices[currency]!,
+          cryptoAmount: pendingTransaction!.feeFormattedValue,
+        );
         return fiat;
       } else {
         return '0.00';
@@ -210,8 +214,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   CryptoCurrency get currency => wallet.currency;
 
-  Validator<String> get amountValidator =>
-      AmountValidator(currency: walletTypeToCryptoCurrency(wallet.type));
+  Validator<String> amountValidator(Output output) => AmountValidator(
+        currency: walletTypeToCryptoCurrency(wallet.type),
+        minValue: isSendToSilentPayments(output)
+            ?
+            //  TODO: get from server
+            // bitcoin!.silentPaymentsMinAmount
+            '0.00001'
+            : null,
+      );
 
   Validator<String> get allAmountValidator => AllAmountValidator();
 
@@ -262,6 +273,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
@@ -289,6 +301,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
+  bool isSendToSilentPayments(Output output) =>
+      wallet.type == WalletType.bitcoin &&
+      (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
+          RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+              .hasMatch(output.extractedAddress) ||
+          (output.parsedAddress.addresses.isNotEmpty &&
+              RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+                  .hasMatch(output.parsedAddress.addresses[0])));
+
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
       .where((template) => _isEqualCurrency(template.cryptoCurrency))
@@ -301,12 +322,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.monero,
         WalletType.wownero,
         WalletType.decred,
-        WalletType.bitcoinCash
+        WalletType.bitcoinCash,
+        WalletType.dogecoin
       ].contains(wallet.type);
 
   @computed
   bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type);
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
@@ -544,7 +566,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (ocpRequest != null) {
       state = TransactionCommitting();
-      if (selectedCryptoCurrency == CryptoCurrency.xmr) {
+      if (OpenCryptoPayService.requiresClientCommit(selectedCryptoCurrency)) {
         await pendingTransaction!.commit();
       }
 
@@ -636,6 +658,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
+      case WalletType.dogecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,

@@ -31,7 +31,9 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/request_review_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -48,10 +50,14 @@ class SendPage extends BasePage {
   SendPage({
     required this.sendViewModel,
     required this.authService,
+    required this.paymentViewModel,
+    required this.walletSwitcherViewModel,
     this.initialPaymentRequest,
   }) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
+  final PaymentViewModel paymentViewModel;
+  final WalletSwitcherViewModel walletSwitcherViewModel;
   final AuthService authService;
   final GlobalKey<FormState> _formKey;
   final controller = PageController(initialPage: 0);
@@ -179,6 +185,8 @@ class SendPage extends BasePage {
             key: output.key,
             output: output,
             sendViewModel: sendViewModel,
+            paymentViewModel: paymentViewModel,
+            walletSwitcherViewModel: walletSwitcherViewModel,
             initialPaymentRequest: initialPaymentRequest,
             cryptoAmountFocus: cryptoAmountFocus,
             fiatAmountFocus: fiatAmountFocus,
@@ -450,7 +458,7 @@ class SendPage extends BasePage {
                                 }
                                 if (monero!.needExportOutputs(sendViewModel.wallet, amount)) {
                                   await Navigator.of(context).pushNamed(Routes.urqrAnimatedPage,
-                                      arguments: 'export-outputs');
+                                      arguments: monero!.exportOutputsUR(sendViewModel.wallet));
                                   await Future.delayed(
                                       Duration(seconds: 1)); // wait for monero to refresh the state
                                 }
@@ -470,9 +478,7 @@ class SendPage extends BasePage {
                                 },
                               );
                             },
-                            text: sendViewModel.payjoinUri != null
-                                ? S.of(context).send_payjoin
-                                : S.of(context).send,
+                            text: _sendButtonText(context),
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary,
                             isLoading: sendViewModel.state is IsExecutingState ||
@@ -840,5 +846,16 @@ class SendPage extends BasePage {
     }
 
     return isValid;
+  }
+
+  String _sendButtonText(BuildContext context) {
+    if (!sendViewModel.isReadyForSend) {
+      return S.of(context).synchronizing;
+    }
+    if (sendViewModel.payjoinUri != null) {
+      return S.of(context).send_payjoin;
+    } else {
+      return S.of(context).send;
+    }
   }
 }

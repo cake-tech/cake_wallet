@@ -1,3 +1,4 @@
-New Cake Pay mobile UI
-Monero enhancements
-Integrated exchange bug fixes
+Swap flow improvements
+Cakepay improvements
+UI enhancements
+Bug fixes

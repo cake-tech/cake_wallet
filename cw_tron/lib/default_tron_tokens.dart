@@ -1,5 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_tron/tron_token.dart';
+import 'package:cw_core/tron_token.dart';
 
 class DefaultTronTokens {
   final List<TronToken> _defaultTokens = [

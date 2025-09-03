@@ -244,12 +244,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   }
 
   void _navigateToRestoreWallet() {
-    if (isSingleCoin) {
-      Navigator.of(context)
-          .pushNamed(Routes.restoreWallet, arguments: widget.walletListViewModel.currentWalletType);
-    } else {
-      Navigator.of(context).pushNamed(Routes.restoreWalletType);
-    }
+    Navigator.of(context).pushNamed(Routes.restoreOptions, arguments: false);
   }
 
   void changeProcessText(String text) {

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
@@ -36,10 +36,13 @@ import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
+import 'package:cw_core/spl_token.dart';
+import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
@@ -206,6 +209,18 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(PayjoinSessionAdapter());
   }
 
+  if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
+    CakeHive.registerAdapter(Erc20TokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(SPLToken.typeId)) {
+    CakeHive.registerAdapter(SPLTokenAdapter());
+  }
+
+  if (!CakeHive.isAdapterRegistered(TronToken.typeId)) {
+    CakeHive.registerAdapter(TronTokenAdapter());
+  }
+
   final secureStorage = secureStorageShared;
   final transactionDescriptionsBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -250,7 +265,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 50,
+    initialMigrationVersion: 51,
   );
 }
 

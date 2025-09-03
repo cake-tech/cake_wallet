@@ -11,6 +11,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -242,6 +243,22 @@ class DecredURI extends PaymentURI {
   }
 }
 
+class DogeURI extends PaymentURI {
+  DogeURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'doge:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -306,15 +323,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       WalletAddressListItem(address: wallet.walletAddresses.address, isPrimary: false);
 
   @computed
-  String get payjoinEndpoint => wallet.type == WalletType.bitcoin
-      ? bitcoin!.getPayjoinEndpoint(wallet)
-      : "";
+  String get payjoinEndpoint =>
+      wallet.type == WalletType.bitcoin ? bitcoin!.getPayjoinEndpoint(wallet) : "";
 
   @computed
   bool get isPayjoinUnavailable =>
-      wallet.type == WalletType.bitcoin &&
-      _settingsStore.usePayjoin &&
-      payjoinEndpoint.isEmpty;
+      wallet.type == WalletType.bitcoin && _settingsStore.usePayjoin && payjoinEndpoint.isEmpty;
 
   @computed
   PaymentURI get uri {
@@ -324,10 +338,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        return BitcoinURI(
-            amount: amount,
-            address: address.address,
-            pjUri: payjoinEndpoint);
+        return BitcoinURI(amount: amount, address: address.address, pjUri: payjoinEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:
@@ -347,9 +358,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       case WalletType.wownero:
         return WowneroURI(amount: amount, address: address.address);
       case WalletType.zano:
-         return ZanoURI(amount: amount, address: address.address);
+        return ZanoURI(amount: amount, address: address.address);
       case WalletType.decred:
         return DecredURI(amount: amount, address: address.address);
+      case WalletType.dogecoin:
+        return DogeURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
@@ -493,8 +506,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.decred) {
       final addrInfos = decred!.getAddressInfos(wallet);
       addrInfos.forEach((info) {
-        addressList.add(new WalletAddressListItem(isPrimary: false, address: info.address,
-          name: info.label));
+        addressList.add(
+            new WalletAddressListItem(isPrimary: false, address: info.address, name: info.label));
       });
     }
 
@@ -579,6 +592,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
+  bool get hasTokensList => hasTokens(type);
+
+  @computed
+  String get walletTypeName => walletTypeToString(type);
+
+  @computed
   bool get hasAddressList => [
         WalletType.monero,
         WalletType.wownero,
@@ -586,12 +605,97 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         WalletType.bitcoinCash,
         WalletType.bitcoin,
         WalletType.litecoin,
-        WalletType.decred
+        WalletType.decred,
+        WalletType.dogecoin,
       ].contains(wallet.type);
 
   @computed
-  bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+  bool get isElectrumWallet => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.dogecoin
+      ].contains(wallet.type);
+
+  @computed
+  List<String> get walletImages {
+    switch (wallet.type) {
+      case WalletType.ethereum:
+        return [
+          'assets/images/eth_icon.png',
+          'assets/images/usdc_icon.png',
+          'assets/images/usdt_wallet_icon.png',
+          'assets/images/deuro_icon.png',
+          'assets/images/more_tokens.png',
+        ];
+      case WalletType.solana:
+        return [
+          'assets/images/sol_icon.png',
+          'assets/images/usdc_icon.png',
+          'assets/images/usdt_wallet_icon.png',
+          'assets/images/more_tokens.png',
+        ];
+      case WalletType.polygon:
+        return [
+          'assets/images/pol_icon.png',
+          'assets/images/eth_pol_icon.png',
+          'assets/images/usdc_icon.png',
+          'assets/images/usdt_wallet_icon.png',
+          'assets/images/more_tokens.png',
+        ];
+      case WalletType.tron:
+        return [
+          'assets/images/trx_icon.png',
+          'assets/images/usdc_icon.png',
+          'assets/images/usdt_wallet_icon.png',
+          'assets/images/more_tokens.png',
+        ];
+      case WalletType.zano:
+        return [
+          'assets/images/zano_bg_icon.png',
+          'assets/images/more_tokens.png',
+        ];
+
+      default:
+        return [];
+    }
+  }
+
+  @computed
+  String get qrImage {
+    switch (type) {
+      case WalletType.ethereum:
+        return 'assets/images/eth_chain_qr.png';
+      case WalletType.solana:
+        return 'assets/images/sol_chain_qr.png';
+      case WalletType.polygon:
+        return 'assets/images/pol_chain_qr.png';
+      case WalletType.tron:
+        return 'assets/images/trx_chain_qr.png';
+      case WalletType.zano:
+        return 'assets/images/zano_chain_qr.png';
+      default:
+        return 'assets/images/qr-cake.png';
+    }
+  }
+
+  @computed
+  String get monoImage {
+    switch (type) {
+      case WalletType.ethereum:
+        return 'assets/images/eth_chain_mono.png';
+      case WalletType.solana:
+        return 'assets/images/sol_chain_mono.png';
+      case WalletType.polygon:
+        return 'assets/images/pol_chain_mono.png';
+      case WalletType.tron:
+        return 'assets/images/trx_chain_mono.png';
+      case WalletType.zano:
+        return 'assets/images/zano_chain_mono.png';
+      default:
+        return 'assets/images/eth_chain_mono.png';
+    }
+  }
 
   @computed
   bool get isBalanceAvailable => isElectrumWallet;
@@ -602,6 +706,11 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   bool get isSilentPayments =>
       wallet.type == WalletType.bitcoin && bitcoin!.hasSelectedSilentPayments(wallet);
+
+  @computed
+  bool get isCupcake =>
+      wallet.type == WalletType.bitcoin &&
+      (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isEmpty;
 
   @computed
   bool get isAutoGenerateSubaddressEnabled =>

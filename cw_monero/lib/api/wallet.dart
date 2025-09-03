@@ -175,7 +175,10 @@ int getNodeHeightSync() {
   return cachedNodeHeight;
 }
 
-bool isConnectedSync() => currentWallet?.connected() != 0;
+Future<bool> isConnected() async {
+  final wptrAddress = currentWallet!.ffiAddress();
+  return await Isolate.run(() => monero.Wallet_connected(Pointer.fromAddress(wptrAddress))) == 1;
+}
 
 Future<bool> setupNodeSync(
     {required String address,
@@ -395,8 +398,6 @@ Future<bool> _setupNodeSync(Map<String, Object?> args) async {
 void startRefresh() => startRefreshSync();
 
 Future<void> store() async => _storeSync(0);
-
-Future<bool> isConnected() async => isConnectedSync();
 
 Future<int> getNodeHeight() async => getNodeHeightSync();
 
