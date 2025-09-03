@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:bbqrdart/bbqrdart.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -228,9 +229,10 @@ class PendingBitcoinTransaction with PendingTransaction {
     }
 
     return Future.value({
-      "PSBT (bcur)": values.join("\n"),
-      "PSBT (bbqr)": bbqr.join("\n"),
-      "PSBT (bcur legacy)": valuesLegacy.join("\n"),
+      "Cupcake bcur": values.join("\n"),
+      "ColdCard bbqr": bbqr.join("\n"),
+      if (kDebugMode)
+        "SeedSigner bcur legacy": valuesLegacy.join("\n"),
     });
   }
 }
