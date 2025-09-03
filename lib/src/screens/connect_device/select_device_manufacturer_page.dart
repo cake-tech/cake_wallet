@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/connect_device/widgets/manufacturer_opti
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SelectDeviceManufacturerPage extends BasePage {
   SelectDeviceManufacturerPage();
@@ -39,11 +40,11 @@ class SelectDeviceManufacturerPage extends BasePage {
         ),
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/coldcard_man.svg', height: 25),
-          tag: S.current.new_tag,
+          tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
-          tag: S.current.new_tag,
+          tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/keystone_man.svg', height: 25),
@@ -84,7 +85,7 @@ class SelectDeviceManufacturerPage extends BasePage {
                     child: ManufacturerOptionTile(
                       image: manufacturer.image,
                       tag: manufacturer.tag,
-                      onPressed: () {},
+                      onPressed: () => Fluttertoast.showToast(msg: 'One more tap and it might work'), // Ester egg
                       isDarkTheme: currentTheme.isDark,
                       isUnavailable: true,
                     ),
