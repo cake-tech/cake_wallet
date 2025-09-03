@@ -256,14 +256,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
   Future<void> _handleSwapFlow(PaymentViewModel paymentViewModel, PaymentFlowResult result) async {
     Navigator.of(context).pop();
-
+    final bottomSheet = getIt.get<SwapConfirmationBottomSheet>(param1: result);
     await showModalBottomSheet<Trade?>(
       context: context,
       isDismissible: true,
       isScrollControlled: true,
-      builder: (BuildContext context) {
-        return getIt.get<SwapConfirmationBottomSheet>(param1: result);
-      },
+      builder: (BuildContext context) => bottomSheet,
     );
   }
 
