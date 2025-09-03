@@ -58,7 +58,7 @@ class CwMweb {
     String debugLogPath = "${appDir.path}/logs/debug.log";
     readFileWithTimer(debugLogPath);
 
-    _port = await MWebFfi.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
+    _port = MWebFfi.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
     if (_port == null || _port == 0) {
       throw Exception("Failed to start server");
     }
@@ -118,11 +118,9 @@ class CwMweb {
     }
   }
 
-  static Future<String?> address(Uint8List scanSecret, Uint8List spendPub, int index) async {
+  static String? address(Uint8List scanSecret, Uint8List spendPub, int index) {
     try {
-      return MWebFfi.instance.addresses(scanSecret, spendPub, index, index + 1)
-          .split(',')
-          .first;
+      return MWebFfi.instance.addresses(scanSecret, spendPub, index, index + 1).split(',').first;
     } on GrpcError catch (e) {
       printV('Caught grpc error: ${e.message}');
     } catch (e) {
@@ -131,15 +129,14 @@ class CwMweb {
     return null;
   }
 
-  static Future<List<String>?> addresses(
-      Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) async {
+  static List<String>? addresses(
+      Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) {
     try {
-      return MWebFfi.instance.addresses(scanSecret, spendPub, fromIndex, toIndex)
-          .split(',');
+      return MWebFfi.instance.addresses(scanSecret, spendPub, fromIndex, toIndex).split(',');
     } on GrpcError catch (e) {
-      log('Caught grpc error: ${e.message}');
+      printV('Caught grpc error: ${e.message}');
     } catch (e) {
-      log("Error getting addresses: $e");
+      printV("Error getting addresses: $e");
     }
     return null;
   }

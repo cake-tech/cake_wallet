@@ -2,7 +2,6 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_mweb/generated_bindings.g.dart';
 import 'package:ffi/ffi.dart';
 
@@ -10,16 +9,14 @@ String libPath = (() {
   if (Platform.isWindows) return 'mweb.dll';
   if (Platform.isMacOS) return 'mweb.dylib';
   if (Platform.isIOS) return 'Mwebd.framework/Mwebd';
-  if (Platform.isAndroid) return 'mweb.so';
-  return 'mweb.so';
+  if (Platform.isAndroid) return 'libmweb.so';
+  return 'libmweb.so';
 })();
 
 class MWebFfi {
   late final MWebFlutter lib;
 
-  MWebFfi() {
-    lib = MWebFlutter(DynamicLibrary.open(libPath));
-  }
+  MWebFfi() : lib = MWebFlutter(DynamicLibrary.open(libPath));
 
   static MWebFfi instance = MWebFfi();
 
@@ -65,8 +62,6 @@ class MWebFfi {
     malloc.free(scanSecretPtr);
     malloc.free(spendPubKeyPtr);
     malloc.free(resultPtr);
-
-    printV("got mweb addresses: $result");
 
     return result;
   }
