@@ -1,7 +1,6 @@
-Enable Ledger for Desktop
-Enable Bitcoin view-only wallets
-Monero, Bitcoin, and Ethereum enhancements
-Allow automatic node switching between trusted nodes
-Enhance node connectivity
+Add Dogecoin to Cake Wallet
+Swap flow improvements
+Cakepay improvements
+Silent Payment enhancements
 UI enhancements
 Bug fixes

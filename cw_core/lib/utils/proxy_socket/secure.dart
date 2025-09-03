@@ -15,13 +15,15 @@ class ProxySocketSecure implements ProxySocket {
   ProxyAddress get address => ProxyAddress(host: socket.remoteAddress.host, port: socket.remotePort);
   
   @override
-  Future<void> close() {
+  Future<void> close() async {
+    if (_isClosed) return;
     _isClosed = true;
     return socket.close();
   }
   
   @override
-  void destroy() {
+  void destroy() async {
+    if (_isClosed) return;
     _isClosed = true;
     socket.destroy();
   }

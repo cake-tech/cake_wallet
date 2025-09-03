@@ -251,6 +251,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
       extraId: addressProviderMemo,
+      userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+      userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
     );
   }
 
@@ -274,10 +276,15 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final providerName = responseJSON['provider'] as String;
       final addressProviderMemo = responseJSON['address_provider_memo'] as String?;
 
+      final from = responseJSON['ticker_from'] as String;
+      final networkFrom = responseJSON['network_from'] as String?;
+      final to = responseJSON['ticker_to'] as String;
+      final networkTo = responseJSON['network_to'] as String?;
+
       return Trade(
         id: id,
-        from: CryptoCurrency.fromString(responseJSON['ticker_from'] as String),
-        to: CryptoCurrency.fromString(responseJSON['ticker_to'] as String),
+        from: CryptoCurrency.safeParseCurrencyFromString(from),
+        to: CryptoCurrency.safeParseCurrencyFromString(to),
         provider: description,
         inputAddress: inputAddress,
         refundAddress: refundAddress,
@@ -289,6 +296,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         providerId: providerId,
         providerName: providerName,
         extraId: addressProviderMemo,
+        userCurrencyFromRaw: '${from.toUpperCase()}' + '_' + _normalizeNetworkType(networkFrom ?? ''),
+        userCurrencyToRaw: '${to.toUpperCase()}' + '_' + _normalizeNetworkType(networkTo ?? ''), // Handle null network
       );
     });
   }
@@ -354,6 +363,18 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return tag.toLowerCase();
     }
   }
+
+  String _normalizeNetworkType(String network) {
+    return switch (network.toUpperCase()) {
+      'ERC20' => 'ETH',
+      'TRC20' => 'TRX',
+      'BEP20' => 'BSC',
+      'LIGHTNING' => 'LN',
+      _ => network,
+    };
+  }
+
+
 
   Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
     final uri = Uri.http(onionApiAuthority, path, queryParams);
