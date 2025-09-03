@@ -1083,14 +1083,18 @@ Future<void> setup({
           isSelected: isSelected));
 
   getIt.registerFactory<RobinhoodBuyProvider>(() => RobinhoodBuyProvider(
-      wallet: getIt.get<AppStore>().wallet!,
-      ledgerVM:
-          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
+        wallet: getIt.get<AppStore>().wallet!,
+        hardwareWalletVM: getIt<AppStore>().wallet!.isHardwareWallet
+            ? getIt<HardwareWalletViewModel>(param1: getIt<AppStore>().wallet!.hardwareWalletType!)
+            : null,
+      ));
 
   getIt.registerFactory<DFXBuyProvider>(() => DFXBuyProvider(
-      wallet: getIt.get<AppStore>().wallet!,
-      ledgerVM:
-          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
+        wallet: getIt<AppStore>().wallet!,
+        hardwareWalletVM: getIt<AppStore>().wallet!.isHardwareWallet
+            ? getIt<HardwareWalletViewModel>(param1: getIt<AppStore>().wallet!.hardwareWalletType!)
+            : null,
+      ));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
         appStore: getIt.get<AppStore>(),
