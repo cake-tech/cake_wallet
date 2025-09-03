@@ -11,7 +11,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -55,8 +54,7 @@ class ConnectDevicePage extends BasePage {
       : S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget? leading(BuildContext context) =>
-      !isReconnect ? super.leading(context) : null;
+  Widget? leading(BuildContext context) => !isReconnect ? super.leading(context) : null;
 
   @override
   Widget body(BuildContext context) => PopScope(
@@ -105,15 +103,13 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _bleStateTimer = Timer.periodic(
-          Duration(seconds: 1), (_) => widget.hardwareWalletVM.updateBleState());
+      _bleStateTimer =
+          Timer.periodic(Duration(seconds: 1), (_) => widget.hardwareWalletVM.updateBleState());
 
-      _bleRefreshTimer =
-          Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
+      _bleRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshBleDevices());
 
       if (Platform.isAndroid) {
-        _usbRefreshTimer =
-            Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
+        _usbRefreshTimer = Timer.periodic(Duration(seconds: 1), (_) => _refreshUsbDevices());
       }
 
       if (widget.hardwareWalletVM.hasBluetooth) {
@@ -145,14 +141,13 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   Future<void> _refreshBleDevices() async {
     try {
       if (widget.hardwareWalletVM.isBleEnabled) {
-        _bleRefresh =
-            widget.hardwareWalletVM.scanForBleDevices().listen((device) => setState(() {
-                  bleDevices.add(device);
-                  if (longWait) longWait = false;
-                }))
-              ..onError((e) {
-                throw e.toString();
-              });
+        _bleRefresh = widget.hardwareWalletVM.scanForBleDevices().listen((device) => setState(() {
+              bleDevices.add(device);
+              if (longWait) longWait = false;
+            }))
+          ..onError((e) {
+            throw e.toString();
+          });
         _bleRefreshTimer?.cancel();
         _bleRefreshTimer = null;
       }
@@ -162,8 +157,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   Future<void> _connectToDevice(HardwareWalletDevice device) async {
-    final isConnected =
-        await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
+    final isConnected = await widget.hardwareWalletVM.connectDevice(device, widget.walletType);
     if (isConnected) widget.onConnectDevice(context, widget.hardwareWalletVM);
   }
 
@@ -176,11 +170,19 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       case HardwareWalletDeviceType.ledgerFlex:
         return 'assets/images/hardware_wallet/ledger_flex.png';
       case HardwareWalletDeviceType.BitBox02:
-        return 'assets/images/hardware_wallet/bitbox.png';
+        return 'assets/images/hardware_wallet/device_bitbox.svg';
 
       default:
         return 'assets/images/hardware_wallet/ledger_nano_x.png';
     }
+  }
+
+  String get description {
+    if (!Platform.isAndroid) return S.of(context).connect_your_hardware_wallet_ble;
+
+    if (widget.hardwareWalletVM.hasBluetooth) return S.of(context).connect_your_hardware_wallet;
+
+    return S.of(context).connect_your_hardware_wallet_usb;
   }
 
   @override
@@ -197,11 +199,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   Padding(
                     padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                     child: Text(
-                      Platform.isAndroid
-                          ? S.of(context).connect_your_hardware_wallet
-                          : S.of(context).connect_your_hardware_wallet_ios,
-                      style:  Theme.of(context)
-                              .textTheme.titleMedium,
+                      description,
+                      style: Theme.of(context).textTheme.titleMedium,
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -211,22 +210,20 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                       padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       child: Text(
                         S.of(context).if_you_dont_see_your_device,
-                        style:  Theme.of(context)
-                                .textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.titleMedium,
                         textAlign: TextAlign.center,
                       ),
                     ),
                   ),
                   Observer(
                     builder: (_) => Offstage(
-                      offstage: widget.hardwareWalletVM.isBleEnabled || !widget.hardwareWalletVM.hasBluetooth,
+                      offstage: widget.hardwareWalletVM.isBleEnabled ||
+                          !widget.hardwareWalletVM.hasBluetooth,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                        padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                         child: Text(
                           S.of(context).ledger_please_enable_bluetooth,
-                          style:  Theme.of(context)
-                                  .textTheme.titleMedium,
+                          style: Theme.of(context).textTheme.titleMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -239,8 +236,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                         width: double.infinity,
                         child: Text(
                           S.of(context).bluetooth,
-                          style:  Theme.of(context)
-                                .textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
                     ),
@@ -265,8 +261,7 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                         width: double.infinity,
                         child: Text(
                           S.of(context).usb,
-                          style:  Theme.of(context)
-                                .textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
                     ),
@@ -287,10 +282,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
                   if (widget.allowChangeWallet) ...[
                     PrimaryButton(
                       text: S.of(context).wallets,
-                      color: Theme.of(context)
-                          .colorScheme.primary,
-                      textColor: Theme.of(context)
-                          .colorScheme.onPrimary,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
                       onPressed: _onChangeWallet,
                     )
                   ],
@@ -312,8 +305,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   void _onChangeWallet() {
     Navigator.of(context).pushNamed(
       Routes.walletList,
-      arguments: (BuildContext context) => Navigator.of(context)
-          .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
+      arguments: (BuildContext context) =>
+          Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false),
     );
   }
 

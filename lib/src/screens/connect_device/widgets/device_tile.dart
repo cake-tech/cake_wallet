@@ -1,6 +1,6 @@
 import 'package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart';
 import 'package:flutter/material.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DeviceTile extends StatelessWidget {
   const DeviceTile({
@@ -43,12 +43,14 @@ class DeviceTile extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            if (leading != null)
+            if (leading != null && !leading!.endsWith(".svg"))
               Image.asset(
                 leading!,
                 height: 30,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
+            if (leading != null && leading!.endsWith(".svg"))
+              SvgPicture.asset(leading!, height: 30),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(left: 16),
