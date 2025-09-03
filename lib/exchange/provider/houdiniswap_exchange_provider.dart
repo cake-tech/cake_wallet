@@ -23,7 +23,7 @@ abstract class HoudiniSwap extends ExchangeProvider {
   String get tokensPath;
   String get t_getMinMaxPath;
 
-  static final apiKey = '68adbcbc19908a02a9909c82:rqQoU2JAL7xfuPfqHSerim';
+  static final apiKey = '';
   static const _apiAuthority = 'api-partner.houdiniswap.com';
   static const _getMinMax = '/getMinMax';
   static const _quote = '/quote';
