@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
@@ -29,6 +32,7 @@ class SwapConfirmationBottomSheet extends BaseBottomSheet {
     required this.currentTheme,
     required this.exchangeViewModel,
     required this.authService,
+    this.sessionId,
   }) : super(
           titleText: S.current.swap,
           footerType: FooterType.none,
@@ -40,6 +44,7 @@ class SwapConfirmationBottomSheet extends BaseBottomSheet {
   final MaterialThemeBase currentTheme;
   final ExchangeViewModel exchangeViewModel;
   final AuthService authService;
+  final String? sessionId;
   @override
   Widget contentWidget(BuildContext context) {
     return SingleChildScrollView(
@@ -89,11 +94,8 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   ReactionDisposer? _receiveAddressReaction;
   ReactionDisposer? _tradeStateReaction;
   ReactionDisposer? _bestRateReaction;
-  ReactionDisposer? _limitsStateReaction;
   ReactionDisposer? _receiveAmountFiatReaction;
 
-  String? _min;
-  String? _max;
   bool _showingFailureDialog = false;
   bool _showingSwapDetailsDialog = false;
 
@@ -134,7 +136,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _receiveAddressReaction?.call();
     _tradeStateReaction?.call();
     _bestRateReaction?.call();
-    _limitsStateReaction?.call();
     _receiveAmountFiatReaction?.call();
     _showingFailureDialog = false;
     _showingSwapDetailsDialog = false;
@@ -144,57 +145,80 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   @override
   Widget build(BuildContext context) {
+    final detectedCurrencyName = walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
+
     return Form(
       key: _formKey,
-      child: Observer(
-        builder: (_) {
-          final detectedCurrencyName =
-              walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!);
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CakeImageWidget(
-                      imageUrl: widget.exchangeViewModel.depositCurrency.iconPath!,
-                      width: 32,
-                      height: 32,
-                    ),
-                    const SizedBox(width: 12),
-                    Icon(Icons.arrow_forward, size: 24),
-                    const SizedBox(width: 12),
-                    CakeImageWidget(
-                      imageUrl: walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!)
-                          .iconPath!,
-                      width: 32,
-                      height: 32,
-                    ),
-                  ],
+                CakeImageWidget(
+                  imageUrl: widget.exchangeViewModel.depositCurrency.iconPath!,
+                  width: 32,
+                  height: 32,
                 ),
-                const SizedBox(height: 16),
-                SwapConfirmationTextfield(
-                  key: ValueKey('swap_confirmation_bottomsheet_amount_textfield_key'),
-                  hintText: 'Amount (${detectedCurrencyName})',
-                  focusNode: _amountFocus,
-                  controller: _amountController,
+                const SizedBox(width: 12),
+                Icon(Icons.arrow_forward, size: 24),
+                const SizedBox(width: 12),
+                CakeImageWidget(
+                  imageUrl:
+                      walletTypeToCryptoCurrency(widget.paymentFlowResult.walletType!).iconPath!,
+                  width: 32,
+                  height: 32,
                 ),
-                if (_min != null || _max != null)
-                  Container(
+              ],
+            ),
+            const SizedBox(height: 16),
+            SwapConfirmationTextfield(
+              key: ValueKey('swap_confirmation_bottomsheet_amount_textfield_key'),
+              hintText: 'Amount (${detectedCurrencyName})',
+              focusNode: _amountFocus,
+              controller: _amountController,
+              validator: (value) {
+                return AmountValidator(
+                  isAutovalidate: true,
+                  currency: widget.exchangeViewModel.receiveCurrency,
+                  minValue: widget.exchangeViewModel.limits.min.toString(),
+                  maxValue: widget.exchangeViewModel.limits.max.toString(),
+                ).call(value);
+              },
+            ),
+            Observer(
+              builder: (_) {
+                String? min = '0.0';
+                String? max = '0.0';
+
+                final limitsState = widget.exchangeViewModel.limitsState;
+                if (limitsState is LimitsLoadedSuccessfully) {
+                  min = limitsState.limits.min?.toString();
+                  max = limitsState.limits.max?.toString();
+                }
+
+                if (limitsState is LimitsLoadedFailure) {
+                  min = '0.0';
+                  max = '0.0';
+                }
+
+                if (limitsState is LimitsIsLoading) {
+                  min = '...';
+                  max = '...';
+                }
+                if (min != null || max != null) {
+                  return Container(
                     height: 15,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        _min != null
+                        min != null
                             ? Text(
                                 key: ValueKey('min_limit_text_key'),
-                                S
-                                    .of(context)
-                                    .min_value(_min ?? '', detectedCurrencyName.toString()),
+                                S.of(context).min_value(min, detectedCurrencyName.toString()),
                                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: 10,
                                       height: 1.2,
@@ -202,13 +226,11 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                                     ),
                               )
                             : Offstage(),
-                        _min != null ? SizedBox(width: 10) : Offstage(),
-                        _max != null
+                        min != null ? SizedBox(width: 10) : Offstage(),
+                        max != null
                             ? Text(
                                 key: ValueKey('max_limit_text_key'),
-                                S
-                                    .of(context)
-                                    .max_value(_max ?? '', detectedCurrencyName.toString()),
+                                S.of(context).max_value(max, detectedCurrencyName.toString()),
                                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: 10,
                                       height: 1.2,
@@ -218,51 +240,54 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                             : Offstage(),
                       ],
                     ),
-                  ),
-                const SizedBox(height: 8),
-                SwapConfirmationTextfield(
-                  key: ValueKey('swap_confirmation_bottomsheet_amount_fiat_textfield_key'),
-                  hintText: 'Amount (${widget.exchangeViewModel.fiat.title})',
-                  focusNode: _amountFiatFocus,
-                  controller: _amountFiatController,
-                ),
-                const SizedBox(height: 8),
-                SwapConfirmationTextfield(
-                  key: ValueKey('swap_confirmation_bottomsheet_address_textfield_key'),
-                  isAddress: true,
-                  walletType: cryptoCurrencyToWalletType(widget.exchangeViewModel.receiveCurrency),
-                  hintText: 'Destination Address',
-                  focusNode: _addressFocus,
-                  controller: _addressController,
-                ),
-                const SizedBox(height: 8),
-                SwapConfirmationTextfield(
-                  maxLines: 1,
-                  key: ValueKey('swap_confirmation_bottomsheet_note_textfield_key'),
-                  hintText: 'Transaction Note',
-                  focusNode: _noteFocus,
-                  controller: _noteController,
-                ),
-                SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    'Tap field to edit values',
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          fontSize: 10,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ),
-                SizedBox(height: 64),
-                SwapConfirmationFooter(
-                  exchangeViewModel: widget.exchangeViewModel,
-                  formKey: _formKey,
-                  authService: widget.authService,
-                ),
-              ],
+                  );
+                }
+
+                return SizedBox.shrink();
+              },
             ),
-          );
-        },
+            const SizedBox(height: 8),
+            SwapConfirmationTextfield(
+              key: ValueKey('swap_confirmation_bottomsheet_amount_fiat_textfield_key'),
+              hintText: 'Amount (${widget.exchangeViewModel.fiat.title})',
+              focusNode: _amountFiatFocus,
+              controller: _amountFiatController,
+            ),
+            const SizedBox(height: 8),
+            SwapConfirmationTextfield(
+              key: ValueKey('swap_confirmation_bottomsheet_address_textfield_key'),
+              isAddress: true,
+              walletType: cryptoCurrencyToWalletType(widget.exchangeViewModel.receiveCurrency),
+              hintText: 'Destination Address',
+              focusNode: _addressFocus,
+              controller: _addressController,
+            ),
+            const SizedBox(height: 8),
+            SwapConfirmationTextfield(
+              maxLines: 1,
+              key: ValueKey('swap_confirmation_bottomsheet_note_textfield_key'),
+              hintText: 'Transaction Note',
+              focusNode: _noteFocus,
+              controller: _noteController,
+            ),
+            SizedBox(height: 8),
+            Center(
+              child: Text(
+                'Tap field to edit values',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      fontSize: 10,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ),
+            SizedBox(height: 32),
+            SwapConfirmationFooter(
+              exchangeViewModel: widget.exchangeViewModel,
+              formKey: _formKey,
+              authService: widget.authService,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -272,12 +297,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     ExchangeViewModel exchangeViewModel,
     PaymentFlowResult paymentFlowResult,
   ) async {
-    final limitsState = exchangeViewModel.limitsState;
-    if (limitsState is LimitsLoadedSuccessfully) {
-      _min = limitsState.limits.min != null ? limitsState.limits.min.toString() : null;
-      _max = limitsState.limits.max != null ? limitsState.limits.max.toString() : null;
-    }
-
     _receiveAmountReaction = reaction((_) => exchangeViewModel.receiveAmount, (String amount) {
       if (_amountController.text != amount) {
         _amountController.text = amount;
@@ -343,18 +362,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
       }
     });
 
-    _limitsStateReaction = reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {
-      if (state is LimitsLoadedSuccessfully) {
-        _min = state.limits.min != null ? state.limits.min.toString() : null;
-        _max = state.limits.max != null ? state.limits.max.toString() : null;
-      }
-
-      if (state is LimitsLoadedFailure) {
-        _min = '0';
-        _max = '0';
-      }
-    });
-
     _bestRateReaction = reaction((_) => exchangeViewModel.bestRate, (double rate) {
       if (exchangeViewModel.isFixedRateMode) {
         exchangeViewModel.changeReceiveAmount(amount: _amountController.text);
@@ -410,6 +417,7 @@ class SwapConfirmationTextfield extends StatelessWidget {
     this.walletType,
     this.isAddress = false,
     this.maxLines = 1,
+    this.validator,
   });
 
   final FocusNode focusNode;
@@ -418,6 +426,7 @@ class SwapConfirmationTextfield extends StatelessWidget {
   final WalletType? walletType;
   final bool isAddress;
   final int maxLines;
+  final String? Function(String?)? validator;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -460,6 +469,7 @@ class SwapConfirmationTextfield extends StatelessWidget {
                   borderWidth: 0.0,
                   controller: controller,
                   maxLines: maxLines,
+                  validator: validator,
                 ),
         ],
       ),
@@ -481,19 +491,19 @@ class SwapConfirmationFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) {
-        final isLoading = exchangeViewModel.tradeState is TradeIsCreating ||
-            exchangeViewModel.limitsState is LimitsIsLoading;
-        final isDisabled = exchangeViewModel.selectedProviders.isEmpty ||
-            exchangeViewModel.receiveAmount.isEmpty ||
-            exchangeViewModel.receiveAddress.isEmpty;
+    return Container(
+      height: 150,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Observer(
+        builder: (_) {
+          final isLoading = exchangeViewModel.tradeState is TradeIsCreating ||
+              exchangeViewModel.limitsState is LimitsIsLoading;
+          final isDisabled = exchangeViewModel.selectedProviders.isEmpty ||
+              exchangeViewModel.receiveAmount.isEmpty ||
+              exchangeViewModel.receiveAddress.isEmpty;
 
-        return Container(
-          height: 150,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
+          return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               PrimaryButton(
@@ -536,9 +546,9 @@ class SwapConfirmationFooter extends StatelessWidget {
                 isLoading: isLoading,
               ),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
