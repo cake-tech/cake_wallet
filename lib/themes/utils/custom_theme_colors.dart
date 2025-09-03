@@ -26,4 +26,8 @@ class CustomThemeColors {
   static const toggleColorOffStateLight = Color(0xFFCACAE7);
   static const toggleColorOffStateDark = Color(0xFF3A4F88);
   static const toggleColorOffStateBlack = Color(0xFF3A4F88);
+
+  static const blackCakePrimary = Color(0xFF52B6F0);
+  static const blackMoneroPrimary = Color(0xFFD85128);
+  static const blackBitcoinPrimary = Color(0xFFF1B92F);
 }
