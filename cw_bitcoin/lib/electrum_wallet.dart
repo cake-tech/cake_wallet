@@ -851,6 +851,39 @@ abstract class ElectrumWalletBase
       throw BitcoinTransactionNoDustException();
     }
 
+
+    // If there is only one output, and the amount to send is more than the max spendable amount
+    // then it is actually a send all transaction
+
+    if (outputs.length == 1) {
+      final maxSpendable = await _maxSpendableNoChangeAmount(
+        initialOutput: outputs.first,
+        feeRate: feeRate,
+        memo: memo,
+        hasSilentPayment: hasSilentPayment,
+        coinTypeToSpendFrom: coinTypeToSpendFrom,
+      );
+      if (credentialsAmount > maxSpendable) {
+        throw BitcoinTransactionWrongBalanceException();
+      }
+      if (credentialsAmount >= maxSpendable) {
+        final estimateOutput = [
+          BitcoinOutput(
+            address: outputs.first.address,
+            value: BigInt.zero,
+            isSilentPayment: outputs.first.isSilentPayment,
+          )
+        ];
+        return estimateSendAllTx(
+          estimateOutput,
+          feeRate,
+          memo: memo,
+          hasSilentPayment: hasSilentPayment,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
+        );
+      }
+    }
+
     final utxoDetails = _createUTXOS(
       sendAll: false,
       credentialsAmount: credentialsAmount,
@@ -952,7 +985,38 @@ abstract class ElectrumWalletBase
       updatedOutputs.removeLast();
       outputs.removeLast();
 
+      // If the computed change is negative or below dust:
+      //   - negative: try a no-change tx (recalculate fee without change)
+      //   - non-negative but dust: drop change and add remainder to fee
       if (amountLeftForChange < 0) {
+        final tempNoChange = outputs.map((o) => o).toList();
+        final feeNoChange = await calcFee(
+          utxos: utxoDetails.utxos,
+          outputs: tempNoChange,
+          network: network,
+          memo: memo,
+          feeRate: feeRate,
+          inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+          vinOutpoints: utxoDetails.vinOutpoints,
+        );
+        final leftover = utxoDetails.allInputsAmount - credentialsAmount - feeNoChange;
+
+        if (leftover >= 0) {
+          final finalFee = feeNoChange + leftover; // absorb tiny remainder
+          return EstimatedTxResult(
+            utxos: utxoDetails.utxos,
+            inputPrivKeyInfos: utxoDetails.inputPrivKeyInfos,
+            publicKeys: utxoDetails.publicKeys,
+            fee: finalFee,
+            amount: amount,
+            hasChange: false,
+            isSendAll: spendingAllCoins,
+            memo: memo,
+            spendsUnconfirmedTX: utxoDetails.spendsUnconfirmedTX,
+            spendsSilentPayment: utxoDetails.spendsSilentPayment,
+          );
+        }
+
         if (!spendingAllCoins) {
           return estimateTxForAmount(
             credentialsAmount,
@@ -1014,6 +1078,42 @@ abstract class ElectrumWalletBase
         spendsSilentPayment: utxoDetails.spendsSilentPayment,
       );
     }
+  }
+
+  Future<int> _maxSpendableNoChangeAmount({
+    required BitcoinOutput initialOutput,
+    required int feeRate,
+    String? memo,
+    bool hasSilentPayment = false,
+    UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+  }) async {
+
+    final utxoDetailsAll = _createUTXOS(
+      sendAll: true,
+      paysToSilentPayment: hasSilentPayment,
+      coinTypeToSpendFrom: coinTypeToSpendFrom,
+    );
+
+    final output = [
+      BitcoinOutput(
+        address: initialOutput.address,
+        value: BigInt.zero,
+        isSilentPayment: initialOutput.isSilentPayment,
+      )
+    ];
+
+    final feeNoChange = await calcFee(
+      utxos: utxoDetailsAll.utxos,
+      outputs: output,
+      network: network,
+      memo: memo,
+      feeRate: feeRate,
+      inputPrivKeyInfos: utxoDetailsAll.inputPrivKeyInfos,
+      vinOutpoints: utxoDetailsAll.vinOutpoints,
+    );
+
+    final maxSpendable = utxoDetailsAll.allInputsAmount - feeNoChange;
+    return maxSpendable > 0 ? maxSpendable : 0;
   }
 
   Future<int> calcFee({
