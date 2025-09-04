@@ -11,6 +11,7 @@ class Routes {
   static const restoreWalletFromHardwareWallet = '/restore/hardware_wallet';
   static const restoreWalletTypeFromQR = '/restore_wallet_from_qr_code';
   static const restoreWalletChooseDerivation = '/restore_wallet_choose_derivation';
+  static const connectHardwareWallet = '/restore/hardware_wallet/devices';
   static const chooseHardwareWalletAccount = '/restore/hardware_wallet/accounts';
   static const dashboard = '/dashboard';
   static const send = '/send';

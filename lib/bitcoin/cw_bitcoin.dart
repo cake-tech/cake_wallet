@@ -536,27 +536,22 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletBitcoinAccounts(LedgerViewModel ledgerVM,
-      {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = BitcoinHardwareWalletService(ledgerVM.connection);
-    try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } catch (err) {
-      printV(err);
-      throw err;
-    }
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+    (wallet as ElectrumWallet).hardwareWalletService = service;
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletLitecoinAccounts(LedgerViewModel ledgerVM,
-      {int index = 0, int limit = 5}) async {
-    final hardwareWalletService = LitecoinHardwareWalletService(ledgerVM.connection);
-    try {
-      return hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } catch (err) {
-      printV(err);
-      throw err;
-    }
+  HardwareWalletService getLedgerHardwareWalletService(
+      ledger.LedgerConnection connection, bool isBitcoin) {
+    if (isBitcoin) return BitcoinLedgerService(connection);
+    return LitecoinLedgerService(connection);
+  }
+
+  @override
+  HardwareWalletService getBitboxHardwareWalletService(
+      bitbox.BitboxManager manager, bool isBitcoin) {
+    if (isBitcoin) return BitcoinBitboxService(manager);
+    return LitecoinBitboxService(manager);
   }
 
   @override
