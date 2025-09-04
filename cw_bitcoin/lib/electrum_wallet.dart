@@ -496,7 +496,7 @@ abstract class ElectrumWalletBase
   }
 
   DateTime? _lastSilentPaymentsScan;
-  static const Duration _silentPaymentsScanDelay = Duration(seconds: 30);
+  static const Duration _silentPaymentsScanDelay = Duration(minutes: 1);
 
   @action
   @override
@@ -532,8 +532,9 @@ abstract class ElectrumWalletBase
               }
           });
 
-          _setListeners(walletInfo.restoreHeight,
-              rescanHeights: rescanHeights.isNotEmpty ? rescanHeights : null);
+          if (rescanHeights.isNotEmpty)
+            _setListeners(walletInfo.restoreHeight,
+                rescanHeights: rescanHeights.isNotEmpty ? rescanHeights : null);
         }
       }
 
