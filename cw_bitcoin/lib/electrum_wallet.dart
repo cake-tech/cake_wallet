@@ -533,8 +533,7 @@ abstract class ElectrumWalletBase
           });
 
           if (rescanHeights.isNotEmpty)
-            _setListeners(walletInfo.restoreHeight,
-                rescanHeights: rescanHeights.isNotEmpty ? rescanHeights : null);
+            _setListeners(walletInfo.restoreHeight, rescanHeights: rescanHeights);
         }
       }
 
