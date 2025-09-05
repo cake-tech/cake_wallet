@@ -72,6 +72,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type == WalletType.solana ||
         wallet.type == WalletType.tron ||
         wallet.type == WalletType.zano;
+        
+    for (final output in outputs) {
+      output.updateWallet(wallet);
+    }
   }
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
