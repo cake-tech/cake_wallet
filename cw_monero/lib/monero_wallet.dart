@@ -229,12 +229,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<void> connectToNode({required Node node}) async {
     String socksProxy = node.socksProxyAddress ?? '';
-    printV("bootstrapped: ${CakeTor.instance.bootstrapped}");
-    printV("     enabled: ${CakeTor.instance.enabled}");
-    printV("        port: ${CakeTor.instance.port}");
-    printV("     started: ${CakeTor.instance.started}");
-    if (CakeTor.instance.enabled) {
-      socksProxy = "127.0.0.1:${CakeTor.instance.port}";
+    printV("bootstrapped: ${CakeTor.instance!.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance!.enabled}");
+    printV("        port: ${CakeTor.instance!.port}");
+    printV("     started: ${CakeTor.instance!.started}");
+    if (CakeTor.instance!.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance!.port}";
     }
     try {
       syncStatus = ConnectingSyncStatus();
