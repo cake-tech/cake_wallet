@@ -70,7 +70,7 @@ class _ProgressCard extends StatelessWidget {
           children: [
             const Spacer(),
             Text(
-              'Checking for alias changes…',
+              S.of(context).checking_for_alias_changes,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const Spacer(flex: 2),
@@ -97,7 +97,7 @@ class _ErrorCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                'This contact no longer has a ${currency} address assigned to them, please select a different contact or enter an address manually.',
+                S.of(context).contact_no_longer_has_an_address_assigne,
                 style: Theme.of(context).textTheme.bodyLarge,
                 textAlign: TextAlign.center,
               ),
