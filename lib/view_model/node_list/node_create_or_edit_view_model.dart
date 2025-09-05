@@ -64,7 +64,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool useSocksProxy;
 
   @computed
-  bool get usesEmbeddedProxy => CakeTor.instance.started;
+  bool get usesEmbeddedProxy => CakeTor.instance!.started;
 
   @observable
   String socksProxyAddress;
