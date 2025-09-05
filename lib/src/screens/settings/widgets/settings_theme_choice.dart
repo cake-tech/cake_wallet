@@ -43,7 +43,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               final MaterialThemeBase e = items[index];
-              final currentTheme = _displaySettingsViewModel.theme;
+              final currentTheme = _displaySettingsViewModel.currentTheme;
               final isSelected = currentTheme == e;
 
               return Padding(

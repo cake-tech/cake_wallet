@@ -1,58 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
-class LightTheme extends MaterialThemeBase {
+class BlackTheme extends MaterialThemeBase {
   @override
-  Brightness get brightness => Brightness.light;
+  Brightness get brightness => Brightness.dark;
 
   @override
-  ThemeMode get themeMode => ThemeMode.light;
+  ThemeMode get themeMode => ThemeMode.dark;
 
   @override
-  Color get primaryColor => const Color(0xFF4EBEFF);
+  Color get primaryColor => const Color(0xFF52B6F0);
 
   @override
-  Color get secondaryColor => const Color(0xFF625C64);
+  Color get secondaryColor => const Color(0xFFCCC4CD);
 
   @override
-  Color get tertiaryColor => const Color(0xFFBFCBDE);
+  Color get errorColor => const Color(0xFFFFB4AB);
 
   @override
-  Color get errorColor => const Color(0xFFBA1A1A);
+  Color get surfaceColor => const Color(0xFF000000);
 
   @override
-  Color get surfaceColor => const Color(0xFFEFEFF8);
+  Color get tertiaryColor => const Color(0xFFDEBFC5);
 
   @override
-  ColorScheme get colorScheme => ColorScheme.light(
+  ColorScheme get colorScheme => ColorScheme.dark(
         primary: primaryColor,
-        onPrimary: const Color(0xFFFFFFFF),
-        primaryContainer: const Color(0xFF403747),
-        onPrimaryContainer: const Color(0xFFD5C8DC),
+        onPrimary: const Color(0xFF352D3C),
+        primaryContainer: const Color(0xFF28212F),
+        onPrimaryContainer: const Color(0xFFB7ABBE),
         secondary: secondaryColor,
-        onSecondary: const Color(0xFFFFFFFF),
-        secondaryContainer: const Color(0xFFE1E4EA),
-        onSecondaryContainer: const Color(0xFF4C474E),
+        onSecondary: const Color(0xFF332F36),
+        secondaryContainer: const Color(0xFF454148),
+        onSecondaryContainer: const Color(0xFFDFD6DF),
         tertiary: tertiaryColor,
-        onTertiary: const Color(0xFFFFFFFF),
-        tertiaryContainer: const Color(0xFF35404A),
-        onTertiaryContainer: const Color(0xFFC5D7E5),
+        onTertiary: const Color(0xFF3F2B30),
+        tertiaryContainer: const Color(0xFF321F24),
+        onTertiaryContainer: const Color(0xFFC6A8AE),
         error: errorColor,
-        onError: const Color(0xFFFFFFFF),
-        errorContainer: const Color(0xFFFFBDBD),
-        onErrorContainer: const Color(0xFFE43D3D),
+        onError: const Color(0xFFB71919),
+        errorContainer: const Color(0xFFC53636),
+        onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
-        onSurface: const Color(0xFF312938),
-        onSurfaceVariant: const Color(0xFF6C6772),
-        surfaceContainerLowest: Color(0xFFE4E4E4),
-        surfaceContainerLow: Color(0xFFECECED),
-        surfaceContainer: Color(0xFFFBFBFD),
-        surfaceContainerHigh: Color(0xFFFDFDFE),
-        surfaceContainerHighest: Color(0xFFFFFFFF),
-        outline: const Color(0xFF7B757C),
-        outlineVariant: const Color(0xFFCBC4CB),
+        onSurface: const Color(0xFFE6E1E3),
+        onSurfaceVariant: const Color(0xFFB4B4B4),
+        surfaceContainerLowest: Color(0xFF0F0E0F),
+        surfaceContainerLow: Color(0xFF1C1B1C),
+        surfaceContainer: Color(0xFF211F20),
+        surfaceContainerHigh: Color(0xFF2B292B),
+        surfaceContainerHighest: Color(0xFF363435),
+        outline: const Color(0xFF958F95),
+        outlineVariant: const Color(0xFF49454B),
       );
-
+  static const String fontFamily = 'WixMadeforText';
   @override
   TextTheme get textTheme => TextTheme(
         displayLarge: TextStyle(
@@ -140,20 +140,19 @@ class LightTheme extends MaterialThemeBase {
           color: colorScheme.onSurface,
         ),
         labelSmall: TextStyle(
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
           color: colorScheme.onSurface,
         ),
       );
 
-  static const String fontFamily = 'WixMadeforText';
   @override
   ThemeData get themeData => ThemeData(
         useMaterial3: true,
+        fontFamily: fontFamily,
         brightness: brightness,
         colorScheme: colorScheme,
-        fontFamily: fontFamily,
         textTheme: textTheme,
         appBarTheme: AppBarTheme(
           backgroundColor: colorScheme.surface,
@@ -173,7 +172,7 @@ class LightTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.onPrimary,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -182,7 +181,7 @@ class LightTheme extends MaterialThemeBase {
             foregroundColor: colorScheme.primary,
             side: BorderSide(color: colorScheme.outline),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -190,7 +189,7 @@ class LightTheme extends MaterialThemeBase {
           style: TextButton.styleFrom(
             foregroundColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -217,15 +216,19 @@ class LightTheme extends MaterialThemeBase {
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: colorScheme.error),
           ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
         ),
       );
 
   @override
-  String get title => 'Light Theme';
+  String get title => 'Black Theme';
 
   @override
-  ThemeType get type => ThemeType.light;
+  ThemeType get type => ThemeType.dark;
 
   @override
-  int get raw => 0;
+  int get raw => 12;
 }
