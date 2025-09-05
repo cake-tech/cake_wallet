@@ -19,7 +19,10 @@ class NodeForm extends StatelessWidget {
     this.type,
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
         _pathController = TextEditingController(text: editingNode?.path.toString()),
-        _portController = TextEditingController(text: editingNode?.uri.port.toString()),
+        _portController = TextEditingController(
+            text: (editingNode != null && editingNode.uri.hasPort)
+                ? editingNode.uri.port.toString()
+                : ''),
         _loginController = TextEditingController(text: editingNode?.login),
         _passwordController = TextEditingController(text: editingNode?.password),
         _socksAddressController = TextEditingController(text: editingNode?.socksProxyAddress) {
@@ -27,7 +30,7 @@ class NodeForm extends StatelessWidget {
       nodeViewModel
         ..setAddress((editingNode!.uri.host.toString()))
         ..setPath((editingNode!.path.toString()))
-        ..setPort((editingNode!.uri.port.toString()))
+        ..setPort((editingNode!.uri.hasPort ? editingNode!.uri.port.toString() : ''))
         ..setPassword((editingNode!.password ?? ''))
         ..setLogin((editingNode!.login ?? ''))
         ..setSSL((editingNode!.isSSL))
