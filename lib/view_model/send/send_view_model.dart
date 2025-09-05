@@ -76,6 +76,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     for (final output in outputs) {
       output.updateWallet(wallet);
     }
+    
+    // Update unspent coins list view model with the new wallet reference
+    unspentCoinsListViewModel.updateWallet(wallet);
+    
+    // Update sending balance to reflect the new wallet's balance
+    updateSendingBalance();
   }
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
