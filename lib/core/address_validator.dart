@@ -28,7 +28,7 @@ class AddressValidator extends TextValidator {
             pattern: getPattern(type, isTestnet: isTestnet),
             length: getLength(type));
 
-  static final Set<CryptoCurrency> _reliableCurrencies = {
+  static const List<CryptoCurrency> reliableValidateCurrencies = [
     CryptoCurrency.xmr,
     CryptoCurrency.btc,
     CryptoCurrency.ltc,
@@ -53,7 +53,7 @@ class AddressValidator extends TextValidator {
     CryptoCurrency.kmd,
     CryptoCurrency.doge,
     CryptoCurrency.btcln,
-  };
+  ];
 
   static Set<CryptoCurrency> detectCurrencies(
       String txt, {
@@ -64,7 +64,7 @@ class AddressValidator extends TextValidator {
 
     final currencies = includeGeneric
         ? CryptoCurrency.all
-        : _reliableCurrencies;
+        : reliableValidateCurrencies;
 
     for (final cur in currencies) {
       final pattern = AddressValidator.getPattern(cur, isTestnet: isTestnet);
@@ -386,10 +386,9 @@ class AddressValidator extends TextValidator {
             '|(8[0-9a-zA-Z]{94})'
             '|([0-9a-zA-Z]{106})';
       case CryptoCurrency.wow:
-        pattern = '(W[0-9a-zA-Z]{94})'
-            '|(W[0-9a-zA-Z]{94})'
-            '|(W[0-9a-zA-Z]{96})'
-            '|([0-9a-zA-Z]{106})';
+        const base58 = r'[1-9A-HJ-NP-Za-km-z]';
+        pattern = '(?:W(?:o|m|W)$base58{94,95}|Wo$base58{106,107})';
+        break;
       case CryptoCurrency.btc:
         pattern =
             '${P2pkhAddress.regex.pattern}|${P2shAddress.regex.pattern}|${P2wpkhAddress.regex.pattern}|${P2trAddress.regex.pattern}|${P2wshAddress.regex.pattern}|${SilentPaymentAddress.regex.pattern}';

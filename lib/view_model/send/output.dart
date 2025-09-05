@@ -377,14 +377,14 @@ extension OutputCopyWith on Output {
     );
 
     clone
-      ..cryptoAmount      = cryptoAmount
+      ..cryptoAmount = cryptoAmount
       ..cryptoFullBalance = cryptoFullBalance
-      ..note              = note
-      ..sendAll           = sendAll
-      ..memo              = memo
-      ..stealthAddress    = stealthAddress
-      ..parsedAddress    = parsedAddress ?? this.parsedAddress
-      ..fiatAmount      = fiatAmount ?? this.fiatAmount;
+      ..note = note
+      ..sendAll = sendAll
+      ..memo = memo
+      ..stealthAddress = stealthAddress
+      ..parsedAddress = parsedAddress ?? this.parsedAddress
+      ..fiatAmount = fiatAmount ?? this.fiatAmount;
 
     return clone;
   }

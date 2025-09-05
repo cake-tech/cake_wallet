@@ -511,23 +511,23 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
             (_) => lookupsFio,
-            (bool looksUpWellKnown) =>
-            _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
+            (bool lookupsFio) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsFio, lookupsFio));
 
     reaction(
             (_) => lookupsNostr,
-            (bool looksUpWellKnown) =>
-            _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
+            (bool lookupsNostr) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsNostr, lookupsNostr));
 
     reaction(
             (_) => lookupsThorChain,
-            (bool looksUpWellKnown) =>
-            _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
+            (bool lookupsThorChain) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsThorChain, lookupsThorChain));
 
     reaction(
             (_) => lookupsBip353,
-            (bool looksUpWellKnown) =>
-            _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, looksUpWellKnown));
+            (bool lookupsBip353) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsBip353, lookupsBip353));
 
     reaction(
         (_) => usePayjoin,

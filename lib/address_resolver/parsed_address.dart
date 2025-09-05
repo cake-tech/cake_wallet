@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -23,15 +24,7 @@ enum AddressSource {
       label: 'X',
       iconPath: 'assets/images/x_social.png',
       alias: '@username',
-      supportedCurrencies: [
-        CryptoCurrency.xmr,
-        CryptoCurrency.btc,
-        CryptoCurrency.ltc,
-        CryptoCurrency.eth,
-        CryptoCurrency.bnb,
-        CryptoCurrency.sol,
-        CryptoCurrency.maticpoly
-      ]),
+      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   unstoppableDomains(
       label: 'Unstoppable Domains',
       iconPath: 'assets/images/ud.png',
@@ -52,15 +45,8 @@ enum AddressSource {
         CryptoCurrency.eth,
         CryptoCurrency.ltc
       ]),
-  fio(label: 'FIO', iconPath: 'assets/images/fio.png', alias: 'user@domain', supportedCurrencies: [
-    CryptoCurrency.xmr,
-    CryptoCurrency.btc,
-    CryptoCurrency.ltc,
-    CryptoCurrency.eth,
-    CryptoCurrency.bnb,
-    CryptoCurrency.sol,
-    CryptoCurrency.maticpoly,
-  ]),
+  fio(label: 'FIO', iconPath: 'assets/images/fio.png', alias: 'user@domain',
+      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   ens(
       label: 'Ethereum Name Service',
       iconPath: 'assets/images/ens_icon.png',
@@ -70,27 +56,11 @@ enum AddressSource {
       label: 'Mastodon',
       iconPath: 'assets/images/mastodon.svg',
       alias: 'user@domain.tld',
-      supportedCurrencies: [
-        CryptoCurrency.xmr,
-        CryptoCurrency.btc,
-        CryptoCurrency.ltc,
-        CryptoCurrency.eth,
-        CryptoCurrency.bnb,
-        CryptoCurrency.sol,
-        CryptoCurrency.maticpoly
-      ]),
+      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   nostr(
       label: 'Nostr',
       iconPath: 'assets/images/nostr.png',
-      supportedCurrencies: [
-        CryptoCurrency.xmr,
-        CryptoCurrency.btc,
-        CryptoCurrency.ltc,
-        CryptoCurrency.eth,
-        CryptoCurrency.bnb,
-        CryptoCurrency.sol,
-        CryptoCurrency.maticpoly
-      ]),
+      supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   thorChain(
       label: 'ThorChain',
       iconPath: 'assets/images/thorchain.png',

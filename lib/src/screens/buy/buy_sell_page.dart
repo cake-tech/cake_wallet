@@ -26,9 +26,10 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class BuySellPage extends BasePage {
-  BuySellPage(this.buySellViewModel);
+  BuySellPage(this.buySellViewModel) : _resolver = getIt<AddressResolverService>();
 
   final BuySellViewModel buySellViewModel;
+  final AddressResolverService _resolver;
   final cryptoCurrencyKey = GlobalKey<ExchangeCardState>();
   final fiatCurrencyKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
@@ -297,7 +298,7 @@ class BuySellPage extends BasePage {
     });
 
     reaction((_) => buySellViewModel.cryptoCurrencyAddress, (String address) {
-      if (cryptoAddressController != address) {
+      if (cryptoAddressController.text != address) {
         cryptoCurrencyKey.currentState!.addressController.text = address;
       }
     });
@@ -321,8 +322,10 @@ class BuySellPage extends BasePage {
     _cryptoAddressFocus.addListener(() async {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
-        buySellViewModel.cryptoCurrencyAddress =
-            await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+        final parsed = await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+        if (parsed.isNotEmpty) {
+          buySellViewModel.cryptoCurrencyAddress = parsed;
+        }
       }
     });
 
@@ -448,8 +451,25 @@ class BuySellPage extends BasePage {
         addressButtonsColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderColor: Theme.of(context).colorScheme.outlineVariant,
         addressTextFieldValidator: AddressValidator(type: buySellViewModel.cryptoCurrency),
-        onPushPasteButton: (context) async {},
-        onPushAddressBookButton: (context) async {},
+
+        onPushPasteButton: (context) async {
+          final domain = cryptoCurrencyKey.currentState!.addressController.text;
+          final parsed =
+          await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+          if (parsed.isNotEmpty) {
+            buySellViewModel.cryptoCurrencyAddress = parsed;
+          }
+        },
+
+        onPushAddressBookButton: (context) async {
+          final domain = cryptoCurrencyKey.currentState!.addressController.text;
+          final parsed =
+          await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+          if (parsed.isNotEmpty) {
+            buySellViewModel.cryptoCurrencyAddress = parsed;
+          }
+        },
+
         fillColor: buySellViewModel.isBuyAction
             ? Theme.of(context).colorScheme.surfaceContainerLow
             : Theme.of(context).colorScheme.surfaceContainer,
@@ -509,8 +529,10 @@ class BuySellPage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolverService>().resolve(query: domain,wallet: buySellViewModel.wallet, currency: currency);
-
-    return ''; //TODO: fix return parsedAddress.addressByCurrencyMap[currency] ?? '';
+    final parsedAddresses = await _resolver.resolve(
+        query: domain, wallet: buySellViewModel.wallet, currency: currency);
+    return parsedAddresses.isNotEmpty
+        ? parsedAddresses.first.parsedAddressByCurrencyMap[currency] ?? ''
+        : '';
   }
 }

@@ -725,41 +725,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  ContactRecord? newContactAddress() {
-    final Set<String> contactAddresses =
-        Set.from(contactListViewModel.contacts.map((contact) => contact.address))
-          ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
-
-    for (var output in outputs) {
-      String address;
-      if (output.isParsedAddress) {
-        address = output.parsedAddress.parsedAddressByCurrencyMap[selectedCryptoCurrency] ?? '';
-      } else {
-        address = output.address;
-      }
-
-      if (address.isNotEmpty &&
-          !contactAddresses.contains(address) &&
-          selectedCryptoCurrency.raw != -1) {
-        return ContactRecord(
-            contactListViewModel.contactSource,
-            Contact(
-              name: '',
-              parsedByHandle: {
-                'handle':
-
-                {
-                  3: {'label4': address}
-                }
-              },
-              manualAddresses: {3: {'label5':address} //TODO : Fix this hardcoded value
-              },
-            ));
-      }
-    }
-    return null;
-  }
-
   String translateErrorMessage(
     Object error,
     WalletType walletType,

@@ -275,31 +275,29 @@ class AddressResolverService {
   static String? extractAddressByType({
     required String raw,
     required CryptoCurrency type,
+    bool requireSurroundingWhitespaces = true,
   }) {
-    final pat = AddressValidator.getAddressFromStringPattern(type);
-    if (pat == null) {
+    var addressPattern = AddressValidator.getAddressFromStringPattern(type);
+    if (addressPattern == null) {
       printV('Unknown pattern for $type');
       return null;
     }
-
+    if (requireSurroundingWhitespaces)
+      addressPattern = "$BEFORE_REGEX$addressPattern$AFTER_REGEX";
     final text = _cleanInput(raw);
-
-    final regex =
-        RegExp(r'(?:^|[^0-9A-Za-z])(' + pat + r')', multiLine: true, caseSensitive: false);
-
-    final m = regex.firstMatch(text);
-    if (m == null) return null;
-
-    // 3.  Strip BCH / NANO prefixes and punctuation just like before
-    final cleaned =
-        m.group(1)!.replaceAllMapped(RegExp(r'[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'), (m) {
-      final g = m.group(0)!;
-      return (g.startsWith('bitcoincash:') || g.startsWith('nano_') || g.startsWith('ban_'))
-          ? g
-          : '';
+    final match = RegExp(addressPattern, multiLine: true, caseSensitive: false)
+        .firstMatch(text);
+    if (match == null) return null;
+    return match.group(0)?.replaceAllMapped(
+        RegExp('[^0-9a-zA-Z]|bitcoincash:|nano_|ban_'), (Match match) {
+      String group = match.group(0)!;
+      if (group.startsWith('bitcoincash:') ||
+          group.startsWith('nano_') ||
+          group.startsWith('ban_')) {
+        return group;
+      }
+      return '';
     });
-
-    return cleaned;
   }
 
   bool isEmailFormat(String address) {
@@ -348,28 +346,34 @@ class AddressResolverService {
 
     final Map<CryptoCurrency, String> result = {};
 
+    String queryTxt = twitterUser.description;
+
     try {
       for (final cur in currencies) {
         final addressFromBio = extractAddressByType(
-            raw: twitterUser.description, type: CryptoCurrency.fromString(cur.title));
+            raw: queryTxt, type: CryptoCurrency.fromString(cur.title));
         printV('Address from bio: $addressFromBio');
 
         if (addressFromBio != null && addressFromBio.isNotEmpty) {
           result[cur] = addressFromBio;
+          queryTxt.replaceFirst(addressFromBio, '');
         }
       }
     } catch (e) {
       printV('Error extracting address from Twitter bio: $e');
     }
 
+    String pinnedTweet = twitterUser.pinnedTweet?.text ?? '';
+
     try {
-      final pinnedTweet = twitterUser.pinnedTweet?.text;
-      if (pinnedTweet != null) {
+
+      if (pinnedTweet.isNotEmpty) {
         for (final cur in currencies) {
           final addressFromPinnedTweet =
               extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(cur.title));
           if (addressFromPinnedTweet != null && addressFromPinnedTweet.isNotEmpty) {
             result[cur] = addressFromPinnedTweet;
+            pinnedTweet = pinnedTweet.replaceFirst(addressFromPinnedTweet, '');
           }
         }
       }
@@ -574,7 +578,12 @@ class AddressResolverService {
       if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
         if (cur == CryptoCurrency.btc) {
           bip353AddressMap.forEach((key, value) {
-            final address = bip353AddressMap['sp'] ?? bip353AddressMap['address'];
+            final spAddress = bip353AddressMap['sp'];
+            final address = bip353AddressMap['address'];
+
+           if (spAddress != null && spAddress.isNotEmpty) {
+              result[cur] = spAddress;
+            }
             if (address != null && address.isNotEmpty) {
               result[cur] = address;
             }
