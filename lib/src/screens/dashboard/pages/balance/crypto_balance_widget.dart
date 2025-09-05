@@ -37,7 +37,7 @@ class CryptoBalanceWidget extends StatelessWidget {
       case HardwareWalletType.bitbox:
         return "assets/images/hardware_wallet/device_bitbox.svg";
       case HardwareWalletType.cupcake:
-        return "assets/images/hardware_wallet/icon_cupcake.svg";
+        return "assets/images/cupcake.svg";
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
         return "assets/images/hardware_wallet/device_qr.svg";

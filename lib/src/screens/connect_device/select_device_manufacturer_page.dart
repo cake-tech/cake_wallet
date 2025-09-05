@@ -37,6 +37,10 @@ class SelectDeviceManufacturerPage extends BasePage {
           hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
+        _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+          tag: S.current.new_tag,
+        ),
       ];
 
   List<_DeviceManufacturer> get comingManufacturers => [
@@ -46,14 +50,6 @@ class SelectDeviceManufacturerPage extends BasePage {
         ),
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/foundation_man.svg', height: 25),
-          tag: S.current.coming_soon_tag,
-        ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/coldcard_man.svg', height: 25),
-          tag: S.current.coming_soon_tag,
-        ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(

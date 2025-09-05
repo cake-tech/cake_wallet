@@ -11,6 +11,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -165,7 +166,11 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
       final restoredWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
 
-      final params = {'walletType': restoredWallet.type, 'restoredWallet': restoredWallet};
+      final params = {
+        'walletType': restoredWallet.type,
+        'restoredWallet': restoredWallet,
+        'hardwareWalletType': HardwareWalletType.cupcake,
+      };
 
       Navigator.pushNamed(context, Routes.restoreWallet, arguments: params).then((_) {
         if (mounted) setState(() => isRestoring = false);
