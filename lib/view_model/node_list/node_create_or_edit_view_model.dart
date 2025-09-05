@@ -71,8 +71,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @computed
   bool get isReady =>
-      (address.isNotEmpty && port.isNotEmpty) ||
-      _walletType == WalletType.decred; // Allow an empty address.
+      (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
