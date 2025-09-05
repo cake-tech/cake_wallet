@@ -3,10 +3,14 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/dotted_divider.dart';
 import 'package:cake_wallet/src/screens/connect_device/widgets/manufacturer_option_tile.dart';
+import 'package:cake_wallet/utils/permission_handler.dart';
+import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SelectDeviceManufacturerPage extends BasePage {
   SelectDeviceManufacturerPage();
@@ -17,7 +21,8 @@ class SelectDeviceManufacturerPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
-  List<_DeviceManufacturer> get availableManufacturers => [
+  List<_DeviceManufacturer> get availableManufacturers =>
+      [
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/ledger_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.ledger,
@@ -25,6 +30,11 @@ class SelectDeviceManufacturerPage extends BasePage {
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.bitbox,
+          tag: S.current.new_tag,
+        ),
+        _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/coldcard_man.svg', height: 25),
+          hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
       ];
@@ -66,7 +76,9 @@ class SelectDeviceManufacturerPage extends BasePage {
                       image: manufacturer.image,
                       tag: manufacturer.tag,
                       onPressed: () {
-                        if (manufacturer.hardwareWalletType != null) {
+                        if (isAirgappedWallet(manufacturer.hardwareWalletType)) {
+                          _onScanQRCode(context, manufacturer.hardwareWalletType!);
+                        } else if (manufacturer.hardwareWalletType != null) {
                           Navigator.pushNamed(context, Routes.connectHardwareWallet,
                               arguments: [manufacturer.hardwareWalletType]);
                         }
@@ -85,7 +97,9 @@ class SelectDeviceManufacturerPage extends BasePage {
                     child: ManufacturerOptionTile(
                       image: manufacturer.image,
                       tag: manufacturer.tag,
-                      onPressed: () => Fluttertoast.showToast(msg: 'One more tap and it might work'), // Ester egg
+                      onPressed: () =>
+                          Fluttertoast.showToast(msg: 'One more tap and it might work'),
+                      // Ester egg
                       isDarkTheme: currentTheme.isDark,
                       isUnavailable: true,
                     ),
@@ -96,6 +110,39 @@ class SelectDeviceManufacturerPage extends BasePage {
           ),
         ),
       );
+
+  bool isAirgappedWallet(HardwareWalletType? type) => [
+        HardwareWalletType.cupcake,
+        HardwareWalletType.coldcard,
+        HardwareWalletType.seedsigner
+      ].contains(type);
+
+  bool isRestoring = false;
+
+  Future<void> _onScanQRCode(BuildContext context, HardwareWalletType type) async {
+    final isCameraPermissionGranted =
+        await PermissionHandler.checkPermission(Permission.camera, context);
+
+    if (!isCameraPermissionGranted) return;
+    try {
+      if (isRestoring) return;
+
+      isRestoring = true;
+
+      final restoredWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+
+      final params = {
+        'walletType': restoredWallet.type,
+        'restoredWallet': restoredWallet,
+        'hardwareWalletType': type,
+      };
+
+      Navigator.pushNamed(context, Routes.restoreWallet, arguments: params).then((_) =>
+      isRestoring = false);
+    } catch (e) {
+      printV(e.toString());
+    }
+  }
 }
 
 class _DeviceManufacturer {

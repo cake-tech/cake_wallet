@@ -27,6 +27,12 @@ enum HardwareWalletType {
   ledger,
   @HiveField(1)
   bitbox,
+  @HiveField(2)
+  cupcake,
+  @HiveField(3)
+  coldcard,
+  @HiveField(4)
+  seedsigner,
 }
 
 @HiveType(typeId: DerivationInfo.typeId)
@@ -226,7 +232,8 @@ class WalletInfo extends HiveObject {
     return showIntroCakePayCard!;
   }
 
-  bool get isHardwareWallet => hardwareWalletType != null;
+  bool get isHardwareWallet =>
+      [HardwareWalletType.ledger, HardwareWalletType.bitbox].contains(hardwareWalletType);
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 

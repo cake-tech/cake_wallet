@@ -171,7 +171,7 @@ abstract class Bitcoin {
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
-  WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub});
+  WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();

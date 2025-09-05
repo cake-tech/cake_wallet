@@ -23,8 +23,10 @@ class CWBitcoin extends Bitcoin {
     required String name,
     required String password,
     required String xpub,
+    HardwareWalletType? hardwareWalletType,
   }) =>
-      BitcoinWalletFromKeysCredentials(name: name, password: password, xpub: xpub);
+      BitcoinWalletFromKeysCredentials(
+          name: name, password: password, xpub: xpub, hardwareWalletType: hardwareWalletType);
 
   @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(

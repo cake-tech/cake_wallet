@@ -393,6 +393,10 @@ Future<void> setup({
     switch(type) {
       case HardwareWalletType.bitbox: return getIt<BitboxViewModel>();
       case HardwareWalletType.ledger: return getIt<LedgerViewModel>();
+      case HardwareWalletType.cupcake:
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+        throw Exception("This should not have happened, because airgapped Wallets don't need View Models");
     }
   });
 
@@ -1228,18 +1232,24 @@ Future<void> setup({
 
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 
-  getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, RestoredWallet?>((WalletType type,
-      restoredWallet) =>
-      WalletRestoreViewModel(getIt.get<AppStore>(), getIt.get<WalletCreationService>(param1: type),
-          _walletInfoSource, getIt.get<SeedSettingsViewModel>(),
-          type: type, restoredWallet: restoredWallet));
+  getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, Map<String, dynamic>?>(
+      (type, additionalParams) {
+    final restoredWallet = additionalParams?['restoredWallet'] as RestoredWallet?;
+    final hardwareWalletType = additionalParams?['hardwareWalletType'] as HardwareWalletType?;
 
-  getIt.registerFactoryParam<WalletRestorePage, WalletType, RestoredWallet?>((WalletType type,
-      restoredWallet) {
-    return WalletRestorePage(
-        getIt.get<WalletRestoreViewModel>(param1: type, param2: restoredWallet),
-        getIt.get<SeedSettingsViewModel>());
+    return WalletRestoreViewModel(
+        getIt.get<AppStore>(),
+        getIt.get<WalletCreationService>(param1: type),
+        _walletInfoSource,
+        getIt.get<SeedSettingsViewModel>(),
+        type: type,
+        restoredWallet: restoredWallet,
+        hardwareWalletType: hardwareWalletType);
   });
+
+  getIt.registerFactoryParam<WalletRestorePage, WalletType, Map<String, dynamic>?>((type, additionalParams) =>
+      WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type, param2: additionalParams),
+          getIt.get<SeedSettingsViewModel>()));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));

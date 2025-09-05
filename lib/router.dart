@@ -130,7 +130,6 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -370,9 +369,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWallet:
       final args = settings.arguments as Map<String, dynamic>?;
       final walletType = args?['walletType'] as WalletType;
-      final restoredWallet = args?['restoredWallet'] as RestoredWallet?;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletRestorePage>(param1: walletType, param2: restoredWallet));
+          builder: (_) => getIt.get<WalletRestorePage>(param1: walletType, param2: args));
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
