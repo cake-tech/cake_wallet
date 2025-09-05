@@ -6,7 +6,8 @@ import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
-import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/order/order.dart';
+import 'package:cake_wallet/order/order_source_description.dart';
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -329,7 +330,8 @@ class MoonPayProvider extends BuyProvider {
 
     return Order(
         id: id,
-        provider: BuyProviderDescription.moonPay,
+        source: OrderSourceDescription.buy,
+        buyProvider: BuyProviderDescription.moonPay,
         transferId: id,
         state: state,
         createdAt: createdAt,
