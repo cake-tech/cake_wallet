@@ -32,10 +32,9 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
       this.ledgerViewModel,
       AppStore appStore,
       WalletCreationService walletCreationService,
-      Box<WalletInfo> walletInfoSource,
       SeedSettingsViewModel seedSettingsViewModel,
       {required WalletType type})
-      : super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
+      : super(appStore, walletCreationService, seedSettingsViewModel,
             type: type, isRecovery: true);
 
   @observable
