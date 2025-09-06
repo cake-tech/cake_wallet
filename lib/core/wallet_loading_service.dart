@@ -74,7 +74,7 @@ class WalletLoadingService {
     } catch (error, stack) {
       await ExceptionHandler.resetLastPopupDate();
       final isLedgerError = await ExceptionHandler.isLedgerError(error);
-      if (isLedgerError || requireHardwareWalletConnection(type, name)) rethrow;
+      if (isLedgerError || await requireHardwareWalletConnection(type, name)) rethrow;
       await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
 
 
@@ -87,9 +87,8 @@ class WalletLoadingService {
       }
 
       // try opening another wallet that is not corrupted to give user access to the app
-      final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
       WalletBase? wallet;
-      for (var walletInfo in walletInfoSource.values) {
+      for (var walletInfo in await WalletInfo.getAll()) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
           final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
@@ -191,8 +190,8 @@ class WalletLoadingService {
     return "\n\n$type ($name): ${await walletService.getSeeds(name, password, type)}";
   }
 
-  bool requireHardwareWalletConnection(WalletType type, String name) {
+  Future<bool> requireHardwareWalletConnection(WalletType type, String name) async {
     final walletService = walletServiceFactory.call(type);
-    return walletService.requireHardwareWalletConnection(name);
+    return await walletService.requireHardwareWalletConnection(name);
   }
 }

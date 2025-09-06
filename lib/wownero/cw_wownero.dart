@@ -315,9 +315,8 @@ class CWWownero extends Wownero {
   }
 
   @override
-  WalletService createWowneroWalletService(
-          Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
-      WowneroWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createWowneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
+      WowneroWalletService(unspentCoinSource);
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {

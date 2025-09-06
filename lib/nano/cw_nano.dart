@@ -75,8 +75,8 @@ class CWNano extends Nano {
   }
 
   @override
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) {
-    return NanoWalletService(walletInfoSource, isDirect);
+  WalletService createNanoWalletService(bool isDirect) {
+    return NanoWalletService(isDirect);
   }
 
   @override

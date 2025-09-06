@@ -4,8 +4,8 @@ class CWEthereum extends Ethereum {
   @override
   List<String> getEthereumWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      EthereumWalletService(walletInfoSource, isDirect, client: EthereumClient());
+  WalletService createEthereumWalletService(bool isDirect) =>
+      EthereumWalletService(isDirect, client: EthereumClient());
 
   @override
   WalletCredentials createEthereumNewWalletCredentials({
@@ -181,9 +181,10 @@ class CWEthereum extends Ethereum {
   String getTokenAddress(CryptoCurrency asset) => (asset as Erc20Token).contractAddress;
 
   @override
-  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
+  Future<void> setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) async {
+    final derivationInfo = await wallet.walletInfo.getDerivationInfo();
     ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials)
-        .setLedgerConnection(connection, wallet.walletInfo.derivationInfo?.derivationPath);
+        .setLedgerConnection(connection, derivationInfo.derivationPath);
   }
 
   @override
