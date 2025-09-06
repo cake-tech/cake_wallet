@@ -350,7 +350,7 @@ abstract class ElectrumWalletBase
     final shouldUpdateSyncStatus = rescanHeights == null || rescanHeights.isEmpty;
 
     if (chainTip == height) {
-      if (shouldUpdateSyncStatus) syncStatus = SyncedSyncStatus();
+      syncStatus = SyncedSyncStatus();
       return;
     }
 
@@ -550,7 +550,9 @@ abstract class ElectrumWalletBase
       if (alwaysScan == true) {
         setSilentPaymentsScanning(true);
       } else {
-        if (syncStatus is LostConnectionSyncStatus) return;
+        if (syncStatus is LostConnectionSyncStatus) {
+          return;
+        }
         syncStatus = SyncedSyncStatus();
       }
     } catch (e, stacktrace) {
@@ -3023,12 +3025,13 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       );
 
       void endScanningSuccesfully() {
-        if (isSingleScan) if (shouldUpdateSyncStatus)
+        if (isSingleScan) {
           scanData.sendPort.send(SyncResponse(syncHeight, SyncedSyncStatus()));
-        else if (shouldUpdateSyncStatus)
+        } else {
           scanData.sendPort.send(
             SyncResponse(syncHeight, SyncedTipSyncStatus(scanData.chainTip)),
           );
+        }
 
         _scanningStream?.close();
         _scanningStream = null;
