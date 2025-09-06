@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -33,7 +35,6 @@ import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
 
 class SendCard extends StatefulWidget {
   SendCard({
@@ -105,6 +106,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   final FocusNode addressFocusNode;
 
   bool _effectsInstalled = false;
+  BuildContext? loadingBottomSheetContext;
 
   @override
   void initState() {
@@ -239,6 +241,25 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       walletSwitcherViewModel.selectWallet(result.wallet!);
       final success = await walletSwitcherViewModel.switchToSelectedWallet();
       if (success) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            showModalBottomSheet<void>(
+              context: context,
+              isDismissible: false,
+              builder: (BuildContext context) {
+                loadingBottomSheetContext = context;
+                return LoadingBottomSheet(
+                  titleText: S.of(context).loading_your_wallet,
+                );
+              },
+            );
+          }
+        });
+        await Future.delayed(const Duration(seconds: 2));
+        if (loadingBottomSheetContext != null &&
+            loadingBottomSheetContext!.mounted) {
+          Navigator.of(loadingBottomSheetContext!).pop();
+        }
         _applyPaymentRequest(paymentRequest);
       }
     }

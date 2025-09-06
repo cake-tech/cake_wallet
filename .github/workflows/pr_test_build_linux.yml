@@ -203,6 +203,17 @@ jobs:
             ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
           popd
 
+      - name: Fetch prebuilt Torch
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/4f987d4-1-ge071fcf-1-gc282f09-1-g4c290aa-1-gabdf653/torch_dart-4f987d4-1-ge071fcf-1-gc282f09-1-g4c290aa-1-gabdf653.tar.gz -O torch_dart.tar.gz
+            mkdir torch_dart
+            pushd torch_dart
+              tar -xzf ../torch_dart.tar.gz
+            popd
+          popd
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/linux

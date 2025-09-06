@@ -22,6 +22,7 @@ cd cake_wallet
 docker run -v$(pwd):$(pwd) -w $(pwd) -i --rm ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly bash -x << EOF
 set -x -e
 pushd scripts/android
+    ./build_torch.sh
     source ./app_env.sh cakewallet
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh
