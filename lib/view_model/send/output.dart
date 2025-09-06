@@ -11,7 +11,10 @@ import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -220,7 +223,8 @@ abstract class OutputBase with Store {
 
   WalletType get walletType => _wallet.type;
   final CryptoCurrency Function() cryptoCurrencyHandler;
-  final WalletBase _wallet;
+  @observable
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
@@ -228,6 +232,12 @@ abstract class OutputBase with Store {
   void setSendAll(String fullBalance) {
     cryptoFullBalance = fullBalance;
     sendAll = true;
+  }
+
+  @action
+  void updateWallet(WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
+    _wallet = newWallet;
+    _setCryptoNumMaximumFractionDigits();
   }
 
   @action
