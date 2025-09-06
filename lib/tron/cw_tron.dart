@@ -5,8 +5,8 @@ class CWTron extends Tron {
   List<String> getTronWordList(String language) => EVMChainMnemonics.englishWordlist;
 
   @override
-  WalletService createTronWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      TronWalletService(walletInfoSource, client: TronClient(), isDirect: isDirect);
+  WalletService createTronWalletService(bool isDirect) =>
+      TronWalletService(client: TronClient(), isDirect: isDirect);
 
   @override
   WalletCredentials createTronNewWalletCredentials({

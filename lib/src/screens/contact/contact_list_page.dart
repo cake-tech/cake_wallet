@@ -17,6 +17,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ContactListPage extends BasePage {
@@ -150,7 +151,9 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildWalletContacts(context),
+                Observer(
+                  builder: (final BuildContext context) => _buildWalletContacts(context),
+                ),
                 ContactListBody(
                   contactListViewModel: widget.contactListViewModel,
                   tabController: _tabController,

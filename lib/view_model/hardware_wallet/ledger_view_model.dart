@@ -157,7 +157,7 @@ abstract class LedgerViewModelBase with Store {
 
   sdk.LedgerConnection get connection => _connection!;
 
-  void setLedger(WalletBase wallet) {
+  Future<void> setLedger(WalletBase wallet) async {
     switch (wallet.type) {
       case WalletType.monero:
         return monero!.setLedgerConnection(wallet, connection);

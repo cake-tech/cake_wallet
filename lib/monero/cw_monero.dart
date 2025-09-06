@@ -346,9 +346,8 @@ class CWMonero extends Monero {
   }
 
   @override
-  WalletService createMoneroWalletService(
-          Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
-      MoneroWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
+      MoneroWalletService(unspentCoinSource);
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -416,9 +415,9 @@ class CWMonero extends Monero {
   }
 
   @override
-  void setLedgerConnection(Object wallet, ledger.LedgerConnection connection) {
+  Future<void> setLedgerConnection(Object wallet, ledger.LedgerConnection connection) async {
     final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.setLedgerConnection(connection);
+    await moneroWallet.setLedgerConnection(connection);
   }
 
   @override

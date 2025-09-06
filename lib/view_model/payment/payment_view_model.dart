@@ -15,11 +15,9 @@ class PaymentViewModel = PaymentViewModelBase with _$PaymentViewModel;
 abstract class PaymentViewModelBase with Store {
   PaymentViewModelBase({
     required this.appStore,
-    required this.walletInfoSource,
   });
 
   final AppStore appStore;
-  final Box<WalletInfo> walletInfoSource;
 
   @observable
   WalletType? detectedWalletType;
@@ -52,7 +50,7 @@ abstract class PaymentViewModelBase with Store {
         return PaymentFlowResult.currentWalletCompatible();
       }
 
-      final compatibleWallets = getWalletsByType(detectedWalletType!);
+      final compatibleWallets = await getWalletsByType(detectedWalletType!);
 
       switch (compatibleWallets.length) {
         case 0:
@@ -70,8 +68,8 @@ abstract class PaymentViewModelBase with Store {
     }
   }
 
-  List<WalletInfo> getWalletsByType(WalletType walletType) {
-    return walletInfoSource.values.where((wallet) => wallet.type == walletType).toList();
+  Future<List<WalletInfo>> getWalletsByType(WalletType walletType) async {
+    return (await WalletInfo.getAll()).where((wallet) => wallet.type == walletType).toList();
   }
 }
 

@@ -57,6 +57,8 @@ RUN set -o xtrace \
     bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
     # Linux test dependencies
     ffmpeg network-manager x11-utils xvfb psmisc \
+    # database
+    libsqlite3-0 libsqlite3-dev \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     # x86_64-linux-gnu dependencies
