@@ -118,7 +118,8 @@ abstract class OutputBase with Store {
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.zano:
-            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            _amount = zano!
+                .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -143,6 +144,9 @@ abstract class OutputBase with Store {
   @computed
   double get estimatedFee {
     try {
+      // forces mobx to rebuild the computed value
+      final _ = _wallet.syncStatus;
+
       if (_wallet.type == WalletType.tron) {
         if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
           final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;
@@ -170,7 +174,8 @@ abstract class OutputBase with Store {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash ||
+      if (_wallet.type == WalletType.litecoin ||
+          _wallet.type == WalletType.bitcoinCash ||
           _wallet.type == WalletType.dogecoin) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
@@ -192,7 +197,8 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
+        return zano!.formatterIntAmountToDouble(
+            amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
 
       if (_wallet.type == WalletType.decred) {
@@ -207,6 +213,9 @@ abstract class OutputBase with Store {
 
   @computed
   String get estimatedFeeFiatAmount {
+    // forces mobx to rebuild the computed value
+    final _ = _wallet.syncStatus;
+
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
               _wallet.type == WalletType.solana ||
@@ -235,7 +244,8 @@ abstract class OutputBase with Store {
   }
 
   @action
-  void updateWallet(WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
+  void updateWallet(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
     _wallet = newWallet;
     _setCryptoNumMaximumFractionDigits();
   }
@@ -371,14 +381,14 @@ extension OutputCopyWith on Output {
     );
 
     clone
-      ..cryptoAmount      = cryptoAmount
+      ..cryptoAmount = cryptoAmount
       ..cryptoFullBalance = cryptoFullBalance
-      ..note              = note
-      ..sendAll           = sendAll
-      ..memo              = memo
-      ..stealthAddress    = stealthAddress
-      ..parsedAddress    = parsedAddress ?? this.parsedAddress
-      ..fiatAmount      = fiatAmount ?? this.fiatAmount;
+      ..note = note
+      ..sendAll = sendAll
+      ..memo = memo
+      ..stealthAddress = stealthAddress
+      ..parsedAddress = parsedAddress ?? this.parsedAddress
+      ..fiatAmount = fiatAmount ?? this.fiatAmount;
 
     return clone;
   }

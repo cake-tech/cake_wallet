@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:cake_wallet/core/open_crypto_pay/open_cryptopay_service.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/payment_confirmation_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/wallet_switcher_bottom_sheet.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
@@ -775,6 +775,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       cryptoAmountController.text = initialPaymentRequest!.amount;
       noteController.text = initialPaymentRequest!.note;
     }
+
+    reaction((_) => sendViewModel.isReadyForSend, (bool isReadyForSend) {
+      if (isReadyForSend) {
+        sendViewModel.updateSendingBalance();
+      }
+    });
 
     _effectsInstalled = true;
   }
