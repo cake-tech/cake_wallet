@@ -1,13 +1,19 @@
+import 'package:cake_wallet/core/yat_service.dart';
+
 class YatRecord {
   YatRecord({
-    required this.category,
     required this.address,
+    required this.tag,
   });
 
-  YatRecord.fromJson(Map<String, dynamic> json)
-    : address = json['address'] as String,
-      category = json['category'] as String;
+  final String address;
+  final String tag;
 
-  String category;
-  String address; 
+  factory YatRecord.fromJson(Map<String, dynamic> json, String tag) =>
+      YatRecord(address: (json['address'] ?? '').toString(), tag: tag);
+
+  bool get isMoneroSub => tag == YatService.MONERO_SUB_ADDRESS;
+
+  @override
+  String toString() => 'YatRecord(tag: $tag, address: $address)';
 }

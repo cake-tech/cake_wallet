@@ -22,6 +22,10 @@ class DomainLookupsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
+                  title: S.current.all,
+                  value: _privacySettingsViewModel.allLookups,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setAllLookups(value)),
+              SettingsSwitcherCell(
                   title: 'Twitter',
                   value: _privacySettingsViewModel.lookupTwitter,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsTwitter(value)),
@@ -53,8 +57,22 @@ class DomainLookupsPage extends BasePage {
                   title: 'Zano Aliases',
                   value: _privacySettingsViewModel.lookupsZanoAlias,
                   onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsZanoAlias(value)),
-
-              //if (!isHaven) it does not work correctly
+              SettingsSwitcherCell(
+                  title: 'FIO',
+                  value: _privacySettingsViewModel.lookupsFio,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsFio(value)),
+              SettingsSwitcherCell(
+                  title: 'Nostr',
+                  value: _privacySettingsViewModel.lookupsNostr,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsNostr(value)),
+              SettingsSwitcherCell(
+                  title: 'ThorChain',
+                  value: _privacySettingsViewModel.lookupsThorChain,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsThorChain(value)),
+              SettingsSwitcherCell(
+                  title: 'BIP-353',
+                  value: _privacySettingsViewModel.lookupsBip353,
+                  onValueChange: (_, bool value) => _privacySettingsViewModel.setLookupsBip353(value)),
             ],
           ),
         );

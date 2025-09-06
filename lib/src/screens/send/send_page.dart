@@ -612,20 +612,20 @@ class SendPage extends BasePage {
             return;
           }
 
-          newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
+          // newContactAddress = newContactAddress ?? sendViewModel.newContactAddress(); //TODO: fix this
+          //
+          // if (newContactAddress?.address != null &&
+          //     isRegularElectrumAddress(newContactAddress!.address)) {
+          //   newContactAddress = null;
+          // }
 
-          if (newContactAddress?.address != null &&
-              isRegularElectrumAddress(newContactAddress!.address)) {
-            newContactAddress = null;
-          }
-
-          bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
+          // bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
 
           await showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return showContactSheet && sendViewModel.ocpRequest == null
+              return /*showContactSheet && */ sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       footerType: FooterType.doubleActionButton,
@@ -671,13 +671,13 @@ class SendPage extends BasePage {
                         newContactAddress = null;
                       },
                       onRightActionButtonPressed: () {
-                        Navigator.of(bottomSheetContext).pop();
-                        RequestReviewHandler.requestReview();
-                        if (context.mounted) {
-                          Navigator.of(context).pushNamed(Routes.addressBookAddContact,
-                              arguments: newContactAddress);
-                        }
-                        newContactAddress = null;
+                        // Navigator.of(bottomSheetContext).pop();
+                        // RequestReviewHandler.requestReview();
+                        // if (context.mounted) {
+                        //   Navigator.of(context).pushNamed(Routes.addressBookAddContact,
+                        //       arguments: newContactAddress);
+                        // }
+                        // newContactAddress = null;
                       },
                     )
                   : InfoBottomSheet(

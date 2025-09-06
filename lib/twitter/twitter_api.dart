@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/twitter/twitter_user.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 
 class TwitterApi {
@@ -10,7 +11,9 @@ class TwitterApi {
   static const apiHost = 'api.twitter.com';
   static const userPath = '/2/users/by/username/';
 
-  static Future<TwitterUser> lookupUserByName({required String userName}) async {
+  static Future<TwitterUser?> lookupUserByName({required String userName}) async {
+
+    try{
     final queryParams = {
       'user.fields': 'description,profile_image_url',
       'expansions': 'pinned_tweet_id',
@@ -41,7 +44,13 @@ class TwitterApi {
     }
 
     return TwitterUser.fromJson(responseJSON, _getPinnedTweet(responseJSON));
+
+    } catch (e) {
+      printV('Error in lookupUserByName: $e');
+      return null;
+    }
   }
+
 
   static Tweet? _getPinnedTweet(Map<String, dynamic> responseJSON) {
     try {
@@ -61,6 +70,7 @@ class TwitterApi {
 
       return Tweet(id: tweetId, text: pinnedTweetText);
     } catch (e) {
+      printV('Error in _getPinnedTweet: $e');
       return null;
     }
   }

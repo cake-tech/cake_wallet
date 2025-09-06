@@ -14,7 +14,7 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -311,14 +311,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
-  bool isSendToSilentPayments(Output output) =>
+  bool isSendToSilentPayments(Output output) =>  //TODO double check this
       wallet.type == WalletType.bitcoin &&
-      (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
-          RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-              .hasMatch(output.extractedAddress) ||
-          (output.parsedAddress.addresses.isNotEmpty &&
+          (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
               RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-                  .hasMatch(output.parsedAddress.addresses[0])));
+                  .hasMatch(output.extractedAddress) ||
+              (output.parsedAddress.parsedAddressByCurrencyMap.isNotEmpty &&
+                  RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
+                      .hasMatch(output.parsedAddress.parsedAddressByCurrencyMap.values.first)));
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -346,7 +346,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   List<CryptoCurrency> currencies;
 
   bool get hasYat => outputs
-      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+      .any((out) => out.isParsedAddress && out.parsedAddress.addressSource == AddressSource.yatRecord);
 
   WalletType get walletType => wallet.type;
 
@@ -465,7 +465,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       outputs.first.address = paymentRequest.address;
       outputs.first.parsedAddress =
-          ParsedAddress(addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
+          ParsedAddress(parsedAddressByCurrencyMap: {currency:paymentRequest.address}, handle: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -733,34 +733,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } catch (e) {
       selectedCryptoCurrency = wallet.currency;
     }
-  }
-
-  ContactRecord? newContactAddress() {
-    final Set<String> contactAddresses =
-        Set.from(contactListViewModel.contacts.map((contact) => contact.address))
-          ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
-
-    for (var output in outputs) {
-      String address;
-      if (output.isParsedAddress) {
-        address = output.parsedAddress.addresses.first;
-      } else {
-        address = output.address;
-      }
-
-      if (address.isNotEmpty &&
-          !contactAddresses.contains(address) &&
-          selectedCryptoCurrency.raw != -1) {
-        return ContactRecord(
-            contactListViewModel.contactSource,
-            Contact(
-              name: '',
-              address: address,
-              type: selectedCryptoCurrency,
-            ));
-      }
-    }
-    return null;
   }
 
   String translateErrorMessage(
