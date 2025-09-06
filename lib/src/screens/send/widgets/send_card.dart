@@ -776,6 +776,12 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       noteController.text = initialPaymentRequest!.note;
     }
 
+    reaction((_) => sendViewModel.isReadyForSend, (bool isReadyForSend) {
+      if (isReadyForSend) {
+        sendViewModel.updateSendingBalance();
+      }
+    });
+
     _effectsInstalled = true;
   }
 
