@@ -85,12 +85,16 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
       return true;
     };
+
     await FlutterDaemon().unmarkBackgroundSync();
+    await initDb();
+
     try {
       CakeTor.instance = await CakeTorInstance.getInstance();
     } catch (e) {
       printV("Failed to initialize tor: $e");
     }
+
     await initializeAppAtRoot();
 
     if (kDebugMode) {
@@ -163,21 +167,21 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(AddressInfoAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
-    CakeHive.registerAdapter(WalletInfoAdapter());
-  }
+  // if (!CakeHive.isAdapterRegistered(WalletInfo.typeId)) {
+  //   CakeHive.registerAdapter(WalletInfoAdapter());
+  // }
 
-  if (!CakeHive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
-    CakeHive.registerAdapter(DerivationTypeAdapter());
-  }
+  // if (!CakeHive.isAdapterRegistered(DERIVATION_TYPE_TYPE_ID)) {
+  //   CakeHive.registerAdapter(DerivationTypeAdapter());
+  // }
 
-  if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
-    CakeHive.registerAdapter(DerivationInfoAdapter());
-  }
+  // if (!CakeHive.isAdapterRegistered(DERIVATION_INFO_TYPE_ID)) {
+  //   CakeHive.registerAdapter(DerivationInfoAdapter());
+  // }
 
-  if (!CakeHive.isAdapterRegistered(HARDWARE_WALLET_TYPE_TYPE_ID)) {
-    CakeHive.registerAdapter(HardwareWalletTypeAdapter());
-  }
+  // if (!CakeHive.isAdapterRegistered(HARDWARE_WALLET_TYPE_TYPE_ID)) {
+  //   CakeHive.registerAdapter(HardwareWalletTypeAdapter());
+  // }
 
   if (!CakeHive.isAdapterRegistered(WALLET_TYPE_TYPE_ID)) {
     CakeHive.registerAdapter(WalletTypeAdapter());
@@ -241,7 +245,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
       encryptionKey: transactionDescriptionsBoxKey);
   final trades = await CakeHive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final orders = await CakeHive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
-  final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
   final templates = await CakeHive.openBox<Template>(Template.boxName);
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
@@ -258,7 +261,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     sharedPreferences: await SharedPreferences.getInstance(),
     nodes: nodes,
     powNodes: powNodes,
-    walletInfoSource: walletInfoSource,
     contactSource: contacts,
     tradesSource: trades,
     ordersSource: orders,
@@ -280,7 +282,6 @@ Future<void> initialSetup({
   required SharedPreferences sharedPreferences,
   required Box<Node> nodes,
   required Box<Node> powNodes,
-  required Box<WalletInfo> walletInfoSource,
   required Box<Contact> contactSource,
   required Box<Trade> tradesSource,
   required Box<Order> ordersSource,
@@ -300,14 +301,12 @@ Future<void> initialSetup({
       secureStorage: secureStorage,
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,
-      walletInfoSource: walletInfoSource,
       contactSource: contactSource,
       tradeSource: tradesSource,
       nodes: nodes,
       powNodes: powNodes,
       havenSeedStore: havenSeedStore);
   await setup(
-    walletInfoSource: walletInfoSource,
     nodeSource: nodes,
     powNodeSource: powNodes,
     contactSource: contactSource,

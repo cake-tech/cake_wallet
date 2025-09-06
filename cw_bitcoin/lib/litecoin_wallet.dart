@@ -60,6 +60,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   LitecoinWalletBase({
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required EncryptionFileUtils encryptionFileUtils,
     Uint8List? seedBytes,
@@ -80,6 +81,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           passphrase: passphrase,
           xpub: xpub,
           walletInfo: walletInfo,
+          derivationInfo: derivationInfo,
           unspentCoinsInfo: unspentCoinsInfo,
           network: LitecoinNetwork.mainnet,
           initialAddresses: initialAddresses,
@@ -166,6 +168,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       {required String mnemonic,
       required String password,
       required WalletInfo walletInfo,
+      required DerivationInfo derivationInfo,
       required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required EncryptionFileUtils encryptionFileUtils,
       String? passphrase,
@@ -177,7 +180,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       Map<String, int>? initialChangeAddressIndex}) async {
     late Uint8List seedBytes;
 
-    switch (walletInfo.derivationInfo?.derivationType) {
+    switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
         seedBytes = await bip39.mnemonicToSeed(
           mnemonic,
@@ -193,6 +196,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialMwebAddresses: initialMwebAddresses,
@@ -243,18 +247,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       );
     }
 
-    walletInfo.derivationInfo ??= DerivationInfo();
-
+    final derivationInfo = await walletInfo.getDerivationInfo();
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??= snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
+    derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
+    derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
     final mnemonic = keysData.mnemonic;
     final passphrase = keysData.passphrase;
 
     if (mnemonic != null) {
-      switch (walletInfo.derivationInfo?.derivationType) {
+      switch (derivationInfo.derivationType) {
         case DerivationType.bip39:
           seedBytes = await bip39.mnemonicToSeed(
             mnemonic,
@@ -267,12 +270,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           break;
       }
     }
+    await derivationInfo.save();
 
     return LitecoinWallet(
       mnemonic: keysData.mnemonic,
       xpub: keysData.xPub,
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialMwebAddresses: snp?.mwebAddresses,
@@ -1372,10 +1377,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   LitecoinLedgerApp? _litecoinLedgerApp;
 
   @override
-  void setLedgerConnection(LedgerConnection connection) {
+  Future<void> setLedgerConnection(LedgerConnection connection) async {
     _ledgerConnection = connection;
     _litecoinLedgerApp = LitecoinLedgerApp(_ledgerConnection!,
-        derivationPath: walletInfo.derivationInfo!.derivationPath!);
+        derivationPath: derivationInfo.derivationPath!);
   }
 
   @override

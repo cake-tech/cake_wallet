@@ -13,8 +13,7 @@ DogeCoin? dogecoin = CWDogeCoin();
 
 abstract class DogeCoin {
 
-  WalletService createDogeCoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletService createDogeCoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
 
   WalletCredentials createDogeCoinNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});

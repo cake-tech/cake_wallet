@@ -21,12 +21,10 @@ Future<void> main() async {
     setUpAll(() async {
       PathProviderPlatform.instance = MockPathProviderPlatform();
 
-      final Box<WalletInfo> walletInfoSource =
-          await Hive.openBox('testWalletInfo');
       final Box<UnspentCoinsInfo> unspentCoinsInfoSource =
           await Hive.openBox('testUnspentCoinsInfo');
 
-      walletService = MoneroWalletService(walletInfoSource, unspentCoinsInfoSource);
+      walletService = MoneroWalletService(unspentCoinsInfoSource);
       moneroCBinary = getMoneroCBinary().copySync(moneroCBinaryName);
     });
 

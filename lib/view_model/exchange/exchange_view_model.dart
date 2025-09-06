@@ -75,7 +75,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     this.contactListViewModel,
     this.unspentCoinsListViewModel,
     this.feesViewModel,
-    this.walletInfoSource,
   )   : _cryptoNumberFormat = NumberFormat(),
         isSendAllEnabled = false,
         isFixedRateMode = false,
@@ -352,8 +351,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   final FeesViewModel feesViewModel;
-
-  final Box<WalletInfo> walletInfoSource;
 
   @observable
   double bestRate = 0.0;
@@ -1017,7 +1014,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<List<Erc20Token>> _loadAllUniqueEvmTokens() async {
-    final evmWallets = walletInfoSource.values.where(
+    final evmWallets = (await WalletInfo.getAll()).where(
           (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
     );
 
@@ -1077,7 +1074,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<List<SPLToken>> _loadAllUniqueSolTokens() async {
-    final solWallets = walletInfoSource.values.where((wallet) => wallet.type == WalletType.solana);
+    final solWallets = (await WalletInfo.getAll()).where((wallet) => wallet.type == WalletType.solana);
     final tokens = <SPLToken>[];
 
     for (final wallet in solWallets) {
@@ -1135,7 +1132,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   Future<List<TronToken>> _loadAllUniqueTronTokens() async {
     final tronWallets =
-    walletInfoSource.values.where((w) => w.type == WalletType.tron);
+    (await WalletInfo.getAll()).where((w) => w.type == WalletType.tron);
 
     final seen = <String>{};
     final unique = <TronToken>[];

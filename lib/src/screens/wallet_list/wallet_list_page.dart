@@ -43,11 +43,20 @@ class WalletListPage extends BasePage {
   String get title => S.current.wallets;
 
   @override
-  Widget body(BuildContext context) => WalletListBody(
+  Widget body(BuildContext context) => Observer(
+    builder: (_) {
+      if (walletListViewModel.singleWalletsList.isEmpty && walletListViewModel.multiWalletGroups.isEmpty) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+      return WalletListBody(
         walletListViewModel: walletListViewModel,
         authService: authService,
         onWalletLoaded: onWalletLoaded ?? (context) => Navigator.of(context).pop(),
       );
+    }
+  );
 
   @override
   Widget trailing(BuildContext context) {
@@ -470,7 +479,7 @@ class WalletListBodyState extends State<WalletListBody> {
 
         try {
           final requireHardwareWalletConnection =
-              widget.walletListViewModel.requireHardwareWalletConnection(wallet);
+              await widget.walletListViewModel.requireHardwareWalletConnection(wallet);
           if (requireHardwareWalletConnection) {
             bool didConnect = false;
             await Navigator.of(context).pushNamed(

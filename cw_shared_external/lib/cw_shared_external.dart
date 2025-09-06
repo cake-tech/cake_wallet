@@ -8,7 +8,7 @@ class CwSharedExternal {
       const MethodChannel('cw_shared_external');
 
   static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
+    final String version = (await _channel.invokeMethod('getPlatformVersion')).toString();
     return version;
   }
 }
