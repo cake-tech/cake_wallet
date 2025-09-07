@@ -166,4 +166,23 @@ abstract class ContactRecordBase extends Record<Contact> with Store implements C
   String address = '';
   @override
   CryptoCurrency type = CryptoCurrency.btc;
+
+  List<String> get allParsedAddresses {
+    final addresses = <String>{};
+    for (final byCur in parsedBlocks.values) {
+      for (final byAddr in byCur.values) {
+        addresses.addAll(byAddr.values);
+      }
+    }
+    return addresses.toList();
+  }
+
+  List<String> get allManualAddresses {
+    final addresses = <String>{};
+    for (final byAddr in manual.values) {
+      addresses.addAll(byAddr.values);
+    }
+    return addresses.toList();
+  }
+
 }

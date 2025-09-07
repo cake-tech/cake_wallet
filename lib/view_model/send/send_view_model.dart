@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -10,11 +11,9 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -37,9 +36,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -724,6 +721,32 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       selectedCryptoCurrency = wallet.currency;
     }
   }
+
+  String? newContactAddress() {
+    final contacts = contactListViewModel.contacts;
+
+    Set<String> allUserAddresses = {};
+    for (final contact in contacts) {
+      allUserAddresses.addAll(contact.allParsedAddresses);
+      allUserAddresses.addAll(contact.allManualAddresses);
+    }
+
+
+    Set<String> outputsAddresses = {};
+    for (final output in outputs) {
+      outputsAddresses.add(output.address);
+    }
+
+    for (final address in outputsAddresses) {
+      if (!allUserAddresses.contains(address)) {
+
+        return address;
+      }
+    }
+
+    return null;
+  }
+
 
   String translateErrorMessage(
     Object error,

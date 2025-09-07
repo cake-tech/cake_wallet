@@ -1,3 +1,4 @@
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -19,6 +20,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/contact_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -64,7 +66,7 @@ class SendPage extends BasePage {
   final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;
-  ContactRecord? newContactAddress;
+  String? newContactAddress;
 
   @override
   String get title => S.current.send;
@@ -612,20 +614,19 @@ class SendPage extends BasePage {
             return;
           }
 
-          // newContactAddress = newContactAddress ?? sendViewModel.newContactAddress(); //TODO: fix this
-          //
-          // if (newContactAddress?.address != null &&
-          //     isRegularElectrumAddress(newContactAddress!.address)) {
-          //   newContactAddress = null;
-          // }
+          newContactAddress = newContactAddress ?? sendViewModel.newContactAddress();
 
-          // bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
+          if (newContactAddress != null && isRegularElectrumAddress(newContactAddress!)) {
+            newContactAddress = null;
+          }
+
+          bool showContactSheet = (newContactAddress != null && sendViewModel.showAddressBookPopup);
 
           await showModalBottomSheet<void>(
             context: context,
             isDismissible: false,
             builder: (BuildContext bottomSheetContext) {
-              return /*showContactSheet && */ sendViewModel.ocpRequest == null
+              return showContactSheet && sendViewModel.ocpRequest == null
                   ? InfoBottomSheet(
                       currentTheme: currentTheme,
                       footerType: FooterType.doubleActionButton,
@@ -670,14 +671,33 @@ class SendPage extends BasePage {
                         RequestReviewHandler.requestReview();
                         newContactAddress = null;
                       },
-                      onRightActionButtonPressed: () {
-                        // Navigator.of(bottomSheetContext).pop();
-                        // RequestReviewHandler.requestReview();
-                        // if (context.mounted) {
-                        //   Navigator.of(context).pushNamed(Routes.addressBookAddContact,
-                        //       arguments: newContactAddress);
-                        // }
-                        // newContactAddress = null;
+                      onRightActionButtonPressed: () async {
+                        Navigator.of(bottomSheetContext).pop();
+                        RequestReviewHandler.requestReview();
+                        if (context.mounted) {
+                          await showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (BuildContext bottomSheetContext) {
+
+                            final newParsedAddress = ParsedAddress(
+                              parsedAddressByCurrencyMap: {},
+                              manualAddressByCurrencyMap: {sendViewModel.selectedCryptoCurrency: newContactAddress ?? ''},
+                              addressSource: AddressSource.contact,
+                              handle: '',
+                              profileName: 'New Contact',
+                              profileImageUrl: 'assets/images/profile.png',
+                              description: '',
+                            );
+
+                            return AddressBookBottomSheet(
+                                initialRoute: Routes.editNewContactPage,
+                                initialArgs: [newParsedAddress]
+                            );
+                          },
+                          );
+                        }
+                        newContactAddress = null;
                       },
                     )
                   : InfoBottomSheet(
