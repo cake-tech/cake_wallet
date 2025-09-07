@@ -36,7 +36,7 @@ class EnsRecord {
     }
 
     try {
-      if (coinType == CoinType.ETH) {
+      if (coinType == CoinType.ETH || coinType == CoinType.MATIC) {
         return (await ens.withName(name).getAddress()).hex;
       } else {
         return await ens.withName(name).getCoinAddress(coinType);
@@ -52,6 +52,7 @@ class EnsRecord {
         CryptoCurrency.btc => CoinType.BTC,
         CryptoCurrency.ltc => CoinType.LTC,
         CryptoCurrency.eth => CoinType.ETH,
+        CryptoCurrency.matic => CoinType.MATIC,
         _ => null,
       };
 }
