@@ -209,12 +209,6 @@ abstract class PrivacySettingsViewModelBase with Store {
   void setLookupsOpenAlias(bool value) => _settingsStore.lookupsOpenAlias = value;
 
   @action
-  void setUseEtherscan(bool value) {
-    _settingsStore.useEtherscan = value;
-    ethereum!.updateEtherscanUsageState(_wallet, value);
-  }
-
-  @action
   void setLookupsFio(bool value) => _settingsStore.lookupsFio = value;
 
   @action
@@ -225,6 +219,12 @@ abstract class PrivacySettingsViewModelBase with Store {
 
   @action
   void setLookupsBip353(bool value) => _settingsStore.lookupsBip353 = value;
+
+  @action
+  void setUseEtherscan(bool value) {
+    _settingsStore.useEtherscan = value;
+    ethereum!.updateEtherscanUsageState(_wallet, value);
+  }
 
   @action
   void setUsePolygonScan(bool value) {
