@@ -13,7 +13,7 @@ class ImageUtil {
   }) {
     bool isNetworkImage = imagePath.startsWith('http') || imagePath.startsWith('https');
 
-    if (CakeTor.instance.enabled && isNetworkImage) {
+    if (CakeTor.instance!.enabled && isNetworkImage) {
       imagePath = "assets/images/tor_logo.svg";
       isNetworkImage = false;
     }

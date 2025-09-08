@@ -11,7 +11,10 @@ import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -115,7 +118,8 @@ abstract class OutputBase with Store {
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.zano:
-            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            _amount = zano!
+                .formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
             break;
           case WalletType.none:
           case WalletType.haven:
@@ -140,6 +144,9 @@ abstract class OutputBase with Store {
   @computed
   double get estimatedFee {
     try {
+      // forces mobx to rebuild the computed value
+      final _ = _wallet.syncStatus;
+
       if (_wallet.type == WalletType.tron) {
         if (cryptoCurrencyHandler() == CryptoCurrency.trx) {
           final nativeEstimatedFee = tron!.getTronNativeEstimatedFee(_wallet) ?? 0;
@@ -167,7 +174,8 @@ abstract class OutputBase with Store {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet.type == WalletType.litecoin || _wallet.type == WalletType.bitcoinCash ||
+      if (_wallet.type == WalletType.litecoin ||
+          _wallet.type == WalletType.bitcoinCash ||
           _wallet.type == WalletType.dogecoin) {
         return bitcoin!.formatterBitcoinAmountToDouble(amount: fee);
       }
@@ -189,7 +197,8 @@ abstract class OutputBase with Store {
       }
 
       if (_wallet.type == WalletType.zano) {
-        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
+        return zano!.formatterIntAmountToDouble(
+            amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
 
       if (_wallet.type == WalletType.decred) {
@@ -204,6 +213,9 @@ abstract class OutputBase with Store {
 
   @computed
   String get estimatedFeeFiatAmount {
+    // forces mobx to rebuild the computed value
+    final _ = _wallet.syncStatus;
+
     try {
       final currency = (isEVMCompatibleChain(_wallet.type) ||
               _wallet.type == WalletType.solana ||
@@ -220,7 +232,8 @@ abstract class OutputBase with Store {
 
   WalletType get walletType => _wallet.type;
   final CryptoCurrency Function() cryptoCurrencyHandler;
-  final WalletBase _wallet;
+  @observable
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
@@ -228,6 +241,13 @@ abstract class OutputBase with Store {
   void setSendAll(String fullBalance) {
     cryptoFullBalance = fullBalance;
     sendAll = true;
+  }
+
+  @action
+  void updateWallet(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
+    _wallet = newWallet;
+    _setCryptoNumMaximumFractionDigits();
   }
 
   @action
@@ -361,14 +381,14 @@ extension OutputCopyWith on Output {
     );
 
     clone
-      ..cryptoAmount      = cryptoAmount
+      ..cryptoAmount = cryptoAmount
       ..cryptoFullBalance = cryptoFullBalance
-      ..note              = note
-      ..sendAll           = sendAll
-      ..memo              = memo
-      ..stealthAddress    = stealthAddress
-      ..parsedAddress    = parsedAddress ?? this.parsedAddress
-      ..fiatAmount      = fiatAmount ?? this.fiatAmount;
+      ..note = note
+      ..sendAll = sendAll
+      ..memo = memo
+      ..stealthAddress = stealthAddress
+      ..parsedAddress = parsedAddress ?? this.parsedAddress
+      ..fiatAmount = fiatAmount ?? this.fiatAmount;
 
     return clone;
   }

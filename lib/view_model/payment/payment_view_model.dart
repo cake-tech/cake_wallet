@@ -44,7 +44,7 @@ abstract class PaymentViewModelBase with Store {
         return PaymentFlowResult.incompatible('Unable to detect address type');
       }
 
-      detectedWalletType = detectionResult.detectedWalletType!;
+      detectedWalletType = detectionResult.detectedWalletType;
 
       // Check if current wallet is compatible
       final currentWallet = appStore.wallet;
@@ -56,11 +56,11 @@ abstract class PaymentViewModelBase with Store {
 
       switch (compatibleWallets.length) {
         case 0:
-          return PaymentFlowResult.noWallets(detectedWalletType!);
+          return PaymentFlowResult.noWallets(detectedWalletType!, detectionResult);
         case 1:
-          return PaymentFlowResult.singleWallet(compatibleWallets.first);
+          return PaymentFlowResult.singleWallet(compatibleWallets.first, detectionResult);
         default:
-          return PaymentFlowResult.multipleWallets(compatibleWallets);
+          return PaymentFlowResult.multipleWallets(compatibleWallets, detectionResult);
       }
     } catch (e) {
       printV('PaymentViewModel error: $e');
@@ -81,6 +81,7 @@ class PaymentFlowResult {
   final WalletInfo? wallet;
   final List<WalletInfo> wallets;
   final WalletType? walletType;
+  final AddressDetectionResult? addressDetectionResult;
 
   PaymentFlowResult._({
     required this.type,
@@ -88,22 +89,38 @@ class PaymentFlowResult {
     this.wallet,
     this.wallets = const [],
     this.walletType,
+    this.addressDetectionResult,
   });
 
   /// Current wallet is compatible
-  factory PaymentFlowResult.currentWalletCompatible() => PaymentFlowResult._(type: PaymentFlowType.currentWalletCompatible);
+  factory PaymentFlowResult.currentWalletCompatible() =>
+      PaymentFlowResult._(type: PaymentFlowType.currentWalletCompatible);
 
   /// Single compatible wallet available
-  factory PaymentFlowResult.singleWallet(WalletInfo wallet) =>
-      PaymentFlowResult._(type: PaymentFlowType.singleWallet, wallet: wallet);
+  factory PaymentFlowResult.singleWallet(
+          WalletInfo wallet, AddressDetectionResult addressDetectionResult) =>
+      PaymentFlowResult._(
+          type: PaymentFlowType.singleWallet,
+          wallet: wallet,
+          walletType: wallet.type,
+          addressDetectionResult: addressDetectionResult);
 
   /// Multiple compatible wallets available
-  factory PaymentFlowResult.multipleWallets(List<WalletInfo> wallets) =>
-      PaymentFlowResult._(type: PaymentFlowType.multipleWallets, wallets: wallets);
+  factory PaymentFlowResult.multipleWallets(
+          List<WalletInfo> wallets, AddressDetectionResult addressDetectionResult) =>
+      PaymentFlowResult._(
+          type: PaymentFlowType.multipleWallets,
+          wallets: wallets,
+          walletType: wallets.first.type,
+          addressDetectionResult: addressDetectionResult);
 
   /// No compatible wallets available
-  factory PaymentFlowResult.noWallets(WalletType walletType) =>
-      PaymentFlowResult._(type: PaymentFlowType.noWallets, walletType: walletType);
+  factory PaymentFlowResult.noWallets(
+          WalletType walletType, AddressDetectionResult addressDetectionResult) =>
+      PaymentFlowResult._(
+          type: PaymentFlowType.noWallets,
+          walletType: walletType,
+          addressDetectionResult: addressDetectionResult);
 
   /// Error occurred
   factory PaymentFlowResult.error(String message) =>
