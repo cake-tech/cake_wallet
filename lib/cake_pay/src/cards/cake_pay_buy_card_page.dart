@@ -600,7 +600,7 @@ class CakePayBuyCardPage extends BasePage {
                         profileName: order?.cards.first.cardName ?? 'Cake Pay',
                         profileImageUrl: order?.cards.first.cardImagePath ?? '',
                       ),
-                      fiatAmount: '${order?.amountUsd.toString()} USD',
+                  fiatAmount: '${order?.totalReceiveAmount}',
                     ))
                 .toList();
 
@@ -666,7 +666,7 @@ class CakePayBuyCardPage extends BasePage {
                     profileName: order?.cards.first.cardName ?? 'Cake Pay',
                     profileImageUrl: order?.cards.first.cardImagePath ?? '',
                   ),
-                  fiatAmount: '${order?.amountUsd ?? 0} USD',
+                  fiatAmount: '${order?.totalReceiveAmount}',
                 ))
             .toList();
 
