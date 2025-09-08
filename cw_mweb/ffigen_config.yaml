@@ -5,4 +5,4 @@ description: Bindings to `go/mweb.h`.
 output: 'lib/generated_bindings.g.dart'
 headers:
   entry-points:
-    - 'android/src/main/jniLibs/arm64-v8a/mweb.h'
+    - 'android/src/main/jniLibs/arm64-v8a/libmweb.h'

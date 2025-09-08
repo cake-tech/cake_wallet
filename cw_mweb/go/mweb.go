@@ -34,7 +34,11 @@ func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char) C.int {
 
 //export StopServer
 func StopServer() {
+	if server == nil {
+		return
+	}
 	server.Stop()
+	server = nil
 }
 
 //export Addresses
