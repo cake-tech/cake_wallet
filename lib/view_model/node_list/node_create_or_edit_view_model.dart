@@ -244,13 +244,18 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Invalid QR code: Unable to parse or missing host.');
       }
 
-      final userInfo = uri.userInfo;
-      final rpcUser = userInfo.length == 2 ? userInfo[0] : '';
-      final rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
       final ipAddress = uri.host;
       final port = uri.hasPort ? uri.port.toString() : '';
       final path = uri.path;
-      final queryParams = uri.queryParameters; // Currently not used
+      final userInfo = uri.userInfo;
+      var rpcUser = userInfo.length == 2 ? userInfo[0] : '';
+      var rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
+
+      if (uri.scheme == "monero_node" && rpcUser.isEmpty && rpcPassword.isEmpty) {
+        final queryParams = uri.queryParameters;
+        rpcUser = queryParams['username'] ?? '';
+        rpcPassword = queryParams['password'] ?? '';
+      }
 
       await Future.delayed(Duration(milliseconds: 345));
 
