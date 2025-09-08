@@ -50,14 +50,11 @@ abstract class _ContactViewModel with Store {
         sourceType = request?.contact?.sourceType ?? AddressSource.notParsed,
         currency = request?.currency,
         label = request?.label ?? '',
-        address = '',
         handleKey = request?.handleKey ?? '' {
     _initMapsFromRecord();
-
     if (request?.label != null && record != null) {
       currency = request!.currency!;
       label = request.label!;
-      address = _targetMap[currency]?[label] ?? '';
     }
   }
 
@@ -96,9 +93,6 @@ abstract class _ContactViewModel with Store {
   String label;
 
   @observable
-  String address;
-
-  @observable
   String handleKey;
 
   @observable
@@ -115,12 +109,6 @@ abstract class _ContactViewModel with Store {
       ? const AssetImage('assets/images/profile.png')
       : FileImage(File(imagePath));
 
-  ObservableMap<CryptoCurrency, Map<String, String>> get _targetMap =>
-      mode == ContactEditMode.manualAddress
-          ? manual
-          : parsed[currency] != null
-              ? parsed
-              : manual;
 
   @action
   Future<void> refresh() async {
@@ -259,7 +247,7 @@ abstract class _ContactViewModel with Store {
   @action
   void reset() {
     name = handle = profileName = description = imagePath = '';
-    label = address = handleKey = '';
+    label = handleKey = '';
     currency = CryptoCurrency.xmr;
     manual.clear();
     parsed.clear();

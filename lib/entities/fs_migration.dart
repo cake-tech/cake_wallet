@@ -433,10 +433,12 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
       final name = _item['name'] as String? ?? '';
 
       final cur = CryptoCurrency.fromString(type);
+      final lbl = name.isNotEmpty ? name : cur.title;
+
       return Contact(
         name: name,
         manualAddresses: {
-          cur.raw: { name.isNotEmpty ? name : cur.title : address }
+          cur.raw: { lbl : address }
         },
         parsedByHandle: const {},
       );

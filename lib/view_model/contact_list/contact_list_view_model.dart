@@ -22,7 +22,7 @@ class ContactListViewModel = ContactListViewModelBase with _$ContactListViewMode
 
 abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(
-      this.contactSource, this.walletInfoSource, this.wallet, this._currency, this.settingsStore)
+      this.contactSource, this.walletInfoSource, this._currency, this.settingsStore)
       : contacts = ObservableList<ContactRecord>(),
         walletContacts = [],
         isAutoGenerateEnabled =
@@ -101,7 +101,6 @@ abstract class ContactListViewModelBase with Store {
   final ObservableList<ContactRecord> contacts;
   final List<WalletContact> walletContacts;
   final CryptoCurrency? _currency;
-  final WalletBase wallet;
   StreamSubscription<BoxEvent>? _subscription;
   final SettingsStore settingsStore;
 
@@ -171,15 +170,6 @@ abstract class ContactListViewModelBase with Store {
     await contactSource.addAll(contactCopy);
   }
 
-  Future<void> sortGroupByType() async {
-    List<Contact> contactsSourceCopy = contactSource.values.toList();
-
-    // contactsSourceCopy.sort((a, b) => ascending //TODO fix sort by type
-    //     ? a.type.toString().compareTo(b.type.toString())
-    //     : b.type.toString().compareTo(a.type.toString()));
-
-    await reorderContacts(contactsSourceCopy);
-  }
 
   Future<void> sortAlphabetically() async {
     List<Contact> contactsSourceCopy = contactSource.values.toList();
@@ -213,9 +203,6 @@ abstract class ContactListViewModelBase with Store {
       case FilterListOrderType.Alphabetical:
         await sortAlphabetically();
         break;
-      // case FilterListOrderType.GroupByType:
-      //   await sortGroupByType();
-      //   break;
       case FilterListOrderType.Custom:
       default:
         reorderAccordingToContactList();
