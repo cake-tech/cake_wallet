@@ -35,14 +35,12 @@ class OpenCryptoPayService {
     final response =
         await ProxyWrapper().get(clearnetUri: Uri.https(uri.authority, uri.path, queryParams));
 
+    final body = jsonDecode(response.body) as Map;
     if (response.statusCode == 200) {
-      final body = jsonDecode(response.body) as Map;
-
       if (body.keys.contains("txId")) return body["txId"] as String;
       throw OpenCryptoPayException(body.toString());
     }
-    throw OpenCryptoPayException(
-        "Unexpected status code ${response.statusCode} ${response.body}");
+    throw OpenCryptoPayException("${response.statusCode}: ${body["message"]}");
   }
 
   Future<void> cancelOpenCryptoPayRequest(OpenCryptoPayRequest request) async {
