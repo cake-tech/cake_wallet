@@ -1014,7 +1014,6 @@ Future<void> setup({
         (cur, _) => ContactListViewModel(
       _contactSource,
       _walletInfoSource,
-      getIt<AppStore>().wallet!,
       cur,
       getIt<SettingsStore>(),
     ),
