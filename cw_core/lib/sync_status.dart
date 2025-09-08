@@ -99,29 +99,29 @@ class SyncingSyncStatus extends SyncStatus {
       return newDuration;
     }
 
-    final currentSeconds = lastEtaDuration!.inSeconds;
-    final newSeconds = newDuration.inSeconds;
-    final diff = (newSeconds - currentSeconds).abs();
+    final currentMs = lastEtaDuration!.inMilliseconds;
+    final newMs = newDuration.inMilliseconds;
+    final diff = ((newMs - currentMs) / 1000).abs();
 
     // Apply different smoothing based on the magnitude of change
     if (diff > 3600) {
       // If it's more than 1 hour difference, it's a large change so we move by max 30 minutes
-      final direction = newSeconds > currentSeconds ? 1 : -1;
-      final maxChange = 30 * 60;
-      final adjustedSeconds = currentSeconds + (direction * maxChange);
-      return Duration(seconds: adjustedSeconds);
+      final direction = newMs > currentMs ? 1 : -1;
+      final maxChange = 30 * 60 * 1000;
+      final adjustedMs = currentMs + (direction * maxChange);
+      return Duration(milliseconds: adjustedMs);
     } else if (diff > 300) {
       // If it's more than 5 minutes difference, it's a medium change so we move by max 2 minutes
-      final direction = newSeconds > currentSeconds ? 1 : -1;
-      final maxChange = 2 * 60;
-      final adjustedSeconds = currentSeconds + (direction * maxChange);
-      return Duration(seconds: adjustedSeconds);
+      final direction = newMs > currentMs ? 1 : -1;
+      final maxChange = 2 * 60 * 1000;
+      final adjustedMs = currentMs + (direction * maxChange);
+      return Duration(milliseconds: adjustedMs);
     } else if (diff > 60) {
-      // If it's more than 1 minute difference, it's a small change so we move by max 30 seconds
-      final direction = newSeconds > currentSeconds ? 1 : -1;
-      final maxChange = 30;
-      final adjustedSeconds = currentSeconds + (direction * maxChange);
-      return Duration(seconds: adjustedSeconds);
+      // If it's more than 1 minute difference, it's a small change so we move by max 30 ms
+      final direction = newMs > currentMs ? 1 : -1;
+      final maxChange = 30 * 1000;
+      final adjustedMs = currentMs + (direction * maxChange);
+      return Duration(milliseconds: adjustedMs);
     }
 
     return newDuration;
@@ -146,8 +146,8 @@ class SyncingSyncStatus extends SyncStatus {
       return DateTime.now().add(const Duration(days: 2));
     }
     int remainingBlocks = this.blocksLeft;
-    double timeRemainingSeconds = remainingBlocks / rate;
-    return DateTime.now().add(Duration(seconds: timeRemainingSeconds.round()));
+    double timeRemainingMs = remainingBlocks / rate;
+    return DateTime.now().add(Duration(milliseconds: timeRemainingMs.round()));
   }
 
   // Enhanced block rate calculation with weighted averages
@@ -176,12 +176,12 @@ class SyncingSyncStatus extends SyncStatus {
 
       final timeDifference = next.key.difference(current.key);
 
-      if (timeDifference.inSeconds <= 0) continue; // Skip invalid time
+      if (timeDifference.inMilliseconds <= 0) continue; // Skip invalid time
 
       // Weight recent data more heavily (exponential decay)
       final weight = 1.0 / (1.0 + (sortedData.length - 1 - i) * 0.1);
 
-      totalWeightedTime += timeDifference.inSeconds * weight;
+      totalWeightedTime += timeDifference.inMilliseconds * weight;
       totalWeightedBlocks += blocksProcessed * weight;
       totalWeight += weight;
     }
