@@ -243,7 +243,6 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            gomobile init;
             ./build_mwebd.sh --dont-install
           popd
 
