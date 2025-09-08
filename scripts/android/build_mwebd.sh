@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e -x
+
 if [[ "$1" == "--dont-install" ]]; then
   echo "Skipping Go installation as per --dont-install flag"
 else
