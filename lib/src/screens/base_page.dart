@@ -182,18 +182,18 @@ abstract class BasePage extends StatelessWidget {
           final backgroundImage = getIt.get<SettingsStore>().backgroundImage;
 
           return Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            image: backgroundImage.isNotEmpty
-                ? DecorationImage(
-                    image: FileImage(File(backgroundImage)),
-                    fit: BoxFit.cover,
-                  )
-                : null,
-            // color: Colors.grey[200],
-          ),
-          child: Scaffold(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              image: backgroundImage.isNotEmpty
+                  ? DecorationImage(
+                      image: FileImage(File(backgroundImage)),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              // color: Colors.grey[200],
+            ),
+            child: Scaffold(
               key: _scaffoldKey,
               backgroundColor: pageBackgroundColor(context),
               resizeToAvoidBottomInset: resizeToAvoidBottomInset,
@@ -201,11 +201,16 @@ abstract class BasePage extends StatelessWidget {
               endDrawer: endDrawer,
               appBar: appBar(context),
               body: SafeArea(
+                left: false,
+                right: false,
                 top: false,
-                child: body(context)),
-              floatingActionButton: floatingActionButton(context)),
-                    );
-        }
+                bottom: Platform.isAndroid,
+                child: body(context),
+              ),
+              floatingActionButton: floatingActionButton(context),
+            ),
+          );
+        },
       ),
       pushToWidget: (context) => pushToWidget?.call(context),
       pushToNextWidget: (context) => pushToNextWidget?.call(context),

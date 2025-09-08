@@ -38,10 +38,8 @@ dependencies:
     git:
       url: https://github.com/sneurlax/socks_socket
       ref: e6232c53c1595469931ababa878759a067c02e94
-  tor_binary:
-    git:
-      url: https://github.com/MrCyjaneK/flutter-tor_binary
-      ref: cb811c610871a9517d47134b87c2f590c15c96c5
+  torch_dart:
+    path: ../scripts/torch_dart
 
 dev_dependencies:
   flutter_test:
