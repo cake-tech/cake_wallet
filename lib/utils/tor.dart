@@ -15,7 +15,7 @@ Future<void> ensureTorStopped({required BuildContext? context}) async {
   if (context != null) dialogContext = await showFullscreenDialog(context);
   didTorStart = false;
   printV("Stopping tor");
-  await CakeTor.instance.stop();
+  await CakeTor.instance!.stop();
   printV("Tor stopped");
   if (context != null) dismissFullscreenDialog(dialogContext!);
 }
@@ -32,20 +32,20 @@ Future<void> ensureTorStarted({required BuildContext? context}) async {
   // var rootToken = RootIsolateToken.instance!;
   // await Isolate.run(() async {
   //   BackgroundIsolateBinaryMessenger.ensureInitialized(rootToken);
-  //   await CakeTor.instance.start();
+  //   await CakeTor.instance!.start();
   // });
   // second start is fast but populates the values on current thread
-  await CakeTor.instance.start();
+  await CakeTor.instance!.start();
   printV("Tor started");
-  while (!CakeTor.instance.started) {
+  while (!CakeTor.instance!.started) {
     printV("Waiting for tor to start (part 1)");
     await Future.delayed(const Duration(seconds: 1));
   }
-  while (CakeTor.instance.port == -1) {
+  while (CakeTor.instance!.port == -1) {
     printV("Waiting for tor to start (listening on port)");
     await Future.delayed(const Duration(seconds: 1));
   }
-  printV("Tor started on port ${CakeTor.instance.port}");
+  printV("Tor started on port ${CakeTor.instance!.port}");
   if (context != null) dismissFullscreenDialog(dialogContext!);
 }
 

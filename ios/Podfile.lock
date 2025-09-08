@@ -69,6 +69,8 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
+  - image_picker_ios (0.0.1):
+    - Flutter
   - in_app_review (2.0.0):
     - Flutter
   - integration_test (0.0.1):
@@ -98,6 +100,8 @@ PODS:
   - sp_scanner (0.0.1):
     - Flutter
   - SwiftyGif (5.4.5)
+  - torch_dart (0.0.1):
+    - Flutter
   - uni_links (0.0.1):
     - Flutter
   - universal_ble (0.0.1):
@@ -139,6 +143,7 @@ DEPENDENCIES:
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sp_scanner (from `.symlinks/plugins/sp_scanner/ios`)
+  - torch_dart (from `.symlinks/plugins/torch_dart/ios`)
   - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -211,6 +216,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sp_scanner:
     :path: ".symlinks/plugins/sp_scanner/ios"
+  torch_dart:
+    :path: ".symlinks/plugins/torch_dart/ios"
   uni_links:
     :path: ".symlinks/plugins/uni_links/ios"
   universal_ble:
@@ -255,6 +262,7 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   sp_scanner: b1bc9321690980bdb44bba7ec85d5543e716d1b5
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
+  torch_dart: f4620705d10f05492fab047f2fa1c3a600e7d17d
   uni_links: ed8c961e47ed9ce42b6d91e1de8049e38a4b3152
   universal_ble: ff19787898040d721109c6324472e5dd4bc86adc
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
