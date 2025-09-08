@@ -10,14 +10,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
@@ -115,7 +116,7 @@ class DFXBuyProvider extends BuyProvider {
       final message = responseBody['message'] ?? 'Service unavailable in your country';
       throw Exception(message);
     } else {
-      throw Exception('Failed to sign up. Status: ${response.statusCode} ${response.body}');
+      throw Exception('Failed to sign up. ${_getErrorMessage(response)}');
     }
   }
 
@@ -400,5 +401,16 @@ class DFXBuyProvider extends BuyProvider {
       return value;
     }
     return null;
+  }
+
+  String _getErrorMessage(http.Response response) {
+    final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
+    final message = responseBody['message']?.toString() ?? '';
+
+    if (message.contains("address must match")) {
+      return "The wallet type must match the selected currency";
+    }
+
+    return message.isNotEmpty ? message : "Unknown error: ${response.statusCode}";
   }
 }
