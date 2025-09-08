@@ -18,7 +18,6 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class DFXBuyProvider extends BuyProvider {
@@ -116,7 +115,7 @@ class DFXBuyProvider extends BuyProvider {
       final message = responseBody['message'] ?? 'Service unavailable in your country';
       throw Exception(message);
     } else {
-      throw Exception('Failed to sign up. ${_getErrorMessage(response)}');
+      throw Exception('Failed to sign up. ${_getErrorMessage(response.statusCode, response.body)}');
     }
   }
 
@@ -403,14 +402,14 @@ class DFXBuyProvider extends BuyProvider {
     return null;
   }
 
-  String _getErrorMessage(http.Response response) {
-    final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
+  String _getErrorMessage(int statusCode, String body) {
+    final responseBody = jsonDecode(body) as Map<String, dynamic>;
     final message = responseBody['message']?.toString() ?? '';
 
     if (message.contains("address must match")) {
       return "The wallet type must match the selected currency";
     }
 
-    return message.isNotEmpty ? message : "Unknown error: ${response.statusCode}";
+    return message.isNotEmpty ? message : "Unknown error: ${statusCode}";
   }
 }
