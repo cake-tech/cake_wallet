@@ -13,7 +13,7 @@ fi
 # build mwebd:
 git clone https://github.com/ltcmweb/mwebd
 cd mwebd
-git reset --hard f75cb9edef07d03360ee2d33e6edae4243a890b1
+#git reset --hard f75cb9edef07d03360ee2d33e6edae4243a890b1
 gomobile bind -target=android -androidapi 21 .
 mkdir -p ../../../cw_mweb/android/libs/
 cp ./mwebd.aar $_
