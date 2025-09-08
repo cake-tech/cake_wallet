@@ -90,9 +90,7 @@ class DFXBuyProvider extends BuyProvider {
   // }
 
   Future<String> auth(String walletAddress) async {
-    final signMessage = await getSignature(
-        await getSignMessage(walletAddress), walletAddress);
-    print("here!");
+    final signMessage = await getSignature(await getSignMessage(walletAddress), walletAddress);
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -106,7 +104,6 @@ class DFXBuyProvider extends BuyProvider {
       headers: {'Content-Type': 'application/json'},
       body: requestBody,
     );
-    
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
