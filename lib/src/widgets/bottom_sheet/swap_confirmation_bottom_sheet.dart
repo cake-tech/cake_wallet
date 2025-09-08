@@ -180,6 +180,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               hintText: 'Amount (${detectedCurrencyName})',
               focusNode: _amountFocus,
               controller: _amountController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
               validator: (value) {
                 return AmountValidator(
                   isAutovalidate: true,
@@ -252,6 +253,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               hintText: 'Amount (${widget.exchangeViewModel.fiat.title})',
               focusNode: _amountFiatFocus,
               controller: _amountFiatController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 8),
             SwapConfirmationTextfield(
@@ -418,6 +420,7 @@ class SwapConfirmationTextfield extends StatelessWidget {
     this.isAddress = false,
     this.maxLines = 1,
     this.validator,
+    this.keyboardType,
   });
 
   final FocusNode focusNode;
@@ -427,6 +430,8 @@ class SwapConfirmationTextfield extends StatelessWidget {
   final bool isAddress;
   final int maxLines;
   final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -470,6 +475,7 @@ class SwapConfirmationTextfield extends StatelessWidget {
                   controller: controller,
                   maxLines: maxLines,
                   validator: validator,
+                  keyboardType: keyboardType,
                 ),
         ],
       ),
