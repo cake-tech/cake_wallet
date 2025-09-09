@@ -236,6 +236,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
+      if (code.startsWith("monero_node:")) code = code.replaceFirst(":", "://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);
