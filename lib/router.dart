@@ -308,7 +308,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
       );
 
     case Routes.restoreWalletFromHardwareWallet:
-      return handleRouteWithPlatformAwareness((_) => SelectDeviceManufacturerPage());
+      final arguments = settings.arguments as Map<String, dynamic>?;
+      final showUnavailable = (arguments?['showUnavailable'] as bool?) ?? true;
+      final onSelect = arguments?['onSelect'] as void Function(BuildContext, HardwareWalletType)?;
+      final availableHardwareWalletTypes =
+          arguments?['availableHardwareWalletTypes'] as List<HardwareWalletType>?;
+
+      return handleRouteWithPlatformAwareness((_) => SelectDeviceManufacturerPage(
+            showUnavailable: showUnavailable,
+            onSelect: onSelect,
+            availableHardwareWalletTypes: availableHardwareWalletTypes,
+          ));
 
     case Routes.connectHardwareWallet:
       final arguments = settings.arguments as List<dynamic>;

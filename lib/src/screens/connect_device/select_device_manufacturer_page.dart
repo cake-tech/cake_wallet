@@ -13,7 +13,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SelectDeviceManufacturerPage extends BasePage {
-  SelectDeviceManufacturerPage();
+  SelectDeviceManufacturerPage({
+    this.showUnavailable = true,
+    this.onSelect,
+    this.availableHardwareWalletTypes,
+  });
+
+  final bool showUnavailable;
+  final void Function(BuildContext, HardwareWalletType)? onSelect;
+  final List<HardwareWalletType>? availableHardwareWalletTypes;
 
   @override
   String get title => S.current.select_manufacturer_title;
@@ -21,8 +29,7 @@ class SelectDeviceManufacturerPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
-  List<_DeviceManufacturer> get availableManufacturers =>
-      [
+  List<_DeviceManufacturer> get availableManufacturers => [
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/ledger_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.ledger,
@@ -33,15 +40,25 @@ class SelectDeviceManufacturerPage extends BasePage {
           tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/cupcake_man.svg', height: 25),
+          hardwareWalletType: HardwareWalletType.cupcake,
+          tag: S.current.new_tag,
+        ),
+        _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/coldcard_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+          hardwareWalletType: HardwareWalletType.seedsigner,
           tag: S.current.new_tag,
         ),
-      ];
+      ]
+          .where((e) => availableHardwareWalletTypes == null
+              ? ![HardwareWalletType.cupcake].contains(e.hardwareWalletType)
+              : availableHardwareWalletTypes!.contains(e.hardwareWalletType))
+          .toList();
 
   List<_DeviceManufacturer> get comingManufacturers => [
         _DeviceManufacturer(
@@ -72,6 +89,9 @@ class SelectDeviceManufacturerPage extends BasePage {
                       image: manufacturer.image,
                       tag: manufacturer.tag,
                       onPressed: () {
+                        if (onSelect != null)
+                          return onSelect!.call(context, manufacturer.hardwareWalletType!);
+
                         if (isAirgappedWallet(manufacturer.hardwareWalletType)) {
                           _onScanQRCode(context, manufacturer.hardwareWalletType!);
                         } else if (manufacturer.hardwareWalletType != null) {
@@ -83,24 +103,26 @@ class SelectDeviceManufacturerPage extends BasePage {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20, bottom: 10),
-                  child: DottedDivider(color: Theme.of(context).colorScheme.surfaceContainer),
-                ),
-                ...comingManufacturers.map(
-                  (manufacturer) => Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: ManufacturerOptionTile(
-                      image: manufacturer.image,
-                      tag: manufacturer.tag,
-                      onPressed: () =>
-                          Fluttertoast.showToast(msg: 'One more tap and it might work'),
-                      // Ester egg
-                      isDarkTheme: currentTheme.isDark,
-                      isUnavailable: true,
+                if (showUnavailable) ...[
+                  Padding(
+                    padding: EdgeInsets.only(top: 20, bottom: 10),
+                    child: DottedDivider(color: Theme.of(context).colorScheme.surfaceContainer),
+                  ),
+                  ...comingManufacturers.map(
+                    (manufacturer) => Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: ManufacturerOptionTile(
+                        image: manufacturer.image,
+                        tag: manufacturer.tag,
+                        onPressed: () =>
+                            Fluttertoast.showToast(msg: 'One more tap and it might work'),
+                        // Ester egg
+                        isDarkTheme: currentTheme.isDark,
+                        isUnavailable: true,
+                      ),
                     ),
                   ),
-                ),
+                ]
               ],
             ),
           ),
@@ -133,8 +155,8 @@ class SelectDeviceManufacturerPage extends BasePage {
         'hardwareWalletType': type,
       };
 
-      Navigator.pushNamed(context, Routes.restoreWallet, arguments: params).then((_) =>
-      isRestoring = false);
+      Navigator.pushNamed(context, Routes.restoreWallet, arguments: params)
+          .then((_) => isRestoring = false);
     } catch (e) {
       printV(e.toString());
     }
