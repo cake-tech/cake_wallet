@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/svg_image_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
@@ -22,6 +23,8 @@ class QrImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imagePath = embeddedImagePath ?? 'assets/images/qr-cake.png';
+    final isSvg = imagePath.endsWith('.svg');
     return qr.QrImageView(
       data: data,
       errorCorrectionLevel: errorCorrectionLevel,
@@ -29,8 +32,8 @@ class QrImage extends StatelessWidget {
       size: size,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,
-      padding: const EdgeInsets.all(8.0),
-      embeddedImage: AssetImage(embeddedImagePath ?? 'assets/images/qr-cake.png'),
+      padding: const EdgeInsets.all(12.0),
+      embeddedImage: isSvg ? SvgImageProvider(imagePath) : AssetImage(imagePath),
     );
   }
 }

@@ -217,11 +217,18 @@ class AddressPage extends BasePage {
                             for (int i = addressListViewModel.walletImages.length - 1; i >= 0; i--)
                               Positioned(
                                 left: i * 25.0,
-                                child: ClipOval(
-                                  child: CakeImageWidget(
-                                    height: 35,
-                                    width: 35,
-                                    imageUrl: addressListViewModel.walletImages[i],
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
+                                    border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer, width: 3),
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  child: ClipOval(
+                                    child: CakeImageWidget(
+                                      height: 35,
+                                      width: 35,
+                                      imageUrl: addressListViewModel.walletImages[i],
+                                    ),
                                   ),
                                 ),
                               ),
