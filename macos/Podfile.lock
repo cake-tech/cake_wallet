@@ -134,7 +134,7 @@ SPEC CHECKSUMS:
   flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
   flutter_secure_storage_macos: 3dacac420d84c4d0dc5e868194ee43c8664ec797
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  in_app_review: 0599bccaed5e02f6bed2b0d30d16f86b63ed8638
+  in_app_review: 66e7680752b632d83f4f0e88b34d52ed303fbff4
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: f0052d280d17aa382b932f399edf32507174e870
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
