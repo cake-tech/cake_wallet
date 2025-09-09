@@ -22,22 +22,22 @@ const supportedSources = [
 enum AddressSource {
   twitter(
       label: 'X',
-      iconPath: 'assets/images/x_social.png',
+      iconPath: 'assets/images/address_providers/x.svg',
       alias: '@username',
       supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   unstoppableDomains(
       label: 'Unstoppable Domains',
-      iconPath: 'assets/images/ud.png',
+      iconPath: 'assets/images/address_providers/unstoppable.svg',
       alias: 'domain.tld',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
   openAlias(
       label: 'OpenAlias',
-      iconPath: 'assets/images/open_alias.png',
-      alias: 'oa',
+      iconPath: 'assets/images/address_providers/openalias.svg',
+      alias: 'name.domain.tld',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc]),
   yatRecord(
       label: 'Yat',
-      iconPath: 'assets/images/yat_mini_logo.png',
+      iconPath: 'assets/images/address_providers/yat.svg',
       alias: '🎂🎂🎂',
       supportedCurrencies: [
         CryptoCurrency.xmr,
@@ -45,37 +45,41 @@ enum AddressSource {
         CryptoCurrency.eth,
         CryptoCurrency.ltc
       ]),
-  fio(label: 'FIO', iconPath: 'assets/images/fio.png', alias: 'user@domain',
+  fio(label: 'FIO', iconPath: 'assets/images/address_providers/fio.svg', alias: 'user@domain',
       supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   ens(
       label: 'Ethereum Name Service',
-      iconPath: 'assets/images/ens_icon.png',
+      iconPath: 'assets/images/address_providers/ens.svg',
       alias: 'domain.eth',
       supportedCurrencies: [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.eth]),
   mastodon(
       label: 'Mastodon',
-      iconPath: 'assets/images/mastodon.svg',
+      iconPath: 'assets/images/address_providers/mastodon.svg',
       alias: 'user@domain.tld',
       supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   nostr(
       label: 'Nostr',
-      iconPath: 'assets/images/nostr.png',
+      iconPath: 'assets/images/address_providers/nostr.svg',
+      alias: 'user@domain.tld',
       supportedCurrencies: AddressValidator.reliableValidateCurrencies),
   thorChain(
       label: 'ThorChain',
-      iconPath: 'assets/images/thorchain.png',
+      iconPath: 'assets/images/address_providers/thorchain.svg',
+      alias: 'name',
       supportedCurrencies: CryptoCurrency.all),
   wellKnown(
       label: '.wellknown',
-      iconPath: '', // TODO provide an icon
+      iconPath: 'assets/images/address_providers/wellknown.svg',
+      alias: 'domain.tld',
       supportedCurrencies: [CryptoCurrency.nano]),
   zanoAlias(
       label: 'Zano Alias',
-      iconPath: 'assets/images/zano_icon.png',
+      iconPath: 'assets/images/address_providers/zano.svg',
+      alias: '@alias',
       supportedCurrencies: [CryptoCurrency.zano]),
   bip353(
       label: 'BIP353',
-      iconPath: 'assets/images/btc.png',
+      iconPath: 'assets/images/address_providers/bip353.svg',
       alias: 'user@domain.com',
       supportedCurrencies: [CryptoCurrency.btc]),
   contact(label: 'Contact', iconPath: '', supportedCurrencies: []),

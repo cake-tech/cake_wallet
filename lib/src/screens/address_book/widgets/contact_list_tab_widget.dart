@@ -122,48 +122,12 @@ class _ContactListBodyState extends State<ContactListBody> {
           borderRadius: BorderRadius.circular(5),
           child: Image(image: c.avatarProvider, width: 24, height: 24, fit: BoxFit.cover),
         ),
-        trailing: _icons(ctx, c),
         title: Text(c.name, style: Theme.of(ctx).textTheme.bodyMedium),
         onTap: () => _openSheet(
           ctx,
           cur != null ? Routes.contactRefreshPage : Routes.contactPage,
           cur != null ? [c, cur] : c,
         ),
-      ),
-    );
-  }
-
-  Widget _icons(BuildContext ctx, ContactRecord c) {
-    const size = 24.0, gap = 16.0;
-    final set = <AddressSource>{
-      for (final k in c.parsedBlocks.keys) AddressSourceNameParser.fromLabel(k.split('-').first)
-    };
-    if (set.isEmpty) return const SizedBox.shrink();
-
-    final lst = set.toList(growable: false);
-    return SizedBox(
-      width: size + gap * (lst.length - 1),
-      height: size,
-      child: Stack(
-        children: [
-          for (var i = 0; i < lst.length; ++i)
-            Positioned(
-              left: i * gap,
-              child: CircleAvatar(
-                radius: size / 2,
-                backgroundColor: Theme.of(ctx).colorScheme.onSecondaryContainer,
-                child: CircleAvatar(
-                  radius: (size / 2) - 1,
-                  backgroundColor: Theme.of(ctx).colorScheme.outlineVariant,
-                  child: ImageUtil.getImageFromPath(
-                    imagePath: lst[i].iconPath,
-                    height: size - 6,
-                    width: size - 6,
-                  ),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }

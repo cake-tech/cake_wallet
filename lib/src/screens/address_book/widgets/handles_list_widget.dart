@@ -50,7 +50,7 @@ class _HandlesListWidgetState extends State<HandlesListWidget> {
 
         return ListTile(
           title: Text(src.label, style: theme.textTheme.bodyMedium),
-          trailing: Text(src.alias, style: theme.textTheme.bodyMedium),
+          trailing: Text(src.alias, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),),
           tileColor: theme.colorScheme.surfaceContainer,
           splashColor: Colors.transparent,
           dense: true,

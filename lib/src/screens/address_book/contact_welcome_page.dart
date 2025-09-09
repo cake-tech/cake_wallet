@@ -30,7 +30,8 @@ class ContactWelcomePage extends SheetPage {
 }
 
 class _WelcomeBody extends StatefulWidget {
-  const _WelcomeBody({required this.currentTheme, required this.contactViewModel});
+  const _WelcomeBody(
+      {required this.currentTheme, required this.contactViewModel});
 
   final MaterialThemeBase currentTheme;
   final ContactViewModel contactViewModel;
@@ -52,15 +53,19 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   final _debouncer = const Duration(milliseconds: 700);
+  final _searchIndicatorDebouncer = const Duration(milliseconds: 600);
   final resolver = getIt<AddressResolverService>();
 
   Timer? _debounce;
+  Timer? _searchIndicatorDebounce;
 
   List<ParsedAddress> _results = [];
   bool _isSearching = false;
   ParsedAddress? _selectedHandle;
   _PlainTextSelection? _plainSelected;
   String _typedText = '';
+  final _inputKey = GlobalKey();
+  bool _allowUnfocus = false;
 
   CryptoCurrency? _detectedCurrency;
   String? _detectedAddress;
@@ -73,16 +78,24 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
   void initState() {
     super.initState();
     _controller.addListener(() => _handleChanged(_controller.text));
+    _focusNode.addListener(() {
+      if (!_allowUnfocus && !_focusNode.hasFocus && mounted) {
+        Future.microtask(_requestFocus);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _requestFocus());
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
-  Set<CryptoCurrency> _detectCurrencies(String txt) => AddressValidator.detectCurrencies(txt);
+  Set<CryptoCurrency> _detectCurrencies(String txt) =>
+      AddressValidator.detectCurrencies(txt);
 
   void _handleChanged(String q) {
     _typedText = q.trim();
@@ -93,10 +106,11 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
       _plainSelected = null;
       _detectedCurrency = null;
       _detectedAddress = null;
-      _isSearching = _typedText.isNotEmpty;
+      _isSearching = false;
     });
 
     _debounce?.cancel();
+    _searchIndicatorDebounce?.cancel();
 
     if (_typedText.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -104,6 +118,14 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
       });
       return;
     }
+
+    _searchIndicatorDebounce = Timer(_searchIndicatorDebouncer, () {
+      if (!mounted) return;
+      if (_controller.text.trim() == _typedText) {
+        setState(() => _isSearching = true);
+        _requestFocus();
+      }
+    });
 
     _debounce = Timer(_debouncer, () async {
       if (!mounted) return;
@@ -133,24 +155,37 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
             } else {
               _detectedCurrency = null;
               _detectedAddress = null;
-              _plainSelected = detected.isEmpty ? _PlainTextSelection(_typedText) : null;
+              _plainSelected =
+                  detected.isEmpty ? _PlainTextSelection(_typedText) : null;
             }
           });
         }
+        _requestFocus();
       } finally {
         if (mounted) setState(() => _isSearching = false);
       }
     });
   }
 
+  void _requestFocus() {
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+
+    final ctx = _inputKey.currentContext ?? context;
+    if (!mounted) return;
+    FocusScope.of(ctx).requestFocus(_focusNode);
+    SystemChannels.textInput.invokeMethod('TextInput.show');
+  }
+
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final hasDropdown =
-        _results.isNotEmpty || _isSearching || _detectedCurrency != null || _plainSelected != null;
+    final hasDropdown = _results.isNotEmpty ||
+        _detectedCurrency != null ||
+        _plainSelected != null;
 
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
+        primary: false,
         reverse: true,
         padding: EdgeInsets.only(bottom: bottomInset),
         child: Column(
@@ -158,9 +193,11 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
           children: [
             Image.asset('assets/images/add_contact_coins_img.png'),
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(_hintText,
-                    textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge)),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(_hintText,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge),
+            ),
             SizedBox(
               height: 160,
               child: Padding(
@@ -197,10 +234,11 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
   }
 
   Widget _buildInput(bool hasDropdown) {
-    final _noBorder = OutlineInputBorder(
-      borderRadius: const BorderRadius.all(Radius.circular(15)),
+    final _noBorder = const OutlineInputBorder(
+      borderRadius: BorderRadius.all(Radius.circular(15)),
       borderSide: BorderSide.none,
     );
+
     return SizedBox(
       height: 50,
       child: Stack(
@@ -222,6 +260,7 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
             ),
           Positioned.fill(
             child: StandardTextFormFieldWidget(
+              key: _inputKey,
               controller: _controller,
               focusNode: _focusNode,
               labelText: 'Enter an address or handle',
@@ -230,23 +269,33 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
               enabledInputBorder: _noBorder,
               focusedInputBorder: _noBorder,
               onChanged: _handleChanged,
-              suffixIconConstraints: const BoxConstraints(minWidth: 32, maxWidth: 40),
-              suffixIcon: RoundedIconButton(
-                icon: Icons.paste_outlined,
-                iconSize: 20,
-                width: 38,
-                height: 36,
-                onPressed: () async {
-                  final data = await Clipboard.getData(Clipboard.kTextPlain);
-                  final txt = data?.text?.trim() ?? '';
-                  if (txt.isEmpty) return;
-                  _controller.text = txt;
-                  _handleChanged(txt);
-                },
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-              ),
+              suffixIconConstraints:
+                  const BoxConstraints(minWidth: 32, maxWidth: 40),
+              suffixIcon: _isSearching
+                  ? const Padding(
+                      padding: EdgeInsets.only(right: 8),
+                      child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2)),
+                    )
+                  : RoundedIconButton(
+                      icon: Icons.paste_outlined,
+                      iconSize: 20,
+                      width: 38,
+                      height: 36,
+                      onPressed: () async {
+                        final data =
+                            await Clipboard.getData(Clipboard.kTextPlain);
+                        final txt = data?.text?.trim() ?? '';
+                        if (txt.isEmpty) return;
+                        _controller.text = txt;
+                        _handleChanged(txt);
+                      },
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                      ),
+                    ),
               validator: (_) => null,
             ),
           ),
@@ -259,15 +308,6 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
     final bgColor = Theme.of(context).colorScheme.surfaceContainerLowest;
 
     Widget _buildContent() {
-      if (_isSearching) {
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ),
-        );
-      }
-
       if (_results.isNotEmpty) {
         if (_results.length == 1) return _ParsedItem(item: _results.first);
 
@@ -286,32 +326,37 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
         );
       }
 
-      if (_detectedCurrency != null) return _AddressRow(currency: _detectedCurrency!);
+      if (_detectedCurrency != null)
+        return _AddressRow(currency: _detectedCurrency!);
 
       if (_plainSelected != null) {
         return ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
-            shape:
-                const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-            title: Text('No address detected proceed with plain text',
-                style: Theme.of(context).textTheme.bodyLarge),
-            onTap: () => _focusNode.unfocus());
+          dense: true,
+          visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12))),
+          title: Text('No address detected proceed with plain text',
+              style: Theme.of(context).textTheme.bodyLarge),
+          onTap: () => _focusNode.unfocus(),
+        );
       }
 
       return const SizedBox.shrink();
     }
 
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 80),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(12),
-          bottomRight: Radius.circular(12),
+    return ExcludeFocus(
+      excluding: true,
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 80),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12),
+          ),
         ),
+        child: _buildContent(),
       ),
-      child: _buildContent(),
     );
   }
 
@@ -327,60 +372,67 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: Row(
               children: [
-                Text('View supported handles', style: Theme.of(context).textTheme.bodyMedium),
+                Text('View supported handles',
+                    style: Theme.of(context).textTheme.bodyMedium),
                 const SizedBox(width: 4),
                 Icon(Icons.arrow_forward_ios,
-                    size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    size: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
               ],
             ),
           ),
         ),
       );
 
-  void _onNextPressed() {
-    _focusNode.unfocus();
+  Future<void> _onNextPressed() async {
+    _allowUnfocus = true;
 
-    if (_selectedHandle != null) {
-      Navigator.pushNamed(
-        context,
-        Routes.editNewContactPage,
-        arguments: [_selectedHandle!, contactViewModel.record],
-      );
-    } else if (_detectedCurrency != null && _detectedAddress != null) {
-      final parsed = ParsedAddress(
-        parsedAddressByCurrencyMap: {},
-        manualAddressByCurrencyMap: {_detectedCurrency!: _detectedAddress!.trim()},
-        addressSource: AddressSource.contact,
-        handle: '',
-        profileName: '',
-        profileImageUrl: 'assets/images/profile.png',
-        description: '',
-      );
-      Navigator.pushNamed(
-        context,
-        Routes.editNewContactPage,
-        arguments: [parsed, contactViewModel.record],
-      );
-    } else if (_plainSelected != null) {
-      final parsed = ParsedAddress(
-        parsedAddressByCurrencyMap: {},
-        manualAddressByCurrencyMap: {},
-        addressSource: AddressSource.notParsed,
-        handle: '',
-        profileName: '',
-        profileImageUrl: '',
-        description: _plainSelected!.text,
-      );
-      Navigator.pushNamed(
-        context,
-        Routes.editNewContactPage,
-        arguments: [parsed, contactViewModel.record],
-      );
-    }
+    _debounce?.cancel();
+    _searchIndicatorDebounce?.cancel();
 
-    _selectedHandle = null;
-    _plainSelected = null;
-    _detectedCurrency = null;
+    FocusScope.of(context).unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
+    await SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+    final args = _selectedHandle != null
+        ? [_selectedHandle!, contactViewModel.record]
+        : _detectedCurrency != null && _detectedAddress != null
+            ? [
+                ParsedAddress(
+                  parsedAddressByCurrencyMap: {},
+                  manualAddressByCurrencyMap: {
+                    _detectedCurrency!: _detectedAddress!.trim()
+                  },
+                  addressSource: AddressSource.contact,
+                  handle: '',
+                  profileName: '',
+                  profileImageUrl: 'assets/images/profile.png',
+                  description: '',
+                ),
+                contactViewModel.record
+              ]
+            : _plainSelected != null
+                ? [
+                    ParsedAddress(
+                      parsedAddressByCurrencyMap: {},
+                      manualAddressByCurrencyMap: {},
+                      addressSource: AddressSource.notParsed,
+                      handle: '',
+                      profileName: '',
+                      profileImageUrl: '',
+                      description: _plainSelected!.text,
+                    ),
+                    contactViewModel.record
+                  ]
+                : null;
+
+    if (args == null) return;
+
+    await Navigator.pushNamed(context, Routes.editNewContactPage,
+        arguments: args);
+
+    _allowUnfocus = false;
+    if (mounted) _requestFocus();
   }
 }
 
@@ -401,7 +453,8 @@ class _ParsedItem extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(item.addressSource.label, style: Theme.of(context).textTheme.bodyLarge),
+            Text(item.addressSource.label,
+                style: Theme.of(context).textTheme.bodyLarge),
             Row(
               children: [
                 if (item.profileImageUrl.isNotEmpty)
@@ -420,7 +473,8 @@ class _ParsedItem extends StatelessWidget {
                 else
                   const SizedBox(width: 24, height: 24),
                 const SizedBox(width: 6),
-                Text(item.handle, style: Theme.of(context).textTheme.bodyMedium),
+                Text(item.handle,
+                    style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
           ],
@@ -457,12 +511,14 @@ class _ParsedList extends StatelessWidget {
               height: 24,
               width: 24,
             ),
-            title: Text(p.addressSource.label, style: Theme.of(context).textTheme.bodyLarge),
+            title: Text(p.addressSource.label,
+                style: Theme.of(context).textTheme.bodyLarge),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 120, minWidth: 80),
+                  constraints:
+                      const BoxConstraints(maxWidth: 120, minWidth: 80),
                   child: Text(p.handle,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyLarge),
@@ -487,9 +543,10 @@ class _AddressRow extends StatelessWidget {
   Widget build(BuildContext context) => ListTile(
       dense: true,
       visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-      leading:
-          ImageUtil.getImageFromPath(imagePath: currency.iconPath ?? '', height: 24, width: 24),
-      title:
-          Text(currency.fullName ?? currency.title, style: Theme.of(context).textTheme.bodyLarge));
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12))),
+      leading: ImageUtil.getImageFromPath(
+          imagePath: currency.iconPath ?? '', height: 24, width: 24),
+      title: Text(currency.fullName ?? currency.title,
+          style: Theme.of(context).textTheme.bodyLarge));
 }
