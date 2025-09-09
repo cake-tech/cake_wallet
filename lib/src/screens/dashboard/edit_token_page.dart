@@ -242,6 +242,11 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
 
                             // check if the token symbol is the same as any of the base currencies symbols (ETH, SOL, POL, TRX, etc):
                             // if it is, then it's probably a scam unless it's in the whitelist
+
+                            // ugh, should it be commented out?
+                            // because there are some tokens that has the name of original currencies
+                            // like: 0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6
+
                             final baseCurrencySymbols =
                                 CryptoCurrency.all.map((e) => e.title.toUpperCase()).toList();
                             if (baseCurrencySymbols.contains(tokenSymbol.trim().toUpperCase()) &&
