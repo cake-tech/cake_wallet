@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 
 enum ThemeType { light, dark }
 
@@ -32,4 +33,7 @@ abstract class MaterialThemeBase {
   ThemeData get themeData;
 
   bool get isDark => brightness == Brightness.dark;
+
+  /// Custom colors provider for theme-specific colors
+  CustomThemeColors get customColors;
 }

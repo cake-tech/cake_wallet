@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/custom_theme_colors/dark_theme_custom_colors.dart';
 
 class DarkTheme extends MaterialThemeBase {
   @override
@@ -231,4 +233,7 @@ class DarkTheme extends MaterialThemeBase {
 
   @override
   int get raw => 1;
+
+  @override
+  CustomThemeColors get customColors => DarkThemeCustomColors();
 }
