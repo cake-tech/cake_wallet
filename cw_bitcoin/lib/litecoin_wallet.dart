@@ -65,6 +65,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Uint8List? seedBytes,
     String? mnemonic,
     String? xpub,
+    this.scanSecretOverride,
+    String? spendPubkeyOverride,
     String? passphrase,
     String? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -108,6 +110,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
+      scanSecretOverride: scanSecretOverride,
+      spendPubkeyOverride: spendPubkeyOverride,
       isHardwareWallet: walletInfo.isHardwareWallet,
     );
     autorun((_) {
@@ -160,7 +164,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   @override
   bool get hasRescan => true;
 
-  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+
+  final String? scanSecretOverride;
+  List<int> get scanSecret => scanSecretOverride != null
+      ? hex.decode(scanSecretOverride!)
+      : mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
 
   List<int> get spendSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000001)).privateKey.privKey.raw;
 
