@@ -64,15 +64,14 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool useSocksProxy;
 
   @computed
-  bool get usesEmbeddedProxy => CakeTor.instance.started;
+  bool get usesEmbeddedProxy => CakeTor.instance!.started;
 
   @observable
   String socksProxyAddress;
 
   @computed
   bool get isReady =>
-      (address.isNotEmpty && port.isNotEmpty) ||
-      _walletType == WalletType.decred; // Allow an empty address.
+      (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
@@ -244,13 +243,18 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Invalid QR code: Unable to parse or missing host.');
       }
 
-      final userInfo = uri.userInfo;
-      final rpcUser = userInfo.length == 2 ? userInfo[0] : '';
-      final rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
       final ipAddress = uri.host;
       final port = uri.hasPort ? uri.port.toString() : '';
       final path = uri.path;
-      final queryParams = uri.queryParameters; // Currently not used
+      final userInfo = uri.userInfo;
+      var rpcUser = userInfo.length == 2 ? userInfo[0] : '';
+      var rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
+
+      if (uri.scheme == "monero_node" && rpcUser.isEmpty && rpcPassword.isEmpty) {
+        final queryParams = uri.queryParameters;
+        rpcUser = queryParams['username'] ?? '';
+        rpcPassword = queryParams['password'] ?? '';
+      }
 
       await Future.delayed(Duration(milliseconds: 345));
 

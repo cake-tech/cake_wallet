@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
@@ -15,6 +17,7 @@ import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -36,6 +39,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.tradesStore,
     required this.sendViewModel,
     required this.feesViewModel,
+    required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
         isSendable = _checkIfCanSend(tradesStore, wallet),
         items = ObservableList<ExchangeTradeItem>() {
@@ -69,7 +73,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case ExchangeProviderDescription.chainflip:
         _provider = ChainflipExchangeProvider(tradesStore: trades);
         break;
-        case ExchangeProviderDescription.xoSwap:
+      case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
     }
 
@@ -115,6 +119,49 @@ abstract class ExchangeTradeViewModelBase with Store {
   ExchangeProvider? _provider;
 
   Timer? timer;
+
+  final FiatConversionStore fiatConversionStore;
+
+  FiatCurrency get fiat => sendViewModel.fiat;
+
+  @computed
+  bool get isFiatDisabled => feesViewModel.isFiatDisabled;
+
+  @action
+  String getReceiveAmountFiatFormatted(String receiveAmount) {
+    var amount = '0.00';
+    try {
+      if (receiveAmount.isNotEmpty) {
+        if (fiatConversionStore.prices[trade.to] == null) return '';
+
+        amount = calculateFiatAmount(
+          price: fiatConversionStore.prices[trade.to]!,
+          cryptoAmount: receiveAmount,
+        );
+      }
+    } catch (_) {
+      printV('Error calculating receive amount fiat formatted: $_');
+    }
+    return isFiatDisabled ? '' : '$amount ${fiat.title}';
+  }
+
+  @computed
+  String get sendAmountFiatFormatted {
+    var amount = '0.00';
+    try {
+      if (trade.amount.isNotEmpty) {
+        if (fiatConversionStore.prices[trade.from] == null) return '';
+
+        amount = calculateFiatAmount(
+          price: fiatConversionStore.prices[trade.from]!,
+          cryptoAmount: trade.amount,
+        );
+      }
+    } catch (_) {
+      printV('Error calculating send amount fiat formatted: $_');
+    }
+    return isFiatDisabled ? '' : '$amount ${fiat.title}';
+  }
 
   void setUpOutput() {
     sendViewModel.clearOutputs();
@@ -168,13 +215,9 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   void _updateItems() {
     final trade = tradesStore.trade!;
-    final tradeFrom = trade.fromRaw >= 0
-        ? trade.from
-        : trade.userCurrencyFrom;
+    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
 
-    final tradeTo = trade.toRaw >= 0
-        ? trade.to
-        : trade.userCurrencyTo;
+    final tradeTo = trade.toRaw >= 0 ? trade.to : trade.userCurrencyTo;
 
     final tagFrom = tradeFrom?.tag != null ? '${tradeFrom!.tag}' + ' ' : '';
     final tagTo = tradeTo?.tag != null ? '${tradeTo!.tag}' + ' ' : '';
@@ -221,22 +264,20 @@ abstract class ExchangeTradeViewModelBase with Store {
     final isExtraIdExist = trade.extraId != null && trade.extraId!.isNotEmpty;
 
     if (isExtraIdExist) {
-
-
       final title = tradeFrom == CryptoCurrency.xrp
-            ? S.current.destination_tag
-            : tradeFrom == CryptoCurrency.xlm || tradeFrom == CryptoCurrency.ton
-                ? S.current.memo
-                : S.current.extra_id;
+          ? S.current.destination_tag
+          : tradeFrom == CryptoCurrency.xlm || tradeFrom == CryptoCurrency.ton
+              ? S.current.memo
+              : S.current.extra_id;
 
-        items.add(
-          ExchangeTradeItem(
-              title: title,
-              data: trade.extraId ?? '',
-              isCopied: true,
-              isReceiveDetail: !isExtraIdExist,
-              isExternalSendDetail: isExtraIdExist),
-        );
+      items.add(
+        ExchangeTradeItem(
+            title: title,
+            data: trade.extraId ?? '',
+            isCopied: true,
+            isReceiveDetail: !isExtraIdExist,
+            isExternalSendDetail: isExtraIdExist),
+      );
     }
 
     items.add(
@@ -251,27 +292,21 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   static bool _checkIfCanSend(TradesStore tradesStore, WalletBase wallet) {
-
     final trade = tradesStore.trade!;
-    final tradeFrom = trade.fromRaw >= 0
-        ? trade.from
-        : trade.userCurrencyFrom;
+    final tradeFrom = trade.fromRaw >= 0 ? trade.from : trade.userCurrencyFrom;
 
     bool _isEthToken() =>
-        wallet.currency == CryptoCurrency.eth &&
-            tradeFrom?.tag == CryptoCurrency.eth.title;
+        wallet.currency == CryptoCurrency.eth && tradeFrom?.tag == CryptoCurrency.eth.title;
 
     bool _isPolygonToken() =>
         wallet.currency == CryptoCurrency.maticpoly &&
-            tradeFrom?.tag == CryptoCurrency.maticpoly.tag;
+        tradeFrom?.tag == CryptoCurrency.maticpoly.tag;
 
     bool _isTronToken() =>
-        wallet.currency == CryptoCurrency.trx &&
-            tradeFrom?.tag == CryptoCurrency.trx.title;
+        wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
 
     bool _isSplToken() =>
-        wallet.currency == CryptoCurrency.sol &&
-            tradeFrom?.tag == CryptoCurrency.sol.title;
+        wallet.currency == CryptoCurrency.sol && tradeFrom?.tag == CryptoCurrency.sol.title;
 
     return tradeFrom == wallet.currency ||
         tradesStore.trade!.provider == ExchangeProviderDescription.xmrto ||

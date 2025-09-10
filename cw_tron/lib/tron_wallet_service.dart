@@ -67,6 +67,7 @@ class TronWalletService extends WalletService<
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       saveBackup(name);
       return wallet;
@@ -81,6 +82,7 @@ class TronWalletService extends WalletService<
       );
 
       await wallet.init();
+      wallet.addInitialTokens();
       await wallet.save();
       return wallet;
     }

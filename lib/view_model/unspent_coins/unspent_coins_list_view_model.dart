@@ -4,6 +4,9 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
@@ -28,7 +31,8 @@ abstract class UnspentCoinsListViewModelBase with Store {
         items = ObservableList<UnspentCoinsItem>(),
         _originalState = {};
 
-  final WalletBase wallet;
+  @observable
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet;
   final Box<UnspentCoinsInfo> _unspentCoinsInfo;
   final UnspentCoinType coinTypeToSpendFrom;
 
@@ -227,6 +231,11 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @action
   void setIsDisposing(bool value) => isDisposing = value;
+
+  @action
+  void updateWallet(WalletBase newWallet) {
+    wallet = newWallet;
+  }
 
   @action
   Future<void> dispose() async {
