@@ -394,8 +394,27 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
     FocusManager.instance.primaryFocus?.unfocus();
     await SystemChannels.textInput.invokeMethod('TextInput.hide');
 
+    final record = contactViewModel.record;
+
+    // Add parsed addresses to existing contact record
+    if (_selectedHandle != null && record != null) {
+
+      // Add all parsed addresses directly to the existing contact record
+      final key = '${_selectedHandle!.addressSource.label}-${_selectedHandle!.handle}'.trim();
+
+      for (final e in _selectedHandle!.parsedAddressByCurrencyMap.entries) {
+        record.setParsedAddress(key, e.key, e.key.title, e.value.trim());
+      }
+
+      await Navigator.pushNamed(context, Routes.contactPage, arguments: record);
+      _allowUnfocus = false;
+      if (mounted) _requestFocus();
+
+    }
+
+
     final args = _selectedHandle != null
-        ? [_selectedHandle!, contactViewModel.record]
+        ? [_selectedHandle!, record]
         : _detectedCurrency != null && _detectedAddress != null
             ? [
                 ParsedAddress(
@@ -422,7 +441,7 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
                       profileImageUrl: '',
                       description: _plainSelected!.text,
                     ),
-                    contactViewModel.record
+                    record
                   ]
                 : null;
 
