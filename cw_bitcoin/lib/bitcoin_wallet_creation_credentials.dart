@@ -65,6 +65,21 @@ class BitcoinWalletFromKeysCredentials extends WalletCredentials {
   final String xpub;
 }
 
+class LitecoinWalletFromKeysCredentials extends WalletCredentials {
+  LitecoinWalletFromKeysCredentials({
+    required String name,
+    required String password,
+    required this.xpub,
+    required this.scanSecret,
+    required this.spendPubkey,
+    WalletInfo? walletInfo,
+  }) : super(name: name, password: password, walletInfo: walletInfo);
+
+  final String xpub;
+  final String scanSecret;
+  final String spendPubkey;
+}
+
 class BitcoinRestoreWalletFromHardware extends WalletCredentials {
   BitcoinRestoreWalletFromHardware({
     required String name,
