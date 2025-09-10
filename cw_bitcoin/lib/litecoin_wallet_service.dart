@@ -185,6 +185,8 @@ class LitecoinWalletService extends WalletService<
     final wallet = await LitecoinWallet(
       password: credentials.password!,
       xpub: credentials.xpub,
+      scanSecretOverride: credentials.scanSecret,
+      spendPubkeyOverride: credentials.spendPubkey,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
