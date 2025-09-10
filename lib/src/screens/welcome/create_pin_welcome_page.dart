@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -44,7 +43,7 @@ class CreatePinWelcomePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +58,7 @@ class CreatePinWelcomePage extends BasePage {
               gradient: LinearGradient(
                 colors: [
                   Theme.of(context).colorScheme.surface,
-                  currentTheme.isDark
-                      ? CustomThemeColors.backgroundGradientColorDark
-                      : CustomThemeColors.backgroundGradientColorLight,
+                  currentTheme.customColors.backgroundGradientColor,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

@@ -39,7 +39,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: DashBoardRoundedCardWidget(
-                    isDarkTheme: dashboardViewModel.isDarkTheme,
+                    currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                     title: "Invalid monero bindings",
                     subTitle: dashboardViewModel.getMoneroError.toString(),
                   ),
@@ -54,7 +54,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   child: DashBoardRoundedCardWidget(
-                    isDarkTheme: dashboardViewModel.isDarkTheme,
+                    currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                     title: "Invalid wownero bindings",
                     subTitle: dashboardViewModel.getWowneroError.toString(),
                   ),
@@ -139,7 +139,7 @@ class CryptoBalanceWidget extends StatelessWidget {
             return Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               child: DashBoardRoundedCardWidget(
-                isDarkTheme: dashboardViewModel.isDarkTheme,
+                currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                 title: S.of(context).rep_warning,
                 subTitle: S.of(context).rep_warning_sub,
                 onTap: () => Navigator.of(context).pushNamed(Routes.changeRep),
@@ -202,7 +202,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: DashBoardRoundedCardWidget(
-                        isDarkTheme: dashboardViewModel.isDarkTheme,
+                        currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                         customBorder: 30,
                         title: "This wallet has encountered an issue",
                         subTitle: "Here are the things that you should note:\n - " +
@@ -215,7 +215,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                     child: DashBoardRoundedCardWidget(
-                      isDarkTheme: dashboardViewModel.isDarkTheme,
+                      currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                       shadowBlur: dashboardViewModel.getShadowBlur(),
                       shadowSpread: dashboardViewModel.getShadowSpread(),
                       marginV: 0,
@@ -258,6 +258,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                               ),
                               Observer(
                                 builder: (_) => StandardSwitch(
+                                  currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                                   value: dashboardViewModel.silentPaymentsScanningActive,
                                   onTapped: () => _toggleSilentPaymentsScanning(context),
                                 ),
@@ -278,7 +279,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
-                      isDarkTheme: dashboardViewModel.isDarkTheme,
+                    currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                       title: S.of(context).litecoin_mweb,
                       description: S.of(context).litecoin_mweb_description,
                       leftButtonTitle: S.of(context).litecoin_mweb_dismiss,
@@ -309,7 +310,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
-                      isDarkTheme: dashboardViewModel.isDarkTheme,
+                      currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                       title: S.of(context).synchronizing,
                       description: S.of(context).decred_info_card_details,
                       image: 'assets/images/dcr_icon.png',
@@ -326,7 +327,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: InfoCard(
-                      isDarkTheme: dashboardViewModel.isDarkTheme,
+                      currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                       title: "Payjoin",
                       description: S.of(context).payjoin_card_content,
                       hintWidget: GestureDetector(

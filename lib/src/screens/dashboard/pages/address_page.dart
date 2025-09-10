@@ -93,7 +93,7 @@ class AddressPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
 
   @override
   Widget? trailing(BuildContext context) {

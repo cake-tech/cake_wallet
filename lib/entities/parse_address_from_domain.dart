@@ -12,6 +12,7 @@ import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/twitter/twitter_api.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -199,7 +200,7 @@ class AddressResolver {
     return emailRegex.hasMatch(address);
   }
 
-  Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency) async {
+  Future<ParsedAddress> resolve(BuildContext context, String text, CryptoCurrency currency, MaterialThemeBase currentTheme) async {
     final ticker = currency.title;
     try {
       // twitter handle example: @username
@@ -382,7 +383,7 @@ class AddressResolver {
         final nostrProfile = await NostrProfileHandler.queryProfile(context, text);
         if (nostrProfile?.relays != null) {
           final nostrUserData =
-              await NostrProfileHandler.processRelays(context, nostrProfile!, text);
+              await NostrProfileHandler.processRelays(context, nostrProfile!, text, currentTheme);
 
           if (nostrUserData != null) {
             String? addressFromBio = extractAddressByType(raw: nostrUserData.about, type: currency);

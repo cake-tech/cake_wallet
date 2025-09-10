@@ -35,7 +35,7 @@ class CakePayCardsPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -132,7 +132,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
 
         WidgetsBinding.instance.addPostFrameCallback(
           (_) async {
-            await showCountryPicker(context, viewModel);
+            await showCountryPicker(context, viewModel, widget.currentTheme);
             if (viewModel.hasFiltersChanged) {
               viewModel.resetLoadingNextPageState();
               viewModel.getVendors();
@@ -160,7 +160,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
       if (isUserAuthenticated == false || !FeatureFlag.isCakePayRedemptionFlowEnabled) {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: _ShopTab(cardsListViewModel: widget._cardsListViewModel),
+          child: _ShopTab(cardsListViewModel: widget._cardsListViewModel, currentTheme: widget.currentTheme),
         );
       }
 
@@ -190,7 +190,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
                     _MyCardsTab(
                         cardsListViewModel: widget._cardsListViewModel,
                         currentTheme: widget.currentTheme),
-                    _ShopTab(cardsListViewModel: widget._cardsListViewModel)
+                    _ShopTab(cardsListViewModel: widget._cardsListViewModel, currentTheme: widget.currentTheme)
                   ]),
             )
           ]));
@@ -199,7 +199,7 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
 }
 
 Future<void> showFilterWidget(
-    BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
+    BuildContext context, CakePayCardsListViewModel cardsListViewModel, MaterialThemeBase currentTheme) async {
   return showPopUp<void>(
     context: context,
     builder: (BuildContext context) {
@@ -209,10 +209,11 @@ Future<void> showFilterWidget(
 }
 
 Future<void> showCountryPicker(
-    BuildContext context, CakePayCardsListViewModel cardsListViewModel) async {
+    BuildContext context, CakePayCardsListViewModel cardsListViewModel, MaterialThemeBase currentTheme) async {
   await showPopUp<void>(
       context: context,
       builder: (_) => Picker(
+        currentTheme: currentTheme,
           title: S.of(context).select_your_country,
           items: cardsListViewModel.availableCountries,
           images: cardsListViewModel.availableCountries
@@ -389,9 +390,10 @@ Future<void> _showCardInfoBottomSheet(
 }
 
 class _ShopTab extends StatefulWidget {
-  const _ShopTab({required this.cardsListViewModel});
+  const _ShopTab({required this.cardsListViewModel, required this.currentTheme});
 
   final CakePayCardsListViewModel cardsListViewModel;
+  final MaterialThemeBase currentTheme;
 
   @override
   State<_ShopTab> createState() => _ShopTabState();
@@ -441,7 +443,7 @@ class _ShopTabState extends State<_ShopTab> {
             },
             onFilter: () async {
               viewModel.storeInitialFilterStates();
-              await showFilterWidget(context, viewModel);
+              await showFilterWidget(context, viewModel, widget.currentTheme);
               if (viewModel.hasFiltersChanged) {
                 viewModel.resetLoadingNextPageState();
                 viewModel.getVendors(text: viewModel.searchString);
@@ -449,7 +451,7 @@ class _ShopTabState extends State<_ShopTab> {
             },
             onCountryPick: () async {
               viewModel.storeInitialFilterStates();
-              await showCountryPicker(context, viewModel);
+              await showCountryPicker(context, viewModel, widget.currentTheme);
               if (viewModel.hasFiltersChanged) {
                 viewModel.resetLoadingNextPageState();
                 viewModel.getVendors(text: viewModel.searchString);

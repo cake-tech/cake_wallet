@@ -300,6 +300,7 @@ class QRWidget extends StatelessWidget {
   void _presentPicker(BuildContext context) async {
     await showPopUp<void>(
       builder: (_) => CurrencyPicker(
+        currentTheme: currentTheme,
         selectedAtIndex: addressListViewModel.selectedCurrencyIndex,
         items: addressListViewModel.currencies,
         hintText: S.of(context).search_currency,

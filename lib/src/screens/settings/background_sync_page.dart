@@ -61,6 +61,7 @@ class BackgroundSyncPage extends BasePage {
           }),
           Observer(builder: (context) {
             return SettingsPickerCell<SyncMode>(
+              currentTheme: currentTheme,
                 title: S.current.background_sync_mode,
                 items: SyncMode.all,
                 displayItem: (SyncMode syncMode) => syncMode.name,

@@ -66,6 +66,7 @@ class SecurityBackupPage extends BasePage {
             }),
           Observer(builder: (_) {
             return SettingsPickerCell<PinCodeRequiredDuration>(
+              currentTheme: currentTheme,
               key: ValueKey('security_backup_page_require_pin_after_button_key'),
               title: S.current.require_pin_after,
               items: PinCodeRequiredDuration.values,

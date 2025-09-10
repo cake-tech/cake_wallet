@@ -30,6 +30,7 @@ class HomeSettingsPage extends BasePage {
         children: [
           Observer(
             builder: (_) => SettingsPickerCell<SortBalanceBy>(
+              currentTheme: currentTheme,
               title: S.current.sort_by,
               items: SortBalanceBy.values,
               selectedItem: _homeSettingsViewModel.sortBalanceBy,

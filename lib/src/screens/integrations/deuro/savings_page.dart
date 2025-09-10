@@ -34,7 +34,7 @@ class DEuroSavingsPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (context, scaffold) => GradientBackground(scaffold: scaffold);
+      (context, scaffold) => GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
 
   @override
   String get title => S.current.deuro_savings;
@@ -55,7 +55,7 @@ class DEuroSavingsPage extends BasePage {
                 children: <Widget>[
                   Observer(
                     builder: (_) => SavingsCard(
-                      isDarkTheme: currentTheme.isDark,
+                      currentTheme: currentTheme,
                       interestRate: "${_dEuroViewModel.interestRateFormated}%",
                       savingsBalance: _dEuroViewModel.savingsBalanceFormated,
                       fiatSavingsBalance: _dEuroViewModel.fiatSavingsBalanceFormated,
@@ -71,7 +71,7 @@ class DEuroSavingsPage extends BasePage {
                   ),
                   Observer(
                     builder: (_) => InterestCardWidget(
-                      isDarkTheme: currentTheme.isDark,
+                      currentTheme: currentTheme,
                       title: S.of(context).deuro_savings_collect_interest,
                       fiatAccruedInterest: _dEuroViewModel.fiatAccruedInterestFormated,
                       fiatCurrency: _dEuroViewModel.isFiatDisabled ? null : _dEuroViewModel.fiat,

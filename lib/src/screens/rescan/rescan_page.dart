@@ -32,6 +32,7 @@ class RescanPage extends BasePage {
           children: [
             Observer(
               builder: (_) => BlockchainHeightWidget(
+                currentTheme: currentTheme,
                 key: _blockchainHeightWidgetKey,
                 onHeightOrDateEntered: (value) => _rescanViewModel.isButtonEnabled = value,
                 isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,

@@ -94,6 +94,7 @@ class ExchangeTradeCardItemWidget extends StatelessWidget {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Picker(
+              currentTheme: currentTheme,
               items: items,
               displayItem: (TransactionPriority priority) =>
                   feesViewModel.displayFeeRate(priority, customFeeRate?.round()),
