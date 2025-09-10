@@ -29,6 +29,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     required super.isHardwareWallet,
     required this.mwebHd,
     required this.mwebEnabled,
+    required this.scanSecretOverride,
+    required this.spendPubkeyOverride,
     super.initialAddresses,
     super.initialMwebAddresses,
     super.initialRegularAddressIndex,
@@ -46,9 +48,15 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   List<String> mwebAddrs = [];
   bool generating = false;
 
-  List<int> get scanSecret => mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
-  List<int> get spendPubkey =>
-      mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
+  final String? scanSecretOverride;
+  final String? spendPubkeyOverride;
+
+  List<int> get scanSecret => scanSecretOverride != null
+      ? hex.decode(scanSecretOverride!)
+      : mwebHd!.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw;
+  List<int> get spendPubkey => spendPubkeyOverride != null
+      ? hex.decode(spendPubkeyOverride!)
+      : mwebHd!.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed;
 
   @override
   Future<void> init() async {
