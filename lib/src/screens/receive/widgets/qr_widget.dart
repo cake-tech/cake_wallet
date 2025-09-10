@@ -104,7 +104,7 @@ class QRWidget extends StatelessWidget {
                                         child: QrImage(
                                           embeddedImagePath: addressListViewModel.qrImage,
                                           data: addressUri.toString(),
-                                          size: 200,
+                                          size: 230,
                                         ),
                                       ),
                                     ),

@@ -188,6 +188,7 @@ class AddressPage extends BasePage {
                           imageUrl: addressListViewModel.monoImage,
                           height: 16,
                           width: 16,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         SizedBox(width: 10),
                         Text(
@@ -220,7 +221,9 @@ class AddressPage extends BasePage {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).colorScheme.surfaceContainer,
-                                    border: Border.all(color: Theme.of(context).colorScheme.surfaceContainer, width: 3),
+                                    border: Border.all(
+                                        color: Theme.of(context).colorScheme.surfaceContainer,
+                                        width: 3),
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: ClipOval(
@@ -228,6 +231,10 @@ class AddressPage extends BasePage {
                                       height: 35,
                                       width: 35,
                                       imageUrl: addressListViewModel.walletImages[i],
+                                      color: addressListViewModel.walletImages.last ==
+                                              addressListViewModel.walletImages[i]
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                                          : null,
                                     ),
                                   ),
                                 ),
