@@ -34,6 +34,7 @@ class DisplaySettingsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.of(context).show_market_place,
                 value: _displaySettingsViewModel.shouldShowMarketPlaceInDashboard,
                 onValueChange: (_, bool value) {
@@ -41,6 +42,7 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
               SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.of(context).show_address_book_popup,
                 value: _displaySettingsViewModel.showAddressBookPopup,
                 onValueChange: (_, bool value) {
@@ -104,6 +106,7 @@ class DisplaySettingsPage extends BasePage {
 
               if (responsiveLayoutUtil.shouldRenderMobileUI && DeviceInfo.instance.isMobile) ...[
                 SettingsSwitcherCell(
+                  currentTheme: currentTheme,
                   title: S.of(context).use_device_theme,
                   value: _displaySettingsViewModel.themeMode == ThemeMode.system,
                   onValueChange: (_, bool value) {

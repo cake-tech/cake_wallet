@@ -33,6 +33,7 @@ class TrocadorProvidersPage extends BasePage {
               final providerName = providerStates.keys.elementAt(index);
               final providerEnabled = providerStates[providerName] ?? true;
               return SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: providerName,
                 value: providerEnabled,
                 leading: Badge(

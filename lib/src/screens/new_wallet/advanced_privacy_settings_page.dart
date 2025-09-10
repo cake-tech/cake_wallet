@@ -256,6 +256,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               return Column(
                 children: [
                   SettingsSwitcherCell(
+                    currentTheme: widget.currentTheme,
                     title: S.current.disable_bulletin,
                     value: widget.privacySettingsViewModel.disableBulletin,
                     onValueChange: (BuildContext _, bool value) {
@@ -263,6 +264,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                     },
                   ),
                   SettingsSwitcherCell(
+                    currentTheme: widget.currentTheme,
                     title: S.current.add_custom_node,
                     value: widget.privacySettingsViewModel.addCustomNode,
                     onValueChange: (_, __) => widget.privacySettingsViewModel.toggleAddCustomNode(),
@@ -283,6 +285,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
               Builder(builder: (_) {
                 final val = testnetValue ?? false;
                 return SettingsSwitcherCell(
+                    currentTheme: widget.currentTheme,
                     title: S.current.use_testnet,
                     value: val,
                     onValueChange: (_, __) {
