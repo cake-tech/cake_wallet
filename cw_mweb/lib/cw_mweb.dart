@@ -220,6 +220,19 @@ class CwMweb {
     }
   }
 
+  static Future<PsbtResponse> psbtCreate(PsbtCreateRequest request) async {
+    log("mweb.psbtCreate() called");
+    try {
+      _rpcClient = await stub();
+      return await _rpcClient!.psbtCreate(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      printV('Caught grpc error: ${e.message}');
+    } catch (e) {
+      printV("Error getting psbtCreate: $e");
+    }
+    return PsbtResponse();
+  }
+
   static Future<PsbtResponse> psbtAddInput(PsbtAddInputRequest request) async {
     log("mweb.psbtAddInput() called");
     try {
