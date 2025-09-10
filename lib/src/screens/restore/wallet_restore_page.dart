@@ -222,8 +222,12 @@ class WalletRestorePage extends BasePage {
               walletRestoreFromKeysFormKey.currentState!.addressController.text;
           credentials['spendKey'] =
               walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
+          credentials['scanSecret'] =
+              walletRestoreFromKeysFormKey.currentState!.scanSecretController.text;
+          credentials['spendPubkey'] =
+              walletRestoreFromKeysFormKey.currentState!.spendPubkeyController.text;
           credentials['height'] =
-              walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
+              walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState?.height;
         }
       }
     }
