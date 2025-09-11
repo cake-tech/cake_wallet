@@ -259,19 +259,6 @@ class CwMweb {
     return PsbtResponse();
   }
 
-  static Future<PsbtResponse> psbtAddPegout(PsbtAddPegoutRequest request) async {
-    log("mweb.psbtAddPegout() called");
-    try {
-      _rpcClient = await stub();
-      return await _rpcClient!.psbtAddPegout(request, options: CallOptions(timeout: TIMEOUT_DURATION));
-    } on GrpcError catch (e) {
-      printV('Caught grpc error: ${e.message}');
-    } catch (e) {
-      printV("Error getting psbtAddPegout: $e");
-    }
-    return PsbtResponse();
-  }
-
   static Future<CreateResponse> psbtExtract(PsbtExtractRequest request) async {
     log("mweb.psbtExtract() called");
     try {
