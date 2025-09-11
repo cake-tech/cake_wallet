@@ -249,7 +249,7 @@ jobs:
           set -x -e
           pushd scripts
             gomobile init;
-            ./build_bitbox_flutter.sh --dont-install
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Install Flutter dependencies
