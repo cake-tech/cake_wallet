@@ -1073,22 +1073,18 @@ class PsbtAddInputRequest extends $pb.GeneratedMessage {
 class PsbtAddRecipientRequest extends $pb.GeneratedMessage {
   factory PsbtAddRecipientRequest({
     $core.String? psbtB64,
-    $fixnum.Int64? value,
-    $core.List<$core.int>? scanPubkey,
-    $core.List<$core.int>? spendPubkey,
+    PsbtRecipient? recipient,
+    $fixnum.Int64? feeRatePerKb,
   }) {
     final $result = create();
     if (psbtB64 != null) {
       $result.psbtB64 = psbtB64;
     }
-    if (value != null) {
-      $result.value = value;
+    if (recipient != null) {
+      $result.recipient = recipient;
     }
-    if (scanPubkey != null) {
-      $result.scanPubkey = scanPubkey;
-    }
-    if (spendPubkey != null) {
-      $result.spendPubkey = spendPubkey;
+    if (feeRatePerKb != null) {
+      $result.feeRatePerKb = feeRatePerKb;
     }
     return $result;
   }
@@ -1098,9 +1094,8 @@ class PsbtAddRecipientRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtAddRecipientRequest', createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
-    ..aInt64(2, _omitFieldNames ? '' : 'value')
-    ..a<$core.List<$core.int>>(3, _omitFieldNames ? '' : 'scanPubkey', $pb.PbFieldType.OY)
-    ..a<$core.List<$core.int>>(4, _omitFieldNames ? '' : 'spendPubkey', $pb.PbFieldType.OY)
+    ..aOM<PsbtRecipient>(2, _omitFieldNames ? '' : 'recipient', subBuilder: PsbtRecipient.create)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'feeRatePerKb', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
     ..hasRequiredFields = false
   ;
 
@@ -1135,131 +1130,26 @@ class PsbtAddRecipientRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearPsbtB64() => clearField(1);
 
-  /// The value to send.
   @$pb.TagNumber(2)
-  $fixnum.Int64 get value => $_getI64(1);
+  PsbtRecipient get recipient => $_getN(1);
   @$pb.TagNumber(2)
-  set value($fixnum.Int64 v) { $_setInt64(1, v); }
+  set recipient(PsbtRecipient v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasValue() => $_has(1);
+  $core.bool hasRecipient() => $_has(1);
   @$pb.TagNumber(2)
-  void clearValue() => clearField(2);
-
-  /// The scan public key of the recipient address.
-  @$pb.TagNumber(3)
-  $core.List<$core.int> get scanPubkey => $_getN(2);
-  @$pb.TagNumber(3)
-  set scanPubkey($core.List<$core.int> v) { $_setBytes(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasScanPubkey() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearScanPubkey() => clearField(3);
-
-  /// The spend public key of the recipient address.
-  @$pb.TagNumber(4)
-  $core.List<$core.int> get spendPubkey => $_getN(3);
-  @$pb.TagNumber(4)
-  set spendPubkey($core.List<$core.int> v) { $_setBytes(3, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasSpendPubkey() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearSpendPubkey() => clearField(4);
-}
-
-class PsbtAddPegoutRequest extends $pb.GeneratedMessage {
-  factory PsbtAddPegoutRequest({
-    $core.String? psbtB64,
-    $fixnum.Int64? value,
-    $core.List<$core.int>? pkScript,
-    $fixnum.Int64? feeRatePerKb,
-  }) {
-    final $result = create();
-    if (psbtB64 != null) {
-      $result.psbtB64 = psbtB64;
-    }
-    if (value != null) {
-      $result.value = value;
-    }
-    if (pkScript != null) {
-      $result.pkScript = pkScript;
-    }
-    if (feeRatePerKb != null) {
-      $result.feeRatePerKb = feeRatePerKb;
-    }
-    return $result;
-  }
-  PsbtAddPegoutRequest._() : super();
-  factory PsbtAddPegoutRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory PsbtAddPegoutRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtAddPegoutRequest', createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
-    ..aInt64(2, _omitFieldNames ? '' : 'value')
-    ..a<$core.List<$core.int>>(3, _omitFieldNames ? '' : 'pkScript', $pb.PbFieldType.OY)
-    ..a<$fixnum.Int64>(4, _omitFieldNames ? '' : 'feeRatePerKb', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
-    ..hasRequiredFields = false
-  ;
-
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  PsbtAddPegoutRequest clone() => PsbtAddPegoutRequest()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  PsbtAddPegoutRequest copyWith(void Function(PsbtAddPegoutRequest) updates) => super.copyWith((message) => updates(message as PsbtAddPegoutRequest)) as PsbtAddPegoutRequest;
-
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static PsbtAddPegoutRequest create() => PsbtAddPegoutRequest._();
-  PsbtAddPegoutRequest createEmptyInstance() => create();
-  static $pb.PbList<PsbtAddPegoutRequest> createRepeated() => $pb.PbList<PsbtAddPegoutRequest>();
-  @$core.pragma('dart2js:noInline')
-  static PsbtAddPegoutRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtAddPegoutRequest>(create);
-  static PsbtAddPegoutRequest? _defaultInstance;
-
-  /// The PSBT in base64 encoding.
-  @$pb.TagNumber(1)
-  $core.String get psbtB64 => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set psbtB64($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasPsbtB64() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearPsbtB64() => clearField(1);
-
-  /// The value to send.
+  void clearRecipient() => clearField(2);
   @$pb.TagNumber(2)
-  $fixnum.Int64 get value => $_getI64(1);
-  @$pb.TagNumber(2)
-  set value($fixnum.Int64 v) { $_setInt64(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasValue() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearValue() => clearField(2);
-
-  /// The pk script to peg-out to.
-  @$pb.TagNumber(3)
-  $core.List<$core.int> get pkScript => $_getN(2);
-  @$pb.TagNumber(3)
-  set pkScript($core.List<$core.int> v) { $_setBytes(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasPkScript() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearPkScript() => clearField(3);
+  PsbtRecipient ensureRecipient() => $_ensure(1);
 
   /// The fee rate per KB in litoshis.
-  @$pb.TagNumber(4)
-  $fixnum.Int64 get feeRatePerKb => $_getI64(3);
-  @$pb.TagNumber(4)
-  set feeRatePerKb($fixnum.Int64 v) { $_setInt64(3, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasFeeRatePerKb() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearFeeRatePerKb() => clearField(4);
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get feeRatePerKb => $_getI64(2);
+  @$pb.TagNumber(3)
+  set feeRatePerKb($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFeeRatePerKb() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFeeRatePerKb() => clearField(3);
 }
 
 class PsbtGetRecipientsRequest extends $pb.GeneratedMessage {

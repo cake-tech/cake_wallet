@@ -53,10 +53,6 @@ class RpcClient extends $grpc.Client {
       '/Rpc/PsbtAddRecipient',
       ($0.PsbtAddRecipientRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.PsbtResponse.fromBuffer(value));
-  static final _$psbtAddPegout = $grpc.ClientMethod<$0.PsbtAddPegoutRequest, $0.PsbtResponse>(
-      '/Rpc/PsbtAddPegout',
-      ($0.PsbtAddPegoutRequest value) => value.writeToBuffer(),
-      ($core.List<$core.int> value) => $0.PsbtResponse.fromBuffer(value));
   static final _$psbtGetRecipients = $grpc.ClientMethod<$0.PsbtGetRecipientsRequest, $0.PsbtGetRecipientsResponse>(
       '/Rpc/PsbtGetRecipients',
       ($0.PsbtGetRecipientsRequest value) => value.writeToBuffer(),
@@ -122,10 +118,6 @@ class RpcClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.PsbtResponse> psbtAddRecipient($0.PsbtAddRecipientRequest request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$psbtAddRecipient, request, options: options);
-  }
-
-  $grpc.ResponseFuture<$0.PsbtResponse> psbtAddPegout($0.PsbtAddPegoutRequest request, {$grpc.CallOptions? options}) {
-    return $createUnaryCall(_$psbtAddPegout, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.PsbtGetRecipientsResponse> psbtGetRecipients($0.PsbtGetRecipientsRequest request, {$grpc.CallOptions? options}) {
@@ -218,13 +210,6 @@ abstract class RpcServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.PsbtAddRecipientRequest.fromBuffer(value),
         ($0.PsbtResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.PsbtAddPegoutRequest, $0.PsbtResponse>(
-        'PsbtAddPegout',
-        psbtAddPegout_Pre,
-        false,
-        false,
-        ($core.List<$core.int> value) => $0.PsbtAddPegoutRequest.fromBuffer(value),
-        ($0.PsbtResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.PsbtGetRecipientsRequest, $0.PsbtGetRecipientsResponse>(
         'PsbtGetRecipients',
         psbtGetRecipients_Pre,
@@ -308,10 +293,6 @@ abstract class RpcServiceBase extends $grpc.Service {
     return psbtAddRecipient(call, await request);
   }
 
-  $async.Future<$0.PsbtResponse> psbtAddPegout_Pre($grpc.ServiceCall call, $async.Future<$0.PsbtAddPegoutRequest> request) async {
-    return psbtAddPegout(call, await request);
-  }
-
   $async.Future<$0.PsbtGetRecipientsResponse> psbtGetRecipients_Pre($grpc.ServiceCall call, $async.Future<$0.PsbtGetRecipientsRequest> request) async {
     return psbtGetRecipients(call, await request);
   }
@@ -348,7 +329,6 @@ abstract class RpcServiceBase extends $grpc.Service {
   $async.Future<$0.PsbtResponse> psbtCreate($grpc.ServiceCall call, $0.PsbtCreateRequest request);
   $async.Future<$0.PsbtResponse> psbtAddInput($grpc.ServiceCall call, $0.PsbtAddInputRequest request);
   $async.Future<$0.PsbtResponse> psbtAddRecipient($grpc.ServiceCall call, $0.PsbtAddRecipientRequest request);
-  $async.Future<$0.PsbtResponse> psbtAddPegout($grpc.ServiceCall call, $0.PsbtAddPegoutRequest request);
   $async.Future<$0.PsbtGetRecipientsResponse> psbtGetRecipients($grpc.ServiceCall call, $0.PsbtGetRecipientsRequest request);
   $async.Future<$0.PsbtResponse> psbtSign($grpc.ServiceCall call, $0.PsbtSignRequest request);
   $async.Future<$0.PsbtResponse> psbtSignNonMweb($grpc.ServiceCall call, $0.PsbtSignNonMwebRequest request);
