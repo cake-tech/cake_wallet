@@ -248,6 +248,7 @@ jobs:
         run: |
           set -x -e
           pushd scripts
+            gomobile init;
             ./build_bitbox_flutter.sh --dont-install
           popd
 
