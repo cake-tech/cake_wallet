@@ -93,7 +93,7 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v11
+      ref: "490046a3e074dd7b9aaf7098a5efe61b6246d3b2"
       resolved-ref: "46e5a2d8a5438cb523a6104b70f5e5125a5663b3"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
