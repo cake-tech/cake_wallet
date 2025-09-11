@@ -984,7 +984,7 @@ abstract class ElectrumWalletBase
       try {
         final response = await ProxyWrapper()
             .get(
-              clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"),
+              clearnetUri: Uri.parse("https://cake.mempool.space/api/v1/fees/recommended"),
               onionUri: Uri.parse(
                   "http://cakememcninjdqbaub3tp2iswuigxqtdoevnpgzkolmy4gvhrrsub3yd.onion/api/v1/fees/recommended"),
             )
@@ -2769,7 +2769,7 @@ abstract class ElectrumWalletBase
           final blockHash = await ProxyWrapper()
               .get(
                 clearnetUri: Uri.parse(
-                  "https://mempool.cakewallet.com/api/v1/block-height/$height",
+                  "https://cake.mempool.space/api/v1/block-height/$height",
                 ),
               )
               .timeout(Duration(seconds: 15));
@@ -2780,7 +2780,7 @@ abstract class ElectrumWalletBase
             final blockResponse = await ProxyWrapper()
                 .get(
                   clearnetUri: Uri.parse(
-                    "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
+                    "https://cake.mempool.space/api/v1/block/${blockHash.body}",
                   ),
                 )
                 .timeout(Duration(seconds: 15));
@@ -4965,10 +4965,18 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
                 try {
                   final rootURL = "https://cake.mempool.space";
                   final tweakBlockHash = await ProxyWrapper()
-                      .get(clearnetUri: Uri.parse("$rootURL/api/block-height/$tweakHeight"))
+                      .get(
+                        clearnetUri: Uri.parse(
+                          "https://cake.mempool.space/api/v1/block-height/$tweakHeight",
+                        ),
+                      )
                       .timeout(Duration(seconds: 15));
                   final blockResponse = await ProxyWrapper()
-                      .get(clearnetUri: Uri.parse("$rootURL/api/block/${tweakBlockHash.body}"))
+                      .get(
+                        clearnetUri: Uri.parse(
+                          "https://cake.mempool.space/api/v1/block/${tweakBlockHash.body}",
+                        ),
+                      )
                       .timeout(Duration(seconds: 15));
 
                   if (blockResponse.statusCode == 200 &&

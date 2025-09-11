@@ -1,5 +1,5 @@
 -
-  uri: btc-electrum.cakewallet.com:50002
+  uri: cake.mempool.space:50002
   useSSL: true
   isDefault: true
   isOfficial: true
@@ -19,9 +19,3 @@
   useSSL: true
   isEnabledForAutoSwitching: true
   label: "Seth For Privacy"
--
-  uri: electrum.cakewallet.com:50002
-  isOfficial: true
-  useSSL: true
-  isEnabledForAutoSwitching: true
-  label: "Cake Wallet (Legacy)"

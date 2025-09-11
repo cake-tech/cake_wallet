@@ -459,7 +459,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return isLightning(transactionInfo)
             ? "https://sparkscan.io/tx/${txId}"
-            : 'https://mempool.cakewallet.com/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
+            : 'https://cake.mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return bitcoin!.txIsMweb(transactionInfo)
             ? "https://www.mwebexplorer.com/blocks/block/${transactionInfo.height}"
