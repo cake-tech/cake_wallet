@@ -1074,7 +1074,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return fee.toInt() + feeIncrease;
   }
 
-  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction) async {
+  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction,
+                              BitcoinTransactionCredentials credentials) async {
     final List<TxInput> inputs = [];
     final List<TxOut> txouts = [];
     for (final utxo in transaction.utxos) {
@@ -1098,7 +1099,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         ));
       }
     }
-    for (final output in transaction.outputs) {
+    for (final out in credentials.outputs) {
+      final address = out.isParsedAddress ? out.extractedAddress! : out.address;
+      resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
+        psbtB64: resp.psbtB64,
+        recipient: PsbtRecipient(address: address, value: Int64(out.formattedCryptoAmount!)),
+        feeRatePerKb: Int64.parseInt(transaction.feeRate) * 1000,
+      ));
     }
     return base64.decode(resp.psbtB64);
   }
@@ -1117,8 +1124,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       await waitForMwebAddresses();
 
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+
       if (tx.shouldCommitUR()) {
-        tx.unsignedPsbt = await buildPsbt(tx);
+        tx.unsignedPsbt = await buildPsbt(tx, transactionCredentials);
         return tx;
       }
 
@@ -1131,8 +1140,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
       // check if the transaction doesn't contain any mweb inputs or outputs:
-      final transactionCredentials = credentials as BitcoinTransactionCredentials;
-
       bool hasMwebInput = false;
       bool hasMwebOutput = false;
       bool hasRegularOutput = false;
