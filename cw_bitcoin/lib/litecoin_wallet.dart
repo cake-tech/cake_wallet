@@ -1074,6 +1074,35 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return fee.toInt() + feeIncrease;
   }
 
+  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction) async {
+    final List<TxInput> inputs = [];
+    final List<TxOut> txouts = [];
+    for (final utxo in transaction.utxos) {
+      if (utxo.utxo.scriptType != SegwitAddresType.mweb) {
+        inputs.add(utxo.utxo.toInput());
+        txouts.add(TxOut(value: Int64(utxo.utxo.value.toInt()),
+                         pkScript: utxo.ownerDetails.address.toScriptPubKey().toBytes()));
+      }
+    }
+    var resp = await CwMweb.psbtCreate(PsbtCreateRequest(
+      rawTx: BtcTransaction(inputs: inputs, outputs: []).toBytes(),
+      witnessUtxo: txouts,
+    ));
+    for (final utxo in transaction.utxos) {
+      if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
+        resp = await CwMweb.psbtAddInput(PsbtAddInputRequest(
+          psbtB64: resp.psbtB64,
+          scanSecret: scanSecret,
+          outputId: utxo.utxo.txHash,
+          addressIndex: utxo.utxo.vout,
+        ));
+      }
+    }
+    for (final output in transaction.outputs) {
+    }
+    return base64.decode(resp.psbtB64);
+  }
+
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     try {
@@ -1087,6 +1116,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         return tx;
       }
       await waitForMwebAddresses();
+
+      if (tx.shouldCommitUR()) {
+        tx.unsignedPsbt = await buildPsbt(tx);
+        return tx;
+      }
 
       final resp = await CwMweb.create(CreateRequest(
         rawTx: hex.decode(tx.hex),
