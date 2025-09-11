@@ -95,6 +95,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mwebHd =
           Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/1000'") as Bip32Slip10Secp256k1;
       mwebEnabled = alwaysScan ?? false;
+    } else if (scanSecretOverride != null && spendPubkeyOverride != null) {
+      mwebHd = null;
+      mwebEnabled = alwaysScan ?? false;
     } else {
       mwebHd = null;
       mwebEnabled = false;
