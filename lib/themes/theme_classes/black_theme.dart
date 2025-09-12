@@ -6,7 +6,7 @@ import 'package:cake_wallet/themes/custom_theme_colors/black_theme_custom_colors
 enum BlackThemeAccentColor implements ThemeAccentColor {
   cakePrimary(Color(0xFF52B6F0), 'Cake Primary'),
   bitcoinYellow(Color(0xFFFFC107), 'Bitcoin Yellow'),
-  moneroOrange(Color(0xFFFF9800), 'Monero Orange');
+  moneroOrange(Color(0xFFFF5F2A), 'Monero Orange');
 
   const BlackThemeAccentColor(this.color, this.name);
 
