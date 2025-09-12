@@ -9,8 +9,8 @@ String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDi
       return S.current.sync_status_connecting;
     }
 
-    // Don't show ETA for very high progress (likely completed or nearly completed)
-    if (syncStatus.progress() > 0.99) {
+    // Don't show ETA for very few blocks (less than 100) to avoid inconsistency
+    if (syncStatus.blocksLeft < 100) {
       return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
     }
 
