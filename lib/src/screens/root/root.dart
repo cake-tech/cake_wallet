@@ -203,6 +203,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void didChangePlatformBrightness() {
     if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
       Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0), () {
+
         final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
         if (widget.appStore.themeStore.currentTheme != systemTheme) {
           widget.appStore.themeStore.setTheme(systemTheme);

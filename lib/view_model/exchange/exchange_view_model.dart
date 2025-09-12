@@ -38,6 +38,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
@@ -100,6 +101,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         limitsState = LimitsInitialState(),
         receiveCurrency = appStore.wallet!.currency,
         depositCurrency = appStore.wallet!.currency,
+        currentTheme = appStore.themeStore.currentTheme,
         providerList = [],
         selectedProviders = ObservableList<ExchangeProvider>(),
         super(appStore: appStore) {
@@ -360,6 +362,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   final FeesViewModel feesViewModel;
 
   final Box<WalletInfo> walletInfoSource;
+
+  @observable
+  MaterialThemeBase currentTheme;
 
   @observable
   double bestRate = 0.0;

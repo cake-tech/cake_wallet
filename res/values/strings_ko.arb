@@ -55,6 +55,7 @@
   "and": "및",
   "anonpay_description": "${type} 생성. 수신자는 지원되는 모든 암호화폐로 ${method}할 수 있으며, 귀하는 이 지갑으로 자금을 받게 됩니다.",
   "apk_update": "APK 업데이트",
+  "appearance": "모습",
   "approve": "승인",
   "approve_request": "요청 승인",
   "approve_tokens": "토큰을 승인합니다",

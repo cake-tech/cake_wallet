@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -24,14 +25,15 @@ class MoneroHardwareWalletOptionsPage extends BasePage {
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM);
+  Widget body(BuildContext context) => _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM, currentTheme);
 }
 
 class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
-  const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM);
+  const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM, this.currentTheme);
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
-
+  final MaterialThemeBase currentTheme;
+  
   @override
   _MoneroHardwareWalletOptionsFormState createState() =>
       _MoneroHardwareWalletOptionsFormState(_walletHardwareRestoreVM);
@@ -117,6 +119,7 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: BlockchainHeightWidget(
+                    currentTheme: widget.currentTheme,
                     focusNode: _blockHeightFocusNode,
                     key: _blockchainHeightKey,
                     hasDatePicker: true,

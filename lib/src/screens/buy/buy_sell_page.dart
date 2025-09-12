@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -81,8 +82,7 @@ class BuySellPage extends BasePage {
       color: Theme.of(context).colorScheme.onSurface,
       size: 16,
     );
-    final _closeButton =
-        buySellViewModel.isDarkTheme ? closeButtonImageDarkTheme : closeButtonImage;
+    final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
 
     bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
 
@@ -211,7 +211,7 @@ class BuySellPage extends BasePage {
           borderRadius: 30,
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           leadingIcon: Icons.arrow_forward_ios,
-          isDarkTheme: buySellViewModel.isDarkTheme);
+          isDarkTheme: currentTheme.isDark);
     }
     if (buySellViewModel.paymentMethodState is PaymentMethodFailed) {
       return OptionTilePlaceholder(errorText: 'No payment methods available', borderRadius: 30);
@@ -225,7 +225,7 @@ class BuySellPage extends BasePage {
         title: selectedPaymentMethod.title,
         onPressed: () => _pickPaymentMethod(context),
         leadingIcon: Icons.arrow_forward_ios,
-        isLightMode: !buySellViewModel.isDarkTheme,
+        isLightMode: !currentTheme.isDark,
         borderRadius: 30,
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -321,8 +321,8 @@ class BuySellPage extends BasePage {
     _cryptoAddressFocus.addListener(() async {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
-        buySellViewModel.cryptoCurrencyAddress =
-            await fetchParsedAddress(context, domain, buySellViewModel.cryptoCurrency);
+        buySellViewModel.cryptoCurrencyAddress = await fetchParsedAddress(
+            context, domain, buySellViewModel.cryptoCurrency, currentTheme);
       }
     });
 
@@ -385,6 +385,7 @@ class BuySellPage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final fiatExchangeCard = Observer(
       builder: (_) => ExchangeCard(
+        currentTheme: currentTheme,
         cardInstanceName: 'fiat_currency_trade_card',
         onDispose: disposeBestRateSync,
         amountFocusNode: _fiatAmountFocus,
@@ -420,6 +421,7 @@ class BuySellPage extends BasePage {
 
     final cryptoExchangeCard = Observer(
       builder: (_) => ExchangeCard(
+        currentTheme: currentTheme,
         cardInstanceName: 'crypto_currency_trade_card',
         onDispose: disposeBestRateSync,
         amountFocusNode: _cryptoAmountFocus,
@@ -508,8 +510,13 @@ class BuySellPage extends BasePage {
   }
 
   Future<String> fetchParsedAddress(
-      BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
+    BuildContext context,
+    String domain,
+    CryptoCurrency currency,
+    MaterialThemeBase currentTheme,
+  ) async {
+    final parsedAddress =
+        await getIt.get<AddressResolver>().resolve(context, domain, currency, currentTheme);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }

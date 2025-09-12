@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cw_core/currency.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 
 class CurrencyPicker extends StatefulWidget {
   CurrencyPicker(
@@ -13,6 +14,7 @@ class CurrencyPicker extends StatefulWidget {
       this.hintText,
       this.isMoneroWallet = false,
       this.isConvertFrom = false,
+      required this.currentTheme,
       super.key});
 
   final int selectedAtIndex;
@@ -22,7 +24,8 @@ class CurrencyPicker extends StatefulWidget {
   final bool isMoneroWallet;
   final bool isConvertFrom;
   final String? hintText;
-
+  final MaterialThemeBase currentTheme;
+  
   @override
   CurrencyPickerState createState() => CurrencyPickerState(items);
 }
@@ -49,6 +52,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   @override
   Widget build(BuildContext context) {
     return Picker(
+      currentTheme: widget.currentTheme,
       selectedAtIndex: widget.selectedAtIndex,
       items: items,
       isGridView: true,

@@ -658,7 +658,7 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, CryptoCurrency currency) async {
-    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency, exchangeViewModel.currentTheme);
     return extractAddressFromParsed(context, parsedAddress);
   }
 
@@ -686,6 +686,7 @@ class ExchangePage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final firstExchangeCard = Observer(
       builder: (_) => ExchangeCard(
+        currentTheme: currentTheme,
         cardInstanceName: 'deposit_exchange_card',
         onDispose: disposeBestRateSync,
         hasAllAmount: exchangeViewModel.hasAllAmount,
@@ -756,6 +757,7 @@ class ExchangePage extends BasePage {
 
     final secondExchangeCard = Observer(
       builder: (_) => ExchangeCard(
+        currentTheme: currentTheme,
         cardInstanceName: 'receive_exchange_card',
         onDispose: disposeBestRateSync,
         amountFocusNode: _receiveAmountFocus,

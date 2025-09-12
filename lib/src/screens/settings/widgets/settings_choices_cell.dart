@@ -2,15 +2,19 @@ import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
 
 class SettingsChoicesCell extends StatelessWidget {
-  const SettingsChoicesCell(this.choicesListItem, {Key? key}) : super(key: key);
+  const SettingsChoicesCell(this.choicesListItem,
+      {this.useGenericColor = true, this.padding, Key? key})
+      : super(key: key);
 
   final ChoicesListItem<dynamic> choicesListItem;
+  final bool useGenericColor;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.surface,
-      padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 16),
+      color: useGenericColor ? Theme.of(context).colorScheme.surface : null,
+      padding: padding ?? EdgeInsets.only(left: 24, right: 24, top: 16, bottom: 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +34,14 @@ class SettingsChoicesCell extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                border: useGenericColor
+                    ? null
+                    : Border.all(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        width: 1.5,
+                      ),
+                color:
+                    useGenericColor ? Theme.of(context).colorScheme.surfaceContainerHighest : null,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

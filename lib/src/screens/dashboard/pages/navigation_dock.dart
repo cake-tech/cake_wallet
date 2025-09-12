@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
@@ -24,13 +23,15 @@ class NavigationDock extends StatelessWidget {
           return Container(
             height: 150,
             alignment: Alignment.bottomCenter,
-            decoration: dashboardViewModel.settingsStore.backgroundImage.isEmpty ? BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: _getColors(context, !currentTheme.isDark),
-              ),
-            ) : null,
+            decoration: dashboardViewModel.settingsStore.backgroundImage.isEmpty
+                ? BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: _getColors(context, currentTheme),
+                    ),
+                  )
+                : null,
             //color: Colors.transparent,
             child: Container(
               decoration: BoxDecoration(
@@ -38,7 +39,7 @@ class NavigationDock extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: _getColors(context, !currentTheme.isDark),
+                  colors: _getColors(context, currentTheme),
                 ),
               ),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
@@ -95,25 +96,15 @@ class NavigationDock extends StatelessWidget {
     );
   }
 
-  List<Color> _getColors(BuildContext context, bool isBright) {
-    return isBright
-        ? <Color>[
-            CustomThemeColors.backgroundGradientColorLight.withAlpha(5),
-            CustomThemeColors.backgroundGradientColorLight.withAlpha(50),
-            CustomThemeColors.backgroundGradientColorLight.withAlpha(125),
-            CustomThemeColors.backgroundGradientColorLight.withAlpha(150),
-            CustomThemeColors.backgroundGradientColorLight.withAlpha(200),
-            CustomThemeColors.backgroundGradientColorLight,
-            CustomThemeColors.backgroundGradientColorLight
-          ]
-        : <Color>[
-            CustomThemeColors.backgroundGradientColorDark.withAlpha(5),
-            CustomThemeColors.backgroundGradientColorDark.withAlpha(50),
-            CustomThemeColors.backgroundGradientColorDark.withAlpha(125),
-            CustomThemeColors.backgroundGradientColorDark.withAlpha(150),
-            CustomThemeColors.backgroundGradientColorDark.withAlpha(200),
-            CustomThemeColors.backgroundGradientColorDark,
-            CustomThemeColors.backgroundGradientColorDark
-          ];
+  List<Color> _getColors(BuildContext context, MaterialThemeBase currentTheme) {
+    return <Color>[
+      currentTheme.customColors.backgroundGradientColor.withAlpha(5),
+      currentTheme.customColors.backgroundGradientColor.withAlpha(50),
+      currentTheme.customColors.backgroundGradientColor.withAlpha(125),
+      currentTheme.customColors.backgroundGradientColor.withAlpha(150),
+      currentTheme.customColors.backgroundGradientColor.withAlpha(200),
+      currentTheme.customColors.backgroundGradientColor,
+      currentTheme.customColors.backgroundGradientColor,
+    ];
   }
 }
