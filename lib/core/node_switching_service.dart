@@ -15,12 +15,15 @@ class NodeSwitchingService {
 
   static const int _healthCheckIntervalSeconds = 30;
 
-  // The number of times we want to reset the overall used trusted nodes list.
-  // We don't want an infinite loop if all trusted nodes are down.
-  static const int _usedTrustedNodeResetCount = 1;
+  // Maximum number of node attempts before giving up
+  // This prevents endless switching for users with slow network connections
+  static const int _maxNodeAttempts = 5;
 
-  // State to manage the reset count
-  int _resetCount = 0;
+  // Cooldown period to prevent rapid switching between nodes
+  static const int _nodeSwitchCooldownSeconds = 30;
+
+  // State to manage the attempt count
+  int _attemptCount = 0;
 
   String walletName = '';
 
@@ -28,6 +31,15 @@ class NodeSwitchingService {
 
   bool _isSwitching = false;
   bool get isSwitching => _isSwitching;
+
+  // Track if we've exhausted all node attempts for the current session
+  bool _hasExhaustedNodeAttempts = false;
+
+  // Track the last node switch time to prevent rapid switching
+  DateTime? _lastNodeSwitchTime;
+
+  // Track the last switched-from node to prevent immediate switching back
+  String? _lastSwitchedFromNodeKey;
 
   final AppStore appStore;
   final SettingsStore settingsStore;
@@ -58,8 +70,27 @@ class NodeSwitchingService {
 
     if (_isSwitching) return;
 
+    // Reset attempt count when wallet changes
+    if (walletName.isNotEmpty && (walletName != appStore.wallet!.name)) {
+      _resetAttemptCount();
+    }
+
+    // Don't perform health checks if we've exhausted all node attempts
+    if (_hasExhaustedNodeAttempts) {
+      printV('Node attempts exhausted, skipping health check');
+      return;
+    }
+
     try {
-      final isHealthy = await appStore.wallet!.checkNodeHealth();
+      // Add timeout to prevent hanging on slow network connections
+      final isHealthy = await appStore.wallet!.checkNodeHealth()
+          .timeout(
+            Duration(seconds: 15),
+            onTimeout: () {
+              printV('Health check timed out, considering node unhealthy');
+              return false;
+            },
+          );
 
       if (!isHealthy) {
         await _switchToNextTrustedNode();
@@ -69,13 +100,45 @@ class NodeSwitchingService {
     }
   }
 
+  /// Reset the attempt count and exhaustion state
+  void _resetAttemptCount() {
+    _attemptCount = 0;
+    _hasExhaustedNodeAttempts = false;
+    _usedNodeKeys.clear();
+    _lastNodeSwitchTime = null;
+    _lastSwitchedFromNodeKey = null;
+    printV('Reset node attempt count for wallet: ${appStore.wallet!.name}');
+  }
+
   /// Switch to the next available trusted node
   Future<void> _switchToNextTrustedNode() async {
     _isSwitching = true;
 
-    if (walletName.isNotEmpty && (walletName != appStore.wallet!.name)) _resetCount = 0;
+    if (walletName.isNotEmpty && (walletName != appStore.wallet!.name)) {
+       _resetAttemptCount();
+    }
 
     walletName = appStore.wallet!.name;
+
+    // Check if we've reached the maximum number of attempts
+    if (_attemptCount >= _maxNodeAttempts) {
+      printV('Maximum node attempts ($_maxNodeAttempts) reached, stopping node switching');
+      _hasExhaustedNodeAttempts = true;
+      _isSwitching = false;
+      return;
+    }
+
+    // Check cooldown period to prevent rapid switching
+    if (_lastNodeSwitchTime != null) {
+      final timeSinceLastSwitch = DateTime.now().difference(_lastNodeSwitchTime!);
+      if (timeSinceLastSwitch.inSeconds < _nodeSwitchCooldownSeconds) {
+        printV('Node switch cooldown active (${timeSinceLastSwitch.inSeconds}s/${_nodeSwitchCooldownSeconds}s), skipping switch');
+        _isSwitching = false;
+        return;
+      }
+    }
+
+    _attemptCount++;
 
     try {
       final walletType = appStore.wallet!.type;
@@ -88,6 +151,7 @@ class NodeSwitchingService {
 
       if (trustedNodes.isEmpty) {
         printV('No trusted nodes available for switching');
+        _hasExhaustedNodeAttempts = true;
         return;
       }
 
@@ -102,28 +166,28 @@ class NodeSwitchingService {
       // Get next unused trusted node from the list
       Node? nextNode;
       for (final node in trustedNodes) {
-        if (!_usedNodeKeys[walletType]!.contains(node.key)) {
+        if (!_usedNodeKeys[walletType]!.contains(node.key) && 
+            node.key.toString() != _lastSwitchedFromNodeKey) {
           nextNode = node;
           break;
         }
       }
 
-      // If all trusted nodes have been used, reset the list and start over
+      // If all trusted nodes have been used, we've exhausted our options
       if (nextNode == null) {
-        printV('All trusted nodes have been tried, resetting and starting over');
-        _resetCount++;
-
-        if (_resetCount > _usedTrustedNodeResetCount) return;
-
-        _usedNodeKeys[walletType]!.clear();
-        nextNode = trustedNodes.first;
+        printV('All trusted nodes have been tried, stopping node switching');
+        _hasExhaustedNodeAttempts = true;
+        return;
       }
 
       // Add the next node to used list
       _usedNodeKeys[walletType]!.add(nextNode.key);
 
-      printV('Switching from ${currentNode.uriRaw} to ${nextNode.uriRaw}');
+      printV('Switching from ${currentNode.uriRaw} to ${nextNode.uriRaw} (attempt $_attemptCount/$_maxNodeAttempts)');
       printV('Used nodes for ${walletType}: ${_usedNodeKeys[walletType]}');
+
+      // Record the node we're switching from to prevent immediate switching back
+      _lastSwitchedFromNodeKey = currentNode.key.toString();
 
       // Update the current node in settings
       settingsStore.nodes[walletType] = nextNode;
@@ -132,6 +196,9 @@ class NodeSwitchingService {
       await appStore.wallet!.connectToNode(node: nextNode);
 
       await appStore.wallet!.startSync();
+
+      // Record the time of this node switch
+      _lastNodeSwitchTime = DateTime.now();
 
       printV('Successfully switched to node: ${nextNode.uriRaw}');
     } catch (e) {
