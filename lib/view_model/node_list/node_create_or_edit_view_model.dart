@@ -236,6 +236,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
+      if (code.startsWith("monero_node:")) code = code.replaceFirst("monero_node:", "tcp://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);
@@ -243,17 +244,29 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Invalid QR code: Unable to parse or missing host.');
       }
 
+      final queryParams = uri.queryParameters;
       final ipAddress = uri.host;
-      final port = uri.hasPort ? uri.port.toString() : '';
       final path = uri.path;
       final userInfo = uri.userInfo;
+      var port = uri.hasPort ? uri.port.toString() : '';
       var rpcUser = userInfo.length == 2 ? userInfo[0] : '';
       var rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
 
-      if (uri.scheme == "monero_node" && rpcUser.isEmpty && rpcPassword.isEmpty) {
-        final queryParams = uri.queryParameters;
+      if (rpcUser.isEmpty && rpcPassword.isEmpty) {
         rpcUser = queryParams['username'] ?? '';
         rpcPassword = queryParams['password'] ?? '';
+      }
+
+      if (port.isEmpty) {
+        port = queryParams['port'] ?? '';
+      }
+
+      if (queryParams['protocol'] == 'https') {
+        setSSL(true);
+      }
+
+      if (queryParams['trusted'] == 'true') {
+        setTrusted(true);
       }
 
       await Future.delayed(Duration(milliseconds: 345));
