@@ -1101,7 +1101,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     for (final output in transaction.outputs) {
       var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
-      if (output.scriptPubKey.toBytes().length == 66) {
+      if (output.scriptPubKey.getAddressType() == SegwitAddresType.mweb) {
         address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
       }
       resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
