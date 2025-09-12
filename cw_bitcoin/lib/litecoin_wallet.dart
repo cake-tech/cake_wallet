@@ -1075,7 +1075,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return fee.toInt() + feeIncrease;
   }
 
-  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction) async {
+  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction, bool isMweb) async {
     final List<TxInput> inputs = [];
     final List<TxOut> txouts = [];
     for (final utxo in transaction.utxos) {
@@ -1086,7 +1086,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
     var resp = await CwMweb.psbtCreate(PsbtCreateRequest(
-      rawTx: BtcTransaction(inputs: inputs, outputs: []).toBytes(),
+      rawTx: BtcTransaction(
+        inputs: inputs,
+        outputs: isMweb ? [] : transaction.outputs,
+      ).toBytes(),
       witnessUtxo: txouts,
     ));
     for (final utxo in transaction.utxos) {
@@ -1099,7 +1102,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         ));
       }
     }
-    for (final output in transaction.outputs) {
+    if (isMweb) for (final output in transaction.outputs) {
       var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
       if (output.scriptPubKey.getAddressType() == SegwitAddresType.mweb) {
         address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
@@ -1123,22 +1126,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         tx.changeAddressOverride =
             (await (walletAddresses as LitecoinWalletAddresses).getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
                 .address;
+        if (tx.shouldCommitUR()) {
+          tx.unsignedPsbt = await buildPsbt(tx, false);
+        }
         return tx;
       }
       await waitForMwebAddresses();
-
-      if (tx.shouldCommitUR()) {
-        tx.unsignedPsbt = await buildPsbt(tx);
-        return tx;
-      }
-
-      final resp = await CwMweb.create(CreateRequest(
-        rawTx: hex.decode(tx.hex),
-        scanSecret: scanSecret,
-        spendSecret: spendSecret,
-        feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000,
-      ));
-      final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
       // check if the transaction doesn't contain any mweb inputs or outputs:
       final transactionCredentials = credentials as BitcoinTransactionCredentials;
@@ -1184,8 +1177,24 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .address;
       if (isRegular) {
         tx.isMweb = false;
+        if (tx.shouldCommitUR()) {
+          tx.unsignedPsbt = await buildPsbt(tx, false);
+        }
         return tx;
       }
+
+      if (tx.shouldCommitUR()) {
+        tx.unsignedPsbt = await buildPsbt(tx, true);
+        return tx;
+      }
+
+      final resp = await CwMweb.create(CreateRequest(
+        rawTx: hex.decode(tx.hex),
+        scanSecret: scanSecret,
+        spendSecret: spendSecret,
+        feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000,
+      ));
+      final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
       // check if any of the inputs of this transaction are hog-ex:
       // this list is only non-mweb inputs:
