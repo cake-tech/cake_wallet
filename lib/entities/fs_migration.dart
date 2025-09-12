@@ -428,11 +428,20 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
         json.decode(addressBookJSON.readAsStringSync()) as List<dynamic>;
     final contacts = addresses.map((dynamic item) {
       final _item = item as Map<String, dynamic>;
-      final type = _item["type"] as String;
-      final address = _item["address"] as String;
-      final name = _item["name"] as String;
+      final type = _item['type'] as String? ?? '';
+      final address = _item['address'] as String? ?? '';
+      final name = _item['name'] as String? ?? '';
 
-      return Contact(address: address, name: name, type: CryptoCurrency.fromString(type));
+      final cur = CryptoCurrency.fromString(type);
+      final lbl = name.isNotEmpty ? name : cur.title;
+
+      return Contact(
+        name: name,
+        manualAddresses: {
+          cur.raw: { lbl : address }
+        },
+        parsedByHandle: const {},
+      );
     });
 
     await contactSource.addAll(contacts);

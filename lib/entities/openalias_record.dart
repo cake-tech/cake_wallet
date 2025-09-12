@@ -37,53 +37,33 @@ class OpenaliasRecord {
     required String formattedName,
     required String ticker,
     required List<RRecord> txtRecord,
-  })  {
-    String address = '';
-    String name = formattedName;
-    String note = '';
+  }) {
+    var address = '';
+    var name = formattedName;
+    var note = '';
 
-    for (RRecord element in txtRecord) {
-      String record = element.data;
+    final addrRe = RegExp(r'recipient_address=([^;\s]+)', caseSensitive: false);
+    final nameRe = RegExp(r'recipient_name=([^;]+)', caseSensitive: false);
+    final noteRe = RegExp(r'tx_description=([^;]+)', caseSensitive: false);
+    final tag = 'oa1:$ticker';
 
-      if (record.contains("oa1:$ticker") && record.contains("recipient_address")) {
-        record = record.replaceAll('\"', "");
+    for (final rr in txtRecord) {
+      final txt = rr.data.replaceAll('"', '');
 
-        final dataList = record.split(";");
+      if (!txt.toLowerCase().contains(tag)) continue;
 
-        address = dataList
-            .where((item) => (item.contains("recipient_address")))
-            .toString()
-            .replaceAll("oa1:$ticker recipient_address=", "")
-            .replaceAll("(", "")
-            .replaceAll(")", "")
-            .trim();
+      final addrM = addrRe.firstMatch(txt);
+      if (addrM != null) address = addrM.group(1)!;
 
-        final recipientName = dataList
-            .where((item) => (item.contains("recipient_name")))
-            .toString()
-            .replaceAll("(", "")
-            .replaceAll(")", "")
-            .trim();
+      final nameM = nameRe.firstMatch(txt);
+      if (nameM != null) name = nameM.group(1)!.trim();
 
-        if (recipientName.isNotEmpty) {
-          name = recipientName.replaceAll("recipient_name=", "");
-        }
+      final noteM = noteRe.firstMatch(txt);
+      if (noteM != null) note = noteM.group(1)!.trim();
 
-        final description = dataList
-            .where((item) => (item.contains("tx_description")))
-            .toString()
-            .replaceAll("(", "")
-            .replaceAll(")", "")
-            .trim();
+      break;
+    }
 
-        if (description.isNotEmpty) {
-          note = description.replaceAll("tx_description=", "");
-        }
-
-        break;
-      }
-
-  }
     return OpenaliasRecord(address: address, name: name, description: note);
-}
+  }
 }
