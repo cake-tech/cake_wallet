@@ -61,6 +61,9 @@ import 'package:mobx/mobx.dart';
 import 'package:pointycastle/ecc/api.dart';
 import 'package:pointycastle/ecc/curves/secp256k1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ur/cbor_lite.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_decoder.dart';
 
 part 'litecoin_wallet.g.dart';
 
@@ -1176,6 +1179,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       for (final utxo in tx.utxos) {
         if (utxo.utxo.scriptType == SegwitAddresType.mweb) {
           hasMwebInput = true;
+
+        } else {
+          // check if any of the inputs of this transaction are hog-ex:
+          // this list is only non-mweb inputs:
+          bool isHogEx = true;
+
+          final coin = unspentCoins
+              .firstWhere((coin) => coin.hash == utxo.utxo.txHash && coin.vout == utxo.utxo.vout);
+
+          // TODO: detect actual hog-ex inputs
+
+          if (!isHogEx) {
+            continue;
+          }
+
+          int confirmations = coin.confirmations ?? 0;
+          if (confirmations < 6) {
+            throw Exception(
+                "A transaction input has less than 6 confirmations, please try again later.");
+          }
         }
       }
 
@@ -1209,27 +1232,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         feeRatePerKb: Int64.parseInt(tx.feeRate) * 1000,
       ));
       final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
-
-      // check if any of the inputs of this transaction are hog-ex:
-      // this list is only non-mweb inputs:
-      tx2.inputs.forEach((txInput) {
-        bool isHogEx = true;
-
-        final utxo = unspentCoins
-            .firstWhere((utxo) => utxo.hash == txInput.txId && utxo.vout == txInput.txIndex);
-
-        // TODO: detect actual hog-ex inputs
-
-        if (!isHogEx) {
-          return;
-        }
-
-        int confirmations = utxo.confirmations ?? 0;
-        if (confirmations < 6) {
-          throw Exception(
-              "A transaction input has less than 6 confirmations, please try again later.");
-        }
-      });
 
       tx.hexOverride = tx2
           .copyWith(
@@ -1286,6 +1288,23 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       rethrow;
     }
+  }
+
+  Future<void> commitPsbtUR(List<String> urCodes) async {
+    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    bool isUr = urCodes.any((str) {
+      return str.startsWith("ur:psbt/");
+    });
+    if (!isUr) return;
+
+    final ur = URDecoder();
+    for (final inp in urCodes) {
+      ur.receivePart(inp);
+    }
+    final result = ur.result as UR;
+    final psbtB64 = base64Encode(CBORDecoder(result.cbor).decodeBytes().$1);
+    final resp = await CwMweb.psbtExtract(PsbtExtractRequest(psbtB64: psbtB64));
+    print(resp.rawTx);
   }
 
   @override
