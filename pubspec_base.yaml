@@ -116,6 +116,8 @@ dependencies:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
+  bitbox_flutter:
+    path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
   on_chain:
     git:
