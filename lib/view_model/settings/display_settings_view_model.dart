@@ -3,6 +3,8 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
+import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
@@ -51,6 +53,50 @@ abstract class DisplaySettingsViewModelBase with Store {
   @computed
   String get backgroundImage => _settingsStore.backgroundImage;
 
+  @computed
+  List<MaterialThemeBase> get availableThemes {
+    List<MaterialThemeBase> themes;
+    switch (themeMode) {
+      case ThemeMode.light:
+        themes = ThemeList.all.where((theme) => theme.brightness == Brightness.light).toList();
+        break;
+      case ThemeMode.dark:
+        themes = ThemeList.all.where((theme) => theme.brightness == Brightness.dark).toList();
+        break;
+      case ThemeMode.system:
+        final systemBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+        themes = ThemeList.all.where((theme) => theme.brightness == systemBrightness).toList();
+        break;
+    }
+
+    List<MaterialThemeBase> groupedThemes = [];
+    Set<String> addedThemeFamilies = {};
+
+    for (final theme in themes) {
+      if (theme.hasAccentColors) {
+        final family = theme.themeFamily!;
+        if (!addedThemeFamilies.contains(family)) {
+          groupedThemes.add(theme);
+          addedThemeFamilies.add(family);
+        }
+      } else {
+        groupedThemes.add(theme);
+      }
+    }
+
+    return groupedThemes;
+  }
+
+  @computed
+  List<ThemeAccentColor> get availableAccentColors {
+    if (!currentTheme.hasAccentColors) return [];
+
+    if (currentTheme.themeFamily == 'BlackTheme') {
+      return BlackThemeAccentColor.values;
+    }
+    return [];
+  }
+
   @action
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
 
@@ -71,7 +117,36 @@ abstract class DisplaySettingsViewModelBase with Store {
   @action
   Future<void> onThemeSelected(MaterialThemeBase newTheme) async {
     await setTheme(newTheme);
-    await setThemeMode(newTheme.themeMode);
+  }
+
+  @action
+  Future<void> onAccentColorSelected(String accentColorId) async {
+    if (!currentTheme.hasAccentColors) return;
+
+    try {
+      final newTheme = ThemeList.all.firstWhere(
+        (theme) =>
+            theme.hasAccentColors &&
+            theme.themeFamily == currentTheme.themeFamily &&
+            theme.accentColorId == accentColorId,
+      );
+
+      if (newTheme != currentTheme) {
+        await onThemeSelected(newTheme);
+      }
+    } catch (_) {}
+  }
+
+  bool isThemeSelected(MaterialThemeBase theme) {
+    if (!theme.hasAccentColors) return currentTheme == theme;
+
+    return currentTheme.hasAccentColors && currentTheme.themeFamily == theme.themeFamily;
+  }
+
+  bool isAccentColorSelected(String accentColorId) {
+    if (!currentTheme.hasAccentColors) return false;
+
+    return currentTheme.accentColorId == accentColorId;
   }
 
   @action
@@ -79,9 +154,32 @@ abstract class DisplaySettingsViewModelBase with Store {
     await _themeStore.setTheme(newTheme);
   }
 
+  MaterialThemeBase? getFirstMatchingTheme(ThemeMode mode) {
+    List<MaterialThemeBase> themes;
+    switch (mode) {
+      case ThemeMode.light:
+        themes = ThemeList.all.where((theme) => theme.brightness == Brightness.light).toList();
+        break;
+      case ThemeMode.dark:
+        themes = ThemeList.all.where((theme) => theme.brightness == Brightness.dark).toList();
+        break;
+      case ThemeMode.system:
+        final systemBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+        themes = ThemeList.all.where((theme) => theme.brightness == systemBrightness).toList();
+        break;
+    }
+
+    return themes.isNotEmpty ? themes.first : null;
+  }
+
   @action
   Future<void> setThemeMode(ThemeMode value) async {
     await _themeStore.setThemeMode(value);
+
+    final matchingTheme = getFirstMatchingTheme(value);
+    if (matchingTheme != null) {
+      await setTheme(matchingTheme);
+    }
   }
 
   @action
@@ -101,4 +199,19 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setBackgroundImage(String path) => _settingsStore.backgroundImage = path;
+
+  String getImageForTheme(MaterialThemeBase theme) {
+    switch (theme.title) {
+      case 'Dark Theme':
+        return 'assets/images/dark.svg';
+      case 'Light Theme':
+        return 'assets/images/light.svg';
+      case 'Black Theme (Cake Primary)':
+      case 'Black Theme (Bitcoin Yellow)':
+      case 'Black Theme (Monero Orange)':
+        return 'assets/images/black_accent.svg';
+      default:
+        return 'assets/images/dark.svg';
+    }
+  }
 }

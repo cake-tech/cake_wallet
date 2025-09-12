@@ -55,6 +55,7 @@
   "and": "en",
   "anonpay_description": "Genereer ${type}. De ontvanger kan ${method} gebruiken met elke ondersteunde cryptocurrency en u ontvangt geld in deze portemonnee",
   "apk_update": "APK-update",
+  "appearance": "Verschijning",
   "approve": "Goedkeuren",
   "approve_request": "Het verzoek goedkeuren",
   "approve_tokens": "Tokens goedkeuren",

@@ -3,7 +3,25 @@ import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cake_wallet/themes/custom_theme_colors/black_theme_custom_colors.dart';
 
+enum BlackThemeAccentColor implements ThemeAccentColor {
+  cakePrimary(Color(0xFF52B6F0), 'Cake Primary'),
+  bitcoinYellow(Color(0xFFFFC107), 'Bitcoin Yellow'),
+  moneroOrange(Color(0xFFFF9800), 'Monero Orange');
+
+  const BlackThemeAccentColor(this.color, this.name);
+
+  @override
+  final Color color;
+
+  @override
+  final String name;
+}
+
 class BlackTheme extends MaterialThemeBase {
+  BlackTheme(this.accentColor);
+
+  final BlackThemeAccentColor accentColor;
+
   @override
   Brightness get brightness => Brightness.dark;
 
@@ -11,7 +29,7 @@ class BlackTheme extends MaterialThemeBase {
   ThemeMode get themeMode => ThemeMode.dark;
 
   @override
-  Color get primaryColor => const Color(0xFF52B6F0);
+  Color get primaryColor => accentColor.color;
 
   @override
   Color get secondaryColor => const Color(0xFFCCC4CD);
@@ -54,7 +72,9 @@ class BlackTheme extends MaterialThemeBase {
         outline: const Color(0xFF958F95),
         outlineVariant: const Color(0xFF49454B),
       );
+
   static const String fontFamily = 'WixMadeforText';
+
   @override
   TextTheme get textTheme => TextTheme(
         displayLarge: TextStyle(
@@ -226,14 +246,38 @@ class BlackTheme extends MaterialThemeBase {
       );
 
   @override
-  String get title => 'Black Theme';
+  String get title => 'Black Theme (${accentColor.name})';
 
   @override
   ThemeType get type => ThemeType.dark;
 
   @override
-  int get raw => 12;
+  int get raw {
+    final baseValue = switch (accentColor) {
+      BlackThemeAccentColor.cakePrimary => 12,
+      BlackThemeAccentColor.bitcoinYellow => 13,
+      BlackThemeAccentColor.moneroOrange => 14,
+    };
+    return baseValue;
+  }
 
   @override
   CustomThemeColors get customColors => BlackThemeCustomColors();
+
+  @override
+  String? get themeFamily => 'BlackTheme';
+
+  @override
+  String? get accentColorId => accentColor.name.toLowerCase();
+
+  @override
+  String? get accentColorName => accentColor.name;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BlackTheme && runtimeType == other.runtimeType && accentColor == other.accentColor;
+
+  @override
+  int get hashCode => accentColor.hashCode;
 }

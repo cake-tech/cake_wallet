@@ -55,6 +55,7 @@
   "and": "và",
   "anonpay_description": "Tạo ${type}. Người nhận có thể ${method} với bất kỳ loại tiền điện tử nào được hỗ trợ, và bạn sẽ nhận được tiền trong ví này.",
   "apk_update": "Cập nhật APK",
+  "appearance": "Vẻ bề ngoài",
   "approve": "Phê duyệt",
   "approve_request": "Phê duyệt yêu cầu",
   "approve_tokens": "Phê duyệt mã thông báo",

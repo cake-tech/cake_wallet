@@ -55,6 +55,7 @@
   "and": "和",
   "anonpay_description": "生成 ${type}。收款人可以使用任何受支持的加密货币 ${method}，您将在此钱包中收到资金。",
   "apk_update": "APK更新",
+  "appearance": "外貌",
   "approve": "批准",
   "approve_request": "批准请求",
   "approve_tokens": "批准令牌",

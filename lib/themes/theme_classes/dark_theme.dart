@@ -236,4 +236,13 @@ class DarkTheme extends MaterialThemeBase {
 
   @override
   CustomThemeColors get customColors => DarkThemeCustomColors();
+
+  @override
+  String? get themeFamily => null;
+
+  @override
+  String? get accentColorId => null;
+
+  @override
+  String? get accentColorName => null;
 }

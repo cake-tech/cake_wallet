@@ -55,6 +55,7 @@
   "and": "dan",
   "anonpay_description": "Hasilkan ${type}. Penerima dapat ${method} dengan cryptocurrency apa pun yang didukung, dan Anda akan menerima dana di dompet ini.",
   "apk_update": "Pembaruan APK",
+  "appearance": "Penampilan",
   "approve": "Menyetujui",
   "approve_request": "Menyetujui permintaan",
   "approve_tokens": "Menyetujui token",

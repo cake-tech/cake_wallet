@@ -55,6 +55,7 @@
   "and": "i",
   "anonpay_description": "Wygeneruj ${type}. Odbiorca może ${method} z dowolną obsługiwaną kryptowalutą, a Ty otrzymasz środki w tym portfelu.",
   "apk_update": "Aktualizacja APK",
+  "appearance": "Wygląd",
   "approve": "Zatwierdzić",
   "approve_request": "Zatwierdzić żądanie",
   "approve_tokens": "Zatwierdzić tokeny",

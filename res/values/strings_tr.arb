@@ -55,6 +55,7 @@
   "and": "ve",
   "anonpay_description": "${type} oluşturun. Alıcı, desteklenen herhangi bir kripto para birimi ile ${method} yapabilir ve bu cüzdanda para alırsınız.",
   "apk_update": "APK güncellemesi",
+  "appearance": "Dış görünüş",
   "approve": "Onaylamak",
   "approve_request": "Talebi Onaylama",
   "approve_tokens": "Jetonları onaylayın",

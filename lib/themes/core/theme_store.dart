@@ -57,7 +57,7 @@ abstract class ThemeStoreBase with Store {
 
     if (!hasCustomTheme) {
       if (mode == ThemeMode.system) {
-        setTheme(getThemeFromSystem());
+        await setTheme(getThemeFromSystem());
       }
       return;
     }
@@ -66,7 +66,7 @@ abstract class ThemeStoreBase with Store {
     if (savedTheme == null) return;
 
     if (_isThemeCompatibleWithMode(savedTheme, mode)) {
-      setTheme(savedTheme);
+      await setTheme(savedTheme);
     }
   }
 
@@ -127,15 +127,15 @@ abstract class ThemeStoreBase with Store {
   /// Loads the saved theme from SharedPreferences
   Future<void> loadSavedTheme({bool isFromBackup = false}) async {
     try {
-      if (!hasCustomTheme) {
+      final theme = savedCustomTheme;
+
+      if (!hasCustomTheme || theme == null) {
         await _setSystemTheme();
         return;
       }
 
-      final theme = savedCustomTheme;
-      if (theme == null) {
-        await _setSystemTheme();
-        return;
+      if (_currentTheme != theme) {
+        await setTheme(theme);
       }
 
       final newThemeMode = _getThemeModeOnStartUp(theme, isFromBackup);
@@ -148,19 +148,13 @@ abstract class ThemeStoreBase with Store {
       if (_themeMode != newThemeMode) {
         await setThemeMode(newThemeMode);
       }
-
-      if (_currentTheme != theme) {
-        await setTheme(theme);
-      }
     } catch (e) {
       await _setSystemTheme();
     }
   }
 
   Future<void> _setSystemTheme({bool isNewInstall = false}) async {
-    if (!isNewInstall && hasCustomTheme) {
-      return;
-    }
+    if (!isNewInstall && hasCustomTheme) return;
 
     final systemTheme = getThemeFromSystem();
 

@@ -55,6 +55,7 @@
   "and": "y",
   "anonpay_description": "Genera ${type}. El destinatario puede ${method} con cualquier criptomoneda admitida, y recibirá fondos en esta billetera.",
   "apk_update": "Actualización de APK",
+  "appearance": "Apariencia",
   "approve": "Aprobar",
   "approve_request": "Aprobar la solicitud",
   "approve_tokens": "Aprobar tokens",

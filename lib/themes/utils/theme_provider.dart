@@ -23,8 +23,7 @@ class ThemeProvider extends StatelessWidget {
         final theme = currentTheme.themeData;
         final themeMode = themeStore.themeMode;
 
-        final isCustomTheme =
-            currentTheme != ThemeList.lightTheme && currentTheme != ThemeList.darkTheme;
+        final isCustomTheme = ThemeList.all.contains(currentTheme);
         if (isCustomTheme) {
           return materialAppBuilder(context, theme, theme, themeMode);
         }

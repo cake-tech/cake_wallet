@@ -1,112 +1,116 @@
-import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class SettingsThemeChoicesCell extends StatelessWidget {
   SettingsThemeChoicesCell(this._displaySettingsViewModel);
-
-  final items = ThemeList.all;
 
   final DisplaySettingsViewModel _displaySettingsViewModel;
 
   final double cellHeight = 25;
   final double cellWidth = 12;
-  final double cellRadius = 6;
+  final double cellRadius = 8;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(cellHeight),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                S.current.color_theme,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-          SizedBox(height: cellHeight),
-          GridView.builder(
-            itemCount: items.length,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisExtent: 75,
-              crossAxisSpacing: 20,
-            ),
-            itemBuilder: (context, index) {
-              final MaterialThemeBase e = items[index];
-              final currentTheme = _displaySettingsViewModel.currentTheme;
-              final isSelected = currentTheme == e;
+    return Observer(
+      builder: (context) {
+        final availableThemes = _displaySettingsViewModel.availableThemes;
+        final currentTheme = _displaySettingsViewModel.currentTheme;
+        final availableAccentColors = _displaySettingsViewModel.availableAccentColors;
 
-              return Padding(
-                padding: EdgeInsets.all(5),
-                child: Semantics(
-                  label: e.toString(),
-                  selected: isSelected,
-                  child: GestureDetector(
-                    onTap: () {
-                      _displaySettingsViewModel.onThemeSelected(e);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(cellRadius),
-                        border: isSelected
-                            ? Border.all(color: Theme.of(context).colorScheme.primary)
-                            : null,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withOpacity(currentTheme.brightness == Brightness.light ? 0.1 : 0.3),
+        return Container(
+          height: currentTheme.hasAccentColors ? 306 : 236,
+          padding: EdgeInsets.all(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: availableThemes.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    final MaterialThemeBase theme = availableThemes[index];
+                    final isSelected = _displaySettingsViewModel.isThemeSelected(theme);
+
+                    return Semantics(
+                      label: theme.toString(),
+                      selected: isSelected,
+                      child: GestureDetector(
+                        onTap: () {
+                          _displaySettingsViewModel.onThemeSelected(theme);
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 24),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(cellRadius),
+                            border: isSelected
+                                ? Border.all(color: Theme.of(context).colorScheme.primary)
+                                : null,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(cellRadius),
+                            child: CakeImageWidget(
+                              imageUrl: _displaySettingsViewModel.getImageForTheme(theme),
+                              fit: BoxFit.cover,
+                              height: 200,
+                              width: 120,
+                            ),
+                          ),
+                        ),
                       ),
+                    );
+                  },
+                ),
+              ),
+              if (_displaySettingsViewModel.currentTheme.hasAccentColors) ...[
+                SizedBox(height: cellHeight),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Accent color',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    Container(
+                      height: 40,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: cellWidth, vertical: cellHeight),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(cellRadius),
-                                bottomLeft: Radius.circular(cellRadius),
+                        children: availableAccentColors.map((accentColor) {
+                          final isSelected = _displaySettingsViewModel
+                              .isAccentColorSelected(accentColor.name.toLowerCase());
+                          return GestureDetector(
+                            onTap: () {
+                              _displaySettingsViewModel
+                                  .onAccentColorSelected(accentColor.name.toLowerCase());
+                            },
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              margin: EdgeInsets.only(right: 11),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                border: isSelected
+                                    ? Border.all(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        width: 2)
+                                    : Border.all(color: Theme.of(context).colorScheme.outline),
+                                color: accentColor.color,
                               ),
-                              color: e.colorScheme.primary,
                             ),
-                          ),
-                          Container(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: cellWidth, vertical: cellHeight),
-                            decoration: BoxDecoration(color: e.colorScheme.surface),
-                          ),
-                          Container(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: cellWidth, vertical: cellHeight),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(cellRadius),
-                                bottomRight: Radius.circular(cellRadius),
-                              ),
-                              color: e.colorScheme.tertiary,
-                            ),
-                          ),
-                        ],
+                          );
+                        }).toList(),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              );
-            },
+              ],
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

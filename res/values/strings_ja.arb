@@ -55,6 +55,7 @@
   "and": "と",
   "anonpay_description": "${type} を生成します。受取人はサポートされている任意の暗号通貨で ${method} でき、あなたはこのウォレットで資金を受け取ります。",
   "apk_update": "APKアップデート",
+  "appearance": "外観",
   "approve": "承認する",
   "approve_request": "リクエストを承認します",
   "approve_tokens": "トークンを承認します",

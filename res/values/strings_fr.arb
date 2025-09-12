@@ -55,6 +55,7 @@
   "and": "et",
   "anonpay_description": "Générez ${type}. Le destinataire peut ${method} avec n'importe quelle crypto-monnaie prise en charge, et vous recevrez des fonds dans ce portefeuille (wallet).",
   "apk_update": "Mise à jour de l'APK",
+  "appearance": "Apparence",
   "approve": "Approuver",
   "approve_request": "Approuver la demande",
   "approve_tokens": "Approuver les jetons",
