@@ -782,6 +782,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes) {
+    if (wallet is LitecoinWallet) return wallet.commitPsbtUR(urCodes);
     final _wallet = wallet as BitcoinWalletBase;
     return _wallet.commitPsbtUR(urCodes);
   }
