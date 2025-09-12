@@ -112,7 +112,7 @@ class DisplaySettingsPage extends BasePage {
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Text(
-                    S.current.market_place,
+                    S.current.appearance,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w400,
                           fontSize: 14,
