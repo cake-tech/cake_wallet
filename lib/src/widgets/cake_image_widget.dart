@@ -39,6 +39,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
+              color: color,
               fit: fit ?? BoxFit.contain,
             )
           : Image.asset(
@@ -54,6 +55,7 @@ class CakeImageWidget extends StatelessWidget {
               imageUrl!,
               height: height,
               width: width,
+              color: color,
               fit: fit ?? BoxFit.contain,
               placeholderBuilder: (_) {
                 return loadingWidget ?? const Center(child: CircularProgressIndicator());
