@@ -442,4 +442,9 @@ class CWMonero extends Monero {
   Map<String, List<int>> debugCallLength() {
     return monero_wallet_api.debugCallLength();
   }
+
+  @override
+  Map<String, dynamic> getWalletCacheDebug() {
+    return monero_wallet_api.getWalletCacheDebug();
+  }
 }
