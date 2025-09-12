@@ -149,7 +149,7 @@ class LightTheme extends MaterialThemeBase {
         ),
       );
 
-  static const String fontFamily = 'WixMadeforText';
+  static const String fontFamily = 'Lato';
   @override
   ThemeData get themeData => ThemeData(
         useMaterial3: true,

@@ -38,7 +38,7 @@ class BlackTheme extends MaterialThemeBase {
   Color get errorColor => const Color(0xFFFFB4AB);
 
   @override
-  Color get surfaceColor => const Color(0xFF000000);
+  Color get surfaceColor => const Color(0xFF131314);
 
   @override
   Color get tertiaryColor => const Color(0xFFDEBFC5);
@@ -73,7 +73,7 @@ class BlackTheme extends MaterialThemeBase {
         outlineVariant: const Color(0xFF49454B),
       );
 
-  static const String fontFamily = 'WixMadeforText';
+  static const String fontFamily = 'Lato';
 
   @override
   TextTheme get textTheme => TextTheme(

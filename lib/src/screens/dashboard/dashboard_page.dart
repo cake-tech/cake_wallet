@@ -174,7 +174,7 @@ class _DashboardPageView extends BasePage {
           label: S.of(context).wallet_menu,
           child: SvgPicture.asset(
             'assets/images/menu.svg',
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),

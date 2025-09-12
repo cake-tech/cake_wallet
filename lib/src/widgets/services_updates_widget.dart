@@ -43,7 +43,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
         },
         child: CakeImageWidget(
           imageUrl: "assets/images/notif.svg",
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).colorScheme.primary,
           width: DeviceInfo.instance.isDesktop ? 30 : 20,
         ),
       );
@@ -139,7 +139,7 @@ class _ServicesUpdatesWidgetState extends State<ServicesUpdatesWidget> {
               children: [
                 CakeImageWidget(
                   imageUrl: "assets/images/notif.svg",
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).colorScheme.primary,
                   width: DeviceInfo.instance.isDesktop ? 30 : 20,
                 ),
                 if (state.hasData && state.data!.hasUpdates && !wasOpened)

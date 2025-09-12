@@ -8,6 +8,7 @@ abstract class CustomThemeColors {
   Color get warningOutlineColor;
   
   // Background gradient colors
+  Color get backgroundMainColor;
   Color get backgroundGradientColor;
   
   // Card gradient colors
