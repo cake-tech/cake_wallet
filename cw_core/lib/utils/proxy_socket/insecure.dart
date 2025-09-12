@@ -16,25 +16,40 @@ class ProxySocketInsecure implements ProxySocket {
   
   @override
   Future<void> close() async {
+    try {
     if (_isClosed) return;
-    _isClosed = true;
-    return socket.close();
+      _isClosed = true;
+      return socket.close();
+    } catch (e) {
+      printV("ProxySocketInsecure: close: $e");
+      return;
+    }
   }
   
   @override
   void destroy() async {
-    if (_isClosed) return;
-    _isClosed = true;
-    socket.destroy();
+    try {
+      if (_isClosed) return;
+      _isClosed = true;
+      socket.destroy();
+    } catch (e) {
+      printV("ProxySocketInsecure: destroy: $e");
+      return;
+    }
   }
   
   @override
   void write(String data) {
-    if (_isClosed) {
-      printV("ProxySocketInsecure: write: socket is closed");
+    try {
+      if (_isClosed) {
+        printV("ProxySocketInsecure: write: socket is closed");
+        return;
+      }
+      socket.write(data);
+    } catch (e) {
+      printV("ProxySocketInsecure: write: $e");
       return;
     }
-    socket.write(data);
   }
   
   @override

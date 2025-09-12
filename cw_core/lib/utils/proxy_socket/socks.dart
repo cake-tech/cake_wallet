@@ -15,9 +15,14 @@ class ProxySocketSocks implements ProxySocket {
   
   @override
   Future<void> close() async {
-    if (_isClosed) return;
-    _isClosed = true;
-    return socket.close();
+    try {
+      if (_isClosed) return;
+      _isClosed = true;
+      await socket.close();
+    } catch (e) {
+      printV("ProxySocketSocks: close: $e");
+      return;
+    }
   }
   
   @override
@@ -25,11 +30,16 @@ class ProxySocketSocks implements ProxySocket {
   
   @override
   void write(String data) {
-    if (_isClosed) {
-      printV("ProxySocketSocks: write: socket is closed");
+    try {
+      if (_isClosed) {
+        printV("ProxySocketSocks: write: socket is closed");
+        return;
+      }
+      socket.write(data);
+    } catch (e) {
+      printV("ProxySocketSocks: write: $e");
       return;
     }
-    socket.write(data);
   }
 
   @override

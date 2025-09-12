@@ -39,7 +39,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v11
+      ref: 490046a3e074dd7b9aaf7098a5efe61b6246d3b2
 
 
 # For information on the generic Dart part of this file, see the
