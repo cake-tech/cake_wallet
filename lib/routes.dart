@@ -116,6 +116,7 @@ class Routes {
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+  static const devMoneroWalletCacheDebug = '/dev/monero_wallet_cache_debug';
 
   static const devSharedPreferences = '/dev/shared_preferences';
   static const devSecurePreferences = '/dev/secure_preferences';

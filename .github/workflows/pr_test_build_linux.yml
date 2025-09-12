@@ -232,6 +232,15 @@ jobs:
         run: |
           flutter pub get
 
+      - name: Build mwebd
+        run: |
+          set -x -e
+          export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
+          echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
+          pushd scripts/android
+            ./build_mwebd.sh --dont-install
+          popd
+
       - name: Build generated code
         run: |
           ./model_generator.sh async

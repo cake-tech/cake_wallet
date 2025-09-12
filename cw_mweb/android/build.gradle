@@ -21,14 +21,6 @@ allprojects {
     }
 }
 
-rootProject.allprojects {
-    repositories {
-        flatDir {
-            dirs project(':cw_mweb').file('libs')
-        }
-    }
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
@@ -73,8 +65,4 @@ android {
             }
         }
     }
-}
-
-dependencies {
-    implementation (name: 'mwebd', ext: 'aar')
 }
