@@ -1502,9 +1502,9 @@ Future<void> setup({
             themeStore: getIt.get<ThemeStore>(),
           ));
 
-  getIt.registerFactoryParam<AnonPayReceivePage, AnonpayInfoBase, void>(
-      (AnonpayInfoBase anonpayInvoiceInfo, _) =>
-          AnonPayReceivePage(invoiceInfo: anonpayInvoiceInfo));
+  getIt.registerFactoryParam<AnonPayReceivePage, AnonPayReceivePageArgs, void>(
+      (AnonPayReceivePageArgs anonpayReceivePageArgs, _) =>
+          AnonPayReceivePage(args: anonpayReceivePageArgs));
 
   getIt.registerFactoryParam<AnonpayDetailsPage, AnonpayInvoiceInfo, void>(
       (AnonpayInvoiceInfo anonpayInvoiceInfo, _) => AnonpayDetailsPage(

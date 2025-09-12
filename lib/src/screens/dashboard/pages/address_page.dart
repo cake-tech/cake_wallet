@@ -4,6 +4,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
@@ -212,7 +213,7 @@ class AddressPage extends BasePage {
                     Center(
                       child: SizedBox(
                         height: 40,
-                        width: addressListViewModel.walletImages.length * 30.0,
+                        width: addressListViewModel.walletImages.length * 32.0,
                         child: Stack(
                           children: [
                             for (int i = addressListViewModel.walletImages.length - 1; i >= 0; i--)
@@ -220,10 +221,11 @@ class AddressPage extends BasePage {
                                 left: i * 25.0,
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.surfaceContainer,
                                     border: Border.all(
-                                        color: Theme.of(context).colorScheme.surfaceContainer,
-                                        width: 3),
+                                      color: Theme.of(context).colorScheme.surfaceContainer,
+                                      width: 3,
+                                    ),
+                                    color: Theme.of(context).colorScheme.surfaceContainer,
                                     borderRadius: BorderRadius.circular(24),
                                   ),
                                   child: ClipOval(
@@ -287,10 +289,13 @@ class AddressPage extends BasePage {
             Navigator.pushNamed(
               context,
               Routes.anonPayReceivePage,
-              arguments: AnonpayDonationLinkInfo(
-                clearnetUrl: clearnetUrl,
-                onionUrl: onionUrl,
-                address: addressListViewModel.address.address,
+              arguments: AnonPayReceivePageArgs(
+                invoiceInfo: AnonpayDonationLinkInfo(
+                  clearnetUrl: clearnetUrl,
+                  onionUrl: onionUrl,
+                  address: addressListViewModel.address.address,
+                ),
+                qrImage: addressListViewModel.qrImage,
               ),
             );
           } else {

@@ -19,6 +19,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/qr_util.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
@@ -662,40 +663,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  String get qrImage {
-    switch (type) {
-      case WalletType.ethereum:
-        return 'assets/images/eth_chain_qr.svg';
-      case WalletType.solana:
-        return 'assets/images/sol_chain_qr.svg';
-      case WalletType.polygon:
-        return 'assets/images/pol_chain_qr.svg';
-      case WalletType.tron:
-        return 'assets/images/trx_chain_qr.svg';
-      case WalletType.zano:
-        return 'assets/images/zano_chain_qr.svg';
-      case WalletType.monero:
-        return 'assets/images/xmr_chain_qr.svg';
-      case WalletType.wownero:
-        return 'assets/images/wow_chain_qr.svg';
-      case WalletType.bitcoin:
-        return 'assets/images/btc_chain_qr.svg';
-      case WalletType.litecoin:
-        return 'assets/images/ltc_chain_qr.svg';
-      case WalletType.bitcoinCash:
-        return 'assets/images/bch_chain_qr.svg';
-      case WalletType.nano:
-        return 'assets/images/xno_chain_qr.svg';
-      case WalletType.decred:
-        return 'assets/images/dcr_chain_qr.svg';
-      case WalletType.dogecoin:
-        return 'assets/images/doge_chain_qr.svg';
-      case WalletType.banano:
-      case WalletType.haven:
-      case WalletType.none:
-        return 'assets/images/qr-cake.svg';
-    }
-  }
+  String get qrImage => getQrImage(type);
 
   @computed
   String get monoImage {
