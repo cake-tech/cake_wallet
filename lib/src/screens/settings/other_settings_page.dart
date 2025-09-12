@@ -75,6 +75,12 @@ class OtherSettingsPage extends BasePage {
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
                 ),
+              if (FeatureFlag.hasDevOptions && [WalletType.monero].contains(_otherSettingsViewModel.walletType))
+                SettingsCellWithArrow(
+                  title: '[dev] xmr wallet cache debug',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
+                ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] shared preferences',

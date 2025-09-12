@@ -41,8 +41,22 @@ class DFXBuyProvider extends BuyProvider {
   static const _authPath = '/v1/auth';
   static const walletName = 'CakeWallet';
 
-  static const List<CryptoCurrency> _notSupportedCrypto = [];
-  static const List<FiatCurrency> _notSupportedFiat = [];
+  static final List<CryptoCurrency> _supportedCrypto = [
+    CryptoCurrency.xmr,
+    CryptoCurrency.btc,
+    CryptoCurrency.eth,
+    CryptoCurrency.maticpoly,
+    CryptoCurrency.sol,
+    CryptoCurrency.zano,
+    CryptoCurrency.trx,
+  ];
+  static final List<CryptoCurrency> _notSupportedCrypto = CryptoCurrency.all
+      .where((crypto) => !_supportedCrypto.contains(crypto) || ["ETH", "POL"].contains(crypto.tag))
+      .toList();
+
+  static final List<FiatCurrency> _supportedFiat = [FiatCurrency.chf, FiatCurrency.eur];
+  static final List<FiatCurrency> _notSupportedFiat =
+  FiatCurrency.all.where((fiat) => !_supportedFiat.contains(fiat)).toList();
 
   @override
   String get title => 'DFX.swiss';
@@ -403,7 +417,7 @@ class DFXBuyProvider extends BuyProvider {
     final responseBody = jsonDecode(body) as Map<String, dynamic>;
     final message = responseBody['message']?.toString() ?? '';
 
-    if (message.contains("address must match")) {
+    if (message.contains("address must match") || message.contains("signature must match")) {
       return "The wallet type must match the selected currency";
     }
 

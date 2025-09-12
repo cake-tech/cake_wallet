@@ -37,6 +37,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -940,6 +941,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devMoneroCallProfiler:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
+      );
+
+    case Routes.devMoneroWalletCacheDebug:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevMoneroWalletCacheDebugPage>(),
       );
 
     case Routes.devSecurePreferences:

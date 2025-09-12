@@ -1,4 +1,4 @@
-Swap flow improvements
-Cakepay improvements
-UI enhancements
+Better support for embedded Tor
+Improve sending and swapping flow
+Enhance payment scanning
 Bug fixes

@@ -24,7 +24,6 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
@@ -449,8 +448,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   void setReceiveAmountFromFiat({required String fiatAmount}) {
-    final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
-        fiatConversionStore.prices[receiveCurrency]!;
+    final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
+    final crypto = _enteredAmount / fiatConversionStore.prices[receiveCurrency]!;
     final receiveAmountTmp = _cryptoNumberFormat.format(crypto);
     if (receiveAmount != receiveAmountTmp) {
       changeReceiveAmount(amount: receiveAmountTmp);
@@ -467,6 +466,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       return;
     }
 
+    /// For fixed-rate transactions, we don't want to recalculate receive amount
+    /// as it should remain exactly what the user set
+    if (isFixedRateMode) return;
+
     final _enteredAmount = double.tryParse(amount.replaceAll(',', '.')) ?? 0;
 
     /// in case the best rate was not calculated yet
@@ -475,6 +478,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
       await calculateBestRate();
     }
+
     _cryptoNumberFormat.maximumFractionDigits = receiveMaxDigits;
 
     receiveAmount = _cryptoNumberFormat
