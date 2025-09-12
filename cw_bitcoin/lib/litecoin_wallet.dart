@@ -5,6 +5,7 @@ import 'package:convert/convert.dart' as convert;
 import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
@@ -1047,7 +1048,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final resp = await CwMweb.create(CreateRequest(
         rawTx: txb.buildTransaction((a, b, c, d) => '').toBytes(),
         scanSecret: scanSecret,
-        spendSecret: spendSecret,
+        spendSecret: List.filled(32, 0),
         feeRatePerKb: Int64(feeRate * 1000),
         dryRun: true));
     final tx = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
@@ -1074,8 +1075,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return fee.toInt() + feeIncrease;
   }
 
-  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction,
-                              BitcoinTransactionCredentials credentials) async {
+  Future<Uint8List> buildPsbt(PendingBitcoinTransaction transaction) async {
     final List<TxInput> inputs = [];
     final List<TxOut> txouts = [];
     for (final utxo in transaction.utxos) {
@@ -1099,11 +1099,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         ));
       }
     }
-    for (final out in credentials.outputs) {
-      final address = out.isParsedAddress ? out.extractedAddress! : out.address;
+    for (final output in transaction.outputs) {
+      var address = addressFromOutputScript(output.scriptPubKey, LitecoinNetwork.mainnet);
+      if (output.scriptPubKey.toBytes().length == 66) {
+        address = SegwitBech32Encoder.encode("ltcmweb", 0, output.scriptPubKey.toBytes());
+      }
       resp = await CwMweb.psbtAddRecipient(PsbtAddRecipientRequest(
         psbtB64: resp.psbtB64,
-        recipient: PsbtRecipient(address: address, value: Int64(out.formattedCryptoAmount!)),
+        recipient: PsbtRecipient(address: address, value: Int64(output.amount.toInt())),
         feeRatePerKb: Int64.parseInt(transaction.feeRate) * 1000,
       ));
     }
@@ -1124,10 +1127,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       await waitForMwebAddresses();
 
-      final transactionCredentials = credentials as BitcoinTransactionCredentials;
-
       if (tx.shouldCommitUR()) {
-        tx.unsignedPsbt = await buildPsbt(tx, transactionCredentials);
+        tx.unsignedPsbt = await buildPsbt(tx);
         return tx;
       }
 
@@ -1140,6 +1141,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       final tx2 = BtcTransaction.fromRaw(hex.encode(resp.rawTx));
 
       // check if the transaction doesn't contain any mweb inputs or outputs:
+      final transactionCredentials = credentials as BitcoinTransactionCredentials;
+
       bool hasMwebInput = false;
       bool hasMwebOutput = false;
       bool hasRegularOutput = false;
