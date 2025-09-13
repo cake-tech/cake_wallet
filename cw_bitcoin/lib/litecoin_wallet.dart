@@ -1254,31 +1254,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .toHex();
       tx.outputAddresses = resp.outputId;
 
-      return tx
-        ..addListener((transaction) async {
-          final addresses = <String>{};
-          transaction.inputAddresses?.forEach((id) async {
-            final utxo = mwebUtxosBox.get(id);
-            // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
-            if (utxo == null) return;
-            // mark utxo as spent so we add it to the unconfirmed balance (as negative):
-            utxo.spent = true;
-            await mwebUtxosBox.put(id, utxo);
-            final addressRecord = walletAddresses.allAddresses
-                .firstWhere((addressRecord) => addressRecord.address == utxo.address);
-            if (!addresses.contains(utxo.address)) {
-              addresses.add(utxo.address);
-            }
-            addressRecord.balance -= utxo.value.toInt();
-          });
-          transaction.inputAddresses?.addAll(addresses);
-          printV("isPegIn: $isPegIn, isPegOut: $isPegOut");
-          transaction.additionalInfo["isPegIn"] = isPegIn;
-          transaction.additionalInfo["isPegOut"] = isPegOut;
-          transactionHistory.addOne(transaction);
-          await updateUnspent();
-          await updateBalance();
-        });
+      addTransactionListener(tx, isPegIn, isPegOut);
+      return tx;
     } catch (e, s) {
       printV(e);
       printV(s);
@@ -1288,6 +1265,33 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
       rethrow;
     }
+  }
+
+  void addTransactionListener(PendingBitcoinTransaction tx, bool isPegIn, bool isPegOut) {
+    tx.addListener((transaction) async {
+      final addresses = <String>{};
+      transaction.inputAddresses?.forEach((id) async {
+        final utxo = mwebUtxosBox.get(id);
+        // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
+        if (utxo == null) return;
+        // mark utxo as spent so we add it to the unconfirmed balance (as negative):
+        utxo.spent = true;
+        await mwebUtxosBox.put(id, utxo);
+        final addressRecord = walletAddresses.allAddresses
+            .firstWhere((addressRecord) => addressRecord.address == utxo.address);
+        if (!addresses.contains(utxo.address)) {
+          addresses.add(utxo.address);
+        }
+        addressRecord.balance -= utxo.value.toInt();
+      });
+      transaction.inputAddresses?.addAll(addresses);
+      printV("isPegIn: $isPegIn, isPegOut: $isPegOut");
+      transaction.additionalInfo["isPegIn"] = isPegIn;
+      transaction.additionalInfo["isPegOut"] = isPegOut;
+      transactionHistory.addOne(transaction);
+      await updateUnspent();
+      await updateBalance();
+    });
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
@@ -1303,8 +1307,57 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
     final result = ur.result as UR;
     final psbtB64 = base64Encode(CBORDecoder(result.cbor).decodeBytes().$1);
-    final resp = await CwMweb.psbtExtract(PsbtExtractRequest(psbtB64: psbtB64));
-    print(resp.rawTx);
+
+    final resp = await CwMweb.psbtGetRecipients(PsbtGetRecipientsRequest(psbtB64: psbtB64));
+
+    bool hasMwebInput = false;
+    bool hasMwebOutput = false;
+    bool hasRegularOutput = false;
+
+    for (final recipient in resp.recipient) {
+      if (recipient.address.contains("mweb")) {
+        hasMwebOutput = true;
+      } else {
+        hasRegularOutput = true;
+      }
+    }
+
+    for (final inputPubkey in resp.inputPubkey) {
+      if (inputPubkey.isEmpty) {
+        hasMwebInput = true;
+      }
+    }
+
+    bool isPegIn = !hasMwebInput && hasMwebOutput;
+    bool isPegOut = hasMwebInput && hasRegularOutput;
+
+    final resp2 = await CwMweb.psbtExtract(PsbtExtractRequest(psbtB64: psbtB64));
+
+    final tx = PendingBitcoinTransaction(
+      BtcTransaction.fromRaw(hex.encode(resp2.rawTx)),
+      type,
+      electrumClient: electrumClient,
+      amount: 0,
+      fee: resp.fee.toInt(),
+      feeRate: "",
+      network: network,
+      hasChange: resp.recipient.length > 1,
+      isViewOnly: false,
+    );
+    tx.outputAddresses = resp2.outputId;
+    addTransactionListener(tx, isPegIn, isPegOut);
+
+    try {
+      await tx.commit();
+    } catch (e, s) {
+      printV(e);
+      printV(s);
+      if (e.toString().contains("commit failed")) {
+        printV(e);
+        throw Exception("Transaction commit failed (no peers responded), please try again.");
+      }
+      rethrow;
+    }
   }
 
   @override
