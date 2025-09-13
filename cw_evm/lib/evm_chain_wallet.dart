@@ -64,6 +64,7 @@ abstract class EVMChainWalletBase
     with Store, WalletKeysFile {
   EVMChainWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required EVMChainClient client,
     required CryptoCurrency nativeCurrency,
     String? mnemonic,
@@ -85,7 +86,7 @@ abstract class EVMChainWalletBase
             nativeCurrency: initialBalance ?? EVMChainERC20Balance(BigInt.zero),
           },
         ),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = setUpTransactionHistory(walletInfo, password, encryptionFileUtils);
 

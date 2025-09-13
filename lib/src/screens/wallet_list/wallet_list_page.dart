@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
@@ -24,6 +26,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -37,17 +40,26 @@ class WalletListPage extends BasePage {
 
   final WalletListViewModel walletListViewModel;
   final AuthService authService;
-  final Function(BuildContext)? onWalletLoaded;
+  final Future<void> Function(BuildContext)? onWalletLoaded;
 
   @override
   String get title => S.current.wallets;
 
   @override
-  Widget body(BuildContext context) => WalletListBody(
+  Widget body(BuildContext context) => Observer(
+    builder: (_) {
+      if (walletListViewModel.singleWalletsList.isEmpty && walletListViewModel.multiWalletGroups.isEmpty) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+      return WalletListBody(
         walletListViewModel: walletListViewModel,
         authService: authService,
         onWalletLoaded: onWalletLoaded ?? (context) => Navigator.of(context).pop(),
       );
+    }
+  );
 
   @override
   Widget trailing(BuildContext context) {
@@ -470,7 +482,7 @@ class WalletListBodyState extends State<WalletListBody> {
 
         try {
           final requireHardwareWalletConnection =
-              widget.walletListViewModel.requireHardwareWalletConnection(wallet);
+              await widget.walletListViewModel.requireHardwareWalletConnection(wallet);
           if (requireHardwareWalletConnection) {
             bool didConnect = false;
             await Navigator.of(context).pushNamed(
@@ -498,21 +510,19 @@ class WalletListBodyState extends State<WalletListBody> {
                   buttonAction: () => Navigator.of(context).pop()),
             );
           }
-
           changeProcessText(S.of(context).wallet_list_loading_wallet(wallet.name));
           await widget.walletListViewModel.loadWallet(wallet);
-          await hideProgressText();
+          unawaited(hideProgressText());
           // only pop the wallets route in mobile as it will go back to dashboard page
           // in desktop platforms the navigation tree is different
           if (responsiveLayoutUtil.shouldRenderMobileUI) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (this.mounted) {
-                if (requireHardwareWalletConnection) {
-                  Navigator.of(context).pop();
-                }
-                widget.onWalletLoaded.call(context);
-              }
-            });
+            // await Future.delayed(Duration(seconds: 1));
+            // if (!this.mounted) return;
+            if (!context.mounted) return;
+            if (requireHardwareWalletConnection) {
+              Navigator.of(context).pop();
+            }
+            await widget.onWalletLoaded.call(context);
           }
         } catch (e) {
           await ExceptionHandler.resetLastPopupDate();

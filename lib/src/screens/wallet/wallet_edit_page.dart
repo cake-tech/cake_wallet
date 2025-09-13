@@ -86,7 +86,7 @@ class WalletEditPage extends BasePage {
                           onPressed: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (!pageArguments.isWalletGroup &&
-                                  pageArguments.walletNewVM!
+                                  await pageArguments.walletNewVM!
                                       .nameExists(walletEditViewModel.newName)) {
                                 showPopUp<void>(
                                   context: context,

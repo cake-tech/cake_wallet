@@ -8,17 +8,16 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WalletManager {
-  WalletManager(this._walletInfoSource, this._sharedPreferences);
+  WalletManager(this._sharedPreferences);
 
-  final Box<WalletInfo> _walletInfoSource;
   final SharedPreferences _sharedPreferences;
 
   final List<WalletGroup> walletGroups = [];
 
-  void updateWalletGroups() {
+  Future<void> updateWalletGroups() async {
     walletGroups.clear();
 
-    for (final walletInfo in _walletInfoSource.values) {
+    for (final walletInfo in await WalletInfo.getAll()) {
       final groupKey = _resolveGroupKey(walletInfo);
       final group = _getOrCreateGroup(groupKey);
       group.wallets.add(walletInfo);
@@ -123,7 +122,7 @@ class WalletManager {
     final oldGroupKey = _resolveGroupKey(walletInfo); // parentAddress fallback
 
     // Find all wallets that share this old group key (i.e the old group)
-    final oldGroupWallets = _walletInfoSource.values.where((w) {
+    final oldGroupWallets = (await WalletInfo.getAll()).where((w) {
       final key = w.hashedWalletIdentifier != null && w.hashedWalletIdentifier!.isNotEmpty
           ? w.hashedWalletIdentifier
           : (w.parentAddress ?? w.address);
