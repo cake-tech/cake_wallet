@@ -1206,15 +1206,15 @@ class PsbtGetRecipientsRequest extends $pb.GeneratedMessage {
 class PsbtGetRecipientsResponse extends $pb.GeneratedMessage {
   factory PsbtGetRecipientsResponse({
     $core.Iterable<PsbtRecipient>? recipient,
-    $core.Iterable<$core.List<$core.int>>? inputPubkey,
+    $core.Iterable<$core.String>? inputAddress,
     $fixnum.Int64? fee,
   }) {
     final $result = create();
     if (recipient != null) {
       $result.recipient.addAll(recipient);
     }
-    if (inputPubkey != null) {
-      $result.inputPubkey.addAll(inputPubkey);
+    if (inputAddress != null) {
+      $result.inputAddress.addAll(inputAddress);
     }
     if (fee != null) {
       $result.fee = fee;
@@ -1227,7 +1227,7 @@ class PsbtGetRecipientsResponse extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtGetRecipientsResponse', createEmptyInstance: create)
     ..pc<PsbtRecipient>(1, _omitFieldNames ? '' : 'recipient', $pb.PbFieldType.PM, subBuilder: PsbtRecipient.create)
-    ..p<$core.List<$core.int>>(2, _omitFieldNames ? '' : 'inputPubkey', $pb.PbFieldType.PY)
+    ..pPS(2, _omitFieldNames ? '' : 'inputAddress')
     ..aInt64(3, _omitFieldNames ? '' : 'fee')
     ..hasRequiredFields = false
   ;
@@ -1257,7 +1257,7 @@ class PsbtGetRecipientsResponse extends $pb.GeneratedMessage {
   $core.List<PsbtRecipient> get recipient => $_getList(0);
 
   @$pb.TagNumber(2)
-  $core.List<$core.List<$core.int>> get inputPubkey => $_getList(1);
+  $core.List<$core.String> get inputAddress => $_getList(1);
 
   @$pb.TagNumber(3)
   $fixnum.Int64 get fee => $_getI64(2);
