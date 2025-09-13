@@ -1254,7 +1254,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           .toHex();
       tx.outputAddresses = resp.outputId;
 
-      addTransactionListener(tx, isPegIn, isPegOut);
+      addTransactionListener(tx, [], isPegIn, isPegOut);
       return tx;
     } catch (e, s) {
       printV(e);
@@ -1267,9 +1267,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     }
   }
 
-  void addTransactionListener(PendingBitcoinTransaction tx, bool isPegIn, bool isPegOut) {
+  void addTransactionListener(PendingBitcoinTransaction tx,
+    List<String> inputAddresses, bool isPegIn, bool isPegOut) {
     tx.addListener((transaction) async {
       final addresses = <String>{};
+      transaction.inputAddresses?.addAll(inputAddresses);
       transaction.inputAddresses?.forEach((id) async {
         final utxo = mwebUtxosBox.get(id);
         // await mwebUtxosBox.delete(id); // gets deleted in checkMwebUtxosSpent
@@ -1322,8 +1324,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    for (final inputPubkey in resp.inputPubkey) {
-      if (inputPubkey.isEmpty) {
+    for (final address in resp.inputAddress) {
+      try {
+        LitecoinAddress(address);
+      } catch (_) {
         hasMwebInput = true;
       }
     }
@@ -1345,7 +1349,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       isViewOnly: false,
     );
     tx.outputAddresses = resp2.outputId;
-    addTransactionListener(tx, isPegIn, isPegOut);
+    addTransactionListener(tx, resp.inputAddress, isPegIn, isPegOut);
 
     try {
       await tx.commit();
