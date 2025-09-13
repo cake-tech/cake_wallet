@@ -259,6 +259,19 @@ class CwMweb {
     return PsbtResponse();
   }
 
+  static Future<PsbtGetRecipientsResponse> psbtGetRecipients(PsbtGetRecipientsRequest request) async {
+    log("mweb.psbtGetRecipients() called");
+    try {
+      _rpcClient = await stub();
+      return await _rpcClient!.psbtGetRecipients(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+    } on GrpcError catch (e) {
+      printV('Caught grpc error: ${e.message}');
+    } catch (e) {
+      printV("Error getting psbtGetRecipients: $e");
+    }
+    return PsbtGetRecipientsResponse();
+  }
+
   static Future<CreateResponse> psbtExtract(PsbtExtractRequest request) async {
     log("mweb.psbtExtract() called");
     try {
