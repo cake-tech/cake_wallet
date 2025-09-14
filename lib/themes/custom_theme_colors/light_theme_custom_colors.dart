@@ -25,13 +25,4 @@ class LightThemeCustomColors extends CustomThemeColors {
   
   @override
   Color get toggleColorOffState => const Color(0xFFCACAE7);
-  
-  @override
-  Color? get cakePrimaryColor => null;
-  
-  @override
-  Color? get moneroPrimaryColor => null;
-  
-  @override
-  Color? get bitcoinPrimaryColor => null;
 }

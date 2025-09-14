@@ -25,13 +25,4 @@ class BlackThemeCustomColors extends CustomThemeColors {
 
   @override
   Color get toggleColorOffState => const Color(0xFF3A4F88);
-
-  @override
-  Color get cakePrimaryColor => const Color(0xFF52B6F0);
-
-  @override
-  Color get moneroPrimaryColor => const Color(0xFFD85128);
-
-  @override
-  Color get bitcoinPrimaryColor => const Color(0xFFF1B92F);
 }
