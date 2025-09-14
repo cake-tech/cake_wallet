@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 for COIN in monero wownero zano;
 do
     pushd ../monero_c
-        for target in aarch64-linux-android
+        for target in {x86_64,aarch64}-linux-android armv7a-linux-androideabi
         do
             if [[ -f "release/${COIN}/${target}_libwallet2_api_c.so" ]];
             then
