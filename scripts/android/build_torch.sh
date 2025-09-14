@@ -6,4 +6,4 @@ cd "$(dirname "$0")"
 
 cd ../torch_dart
 
-./build.sh aarch64-linux-android
+./build.sh aarch64-linux-android armv7a-linux-androideabi x86_64-linux-android
