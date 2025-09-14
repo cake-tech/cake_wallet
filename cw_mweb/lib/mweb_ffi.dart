@@ -24,12 +24,19 @@ class MWebFfi {
     final chain = "".toNativeUtf8().cast<Char>();
     final dataDir_ = dataDir.toNativeUtf8().cast<Char>();
     final nodeUri_ = nodeUri.toNativeUtf8().cast<Char>();
+    final errMsgPtr = calloc<Pointer<Char>>();
 
-    final port = lib.StartServer(chain, dataDir_, nodeUri_);
+    final port = lib.StartServer(chain, dataDir_, nodeUri_, errMsgPtr);
+    if (port == 0) {
+      final errMsg = errMsgPtr.value.cast<Utf8>().toDartString();
+      print('Error starting server: $errMsg');
+      calloc.free(errMsgPtr.value);
+    }
 
     calloc.free(chain);
     calloc.free(dataDir_);
     calloc.free(nodeUri_);
+    calloc.free(errMsgPtr);
 
     return port;
   }
