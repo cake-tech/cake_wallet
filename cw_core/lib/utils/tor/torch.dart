@@ -29,7 +29,7 @@ class CakeTorTorch implements CakeTorInstance {
   bool get enabled => isTorRunning;
 
   @override
-  int get port => 42142;
+  int get port => 52142;
 
   @override
   Future<void> start() async {

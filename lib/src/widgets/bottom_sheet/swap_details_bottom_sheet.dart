@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/widgets/standard_slide_button_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -19,7 +18,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 class SwapDetailsBottomSheet extends StatefulWidget {
   SwapDetailsBottomSheet({
@@ -289,7 +287,8 @@ class _SwapDetailsContent extends StatelessWidget {
               _SwapDetailsTile(
                 label: 'You Get',
                 value: '${trade.receiveAmount ?? '0'} ${trade.to?.title ?? ''}',
-                valueFiatFormatted: exchangeTradeViewModel.receiveAmountFiatFormatted,
+                valueFiatFormatted: exchangeTradeViewModel
+                    .getReceiveAmountFiatFormatted(trade.receiveAmount ?? '0.0'),
               ),
               const SizedBox(height: 8),
               Container(
@@ -330,6 +329,7 @@ class _SwapDetailsContent extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
@@ -346,28 +346,27 @@ class _SwapDetailsContent extends StatelessWidget {
                                 fontSize: 16,
                               ),
                         ),
+                        const SizedBox(width: 8),
                       ],
                     ),
-                    Spacer(),
                     Expanded(
-                      // flex: 4,
                       child: GestureDetector(
                         onTap: () {
                           Clipboard.setData(ClipboardData(text: trade.id));
                           showBar<void>(context, S.of(context).copied_to_clipboard);
                         },
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
                               'ID: ',
                               style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
                             ),
-                            Expanded(
+                            Flexible(
                               child: Text(
                                 trade.id,
                                 style:
                                     Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 18),
-                                    softWrap: true,
                               ),
                             ),
                           ],

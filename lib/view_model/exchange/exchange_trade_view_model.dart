@@ -127,16 +127,16 @@ abstract class ExchangeTradeViewModelBase with Store {
   @computed
   bool get isFiatDisabled => feesViewModel.isFiatDisabled;
 
-  @computed
-  String get receiveAmountFiatFormatted {
+  @action
+  String getReceiveAmountFiatFormatted(String receiveAmount) {
     var amount = '0.00';
     try {
-      if (trade.receiveAmount?.isNotEmpty ?? false) {
+      if (receiveAmount.isNotEmpty) {
         if (fiatConversionStore.prices[trade.to] == null) return '';
 
         amount = calculateFiatAmount(
           price: fiatConversionStore.prices[trade.to]!,
-          cryptoAmount: trade.receiveAmount,
+          cryptoAmount: receiveAmount,
         );
       }
     } catch (_) {

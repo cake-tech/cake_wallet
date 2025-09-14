@@ -223,7 +223,7 @@ jobs:
         run: |
           set -x -e
           pushd scripts
-            wget https://github.com/MrCyjaneK/torch_dart/releases/download/4f987d4-1-ge071fcf-1-gc282f09-1-g4c290aa-1-gabdf653/torch_dart-4f987d4-1-ge071fcf-1-gc282f09-1-g4c290aa-1-gabdf653.tar.gz -O torch_dart.tar.gz
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.4/torch_dart-v1.0.4.tar.gz -O torch_dart.tar.gz
             mkdir torch_dart
             pushd torch_dart
               tar -xzf ../torch_dart.tar.gz
@@ -254,7 +254,6 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            gomobile init;
             ./build_mwebd.sh --dont-install
           popd
 

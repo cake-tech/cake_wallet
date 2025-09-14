@@ -6,7 +6,6 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -92,8 +91,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     generating = true;
     try {
       while (mwebAddrs.length <= (index + 1)) {
-        final addresses =
-            await CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
+        final addresses = CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
         printV("generated up to index ${mwebAddrs.length}");
         // sleep for a bit to avoid making the main thread unresponsive:
         await Future.delayed(Duration(milliseconds: 200));
