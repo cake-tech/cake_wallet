@@ -1101,7 +1101,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       }
     }
     var resp = await CwMweb.psbtCreate(PsbtCreateRequest(
-      rawTx: BtcTransaction(
+      rawTx: inputs.isEmpty ? null : BtcTransaction(
         inputs: inputs,
         outputs: isMweb ? [] : transaction.outputs,
       ).toBytes(),
