@@ -245,9 +245,7 @@ class PrimaryImageButton extends StatelessWidget {
                 SizedBox(width: 15),
                 Text(
                   text,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         color: textColor,
                       ),
                 )
