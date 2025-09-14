@@ -48,7 +48,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(cellRadius),
                             border: isSelected
-                                ? Border.all(color: Theme.of(context).colorScheme.primary)
+                                ? Border.all(color: Theme.of(context).colorScheme.primary, strokeAlign: BorderSide.strokeAlignOutside)
                                 : null,
                           ),
                           child: ClipRRect(
@@ -76,7 +76,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Container(
-                      height: 40,
+                      height: 45.5,
                       child: Row(
                         children: availableAccentColors.map((accentColor) {
                           final isSelected = _displaySettingsViewModel
@@ -95,8 +95,8 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                                 border: isSelected
                                     ? Border.all(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        width: 2)
-                                    : Border.all(color: Theme.of(context).colorScheme.outline),
+                                        width: 3)
+                                    : null,
                                 color: accentColor.color,
                               ),
                             ),

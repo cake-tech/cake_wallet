@@ -6,7 +6,7 @@ import 'package:cake_wallet/themes/custom_theme_colors/black_theme_custom_colors
 enum BlackThemeAccentColor implements ThemeAccentColor {
   cakePrimary(Color(0xFF52B6F0), 'Cake Primary'),
   bitcoinYellow(Color(0xFFFFC107), 'Bitcoin Yellow'),
-  moneroOrange(Color(0xFFFF9800), 'Monero Orange');
+  moneroOrange(Color(0xFFFF5F2A), 'Monero Orange');
 
   const BlackThemeAccentColor(this.color, this.name);
 
@@ -38,7 +38,7 @@ class BlackTheme extends MaterialThemeBase {
   Color get errorColor => const Color(0xFFFFB4AB);
 
   @override
-  Color get surfaceColor => const Color(0xFF000000);
+  Color get surfaceColor => const Color(0xFF131314);
 
   @override
   Color get tertiaryColor => const Color(0xFFDEBFC5);
@@ -73,7 +73,7 @@ class BlackTheme extends MaterialThemeBase {
         outlineVariant: const Color(0xFF49454B),
       );
 
-  static const String fontFamily = 'WixMadeforText';
+  static const String fontFamily = 'Lato';
 
   @override
   TextTheme get textTheme => TextTheme(

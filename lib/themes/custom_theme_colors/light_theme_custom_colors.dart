@@ -7,6 +7,9 @@ class LightThemeCustomColors extends CustomThemeColors {
   
   @override
   Color get warningOutlineColor => const Color(0xFF312938);
+
+  @override
+  Color get backgroundMainColor => const Color(0xFF000000);
   
   @override
   Color get backgroundGradientColor => const Color(0xFFE7E7FD);

@@ -138,7 +138,7 @@ class BalanceRowWidget extends StatelessWidget {
                           AutoSizeText(
                             availableBalance,
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
+                                  color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 24,
                                   height: 1,

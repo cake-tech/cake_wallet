@@ -9,6 +9,9 @@ class DarkThemeCustomColors extends CustomThemeColors {
   Color get warningOutlineColor => const Color(0xFFFFB84E);
 
   @override
+  Color get backgroundMainColor => const Color(0xFF000000);
+
+  @override
   Color get backgroundGradientColor => const Color(0xFF0F1A36);
 
   @override
