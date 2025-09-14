@@ -1320,6 +1320,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     bool isPegIn = !hasMwebInput && hasMwebOutput;
     bool isPegOut = hasMwebInput && hasRegularOutput;
+    bool isRegular = !hasMwebInput && !hasMwebOutput;
 
     final resp2 = await CwMweb.psbtExtract(PsbtExtractRequest(psbtB64: psbtB64));
 
@@ -1332,6 +1333,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       feeRate: "",
       network: network,
       hasChange: resp.recipient.length > 1,
+      isMweb: !isRegular,
       isViewOnly: false,
     );
     tx.outputAddresses = resp2.outputId;
