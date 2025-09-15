@@ -447,6 +447,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
   String? getLastLedgerCommand();
   Map<String, List<int>> debugCallLength();
+  Map<String, dynamic> getWalletCacheDebug();
 }
 
 abstract class MoneroSubaddressList {

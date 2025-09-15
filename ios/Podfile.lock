@@ -69,6 +69,8 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
+  - image_picker_ios (0.0.1):
+    - Flutter
   - in_app_review (2.0.0):
     - Flutter
   - integration_test (0.0.1):

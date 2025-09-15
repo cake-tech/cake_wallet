@@ -19,11 +19,6 @@ abstract class CustomThemeColors {
   Color get toggleKnobStateColor;
   Color get toggleColorOffState;
   
-  // Crypto-specific colors (if needed)
-  Color? get cakePrimaryColor;
-  Color? get moneroPrimaryColor;
-  Color? get bitcoinPrimaryColor;
-  
   // Sync colors (common across themes)
   static const syncGreen = Color(0xFFFF12A439);
   static const syncYellow = Color(0xFFFFFB84E);
