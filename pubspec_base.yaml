@@ -121,7 +121,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
-  reown_walletkit: ^1.1.5+1
+  reown_walletkit: 1.2.0
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils

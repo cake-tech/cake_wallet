@@ -141,9 +141,7 @@ RUN ARCH=$(uname -m) && \
 ENV ANDROID_NDK_VERSION=28.2.13676358
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" != "x86_64" ]; then exit 0; fi \
-    && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION" \
-    "ndk;27.0.12077973" \
-    "ndk;27.2.12479018"
+    && yes | sdkmanager "ndk;$ANDROID_NDK_VERSION"
 
 # Install dependencies for tests
 # Comes from https://github.com/ReactiveCircus/android-emulator-runner
