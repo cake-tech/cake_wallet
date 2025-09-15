@@ -498,8 +498,8 @@ packages:
     dependency: "direct main"
     description:
       path: "impls/monero.dart"
-      ref: "5225c47e5033d46bfd60e612e87b24c562f67efa"
-      resolved-ref: "5225c47e5033d46bfd60e612e87b24c562f67efa"
+      ref: "07f7a7f80735130ebfa5842ddee5139076408c0d"
+      resolved-ref: "07f7a7f80735130ebfa5842ddee5139076408c0d"
       url: "https://github.com/mrcyjanek/monero_c"
     source: git
     version: "0.0.0"

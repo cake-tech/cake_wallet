@@ -326,3 +326,22 @@ jobs:
         with:
           path: ${{ github.workspace }}/build/app/outputs/flutter-apk
           name: "android apk"
+      
+      - name: 16KB align
+        run: |
+          cd build/app/outputs/flutter-apk
+          for i in armeabi-v7a arm64-v8a x86_64; do
+            rm -rf check/$i
+            mkdir -p check/$i
+            pushd check/$i
+            unzip ../../app-$i-*.apk &> /dev/null
+            find . -type f -name '*.so' -print0 | while IFS= read -r -d '' so; do       
+              misaligned=$(readelf -l "$so" | awk '/LOAD/ { if ($NF=="0x1000") print $NF }' | wc -l)
+              if [ "$misaligned" -gt 0 ]; then
+                echo "-> [$i] NOT 16KB aligned: $so"
+              else
+                echo "-> [$i] OK: $so"
+              fi
+            done
+            popd
+          done
