@@ -53,9 +53,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.polygon:
       case WalletType.decred:
       case WalletType.bitcoin:
+      case WalletType.litecoin:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
-      case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.zano:
       case WalletType.none:
@@ -218,6 +218,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     if (mode == WalletRestoreMode.keys) {
       final viewKey = options['viewKey'] as String?;
       final spendKey = options['spendKey'] as String?;
+      final scanSecret = options['scanSecret'] as String?;
+      final spendPubkey = options['spendPubkey'] as String?;
       final address = options['address'] as String?;
 
       switch (type) {
@@ -226,6 +228,15 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             xpub: viewKey!,
+          );
+
+        case WalletType.litecoin:
+          return bitcoin!.createLitecoinWalletFromKeys(
+            name: name,
+            password: password,
+            xpub: viewKey!,
+            scanSecret: scanSecret!,
+            spendPubkey: spendPubkey!,
           );
 
         case WalletType.monero:
