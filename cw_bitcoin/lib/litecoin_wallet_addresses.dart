@@ -103,7 +103,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
     // ensure mweb addresses are up to date:
     // This is the Case if the Litecoin Wallet is a hardware Wallet
-    if (mwebHd == null) return;
+    if (mwebHd == null && scanSecretOverride == null) return;
 
     if (mwebAddresses.length < mwebAddrs.length) {
       List<BitcoinAddressRecord> addressRecords = mwebAddrs
