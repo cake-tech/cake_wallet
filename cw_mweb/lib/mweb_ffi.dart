@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_mweb/generated_bindings.g.dart';
 import 'package:ffi/ffi.dart';
 
@@ -29,7 +30,7 @@ class MWebFfi {
     final port = lib.StartServer(chain, dataDir_, nodeUri_, errMsgPtr);
     if (port == 0) {
       final errMsg = errMsgPtr.value.cast<Utf8>().toDartString();
-      print('Error starting server: $errMsg');
+      printV('Error starting server: $errMsg');
       calloc.free(errMsgPtr.value);
     }
 
