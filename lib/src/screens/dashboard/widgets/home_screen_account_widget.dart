@@ -42,6 +42,7 @@ class HomeScreenAccountWidget extends StatelessWidget {
                 ),
                 Row(
                   children: [
+                    Padding(padding: EdgeInsets.only(left: 20)),
                     Container(
                       child: Text(
                         accountName ?? '',
