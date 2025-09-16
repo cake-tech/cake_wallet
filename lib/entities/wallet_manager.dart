@@ -114,7 +114,7 @@ class WalletManager {
     // If the openedWallet already has an hash, then there is nothing to do
     if (walletInfo.hashedWalletIdentifier != null &&
         walletInfo.hashedWalletIdentifier!.isNotEmpty) {
-      updateWalletGroups(); // Still skeptical of calling this here. Looking for a better spot.
+      await updateWalletGroups(); // Still skeptical of calling this here. Looking for a better spot.
       return;
     }
 
@@ -149,7 +149,7 @@ class WalletManager {
     }
 
     // Finally, we rebuild the groups so that these wallets are now in the new group
-    updateWalletGroups();
+    await updateWalletGroups();
   }
 
   /// Copy an old group name to the new group key, then remove the old key.

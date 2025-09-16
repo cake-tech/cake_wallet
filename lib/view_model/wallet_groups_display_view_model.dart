@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
@@ -22,11 +24,9 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     this._walletManager,
     this.walletListViewModel, {
     required this.type,
-  })  : isFetchingMnemonic = false,
-        multiWalletGroups = ObservableList<WalletGroup>(),
-        singleWalletsList = ObservableList<WalletInfo>() {
-    reaction((_) => _appStore.wallet, (_) => updateWalletInfoSourceList());
-    updateWalletInfoSourceList();
+  })  : isFetchingMnemonic = false {
+    reaction((_) => _appStore.wallet, (_) => unawaited(updateWalletInfoSourceList()));
+    unawaited(updateWalletInfoSourceList());
   }
 
   final WalletType type;
@@ -36,10 +36,10 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   final WalletListViewModel walletListViewModel;
 
   @observable
-  ObservableList<WalletGroup> multiWalletGroups;
+  ObservableList<WalletGroup> multiWalletGroups = ObservableList<WalletGroup>();
 
   @observable
-  ObservableList<WalletInfo> singleWalletsList;
+  ObservableList<WalletInfo> singleWalletsList = ObservableList<WalletInfo>();
 
   @observable
   WalletGroup? selectedWalletGroup;
@@ -102,7 +102,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     multiWalletGroups.clear();
     singleWalletsList.clear();
 
-    _walletManager.updateWalletGroups();
+    await _walletManager.updateWalletGroups();
 
     final walletGroups = _walletManager.walletGroups;
 

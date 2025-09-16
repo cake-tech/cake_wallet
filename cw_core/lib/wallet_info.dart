@@ -1,13 +1,12 @@
 import 'dart:async';
 
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/wallet_info_legacy.dart' as wiLegacy;
-
-late Database db; 
 
 Future<void> performHiveMigration() async {
   try {
@@ -28,91 +27,6 @@ Future<void> performHiveMigration() async {
   } catch (e) {
     printV('Error performing Hive migration: $e, continuing anyway');
   }
-}
-
-Future<void> initDb({String? pathOverride}) async {
-  db = await openDatabase(
-    pathOverride ?? "cake.db",
-    version: 1,
-    onCreate: (Database db, int version) async {
-      await db.execute(
-        '''
-CREATE TABLE WalletInfo (
-	walletInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	id TEXT NOT NULL,
-	name TEXT NOT NULL,
-	"type" INTEGER NOT NULL,
-	isRecovery INTEGER DEFAULT (0) NOT NULL,
-  walletInfoDerivationInfoId INTEGER NOT NULL,
-	restoreHeight INTEGER DEFAULT (0) NOT NULL,
-  "timestamp" INTEGER DEFAULT (0) NOT NULL,
-  dirPath TEXT NOT NULL,
-  "path" TEXT NOT NULL,
-  address TEXT NOT NULL,
-  yatEid TEXT,
-  yatLastUsedAddressRaw TEXT,
-  showIntroCakePayCard INTEGER DEFAULT (1),
-  addressPageType TEXT,
-  network TEXT,
-  hardwareWalletType INTEGER,
-  parentAddress TEXT,
-  hashedWalletIdentifier TEXT,
-  isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
-  sortOrder INTEGER DEFAULT (0) NOT NULL
-);
-''');
-
-      await db.execute(
-        '''
-CREATE TABLE WalletInfoDerivationInfo (
-	walletInfoDerivationInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	address TEXT NOT NULL,
-	balance TEXT NOT NULL,
-	transactionsCount INTEGER DEFAULT (0) NOT NULL,
-	derivationType INTEGER NOT NULL,
-	derivationPath TEXT,
-	scriptType TEXT,
-	description TEXT
-);
-''');
-
-      await db.execute(
-        '''
-CREATE TABLE WalletInfoAddress (
-	walletInfoAddressId INTEGER PRIMARY KEY AUTOINCREMENT,
-	walletInfoId INTEGER,
-	"type" INTEGER NOT NULL,
-	address TEXT NOT NULL,
-	CONSTRAINT WalletInfoAddress_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-''');
-
-      await db.execute(
-        '''
-CREATE TABLE WalletInfoAddressInfo (
-	walletInfoAddressInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	walletInfoId INTEGER NOT NULL,
-	mapKey INTEGER NOT NULL,
-	mapValueAccountIndex INTEGER NOT NULL,
-	mapValueAddress TEXT NOT NULL,
-	mapValueLabel TEXT NOT NULL,
-	CONSTRAINT WalletInfoAddressInfo_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-''');
-
-      await db.execute(
-        '''
-CREATE TABLE "WalletInfoAddressMap" (
-	walletInfoAddressMapId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	walletInfoId INTEGER NOT NULL,
-	addressKey TEXT NOT NULL,
-	addressValue TEXT NOT NULL,
-	CONSTRAINT WalletInfoAddress_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-        '''
-      );
-    }
-  );
 }
 
 enum DerivationType {
@@ -427,7 +341,7 @@ class WalletInfo {
     bool? showIntroCakePayCard,
     String yatEid = '',
     String yatLastUsedAddressRaw = '',
-    DerivationInfo? derivationInfo,
+    int? derivationInfoId,
     HardwareWalletType? hardwareWalletType,
     String? parentAddress,
     String? hashedWalletIdentifier,
@@ -448,7 +362,7 @@ class WalletInfo {
       yatEid,
       yatLastUsedAddressRaw,
       showIntroCakePayCard,
-      derivationInfo?.id ?? -1,
+      derivationInfoId ?? -1,
       hardwareWalletType,
       parentAddress,
       hashedWalletIdentifier,
@@ -478,7 +392,8 @@ class WalletInfo {
 
   Future<void> setAddresses(Map<String, String> addresses) async {
     await WalletInfoAddressMap.deleteByWalletInfoId(internalId);
-    for (final address in addresses.keys) {
+    final keys = addresses.keys.toList();
+    for (final address in keys) {
       await WalletInfoAddressMap.insert(internalId, address, addresses[address]!);
     }
   }
@@ -498,7 +413,8 @@ class WalletInfo {
 
   Future<void> setAddressInfos(Map<int, List<WalletInfoAddressInfo>> addressInfos) async {
     await WalletInfoAddressInfo.deleteByWalletInfoId(internalId);
-    for (final addressInfo in addressInfos.entries) {
+    final entries = addressInfos.entries.toList();
+    for (final addressInfo in entries) {
       for (final info in addressInfo.value) {
         await WalletInfoAddressInfo.insert(
           walletInfoId: internalId,

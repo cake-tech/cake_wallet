@@ -39,6 +39,11 @@ class BitcoinWalletService extends WalletService<
 
     final String mnemonic;
     final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationType = credentials.derivationInfo?.derivationType ?? derivationInfo.derivationType;
+    derivationInfo.derivationPath = credentials.derivationInfo?.derivationPath ?? derivationInfo.derivationPath;
+    derivationInfo.description = credentials.derivationInfo?.description ?? derivationInfo.description;
+    derivationInfo.scriptType = credentials.derivationInfo?.scriptType ?? derivationInfo.scriptType;
+    await derivationInfo.save();
     switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
         final strength = credentials.seedPhraseLength == 24 ? 256 : 128;

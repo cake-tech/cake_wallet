@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
