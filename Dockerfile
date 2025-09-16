@@ -1,4 +1,4 @@
-# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
+# docker buildx build --push --pull --platform linux/amd64,linux/arm64 . -f Dockerfile -t ghcr.io/cake-tech/cake_wallet:debian12-flutter3.29.3-ndkr28-go1.24.1-ruststablenightly
 
 # Heavily inspired by cirrusci images
 # https://github.com/cirruslabs/docker-images-android/blob/master/sdk/tools/Dockerfile
@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.source=https://github.com/cake-tech/cake_wallet
 ENV GOLANG_VERSION=1.24.1
 
 # Pin Flutter version to latest known-working version
-ENV FLUTTER_VERSION=3.27.4
+ENV FLUTTER_VERSION=3.29.3
 
 # Pin Android Studio, platform, and build tools versions to latest known-working version
 # Comes from https://developer.android.com/studio/#command-tools
