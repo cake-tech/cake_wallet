@@ -87,6 +87,13 @@ abstract class WalletCreationVMBase with Store {
 
       final credentials = getCredentials(options);
 
+      final di = ((credentials.derivationInfo?.derivationPath??"") == "") 
+        ? getDefaultCreateDerivation()
+        : credentials.derivationInfo;
+
+      final diId = await di!.save();
+      credentials.derivationInfo = di;
+
       final walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, type),
         name: name,
@@ -98,18 +105,20 @@ abstract class WalletCreationVMBase with Store {
         dirPath: dirPath,
         address: '',
         showIntroCakePayCard: (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
-        derivationInfo: credentials.derivationInfo ?? getDefaultCreateDerivation(),
+        derivationInfoId: diId,
         hardwareWalletType: credentials.hardwareWalletType,
       );
 
       credentials.walletInfo = walletInfo;
+      // await walletInfo.save();
+      printV("derivationInfo: ${(await walletInfo.getDerivationInfo()).toJson()}");
       final wallet = await process(credentials);
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       walletInfo.isNonSeedWallet = isNonSeedWallet;
       walletInfo.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       walletInfo.address = wallet.walletAddresses.address;
-      walletInfo.save();
+      await walletInfo.save();
       await _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
@@ -124,7 +133,7 @@ abstract class WalletCreationVMBase with Store {
     }
   }
 
-  DerivationInfo? getDefaultCreateDerivation() {
+  DerivationInfo getDefaultCreateDerivation() {
     final useBip39ForBitcoin = seedSettingsViewModel.bitcoinSeedType.type == DerivationType.bip39;
     final useBip39ForNano = seedSettingsViewModel.nanoSeedType.type == DerivationType.bip39;
     switch (type) {
@@ -154,7 +163,7 @@ abstract class WalletCreationVMBase with Store {
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
       default:
-        return null;
+        return DerivationInfo(derivationType: DerivationType.unknown);
     }
   }
 

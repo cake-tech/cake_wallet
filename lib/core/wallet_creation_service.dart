@@ -81,12 +81,12 @@ class WalletCreationService {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.dogecoin:
+      case WalletType.nano:
         return true;
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.nano:
       case WalletType.banano:
       case WalletType.zano:
       case WalletType.decred:

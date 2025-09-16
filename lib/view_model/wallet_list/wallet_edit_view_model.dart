@@ -46,7 +46,7 @@ abstract class WalletEditViewModelBase with Store {
     state = WalletEditRenamePending();
 
     if (isWalletGroup) {
-      _walletManager.updateWalletGroups();
+      await _walletManager.updateWalletGroups();
 
       _walletManager.setGroupName(walletGroupKey!, newName);
     } else {

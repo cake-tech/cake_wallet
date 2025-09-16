@@ -50,7 +50,7 @@ class LitecoinWalletService extends WalletService<
       password: credentials.password!,
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
-      derivationInfo: credentials.derivationInfo!,
+      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -202,7 +202,7 @@ class LitecoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
-      derivationInfo: credentials.derivationInfo!,
+      derivationInfo: credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
