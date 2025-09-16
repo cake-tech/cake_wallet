@@ -5,8 +5,11 @@ import 'package:cake_wallet/themes/custom_theme_colors/black_theme_custom_colors
 
 enum BlackThemeAccentColor implements ThemeAccentColor {
   cakePrimary(Color(0xFF52B6F0), 'Cake Primary'),
+  green(Color(0xFF44BA52), 'Green'),
   bitcoinYellow(Color(0xFFFFC107), 'Bitcoin Yellow'),
-  moneroOrange(Color(0xFFFF5F2A), 'Monero Orange');
+  moneroOrange(Color(0xFFFF6600), 'Monero Orange'),
+  red(Color(0xFFFF4242), 'Red'),
+  purple(Color(0xFFBABAF3), 'Purple');
 
   const BlackThemeAccentColor(this.color, this.name);
 
@@ -255,8 +258,11 @@ class BlackTheme extends MaterialThemeBase {
   int get raw {
     final baseValue = switch (accentColor) {
       BlackThemeAccentColor.cakePrimary => 12,
-      BlackThemeAccentColor.bitcoinYellow => 13,
-      BlackThemeAccentColor.moneroOrange => 14,
+      BlackThemeAccentColor.green => 13,
+      BlackThemeAccentColor.bitcoinYellow => 14,
+      BlackThemeAccentColor.moneroOrange => 15,
+      BlackThemeAccentColor.red => 16,
+      BlackThemeAccentColor.purple => 17,
     };
     return baseValue;
   }
