@@ -112,6 +112,7 @@ abstract class EVMChainClient {
           sender: senderAddress,
           to: toAddress,
           value: value,
+          data: data,
         );
 
         return estimatedGas.toInt();

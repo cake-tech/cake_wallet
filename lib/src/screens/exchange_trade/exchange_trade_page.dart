@@ -307,6 +307,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         Navigator.of(bottomSheetContext).pop();
                       }
                       widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
+                      widget.exchangeTradeViewModel.registerSwapsXyzTransaction();
                     },
                   );
                 },

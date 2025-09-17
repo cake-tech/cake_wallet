@@ -77,12 +77,15 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount,
+    String? senderAddress,
+    String? recipientAddress,
+  }) async {
     final networkFrom = _getNetworkType(from);
     final networkTo = _getNetworkType(to);
     try {
