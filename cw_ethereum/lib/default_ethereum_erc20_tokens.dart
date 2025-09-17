@@ -318,6 +318,13 @@ class DefaultEthereumErc20Tokens {
       decimal: 18,
       enabled: false,
     ),
+    Erc20Token(
+      name: "Kraken Wrapped Bitcoin",
+      symbol: "KBTC",
+      contractAddress: "0x73E0C0d45E048D25Fc26Fa3159b0aA04BfA4Db98",
+      decimal: 8,
+      enabled: false,
+    ),
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {
