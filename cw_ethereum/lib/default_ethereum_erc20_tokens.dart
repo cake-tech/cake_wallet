@@ -325,6 +325,13 @@ class DefaultEthereumErc20Tokens {
       decimal: 8,
       enabled: false,
     ),
+    Erc20Token(
+      name: "Coinbase Wrapped BTC",
+      symbol: "CBBTC",
+      contractAddress: "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+      decimal: 8,
+      enabled: false,
+    ),
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {
