@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
@@ -86,7 +88,7 @@ class WalletEditPage extends BasePage {
                           onPressed: () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               if (!pageArguments.isWalletGroup &&
-                                  pageArguments.walletNewVM!
+                                  await pageArguments.walletNewVM!
                                       .nameExists(walletEditViewModel.newName)) {
                                 showPopUp<void>(
                                   context: context,
@@ -217,9 +219,12 @@ class WalletEditPage extends BasePage {
   }
 
   Future<void> hideProgressText() async {
-    await Future.delayed(Duration(milliseconds: 50), () {
-      _progressBar?.dismiss();
-      _progressBar = null;
-    });
+    try {
+      await Future.delayed(Duration(milliseconds: 250));
+      await _progressBar?.dismiss();
+    } catch (e) {
+      print(e);
+    }
+    _progressBar = null;
   }
 }

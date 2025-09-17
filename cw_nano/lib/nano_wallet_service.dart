@@ -19,9 +19,8 @@ class NanoWalletService extends WalletService<
     NanoRestoreWalletFromSeedCredentials,
     NanoRestoreWalletFromKeysCredentials,
     NanoNewWalletCredentials> {
-  NanoWalletService(this.walletInfoSource, this.isDirect);
+  NanoWalletService(this.isDirect);
 
-  final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
 
   static bool walletFilesExist(String path) =>
@@ -33,7 +32,8 @@ class NanoWalletService extends WalletService<
   @override
   Future<WalletBase> create(NanoNewWalletCredentials credentials, {bool? isTestnet}) async {
     final String mnemonic;
-    switch (credentials.walletInfo?.derivationInfo?.derivationType) {
+    final derivationInfo = credentials.derivationInfo ?? await credentials.walletInfo!.getDerivationInfo();
+    switch (derivationInfo.derivationType) {
       case DerivationType.nano:
         String seedKey = NanoSeeds.generateSeed();
         mnemonic = credentials.mnemonic ?? NanoDerivations.standardSeedToMnemonic(seedKey);
@@ -47,6 +47,7 @@ class NanoWalletService extends WalletService<
 
     final wallet = NanoWallet(
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       mnemonic: mnemonic,
       password: credentials.password!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -65,20 +66,25 @@ class NanoWalletService extends WalletService<
       await file.delete(recursive: true);
     }
 
-    final walletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values
-        .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     String randomWords =
         (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
     final currentWallet = NanoWallet(
       walletInfo: currentWalletInfo,
+      derivationInfo: await currentWalletInfo.getDerivationInfo(),
       password: password,
       mnemonic: randomWords,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -91,7 +97,7 @@ class NanoWalletService extends WalletService<
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override
@@ -115,18 +121,17 @@ class NanoWalletService extends WalletService<
         throw Exception("Wasn't a valid nano style seed!");
       }
     }
-
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
     // should never happen but just in case:
-    if (credentials.walletInfo!.derivationInfo == null) {
-      credentials.walletInfo!.derivationInfo = DerivationInfo(derivationType: DerivationType.nano);
-    } else if (credentials.walletInfo!.derivationInfo!.derivationType == null) {
-      credentials.walletInfo!.derivationInfo!.derivationType = DerivationType.nano;
+    if (derivationInfo.derivationType == null) {
+      derivationInfo.derivationType = DerivationType.nano;
     }
 
     final wallet = await NanoWallet(
       password: credentials.password!,
       mnemonic: mnemonic ?? credentials.seedKey,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.init();
@@ -157,15 +162,17 @@ class NanoWalletService extends WalletService<
       }
     }
 
-    DerivationType derivationType =
-        credentials.walletInfo?.derivationInfo?.derivationType ?? DerivationType.nano;
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    DerivationType derivationType = derivationInfo.derivationType ?? DerivationType.nano;
 
-    credentials.walletInfo!.derivationInfo ??= DerivationInfo(derivationType: derivationType);
+    derivationInfo.derivationType = derivationType;
+    derivationInfo.save();
 
     final wallet = await NanoWallet(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -180,8 +187,10 @@ class NanoWalletService extends WalletService<
 
   @override
   Future<NanoWallet> openWallet(String name, String password) async {
-    final walletInfo =
-        walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(name, getType()));
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
 
     try {
       final wallet = await NanoWalletBase.open(

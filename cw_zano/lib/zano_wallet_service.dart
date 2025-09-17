@@ -43,9 +43,7 @@ class ZanoRestoreWalletFromKeysCredentials extends WalletCredentials {
 
 class ZanoWalletService extends WalletService<ZanoNewWalletCredentials, 
     ZanoRestoreWalletFromSeedCredentials, ZanoRestoreWalletFromKeysCredentials, ZanoNewWalletCredentials> {
-  ZanoWalletService(this.walletInfoSource);
-
-  final Box<WalletInfo> walletInfoSource;
+  ZanoWalletService();
 
   static bool walletFilesExist(String path) => !File(path).existsSync() && !File('$path.keys').existsSync();
 
@@ -68,7 +66,10 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
 
   @override
   Future<ZanoWallet> openWallet(String name, String password) async {
-    final walletInfo = walletInfoSource.values.firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
+    final walletInfo = await WalletInfo.get(name, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
     try {
       final wallet = await ZanoWalletBase.open(name: name, password: password, walletInfo: walletInfo);
       saveBackup(name);
@@ -89,14 +90,20 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
       await file.delete(recursive: true);
     }
 
-    final walletInfo = walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(wallet, getType()));
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = walletInfoSource.values.firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
-    final currentWallet = ZanoWallet(currentWalletInfo, password);
+    final currentWalletInfo = await WalletInfo.get(currentName, getType());
+    if (currentWalletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    final currentWallet = ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password);
 
     await currentWallet.renameWalletFiles(newName);
 
@@ -104,7 +111,7 @@ class ZanoWalletService extends WalletService<ZanoNewWalletCredentials,
     newWalletInfo.id = WalletBase.idFor(newName, getType());
     newWalletInfo.name = newName;
 
-    await walletInfoSource.put(currentWalletInfo.key, newWalletInfo);
+    await newWalletInfo.save();
   }
 
   @override

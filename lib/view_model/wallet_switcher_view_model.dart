@@ -5,7 +5,6 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'wallet_switcher_view_model.g.dart';
@@ -16,12 +15,10 @@ abstract class WalletSwitcherViewModelBase with Store {
   WalletSwitcherViewModelBase({
     required this.appStore,
     required this.walletLoadingService,
-    required this.walletInfoSource,
   });
 
   final AppStore appStore;
   final WalletLoadingService walletLoadingService;
-  final Box<WalletInfo> walletInfoSource;
 
   @observable
   WalletInfo? selectedWallet;
@@ -30,12 +27,13 @@ abstract class WalletSwitcherViewModelBase with Store {
   bool isProcessing = false;
 
   @action
-  List<WalletInfo> getWallets(WalletType? walletType) {
+  Future<List<WalletInfo>> getWallets(WalletType? walletType) async {
+    final wiList = await WalletInfo.getAll();
     if (walletType == null) {
-      return walletInfoSource.values.toList();
+      return wiList;
     }
 
-    return walletInfoSource.values.where((wallet) => wallet.type == walletType).toList();
+    return wiList.where((wallet) => wallet.type == walletType).toList();
   }
 
   @action

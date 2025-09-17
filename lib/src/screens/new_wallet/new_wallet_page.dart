@@ -351,7 +351,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
         _formProcessing = false;
         return;
       }
-      if (_walletNewVM.nameExists(_walletNewVM.name)) {
+      if (await _walletNewVM.nameExists(_walletNewVM.name)) {
         await showPopUp<void>(
             context: context,
             builder: (_) {

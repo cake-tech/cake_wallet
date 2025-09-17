@@ -5,7 +5,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_monero/api/transaction_history.dart';
 import 'package:cw_monero/api/wallet.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:cw_monero/monero_subaddress_list.dart';
@@ -90,8 +89,12 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
         _subaddressList.subaddresses.forEach((subaddress) {
           addressesMap[subaddress.address] = subaddress.label;
           addressInfos[account.id] ??= [];
-          addressInfos[account.id]?.add(AddressInfo(
-              address: subaddress.address, label: subaddress.label, accountIndex: account.id));
+          addressInfos[account.id]?.add(WalletInfoAddressInfo(
+              walletInfoId: walletInfo.internalId,
+              mapKey: account.id,
+              accountIndex: account.id,
+              address: subaddress.address,
+              label: subaddress.label));
         });
       });
 
