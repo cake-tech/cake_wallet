@@ -50,13 +50,15 @@ RUN set -o xtrace \
     # for x86 emulators
     libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libnspr4 libnss3-dev libsqlite3-dev libxtst6 libxss1 lftp sqlite3 xxd \
     # Linux desktop dependencies
-    clang cmake libgtk-3-dev ninja-build pkg-config \
+    clang cmake libgtk-3-dev ninja-build pkg-config libsecret-1-0 libsecret-1-dev gir1.2-secret-1 \
     # monero_c dependencies
     autoconf automake build-essential ccache gperf libtool llvm \
     # extra stuff for KVM
     bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
     # Linux test dependencies
     ffmpeg network-manager x11-utils xvfb psmisc \
+    # extra linux dependencies so flutter doesn't complain
+    mesa-utils \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     # x86_64-linux-gnu dependencies
@@ -115,7 +117,7 @@ RUN ARCH=$(uname -m) && \
     && chmod +x /usr/bin/android-wait-for-emulator \
     && sdkmanager platform-tools \
     && mkdir -p ${HOME}/.android \
-    && touch ${HOME}/.android/repositories.cfg \
+    && touch ${HOME}/.android/repositories.cfg
 
 
 # Handle emulator not being available on linux/arm64 (https://issuetracker.google.com/issues/227219818)

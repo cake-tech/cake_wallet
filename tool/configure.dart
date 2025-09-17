@@ -1747,6 +1747,7 @@ class DefaultSecureStorage extends SecureStorage {
 
   static final _instance = DefaultSecureStorage._(FlutterSecureStorage(
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   ));
    
   final FlutterSecureStorage _secureStorage;

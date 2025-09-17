@@ -230,6 +230,13 @@ jobs:
             popd
           popd
 
+      - name: Fetch reown dependencies
+        run: |
+          set -x -e
+          wget https://static.mrcyjanek.net/lfs/cake-yttrium/x86_64.so -O android/app/src/main/jniLibs/x86_64/libuniffi_yttrium.so
+          wget https://static.mrcyjanek.net/lfs/cake-yttrium/arm64-v8a.so -O android/app/src/main/jniLibs/arm64-v8a/libuniffi_yttrium.so
+          wget https://static.mrcyjanek.net/lfs/cake-yttrium/armeabi-v7a.so -O android/app/src/main/jniLibs/armeabi-v7a/libuniffi_yttrium.so
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/android

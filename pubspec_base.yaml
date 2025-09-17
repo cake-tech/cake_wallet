@@ -42,7 +42,7 @@ dependencies:
   flutter_spinkit: ^5.1.0
   uni_links:
     git:
-      url: https://github.com/MrCyjaneK/uni_links
+      url: https://github.com/cake-tech/uni_links
       ref: 1989db3f5d625e2fffbad7b85a3b1b8c78c6dfa1
       path: uni_links
   lottie: ^3.3.1
@@ -142,7 +142,7 @@ dependencies:
   dnssec_proof:
     git:
       url: https://github.com/MrCyjaneK/dnssec_proof.git
-      ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
+      ref: b48a9defddce036048bae02e2069ebcbd6824afc
   torch_dart:
     path: ./scripts/torch_dart
 
