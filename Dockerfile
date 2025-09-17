@@ -57,6 +57,8 @@ RUN set -o xtrace \
     bridge-utils libvirt-clients libvirt-daemon-system qemu-kvm udev \
     # Linux test dependencies
     ffmpeg network-manager x11-utils xvfb psmisc \
+    # extra linux dependencies so flutter doesn't complain
+    mesa-utils \
     # aarch64-linux-gnu dependencies
     g++-aarch64-linux-gnu gcc-aarch64-linux-gnu \
     # x86_64-linux-gnu dependencies
@@ -115,7 +117,7 @@ RUN ARCH=$(uname -m) && \
     && chmod +x /usr/bin/android-wait-for-emulator \
     && sdkmanager platform-tools \
     && mkdir -p ${HOME}/.android \
-    && touch ${HOME}/.android/repositories.cfg \
+    && touch ${HOME}/.android/repositories.cfg
 
 
 # Handle emulator not being available on linux/arm64 (https://issuetracker.google.com/issues/227219818)
