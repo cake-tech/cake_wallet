@@ -160,7 +160,7 @@ class LightTheme extends MaterialThemeBase {
           foregroundColor: colorScheme.onSurface,
           elevation: 0,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: colorScheme.surface,
           elevation: 1,
           shape: RoundedRectangleBorder(

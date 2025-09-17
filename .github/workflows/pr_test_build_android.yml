@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.29.3-ndkr28-go1.24.1-ruststablenightly
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
