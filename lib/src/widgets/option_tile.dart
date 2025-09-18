@@ -23,10 +23,13 @@ class OptionTile extends StatelessWidget {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
+      decoration: BoxDecoration(
+      ),
       child: ElevatedButton(
         style: TextButton.styleFrom(
+          side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
           backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           padding: EdgeInsets.all(24),
         ),
         onPressed: onPressed,

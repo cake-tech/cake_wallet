@@ -84,6 +84,7 @@ class BalanceRowWidget extends StatelessWidget {
             onPressed: _showToast,
             onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
             style: TextButton.styleFrom(
+              side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             ),
             child: Container(
