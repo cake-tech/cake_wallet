@@ -1093,7 +1093,7 @@ abstract class SettingsStoreBase with Store {
     final lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;
     final lookupsFio = sharedPreferences.getBool(PreferencesKey.lookupsFio) ?? true;
     final lookupsNostr = sharedPreferences.getBool(PreferencesKey.lookupsNostr) ?? true;
-    final lookupsThorChain = sharedPreferences.getBool(PreferencesKey.lookupsThorChain) ?? true;
+    final lookupsThorChain = sharedPreferences.getBool(PreferencesKey.lookupsThorChain) ?? false;
     final lookupsBip353 = sharedPreferences.getBool(PreferencesKey.lookupsBip353) ?? true;
     final usePayjoin = sharedPreferences.getBool(PreferencesKey.usePayjoin) ?? false;
     final showPayjoinCard = sharedPreferences.getBool(PreferencesKey.showPayjoinCard) ?? true;
