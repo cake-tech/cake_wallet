@@ -27,6 +27,7 @@ import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/digibyte/digibyte.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -140,6 +141,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialEthereumTransactionPriority,
       TransactionPriority? initialPolygonTransactionPriority,
       TransactionPriority? initialBitcoinCashTransactionPriority,
+      TransactionPriority? initialDigibyteTransactionPriority,
       TransactionPriority? initialZanoTransactionPriority,
       TransactionPriority? initialDecredTransactionPriority,
       Country? initialCakePayCountry})
@@ -228,6 +230,10 @@ abstract class SettingsStoreBase with Store {
       priority[WalletType.bitcoinCash] = initialBitcoinCashTransactionPriority;
     }
 
+    if (initialDigibyteTransactionPriority != null) {
+      priority[WalletType.digibyte] = initialDigibyteTransactionPriority;
+    }
+
     if (initialZanoTransactionPriority != null) {
       priority[WalletType.zano] = initialZanoTransactionPriority;
     }
@@ -287,6 +293,9 @@ abstract class SettingsStoreBase with Store {
           break;
         case WalletType.bitcoinCash:
           key = PreferencesKey.bitcoinCashTransactionPriority;
+          break;
+        case WalletType.digibyte:
+          key = PreferencesKey.digibyteTransactionPriority;
           break;
         case WalletType.polygon:
           key = PreferencesKey.polygonTransactionPriority;
@@ -950,6 +959,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? ethereumTransactionPriority;
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
+    TransactionPriority? digibyteTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
     TransactionPriority? zanoTransactionPriority;
     TransactionPriority? decredTransactionPriority;
@@ -974,6 +984,10 @@ abstract class SettingsStoreBase with Store {
       bitcoinCashTransactionPriority = bitcoinCash?.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.digibyteTransactionPriority) != null) {
+      digibyteTransactionPriority = digibyte?.deserializeDigibyteTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.digibyteTransactionPriority)!);
+    }
     if (sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority) != null) {
       wowneroTransactionPriority = wownero?.deserializeWowneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
@@ -993,6 +1007,7 @@ abstract class SettingsStoreBase with Store {
     litecoinTransactionPriority ??= bitcoin?.getLitecoinTransactionPriorityMedium();
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
+    digibyteTransactionPriority ??= digibyte?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
     decredTransactionPriority ??= decred?.getDecredTransactionPriorityMedium();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
@@ -1095,7 +1110,6 @@ abstract class SettingsStoreBase with Store {
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
-    final digibyteNodeId = sharedPreferences.getInt(PreferencesKey.currentDigibyteNodeIdKey);
     final digibyteNodeId = sharedPreferences.getInt(PreferencesKey.currentDigibyteNodeIdKey);
 
     /// get the selected node, if null, then use the default
@@ -1396,6 +1410,7 @@ abstract class SettingsStoreBase with Store {
       initialHavenTransactionPriority: havenTransactionPriority,
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
       initialBitcoinCashTransactionPriority: bitcoinCashTransactionPriority,
+      initialDigibyteTransactionPriority: digibyteTransactionPriority,
       initialDecredTransactionPriority: decredTransactionPriority,
       initialShouldRequireTOTP2FAForAccessingWallet: shouldRequireTOTP2FAForAccessingWallet,
       initialShouldRequireTOTP2FAForSendsToContact: shouldRequireTOTP2FAForSendsToContact,
@@ -1467,6 +1482,11 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority) != null) {
       priority[WalletType.bitcoinCash] = bitcoinCash!.deserializeBitcoinCashTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinCashTransactionPriority)!);
+    }
+    if (digibyte != null &&
+        sharedPreferences.getInt(PreferencesKey.digibyteTransactionPriority) != null) {
+      priority[WalletType.digibyte] = digibyte!.deserializeDigibyteTransactionPriority(
+          sharedPreferences.getInt(PreferencesKey.digibyteTransactionPriority)!);
     }
     if (zano != null && sharedPreferences.getInt(PreferencesKey.zanoTransactionPriority) != null) {
       priority[WalletType.zano] = zano!.deserializeMoneroTransactionPriority(

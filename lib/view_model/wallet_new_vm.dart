@@ -6,6 +6,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/digibyte/digibyte.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -105,7 +106,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           mnemonic: newWalletArguments!.mnemonic,
         );
       case WalletType.digibyte:
-        throw UnimplementedError('DigiByte wallet creation is pending integration');
+        return digibyte!.createDigibyteNewWalletCredentials(
+          name: name,
+          password: walletPassword,
+          passphrase: passphrase,
+          mnemonic: newWalletArguments!.mnemonic,
+        );
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(

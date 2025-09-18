@@ -7,6 +7,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/digibyte/digibyte.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -27,7 +28,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.dogecoin:
       return dogecoin!.getTransactionPriorities();
     case WalletType.digibyte:
-      return const [];
+      return digibyte!.getTransactionPriorities();
     case WalletType.polygon:
       return polygon!.getTransactionPriorities();
     // no such thing for nano/banano/solana/tron:
