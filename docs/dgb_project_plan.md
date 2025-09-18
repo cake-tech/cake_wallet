@@ -5,6 +5,7 @@ This plan breaks the DigiByte listing effort into implementation phases, ensurin
 ## Phase 0 – Discovery & Requirements
 - ✅ Confirm existing DigiByte currency metadata in `cw_core/lib/crypto_currency.dart` (ticker, display name, icon, decimals).
 - ✅ Gather canonical Electrum server inventory and uptime data to seed the default node list.
+- ☐ Gather canonical Electrum server inventory and uptime data to seed the default node list.
 - ☐ Validate JSON-RPC compatibility (e.g. `digibyted` version, pruning requirements, fee policy) for potential full node support.
 - ☐ Obtain official contacts for escalation (foundation/maintainers) to include with listing submission.
 
@@ -22,6 +23,11 @@ Goal: teach the shared core about the new wallet type so that UI scaffolding and
 - ☐ Register DigiByte in the generated wallet type lists (`tool/configure.dart`, `scripts/*/app_config.sh`) to unblock proxy generation.
 - ✅ Extend `lib/entities/node_list.dart` to load DigiByte default nodes and ensure `resetToDefault` persists them.
 - ✅ Ship `assets/digibyte_electrum_server_list.yml` and register it in `pubspec_base.yaml`.
+- [ ] Add `WalletType.digibyte` enum value and update all switch statements (`walletTypeToString`, `walletTypeToDisplayName`, serialization helpers, etc.).
+- [ ] Map DigiByte to its currency via `walletTypeToCryptoCurrency` and `cryptoCurrencyToWalletType`.
+- [ ] Register DigiByte in the generated wallet type lists (`tool/configure.dart`, `scripts/*/app_config.sh`) to unblock proxy generation.
+- [ ] Extend `lib/entities/node_list.dart` to load DigiByte default nodes and ensure `resetToDefault` persists them.
+- [ ] Ship `assets/digibyte_electrum_server_list.yml` and register it in `pubspec_base.yaml`.
 
 ## Phase 2 – Node Defaults & Settings Migration
 Goal: guarantee that new installs and migrations receive functional DigiByte nodes.
@@ -29,6 +35,9 @@ Goal: guarantee that new installs and migrations receive functional DigiByte nod
 - ✅ Define DigiByte default node URI constants and helpers in `lib/entities/default_settings_migration.dart` (mirroring Dogecoin).
 - ✅ Wire DigiByte into `addWalletNodeList`, `_changeDefaultNode`, and migration switch cases.
 - ✅ Add persistent storage keys in `lib/entities/preferences_key.dart` for tracking the current DigiByte node.
+- [ ] Define DigiByte default node URI constants and helpers in `lib/entities/default_settings_migration.dart` (mirroring Dogecoin).
+- [ ] Wire DigiByte into `addWalletNodeList`, `_changeDefaultNode`, and migration switch cases.
+- [ ] Add persistent storage keys in `lib/entities/preferences_key.dart` for tracking the current DigiByte node.
 
 ## Phase 3 – DigiByte Wallet Package (`cw_digibyte`)
 Goal: encapsulate DigiByte Electrum integration in a dedicated package, following the Bitcoin-family architecture.

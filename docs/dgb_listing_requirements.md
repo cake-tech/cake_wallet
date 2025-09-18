@@ -63,5 +63,3 @@ This document captures the information Cake Wallet typically requires when asses
 * Share updated contact details for the technical lead(s) responsible for coordinating with Cake Wallet should protocol updates occur.
 * Confirm whether DigiByte requires any additional derivation paths beyond standard BIP44/49/84 for compatibility with existing user seeds.
 * Supply any marketing collateral (brand guidelines, icon usage rights) if Cake Wallet requires explicit approval for app store submissions.
-
-Once the above confirmations are obtained, this document can accompany the official listing request to Cake Wallet, demonstrating that DigiByte meets the technical and operational expectations for integration.
