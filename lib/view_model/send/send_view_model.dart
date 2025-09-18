@@ -284,6 +284,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.digibyte:
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
@@ -333,12 +334,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.wownero,
         WalletType.decred,
         WalletType.bitcoinCash,
-        WalletType.dogecoin
+        WalletType.dogecoin,
+        WalletType.digibyte
       ].contains(wallet.type);
 
   @computed
   bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type);
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin, WalletType.digibyte]
+          .contains(wallet.type);
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
@@ -669,6 +672,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.digibyte:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,

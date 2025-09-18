@@ -1095,6 +1095,8 @@ abstract class SettingsStoreBase with Store {
     final zanoNodeId = sharedPreferences.getInt(PreferencesKey.currentZanoNodeIdKey);
     final decredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
     final dogecoinNodeId = sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+    final digibyteNodeId = sharedPreferences.getInt(PreferencesKey.currentDigibyteNodeIdKey);
+    final digibyteNodeId = sharedPreferences.getInt(PreferencesKey.currentDigibyteNodeIdKey);
 
     /// get the selected node, if null, then use the default
     final moneroNode = nodeSource.get(nodeId) ??
@@ -1125,6 +1127,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == zanoDefaultNodeUri);
     final dogecoinNode = nodeSource.get(dogecoinNodeId) ??
         nodeSource.values.firstWhereOrNull((e) => e.uriRaw == dogecoinDefaultNodeUri);
+    final digibyteNode = nodeSource.get(digibyteNodeId) ??
+        nodeSource.values.firstWhereOrNull((e) => e.uriRaw == digibyteDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1214,6 +1218,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (digibyteNode != null) {
+      nodes[WalletType.digibyte] = digibyteNode;
     }
 
     final savedSyncMode = SyncMode.all.firstWhere((element) {
@@ -1599,6 +1607,7 @@ abstract class SettingsStoreBase with Store {
     final zanoNode = nodeSource.get(zanoNodeId);
     final decredNode = nodeSource.get(decredNodeId);
     final dogecoinNode = nodeSource.get(dogecoinNodeId);
+    final digibyteNode = nodeSource.get(digibyteNodeId);
 
     if (moneroNode != null) {
       nodes[WalletType.monero] = moneroNode;
@@ -1655,6 +1664,10 @@ abstract class SettingsStoreBase with Store {
 
     if (dogecoinNode != null) {
       nodes[WalletType.dogecoin] = dogecoinNode;
+    }
+
+    if (digibyteNode != null) {
+      nodes[WalletType.digibyte] = digibyteNode;
     }
 
     // MIGRATED:
@@ -1801,6 +1814,9 @@ abstract class SettingsStoreBase with Store {
         break;
       case WalletType.dogecoin:
         await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+        break;
+      case WalletType.digibyte:
+        await _sharedPreferences.setInt(PreferencesKey.currentDigibyteNodeIdKey, node.key as int);
         break;
       default:
         break;

@@ -60,6 +60,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.zano:
       case WalletType.none:
       case WalletType.dogecoin:
+      case WalletType.digibyte:
         availableModes = [WalletRestoreMode.seed];
         break;
     }
@@ -157,6 +158,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             password: password,
             passphrase: passphrase,
           );
+        case WalletType.digibyte:
+          throw UnimplementedError('DigiByte restore flow is pending implementation');
         case WalletType.nano:
         case WalletType.banano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(

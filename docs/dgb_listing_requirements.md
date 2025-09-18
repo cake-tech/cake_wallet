@@ -51,7 +51,7 @@ This document captures the information Cake Wallet typically requires when asses
 
 1. **Wallet type plumbing** – Add a `WalletType.digibyte` entry in `cw_core/lib/wallet_type.dart`, update serialization helpers, and surface the human-readable name in `walletTypeToString`/`walletTypeToDisplayName`.
 2. **Currency configuration** – The DigiByte asset is already declared in `cw_core/lib/crypto_currency.dart` (`CryptoCurrency.digibyte`) with ticker, icon, and 8 decimals. Ensure it is wired to the new wallet type once implemented. 【F:cw_core/lib/crypto_currency.dart†L215-L237】
-3. **Node bootstrapping** – Create an Electrum server list file (e.g., `assets/digibyte_electrum_server_list.yml`) mirroring the structure used for Bitcoin/Dogecoin and load it inside `loadDefaultNodes`/`resetToDefault` in `lib/entities/node_list.dart`.
+3. **Node bootstrapping** – Default DigiByte Electrum endpoints are now shipped in `assets/digibyte_electrum_server_list.yml` and automatically registered by `lib/entities/node_list.dart` for new installs and migrations.
 4. **Proxy package** – Scaffold a `cw_digibyte` package following the process documented in `docs/NEW_WALLET_TYPES.md` (code generation hooks, proxy wiring, DI registration, etc.). 【F:docs/NEW_WALLET_TYPES.md†L1-L120】
 5. **Node configuration scripts** – Extend Android/iOS/macOS configuration scripts to include the DigiByte flag once the proxy package exists (see Section “Configuration Files Setup” in the same guide).
 6. **Testing** – Sync against mainnet using a trusted node, validate send/receive flows, and ensure exchange integrations display correct decimal handling (8 decimals as per Step 2).
@@ -59,8 +59,7 @@ This document captures the information Cake Wallet typically requires when asses
 ## 6. Outstanding Items / Data to Confirm
 
 * Provide a list of Cake-controlled DigiByte Electrum or RPC nodes (hostname, ports, SSL) for production configuration.
+* Decide when to enable the DigiByte proxy/package generation flag in `tool/configure.dart` and platform scripts once wallet service wiring is ready.
 * Share updated contact details for the technical lead(s) responsible for coordinating with Cake Wallet should protocol updates occur.
 * Confirm whether DigiByte requires any additional derivation paths beyond standard BIP44/49/84 for compatibility with existing user seeds.
 * Supply any marketing collateral (brand guidelines, icon usage rights) if Cake Wallet requires explicit approval for app store submissions.
-
-Once the above confirmations are obtained, this document can accompany the official listing request to Cake Wallet, demonstrating that DigiByte meets the technical and operational expectations for integration.

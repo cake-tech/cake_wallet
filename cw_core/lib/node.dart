@@ -101,6 +101,7 @@ class Node extends HiveObject with Keyable {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.digibyte:
         return createUriFromElectrumAddress(uriRaw, path!);
       case WalletType.nano:
       case WalletType.banano:
@@ -167,12 +168,13 @@ class Node extends HiveObject with Keyable {
         case WalletType.bitcoin:
         case WalletType.litecoin:
         case WalletType.bitcoinCash:
-        case WalletType.ethereum:
-        case WalletType.polygon:
-        case WalletType.solana:
-        case WalletType.tron:
-        case WalletType.dogecoin:
-          return requestElectrumServer();
+      case WalletType.ethereum:
+      case WalletType.polygon:
+      case WalletType.solana:
+      case WalletType.tron:
+      case WalletType.dogecoin:
+      case WalletType.digibyte:
+        return requestElectrumServer();
         case WalletType.zano:
           return requestZanoNode();
         case WalletType.decred:

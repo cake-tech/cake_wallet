@@ -1192,6 +1192,8 @@ Future<void> setup({
       case WalletType.dogecoin:
         return dogecoin!.createDogeCoinWalletService(_walletInfoSource,
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+      case WalletType.digibyte:
+        throw UnimplementedError('DigiByte wallet service is not yet wired');
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);

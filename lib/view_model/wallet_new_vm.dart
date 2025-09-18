@@ -104,6 +104,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           passphrase: passphrase,
           mnemonic: newWalletArguments!.mnemonic,
         );
+      case WalletType.digibyte:
+        throw UnimplementedError('DigiByte wallet creation is pending integration');
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoNewWalletCredentials(

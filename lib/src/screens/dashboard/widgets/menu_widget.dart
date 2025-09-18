@@ -38,7 +38,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.wowneroIcon = Image.asset('assets/images/wownero_icon.png'),
         this.zanoIcon = Image.asset('assets/images/zano_icon.png'),
         this.decredIcon = Image.asset('assets/images/decred_menu.png'),
-        this.dogecoinIcon = Image.asset('assets/images/doge_icon.png');
+        this.dogecoinIcon = Image.asset('assets/images/doge_icon.png'),
+        this.digibyteIcon = Image.asset('assets/images/digibyte.png');
 
   final largeScreen = 731;
 
@@ -66,6 +67,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image zanoIcon;
   Image decredIcon;
   Image dogecoinIcon;
+  Image digibyteIcon;
 
   @override
   void initState() {
@@ -118,6 +120,8 @@ class MenuWidgetState extends State<MenuWidget> {
         Image.asset('assets/images/monero_menu.png', color: Theme.of(context).colorScheme.primary);
     bitcoinIcon =
         Image.asset('assets/images/bitcoin_menu.png', color: Theme.of(context).colorScheme.primary);
+    digibyteIcon =
+        Image.asset('assets/images/digibyte.png', color: Theme.of(context).colorScheme.primary);
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -259,6 +263,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return decredIcon;
       case WalletType.dogecoin:
         return dogecoinIcon;
+      case WalletType.digibyte:
+        return digibyteIcon;
       default:
         throw Exception('No icon for ${type.toString()}');
     }
