@@ -86,6 +86,10 @@ class PreferencesKey {
   static const lookupsOpenAlias = 'looks_up_open_alias';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsWellKnown = 'looks_up_well_known';
+  static const lookupsFio = 'looks_up_fio';
+  static const lookupsNostr = 'looks_up_nostr';
+  static const lookupsThorChain = 'looks_up_thor_chain';
+  static const lookupsBip353 = 'looks_up_bip353';
   static const usePayjoin = 'use_payjoin';
   static const showPayjoinCard = 'show_payjoin_card';
   static const showCameraConsent = 'show_camera_consent';
