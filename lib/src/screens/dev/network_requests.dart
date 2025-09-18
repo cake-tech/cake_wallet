@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/dev/network_requests_view_model.dart';
 import 'package:cw_core/utils/proxy_logger/abstract.dart';
 import 'package:cw_core/utils/proxy_logger/memory_proxy_logger.dart';
@@ -133,9 +135,11 @@ class DevRequestDetails extends BasePage {
 
         _sectionTitle("Body (as UTF-8)"),
         SelectableText(_tryDecodeBody(req.body)),
+        _buildJsonExplorer(context, _tryDecodeBody(req.body)),
 
         _sectionTitle("Response"),
         SelectableText(req.response?.body ?? "null"),
+        _buildJsonExplorer(context, req.response?.body ?? "{}"),
 
         _sectionTitle("Error"),
         SelectableText(req.error ?? "No error"),
@@ -144,6 +148,29 @@ class DevRequestDetails extends BasePage {
         SelectableText(req.trace.toString()),
       ],
     );
+  }
+
+  Widget _buildJsonExplorer(BuildContext context, String body) {
+    try {
+    final jsonData = json.decode(body);
+    return PrimaryButton(
+      text: "View JSON",
+      color: Colors.blue,
+      textColor: Colors.white,
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return JsonExplorerPage(data: jsonData, title: "body");
+            },
+          ),
+        );
+      },
+    );
+
+    } catch (e) {
+      return SelectableText("Invalid JSON: $e");
+    }
   }
 
   Widget _sectionTitle(String title) {

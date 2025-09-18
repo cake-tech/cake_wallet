@@ -1,6 +1,5 @@
-Add Dogecoin to Cake Wallet
-Swap flow improvements
-Cakepay improvements
-Silent Payment enhancements
-UI enhancements
+Better support for embedded Tor
+Improve sending and swapping flow
+Enhance payment scanning
+Silent Payments enhancements and better reliability
 Bug fixes
