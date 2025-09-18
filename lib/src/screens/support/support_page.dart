@@ -49,6 +49,7 @@ class SupportPage extends BasePage {
                       Navigator.pushNamed(context, Routes.supportLiveChat);
                     }
                   },
+                  currentTheme: currentTheme,
                 ),
               ),
               Padding(
@@ -62,6 +63,7 @@ class SupportPage extends BasePage {
                   title: S.of(context).support_title_guides,
                   description: S.of(context).support_description_guides,
                   onPressed: () => _launchUrl(supportViewModel.docsUrl),
+                  currentTheme: currentTheme,
                 ),
               ),
               Padding(
@@ -75,6 +77,7 @@ class SupportPage extends BasePage {
                   title: S.of(context).support_title_other_links,
                   description: S.of(context).support_description_other_links,
                   onPressed: () => Navigator.pushNamed(context, Routes.supportOtherLinks),
+                  currentTheme: currentTheme,
                 ),
               ),
             ],

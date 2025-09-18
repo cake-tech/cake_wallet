@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../themes/core/material_base_theme.dart';
 
 class OptionTile extends StatelessWidget {
   const OptionTile({
@@ -7,6 +8,7 @@ class OptionTile extends StatelessWidget {
     this.icon,
     required this.title,
     required this.description,
+    required this.currentTheme,
     this.tag,
     super.key,
   }) : assert(image != null || icon != null);
@@ -17,20 +19,32 @@ class OptionTile extends StatelessWidget {
   final String title;
   final String description;
   final String? tag;
+  final MaterialThemeBase currentTheme;
+
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
+      decoration: ShapeDecoration(
+        gradient: LinearGradient(
+          colors: [
+            currentTheme.customColors.cardGradientColorPrimary,
+            currentTheme.customColors.cardGradientColorSecondary,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       ),
       child: ElevatedButton(
         style: TextButton.styleFrom(
           side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
-          backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+          backgroundColor: Colors.transparent,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           padding: EdgeInsets.all(24),
+
         ),
         onPressed: onPressed,
         child: Row(
