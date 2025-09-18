@@ -94,6 +94,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.dogecoin:
         return transactionPriority == dogecoin!.getDogeCoinTransactionPrioritySlow();
+      case WalletType.digibyte:
+        return false;
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:
@@ -123,7 +125,8 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.bitcoinCash ||
-      wallet.type == WalletType.dogecoin;
+      wallet.type == WalletType.dogecoin ||
+      wallet.type == WalletType.digibyte;
 
   String? get walletCurrencyName => wallet.currency.fullName?.toLowerCase() ?? wallet.currency.name;
 

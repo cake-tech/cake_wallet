@@ -19,6 +19,7 @@ const walletTypes = [
   WalletType.zano,
   WalletType.decred,
   WalletType.dogecoin,
+  WalletType.digibyte,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -69,7 +70,10 @@ enum WalletType {
   decred,
 
   @HiveField(15)
-  dogecoin
+  dogecoin,
+
+  @HiveField(16)
+  digibyte
 }
 
 int serializeToInt(WalletType type) {
@@ -104,6 +108,8 @@ int serializeToInt(WalletType type) {
       return 13;
     case WalletType.dogecoin:
       return 14;
+    case WalletType.digibyte:
+      return 15;
     case WalletType.none:
       return -1;
   }
@@ -141,6 +147,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.decred;
     case 14:
       return WalletType.dogecoin;
+    case 15:
+      return WalletType.digibyte;
     default:
       throw Exception(
           'Unexpected token: $raw for WalletType deserializeFromInt');
@@ -179,6 +187,8 @@ String walletTypeToString(WalletType type) {
       return 'Decred';
     case WalletType.dogecoin:
       return 'Dogecoin';
+    case WalletType.digibyte:
+      return 'DigiByte';
     case WalletType.none:
       return '';
   }
@@ -216,6 +226,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Decred (DCR)';
     case WalletType.dogecoin:
       return 'Dogecoin (DOGE)';
+    case WalletType.digibyte:
+      return 'DigiByte (DGB)';
     case WalletType.none:
       return '';
   }

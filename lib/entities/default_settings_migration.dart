@@ -47,6 +47,7 @@ const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
+const digibyteDefaultNodeUri = 'electrum1.digibyte.host:50002';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -534,6 +535,15 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentDogecoinNodeIdKey,
           );
           break;
+        case 52:
+          await addWalletNodeList(nodes: nodes, type: WalletType.digibyte);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.digibyte,
+            currentNodePreferenceKey: PreferencesKey.currentDigibyteNodeIdKey,
+          );
+          break;
         default:
           break;
       }
@@ -642,6 +652,8 @@ String _getDefaultNodeUri(WalletType type) {
       return decredDefaultUri;
     case WalletType.dogecoin:
       return dogecoinDefaultNodeUri;
+    case WalletType.digibyte:
+      return digibyteDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
@@ -1047,7 +1059,9 @@ Future<void> checkCurrentNodes(
   final currentBitcoinCashNodeId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinCashNodeIdKey);
   final currentDogecoinNodeId =
-  sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+      sharedPreferences.getInt(PreferencesKey.currentDogecoinNodeIdKey);
+  final currentDigibyteNodeId =
+      sharedPreferences.getInt(PreferencesKey.currentDigibyteNodeIdKey);
   final currentSolanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
   final currentTronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
   final currentWowneroNodeId = sharedPreferences.getInt(PreferencesKey.currentWowneroNodeIdKey);
@@ -1074,6 +1088,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentBitcoinCashNodeId);
   final currentDogecoinNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentDogecoinNodeId);
+  final currentDigibyteNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentDigibyteNodeId);
   final currentSolanaNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentSolanaNodeId);
   final currentTronNodeServer =
@@ -1147,6 +1163,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: dogecoinDefaultNodeUri, type: WalletType.dogecoin, useSSL: true);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.key as int);
+  }
+
+  if (currentDigibyteNodeServer == null) {
+    final node = Node(uri: digibyteDefaultNodeUri, type: WalletType.digibyte, useSSL: true);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentDigibyteNodeIdKey, node.key as int);
   }
 
   if (currentPolygonNodeServer == null) {

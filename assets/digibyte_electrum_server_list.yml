@@ -1,0 +1,13 @@
+-
+  uri: electrum1.digibyte.host:50002
+  is_default: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: electrum2.digibyte.host:50002
+  useSSL: true
+  isEnabledForAutoSwitching: true
+-
+  uri: dgb-cn1.electrum.digibyte.io:50002
+  useSSL: true
+  isEnabledForAutoSwitching: true
