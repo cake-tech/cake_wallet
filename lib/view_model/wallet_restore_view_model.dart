@@ -12,6 +12,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/digibyte/digibyte.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -159,7 +160,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             passphrase: passphrase,
           );
         case WalletType.digibyte:
-          throw UnimplementedError('DigiByte restore flow is pending implementation');
+          return digibyte!.createDigibyteRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+          );
         case WalletType.nano:
         case WalletType.banano:
           return nano!.createNanoRestoreWalletFromSeedCredentials(

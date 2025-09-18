@@ -141,6 +141,7 @@ lib/wownero/wownero.dart
 lib/zano/zano.dart
 lib/decred/decred.dart
 lib/dogecoin/dogecoin.dart
+lib/digibyte/digibyte.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x~ipad.png

@@ -12,6 +12,7 @@ const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
+const digibyteOutputPath = 'lib/digibyte/digibyte.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -32,6 +33,7 @@ Future<void> main(List<String> args) async {
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
+  final hasDigibyte = args.contains('${prefix}digibyte');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -47,6 +49,7 @@ Future<void> main(List<String> args) async {
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
   await generateDogecoin(hasDogecoin);
+  await generateDigibyte(hasDigibyte);
 
   await generatePubspec(
     hasMonero: hasMonero,
@@ -63,6 +66,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasDigibyte: hasDigibyte,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -78,6 +82,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasDigibyte: hasDigibyte,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1475,6 +1480,64 @@ abstract class DogeCoin {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateDigibyte(bool hasImplementation) async {
+  final outputFile = File(digibyteOutputPath);
+  const digibyteCommonHeaders = """
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';
+""";
+  const digibyteCWHeaders = """
+import 'package:cw_digibyte/cw_digibyte.dart';
+""";
+  const digibyteCwPart = "part 'cw_digibyte.dart';";
+  const digibyteContent = """
+abstract class Digibyte {
+
+  WalletService createDigibyteWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+
+  WalletCredentials createDigibyteNewWalletCredentials(
+      {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
+
+  WalletCredentials createDigibyteRestoreWalletFromSeedCredentials(
+      {required String name, required String mnemonic, required String password, String? passphrase});
+
+  WalletCredentials createDigibyteRestoreWalletFromWIFCredentials(
+      {required String name, required String password, required String wif, WalletInfo? walletInfo});
+
+  TransactionPriority deserializeDigibyteTransactionPriority(int raw);
+
+  TransactionPriority getDefaultTransactionPriority();
+
+  List<TransactionPriority> getTransactionPriorities();
+
+  TransactionPriority getDigibyteTransactionPrioritySlow();
+}
+""";
+
+  const digibyteEmptyDefinition = 'Digibyte? digibyte;\n';
+  const digibyteCWDefinition = 'Digibyte? digibyte = CWDigibyte();\n';
+
+  final output = '$digibyteCommonHeaders\n' +
+      (hasImplementation ? '$digibyteCWHeaders\n' : '\n') +
+      (hasImplementation ? '$digibyteCwPart\n\n' : '\n') +
+      (hasImplementation
+          ? digibyteCWDefinition
+          : digibyteEmptyDefinition) +
+      '\n' +
+      digibyteContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
@@ -1490,6 +1553,7 @@ Future<void> generatePubspec({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasDigibyte,
 }) async {
   const cwCore = """
   cw_core:
@@ -1557,6 +1621,10 @@ Future<void> generatePubspec({
   const cwDogecoin = """
   cw_dogecoin:
       path: ./cw_dogecoin
+  """;
+  const cwDigibyte = """
+  cw_digibyte:
+      path: ./cw_digibyte
   """;
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
@@ -1627,6 +1695,10 @@ Future<void> generatePubspec({
     output += '\n$cwDogecoin';
   }
 
+  if (hasDigibyte) {
+    output += '\n$cwDigibyte';
+  }
+
   final outputLines = output.split('\n');
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
@@ -1653,6 +1725,7 @@ Future<void> generateWalletTypes({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasDigibyte,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1682,6 +1755,10 @@ Future<void> generateWalletTypes({
 
   if (hasDogecoin) {
     outputContent += '\tWalletType.dogecoin,\n';
+  }
+
+  if (hasDigibyte) {
+    outputContent += '\tWalletType.digibyte,\n';
   }
 
   if (hasBitcoinCash) {

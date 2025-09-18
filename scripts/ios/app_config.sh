@@ -31,7 +31,7 @@ case $APP_IOS_TYPE in
 		;;
 
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred --dogecoin"
+                CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred --dogecoin --digibyte"
 		;;
 esac
 

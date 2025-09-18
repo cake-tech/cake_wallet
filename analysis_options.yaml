@@ -23,6 +23,8 @@ analyzer:
     lib/tron/cw_tron.dart,
     lib/wownero/cw_wownero.dart,
     lib/zano/cw_zano.dart,
+    lib/dogecoin/cw_dogecoin.dart,
+    lib/digibyte/cw_digibyte.dart,
     ]
   language:
     strict-casts: true

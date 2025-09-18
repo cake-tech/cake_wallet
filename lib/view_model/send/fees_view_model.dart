@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/digibyte/digibyte.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
@@ -95,7 +96,7 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.dogecoin:
         return transactionPriority == dogecoin!.getDogeCoinTransactionPrioritySlow();
       case WalletType.digibyte:
-        return false;
+        return transactionPriority == digibyte!.getDigibyteTransactionPrioritySlow();
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:
@@ -197,6 +198,9 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         break;
       case WalletType.dogecoin:
         _settingsStore.priority[wallet.type] = dogecoin!.getDefaultTransactionPriority();
+        break;
+      case WalletType.digibyte:
+        _settingsStore.priority[wallet.type] = digibyte!.getDefaultTransactionPriority();
         break;
       case WalletType.polygon:
         _settingsStore.priority[wallet.type] = polygon!.getDefaultTransactionPriority();

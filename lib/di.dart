@@ -10,6 +10,7 @@ import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/digibyte/digibyte.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
@@ -1193,7 +1194,11 @@ Future<void> setup({
         return dogecoin!.createDogeCoinWalletService(_walletInfoSource,
             _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.digibyte:
-        throw UnimplementedError('DigiByte wallet service is not yet wired');
+        return digibyte!.createDigibyteWalletService(
+          _walletInfoSource,
+          _unspentCoinsInfoSource,
+          SettingsStoreBase.walletPasswordDirectInput,
+        );
       case WalletType.nano:
       case WalletType.banano:
         return nano!.createNanoWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
