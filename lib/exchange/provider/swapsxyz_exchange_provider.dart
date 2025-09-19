@@ -395,7 +395,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       }
     }
 
-    final statusStr = (data['status'] as String?)?.toLowerCase() ?? 'pending';
+    final statusStr = (data['status'] as String?)?.toLowerCase() ?? 'NOT_FOUND';
     final state = _mapSwapsStatusToTradeState(statusStr);
 
     final refundAddress = data['sender']?.toString();
@@ -417,6 +417,8 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
     final srcDecimals = (srcPaymentToken?['decimals'] as num?)?.toInt() ?? 0;
     final dstDecimals = (dstPaymentToken?['decimals'] as num?)?.toInt() ?? 0;
+
+    final txHash = srcTransaction?['txHash'] as String?;
 
     String _fromMinimalToDecimal(String raw, int decimals) {
       // BigInt division -> decimal string without trailing zeros
@@ -459,6 +461,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       payoutAddress: payoutAddress,
       amount: amount,
       receiveAmount: receiveAmount,
+      txId: txHash,
       state: state,
       createdAt: createdAt,
       refundAddress: refundAddress,
@@ -609,20 +612,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     _tokensCache[chainId] = bySymbol.values.toList();
   }
 
-  String _nativePlaceholderForVm(String vmId) {
-    switch (vmId.toLowerCase()) {
-      case 'evm':
-        return '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-      case 'alt-vm':
-        return '0x0000000000000000000000000000000000000000';
-      default:
-        return '0x0000000000000000000000000000000000000000';
-    }
-  }
-
-  String? _nativeSymbolForChain(Chain chain) {
-    final n = chain.name.toUpperCase();
-    switch (n) {
+  String _nativeSymbolForChain(Chain chain) {
+    final network = chain.name.toUpperCase();
+    switch (network) {
       case 'BTC':
       case 'BITCOIN':
         return 'BTC';
@@ -647,8 +639,11 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       case 'XLM':
       case 'STELLAR':
         return 'XLM';
+      case 'SOL':
+      case 'SOLANA':
+        return 'SOL';
       default:
-        return null;
+        return network;
     }
   }
 
@@ -670,12 +665,23 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
     // If it's the native coin for this chain, return native placeholder
     final nativeSym = _nativeSymbolForChain(chain);
-    if (nativeSym != null && nativeSym == symbol) {
+    if (nativeSym == symbol) {
       return _nativePlaceholderForVm(chain.vmId);
     }
 
     // May fail for non-native Alt-VM assets
     return symbol;
+  }
+
+  String _nativePlaceholderForVm(String vmId) {
+    switch (vmId.toLowerCase()) {
+      case 'evm':
+        return '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+      case 'alt-vm':
+        return '0x0000000000000000000000000000000000000000';
+      default:
+        return '0x0000000000000000000000000000000000000000';
+    }
   }
 
   Map<String, dynamic>? findTokenBySymbol(

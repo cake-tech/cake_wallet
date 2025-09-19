@@ -23,6 +23,7 @@ import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -100,6 +101,13 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
+
+  bool get isSwapsXyzSendingEVMTokenSwap => (_provider is SwapsXyzExchangeProvider) &&
+      (wallet.type == WalletType.ethereum &&
+          wallet.currency != trade.from ||
+          (wallet.type == WalletType.polygon &&
+              wallet.currency != trade.from));
+
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
       : '';
@@ -142,7 +150,19 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     sendViewModel.selectedCryptoCurrency = selected;
 
-    final pendingTransaction = await sendViewModel.createTransaction(provider: _provider);
+    final pendingTransaction = await sendViewModel.createTransaction(provider: _provider, trade: trade);
+
+    if (_provider is SwapsXyzExchangeProvider) {
+      final hash = pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? '';
+      trade.txId = hash;
+
+      if (trade.isInBox) {
+        await trade.save();
+      } else {
+        await trades.add(trade);
+      }
+    }
+
     if (_provider is ThorChainExchangeProvider) {
       trade.id = pendingTransaction?.id ?? '';
       trades.add(trade);
@@ -297,23 +317,24 @@ abstract class ExchangeTradeViewModelBase with Store {
 
       final vmId = (trade.providerId ?? '').toLowerCase();
       if (vmId.isEmpty) {
-        printV('SwapsXyz transaction register: skipped (vmId empty)');
+        printV('SwapsXyz: transaction register: skipped (vmId empty)');
         return;
       }
 
-      final txHash = sendViewModel.pendingTransaction?.id ?? '';
+      final txHash = sendViewModel.pendingTransaction?.evmTxHashFromRawHex ?? sendViewModel.pendingTransaction?.id ?? '';
+
       if (txHash.isEmpty) {
-        printV('SwapsXyz transaction register: skipped (txHash empty)');
+        printV('SwapsXyz: transaction register: skipped (txHash empty)');
         return;
       }
 
       final chainId = int.tryParse(trade.router ?? '') ?? 0;
       if (chainId <= 0) {
-        printV('SwapsXyz transaction register: skipped (invalid chainId)');
+        printV('SwapsXyz: transaction register: skipped (invalid chainId)');
         return;
       }
-      
-      print('Attempting to register SwapsXyz transaction:\n tradeId===${trade.id},\n txHash=$txHash,\n chainId=$chainId,\n vmId=$vmId');
+
+      printV('SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
 
 
       final registered = await swaps.registerAltVmTx(
@@ -324,9 +345,9 @@ abstract class ExchangeTradeViewModelBase with Store {
       );
 
       if (!registered) {
-        printV('SwapsXyz transaction register: failed');
+        printV('SwapsXyz: transaction register: failed');
       } else {
-        printV('SwapsXyz transaction register: success');
+        printV('SwapsXyz: transaction register: success');
       }
     } catch (e) {
       printV('registerSwapsXyzTransaction error: $e');

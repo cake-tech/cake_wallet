@@ -41,8 +41,7 @@ class Trade extends HiveObject {
     this.routerValue,
     this.routerChainId,
     this.sourceTokenAmountRaw,
-    this.requiresTokenApproval,
-    this.isRegisteredInSwapXyz
+    this.requiresTokenApproval
   }) {
     if (provider != null) providerRaw = provider.raw;
 
@@ -168,9 +167,6 @@ class Trade extends HiveObject {
   @HiveField(33, defaultValue: false)
   bool? requiresTokenApproval;
 
-  @HiveField(34, defaultValue: false)
-  bool? isRegisteredInSwapXyz;
-
   CryptoCurrency? get userCurrencyFrom {
     if (userCurrencyFromRaw == null || userCurrencyFromRaw!.isEmpty) {
       return null;
@@ -295,7 +291,6 @@ class TradeAdapter extends TypeAdapter<Trade> {
       routerChainId: fields[31] as int?,
       sourceTokenAmountRaw: fields[32] as String?,
       requiresTokenApproval: fields[33] as bool?,
-      isRegisteredInSwapXyz: fields[34] as bool?,
     )
       ..providerRaw = fields[1] == null ? 0 : fields[1] as int
       ..fromRaw = (fields[2] as int?) ?? -1
@@ -374,9 +369,7 @@ class TradeAdapter extends TypeAdapter<Trade> {
       ..writeByte(32)
       ..write(obj.sourceTokenAmountRaw)
       ..writeByte(33)
-      ..write(obj.requiresTokenApproval)
-      ..writeByte(34)
-      ..write(obj.isRegisteredInSwapXyz);
+      ..write(obj.requiresTokenApproval);
   }
 
   @override

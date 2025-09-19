@@ -209,6 +209,11 @@ abstract class TradeDetailsViewModelBase with Store {
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
       }
     }
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz && trade.txId != null && trade.txId!.isNotEmpty) {
+      items.add(StandartListItem(
+          title: 'Transaction ID', value: trade.txId!));
+    }
   }
 
   void _launchUrl(String url) {

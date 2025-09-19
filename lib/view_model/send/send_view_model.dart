@@ -54,7 +54,6 @@ import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -180,8 +179,29 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     try {
+
+      double? price;
+
+
+      // Fiat store keeps ERC20Token entries, but selectedCryptoCurrency is a base CryptoCurrency
+      if (isEVMWallet && selectedCryptoCurrency != wallet.currency) {
+
+        String makeKey(CryptoCurrency c) =>
+            '${c.title.toUpperCase()}-${(c.tag ?? '').toUpperCase()}';
+
+        final requestKey = makeKey(selectedCryptoCurrency);
+
+        for (final entry in _fiatConversationStore.prices.entries) {
+          final storedKey = makeKey(entry.key);
+          if (storedKey == requestKey) {
+            price = entry.value;
+            break;
+          }
+        }
+      }
+
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+          price: price ?? _fiatConversationStore.prices[selectedCryptoCurrency]!,
           cryptoAmount: pendingTransaction!.amountFormatted);
       return fiat;
     } catch (_) {
@@ -560,7 +580,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             }
 
 
-          // No approval needed: still build calldata tx
+          // No approval needed: still build callData tx
           if (walletType == WalletType.ethereum) {
             final priority = _settingsStore.priority[WalletType.ethereum]!;
             pendingTransaction = await ethereum!.createRawCallDataTransaction(
