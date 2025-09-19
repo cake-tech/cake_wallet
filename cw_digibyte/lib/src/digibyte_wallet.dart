@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
@@ -87,6 +89,32 @@ abstract class DigibyteWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: passphrase,
+    );
+  }
+
+  static Future<DigibyteWallet> restoreFromWIF({
+    required String wif,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+  }) async {
+    final decoded = WifEncoder.decode(wif, netVer: DigibyteNetwork.mainnet.wifNetVer);
+    final seedBytes = Uint8List.fromList(decoded.privateKey);
+
+    return DigibyteWallet(
+      mnemonic: wif,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      seedBytes: seedBytes,
+      encryptionFileUtils: encryptionFileUtils,
+      addressPageType: P2pkhAddressType.p2pkh,
+      passphrase: null,
+      initialAddresses: null,
+      initialBalance: null,
+      initialRegularAddressIndex: null,
+      initialChangeAddressIndex: null,
     );
   }
 
