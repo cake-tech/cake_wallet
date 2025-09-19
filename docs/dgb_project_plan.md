@@ -17,6 +17,12 @@ This plan breaks the DigiByte listing effort into implementation phases, ensurin
 ## Phase 1 – Core Type & Assets
 Goal: teach the shared core about the new wallet type so that UI scaffolding and dependency injection recognize DigiByte.
 
+
+- ✅ Add `WalletType.digibyte` enum value and update all switch statements (`walletTypeToString`, `walletTypeToDisplayName`, serialization helpers, etc.).
+- ✅ Map DigiByte to its currency via `walletTypeToCryptoCurrency` and `cryptoCurrencyToWalletType`.
+- ✅ Register DigiByte in the generated wallet type lists (`tool/configure.dart`, `scripts/*/app_config.sh`) to unblock proxy generation.
+- ✅ Extend `lib/entities/node_list.dart` to load DigiByte default nodes and ensure `resetToDefault` persists them.
+- ✅ Ship `assets/digibyte_electrum_server_list.yml` and register it in `pubspec_base.yaml`.
 - [ ] Add `WalletType.digibyte` enum value and update all switch statements (`walletTypeToString`, `walletTypeToDisplayName`, serialization helpers, etc.).
 - [ ] Map DigiByte to its currency via `walletTypeToCryptoCurrency` and `cryptoCurrencyToWalletType`.
 - ✅ Register DigiByte in the generated wallet type lists (`tool/configure.dart`, `scripts/*/app_config.sh`) to unblock proxy generation.
