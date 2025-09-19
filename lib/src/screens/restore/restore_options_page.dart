@@ -111,7 +111,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                 ),
                 if (FeatureFlag.hasBitcoinViewOnly && DeviceInfo.instance.isMobile)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_cupcake_button_key'),
                       onPressed: () => _onScanQRCode(context),
@@ -124,7 +124,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   ),
                 if (_doesSupportHardwareWallets)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_hardware_wallet_button_key'),
                       onPressed: () =>
@@ -137,7 +137,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   ),
                 if (widget.isNewInstall)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_backup_button_key'),
                       onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
@@ -149,7 +149,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   ),
                 if (DeviceInfo.instance.isMobile)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                         key: ValueKey('restore_options_from_qr_button_key'),
                         onPressed: () => _onScanQRCode(context),

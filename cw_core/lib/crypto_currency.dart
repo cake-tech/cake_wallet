@@ -134,19 +134,19 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   ];
 
   // title, tag (if applicable), fullName (if unique), raw, name, iconPath
-  static const xmr = CryptoCurrency(title: 'XMR', fullName: 'Monero', raw: 0, name: 'xmr', iconPath: 'assets/images/monero_icon.png', decimals: 12);
+  static const xmr = CryptoCurrency(title: 'XMR', fullName: 'Monero', raw: 0, name: 'xmr', iconPath: 'assets/images/crypto/monero.png', decimals: 12);
   static const ada = CryptoCurrency(title: 'ADA', fullName: 'Cardano', raw: 1, name: 'ada', iconPath: 'assets/images/ada_icon.png', decimals: 6);
-  static const bch = CryptoCurrency(title: 'BCH', fullName: 'Bitcoin Cash', raw: 2, name: 'bch', iconPath: 'assets/images/bch_icon.png', decimals: 8);
+  static const bch = CryptoCurrency(title: 'BCH', fullName: 'Bitcoin Cash', raw: 2, name: 'bch', iconPath: 'assets/images/crypto/bitcoin-cash.png', decimals: 8);
   static const bnb = CryptoCurrency(title: 'BNB', tag: 'BSC', fullName: 'Binance Coin', raw: 3, name: 'bnb', iconPath: 'assets/images/bnb_icon.png', decimals: 8);
-  static const btc = CryptoCurrency(title: 'BTC', fullName: 'Bitcoin', raw: 4, name: 'btc', iconPath: 'assets/images/btc.png', decimals: 8);
-  static const dai = CryptoCurrency(title: 'DAI', tag: 'ETH', fullName: 'Dai', raw: 5, name: 'dai', iconPath: 'assets/images/dai_icon.png', decimals: 18);
+  static const btc = CryptoCurrency(title: 'BTC', fullName: 'Bitcoin', raw: 4, name: 'btc', iconPath: 'assets/images/crypto/bitcoin.png', decimals: 8);
+  static const dai = CryptoCurrency(title: 'DAI', tag: 'ETH', fullName: 'Dai', raw: 5, name: 'dai', iconPath: 'assets/images/crypto/dai.png', decimals: 18);
   static const dash = CryptoCurrency(title: 'DASH', fullName: 'Dash', raw: 6, name: 'dash', iconPath: 'assets/images/dash_icon.png', decimals: 8);
   static const eos = CryptoCurrency(title: 'EOS', fullName: 'EOS', raw: 7, name: 'eos', iconPath: 'assets/images/eos_icon.png', decimals: 4);
-  static const eth = CryptoCurrency(title: 'ETH', fullName: 'Ethereum', raw: 8, name: 'eth', iconPath: 'assets/images/eth_icon.png', decimals: 18);
-  static const ltc = CryptoCurrency(title: 'LTC', fullName: 'Litecoin', raw: 9, name: 'ltc', iconPath: 'assets/images/litecoin-ltc_icon.png', decimals: 8);
-  static const nano = CryptoCurrency(title: 'XNO', fullName: 'Nano', raw: 10, name: 'xno', iconPath: 'assets/images/nano_icon.png', decimals: 30);
-  static const trx = CryptoCurrency(title: 'TRX', fullName: 'TRON', raw: 11, name: 'trx', iconPath: 'assets/images/trx_icon.png', decimals: 6);
-  static const usdt = CryptoCurrency(title: 'USDT', tag: 'OMNI', fullName: 'USDT Tether', raw: 12, name: 'usdt', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
+  static const eth = CryptoCurrency(title: 'ETH', fullName: 'Ethereum', raw: 8, name: 'eth', iconPath: 'assets/images/crypto/ethereum.png', decimals: 18);
+  static const ltc = CryptoCurrency(title: 'LTC', fullName: 'Litecoin', raw: 9, name: 'ltc', iconPath: 'assets/images/crypto/litecoin.png', decimals: 8);
+  static const nano = CryptoCurrency(title: 'XNO', fullName: 'Nano', raw: 10, name: 'xno', iconPath: 'assets/images/crypto/nano.png', decimals: 30);
+  static const trx = CryptoCurrency(title: 'TRX', fullName: 'TRON', raw: 11, name: 'trx', iconPath: 'assets/images/crypto/tron.png', decimals: 6);
+  static const usdt = CryptoCurrency(title: 'USDT', tag: 'OMNI', fullName: 'USDT Tether', raw: 12, name: 'usdt', iconPath: 'assets/images/crypto/tether.png', decimals: 6);
   static const usdterc20 = CryptoCurrency(title: 'USDT', tag: 'ETH', fullName: 'USDT Tether', raw: 13, name: 'usdterc20', iconPath: 'assets/images/usdterc20_icon.png', decimals: 6);
   static const xlm = CryptoCurrency(title: 'XLM', fullName: 'Stellar', raw: 14, name: 'xlm', iconPath: 'assets/images/xlm_icon.png', decimals: 7);
   static const xrp = CryptoCurrency(title: 'XRP', fullName: 'Ripple', raw: 15, name: 'xrp', iconPath: 'assets/images/xrp_icon.png', decimals: 6);
@@ -170,12 +170,12 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const avaxc = CryptoCurrency(title: 'AVAX', tag: 'AVAXC', fullName: 'Avalanche', raw: 31, name: 'avaxc', iconPath: 'assets/images/avaxc_icon.png', decimals: 9);
   static const btt = CryptoCurrency(title: 'BTT', tag: 'ETH', fullName: 'BitTorrent', raw: 32, name: 'btt', iconPath: 'assets/images/btt_icon.png', decimals: 18);
   static const bttc = CryptoCurrency(title: 'BTTC', tag: 'TRX', fullName: 'BitTorrent-NEW', raw: 33, name: 'bttc', iconPath: 'assets/images/btt_icon.png', decimals: 18);
-  static const doge = CryptoCurrency(title: 'DOGE', fullName: 'Dogecoin', raw: 34, name: 'doge', iconPath: 'assets/images/doge_icon.png', decimals: 8);
+  static const doge = CryptoCurrency(title: 'DOGE', fullName: 'Dogecoin', raw: 34, name: 'doge', iconPath: 'assets/images/crypto/dogecoin.png', decimals: 8);
   static const firo = CryptoCurrency(title: 'FIRO', raw: 35, name: 'firo', iconPath: 'assets/images/firo_icon.png', decimals: 8);
   static const usdttrc20 = CryptoCurrency(title: 'USDT', tag: 'TRX', fullName: 'USDT Tether', raw: 36, name: 'usdttrc20', iconPath: 'assets/images/usdttrc20_icon.png', decimals: 6);
   static const hbar = CryptoCurrency(title: 'HBAR', fullName: 'Hedera', raw: 37, name: 'hbar', iconPath: 'assets/images/hbar_icon.png', decimals: 8);
   static const sc = CryptoCurrency(title: 'SC', fullName: 'Siacoin', raw: 38, name: 'sc', iconPath: 'assets/images/sc_icon.png', decimals: 16);
-  static const sol = CryptoCurrency(title: 'SOL', fullName: 'Solana', raw: 39, name: 'sol', iconPath: 'assets/images/sol_icon.png', decimals: 9);
+  static const sol = CryptoCurrency(title: 'SOL', fullName: 'Solana', raw: 39, name: 'sol', iconPath: 'assets/images/crypto/solana.png', decimals: 9);
   static const usdc = CryptoCurrency(title: 'USDC', tag: 'ETH', fullName: 'USD Coin', raw: 40, name: 'usdc', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
   static const usdcsol = CryptoCurrency(title: 'USDC', tag: 'SOL', fullName: 'USDC Coin', raw: 41, name: 'usdcsol', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
   static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', fullName: 'Shielded Zcash', raw: 42, name: 'zaddr', iconPath: 'assets/images/zec_icon.png', decimals: 8);
@@ -184,10 +184,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const xvg = CryptoCurrency(title: 'XVG', fullName: 'Verge', raw: 45, name: 'xvg', iconPath: 'assets/images/xvg_icon.png', decimals: 8);
 
   static const usdcpoly = CryptoCurrency(title: 'USDC', tag: 'POL', fullName: 'USD Coin', raw: 46, name: 'usdcpoly', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
-  static const dcr = CryptoCurrency(title: 'DCR', fullName: 'Decred', raw: 47, name: 'dcr', iconPath: 'assets/images/dcr_icon.png', decimals: 8);
+  static const dcr = CryptoCurrency(title: 'DCR', fullName: 'Decred', raw: 47, name: 'dcr', iconPath: 'assets/images/crypto/decred.png', decimals: 8);
   static const kmd = CryptoCurrency(title: 'KMD', fullName: 'Komodo', raw: 48, name: 'kmd', iconPath: 'assets/images/kmd_icon.png', decimals: 8);
   static const mana = CryptoCurrency(title: 'MANA', tag: 'ETH', fullName: 'Decentraland', raw: 49, name: 'mana', iconPath: 'assets/images/mana_icon.png', decimals: 18);
-  static const maticpoly = CryptoCurrency(title: 'POL', tag: 'POL', fullName: 'Polygon', raw: 50, name: 'maticpoly', iconPath: 'assets/images/matic_icon.png', decimals: 18);
+  static const maticpoly = CryptoCurrency(title: 'POL', tag: 'POL', fullName: 'Polygon', raw: 50, name: 'maticpoly', iconPath: 'assets/images/crypto/polygon.png', decimals: 18);
   static const matic = CryptoCurrency(title: 'MATIC', tag: 'ETH', fullName: 'Polygon', raw: 51, name: 'matic', iconPath: 'assets/images/matic_icon.png', decimals: 18);
   static const mkr = CryptoCurrency(title: 'MKR', tag: 'ETH', fullName: 'Maker', raw: 52, name: 'mkr', iconPath: 'assets/images/mkr_icon.png', decimals: 18);
   static const near = CryptoCurrency(title: 'NEAR', fullName: 'NEAR Protocol', raw: 53, name: 'near', iconPath: 'assets/images/near_icon.png', decimals: 24);
@@ -231,9 +231,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const usdtSol = CryptoCurrency(title: 'USDT', tag: 'SOL', fullName: 'USDT Tether', raw: 91, name: 'usdtsol', iconPath: 'assets/images/usdt_icon.png', decimals: 6);
   static const usdcTrc20 = CryptoCurrency(title: 'USDC', tag: 'TRX', fullName: 'USDC Coin', raw: 92, name: 'usdctrc20', iconPath: 'assets/images/usdc_icon.png', decimals: 6);
   static const tbtc = CryptoCurrency(title: 'tBTC', fullName: 'Testnet Bitcoin', raw: 93, name: 'tbtc', iconPath: 'assets/images/tbtc.png', decimals: 8);
-  static const wow = CryptoCurrency(title: 'WOW', fullName: 'Wownero', raw: 94, name: 'wow', iconPath: 'assets/images/wownero_icon.png', decimals: 11);
+  static const wow = CryptoCurrency(title: 'WOW', fullName: 'Wownero', raw: 94, name: 'wow', iconPath: 'assets/images/crypto/wownero.png', decimals: 11);
   static const ton = CryptoCurrency(title: 'TON', fullName: 'Toncoin', raw: 95, name: 'ton', iconPath: 'assets/images/ton_icon.png', decimals: 8);
-  static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 96, name: 'zano', iconPath: 'assets/images/zano_icon.png', decimals: 12);
+  static const zano = CryptoCurrency(title: 'ZANO', tag: 'ZANO', fullName: 'Zano', raw: 96, name: 'zano', iconPath: 'assets/images/crypto/zano.png', decimals: 12);
   static const flip = CryptoCurrency(title: 'FLIP', tag: 'ETH', fullName: 'Chainflip', raw: 97, name: 'flip', iconPath: 'assets/images/flip_icon.png', decimals: 18);
   static const deuro = CryptoCurrency(title: 'DEURO', tag: 'ETH', fullName: 'Decentralized Euro', raw: 98, name: 'deuro', iconPath: 'assets/images/deuro_icon.png', decimals: 18);
   static const usdtbsc = CryptoCurrency(title: 'USDT', tag: 'BSC', fullName: 'USDT Binance coin', raw: 99, name: 'usdtbsc', iconPath: 'assets/images/usdtbsc_icon.png', decimals: 18);
