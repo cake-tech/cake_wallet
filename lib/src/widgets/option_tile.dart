@@ -38,7 +38,7 @@ class OptionTile extends StatelessWidget {
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       ),
-      child: ElevatedButton(
+      child: TextButton(
         style: TextButton.styleFrom(
           side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
           backgroundColor: Colors.transparent,
