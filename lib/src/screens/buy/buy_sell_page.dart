@@ -79,7 +79,7 @@ class BuySellPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
     final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;

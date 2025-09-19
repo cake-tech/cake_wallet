@@ -59,7 +59,7 @@ class AddressPage extends BasePage {
   Widget? leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor(context),
+      color: Theme.of(context).colorScheme.primary,
       size: 16,
     );
     final _closeButton = currentTheme.isDark ? closeButtonImageDarkTheme : closeButtonImage;
@@ -113,7 +113,7 @@ class AddressPage extends BasePage {
               context: context,
             );
           },
-          icon: Icon(Icons.share, size: 20, color: pageIconColor(context)),
+          icon: Icon(Icons.share, size: 20, color: Theme.of(context).colorScheme.primary),
         ),
       ),
     );

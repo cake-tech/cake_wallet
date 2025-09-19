@@ -53,9 +53,9 @@ class CakeFeaturesPage extends StatelessWidget {
                   title: 'Cake Pay',
                   subTitle: S.of(context).cake_pay_subtitle,
                   image: Image.asset(
-                    'assets/images/cards.png',
-                    height: 100,
-                    width: 115,
+                    'assets/images/cakepay.png',
+                    height: 74,
+                    width: 70,
                     fit: BoxFit.cover,
                   ),
                 ),
