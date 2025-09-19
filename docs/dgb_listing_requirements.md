@@ -59,7 +59,8 @@ This document captures the information Cake Wallet typically requires when asses
 ## 6. Outstanding Items / Data to Confirm
 
 * Provide a list of Cake-controlled DigiByte Electrum or RPC nodes (hostname, ports, SSL) for production configuration.
-* Decide when to enable the DigiByte proxy/package generation flag in `tool/configure.dart` and platform scripts once wallet service wiring is ready.
+* ✅ DigiByte proxy/package generation flag enabled in `tool/configure.dart` and platform scripts; generated `lib/digibyte/digibyte.dart` now available for app wiring.
+* Confirm WIF/private-key restore flows produce the expected addresses when compared against reference DigiByte wallets.
 * Share updated contact details for the technical lead(s) responsible for coordinating with Cake Wallet should protocol updates occur.
 * Confirm whether DigiByte requires any additional derivation paths beyond standard BIP44/49/84 for compatibility with existing user seeds.
 * Supply any marketing collateral (brand guidelines, icon usage rights) if Cake Wallet requires explicit approval for app store submissions.

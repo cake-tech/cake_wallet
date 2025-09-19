@@ -4,7 +4,6 @@ This plan breaks the DigiByte listing effort into implementation phases, ensurin
 
 ## Phase 0 – Discovery & Requirements
 - ✅ Confirm existing DigiByte currency metadata in `cw_core/lib/crypto_currency.dart` (ticker, display name, icon, decimals).
-- ✅ Gather canonical Electrum server inventory and uptime data to seed the default node list.
 - ☐ Gather canonical Electrum server inventory and uptime data to seed the default node list.
 - ☐ Validate JSON-RPC compatibility (e.g. `digibyted` version, pruning requirements, fee policy) for potential full node support.
 - ☐ Obtain official contacts for escalation (foundation/maintainers) to include with listing submission.
@@ -18,23 +17,15 @@ This plan breaks the DigiByte listing effort into implementation phases, ensurin
 ## Phase 1 – Core Type & Assets
 Goal: teach the shared core about the new wallet type so that UI scaffolding and dependency injection recognize DigiByte.
 
-- ✅ Add `WalletType.digibyte` enum value and update all switch statements (`walletTypeToString`, `walletTypeToDisplayName`, serialization helpers, etc.).
-- ✅ Map DigiByte to its currency via `walletTypeToCryptoCurrency` and `cryptoCurrencyToWalletType`.
-- ☐ Register DigiByte in the generated wallet type lists (`tool/configure.dart`, `scripts/*/app_config.sh`) to unblock proxy generation.
-- ✅ Extend `lib/entities/node_list.dart` to load DigiByte default nodes and ensure `resetToDefault` persists them.
-- ✅ Ship `assets/digibyte_electrum_server_list.yml` and register it in `pubspec_base.yaml`.
 - [ ] Add `WalletType.digibyte` enum value and update all switch statements (`walletTypeToString`, `walletTypeToDisplayName`, serialization helpers, etc.).
 - [ ] Map DigiByte to its currency via `walletTypeToCryptoCurrency` and `cryptoCurrencyToWalletType`.
-- [ ] Register DigiByte in the generated wallet type lists (`tool/configure.dart`, `scripts/*/app_config.sh`) to unblock proxy generation.
+- ✅ Register DigiByte in the generated wallet type lists (`tool/configure.dart`, `scripts/*/app_config.sh`) to unblock proxy generation.
 - [ ] Extend `lib/entities/node_list.dart` to load DigiByte default nodes and ensure `resetToDefault` persists them.
 - [ ] Ship `assets/digibyte_electrum_server_list.yml` and register it in `pubspec_base.yaml`.
 
 ## Phase 2 – Node Defaults & Settings Migration
 Goal: guarantee that new installs and migrations receive functional DigiByte nodes.
 
-- ✅ Define DigiByte default node URI constants and helpers in `lib/entities/default_settings_migration.dart` (mirroring Dogecoin).
-- ✅ Wire DigiByte into `addWalletNodeList`, `_changeDefaultNode`, and migration switch cases.
-- ✅ Add persistent storage keys in `lib/entities/preferences_key.dart` for tracking the current DigiByte node.
 - [ ] Define DigiByte default node URI constants and helpers in `lib/entities/default_settings_migration.dart` (mirroring Dogecoin).
 - [ ] Wire DigiByte into `addWalletNodeList`, `_changeDefaultNode`, and migration switch cases.
 - [ ] Add persistent storage keys in `lib/entities/preferences_key.dart` for tracking the current DigiByte node.
@@ -42,7 +33,7 @@ Goal: guarantee that new installs and migrations receive functional DigiByte nod
 ## Phase 3 – DigiByte Wallet Package (`cw_digibyte`)
 Goal: encapsulate DigiByte Electrum integration in a dedicated package, following the Bitcoin-family architecture.
 
-- [ ] Scaffold `cw_digibyte` package with wallet service, wallet class, address management, transaction priority, etc. (reference `cw_dogecoin`).
+- ✅ Scaffold `cw_digibyte` package with wallet service, wallet class, address management, transaction priority, etc. (reference `cw_dogecoin`).
 - [ ] Add build scripts (`model_generator.sh`, `scripts/*/app_config.sh`) to include DigiByte package in generated outputs.
 - [ ] Implement DigiByte-specific constants (SLIP44 coin type 20, network magic, address prefixes, fee policy) inside the package.
 - [ ] Provide unit tests that cover balance parsing, transaction decoding, and fee rate calculation for DigiByte.
@@ -50,7 +41,7 @@ Goal: encapsulate DigiByte Electrum integration in a dedicated package, followin
 ## Phase 4 – Proxy Wiring & Dependency Injection
 Goal: expose DigiByte functionality to the application layer via generated proxies.
 
-- [ ] Create proxy configuration entries in `tool/configure.dart` and run the generator to produce `lib/digibyte/digibyte.dart`.
+- ✅ Create proxy configuration entries in `tool/configure.dart` and run the generator to produce `lib/digibyte/digibyte.dart`.
 - [ ] Register DigiByte services in dependency injection (`lib/di.dart`) and wallet creation flows (`lib/view_model/wallet_new_vm.dart`, etc.).
 - [ ] Update UI selectors, routing, and localization strings to surface DigiByte in wallet creation/import screens.
 
@@ -60,6 +51,7 @@ Goal: finish the listing packet with test evidence and handoff notes.
 - [ ] Document QA checklist results (sync, send, receive on mainnet/testnet if available).
 - [ ] Update `docs/dgb_listing_requirements.md` with final node list, maintainers, and test logs.
 - [ ] Prepare submission summary for Cake Wallet maintainers.
+- [ ] Refresh top-level documentation (README, changelog highlights, marketing copy) to call out DigiByte support once feature-complete.
 
 ---
 

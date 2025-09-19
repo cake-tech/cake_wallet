@@ -128,6 +128,9 @@ abstract class ElectrumWalletBase
           return Bip32Slip10Secp256k1.fromSeed(seedBytes, getKeyNetVersion(network)).derivePath(
                   _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
               as Bip32Slip10Secp256k1;
+        case CryptoCurrency.digibyte:
+          return Bip32Slip10Secp256k1.fromSeed(seedBytes)
+              .derivePath("m/44'/20'/0'") as Bip32Slip10Secp256k1;
         case CryptoCurrency.bch:
           return bitcoinCashHDWallet(seedBytes);
         case CryptoCurrency.doge:

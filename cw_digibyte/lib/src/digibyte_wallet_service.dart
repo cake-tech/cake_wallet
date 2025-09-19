@@ -23,6 +23,14 @@ class DigibyteWalletService extends WalletService<
   final Box<WalletInfo> walletInfoSource;
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
+  static const _defaultDerivationPath = "m/44'/20'/0'";
+
+  void _ensureDefaultDerivation(WalletInfo info) {
+    info.derivationInfo ??= DerivationInfo(
+      derivationType: DerivationType.bip39,
+      derivationPath: _defaultDerivationPath,
+    );
+  }
 
   @override
   WalletType getType() => WalletType.digibyte;
@@ -34,6 +42,8 @@ class DigibyteWalletService extends WalletService<
   @override
   Future<DigibyteWallet> create(credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
+
+    _ensureDefaultDerivation(credentials.walletInfo!);
 
     final wallet = await DigibyteWalletBase.create(
       mnemonic: credentials.mnemonic ?? MnemonicBip39.generate(strength: strength),
@@ -125,9 +135,25 @@ class DigibyteWalletService extends WalletService<
   }
 
   @override
-  Future<DigibyteWallet> restoreFromKeys(credentials, {bool? isTestnet}) {
-    // TODO: implement restoreFromKeys
-    throw UnimplementedError('restoreFromKeys() is not implemented');
+  Future<DigibyteWallet> restoreFromKeys(credentials, {bool? isTestnet}) async {
+    try {
+      _ensureDefaultDerivation(credentials.walletInfo!);
+
+      final wallet = await DigibyteWalletBase.restoreFromWIF(
+        wif: credentials.wif,
+        password: credentials.password!,
+        walletInfo: credentials.walletInfo!,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      );
+
+      await wallet.save();
+      await wallet.init();
+
+      return wallet;
+    } catch (e) {
+      throw Exception('Failed to restore DigiByte wallet from WIF: $e');
+    }
   }
 
   @override
@@ -136,6 +162,8 @@ class DigibyteWalletService extends WalletService<
     if (!validateMnemonic(credentials.mnemonic)) {
       throw Exception('Invalid mnemonic: ${credentials.mnemonic}');
     }
+
+    _ensureDefaultDerivation(credentials.walletInfo!);
 
     final wallet = await DigibyteWalletBase.create(
         password: credentials.password!,
