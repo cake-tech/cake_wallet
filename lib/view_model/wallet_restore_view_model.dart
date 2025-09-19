@@ -54,6 +54,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.polygon:
       case WalletType.decred:
       case WalletType.bitcoin:
+      case WalletType.digibyte:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.litecoin:
@@ -61,13 +62,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.zano:
       case WalletType.none:
       case WalletType.dogecoin:
-      case WalletType.digibyte:
         availableModes = [WalletRestoreMode.seed];
         break;
     }
     walletCreationService.changeWalletType(type: type);
     if (restoredWallet != null) {
-      if(restoredWallet!.restoreMode == WalletRestoreMode.seed) {
+      if (restoredWallet!.restoreMode == WalletRestoreMode.seed) {
         seedSettingsViewModel.setPassphrase(restoredWallet!.passphrase);
       }
     }
@@ -95,7 +95,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
-    WalletType.tron
+    WalletType.tron,
+    WalletType.digibyte
   ].contains(type);
 
   late final bool onlyViewKeyRestore = [
@@ -279,6 +280,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             privateKey: options['private_key'] as String,
+          );
+        case WalletType.digibyte:
+          return digibyte!.createDigibyteRestoreWalletFromWIFCredentials(
+            name: name,
+            password: password,
+            wif: options['private_key'] as String,
           );
         case WalletType.wownero:
           return wownero!.createWowneroRestoreWalletFromKeysCredentials(
