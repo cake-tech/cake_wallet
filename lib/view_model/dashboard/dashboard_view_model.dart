@@ -181,6 +181,11 @@ abstract class DashboardViewModelBase with Store {
                 caption: ExchangeProviderDescription.swapTrade.title,
                 onChanged: () =>
                     tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapTrade)),
+            FilterItem(
+                value: () => tradeFilterStore.displaySwapXyz,
+                caption: ExchangeProviderDescription.swapsXyz.title,
+                onChanged: () =>
+                tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.swapsXyz)),
           ]
         },
         subname = '',

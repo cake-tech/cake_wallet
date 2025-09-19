@@ -7,6 +7,7 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -25,6 +26,7 @@ import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -75,6 +77,10 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.swapsXyz:
+        _provider = SwapsXyzExchangeProvider();
+        break;
     }
 
     _updateItems();
@@ -98,6 +104,13 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @observable
   bool isSendable;
+
+
+  bool get isSwapsXyzSendingEVMTokenSwap => (_provider is SwapsXyzExchangeProvider) &&
+      (wallet.type == WalletType.ethereum &&
+          wallet.currency != trade.from ||
+          (wallet.type == WalletType.polygon &&
+              wallet.currency != trade.from));
 
   String get extraInfo => trade.extraId != null && trade.extraId!.isNotEmpty
       ? '\n\n' + S.current.exchange_extra_info
@@ -184,7 +197,19 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     sendViewModel.selectedCryptoCurrency = selected;
 
-    final pendingTransaction = await sendViewModel.createTransaction(provider: _provider);
+    final pendingTransaction = await sendViewModel.createTransaction(provider: _provider, trade: trade);
+
+    if (_provider is SwapsXyzExchangeProvider) {
+      final hash = pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? '';
+      trade.txId = hash;
+
+      if (trade.isInBox) {
+        await trade.save();
+      } else {
+        await trades.add(trade);
+      }
+    }
+
     if (_provider is ThorChainExchangeProvider) {
       trade.id = pendingTransaction?.id ?? '';
       trades.add(trade);
@@ -314,5 +339,52 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isPolygonToken() ||
         _isSplToken() ||
         _isTronToken();
+  }
+
+  Future<void> registerSwapsXyzTransaction() async {
+    try {
+      if (!(_provider is SwapsXyzExchangeProvider)) return;
+      final swaps = _provider as SwapsXyzExchangeProvider;
+
+      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
+      final needToRegister = trade.needToRegisterInSwapXyz ?? false;
+      if (!needToRegister) return;
+
+      final vmId = (trade.providerId ?? '').toLowerCase();
+      if (vmId.isEmpty) {
+        printV('SwapsXyz: transaction register: skipped (vmId empty)');
+        return;
+      }
+
+      final txHash = sendViewModel.pendingTransaction?.evmTxHashFromRawHex ?? sendViewModel.pendingTransaction?.id ?? '';
+
+      if (txHash.isEmpty) {
+        printV('SwapsXyz: transaction register: skipped (txHash empty)');
+        return;
+      }
+
+      final chainId = int.tryParse(trade.router ?? '') ?? 0;
+      if (chainId <= 0) {
+        printV('SwapsXyz: transaction register: skipped (invalid chainId)');
+        return;
+      }
+
+      printV('SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
+
+      final registered = await swaps.registerAltVmTx(
+        txId: trade.id,
+        txHash: txHash,
+        chainId: chainId,
+        vmId: vmId,
+      );
+
+      if (!registered) {
+        printV('SwapsXyz: transaction register: failed');
+      } else {
+        printV('SwapsXyz: transaction register: success');
+      }
+    } catch (e) {
+      printV('registerSwapsXyzTransaction error: $e');
+    }
   }
 }

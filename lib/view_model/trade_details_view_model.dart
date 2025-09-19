@@ -6,6 +6,7 @@ import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
@@ -76,6 +77,9 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.xoSwap:
         _provider = XOSwapExchangeProvider();
+        break;
+      case ExchangeProviderDescription.swapsXyz:
+        _provider = SwapsXyzExchangeProvider();
         break;
     }
 
@@ -204,6 +208,11 @@ abstract class TradeDetailsViewModelBase with Store {
         items.add(StandartListItem(
             title: '${trade.providerName} ${S.current.password}', value: trade.password ?? ''));
       }
+    }
+
+    if (trade.provider == ExchangeProviderDescription.swapsXyz && trade.txId != null && trade.txId!.isNotEmpty) {
+      items.add(StandartListItem(
+          title: 'Transaction ID', value: trade.txId!));
     }
   }
 
