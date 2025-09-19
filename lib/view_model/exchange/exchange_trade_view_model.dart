@@ -313,7 +313,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         return;
       }
       
-      print('Attempting to register SwapsXyz transaction:\n tradeId===${trade.id},\n txHash=$txHash,\n chainId=$chainId,\n vmId=$vmId');
+      printV('Attempting to register SwapsXyz transaction:\n tradeId===${trade.id},\n txHash=$txHash,\n chainId=$chainId,\n vmId=$vmId');
 
 
       final registered = await swaps.registerAltVmTx(
