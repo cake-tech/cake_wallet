@@ -21,6 +21,7 @@
 Cake Wallet includes support for several cryptocurrencies, including:
 * Monero (XMR)
 * Bitcoin (BTC)
+* DigiByte (DGB)
 * Ethereum (ETH)
 * Litecoin (LTC)
 * Bitcoin Cash (BCH)
@@ -81,6 +82,13 @@ Cake Wallet includes support for several cryptocurrencies, including:
 * Litecoin coin control (specify specific outputs to spend)
 * Automatically generate new addresses
 * Specify multiple recipients for batch sending
+
+### DigiByte Specific Features
+
+* Lightning-fast block confirmations (roughly every 15 seconds across five mining algorithms)
+* Supports all major DigiByte address formats (legacy, nested SegWit, and bech32)
+* Import existing wallets via mnemonic seed phrases or DigiByte-compatible WIF private keys
+* Configure custom DigiByte Electrum nodes or use Cake Wallet's default curated list
 
 # Monero.com by Cake Wallet for Android and iOS
 
