@@ -23,27 +23,31 @@ class RestoreOptionsPage extends BasePage {
 
   @override
   String get title => S.current.restore_restore_wallet;
-
   final bool isNewInstall;
+
+
 
   @override
   Widget body(BuildContext context) {
-    return _RestoreOptionsBody(isNewInstall: isNewInstall, themeType: currentTheme.type);
+    return _RestoreOptionsBody(isNewInstall: isNewInstall, themeType: currentTheme.type, currentTheme: currentTheme);
   }
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
-  const _RestoreOptionsBody({required this.isNewInstall, required this.themeType});
-
+  const _RestoreOptionsBody({required this.isNewInstall, required this.themeType, required this.currentTheme});
   final bool isNewInstall;
   final ThemeType themeType;
+  final MaterialThemeBase currentTheme;
+
 
   @override
-  _RestoreOptionsBodyState createState() => _RestoreOptionsBodyState();
+  _RestoreOptionsBodyState createState() => _RestoreOptionsBodyState(currentTheme: currentTheme);
 }
 
 class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
+  _RestoreOptionsBodyState({required this.currentTheme});
   bool isRestoring = false;
+  final MaterialThemeBase currentTheme;
 
   bool get _doesSupportHardwareWallets {
     if (isMoneroOnly) {
@@ -103,10 +107,11 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   image: imageSeedKeys,
                   title: S.of(context).restore_title_from_seed_keys,
                   description: S.of(context).restore_description_from_seed_keys,
+                  currentTheme: currentTheme,
                 ),
                 if (FeatureFlag.hasBitcoinViewOnly && DeviceInfo.instance.isMobile)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_cupcake_button_key'),
                       onPressed: () => _onScanQRCode(context),
@@ -114,11 +119,12 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                       title: S.of(context).restore_title_from_cupcake,
                       description: S.of(context).restore_description_from_cupcake,
                       tag: S.of(context).new_tag,
+                      currentTheme: currentTheme,
                     ),
                   ),
                 if (_doesSupportHardwareWallets)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_hardware_wallet_button_key'),
                       onPressed: () =>
@@ -126,28 +132,31 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                       image: imageRestoreHW,
                       title: S.of(context).restore_title_from_hardware_wallet,
                       description: S.of(context).restore_description_from_hardware_wallet,
+                      currentTheme: currentTheme,
                     ),
                   ),
                 if (widget.isNewInstall)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                       key: ValueKey('restore_options_from_backup_button_key'),
                       onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
                       image: imageRestoreBackup,
                       title: S.of(context).restore_title_from_backup,
                       description: S.of(context).restore_description_from_backup,
+                      currentTheme: currentTheme,
                     ),
                   ),
                 if (DeviceInfo.instance.isMobile)
                   Padding(
-                    padding: EdgeInsets.only(top: 24),
+                    padding: EdgeInsets.only(top: 12),
                     child: OptionTile(
                         key: ValueKey('restore_options_from_qr_button_key'),
                         onPressed: () => _onScanQRCode(context),
                         image: imageRestoreQR,
                         title: S.of(context).scan_qr_code,
                         description: S.of(context).cold_or_recover_wallet,
+                        currentTheme: currentTheme,
                     ),
                   ),
               ],

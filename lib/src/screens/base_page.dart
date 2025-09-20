@@ -72,7 +72,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget backButton(BuildContext context) => Icon(
         Icons.arrow_back_ios,
-        color: pageIconColor(context),
+        color: Theme.of(context).colorScheme.primary,
         size: 16,
       );
 

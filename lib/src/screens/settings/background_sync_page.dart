@@ -31,6 +31,7 @@ class BackgroundSyncPage extends BasePage {
         children: [
           Observer(builder: (context) {
             return SettingsSwitcherCell(
+              currentTheme: currentTheme,
               title: S.current.background_sync,
               value: dashboardViewModel.backgroundSyncEnabled,
               onValueChange: (_, bool value) async {
@@ -61,6 +62,7 @@ class BackgroundSyncPage extends BasePage {
           }),
           Observer(builder: (context) {
             return SettingsPickerCell<SyncMode>(
+              currentTheme: currentTheme,
                 title: S.current.background_sync_mode,
                 items: SyncMode.all,
                 displayItem: (SyncMode syncMode) => syncMode.name,
@@ -72,6 +74,7 @@ class BackgroundSyncPage extends BasePage {
           if (dashboardViewModel.hasBgsyncNetworkConstraints)
             Observer(builder: (context) {
               return SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.current.background_sync_on_unmetered_network,
                 value: dashboardViewModel.backgroundSyncNetworkUnmetered,
                 onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncNetworkUnmetered(value),
@@ -80,6 +83,7 @@ class BackgroundSyncPage extends BasePage {
           if (dashboardViewModel.hasBgsyncBatteryNotLowConstraints)
             Observer(builder: (context) {
               return SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.current.background_sync_on_battery_low,
                 value: !dashboardViewModel.backgroundSyncBatteryNotLow,
                 onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncBatteryNotLow(!value),
@@ -88,6 +92,7 @@ class BackgroundSyncPage extends BasePage {
           if (dashboardViewModel.hasBgsyncChargingConstraints)
             Observer(builder: (context) {
               return SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.current.background_sync_on_charging,
                 value: dashboardViewModel.backgroundSyncCharging,
                 onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncCharging(value),
@@ -96,6 +101,7 @@ class BackgroundSyncPage extends BasePage {
           if (dashboardViewModel.hasBgsyncDeviceIdleConstraints)
             Observer(builder: (context) {
               return SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.current.background_sync_on_device_idle,
                 value: dashboardViewModel.backgroundSyncDeviceIdle,
                 onValueChange: (_, bool value) => dashboardViewModel.setBackgroundSyncDeviceIdle(value),
@@ -103,6 +109,7 @@ class BackgroundSyncPage extends BasePage {
             }),
           Observer(builder: (context) {
             return SettingsSwitcherCell(
+              currentTheme: currentTheme,
               title: S.current.new_transactions_notifications,
               value: dashboardViewModel.backgroundSyncNotificationsEnabled,
               onValueChange: (_, bool value) { 

@@ -38,6 +38,7 @@ class SecurityBackupPage extends BasePage {
           if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
             Observer(builder: (_) {
               return SettingsSwitcherCell(
+                  currentTheme: currentTheme,
                   key: ValueKey('security_backup_page_allow_biometrics_button_key'),
                   title: S.current.settings_allow_biometrical_authentication,
                   value: _securitySettingsViewModel.allowBiometricalAuthentication,
@@ -66,6 +67,7 @@ class SecurityBackupPage extends BasePage {
             }),
           Observer(builder: (_) {
             return SettingsPickerCell<PinCodeRequiredDuration>(
+              currentTheme: currentTheme,
               key: ValueKey('security_backup_page_require_pin_after_button_key'),
               title: S.current.require_pin_after,
               items: PinCodeRequiredDuration.values,
@@ -114,8 +116,8 @@ class SecurityBackupPage extends BasePage {
               key: ValueKey('security_backup_page_sign_and_verify'),
               title: S.current.sign_verify_title,
               handler: (_) => Navigator.of(context).pushNamed(Routes.signPage)
-            //_securitySettingsViewModel.pinCodeRequiredDuration,
-          ),
+              //_securitySettingsViewModel.pinCodeRequiredDuration,
+              ),
           Observer(
             builder: (context) {
               return SettingsCellWithArrow(

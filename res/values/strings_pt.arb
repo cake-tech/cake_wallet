@@ -55,6 +55,7 @@
   "and": "e",
   "anonpay_description": "Gere ${type}. O destinatário pode ${method} com qualquer criptomoeda suportada e você receberá fundos nesta carteira.",
   "apk_update": "Atualização de APK",
+  "appearance": "Aparência",
   "approve": "Aprovar",
   "approve_request": "Aprovar solicitação",
   "approve_tokens": "Aprovar tokens",

@@ -1,7 +1,6 @@
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import '../../themes/utils/custom_theme_colors.dart';
 
 class DashBoardRoundedCardWidget extends StatelessWidget {
   DashBoardRoundedCardWidget({
@@ -19,7 +18,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
     super.key,
     this.marginV,
     this.marginH,
-    required this.isDarkTheme,
+    required this.currentTheme,
   });
 
   final VoidCallback? onTap;
@@ -35,7 +34,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
   final double? marginH;
   final double? shadowSpread;
   final double? shadowBlur;
-  final bool isDarkTheme;
+  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +47,8 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
             gradient: LinearGradient(
               colors: [
-                isDarkTheme
-                    ? CustomThemeColors.cardGradientColorPrimaryDark
-                    : CustomThemeColors.cardGradientColorPrimaryLight,
-                isDarkTheme
-                    ? CustomThemeColors.cardGradientColorSecondaryDark
-                    : CustomThemeColors.cardGradientColorSecondaryLight,
+                currentTheme.customColors.cardGradientColorPrimary,
+                currentTheme.customColors.cardGradientColorSecondary,
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -76,6 +71,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             style: TextButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
+                side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
               ),
               padding: EdgeInsets.only(left: 24, top: 24, right: 20, bottom: 24),
             ),

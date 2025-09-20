@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -24,6 +25,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
     required this.type,
     required this.displayWalletPassword,
     required this.seedSettingsViewModel,
+    required this.currentTheme,
     this.blockHeightFocusNode,
     this.restoredWallet,
     this.onHeightOrDateEntered,
@@ -45,6 +47,7 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final void Function(String)? onLanguageChange;
   final void Function(String)? onPasswordChange;
   final void Function(String)? onRepeatedPasswordChange;
+  final MaterialThemeBase currentTheme;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -201,6 +204,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 await showPopUp<void>(
                   context: context,
                   builder: (_) => Picker(
+                    currentTheme: widget.currentTheme,
                     items: _getItems(),
                     selectedAtIndex: isPolyseed
                         ? 1
@@ -254,6 +258,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                   await showPopUp<void>(
                     context: context,
                     builder: (_) => SeedLanguagePicker(
+                      currentTheme: widget.currentTheme,
                       selected: language,
                       onItemSelected: (lang) => _changeLanguage(lang, isPolyseed || isBip39),
                       seedType: widget.seedSettingsViewModel.moneroSeedType,
@@ -280,6 +285,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               ),
           if ((!isPolyseed) && widget.displayBlockHeightSelector)
             BlockchainHeightWidget(
+              currentTheme: widget.currentTheme,
               focusNode: widget.blockHeightFocusNode,
               key: blockchainHeightKey,
               blockHeightTextFieldKey: ValueKey(

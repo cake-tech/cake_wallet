@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -52,13 +53,15 @@ class SeedLanguagePicker extends StatefulWidget {
       {Key? key,
       this.selected = defaultSeedLanguage,
       this.seedType = MoneroSeedType.defaultSeedType,
-      required this.onItemSelected})
+      required this.onItemSelected,
+      required this.currentTheme})
       : super(key: key);
 
   final MoneroSeedType seedType;
   final String selected;
   final Function(String) onItemSelected;
-
+  final MaterialThemeBase currentTheme;
+  
   @override
   SeedLanguagePickerState createState() => SeedLanguagePickerState(
       selected: selected, onItemSelected: onItemSelected, seedType: seedType);
@@ -78,6 +81,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
         .where((SeedLanguagePickerOption e) => e.supportedSeedTypes.contains(seedType));
 
     return Picker(
+      currentTheme: widget.currentTheme,
       selectedAtIndex: availableSeedLanguages.map((e) => e.name).toList().indexOf(selected),
       items: availableSeedLanguages.map((e) => e.name).toList(),
       images: availableSeedLanguages.map((e) => e.image).toList(),
