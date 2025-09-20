@@ -12,10 +12,6 @@ class SupportPage extends BasePage {
 
   final SupportViewModel supportViewModel;
 
-  final imageLiveSupport = Image.asset('assets/images/cake_icon.png');
-  final imageWalletGuides = Image.asset('assets/images/wallet_guides.png');
-  final imageMoreLinks = Image.asset('assets/images/more_links.png');
-
   @override
   String get title => S.current.settings_support;
 
