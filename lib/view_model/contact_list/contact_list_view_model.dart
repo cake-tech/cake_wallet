@@ -162,12 +162,20 @@ abstract class ContactListViewModelBase with Store {
     reorderContacts(contactsSourceCopy);
   }
 
+  Future<void> saveCustomOrderFrom(Iterable<ContactRecord> ordered) async {
+    final orderedContacts = ordered.map((e) => e.original).toList();
+    await reorderContacts(orderedContacts);
+    settingsStore.contactListOrder = FilterListOrderType.Custom;
+  }
+
   void reorderAccordingToContactList() =>
       settingsStore.contactListOrder = FilterListOrderType.Custom;
 
-  Future<void> reorderContacts(List<Contact> contactCopy) async {
-    await contactSource.deleteAll(contactCopy.map((e) => e.key).toList());
-    await contactSource.addAll(contactCopy);
+  Future<void> reorderContacts(List<Contact> ordered) async {
+    final mapByKey = { for (final c in contactSource.values) c.key: c };
+    final keysInNewOrder = ordered.map((c) => c.key).toList();
+    await contactSource.deleteAll(contactSource.keys);
+    await contactSource.addAll(keysInNewOrder.map((k) => mapByKey[k]!));
   }
 
 

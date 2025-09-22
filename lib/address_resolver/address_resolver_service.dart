@@ -356,7 +356,7 @@ class AddressResolverService {
 
         if (addressFromBio != null && addressFromBio.isNotEmpty) {
           result[cur] = addressFromBio;
-          queryTxt.replaceFirst(addressFromBio, '');
+          queryTxt = queryTxt.replaceFirst(addressFromBio, '');
         }
       }
     } catch (e) {
@@ -373,7 +373,7 @@ class AddressResolverService {
               extractAddressByType(raw: pinnedTweet, type: CryptoCurrency.fromString(cur.title));
           if (addressFromPinnedTweet != null && addressFromPinnedTweet.isNotEmpty) {
             result[cur] = addressFromPinnedTweet;
-            pinnedTweet = pinnedTweet.replaceFirst(addressFromPinnedTweet, '');
+            pinnedTweet = pinnedTweet = pinnedTweet.replaceFirst(addressFromPinnedTweet, '');
           }
         }
       }
@@ -420,10 +420,12 @@ class AddressResolverService {
         await MastodonAPI.lookupUserByUserName(userName: userName, apiHost: hostName);
 
     if (mastodonUser != null) {
+      String queryTxt = mastodonUser.note;
       for (final cur in currencies) {
-        String? addressFromBio = extractAddressByType(raw: mastodonUser.note, type: cur);
+        String? addressFromBio = extractAddressByType(raw: queryTxt, type: cur);
         if (addressFromBio != null && addressFromBio.isNotEmpty) {
           result[cur] = addressFromBio;
+          queryTxt = queryTxt.replaceFirst(addressFromBio, '');
         }
       }
 
@@ -431,12 +433,14 @@ class AddressResolverService {
           await MastodonAPI.getPinnedPosts(userId: mastodonUser.id, apiHost: hostName);
 
       if (pinnedPosts.isNotEmpty) {
-        final userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
+        String userPinnedPostsText = pinnedPosts.map((item) => item.content).join('\n');
+
 
         for (final cur in currencies) {
           String? addressFromPinnedPost = extractAddressByType(raw: userPinnedPostsText, type: cur);
           if (addressFromPinnedPost != null && addressFromPinnedPost.isNotEmpty) {
             result[cur] = addressFromPinnedPost;
+            userPinnedPostsText = userPinnedPostsText.replaceFirst(addressFromPinnedPost, '');
           }
         }
       }
@@ -669,10 +673,13 @@ class AddressResolverService {
 
     final result = <CryptoCurrency, String>{};
 
+    String queryTxt = data.about;
+
     for (final cur in currencies) {
-      final addr = extractAddressByType(raw: data.about, type: cur);
+      final addr = extractAddressByType(raw: queryTxt, type: cur);
       if (addr != null && addr.isNotEmpty) {
         result[cur] = addr;
+        queryTxt = queryTxt.replaceFirst(addr, '');
       }
     }
     if (result.isEmpty) return null;
@@ -682,7 +689,7 @@ class AddressResolverService {
       addressSource: AddressSource.nostr,
       handle: text,
       profileImageUrl: data.picture,
-      profileName: data.name ?? '',
+      profileName: data.name,
     );
   }
 }

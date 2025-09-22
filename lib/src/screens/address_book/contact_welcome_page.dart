@@ -94,9 +94,6 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
     super.dispose();
   }
 
-  Set<CryptoCurrency> _detectCurrencies(String txt) =>
-      AddressValidator.detectCurrencies(txt);
-
   void _handleChanged(String q) {
     _typedText = q.trim();
 
@@ -147,7 +144,7 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
             _detectedAddress = null;
           });
         } else {
-          final detected = _detectCurrencies(_typedText);
+          final detected = AddressValidator.detectAddressBookCurrencies(_typedText);
           setState(() {
             if (detected.length == 1) {
               _detectedCurrency = detected.first;
@@ -155,8 +152,7 @@ class _WelcomeBodyState extends State<_WelcomeBody> {
             } else {
               _detectedCurrency = null;
               _detectedAddress = null;
-              _plainSelected =
-                  detected.isEmpty ? _PlainTextSelection(_typedText) : null;
+              _plainSelected = _PlainTextSelection(_typedText);
             }
           });
         }

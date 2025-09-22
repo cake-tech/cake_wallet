@@ -94,7 +94,7 @@ class _ContactListBodyState extends State<ContactListBody> {
                   return FilteredList(
                     list: list,
                     canReorder: editable,
-                    updateFunction: _viewModel.reorderAccordingToContactList,
+                    updateFunction: () => _viewModel.saveCustomOrderFrom(list),
                     itemBuilder: (context, i) => _item(context, list[i]),
                   );
                 },

@@ -55,7 +55,7 @@ class AddressValidator extends TextValidator {
     CryptoCurrency.btcln,
   ];
 
-  static Set<CryptoCurrency> detectCurrencies(
+  static Set<CryptoCurrency> detectAddressBookCurrencies(
       String txt, {
         bool isTestnet = false,
         bool includeGeneric = false
@@ -67,7 +67,7 @@ class AddressValidator extends TextValidator {
         : reliableValidateCurrencies;
 
     for (final cur in currencies) {
-      final pattern = AddressValidator.getPattern(cur, isTestnet: isTestnet);
+      final pattern = AddressValidator.getPattern(cur, isTestnet: isTestnet, ignoreZanoAlias: true);
       if (pattern.isEmpty) continue;
 
       final lengths = AddressValidator.getLength(cur);
@@ -87,7 +87,7 @@ class AddressValidator extends TextValidator {
     return matches;
   }
 
-  static String getPattern(CryptoCurrency type, {bool isTestnet = false}) {
+  static String getPattern(CryptoCurrency type, {bool isTestnet = false, bool? ignoreZanoAlias}) {
     var pattern = "";
     if (type is Erc20Token) {
       pattern = '0x[0-9a-zA-Z]+';
@@ -191,11 +191,10 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
-      case CryptoCurrency.wow: {
-        const base58 = r'[1-9A-HJ-NP-Za-km-z]';
-        pattern = '(?:W(?:o|m|W)$base58{94,95}|Wo$base58{106,107})';
+      case CryptoCurrency.wow:
+        pattern = r'(?:W(?:o|m|W)[1-9A-HJ-NP-Za-km-z]{94,96}'
+        r'|Wo[1-9A-HJ-NP-Za-km-z]{106,107})';
         break;
-      }
       case CryptoCurrency.bch:
         pattern = '(?:bitcoincash:)?(q|p)[0-9a-zA-Z]{41}'
             '|[13][a-km-zA-HJ-NP-Z1-9]{25,34}';
@@ -224,7 +223,9 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.btcln:
         pattern = '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)';
       case CryptoCurrency.zano:
-        pattern = r'([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
+        pattern = ignoreZanoAlias == true
+            ? r'(?:Z[1-9A-HJ-NP-Za-km-z]{96}|iZ[1-9A-HJ-NP-Za-km-z]{106})'
+            : r'(?:Z[1-9A-HJ-NP-Za-km-z]{96}|iZ[1-9A-HJ-NP-Za-km-z]{106}|@[a-z0-9]{6,32})';
       case CryptoCurrency.doge:
         pattern = r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}';
       default:
