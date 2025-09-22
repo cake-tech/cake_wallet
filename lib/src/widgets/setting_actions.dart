@@ -22,6 +22,7 @@ class SettingActions {
     walletSettingAction,
     addressBookSettingAction,
     silentPaymentsSettingAction,
+    walletConnectSettingsAction,
     if (Platform.isIOS || Platform.isAndroid) litecoinMwebSettingAction,
     if (Platform.isIOS || Platform.isAndroid) exportOutputsAction,
     securityBackupSettingAction,
@@ -30,6 +31,15 @@ class SettingActions {
     otherSettingAction,
     supportSettingAction,
   ];
+
+  static SettingActions walletConnectSettingsAction = SettingActions._(
+    key: ValueKey('dashboard_page_menu_widget_wallet_connect_settings_button_key'),
+    name: (context) => S.of(context).walletConnect,
+    image: 'assets/images/walletconnect_logo.png',
+    onTap: (BuildContext context) {
+      Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing);
+    },
+  );
 
   static SettingActions silentPaymentsSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_silent_payment_settings_button_key'),
