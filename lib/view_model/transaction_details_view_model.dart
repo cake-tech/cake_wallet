@@ -89,6 +89,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         _addDecredListItems(tx, dateFormat);
         break;
       case WalletType.dogecoin:
+      case WalletType.digibyte:
         _addDogecoinListItems(tx, dateFormat);
         break;
       case WalletType.none:
@@ -198,6 +199,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://${wallet.isTestnet ? "testnet" : "dcrdata"}.decred.org/tx/${txId.split(':')[0]}';
       case WalletType.dogecoin:
         return 'https://blockchair.com/dogecoin/transaction/${txId}';
+      case WalletType.digibyte:
+        return 'https://blockchair.com/digibyte/transaction/${txId}';
       case WalletType.none:
         return '';
     }
@@ -212,6 +215,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.digibyte:
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
