@@ -1,0 +1,31 @@
+ModemManager (1408, #threads: 4)
+-------------------------------------------------------------------
+se.exec_start                                :         43712.691523
+se.vruntime                                  :            43.111693
+se.sum_exec_runtime                          :            47.681257
+se.nr_migrations                             :                   53
+nr_switches                                  :                  306
+nr_voluntary_switches                        :                  273
+nr_involuntary_switches                      :                   33
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   65
+se.avg.runnable_sum                          :                66268
+se.avg.util_sum                              :                47836
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :          43563835392
+se.avg.util_est                              :                    9
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                   15
+mm->numa_scan_seq                            :                    0
+numa_pages_migrated                          :                    0
+numa_preferred_nid                           :                   -1
+total_numa_faults                            :                    0
+current_node=0, numa_group_id=0
+numa_faults node=0 task_private=0 task_shared=0 group_private=0 group_shared=0

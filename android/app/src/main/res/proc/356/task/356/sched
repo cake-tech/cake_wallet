@@ -1,0 +1,30 @@
+kworker/R-ext4- (356, #threads: 1)
+-------------------------------------------------------------------
+se.exec_start                                :          2427.394012
+se.vruntime                                  :           412.669351
+se.sum_exec_runtime                          :             0.034180
+se.nr_migrations                             :                    0
+nr_switches                                  :                    2
+nr_voluntary_switches                        :                    2
+nr_involuntary_switches                      :                    0
+se.load.weight                               :             90891264
+se.avg.load_sum                              :                46843
+se.avg.runnable_sum                          :             23953702
+se.avg.util_sum                              :             23953702
+se.avg.load_avg                              :                88647
+se.avg.runnable_avg                          :                  511
+se.avg.util_avg                              :                  511
+se.avg.last_update_time                      :           2401428480
+se.avg.util_est                              :                  511
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  100
+clock-delta                                  :                   13
+numa_pages_migrated                          :                    0
+numa_preferred_nid                           :                   -1
+total_numa_faults                            :                    0
+current_node=0, numa_group_id=0
+numa_faults node=0 task_private=0 task_shared=0 group_private=0 group_shared=0

@@ -1,0 +1,90 @@
+206 146 259:2 / / ro,relatime shared:428 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+268 206 0:26 / /run rw,nosuid,nodev,noexec,relatime shared:485 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+269 268 0:28 / /run/lock rw,nosuid,nodev,noexec,relatime shared:486 master:6 - tmpfs tmpfs rw,size=5120k,inode64
+283 206 7:0 / /snap/bare/5 ro,nodev,relatime shared:491 master:30 - squashfs /dev/loop0 ro,errors=continue,threads=single
+284 206 7:1 / /snap/canonical-livepatch/355 ro,nodev,relatime shared:492 master:46 - squashfs /dev/loop1 ro,errors=continue,threads=single
+285 206 7:2 / /snap/canonical-livepatch/359 ro,nodev,relatime shared:493 master:48 - squashfs /dev/loop2 ro,errors=continue,threads=single
+286 206 7:3 / /snap/chromium/3245 ro,nodev,relatime shared:494 master:50 - squashfs /dev/loop3 ro,errors=continue,threads=single
+287 206 7:4 / /snap/chromium/3248 ro,nodev,relatime shared:495 master:52 - squashfs /dev/loop4 ro,errors=continue,threads=single
+288 206 7:5 / /snap/code/205 ro,nodev,relatime shared:496 master:54 - squashfs /dev/loop5 ro,errors=continue,threads=single
+289 206 7:6 / /snap/code/206 ro,nodev,relatime shared:497 master:56 - squashfs /dev/loop6 ro,errors=continue,threads=single
+290 206 7:7 / /snap/core20/2582 ro,nodev,relatime shared:498 master:58 - squashfs /dev/loop7 ro,errors=continue,threads=single
+292 206 7:8 / /snap/core20/2599 ro,nodev,relatime shared:500 master:62 - squashfs /dev/loop8 ro,errors=continue,threads=single
+293 206 7:12 / /snap/core24/1151 ro,nodev,relatime shared:501 master:64 - squashfs /dev/loop12 ro,errors=continue,threads=single
+294 206 7:11 / /snap/core24/1055 ro,nodev,relatime shared:502 master:66 - squashfs /dev/loop11 ro,errors=continue,threads=single
+295 206 7:10 / /snap/core22/2111 ro,nodev,relatime shared:503 master:68 - squashfs /dev/loop10 ro,errors=continue,threads=single
+296 206 7:13 / /snap/cups/1085 ro,nodev,relatime shared:504 master:70 - squashfs /dev/loop13 ro,errors=continue,threads=single
+297 206 7:14 / /snap/cups/1100 ro,nodev,relatime shared:505 master:72 - squashfs /dev/loop14 ro,errors=continue,threads=single
+299 206 7:16 / /snap/firefox/6738 ro,nodev,relatime shared:507 master:76 - squashfs /dev/loop16 ro,errors=continue,threads=single
+300 206 7:17 / /snap/gnome-42-2204/176 ro,nodev,relatime shared:508 master:78 - squashfs /dev/loop17 ro,errors=continue,threads=single
+301 206 7:18 / /snap/gnome-42-2204/202 ro,nodev,relatime shared:509 master:80 - squashfs /dev/loop18 ro,errors=continue,threads=single
+302 206 7:19 / /snap/gnome-46-2404/121 ro,nodev,relatime shared:510 master:82 - squashfs /dev/loop19 ro,errors=continue,threads=single
+303 206 7:20 / /snap/gnome-46-2404/125 ro,nodev,relatime shared:511 master:84 - squashfs /dev/loop20 ro,errors=continue,threads=single
+304 206 7:21 / /snap/gtk-common-themes/1535 ro,nodev,relatime shared:512 master:86 - squashfs /dev/loop21 ro,errors=continue,threads=single
+305 206 7:22 / /snap/mesa-2404/887 ro,nodev,relatime shared:513 master:88 - squashfs /dev/loop22 ro,errors=continue,threads=single
+306 206 7:23 / /snap/mesa-2404/912 ro,nodev,relatime shared:514 master:90 - squashfs /dev/loop23 ro,errors=continue,threads=single
+307 206 7:24 / /snap/snap-store/1113 ro,nodev,relatime shared:515 master:92 - squashfs /dev/loop24 ro,errors=continue,threads=single
+308 206 7:25 / /snap/snap-store/1216 ro,nodev,relatime shared:516 master:94 - squashfs /dev/loop25 ro,errors=continue,threads=single
+309 206 7:26 / /snap/snapd/24792 ro,nodev,relatime shared:517 master:96 - squashfs /dev/loop26 ro,errors=continue,threads=single
+310 206 7:27 / /snap/snapd/25202 ro,nodev,relatime shared:518 master:98 - squashfs /dev/loop27 ro,errors=continue,threads=single
+311 206 7:28 / /snap/snapd-desktop-integration/253 ro,nodev,relatime shared:519 master:100 - squashfs /dev/loop28 ro,errors=continue,threads=single
+312 206 7:29 / /snap/snapd-desktop-integration/315 ro,nodev,relatime shared:520 master:102 - squashfs /dev/loop29 ro,errors=continue,threads=single
+313 206 7:30 / /snap/telegram-desktop/6796 ro,nodev,relatime shared:521 master:104 - squashfs /dev/loop30 ro,errors=continue,threads=single
+314 206 7:31 / /snap/telegram-desktop/6798 ro,nodev,relatime shared:522 master:106 - squashfs /dev/loop31 ro,errors=continue,threads=single
+315 206 7:32 / /snap/thunderbird/769 ro,nodev,relatime shared:523 master:108 - squashfs /dev/loop32 ro,errors=continue,threads=single
+316 206 259:2 /usr/share/hunspell /var/snap/firefox/common/host-hunspell ro,noexec,noatime shared:524 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+317 206 7:33 / /snap/thunderbird/796 ro,nodev,relatime shared:525 master:111 - squashfs /dev/loop33 ro,errors=continue,threads=single
+323 206 259:1 / /boot/efi ro,relatime shared:526 master:113 - vfat /dev/nvme0n1p1 rw,fmask=0077,dmask=0077,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro
+324 206 0:45 / /dev ro,nosuid,noexec shared:527 - tmpfs tmpfs rw,size=4096k,nr_inodes=65536,mode=755,inode64
+325 324 0:25 / /dev/pts rw,nosuid,noexec,relatime shared:528 master:3 - devpts devpts rw,gid=5,mode=620,ptmxmode=000
+326 324 0:27 / /dev/shm rw,nosuid,nodev shared:529 master:4 - tmpfs tmpfs rw,inode64
+327 324 0:20 / /dev/mqueue rw,nosuid,nodev,noexec,relatime shared:530 master:16 - mqueue mqueue rw
+328 324 0:34 / /dev/hugepages rw,nosuid,nodev,relatime shared:531 master:15 - hugetlbfs hugetlbfs rw,pagesize=2M
+207 206 259:2 /etc /etc rw,relatime shared:532 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+208 206 259:2 /home /home rw,relatime shared:533 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+265 206 0:46 / /proc rw,nosuid,nodev,noexec,relatime shared:534 - proc proc rw
+266 265 0:37 / /proc/sys/fs/binfmt_misc rw,nosuid,nodev,noexec,relatime shared:535 master:115 - binfmt_misc binfmt_misc rw
+267 265 0:46 /acpi /proc/acpi ro,nosuid,nodev,noexec,relatime shared:536 - proc proc rw
+280 265 0:46 /asound /proc/asound ro,nosuid,nodev,noexec,relatime shared:537 - proc proc rw
+281 265 0:46 /bus /proc/bus ro,nosuid,nodev,noexec,relatime shared:538 - proc proc rw
+282 265 0:46 /fs /proc/fs ro,nosuid,nodev,noexec,relatime shared:539 - proc proc rw
+329 265 0:46 /irq /proc/irq ro,nosuid,nodev,noexec,relatime shared:540 - proc proc rw
+330 265 0:26 /systemd/inaccessible/reg /proc/kallsyms ro,nosuid,nodev,noexec,relatime shared:541 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+331 265 0:26 /systemd/inaccessible/reg /proc/kcore ro,nosuid,nodev,noexec,relatime shared:542 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+332 265 0:46 /latency_stats /proc/latency_stats ro,nosuid,nodev,noexec,relatime shared:543 - proc proc rw
+333 265 0:46 /mtrr /proc/mtrr ro,nosuid,nodev,noexec,relatime shared:544 - proc proc rw
+334 265 0:46 /scsi /proc/scsi ro,nosuid,nodev,noexec,relatime shared:545 - proc proc rw
+335 265 0:46 /sys /proc/sys ro,nosuid,nodev,noexec,relatime shared:546 - proc proc rw
+336 335 0:37 / /proc/sys/fs/binfmt_misc ro,nosuid,nodev,noexec,relatime shared:547 master:115 - binfmt_misc binfmt_misc rw
+337 265 0:46 /sysrq-trigger /proc/sysrq-trigger ro,nosuid,nodev,noexec,relatime shared:548 - proc proc rw
+338 206 259:2 /root /root rw,relatime shared:549 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+339 268 0:26 /systemd/inaccessible/dir /run/credentials ro,nosuid,nodev,noexec,relatime shared:487 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+340 268 0:26 /systemd/propagate/accounts-daemon.service /run/systemd/incoming ro,nosuid,nodev,noexec,relatime master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+341 268 0:26 /systemd/seats /run/systemd/seats ro,nosuid,nodev,noexec,relatime shared:489 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+342 268 0:26 /user /run/user rw,nosuid,nodev,noexec,relatime shared:490 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+343 206 0:47 / /sys ro,nosuid,nodev,noexec,relatime shared:550 - sysfs sysfs rw
+270 343 0:31 / /sys/firmware/efi/efivars ro,nosuid,nodev,noexec,relatime shared:551 master:11 - efivarfs efivarfs rw
+278 343 0:32 / /sys/fs/bpf ro,nosuid,nodev,noexec,relatime shared:552 master:12 - bpf bpf rw,mode=700
+279 343 0:29 / /sys/fs/cgroup ro,nosuid,nodev,noexec,relatime shared:553 master:9 - cgroup2 cgroup2 rw,nsdelegate,memory_recursiveprot
+584 343 0:35 / /sys/fs/fuse/connections ro,nosuid,nodev,noexec,relatime shared:555 master:19 - fusectl fusectl rw
+585 343 0:30 / /sys/fs/pstore ro,nosuid,nodev,noexec,relatime shared:556 master:10 - pstore pstore rw
+586 343 0:21 / /sys/kernel/config ro,nosuid,nodev,noexec,relatime shared:557 master:20 - configfs configfs rw
+587 343 0:7 / /sys/kernel/debug ro,nosuid,nodev,noexec,relatime shared:558 master:17 - debugfs debugfs rw
+638 343 0:6 / /sys/kernel/security ro,nosuid,nodev,noexec,relatime shared:559 master:8 - securityfs securityfs rw
+639 343 0:12 / /sys/kernel/tracing ro,nosuid,nodev,noexec,relatime shared:560 master:18 - tracefs tracefs rw
+640 279 0:29 /system.slice/accounts-daemon.service/memory.pressure /sys/fs/cgroup/system.slice/accounts-daemon.service/memory.pressure rw,nosuid,nodev,noexec,relatime shared:554 master:9 - cgroup2 cgroup2 rw,nsdelegate,memory_recursiveprot
+700 206 0:26 /systemd/inaccessible/dir /usr/lib/modules ro,nosuid,nodev,noexec,relatime shared:561 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+589 206 259:2 /var/lib/AccountsService /var/lib/AccountsService rw,relatime shared:562 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+760 206 259:2 /var/log/lastlog /var/log/lastlog rw,relatime shared:563 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+761 206 259:2 /var/mail /var/mail rw,relatime shared:564 master:1 - ext4 /dev/nvme0n1p2 rw,errors=remount-ro
+275 268 0:26 /snapd/ns /run/snapd/ns rw,nosuid,nodev,noexec,relatime shared:1152 master:5 - tmpfs tmpfs rw,size=6561828k,mode=755,inode64
+1079 206 0:53 / /var/lib/docker/overlay2/9acd6a3e21292f94872ccf3ea06cf2e8abac8e03c567ead2578a77b79aa03294/merged rw,relatime shared:783 master:706 - overlay overlay rw,lowerdir=/var/lib/docker/overlay2/l/D7FJFPGM6OP7DEMFFKCZTK5XDT:/var/lib/docker/overlay2/l/SBNE5OPSINSK6F4WWTCHLITHER:/var/lib/docker/overlay2/l/GMAGELZEOFITGDWF3AALMTVDLM:/var/lib/docker/overlay2/l/J7I327QQSYDYYVWXRQEY6PUCDF:/var/lib/docker/overlay2/l/FQND4SARQBJXMCHLJVVN6XUUVF:/var/lib/docker/overlay2/l/XVULEYMCHTAKOVPGQTTV4XPWFE:/var/lib/docker/overlay2/l/ZE5UJC42P6MXI47HA2OQBDTPX7:/var/lib/docker/overlay2/l/2BKWM25HGQOXMGLD45G5CQAMZO:/var/lib/docker/overlay2/l/W6VN6Z4V27O7QWARS6XLVC7QZL:/var/lib/docker/overlay2/l/GHSZW53Q5PGCUXUGGPS43W4IS7:/var/lib/docker/overlay2/l/ZN65AXQDUBBZQX6VW72N7OIV5T:/var/lib/docker/overlay2/l/SXOSHMHU3FUKIRFYAAB67BYAZF:/var/lib/docker/overlay2/l/RP6MCLQFR3WJEFE245PGIMGQ3B:/var/lib/docker/overlay2/l/MCTCNUIFDI626GRIYX54LMSNNF:/var/lib/docker/overlay2/l/LV5LV43L5VG2ANE7X2CFG3L6UL:/var/lib/docker/overlay2/l/2HWNOHR75JANTBOW7EW7ELNPS4:/var/lib/docker/overlay2/l/MJLN62QKCAGVSQXI7WEMFMZFWW:/var/lib/docker/overlay2/l/2DFXHECM654JEXGUULOLVBWPGH:/var/lib/docker/overlay2/l/HW3KMU46C3IT2RM27CBZ42UZIV:/var/lib/docker/overlay2/l/O3IVK3IOPFUWNBG7HSQ6YP7CPY:/var/lib/docker/overlay2/l/QUUC3ZOFSCV4XV2JCINO4W5GMP:/var/lib/docker/overlay2/l/UCLDYS5PAAP6I6OECZA6AFZUQR:/var/lib/docker/overlay2/l/GE5NBJKN4ESURTBSGPAD4G52WY:/var/lib/docker/overlay2/l/6EXQ5NPLEPDPLF2L4P2WEJUFTH,upperdir=/var/lib/docker/overlay2/9acd6a3e21292f94872ccf3ea06cf2e8abac8e03c567ead2578a77b79aa03294/diff,workdir=/var/lib/docker/overlay2/9acd6a3e21292f94872ccf3ea06cf2e8abac8e03c567ead2578a77b79aa03294/work,nouserxattr
+1938 268 0:4 net:[4026532643] /run/docker/netns/093ed5068ea3 rw shared:799 master:788 - nsfs nsfs rw
+2655 268 0:101 / /run/user/1000 rw,nosuid,nodev,relatime shared:1621 master:1532 - tmpfs tmpfs rw,size=6561824k,nr_inodes=1640456,mode=700,uid=1000,gid=1000,inode64
+2656 342 0:101 / /run/user/1000 rw,nosuid,nodev,relatime shared:1622 master:1532 - tmpfs tmpfs rw,size=6561824k,nr_inodes=1640456,mode=700,uid=1000,gid=1000,inode64
+2670 2656 0:102 / /run/user/1000/doc rw,nosuid,nodev,relatime shared:1632 master:1627 - fuse.portal portal rw,user_id=1000,group_id=1000
+2671 2655 0:102 / /run/user/1000/doc rw,nosuid,nodev,relatime shared:1633 master:1627 - fuse.portal portal rw,user_id=1000,group_id=1000
+3509 2656 0:103 / /run/user/1000/gvfs rw,nosuid,nodev,relatime shared:1655 master:1650 - fuse.gvfsd-fuse gvfsd-fuse rw,user_id=1000,group_id=1000
+3510 2655 0:103 / /run/user/1000/gvfs rw,nosuid,nodev,relatime shared:1656 master:1650 - fuse.gvfsd-fuse gvfsd-fuse rw,user_id=1000,group_id=1000
+2688 206 7:34 / /snap/core22/2133 ro,nodev,relatime shared:812 master:772 - squashfs /dev/loop34 ro,errors=continue,threads=single
+580 206 7:9 / /snap/firefox/6782 ro,nodev,relatime shared:818 master:60 - squashfs /dev/loop9 ro,errors=continue,threads=single

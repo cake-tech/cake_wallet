@@ -1,0 +1,30 @@
+idle_inject/1 (22, #threads: 1)
+-------------------------------------------------------------------
+se.exec_start                                :           271.473852
+se.vruntime                                  :            -1.048500
+se.sum_exec_runtime                          :             0.001593
+se.nr_migrations                             :                    1
+nr_switches                                  :                    3
+nr_voluntary_switches                        :                    3
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                46431
+se.avg.runnable_sum                          :               144384
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                  998
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :            271473664
+se.avg.util_est                              :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   49
+clock-delta                                  :                   12
+numa_pages_migrated                          :                    0
+numa_preferred_nid                           :                   -1
+total_numa_faults                            :                    0
+current_node=0, numa_group_id=0
+numa_faults node=0 task_private=0 task_shared=0 group_private=0 group_shared=0

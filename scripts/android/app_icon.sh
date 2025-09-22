@@ -1,32 +1,36 @@
-#!/bin/sh
-APP_LOGO=""
-APP_LOGO_DEST_PATH=`pwd`/../../assets/images/app_logo.png
-ASSETS_DIR=`pwd`/../../assets
-ANDROID_ICON_DIR=`pwd`/../../android/app/src/main/res/drawable
-MONERO_COM_PATH=$ASSETS_DIR/images/monero.com_android_icon.png
-MONEROCOM_ICON_SET_PATH=$ASSETS_DIR/images/monerocom_android_icon
-CAKEWALLET_PATH=$ASSETS_DIR/images/cakewallet_android_icon.png
-CAKEWALLET_ICON_SET_PATH=$ASSETS_DIR/images/cakewallet_android_icon
-ANDROID_ICON=""
-ANDROID_ICON_DEST_PATH=$ANDROID_ICON_DIR/ic_launcher.png
-ANDROID_ICON_SET=""
-ANDROID_ICON_SET_DEST_PATH=`pwd`/../../android/app/src/main/res
+#!/usr/bin/env bash
+set -euo pipefail
 
-case $APP_ANDROID_TYPE in
-	"monero.com")
-		APP_LOGO=$ASSETS_DIR/images/monero.com_logo.png
-		ANDROID_ICON=$MONERO_COM_PATH
-		ANDROID_ICON_SET=$MONEROCOM_ICON_SET_PATH
-	;;
-	"cakewallet")
-    	APP_LOGO=$ASSETS_DIR/images/cakewallet_logo.png
-    	ANDROID_ICON=$CAKEWALLET_PATH
-    	ANDROID_ICON_SET=$CAKEWALLET_ICON_SET_PATH
-    	;;
-esac
+SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-rm $APP_LOGO_DEST_PATH
-rm $ANDROID_ICON_DEST_PATH
-ln -s $APP_LOGO $APP_LOGO_DEST_PATH
-ln -s $ANDROID_ICON $ANDROID_ICON_DEST_PATH
-cp -a $ANDROID_ICON_SET/. $ANDROID_ICON_SET_DEST_PATH/
+# Where to read icons from; allow override
+: "${APP_ICON_SRC_DIR:="$REPO_ROOT/assets/images"}"
+DEST_RES_DIR="$REPO_ROOT/android/app/src/main/res/drawable"
+
+# Safety: never allow root or empty as source
+if [ -z "${APP_ICON_SRC_DIR:-}" ] || [ "$APP_ICON_SRC_DIR" = "/" ] || [ "$APP_ICON_SRC_DIR" = "/." ]; then
+  echo "Refusing to run: APP_ICON_SRC_DIR is invalid: '$APP_ICON_SRC_DIR'"
+  exit 1
+fi
+
+mkdir -p "$DEST_RES_DIR"
+
+# Pick icon file(s). Allow override via APP_ICON_FILE, otherwise use common names.
+ICON_SRC="${APP_ICON_FILE:-$APP_ICON_SRC_DIR/ic_launcher.png}"
+if [ ! -f "$ICON_SRC" ]; then
+  ICON_SRC="$APP_ICON_SRC_DIR/app_logo.png"
+fi
+if [ ! -f "$ICON_SRC" ]; then
+  echo "No icon found. Expected one of:
+  - $APP_ICON_SRC_DIR/ic_launcher.png
+  - $APP_ICON_SRC_DIR/app_logo.png
+Set APP_ICON_FILE or APP_ICON_SRC_DIR appropriately."
+  exit 1
+fi
+
+# Install the icon as both names the project expects
+install -m 0644 "$ICON_SRC" "$DEST_RES_DIR/ic_launcher.png"
+install -m 0644 "$ICON_SRC" "$DEST_RES_DIR/app_logo.png"
+
+echo "Icons installed to: $DEST_RES_DIR"

@@ -1,0 +1,31 @@
+canonical-livep (1922, #threads: 13)
+-------------------------------------------------------------------
+se.exec_start                                :     325603610.904785
+se.vruntime                                  :           790.715564
+se.sum_exec_runtime                          :           484.760325
+se.nr_migrations                             :                  479
+nr_switches                                  :                 8574
+nr_voluntary_switches                        :                 8549
+nr_involuntary_switches                      :                   25
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                  641
+se.avg.runnable_sum                          :               656727
+se.avg.util_sum                              :               656727
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :      325519720486912
+se.avg.util_est                              :                    9
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                   12
+mm->numa_scan_seq                            :                    0
+numa_pages_migrated                          :                    0
+numa_preferred_nid                           :                   -1
+total_numa_faults                            :                    0
+current_node=0, numa_group_id=0
+numa_faults node=0 task_private=0 task_shared=0 group_private=0 group_shared=0

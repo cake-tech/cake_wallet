@@ -1,0 +1,61 @@
+Name:	canonical-livep
+Umask:	0077
+State:	S (sleeping)
+Tgid:	1525
+Ngid:	0
+Pid:	1925
+PPid:	1
+TracerPid:	0
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+FDSize:	512
+Groups:	 
+NStgid:	1525
+NSpid:	1925
+NSpgid:	1525
+NSsid:	1525
+Kthread:	0
+VmPeak:	 1235916 kB
+VmSize:	 1235916 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	   61208 kB
+VmRSS:	   12308 kB
+RssAnon:	    5140 kB
+RssFile:	    7168 kB
+RssShmem:	       0 kB
+VmData:	   96760 kB
+VmStk:	     132 kB
+VmExe:	    3736 kB
+VmLib:	       8 kB
+VmPTE:	     212 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+untag_mask:	0xffffffffffffffff
+Threads:	13
+SigQ:	1/255925
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000000000
+SigCgt:	fffffffd7fc1feff
+CapInh:	0000000000000000
+CapPrm:	000001ffffffffff
+CapEff:	000001ffffffffff
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	2
+Seccomp_filters:	2
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	1
+nonvoluntary_ctxt_switches:	0
+x86_Thread_features:	
+x86_Thread_features_locked:	

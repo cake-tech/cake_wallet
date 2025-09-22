@@ -1,0 +1,31 @@
+cups-proxyd (1957, #threads: 4)
+-------------------------------------------------------------------
+se.exec_start                                :     431883061.189046
+se.vruntime                                  :           527.292493
+se.sum_exec_runtime                          :           430.834121
+se.nr_migrations                             :                 1021
+nr_switches                                  :                 2498
+nr_voluntary_switches                        :                 2469
+nr_involuntary_switches                      :                   29
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   97
+se.avg.runnable_sum                          :                99075
+se.avg.util_sum                              :                99075
+se.avg.load_avg                              :                    1
+se.avg.runnable_avg                          :                    1
+se.avg.util_avg                              :                    1
+se.avg.last_update_time                      :      431732097657856
+se.avg.util_est                              :                    8
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                   15
+mm->numa_scan_seq                            :                    0
+numa_pages_migrated                          :                    0
+numa_preferred_nid                           :                   -1
+total_numa_faults                            :                    0
+current_node=0, numa_group_id=0
+numa_faults node=0 task_private=0 task_shared=0 group_private=0 group_shared=0

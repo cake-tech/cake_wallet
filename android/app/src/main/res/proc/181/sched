@@ -1,0 +1,30 @@
+kworker/5:1H (181, #threads: 1)
+-------------------------------------------------------------------
+se.exec_start                                :     433413320.839557
+se.vruntime                                  :      34950772.533229
+se.sum_exec_runtime                          :           568.652450
+se.nr_migrations                             :                    1
+nr_switches                                  :                74489
+nr_voluntary_switches                        :                74466
+nr_involuntary_switches                      :                   23
+se.load.weight                               :             90891264
+se.avg.load_sum                              :                   12
+se.avg.runnable_sum                          :                12608
+se.avg.util_sum                              :                11573
+se.avg.load_avg                              :                   14
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :      433331040384000
+se.avg.util_est                              :                    8
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  100
+clock-delta                                  :                   12
+numa_pages_migrated                          :                    0
+numa_preferred_nid                           :                   -1
+total_numa_faults                            :                    0
+current_node=0, numa_group_id=0
+numa_faults node=0 task_private=0 task_shared=0 group_private=0 group_shared=0

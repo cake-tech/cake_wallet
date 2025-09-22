@@ -1,0 +1,61 @@
+Name:	cupsd
+Umask:	0022
+State:	S (sleeping)
+Tgid:	1956
+Ngid:	0
+Pid:	1956
+PPid:	1529
+TracerPid:	0
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+FDSize:	64
+Groups:	 
+NStgid:	1956
+NSpid:	1956
+NSpgid:	1529
+NSsid:	1529
+Kthread:	0
+VmPeak:	   65996 kB
+VmSize:	   63864 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	   12800 kB
+VmRSS:	   12800 kB
+RssAnon:	    2048 kB
+RssFile:	   10752 kB
+RssShmem:	       0 kB
+VmData:	    2444 kB
+VmStk:	     136 kB
+VmExe:	     260 kB
+VmLib:	   17208 kB
+VmPTE:	     120 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+untag_mask:	0xffffffffffffffff
+Threads:	1
+SigQ:	1/255925
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000001006
+SigCgt:	0000000000014001
+CapInh:	0000000000000000
+CapPrm:	000001ffffffffff
+CapEff:	000001ffffffffff
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	2
+Seccomp_filters:	2
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	210
+nonvoluntary_ctxt_switches:	6
+x86_Thread_features:	
+x86_Thread_features_locked:	

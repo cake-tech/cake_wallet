@@ -1,0 +1,61 @@
+Name:	docker-proxy
+Umask:	0022
+State:	S (sleeping)
+Tgid:	2788
+Ngid:	0
+Pid:	2793
+PPid:	2013
+TracerPid:	0
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+FDSize:	64
+Groups:	 
+NStgid:	2788
+NSpid:	2793
+NSpgid:	2013
+NSsid:	2013
+Kthread:	0
+VmPeak:	 1745440 kB
+VmSize:	 1745440 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	    4224 kB
+VmRSS:	    4224 kB
+RssAnon:	     896 kB
+RssFile:	    3328 kB
+RssShmem:	       0 kB
+VmData:	   97948 kB
+VmStk:	     132 kB
+VmExe:	     952 kB
+VmLib:	    1748 kB
+VmPTE:	     180 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+untag_mask:	0xffffffffffffffff
+Threads:	8
+SigQ:	1/255925
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000000000
+SigCgt:	fffffffd7fc1feff
+CapInh:	0000000000000000
+CapPrm:	000001ffffffffff
+CapEff:	000001ffffffffff
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	1
+nonvoluntary_ctxt_switches:	0
+x86_Thread_features:	
+x86_Thread_features_locked:	

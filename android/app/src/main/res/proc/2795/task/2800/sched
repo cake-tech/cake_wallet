@@ -1,0 +1,31 @@
+docker-proxy (2800, #threads: 7)
+-------------------------------------------------------------------
+se.exec_start                                :          9767.143845
+se.vruntime                                  :            48.896102
+se.sum_exec_runtime                          :             0.062607
+se.nr_migrations                             :                    1
+nr_switches                                  :                    6
+nr_voluntary_switches                        :                    6
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47579
+se.avg.runnable_sum                          :              9376371
+se.avg.util_sum                              :              9376371
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  197
+se.avg.util_avg                              :                  197
+se.avg.last_update_time                      :           9701258240
+se.avg.util_est                              :                  197
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                   14
+mm->numa_scan_seq                            :                    0
+numa_pages_migrated                          :                    0
+numa_preferred_nid                           :                   -1
+total_numa_faults                            :                    0
+current_node=0, numa_group_id=0
+numa_faults node=0 task_private=0 task_shared=0 group_private=0 group_shared=0

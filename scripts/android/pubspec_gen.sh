@@ -1,23 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-MONERO_COM=monero.com
-CAKEWALLET=cakewallet
-HAVEN=haven
-CONFIG_ARGS=""
+SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-case $APP_ANDROID_TYPE in
-        $MONERO_COM)
-                CONFIG_ARGS="--monero"
-                ;;
-        $CAKEWALLET)
-                CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred --dogecoin --digibyte"
-                ;;
-esac
+GEN_DESC="$REPO_ROOT/pubspec_description.yaml"
+GEN_MAIN="$REPO_ROOT/tool/generate_pubspec.dart"
+CFG_MAIN="$REPO_ROOT/tool/configure.dart"
 
-cd ../..
-cp -rf pubspec_description.yaml pubspec.yaml
-flutter pub get
-dart run tool/generate_pubspec.dart
-flutter pub get
-dart run tool/configure.dart $CONFIG_ARGS
-cd scripts/android
+# If the generation tooling isn't present, skip gracefully.
+if [ ! -f "$GEN_MAIN" ] || [ ! -f "$GEN_DESC" ]; then
+  echo "pubspec_gen: generation files not found; skipping."
+  echo "  Missing: $GEN_MAIN or $GEN_DESC"
+  exit 0
+fi
+
+# Run configure step if it exists (optional)
+if [ -f "$CFG_MAIN" ]; then
+  ( cd "$REPO_ROOT" && dart "$CFG_MAIN" )
+fi
+
+# Generate pubspec.yaml
+( cd "$REPO_ROOT" && dart "$GEN_MAIN" "$GEN_DESC" )
+
+echo "pubspec_gen: completed."
