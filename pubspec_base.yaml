@@ -43,7 +43,7 @@ dependencies:
   uni_links:
     git:
       url: https://github.com/MrCyjaneK/uni_links
-      ref: 8e9efa4d9beb19e4ac44009576337f1ce51c22e2
+      ref: 1989db3f5d625e2fffbad7b85a3b1b8c78c6dfa1
       path: uni_links
   lottie: ^3.3.1
   animate_do: ^2.1.0
