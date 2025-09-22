@@ -180,10 +180,16 @@ abstract class ContactListViewModelBase with Store {
 
 
   Future<void> sortAlphabetically() async {
-    List<Contact> contactsSourceCopy = contactSource.values.toList();
+    final contactsSourceCopy = contactSource.values.toList();
 
-    contactsSourceCopy
-        .sort((a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
+    contactsSourceCopy.sort((a, b) {
+      // Trim leading special characters and compare case-insensitively
+      final keyA = a.name.trim().toLowerCase().replaceFirst(RegExp(r'^[^0-9A-Za-z]+'), '');
+      final keyB = b.name.trim().toLowerCase().replaceFirst(RegExp(r'^[^0-9A-Za-z]+'), '');
+
+      return ascending ? keyA.compareTo(keyB) : keyB.compareTo(keyA);
+    });
+
 
     await reorderContacts(contactsSourceCopy);
   }
