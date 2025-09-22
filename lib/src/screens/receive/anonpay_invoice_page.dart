@@ -1,7 +1,9 @@
 import 'package:cake_wallet/anonpay/anonpay_donation_link_info.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/src/screens/receive/anonpay_receive_page.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/present_receive_option_picker.dart';
@@ -201,12 +203,18 @@ class AnonPayInvoicePage extends BasePage {
           if (clearnetUrl != null &&
               onionUrl != null &&
               anonInvoicePageViewModel.currentWalletName == donationWalletName) {
-            Navigator.pushReplacementNamed(context, Routes.anonPayReceivePage,
-                arguments: AnonpayDonationLinkInfo(
+            Navigator.pushReplacementNamed(
+              context,
+              Routes.anonPayReceivePage,
+              arguments: AnonPayReceivePageArgs(
+                invoiceInfo: AnonpayDonationLinkInfo(
                   clearnetUrl: clearnetUrl,
                   onionUrl: onionUrl,
                   address: anonInvoicePageViewModel.address,
-                ));
+                ),
+                qrImage: anonInvoicePageViewModel.qrImage,
+              ),
+            );
           }
           break;
         default:
@@ -215,7 +223,14 @@ class AnonPayInvoicePage extends BasePage {
 
     reaction((_) => anonInvoicePageViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.pushNamed(context, Routes.anonPayReceivePage, arguments: state.payload);
+        Navigator.pushNamed(
+          context,
+          Routes.anonPayReceivePage,
+          arguments: AnonPayReceivePageArgs(
+            invoiceInfo: state.payload as AnonpayInvoiceInfo,
+            qrImage: anonInvoicePageViewModel.qrImage,
+          ),
+        );
       }
       if (state is FailureState) {
         showPopUp<void>(

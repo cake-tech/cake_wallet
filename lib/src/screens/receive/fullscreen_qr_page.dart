@@ -71,6 +71,7 @@ class FullscreenQRPage extends BasePage {
                   ),
                 ),
                 child: QrImage(
+                  size: 360,
                   data: qrViewData.data,
                   version: qrViewData.version,
                   embeddedImagePath: qrViewData.embeddedImagePath,

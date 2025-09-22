@@ -19,6 +19,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/qr_util.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
@@ -622,38 +623,38 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     switch (wallet.type) {
       case WalletType.ethereum:
         return [
-          'assets/images/crypto/ethereum.png',
-          'assets/images/crypto/usdc.png',
-          'assets/images/crypto/tether.png',
-          'assets/images/crypto/deuro.png',
-          'assets/images/more_tokens.png',
+          'assets/images/eth_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/deuro_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.solana:
         return [
-          'assets/images/crypto/solana.png',
-          'assets/images/crypto/usdc.png',
-          'assets/images/crypto/tether.png',
-          'assets/images/more_tokens.png',
+          'assets/images/sol_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.polygon:
         return [
-          'assets/images/crypto/polygon.png',
-          'assets/images/eth_pol_icon.png',
-          'assets/images/crypto/usdc.png',
-          'assets/images/crypto/tether.png',
-          'assets/images/more_tokens.png',
+          'assets/images/pol_icon.svg',
+          'assets/images/eth_pol_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.tron:
         return [
-          'assets/images/crypto/tron.png',
-          'assets/images/crypto/usdc.png',
-          'assets/images/crypto/tether.png',
-          'assets/images/more_tokens.png',
+          'assets/images/trx_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/usdt_wallet_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
       case WalletType.zano:
         return [
-          'assets/images/crypto/zano.png',
-          'assets/images/more_tokens.png',
+          'assets/images/zano_icon.svg',
+          'assets/images/more_tokens.svg',
         ];
 
       default:
@@ -662,38 +663,23 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   }
 
   @computed
-  String get qrImage {
-    switch (type) {
-      case WalletType.ethereum:
-        return 'assets/images/eth_chain_qr.png';
-      case WalletType.solana:
-        return 'assets/images/sol_chain_qr.png';
-      case WalletType.polygon:
-        return 'assets/images/pol_chain_qr.png';
-      case WalletType.tron:
-        return 'assets/images/trx_chain_qr.png';
-      case WalletType.zano:
-        return 'assets/images/zano_chain_qr.png';
-      default:
-        return 'assets/images/qr-cake.png';
-    }
-  }
+  String get qrImage => getQrImage(type);
 
   @computed
   String get monoImage {
     switch (type) {
       case WalletType.ethereum:
-        return 'assets/images/eth_chain_mono.png';
+        return 'assets/images/eth_chain_mono.svg';
       case WalletType.solana:
-        return 'assets/images/sol_chain_mono.png';
+        return 'assets/images/sol_chain_mono.svg';
       case WalletType.polygon:
-        return 'assets/images/pol_chain_mono.png';
+        return 'assets/images/pol_chain_mono.svg';
       case WalletType.tron:
-        return 'assets/images/trx_chain_mono.png';
+        return 'assets/images/trx_chain_mono.svg';
       case WalletType.zano:
-        return 'assets/images/zano_chain_mono.png';
+        return 'assets/images/zano_chain_mono.svg';
       default:
-        return 'assets/images/eth_chain_mono.png';
+        return 'assets/images/eth_chain_mono.svg';
     }
   }
 
