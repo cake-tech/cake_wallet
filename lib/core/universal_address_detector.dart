@@ -106,13 +106,25 @@ class UniversalAddressDetector {
 
       // Bitcoin Bech32
       _DetectionPattern(
-        pattern: RegExp(r'^bc1[a-km-zA-HJ-NP-Z1-9]{25,39}$'),
+        pattern: RegExp(r'^bc1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{25,62}$'),
+        currency: CryptoCurrency.btc,
+      ),
+
+      // Bitcoin Silent Payment (mainnet)
+      _DetectionPattern(
+        pattern: RegExp(r'^sp1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{113}$'),
+        currency: CryptoCurrency.btc,
+      ),
+
+      // Bitcoin Silent Payment (testnet)
+      _DetectionPattern(
+        pattern: RegExp(r'^(tsp|sprt)1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{113}$'),
         currency: CryptoCurrency.btc,
       ),
 
       // Litecoin Bech32
       _DetectionPattern(
-        pattern: RegExp(r'^ltc1[a-z0-9]{25,50}$'),
+        pattern: RegExp(r'^ltc1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{25,62}$'),
         currency: CryptoCurrency.ltc,
       ),
 
