@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -75,8 +76,9 @@ abstract class ElectrumWalletBase
     ElectrumBalance? initialBalance,
     CryptoCurrency? currency,
     bool? alwaysScan,
-  })  : accountHD =
-            getAccountHDWallet(currency, network, seedBytes, xpub, walletInfo.derivationInfo),
+  })
+      : accountHD = getAccountHDWallet(currency, network, seedBytes, xpub,
+            walletInfo.derivationInfo, walletInfo.hardwareWalletType),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -113,8 +115,13 @@ abstract class ElectrumWalletBase
     sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
-  static Bip32Slip10Secp256k1 getAccountHDWallet(CryptoCurrency? currency, BasedUtxoNetwork network,
-      Uint8List? seedBytes, String? xpub, DerivationInfo? derivationInfo) {
+  static Bip32Slip10Secp256k1 getAccountHDWallet(
+      CryptoCurrency? currency,
+      BasedUtxoNetwork network,
+      Uint8List? seedBytes,
+      String? xpub,
+      DerivationInfo? derivationInfo,
+      HardwareWalletType? hardwareWalletType) {
     if (seedBytes == null && xpub == null) {
       throw Exception(
           "To create a Wallet you need either a seed or an xpub. This should not happen");
@@ -125,8 +132,10 @@ abstract class ElectrumWalletBase
         case CryptoCurrency.btc:
         case CryptoCurrency.ltc:
         case CryptoCurrency.tbtc:
-          return Bip32Slip10Secp256k1.fromSeed(seedBytes, getKeyNetVersion(network)).derivePath(
-                  _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
+          return Bip32Slip10Secp256k1.fromSeed(
+                      seedBytes, getKeyNetVersion(network, hardwareWalletType))
+                  .derivePath(
+                      _hardenedDerivationPath(derivationInfo?.derivationPath ?? electrum_path))
               as Bip32Slip10Secp256k1;
         case CryptoCurrency.bch:
           return bitcoinCashHDWallet(seedBytes);
@@ -137,7 +146,8 @@ abstract class ElectrumWalletBase
       }
     }
 
-    return Bip32Slip10Secp256k1.fromExtendedKey(xpub!, getKeyNetVersion(network));
+    return Bip32Slip10Secp256k1.fromExtendedKey(
+        xpub!, getKeyNetVersion(network, hardwareWalletType));
   }
 
   static Bip32Slip10Secp256k1 bitcoinCashHDWallet(Uint8List seedBytes) =>
@@ -149,10 +159,13 @@ abstract class ElectrumWalletBase
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
 
-  static Bip32KeyNetVersions? getKeyNetVersion(BasedUtxoNetwork network) {
+  static Bip32KeyNetVersions? getKeyNetVersion(BasedUtxoNetwork network,
+      [HardwareWalletType? hardwareWalletType]) {
     switch (network) {
       case LitecoinNetwork.mainnet:
-        return Bip44Conf.litecoinMainNet.altKeyNetVer;
+        if (hardwareWalletType == HardwareWalletType.ledger)
+          return Bip44Conf.litecoinMainNet.altKeyNetVer;
+        return null;
       default:
         return null;
     }
@@ -1407,6 +1420,8 @@ abstract class ElectrumWalletBase
       throw e;
     }
   }
+
+  HardwareWalletService? hardwareWalletService;
 
   void setLedgerConnection(ledger.LedgerConnection connection) => throw UnimplementedError();
 

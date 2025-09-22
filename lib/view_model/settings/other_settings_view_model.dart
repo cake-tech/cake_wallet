@@ -1,17 +1,15 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
-import 'package:cake_wallet/entities/provider_types.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
-// import 'package:package_info/package_info.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 
@@ -58,20 +56,28 @@ abstract class OtherSettingsViewModelBase with Store {
 
   @computed
   bool get changeRepresentativeEnabled =>
-      _wallet.type == WalletType.nano || _wallet.type == WalletType.banano;
+      [WalletType.nano, WalletType.banano].contains(_wallet.type);
 
   @computed
-  bool get displayTransactionPriority => !(changeRepresentativeEnabled ||
-      _wallet.type == WalletType.solana ||
-      _wallet.type == WalletType.tron);
+  bool get changeHardwareWalletTypeEnabled => [
+        HardwareWalletType.cupcake,
+        HardwareWalletType.coldcard,
+        HardwareWalletType.seedsigner,
+      ].contains(_wallet.hardwareWalletType);
+
+  @computed
+  bool get displayTransactionPriority =>
+      !(changeRepresentativeEnabled || [WalletType.solana, WalletType.tron].contains(_wallet.type));
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
 
-    if (_wallet.type == WalletType.bitcoin ||
-        _wallet.type == WalletType.litecoin ||
-        _wallet.type == WalletType.bitcoinCash ||
-        _wallet.type == WalletType.dogecoin) {
+    if ([
+      WalletType.bitcoin,
+      WalletType.litecoin,
+      WalletType.bitcoinCash,
+      WalletType.dogecoin,
+    ].contains(_wallet.type)) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
     }
@@ -82,10 +88,12 @@ abstract class OtherSettingsViewModelBase with Store {
   String getDisplayBitcoinPriority(dynamic priority, int customValue) {
     final _priority = priority as TransactionPriority;
 
-    if (_wallet.type == WalletType.bitcoin ||
-        _wallet.type == WalletType.litecoin ||
-        _wallet.type == WalletType.bitcoinCash ||
-        _wallet.type == WalletType.dogecoin) {
+    if ([
+      WalletType.bitcoin,
+      WalletType.litecoin,
+      WalletType.bitcoinCash,
+      WalletType.dogecoin,
+    ].contains(_wallet.type)) {
       final rate = bitcoin!.getFeeRate(_wallet, _priority);
       return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate,
           customRate: customValue);
@@ -103,6 +111,12 @@ abstract class OtherSettingsViewModelBase with Store {
       _settingsStore.customBitcoinFeeRate = customValue.round();
     }
     _settingsStore.priority[_wallet.type] = priority;
+  }
+
+  @action
+  Future<void> onHardwareWalletTypeChanged(HardwareWalletType hwType) async {
+    _wallet.walletInfo.hardwareWalletType = hwType;
+    return _wallet.walletInfo.save();
   }
 
   @computed

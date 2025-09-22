@@ -89,6 +89,13 @@ packages:
       url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
     version: "1.0.1"
+  bitbox_flutter:
+    dependency: "direct main"
+    description:
+      path: "../../bitbox_flutter"
+      relative: true
+    source: path
+    version: "0.0.1"
   bitcoin_base:
     dependency: "direct overridden"
     description:

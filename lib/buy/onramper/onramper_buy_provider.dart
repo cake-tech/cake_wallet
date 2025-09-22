@@ -9,7 +9,6 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -22,7 +21,7 @@ class OnRamperBuyProvider extends BuyProvider {
       {required WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet,
       isTestEnvironment: isTestEnvironment,
-      ledgerVM: null,
+      hardwareWalletVM: null,
       supportedCryptoList: supportedCryptoToFiatPairs(
           notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
       supportedFiatList: supportedFiatToCryptoPairs(

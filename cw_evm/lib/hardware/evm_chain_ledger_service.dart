@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:ledger_ethereum/ledger_ethereum.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
-class EVMChainHardwareWalletService {
-  EVMChainHardwareWalletService(this.ledgerConnection);
+class EVMChainLedgerService extends HardwareWalletService {
+  EVMChainLedgerService(this.ledgerConnection);
 
   final LedgerConnection ledgerConnection;
 
+  @override
   Future<List<HardwareAccountData>> getAvailableAccounts(
       {int index = 0, int limit = 5}) async {
     final ethereumLedgerApp = EthereumLedgerApp(ledgerConnection);

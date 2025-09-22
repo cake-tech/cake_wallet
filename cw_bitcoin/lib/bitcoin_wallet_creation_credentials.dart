@@ -60,6 +60,7 @@ class BitcoinWalletFromKeysCredentials extends WalletCredentials {
     required String password,
     required this.xpub,
     WalletInfo? walletInfo,
+    super.hardwareWalletType
   }) : super(name: name, password: password, walletInfo: walletInfo);
 
   final String xpub;

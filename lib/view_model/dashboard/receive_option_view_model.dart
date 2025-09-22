@@ -28,7 +28,7 @@ abstract class ReceiveOptionViewModelBase with Store {
         break;
       case WalletType.litecoin:
         _options = [
-          ...bitcoin!.getLitecoinReceivePageOptions(),
+          ...bitcoin!.getLitecoinReceivePageOptions(_wallet),
           ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
         ];
         break;
