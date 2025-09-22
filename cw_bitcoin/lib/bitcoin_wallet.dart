@@ -26,6 +26,7 @@ import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:flutter/foundation.dart';
@@ -241,7 +242,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     return BitcoinWallet(
         mnemonic: mnemonic,
-        xpub: keysData.xPub,
+        xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
         password: password,
         passphrase: passphrase,
         walletInfo: walletInfo,

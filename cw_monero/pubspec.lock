@@ -66,11 +66,11 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: cake-update-v4
-      resolved-ref: "437dadd0bd9bf73ec6a551299577799341f6486a"
+      ref: cake-update-v2
+      resolved-ref: "59fdf29d72068e0522a96a8953ed7272833a9f57"
       url: "https://github.com/cake-tech/blockchain_utils"
     source: git
-    version: "4.3.0"
+    version: "3.3.0"
   bluez:
     dependency: transitive
     description:
@@ -599,10 +599,10 @@ packages:
     description:
       path: "."
       ref: cake-update-v2
-      resolved-ref: "084fb7bf13ec42d74f26ac08c883ce07c10fca7e"
+      resolved-ref: "096865a8c6b89c260beadfec04f7e184c40a3273"
       url: "https://github.com/cake-tech/on_chain.git"
     source: git
-    version: "6.2.0"
+    version: "3.7.0"
   package_config:
     dependency: transitive
     description:
