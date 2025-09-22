@@ -884,7 +884,7 @@
   "silent_payments_scan_from_date": "Scan ab Datum",
   "silent_payments_scan_from_date_or_blockheight": "Bitte geben Sie die Blockhöhe ein, die Sie für eingehende Silent Payments scannen möchten, oder verwenden Sie stattdessen das Datum. Sie können wählen, ob die Wallet jeden Block scannt oder nur die angegebene Höhe überprüft.",
   "silent_payments_scan_from_height": "Scan aus der Blockhöhe scannen",
-  "silent_payments_scanned_tip": "Gescannt zum Trinkgeld! (${tip})",
+  "silent_payments_scanned_tip": "Zur Spitze gescannt! (${tip})",
   "silent_payments_scanning": "Silent Payments scannen",
   "silent_payments_settings": "Einstellungen für Silent Payments",
   "single_seed_wallets_group": "Einzelne Wallets",
