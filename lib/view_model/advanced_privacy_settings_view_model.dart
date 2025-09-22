@@ -45,6 +45,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.digibyte:
         return _settingsStore.bitcoinSeedType == BitcoinSeedType.bip39;
 
       case WalletType.nano:
@@ -69,6 +70,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get isBitcoinSeedTypeOptionsEnabled => [
         WalletType.bitcoin,
         WalletType.litecoin,
+        WalletType.digibyte,
       ].contains(type);
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
@@ -85,6 +87,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.wownero,
         WalletType.zano,
         WalletType.dogecoin,
+        WalletType.digibyte,
       ].contains(type);
 
   @computed

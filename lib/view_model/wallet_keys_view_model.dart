@@ -165,6 +165,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.digibyte:
         if (_wallet.type == WalletType.bitcoin) {
           keys = bitcoin!.getSilentPaymentKeys(_appStore.wallet!);
         }
@@ -264,6 +265,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'decred-wallet';
       case WalletType.dogecoin:
         return 'dogecoin-wallet';
+      case WalletType.digibyte:
+        return 'digibyte-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }
