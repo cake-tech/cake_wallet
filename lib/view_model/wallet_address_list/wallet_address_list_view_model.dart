@@ -622,22 +622,22 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     switch (wallet.type) {
       case WalletType.ethereum:
         return [
-          'assets/images/eth_icon.png',
+          'assets/images/crypto/ethereum.png',
           'assets/images/crypto/usdc.png',
           'assets/images/crypto/tether.png',
-          'assets/images/deuro_icon.png',
+          'assets/images/crypto/deuro.png',
           'assets/images/more_tokens.png',
         ];
       case WalletType.solana:
         return [
-          'assets/images/sol_icon.png',
+          'assets/images/crypto/solana.png',
           'assets/images/crypto/usdc.png',
           'assets/images/crypto/tether.png',
           'assets/images/more_tokens.png',
         ];
       case WalletType.polygon:
         return [
-          'assets/images/pol_icon.png',
+          'assets/images/crypto/polygon.png',
           'assets/images/eth_pol_icon.png',
           'assets/images/crypto/usdc.png',
           'assets/images/crypto/tether.png',
@@ -645,14 +645,14 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         ];
       case WalletType.tron:
         return [
-          'assets/images/trx_icon.png',
+          'assets/images/crypto/tron.png',
           'assets/images/crypto/usdc.png',
           'assets/images/crypto/tether.png',
           'assets/images/more_tokens.png',
         ];
       case WalletType.zano:
         return [
-          'assets/images/zano_bg_icon.png',
+          'assets/images/crypto/zano.png',
           'assets/images/more_tokens.png',
         ];
 
