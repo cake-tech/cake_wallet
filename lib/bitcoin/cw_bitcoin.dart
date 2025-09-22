@@ -317,8 +317,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  List<ReceivePageOption> getLitecoinReceivePageOptions() {
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet) {
+    final litecoinWallet = wallet as ElectrumWallet;
+    if (Platform.isLinux ||
+        Platform.isMacOS ||
+        Platform.isWindows ||
+        litecoinWallet.isHardwareWallet) {
       return BitcoinReceivePageOption.allLitecoin
           .where((element) => element != BitcoinReceivePageOption.mweb)
           .toList();
