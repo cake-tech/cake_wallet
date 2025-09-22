@@ -219,6 +219,17 @@ jobs:
           popd
           cp /opt/generic_cache/key.jks android/app
 
+      - name: Fetch prebuilt Torch
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.4/torch_dart-v1.0.4.tar.gz -O torch_dart.tar.gz
+            mkdir torch_dart
+            pushd torch_dart
+              tar -xzf ../torch_dart.tar.gz
+            popd
+          popd
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/android
@@ -237,7 +248,8 @@ jobs:
         run: |
           set -x -e
           pushd scripts
-            ./build_bitbox_flutter.sh --dont-install
+            gomobile init;
+            ./build_bitbox_flutter.sh
           popd
 
       - name: Install Flutter dependencies
@@ -250,7 +262,6 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            gomobile init;
             ./build_mwebd.sh --dont-install
           popd
 

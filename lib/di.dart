@@ -33,6 +33,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -43,6 +44,9 @@ import 'package:cake_wallet/src/screens/start_tor/start_tor_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/swap_confirmation_bottom_sheet.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.dart';
+
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
@@ -545,6 +549,7 @@ Future<void> setup({
       getIt.get<UnspentCoinsListViewModel>(),
       getIt.get<FeesViewModel>(),
       _walletInfoSource,
+      getIt.get<FiatConversionStore>(),
     ),
   );
 
@@ -1135,6 +1140,7 @@ Future<void> setup({
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>(),
       feesViewModel: getIt.get<FeesViewModel>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
     ),
   );
 
@@ -1154,6 +1160,22 @@ Future<void> setup({
   getIt.registerFactory(() => BackgroundSyncPage(getIt.get<DashboardViewModel>()));
 
   getIt.registerFactory(() => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
+
+  getIt.registerFactoryParam<SwapConfirmationBottomSheet, PaymentFlowResult, void>(
+    (paymentFlowResult, _) => SwapConfirmationBottomSheet(
+      paymentFlowResult: paymentFlowResult,
+      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
+      exchangeViewModel: getIt.get<ExchangeViewModel>(),
+      authService: getIt.get<AuthService>(),
+    ),
+  );
+
+  getIt.registerFactory<SwapDetailsBottomSheet>(
+    () => SwapDetailsBottomSheet(
+      currentTheme: getIt.get<AppStore>().themeStore.currentTheme,
+      exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>(),
+    ),
+  );
 
   getIt.registerFactory(() => PaymentViewModel(
     appStore: getIt.get<AppStore>(),
@@ -1556,6 +1578,8 @@ Future<void> setup({
   getIt.registerFactory(() => DevMoneroBackgroundSyncPage(getIt.get<DevMoneroBackgroundSync>()));
 
   getIt.registerFactory(() => DevMoneroCallProfilerPage());
+
+  getIt.registerFactory(() => DevMoneroWalletCacheDebugPage());
 
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
 

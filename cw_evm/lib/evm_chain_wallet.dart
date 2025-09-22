@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
@@ -11,6 +10,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -475,7 +475,6 @@ abstract class EVMChainWalletBase
     BigInt totalAmount = BigInt.zero;
     BigInt estimatedFeesForTransaction = BigInt.zero;
     int exponent = transactionCurrency is Erc20Token ? transactionCurrency.decimal : 18;
-    num amountToEVMChainMultiplier = pow(10, exponent);
     String? contractAddress;
     int estimatedGasUnitsForTransaction = 0;
     int maxFeePerGasForTransaction = 0;
@@ -495,7 +494,7 @@ abstract class EVMChainWalletBase
 
       final totalOriginalAmount = EVMChainFormatter.parseEVMChainAmountToDouble(
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-      totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+      totalAmount = parseFixed(totalOriginalAmount.toString(), exponent);
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -517,7 +516,7 @@ abstract class EVMChainWalletBase
         final totalOriginalAmount =
             EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
 
-        totalAmount = BigInt.from(totalOriginalAmount * amountToEVMChainMultiplier);
+        totalAmount =  parseFixed(totalOriginalAmount.toString(), exponent);
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {

@@ -124,7 +124,7 @@ class BaseTextFormField extends StatelessWidget {
         isDense: isDense,
         alignLabelWithHint: alignLabelWithHint,
         contentPadding: contentPadding,
-        floatingLabelBehavior: FloatingLabelBehavior.never,
+        floatingLabelBehavior: floatingLabelBehavior ?? FloatingLabelBehavior.never,
         prefixIconConstraints: prefixIconConstraints ??
             const BoxConstraints(minWidth: 0, minHeight: 0),
         prefix: prefix,

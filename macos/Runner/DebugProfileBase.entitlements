@@ -6,8 +6,6 @@
 	<true/>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
-	<key>com.apple.security.network.server</key>
-	<true/>
     <key>com.apple.security.device.bluetooth</key>
     <true/>
 	<key>keychain-access-groups</key>
@@ -16,5 +14,7 @@
 	</array>
 	<key>com.apple.security.network.client</key>
     <true/>
+	<key>com.apple.security.network.server</key>
+	<true/>
 </dict>
 </plist>

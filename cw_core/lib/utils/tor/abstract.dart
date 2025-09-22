@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/tor/android.dart';
 import 'package:cw_core/utils/tor/disabled.dart';
 import 'package:cw_core/utils/tor/socks.dart';
+import 'package:cw_core/utils/tor/torch.dart';
 
 abstract class CakeTorInstance {
   bool get started;
@@ -17,10 +17,7 @@ abstract class CakeTorInstance {
   Future<void> start();
   Future<void> stop();
 
-  static CakeTorInstance getInstance() {
-    if (Platform.isAndroid) {
-      return CakeTorAndroid();
-    }
+  static Future<CakeTorInstance> getInstance() async {
     if (Platform.isLinux) {
       try {
         String? socksServer;
@@ -45,6 +42,14 @@ abstract class CakeTorInstance {
       } catch (e) {
         printV("Failed to identify linux version - /etc/os-release missing");
       }
+    }
+    try {
+      final torch = await CakeTorTorch.getInstance();
+      if (torch != null) {
+        return torch;
+      }
+    } catch (e) {
+      printV("Failed to initialize torch: $e");
     }
     return CakeTorDisabled();
   }

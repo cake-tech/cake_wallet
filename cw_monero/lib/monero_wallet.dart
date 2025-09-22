@@ -229,12 +229,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<void> connectToNode({required Node node}) async {
     String socksProxy = node.socksProxyAddress ?? '';
-    printV("bootstrapped: ${CakeTor.instance.bootstrapped}");
-    printV("     enabled: ${CakeTor.instance.enabled}");
-    printV("        port: ${CakeTor.instance.port}");
-    printV("     started: ${CakeTor.instance.started}");
-    if (CakeTor.instance.enabled) {
-      socksProxy = "127.0.0.1:${CakeTor.instance.port}";
+    printV("bootstrapped: ${CakeTor.instance!.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance!.enabled}");
+    printV("        port: ${CakeTor.instance!.port}");
+    printV("     started: ${CakeTor.instance!.started}");
+    if (CakeTor.instance!.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance!.port}";
     }
     try {
       syncStatus = ConnectingSyncStatus();
@@ -643,12 +643,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         final coinSpent = coin.spent();
         if (coinSpent == false && coin.subaddrAccount() == walletAddresses.account!.id) {
           final unspent = await MoneroUnspent.fromUnspent(
-            coin.address(),
-            coin.hash(),
-            coin.keyImage(),
-            coin.amount(),
-            coin.frozen(),
-            coin.unlocked(),
+            address: coin.address(),
+            hash: coin.hash(),
+            keyImage: coin.keyImage(),
+            value: coin.amount(),
+            isFrozen: coin.frozen(),
+            isUnlocked: coin.unlocked(),
+            isSpent: coinSpent,
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {

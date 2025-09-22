@@ -145,6 +145,8 @@ dependencies:
     git:
       url: https://github.com/MrCyjaneK/dnssec_proof.git
       ref: a2b0bdac343afc14fc38dfb81f28147eab50be05
+  torch_dart:
+    path: ./scripts/torch_dart
 
 dev_dependencies:
   flutter_test:
@@ -190,10 +192,6 @@ dependency_overrides:
     git:
       url: https://github.com/LacticWhale/socks_dart.git
       ref: 27ad7c2efae8d7460325c74b90f660085cbd0685
-  tor_binary:
-    git:
-      url: https://github.com/MrCyjaneK/flutter-tor_binary
-      ref: cb811c610871a9517d47134b87c2f590c15c96c5
   web_socket_channel: ^3.0.2
   freezed_annotation: 2.4.4
 

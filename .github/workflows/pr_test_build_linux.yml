@@ -203,6 +203,17 @@ jobs:
             ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
           popd
 
+      - name: Fetch prebuilt Torch
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.4/torch_dart-v1.0.4.tar.gz -O torch_dart.tar.gz
+            mkdir torch_dart
+            pushd torch_dart
+              tar -xzf ../torch_dart.tar.gz
+            popd
+          popd
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/linux
@@ -227,6 +238,15 @@ jobs:
       - name: Install Flutter dependencies
         run: |
           flutter pub get
+
+      - name: Build mwebd
+        run: |
+          set -x -e
+          export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
+          echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
+          pushd scripts/android
+            ./build_mwebd.sh --dont-install
+          popd
 
       - name: Build generated code
         run: |

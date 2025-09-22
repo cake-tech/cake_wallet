@@ -8,17 +8,15 @@ import 'package:ffi/ffi.dart';
 String libPath = (() {
   if (Platform.isWindows) return 'mweb.dll';
   if (Platform.isMacOS) return 'mweb.dylib';
-  if (Platform.isIOS) return 'Mwebd.xcframework/Mwebd';
-  if (Platform.isAndroid) return 'mweb.so';
-  return 'mweb.so';
+  if (Platform.isIOS) return 'Mwebd.framework/Mwebd';
+  if (Platform.isAndroid) return 'libmweb.so';
+  return 'libmweb.so';
 })();
 
 class MWebFfi {
-  MWebFlutter? lib;
+  late final MWebFlutter lib;
 
-  MWebFfi() {
-    lib = MWebFlutter(DynamicLibrary.open(libPath));
-  }
+  MWebFfi() : lib = MWebFlutter(DynamicLibrary.open(libPath));
 
   static MWebFfi instance = MWebFfi();
 
@@ -27,7 +25,7 @@ class MWebFfi {
     final dataDir_ = dataDir.toNativeUtf8().cast<Char>();
     final nodeUri_ = nodeUri.toNativeUtf8().cast<Char>();
 
-    final port = lib!.StartServer(chain, dataDir_, nodeUri_);
+    final port = lib.StartServer(chain, dataDir_, nodeUri_);
 
     calloc.free(chain);
     calloc.free(dataDir_);
@@ -36,7 +34,7 @@ class MWebFfi {
     return port;
   }
 
-  void stop() => lib!.StopServer();
+  void stop() => lib.StopServer();
 
   String addresses(
       Uint8List scanSecret, Uint8List spendPub, int fromIndex, int toIndex) {
@@ -50,7 +48,7 @@ class MWebFfi {
       spendPubKeyPtr[k] = spendPub[k];
     }
 
-    final Pointer<Char> resultPtr = lib!.Addresses(
+    final Pointer<Char> resultPtr = lib.Addresses(
       scanSecretPtr.cast(),
       scanSecret.length,
       spendPubKeyPtr.cast(),

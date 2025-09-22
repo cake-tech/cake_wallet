@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
-import 'package:cake_wallet/entities/erc20_token_info_explorers.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/erc20_token_info_moralis.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
@@ -81,7 +79,7 @@ abstract class HomeSettingsViewModelBase with Store {
           name: token.name,
           symbol: token.title,
           decimal: token.decimals,
-          contractAddress: contractAddress,
+          contractAddress: contractAddress.toLowerCase(),
           iconPath: token.iconPath,
           isPotentialScam: token.isPotentialScam,
         );
@@ -94,7 +92,7 @@ abstract class HomeSettingsViewModelBase with Store {
           name: token.name,
           symbol: token.title,
           decimal: token.decimals,
-          contractAddress: contractAddress,
+          contractAddress: contractAddress.toLowerCase(),
           iconPath: token.iconPath,
           isPotentialScam: token.isPotentialScam,
         );
@@ -198,18 +196,12 @@ abstract class HomeSettingsViewModelBase with Store {
         isEthereum ? 'eth' : 'polygon',
       );
 
-      bool isPotentialScamViaExplorers = await _isPotentialScamTokenViaExplorers(
-        contractAddress,
-        isEthereum: isEthereum,
-      );
-
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
         isEthereum: isEthereum,
       );
 
-      final showWarningForContractAddress =
-          isPotentialScamViaMoralis || isUnverifiedContract || isPotentialScamViaExplorers;
+      final showWarningForContractAddress = isPotentialScamViaMoralis || isUnverifiedContract;
 
       return showWarningForContractAddress;
     } finally {
@@ -275,7 +267,7 @@ abstract class HomeSettingsViewModelBase with Store {
           "X-API-Key": secrets.moralisApiKey,
         },
       );
-      
+
       final decodedResponse = jsonDecode(response.body);
 
       final tokenInfo = Erc20TokenInfoMoralis.fromJson(decodedResponse[0] as Map<String, dynamic>);
@@ -291,12 +283,7 @@ abstract class HomeSettingsViewModelBase with Store {
       }
 
       // Tokens with a security score less than 40 are potentially risky, requiring caution when dealing with them.
-      if (tokenInfo.securityScore == null || tokenInfo.securityScore! < 40) {
-        return true;
-      }
-
-      // Absence of a website URL for an ERC-20 token can be a potential red flag. A legitimate ERC-20 projects should have a well-maintained website that provides information about the token, its purpose, team, and roadmap.
-      if (tokenInfo.links?.website == null || tokenInfo.links!.website!.isEmpty) {
+      if (tokenInfo.securityScore != null && tokenInfo.securityScore! < 40) {
         return true;
       }
 
@@ -308,56 +295,9 @@ abstract class HomeSettingsViewModelBase with Store {
         return true;
       }
 
-      // I mean, a logo is the most basic of all the potential causes, but why does your fully functional project not have a logo?
-      if (tokenInfo.logo == null) {
-        return true;
-      }
-
       return false;
     } catch (e) {
       printV('Error while checking scam via moralis: ${e.toString()}');
-      return true;
-    }
-  }
-
-  Future<bool> _isPotentialScamTokenViaExplorers(
-    String contractAddress, {
-    required bool isEthereum,
-  }) async {
-    final uri = Uri.https(
-      "api.etherscan.io",
-      "/v2/api",
-      {
-        "chainid": isEthereum ? "1" : "137",
-        "module": "token",
-        "action": "tokeninfo",
-        "contractaddress": contractAddress,
-        "apikey": secrets.etherScanApiKey,
-      },
-    );
-
-    try {
-      final response = await ProxyWrapper().get(clearnetUri: uri);
-      
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
-
-      if (decodedResponse['status'] != '1') {
-        log('${response.body}\n');
-        log('${decodedResponse['result']}\n');
-        return true;
-      }
-
-      final tokenInfo =
-          Erc20TokenInfoExplorers.fromJson(decodedResponse['result'][0] as Map<String, dynamic>);
-
-      // A token without a website is a potential red flag
-      if (tokenInfo.website?.isEmpty == true) {
-        return true;
-      }
-
-      return false;
-    } catch (e) {
-      printV('Error while checking scam via explorers: ${e.toString()}');
       return true;
     }
   }
@@ -380,7 +320,6 @@ abstract class HomeSettingsViewModelBase with Store {
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
 
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 

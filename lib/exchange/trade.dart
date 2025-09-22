@@ -119,7 +119,7 @@ class Trade extends HiveObject {
   bool? isRefund;
 
   @HiveField(21)
-  bool? isSendAll;
+  bool? isSendAll; /// Must be set on createTrade;
 
   @HiveField(22)
   String? router;

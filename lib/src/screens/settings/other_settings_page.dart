@@ -92,7 +92,13 @@ class OtherSettingsPage extends BasePage {
                 title: '[dev] xmr call profiler',
                 handler: (context) => Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
               ),
-            if (FeatureFlag.hasDevOptions)
+            if (FeatureFlag.hasDevOptions && [WalletType.monero].contains(_otherSettingsViewModel.walletType))
+                SettingsCellWithArrow(
+                  title: '[dev] xmr wallet cache debug',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
+                ),
+              if (FeatureFlag.hasDevOptions)
               SettingsCellWithArrow(
                 title: '[dev] shared preferences',
                 handler: (context) => Navigator.of(context).pushNamed(Routes.devSharedPreferences),
