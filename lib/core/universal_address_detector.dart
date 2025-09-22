@@ -128,6 +128,18 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.ltc,
       ),
 
+      // Litecoin MWEB (mainnet)
+      _DetectionPattern(
+        pattern: RegExp(r'^ltcmweb1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{90,120}$'),
+        currency: CryptoCurrency.ltc,
+      ),
+
+      // Litecoin MWEB (testnet)
+      _DetectionPattern(
+        pattern: RegExp(r'^tmweb1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{90,120}$'),
+        currency: CryptoCurrency.ltc,
+      ),
+
       // Bitcoin Cash
       _DetectionPattern(
         pattern: RegExp(r'^(q|p)[a-z0-9]{41}$'),
