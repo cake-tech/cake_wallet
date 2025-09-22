@@ -405,7 +405,7 @@ class BuySellPage extends BasePage {
         onCurrencySelected: (currency) => buySellViewModel.changeFiatCurrency(currency: currency),
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_purple_icon.png',
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).colorScheme.primary,
           height: 8,
         ),
         currencyButtonColor: Colors.transparent,
@@ -443,7 +443,7 @@ class BuySellPage extends BasePage {
         onCurrencySelected: (currency) => buySellViewModel.changeCryptoCurrency(currency: currency),
         imageArrow: Image.asset(
           'assets/images/arrow_bottom_cake_green.png',
-          color: Theme.of(context).colorScheme.onSurface,
+          color: Theme.of(context).colorScheme.primary,
           height: 8,
         ),
         currencyButtonColor: Colors.transparent,
