@@ -21,6 +21,7 @@ import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
@@ -209,7 +210,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChainflipExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
-        // LetsExchangeExchangeProvider(),
+        LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         TrocadorExchangeProvider(
@@ -674,12 +675,20 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (limitsState is LimitsLoadedSuccessfully) {
           if (double.tryParse(amount) == null) continue;
 
-          if (limits.min != null && double.parse(amount) < limits.min!)
+          if (limits.min != null && double.parse(amount) < limits.min!) {
             continue;
-          else if (limits.max != null && double.parse(amount) > limits.max!)
+          } else if (limits.max != null && double.parse(amount) > limits.max!) {
             continue;
-          else {
+          } else {
             try {
+              if (provider is SwapTradeExchangeProvider) {
+                final destinationAmount = (fiatConversionStore.prices[request.toCurrency] ?? 0.00) * (double.tryParse(request.toAmount) ?? 0.00);
+                final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) * (double.tryParse(request.fromAmount) ?? 0.00);
+
+                if (destinationAmount > 2000 || sendingAmount > 2000) {
+                  continue;
+                }
+              }
               tradeState = TradeIsCreating();
               final trade = await provider.createTrade(
                 request: request,
