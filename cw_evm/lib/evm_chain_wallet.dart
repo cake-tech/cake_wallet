@@ -297,7 +297,7 @@ abstract class EVMChainWalletBase
   /// We are able to pass in:
   /// - The exact amount the user wants to send,
   /// - The addressHex for the receiving wallet,
-  /// - A contract address which would be essential in determining if to calcualate the estimate for ERC20 or native ETH
+  /// - A contract address which would be essential in determining if to calculate the estimate for ERC20 or native ETH
   Future<GasParamsHandler> calculateActualEstimatedFeeForCreateTransaction({
     required amount,
     required String? contractAddress,
