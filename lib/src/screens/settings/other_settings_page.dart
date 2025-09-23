@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/setting_priority_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
@@ -10,6 +11,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.d
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/db/sqlite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -110,6 +112,16 @@ class OtherSettingsPage extends BasePage {
                   title: '[dev] network requests logs',
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devNetworkRequests),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] browse sqlite db',
+                  handler: (BuildContext context) async {
+                    final data = await dumpDb();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => JsonExplorerPage(data: data, title: 'sqlite db')),
+                    );
+                  }
                 ),
               Spacer(),
               SettingsVersionCell(

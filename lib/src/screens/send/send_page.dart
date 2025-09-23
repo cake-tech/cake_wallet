@@ -440,14 +440,14 @@ class SendPage extends BasePage {
                                   await Navigator.of(context).pushNamed(Routes.connectDevices,
                                       arguments: ConnectDevicePageParams(
                                         walletType: sendViewModel.walletType,
-                                        onConnectDevice: (BuildContext context, _) {
-                                          sendViewModel.ledgerViewModel!
+                                        onConnectDevice: (BuildContext context, _) async {
+                                          await sendViewModel.ledgerViewModel!
                                               .setLedger(sendViewModel.wallet);
                                           Navigator.of(context).pop();
                                         },
                                       ));
                                 } else {
-                                  sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                  await sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
                                 }
                               }
 

@@ -340,8 +340,8 @@ class DFXBuyProvider extends BuyProvider {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,
-                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-                  ledgerVM.setLedger(wallet);
+                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) async {
+                  await ledgerVM.setLedger(wallet);
                   Navigator.of(context).pop();
                 }));
       } else {

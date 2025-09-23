@@ -11,6 +11,7 @@ import 'package:crypto/crypto.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 
 enum BackupVersion {
@@ -143,7 +144,7 @@ class BackupMetadata {
 }
 
 class BackupServiceV3 extends $BackupService {
-  BackupServiceV3(super.secureStorage, super.walletInfoSource, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
+  BackupServiceV3(super.secureStorage, super.transactionDescriptionBox, super.keyService, super.sharedPreferences);
 
   static BackupVersion get currentVersion => BackupVersion.v3;
 
@@ -317,7 +318,6 @@ class BackupServiceV3 extends $BackupService {
 
   Future<void> verifyHardwareWallets(String password,
       {String keychainSalt = secrets.backupKeychainSalt}) async {
-    final walletInfoSource = await reloadHiveWalletInfoBox();
     final appDir = await getAppDir();
     final keychainDumpFile = File('${appDir.path}/~_keychain_dump');
     final decryptedKeychainDumpFileData = await decryptV2(
@@ -334,10 +334,7 @@ class BackupServiceV3 extends $BackupService {
 
     for (final expectedHardwareWallet in expectedHardwareWallets) {
       final info = expectedHardwareWallet as Map<String, dynamic>;
-      final actualWalletInfo = walletInfoSource.values
-          .where((e) =>
-              e.name == info['name'] && e.type.toString() == info['type'])
-          .firstOrNull;
+      final actualWalletInfo = await WalletInfo.get(info['name'] as String, WalletType.values.firstWhere((e) => e.toString() == info['type'] as String));
       if (actualWalletInfo != null &&
           info["hardwareWalletType"] !=
               actualWalletInfo.hardwareWalletType?.index) {
