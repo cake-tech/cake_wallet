@@ -1,5 +1,8 @@
+import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/exchange_trade_card_item_widget.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -61,21 +64,39 @@ class ExchangeTradeExternalSendPage extends BasePage {
                           Spacer(flex: 3),
                           Flexible(
                             flex: 6,
-                            child: Center(
-                              child: AspectRatio(
-                                aspectRatio: 1.0,
-                                child: Container(
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 3,
-                                      color: Theme.of(context).colorScheme.primary,
+                            child: GestureDetector(
+                              onTap: () {
+                                BrightnessUtil.changeBrightnessForFunction(
+                                  () async {
+                                    await Navigator.pushNamed(
+                                      context,
+                                      Routes.fullscreenQR,
+                                      arguments: QrViewData(
+                                        embeddedImagePath: exchangeTradeViewModel.qrImage,
+                                        data: exchangeTradeViewModel.trade.inputAddress ??
+                                            fetchingLabel,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              child: Center(
+                                child: AspectRatio(
+                                  aspectRatio: 1.0,
+                                  child: Container(
+                                    padding: EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        width: 3,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
                                     ),
-                                  ),
-                                  child: QrImage(
-                                    data: exchangeTradeViewModel.paymentUri?.toString() ??
-                                        exchangeTradeViewModel.trade.inputAddress ??
-                                        fetchingLabel,
+                                    child: QrImage(
+                                      data:  exchangeTradeViewModel.paymentUri?.toString() ?? exchangeTradeViewModel.trade.inputAddress ??
+                                          fetchingLabel,
+                                      embeddedImagePath: exchangeTradeViewModel.qrImage,
+                                      size: 230,
+                                    ),
                                   ),
                                 ),
                               ),
