@@ -121,8 +121,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            final separator = initialPaymentRequest!.scheme.isNotEmpty ? ":" : "";
-            final uri = initialPaymentRequest!.scheme + separator + initialPaymentRequest!.address;
+            final prefix  = initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
+            final amount = initialPaymentRequest!.amount.isNotEmpty ? "?amount=${initialPaymentRequest!.amount}" : "";
+            final uri = prefix + initialPaymentRequest!.address + amount;
             _handlePaymentFlow(uri, initialPaymentRequest!);
           }
         },
