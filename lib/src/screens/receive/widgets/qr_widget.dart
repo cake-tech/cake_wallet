@@ -97,17 +97,14 @@ class QRWidget extends StatelessWidget {
                                 ),
                                 child: Column(
                                   children: [
-                                    Container(
-                                      clipBehavior: Clip.hardEdge,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12.5),
-                                      ),
-                                      padding: EdgeInsets.all(3),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12.5),
                                       child: AspectRatio(
                                         aspectRatio: 1.0,
                                         child: QrImage(
                                           embeddedImagePath: addressListViewModel.qrImage,
                                           data: addressUri.toString(),
+                                          size: 230,
                                         ),
                                       ),
                                     ),
@@ -199,32 +196,29 @@ class QRWidget extends StatelessWidget {
               ],
             ),
             Observer(
-                builder: (_) => Padding(
-                      padding: EdgeInsets.only(top: 10),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Form(
-                              key: formKey,
-                              child: CurrencyAmountTextField(
-                                hasUnderlineBorder: true,
-                                borderWidth: 0.0,
-                                selectedCurrency: _currencyName,
-                                selectedCurrencyDecimals:
-                                    addressListViewModel.selectedCurrency.decimals,
-                                amountFocusNode: amountTextFieldFocusNode,
-                                amountController: amountController,
-                                padding: EdgeInsets.only(top: 20, left: _width / 4),
-                                currentThemeType: currentTheme.type,
-                                isAmountEditable: true,
-                                tag: addressListViewModel.selectedCurrency.tag,
-                                onTapPicker: () => _presentPicker(context),
-                                isPickerEnable: true,
-                              ),
+                builder: (_) => Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Form(
+                            key: formKey,
+                            child: CurrencyAmountTextField(
+                              hasUnderlineBorder: true,
+                              borderWidth: 0.0,
+                              selectedCurrency: _currencyName,
+                              selectedCurrencyDecimals:
+                                  addressListViewModel.selectedCurrency.decimals,
+                              amountFocusNode: amountTextFieldFocusNode,
+                              amountController: amountController,
+                              padding: EdgeInsets.only(top: 20, left: _width / 4),
+                              currentThemeType: currentTheme.type,
+                              isAmountEditable: true,
+                              tag: addressListViewModel.selectedCurrency.tag,
+                              onTapPicker: () => _presentPicker(context),
+                              isPickerEnable: true,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     )),
             Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
             Padding(

@@ -42,10 +42,10 @@ packages:
     dependency: transitive
     description:
       name: async
-      sha256: d2872f9c19731c2e5f10444b14686eb7cc85c76274bd6c16e1816bff9a3bab63
+      sha256: "758e6d74e971c3e5aceb4110bfd6698efc7f501675bcfe0c775459a8140750eb"
       url: "https://pub.dev"
     source: hosted
-    version: "2.12.0"
+    version: "2.13.0"
   bbqrdart:
     dependency: "direct main"
     description:
@@ -100,7 +100,7 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cake-update-v11
+      ref: "490046a3e074dd7b9aaf7098a5efe61b6246d3b2"
       resolved-ref: "46e5a2d8a5438cb523a6104b70f5e5125a5663b3"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
@@ -580,10 +580,10 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: c35baad643ba394b40aac41080300150a4f08fd0fd6a10378f8f7c6bc161acec
+      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.8"
+    version: "10.0.9"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
@@ -698,6 +698,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.7.1"
+  mockito:
+    dependency: transitive
+    description:
+      name: mockito
+      sha256: f99d8d072e249f719a5531735d146d8cf04c580d93920b04de75bef6dfb2daf6
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.4.5"
   nested:
     dependency: transitive
     description:
@@ -783,9 +791,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: da83a23f3a011cb49eb3b6513cd485b3fb8867ff
-      resolved-ref: da83a23f3a011cb49eb3b6513cd485b3fb8867ff
-      url: "https://github.com/OmarHatem28/payjoin-flutter"
+      ref: "01ba81f6d9ba063fd1902a7fd1e185c2d56f6002"
+      resolved-ref: "01ba81f6d9ba063fd1902a7fd1e185c2d56f6002"
+      url: "https://github.com/LtbLightning/payjoin-flutter"
     source: git
     version: "0.23.0"
   petitparser:
@@ -1012,6 +1020,14 @@ packages:
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -1124,6 +1140,14 @@ packages:
       url: "https://github.com/bukata-sa/bc-ur-dart"
     source: git
     version: "0.1.0"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: a5be9ef6618a7ac1e964353ef476418026db906c4facdedaa299b7a2e71690ff
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.1"
   vector_math:
     dependency: transitive
     description:
@@ -1136,10 +1160,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "0968250880a6c5fe7edc067ed0a13d4bae1577fe2771dcf3010d52c4a9d3ca14"
+      sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
       url: "https://pub.dev"
     source: hosted
-    version: "14.3.1"
+    version: "15.0.1"
   watcher:
     dependency: "direct overridden"
     description:
