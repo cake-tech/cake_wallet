@@ -145,6 +145,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     try {
       final result = await paymentViewModel.processAddress(uri);
 
+      if (paymentRequest.contractAddress != null) {
+        await sendViewModel.fetchTokenForContractAddress(paymentRequest.contractAddress!);
+      }
+
       switch (result.type) {
         case PaymentFlowType.singleWallet:
         case PaymentFlowType.multipleWallets:
@@ -256,8 +260,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           }
         });
         await Future.delayed(const Duration(seconds: 2));
-        if (loadingBottomSheetContext != null &&
-            loadingBottomSheetContext!.mounted) {
+        if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
           Navigator.of(loadingBottomSheetContext!).pop();
         }
         _applyPaymentRequest(paymentRequest);

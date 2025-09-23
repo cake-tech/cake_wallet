@@ -3,7 +3,7 @@ import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
   PaymentRequest(this.address, this.amount, this.note, this.scheme, this.pjUri,
-      {this.callbackUrl, this.callbackMessage});
+      {this.callbackUrl, this.callbackMessage, this.contractAddress});
 
   factory PaymentRequest.fromUri(Uri? uri) {
     var address = "";
@@ -14,6 +14,7 @@ class PaymentRequest {
     String? callbackUrl;
     String? callbackMessage;
     String? pjUri;
+    String? contractAddress;
 
     if (uri != null) {
       if (uri.queryParameters['pj'] != null) {
@@ -33,6 +34,7 @@ class PaymentRequest {
 
         address = paymentUri.address;
         amount = paymentUri.amount;
+        contractAddress = paymentUri.contractAddress;
       }
     }
 
@@ -60,6 +62,7 @@ class PaymentRequest {
       pjUri,
       callbackUrl: callbackUrl,
       callbackMessage: callbackMessage,
+      contractAddress: contractAddress,
     );
   }
 
@@ -70,4 +73,5 @@ class PaymentRequest {
   final String? pjUri;
   final String? callbackUrl;
   final String? callbackMessage;
+  final String? contractAddress;
 }

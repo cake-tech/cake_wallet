@@ -21,6 +21,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart'
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/utils/qr_util.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -28,7 +29,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/utils/token_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -366,8 +366,8 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @action
   PaymentURI? _createERC681URI(CryptoCurrency currency, String address, String amount) {
-    final chainId = TokenUtils.getChainId(currency);
-    final isNativeToken = TokenUtils.isNativeToken(currency);
+    final chainId = TokenUtilities.getChainId(currency);
+    final isNativeToken = TokenUtilities.isNativeToken(currency);
 
     if (isNativeToken) {
       return ERC681URI(
@@ -378,7 +378,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       );
     } else {
       if (wallet.type == WalletType.polygon || wallet.type == WalletType.ethereum) {
-        final erc20Token = TokenUtils.findErc20Token(currency, wallet);
+        final erc20Token = TokenUtilities.findErc20Token(currency, wallet);
 
         if (erc20Token != null) {
           return ERC681URI(

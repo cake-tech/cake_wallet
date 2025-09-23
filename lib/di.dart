@@ -818,6 +818,7 @@ Future<void> setup({
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
       getIt.get<FeesViewModel>(),
+      _walletInfoSource,
     ),
   );
 
