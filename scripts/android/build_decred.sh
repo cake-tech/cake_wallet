@@ -69,6 +69,7 @@ do
         rm -fr ./build
     fi
 
+    export CGO_LDFLAGS="-O2 -g -s -w -Wl,-z,max-page-size=16384"
 	CLANG_PATH="${NDK_BIN_PATH}/${TRIPLET}${ANDROID_API_VERSION}-clang"
     CGO_ENABLED=1 GOOS=android GOARCH=${TARGET} CC=${CLANG_PATH} CXX=${CLANG_PATH}++ \
         go build -v -buildmode=c-shared -o ./build/${TRIPLET}-libdcrwallet.so ./cgo

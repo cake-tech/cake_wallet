@@ -19,6 +19,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/utils/qr_util.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -315,4 +316,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isSplToken() ||
         _isTronToken();
   }
+
+  @computed
+  String get qrImage => getQrImage(wallet.type);
 }
