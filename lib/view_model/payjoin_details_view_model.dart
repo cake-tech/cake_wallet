@@ -83,7 +83,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
           value: '${S.current.view_transaction_on}mempool.space',
           onTap: () async {
             try {
-              final uri = Uri.parse('https://mempool.cakewallet.com/tx/${payjoinSession.txId!}');
+              final uri = Uri.parse('https://cake.mempool.space/tx/${payjoinSession.txId!}');
               if (await canLaunchUrl(uri))
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
             } catch (e) {}
