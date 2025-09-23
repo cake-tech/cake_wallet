@@ -665,6 +665,8 @@ class AddressResolverService {
 
   Future<ParsedAddress?> _lookupsNostr(
       String text, List<CryptoCurrency> currencies, WalletBase _) async {
+
+    try {
     final profile = await NostrProfileHandler.queryProfile(text);
     if (profile == null) return null;
 
@@ -691,6 +693,10 @@ class AddressResolverService {
       profileImageUrl: data.picture,
       profileName: data.name,
     );
+  } catch (e) {
+      printV('Error looking up Nostr profile: $e');
+      return null;
+    }
   }
 }
 
