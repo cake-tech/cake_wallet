@@ -79,7 +79,7 @@ class TokenUtilities {
   /// - EVM chains: match by contractAddress
   /// - Solana: match by mintAddress
   /// - Tron: match by contractAddress
-  static Future<dynamic> findTokenByAddress({
+  static Future<CryptoCurrency?> findTokenByAddress({
     required WalletType walletType,
     required Box<WalletInfo> walletInfoSource,
     required String address,
