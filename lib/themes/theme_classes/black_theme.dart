@@ -184,13 +184,6 @@ class BlackTheme extends MaterialThemeBase {
           foregroundColor: colorScheme.onSurface,
           elevation: 0,
         ),
-        cardTheme: CardTheme(
-          color: colorScheme.surface,
-          elevation: 1,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.primary,
