@@ -33,6 +33,8 @@ enum HardwareWalletType {
   coldcard,
   @HiveField(4)
   seedsigner,
+  @HiveField(5)
+  keystone,
 }
 
 @HiveType(typeId: DerivationInfo.typeId)

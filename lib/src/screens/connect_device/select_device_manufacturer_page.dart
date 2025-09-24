@@ -132,7 +132,8 @@ class SelectDeviceManufacturerPage extends BasePage {
   bool isAirgappedWallet(HardwareWalletType? type) => [
         HardwareWalletType.cupcake,
         HardwareWalletType.coldcard,
-        HardwareWalletType.seedsigner
+        HardwareWalletType.seedsigner,
+        HardwareWalletType.keystone,
       ].contains(type);
 
   bool isRestoring = false;

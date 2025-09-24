@@ -110,6 +110,8 @@ class WalletRestoreFromQRCode {
     if (code == null) throw Exception("Unexpected scan QR code value: aborted");
     if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
 
+    if (code.startsWith("[")) code = code.substring(code.indexOf("]") + 1);
+
     String formattedUri = '';
     WalletType? walletType = _extractWalletType(code);
     final prefix = code.startsWith('xpub') ? 'xpub' : code.startsWith('zpub') ? 'zpub' : '????';

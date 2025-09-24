@@ -401,6 +401,7 @@ Future<void> setup({
       case HardwareWalletType.cupcake:
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
         throw Exception("This should not have happened, because airgapped Wallets don't need View Models");
     }
   });
