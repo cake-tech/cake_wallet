@@ -39,6 +39,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/src/screens/dev/qr_tools_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/background_sync_logs_page.dart';
@@ -940,6 +941,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
         builder: (_) => getIt.get<DevSocketHealthLogsPage>(),
       );
     
+    case Routes.devQRTools:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevQRToolsPage>(),
+      );
+
     case Routes.devNetworkRequests:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevNetworkRequests>(),

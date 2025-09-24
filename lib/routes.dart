@@ -124,6 +124,7 @@ class Routes {
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
   static const devSocketHealthLogs = '/dev/socket_health_logs';
   static const devNetworkRequests = '/dev/network_requests';
+  static const devQRTools = '/dev/qr_tools';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';
