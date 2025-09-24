@@ -44,7 +44,6 @@ import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
@@ -144,7 +143,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     });
 
-    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => calculateBestRate());
+    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) {
+      if (tradeState is! TradeIsCreating) {
+        calculateBestRate();
+      }
+    });
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     depositAmount = '';
@@ -539,19 +542,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             ),
       ),
     );
-    _sortedAvailableProviders.clear();
+
+    // We'll use a new SplayTreeMap to avoid concurrent modification issues
+    final newSortedProviders =
+        SplayTreeMap<double, ExchangeProvider>((double a, double b) => b.compareTo(a));
 
     for (int i = 0; i < result.length; i++) {
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
-        try {
-          _sortedAvailableProviders[result[i]] = _providers[i];
-        } catch (e) {
-          // will throw "Concurrent modification during iteration" error if modified at the same
-          // time [createTrade] is called, as this is not a normal map, but a sorted map
-        }
+        newSortedProviders[result[i]] = _providers[i];
       }
     }
+
+    // Replace the old map with the new one
+    _sortedAvailableProviders.clear();
+    _sortedAvailableProviders.addAll(newSortedProviders);
+
     if (_sortedAvailableProviders.isNotEmpty) bestRate = _sortedAvailableProviders.keys.first;
   }
 
@@ -640,10 +646,26 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
+    // Ensure we have providers available before attempting to create trade
+    if (_sortedAvailableProviders.isEmpty) {
+      await calculateBestRate();
+
+      if (_sortedAvailableProviders.isEmpty) {
+        tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: S.current.none_of_selected_providers_can_exchange);
+        return;
+      }
+    }
+
     try {
-      for (var i = 0; i < _sortedAvailableProviders.values.length; i++) {
-        final provider = _sortedAvailableProviders.values.toList()[i];
-        final providerRate = _sortedAvailableProviders.keys.toList()[i];
+      // snapshot of providers to avoid concurrent modification issues
+      final providersSnapshot = _sortedAvailableProviders.values.toList();
+      final ratesSnapshot = _sortedAvailableProviders.keys.toList();
+
+      for (var i = 0; i < providersSnapshot.length; i++) {
+        final provider = providersSnapshot[i];
+        final providerRate = ratesSnapshot[i];
 
         if (!(await provider.checkIsAvailable())) continue;
 
@@ -678,8 +700,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
           } else {
             try {
               if (provider is SwapTradeExchangeProvider) {
-                final destinationAmount = (fiatConversionStore.prices[request.toCurrency] ?? 0.00) * (double.tryParse(request.toAmount) ?? 0.00);
-                final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) * (double.tryParse(request.fromAmount) ?? 0.00);
+                final destinationAmount = (fiatConversionStore.prices[request.toCurrency] ?? 0.00) *
+                    (double.tryParse(request.toAmount) ?? 0.00);
+                final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) *
+                    (double.tryParse(request.fromAmount) ?? 0.00);
 
                 if (destinationAmount > 2000 || sendingAmount > 2000) {
                   continue;
