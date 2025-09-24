@@ -105,6 +105,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required double amount,
     required bool isFixedRateMode,
     required bool isReceiveAmount,
+    String? senderAddress,
+    String? recipientAddress,
   }) async {
     try {
       if (amount == 0) return 0.0;

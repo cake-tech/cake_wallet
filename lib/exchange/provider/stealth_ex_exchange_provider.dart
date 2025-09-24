@@ -83,12 +83,15 @@ class StealthExExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<double> fetchRate(
-      {required CryptoCurrency from,
-      required CryptoCurrency to,
-      required double amount,
-      required bool isFixedRateMode,
-      required bool isReceiveAmount}) async {
+  Future<double> fetchRate({
+    required CryptoCurrency from,
+    required CryptoCurrency to,
+    required double amount,
+    required bool isFixedRateMode,
+    required bool isReceiveAmount,
+    String? senderAddress,
+    String? recipientAddress,
+  }) async {
     final response = await getEstimatedExchangeAmount(
         from: from, to: to, amount: amount, isFixedRateMode: isFixedRateMode);
     final estimatedAmount = response['estimated_amount'] as double? ?? 0.0;

@@ -21,7 +21,9 @@ import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -47,6 +49,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -116,6 +119,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     });
   }
 
+  PendingTransaction? _pendingApprovalTx;
+  bool _isSwapsXYZCallDataTx = false;
+
   @observable
   ExecutionState state;
 
@@ -127,6 +133,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
+
+  bool get isEVMWallet => walletType == WalletType.ethereum || walletType == WalletType.polygon;
 
   @action
   void setShowAddressBookPopup(bool value) {
@@ -181,8 +189,29 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     try {
+
+      double? price;
+
+
+      // Fiat store keeps ERC20Token entries, but selectedCryptoCurrency is a base CryptoCurrency
+      if (isEVMWallet && selectedCryptoCurrency != wallet.currency) {
+
+        String makeKey(CryptoCurrency c) =>
+            '${c.title.toUpperCase()}-${(c.tag ?? '').toUpperCase()}';
+
+        final requestKey = makeKey(selectedCryptoCurrency);
+
+        for (final entry in _fiatConversationStore.prices.entries) {
+          final storedKey = makeKey(entry.key);
+          if (storedKey == requestKey) {
+            price = entry.value;
+            break;
+          }
+        }
+      }
+
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[selectedCryptoCurrency]!,
+          price: price ?? _fiatConversationStore.prices[selectedCryptoCurrency]!,
           cryptoAmount: pendingTransaction!.amountFormatted);
       return fiat;
     } catch (_) {
@@ -480,7 +509,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Timer? _ledgerTxStateTimer;
 
   @action
-  Future<PendingTransaction?> createTransaction({ExchangeProvider? provider}) async {
+  Future<PendingTransaction?> createTransaction({ExchangeProvider? provider, Trade? trade}) async {
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
@@ -494,6 +523,105 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             }
           });
       }
+
+
+      // Swaps.xyz (EVM) path
+
+      if (isEVMWallet && trade != null && provider is SwapsXyzExchangeProvider) {
+        final routerTo = trade.inputAddress;
+        final routerData = trade.routerData;
+        final routerValueWei = BigInt.tryParse((trade.routerValue ?? '0').toString()) ?? BigInt.zero;
+
+        if (routerTo?.isNotEmpty == true && routerData?.isNotEmpty == true) {
+          _pendingApprovalTx = null;
+
+          // Optionally prebuild approval
+            final tokenContract = trade.sourceTokenAddress ?? '';
+            final requiredAmount = BigInt.tryParse(
+              (trade.sourceTokenAmountRaw ?? '0').replaceAll('n', ''),
+            ) ?? BigInt.zero;
+
+            if (tokenContract.isNotEmpty && requiredAmount > BigInt.zero) {
+              if (walletType == WalletType.ethereum) {
+                final priority = _settingsStore.priority[WalletType.ethereum]!;
+                _pendingApprovalTx = await buildApprovalIfNeeded(
+                  spender: routerTo!,
+                  tokenContract: tokenContract,
+                  requiredAmount: requiredAmount,
+                  sourceTokenDecimals: trade.sourceTokenDecimals,
+                );
+
+                // Build the callData tx
+                pendingTransaction = await ethereum!.createRawCallDataTransaction(
+                  wallet,
+                  routerTo,
+                  routerData!,
+                  routerValueWei,
+                  priority,
+                );
+
+                _isSwapsXYZCallDataTx = true;
+                state = ExecutedSuccessfullyState();
+                return pendingTransaction; // do NOT fall back to regular flow
+              }
+              if (walletType == WalletType.polygon) {
+                final priority = _settingsStore.priority[WalletType.polygon]!;
+                _pendingApprovalTx = await buildApprovalIfNeeded(
+                  spender: routerTo!,
+                  tokenContract: tokenContract,
+                  requiredAmount: requiredAmount,
+                  sourceTokenDecimals: trade.sourceTokenDecimals,
+                );
+
+                // Build the callData tx
+                pendingTransaction = await polygon!.createRawCallDataTransaction(
+                  wallet,
+                  routerTo,
+                  routerData!,
+                  routerValueWei,
+                  priority,
+                );
+
+                _isSwapsXYZCallDataTx = true;
+                state = ExecutedSuccessfullyState();
+                return pendingTransaction; // do NOT fall back to regular flow
+              }
+
+            }
+
+
+          // No approval needed: still build callData tx
+          if (walletType == WalletType.ethereum) {
+            final priority = _settingsStore.priority[WalletType.ethereum]!;
+            pendingTransaction = await ethereum!.createRawCallDataTransaction(
+              wallet,
+              routerTo!,
+              routerData!,
+              routerValueWei,
+              priority,
+            );
+            _isSwapsXYZCallDataTx = true;
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
+          }
+          if (walletType == WalletType.polygon) {
+            final priority = _settingsStore.priority[WalletType.polygon]!;
+            pendingTransaction = await polygon!.createRawCallDataTransaction(
+              wallet,
+              routerTo!,
+              routerData!,
+              routerValueWei,
+              priority,
+            );
+            _isSwapsXYZCallDataTx = true;
+            state = ExecutedSuccessfullyState();
+            return pendingTransaction;
+          }
+        }
+      }
+
+
+      // Regular flow
 
       pendingTransaction = await wallet.createTransaction(_credentials(provider));
 
@@ -590,6 +718,37 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = TransactionCommitted();
 
       return;
+    }
+
+    // Swaps.xyz approval (if any), then commit the prebuilt router tx
+    if (_isSwapsXYZCallDataTx) {
+      if (_pendingApprovalTx != null) {
+        await _pendingApprovalTx!.commit();
+        _pendingApprovalTx = null;
+        // Small pause to ensure allowance is indexed
+        await Future.delayed(const Duration(milliseconds: 300));
+      }
+
+      await pendingTransaction!.commit();
+      _isSwapsXYZCallDataTx = false;
+
+      state = TransactionCommitted();
+      return; // skip the regular flow below
+    }
+
+    // Regular flow (non-Swaps)
+    if (pendingTransaction!.shouldCommitUR()) {
+      final urstr = await pendingTransaction!.commitUR();
+      final result = await Navigator.of(context).pushNamed(
+        Routes.urqrAnimatedPage,
+        arguments: urstr,
+      );
+      if (result == null) {
+        state = FailureState("Canceled by user");
+        return;
+      }
+    } else {
+      await pendingTransaction!.commit();
     }
 
     String address = outputs.fold('', (acc, value) {
@@ -917,6 +1076,62 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     return false;
+  }
+
+  Future<PendingTransaction?> buildApprovalIfNeeded({
+    required String spender,
+    required String tokenContract,
+    required BigInt requiredAmount,
+    int? sourceTokenDecimals,
+  }) async {
+
+    // Only EVM chains support ERC20 approvals
+    if (!isEVMWallet) return null;
+
+    const zero = '0x0000000000000000000000000000000000000000';
+    const evmNative = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
+    final tokenLc = tokenContract.toLowerCase();
+    if (tokenLc == zero || tokenLc == evmNative.toLowerCase()) return null;
+    if (requiredAmount <= BigInt.zero) return null;
+
+    bool needsApproval = false;
+    if (walletType == WalletType.ethereum) {
+      needsApproval = await ethereum!.isApprovalRequired(
+        wallet, tokenContract, spender, requiredAmount,
+      );
+    } else if (walletType == WalletType.polygon) {
+      needsApproval = await polygon!.isApprovalRequired(
+        wallet, tokenContract, spender, requiredAmount,
+      );
+    }
+
+    if (!needsApproval) return null;
+
+    final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
+          (t) => t.contractAddress.toLowerCase() == tokenLc,
+      orElse: () => Erc20Token(
+        name: '',
+        symbol: '',
+        contractAddress: tokenContract,
+        decimal: sourceTokenDecimals ?? 18,
+        enabled: true,
+      ),
+    );
+
+    if (walletType == WalletType.ethereum) {
+      final priority = _settingsStore.priority[WalletType.ethereum]!;
+      return await ethereum!.createTokenApproval(
+        wallet, requiredAmount, spender, erc20Token, priority,
+      );
+    } else if (walletType == WalletType.polygon) {
+      final priority = _settingsStore.priority[WalletType.polygon]!;
+      return await polygon!.createTokenApproval(
+        wallet, requiredAmount, spender, erc20Token, priority,
+      );
+    }
+
+    return null;
   }
 
   @computed
