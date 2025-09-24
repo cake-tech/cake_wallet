@@ -251,12 +251,13 @@ class ERC681URI extends PaymentURI {
 
     final params = <String, String>{};
 
-    if (amount.isNotEmpty) {
-      if (contractAddress != null) {
-        // ERC-20 token transfer: address parameter for recipient, uint256 for amount
-        params['address'] = address;
+    if (contractAddress != null) {
+      params['address'] = address;
+      if (amount.isNotEmpty) {
         params['uint256'] = _formatAmountForERC20(amount);
-      } else {
+      }
+    } else {
+      if (amount.isNotEmpty) {
         params['value'] = _formatAmountForNative(amount);
       }
     }
@@ -301,8 +302,7 @@ class ERC681URI extends PaymentURI {
     final chainId = _getChainID(uri.path);
 
     final address = isContract ? uri.queryParameters["address"] ?? '' : targetAddress;
-    final amountParam =
-        isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
+    final amountParam = isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
 
     var formatedAmount = "";
 
@@ -344,26 +344,30 @@ class ERC681URI extends PaymentURI {
     final raw = input.replaceAll(',', '.').trim();
 
     // First we check if it's already a plain integer (basically just a number with no dot, no exponent)
-    final isPlainInteger = RegExp(r'^[+-]?\d+$').hasMatch(raw) &&
-        !raw.contains('.') &&
-        !raw.toLowerCase().contains('e');
-    if (isPlainInteger) return raw.replaceFirst(RegExp(r'^\+'), '');
+    try {
+      final isPlainInteger = RegExp(r'^[+-]?\d+$').hasMatch(raw) &&
+          !raw.contains('.') &&
+          !raw.toLowerCase().contains('e');
+      if (isPlainInteger) return raw.replaceFirst(RegExp(r'^\+'), '');
 
-    // Then we check if it's a scientific notation
-    final sci = RegExp(r'^[+-]?(\d+\.?\d*|\d*\.?\d+)[eE][+-]?\d+$');
-    if (sci.hasMatch(raw)) {
-      final mantissaStr = raw.toLowerCase().split('e')[0];
-      final exp = int.parse(raw.toLowerCase().split('e')[1]);
-      return _expandDecimal(mantissaStr, exp);
-    }
+      // Then we check if it's a scientific notation
+      final sci = RegExp(r'^[+-]?(\d+\.?\d*|\d*\.?\d+)[eE][+-]?\d+$');
+      if (sci.hasMatch(raw)) {
+        final mantissaStr = raw.toLowerCase().split('e')[0];
+        final exp = int.parse(raw.toLowerCase().split('e')[1]);
+        return _expandDecimal(mantissaStr, exp);
+      }
 
-    // Lastly, we check if it's a fixed decimal ETH amount, here we shift by 18 to get wei for the amount
-    if (raw.contains('.')) {
-      return _expandDecimal(raw, 18);
+      // Lastly, we check if it's a fixed decimal ETH amount, here we shift by 18 to get wei for the amount
+      if (raw.contains('.')) {
+        return _expandDecimal(raw, 18);
+      }
+      return raw;
+    } catch (e) {
+      return raw;
     }
 
     // If none of these checks work, we return the raw input
-    return raw;
   }
 
   /// Expands a decimal string by shifting the decimal point `expShift` places

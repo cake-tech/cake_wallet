@@ -1,4 +1,5 @@
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -104,39 +105,30 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.btcln,
       ),
 
-      // Bitcoin Bech32
+      // Bitcoin (P2PKH, P2SH, Bech32, Silent Payments)
       _DetectionPattern(
-        pattern: RegExp(r'^bc1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{25,62}$'),
+        pattern: RegExp('^(?:'
+            '1[a-km-zA-HJ-NP-Z1-9]{25,34}'
+            '|3[a-km-zA-HJ-NP-Z1-9]{25,34}'
+            '|(?:bc|tb)1q[ac-hj-np-z02-9]{25,39}'
+            '|(?:bc|tb)1p(?:[ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89})'
+            '|(?:bc|tb)1q[ac-hj-np-z02-9]{40,80}'
+            '|${AddressValidator.silentPaymentAddressPatternMainnet}'
+            '|${AddressValidator.silentPaymentAddressPatternTestnet}'
+            ')\$'),
         currency: CryptoCurrency.btc,
       ),
 
-      // Bitcoin Silent Payment (mainnet)
+      // Litecoin (Legacy, Bech32, MWEB)
       _DetectionPattern(
-        pattern: RegExp(r'^sp1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{113}$'),
-        currency: CryptoCurrency.btc,
-      ),
-
-      // Bitcoin Silent Payment (testnet)
-      _DetectionPattern(
-        pattern: RegExp(r'^(tsp|sprt)1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{113}$'),
-        currency: CryptoCurrency.btc,
-      ),
-
-      // Litecoin Bech32
-      _DetectionPattern(
-        pattern: RegExp(r'^ltc1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{25,62}$'),
-        currency: CryptoCurrency.ltc,
-      ),
-
-      // Litecoin MWEB (mainnet)
-      _DetectionPattern(
-        pattern: RegExp(r'^ltcmweb1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{90,120}$'),
-        currency: CryptoCurrency.ltc,
-      ),
-
-      // Litecoin MWEB (testnet)
-      _DetectionPattern(
-        pattern: RegExp(r'^tmweb1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{90,120}$'),
+        pattern: RegExp('^(?:'
+            'L[a-km-zA-HJ-NP-Z1-9]{25,34}'
+            '|[3M][a-km-zA-HJ-NP-Z1-9]{25,34}'
+            '|ltc1q[ac-hj-np-z02-9]{25,39}'
+            '|ltc1p(?:[ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89})'
+            '|ltc1q[ac-hj-np-z02-9]{40,80}'
+            '|${AddressValidator.mWebAddressPattern}'
+            ')\$'),
         currency: CryptoCurrency.ltc,
       ),
 
@@ -206,31 +198,17 @@ class UniversalAddressDetector {
         currency: CryptoCurrency.dcr,
       ),
 
-      // Bitcoin P2PKH/P2SH (legacy formats)
-      _DetectionPattern(
-        pattern: RegExp(r'^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$'),
-        currency: CryptoCurrency.btc,
-      ),
-
-      // Litecoin P2PKH/P2SH
-      _DetectionPattern(
-        pattern: RegExp(r'^(L|M|3)[a-km-zA-HJ-NP-Z1-9]{25,34}$'),
-        currency: CryptoCurrency.ltc,
-      ),
-
       // Dogecoin P2PKH
       _DetectionPattern(
         pattern: RegExp(r'^D[a-km-zA-HJ-NP-Z1-9]{25,34}$'),
         currency: CryptoCurrency.doge,
       ),
 
-      // TODO: commented out until a better approach is implemented.
-      //  as this will consider most addresses to be a valid Solana address
-      // Solana (Base58 format, 32-44 chars)
-      // _DetectionPattern(
-      //   pattern: RegExp(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$'),
-      //   currency: CryptoCurrency.sol,
-      // ),
+      // Solana (Base58 format)
+      _DetectionPattern(
+        pattern: RegExp(r'^[1-9A-HJ-NP-Za-km-z]{43,44}$'),
+        currency: CryptoCurrency.sol,
+      ),
     ];
 
     // Test each pattern in order of specificity
