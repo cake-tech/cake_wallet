@@ -111,6 +111,12 @@ class OtherSettingsPage extends BasePage {
                   handler: (BuildContext context) =>
                       Navigator.of(context).pushNamed(Routes.devNetworkRequests),
                 ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] exchange provider logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
+                ),
               Spacer(),
               SettingsVersionCell(
                   title: S.of(context).version(_otherSettingsViewModel.currentVersion)),

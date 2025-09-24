@@ -37,9 +37,7 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
-import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -53,10 +51,12 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
@@ -72,14 +72,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         wallet.type == WalletType.solana ||
         wallet.type == WalletType.tron ||
         wallet.type == WalletType.zano;
-        
+
     for (final output in outputs) {
       output.updateWallet(wallet);
     }
-    
+
     // Update unspent coins list view model with the new wallet reference
     unspentCoinsListViewModel.updateWallet(wallet);
-    
+
     // Update sending balance to reflect the new wallet's balance
     updateSendingBalance();
   }
@@ -95,7 +95,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     this.transactionDescriptionBox,
     this.ledgerViewModel,
     this.unspentCoinsListViewModel,
-    this.feesViewModel, {
+    this.feesViewModel,
+    this.walletInfoSource, {
     this.coinTypeToSpendFrom = UnspentCoinType.nonMweb,
   })  : state = InitialExecutionState(),
         currencies = appStore.wallet!.balance.keys.toList(),
@@ -120,6 +121,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ExecutionState state;
 
   ObservableList<Output> outputs;
+
+  final Box<WalletInfo> walletInfoSource;
 
   @observable
   UnspentCoinType coinTypeToSpendFrom;
@@ -337,8 +340,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       ].contains(wallet.type);
 
   @computed
-  bool get isElectrumWallet =>
-      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin].contains(wallet.type);
+  bool get isElectrumWallet => [
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash,
+        WalletType.dogecoin
+      ].contains(wallet.type);
 
   @observable
   CryptoCurrency selectedCryptoCurrency;
@@ -924,4 +931,17 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @observable
   String? payjoinUri;
+
+  @action
+  Future<void> fetchTokenForContractAddress(String contractAddress) async {
+    final token = await TokenUtilities.findTokenByAddress(
+      walletType: wallet.type,
+      walletInfoSource: walletInfoSource,
+      address: contractAddress,
+    );
+
+    if (token != null) {
+      selectedCryptoCurrency = token as CryptoCurrency;
+    }
+  }
 }
