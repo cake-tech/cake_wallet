@@ -4,6 +4,16 @@ import 'package:cw_core/sync_status.dart';
 
 String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDisplayMode) {
   if (syncStatus is SyncingSyncStatus) {
+    // Don't show ETA for very low progress (likely still connecting/starting)
+    if (syncStatus.progress() < 0.01) {
+      return S.current.sync_status_connecting;
+    }
+
+    // Don't show ETA for very few blocks (less than 100) to avoid inconsistency
+    if (syncStatus.blocksLeft < 100) {
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    }
+
     if (syncStatus.blocksLeft == 1) {
       return S.current.block_remaining;
     }
