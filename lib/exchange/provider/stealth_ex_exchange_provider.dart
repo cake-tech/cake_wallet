@@ -203,6 +203,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
         extraId: extraId,
         userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
         userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
+        isSendAll: isSendAll,
       );
     } catch (e) {
       log(e.toString());

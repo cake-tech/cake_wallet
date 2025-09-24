@@ -205,6 +205,7 @@ ios/MoneroWallet.framework/MoneroWallet
 ios/WowneroWallet.framework/WowneroWallet
 ios/ZanoWallet.framework/ZanoWallet
 *_libwallet2_api_c.dylib
+libuniffi_yttrium.so
 
 .flatpak-builder
 cake_wallet.flatpak
@@ -228,3 +229,5 @@ flatpak-build/
 **/linux/flutter/generated_plugin_registrant.cc
 **/linux/flutter/generated_plugin_registrant.h
 **/linux/flutter/generated_plugins.cmake
+
+scripts/torch_dart/

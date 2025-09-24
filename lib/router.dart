@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/order/order.dart';
@@ -36,6 +35,7 @@ import 'package:cake_wallet/src/screens/dashboard/pages/nft_details_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/sign_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
+import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
@@ -765,9 +765,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<AnonPayInvoicePage>(param1: args));
 
     case Routes.anonPayReceivePage:
-      final anonInvoiceViewData = settings.arguments as AnonpayInfoBase;
+      final anonReceivePageArgs = settings.arguments as AnonPayReceivePageArgs;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonInvoiceViewData));
+          builder: (_) => getIt.get<AnonPayReceivePage>(param1: anonReceivePageArgs));
 
     case Routes.anonPayDetailsPage:
       final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
@@ -927,6 +927,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.devMoneroCallProfiler:
       return MaterialPageRoute<void>(
         builder: (_) => getIt.get<DevMoneroCallProfilerPage>(),
+      );
+
+    case Routes.devMoneroWalletCacheDebug:
+      return MaterialPageRoute<void>(
+        builder: (_) => getIt.get<DevMoneroWalletCacheDebugPage>(),
       );
 
     case Routes.devSecurePreferences:

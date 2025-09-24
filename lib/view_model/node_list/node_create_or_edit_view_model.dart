@@ -64,15 +64,14 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   bool useSocksProxy;
 
   @computed
-  bool get usesEmbeddedProxy => CakeTor.instance.started;
+  bool get usesEmbeddedProxy => CakeTor.instance!.started;
 
   @observable
   String socksProxyAddress;
 
   @computed
   bool get isReady =>
-      (address.isNotEmpty && port.isNotEmpty) ||
-      _walletType == WalletType.decred; // Allow an empty address.
+      (address.isNotEmpty) || _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
@@ -237,6 +236,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
+      if (code.startsWith("monero_node:")) code = code.replaceFirst("monero_node:", "tcp://");
       if (!code.contains('://')) code = 'tcp://$code';
 
       final uri = Uri.tryParse(code);
@@ -244,13 +244,30 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Invalid QR code: Unable to parse or missing host.');
       }
 
-      final userInfo = uri.userInfo;
-      final rpcUser = userInfo.length == 2 ? userInfo[0] : '';
-      final rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
+      final queryParams = uri.queryParameters;
       final ipAddress = uri.host;
-      final port = uri.hasPort ? uri.port.toString() : '';
       final path = uri.path;
-      final queryParams = uri.queryParameters; // Currently not used
+      final userInfo = uri.userInfo;
+      var port = uri.hasPort ? uri.port.toString() : '';
+      var rpcUser = userInfo.length == 2 ? userInfo[0] : '';
+      var rpcPassword = userInfo.length == 2 ? userInfo[1] : '';
+
+      if (rpcUser.isEmpty && rpcPassword.isEmpty) {
+        rpcUser = queryParams['username'] ?? '';
+        rpcPassword = queryParams['password'] ?? '';
+      }
+
+      if (port.isEmpty) {
+        port = queryParams['port'] ?? '';
+      }
+
+      if (queryParams['protocol'] == 'https') {
+        setSSL(true);
+      }
+
+      if (queryParams['trusted'] == 'true') {
+        setTrusted(true);
+      }
 
       await Future.delayed(Duration(milliseconds: 345));
 

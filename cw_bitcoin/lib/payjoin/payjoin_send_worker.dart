@@ -6,6 +6,7 @@ import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:cw_core/utils/tor/abstract.dart';
 import 'package:payjoin_flutter/common.dart';
 import 'package:payjoin_flutter/send.dart';
 import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
@@ -26,6 +27,7 @@ class PayjoinSenderWorker {
 
   static Future<void> run(List<Object> args) async {
     await pj.core.init();
+    CakeTor.instance = await CakeTorInstance.getInstance();
 
     final sendPort = args[0] as SendPort;
     final senderJson = args[1] as String;
@@ -91,6 +93,7 @@ class PayjoinSenderWorker {
         );
         printV("$proposalPsbt");
         if (proposalPsbt != null) return proposalPsbt;
+        sleep(Duration(seconds: 2));
       }
     } catch (e) {
       rethrow;

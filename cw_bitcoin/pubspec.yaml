@@ -16,7 +16,7 @@ dependencies:
   http: ^1.1.0
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
-  intl: ^0.19.0
+  intl: any
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
@@ -42,8 +42,8 @@ dependencies:
       url: https://github.com/cake-tech/bech32.git
   payjoin_flutter:
     git:
-      url: https://github.com/OmarHatem28/payjoin-flutter
-      ref: da83a23f3a011cb49eb3b6513cd485b3fb8867ff #cake-v2
+      url: https://github.com/LtbLightning/payjoin-flutter
+      ref: 01ba81f6d9ba063fd1902a7fd1e185c2d56f6002
   ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:
@@ -84,6 +84,7 @@ dependency_overrides:
       ref: cake-update-v11
   pointycastle: 3.7.4
   ffi: 2.1.0
+  intl: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
