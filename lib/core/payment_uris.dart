@@ -301,12 +301,14 @@ class ERC681URI extends PaymentURI {
     final chainId = _getChainID(uri.path);
 
     final address = isContract ? uri.queryParameters["address"] ?? '' : targetAddress;
-    final amount = isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
+    final amountParam =
+        isContract ? uri.queryParameters["uint256"] : uri.queryParameters["value"];
 
     var formatedAmount = "";
 
-    if (amount != null) {
-      formatedAmount = formatFixed(BigInt.parse(amount), 18);
+    if (amountParam != null) {
+      final normalized = _normalizeToIntegerWei(amountParam);
+      formatedAmount = formatFixed(BigInt.parse(normalized), 18);
     } else {
       formatedAmount = uri.queryParameters["amount"] ?? "";
     }
@@ -330,5 +332,75 @@ class ERC681URI extends PaymentURI {
     final targetAddress =
         RegExp(r'^(0x)?[0-9a-f]{40}', caseSensitive: false).firstMatch(path)!.group(0)!;
     return (path.contains("/"), targetAddress);
+  }
+
+  /// Normalize an input amount into an integer wei string.
+  ///
+  /// Accepts the following forms:
+  /// - Integer string: "123000000000000000" → unchanged
+  /// - Scientific notation: "0.123e18", "1e6" → expanded to integer
+  /// - Decimal ETH: "0.123456" → shifted by 18 decimals
+  static String _normalizeToIntegerWei(String input) {
+    final raw = input.replaceAll(',', '.').trim();
+
+    // First we check if it's already a plain integer (basically just a number with no dot, no exponent)
+    final isPlainInteger = RegExp(r'^[+-]?\d+$').hasMatch(raw) &&
+        !raw.contains('.') &&
+        !raw.toLowerCase().contains('e');
+    if (isPlainInteger) return raw.replaceFirst(RegExp(r'^\+'), '');
+
+    // Then we check if it's a scientific notation
+    final sci = RegExp(r'^[+-]?(\d+\.?\d*|\d*\.?\d+)[eE][+-]?\d+$');
+    if (sci.hasMatch(raw)) {
+      final mantissaStr = raw.toLowerCase().split('e')[0];
+      final exp = int.parse(raw.toLowerCase().split('e')[1]);
+      return _expandDecimal(mantissaStr, exp);
+    }
+
+    // Lastly, we check if it's a fixed decimal ETH amount, here we shift by 18 to get wei for the amount
+    if (raw.contains('.')) {
+      return _expandDecimal(raw, 18);
+    }
+
+    // If none of these checks work, we return the raw input
+    return raw;
+  }
+
+  /// Expands a decimal string by shifting the decimal point `expShift` places
+  /// to the right and returns an integer string (digits only, optional leading minus).
+  /// Examples:
+  ///  _expandDecimal('0.123456', 18) -> '123456000000000000'
+  ///  _expandDecimal('1.2', 3) -> '1200'
+  static String _expandDecimal(String decimalStr, int expShift) {
+    var s = decimalStr.trim();
+    var sign = '';
+    if (s.startsWith('-') || s.startsWith('+')) {
+      sign = s[0] == '-' ? '-' : '';
+      s = s.substring(1);
+    }
+
+    // First we split the integer and fractional parts
+    final parts = s.split('.');
+    final intPart = parts[0].isEmpty ? '0' : parts[0];
+    final fracPart = parts.length > 1 ? parts[1] : '';
+    final digits = (intPart + fracPart).replaceFirst(RegExp(r'^0+'), '');
+    final fracLen = fracPart.length;
+
+    // Then we calculate the effective shift = desired shift minus existing fractional digits
+    final shift = expShift - fracLen;
+    if (shift >= 0) {
+      final head = digits.isEmpty ? '0' : digits;
+      final zeros = List.filled(shift, '0').join();
+      final res = head + zeros;
+      return sign + (res.isEmpty ? '0' : res);
+    } else {
+      // Need to insert a decimal point within digits; return integer by truncating
+      final cut = digits.length + shift;
+      if (cut <= 0) {
+        return '0';
+      }
+      final res = digits.substring(0, cut);
+      return sign + (res.isEmpty ? '0' : res);
+    }
   }
 }

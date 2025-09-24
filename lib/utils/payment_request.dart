@@ -42,8 +42,6 @@ class PaymentRequest {
       scheme = walletType ?? "nano";
     }
 
-
-
     if (nano != null) {
       if (amount.isNotEmpty) {
         if (address.contains("nano")) {
