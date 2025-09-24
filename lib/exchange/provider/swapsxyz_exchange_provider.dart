@@ -42,7 +42,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   bool get isEnabled => true;
 
   @override
-  bool get supportsFixedRate => false;
+  bool get supportsFixedRate => true;
 
   @override
   ExchangeProviderDescription get description =>
@@ -125,6 +125,31 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     }
   }
 
+  Future<_PathInfo?> _pickPath({
+    required int srcChainId,
+    required String srcToken,
+    required int dstChainId,
+    required String dstToken,
+  }) async {
+    final uri = Uri.https(_baseUrl, _getPaths, {
+      'srcChainId': '$srcChainId',
+      'srcToken': srcToken,
+      'dstChainId': '$dstChainId',
+      'dstToken': dstToken,
+    });
+    final res = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+    if (res.statusCode != 200) return null;
+    final body = json.decode(res.body) as Map<String, dynamic>;
+    final paths =
+        (body['paths'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+    if (paths.isEmpty) return null;
+    final p = paths.first;
+    return _PathInfo(
+      supportsExactOut: p['supportsExactAmountOut'] == true,
+      minToAmountHuman: (p['amountLimits']?['minAmount'] as String?) ?? '0',
+    );
+  }
+
   @override
   Future<double> fetchRate({
     required CryptoCurrency from,
@@ -140,24 +165,40 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
           senderAddress.isEmpty ||
           recipientAddress == null ||
           recipientAddress.isEmpty) {
-        printV(
-            'fetchRate error: senderAddress or recipientAddress is null or empty');
+        printV('fetchRate error: senderAddress or recipientAddress is null or empty');
         return 0.0;
       }
 
       final chains = await _geSupportedChain();
       if (chains.isEmpty) return 0.0;
 
-      final formattedAmount = AmountConverter.toMinimalUnits(from, amount);
-
       final srcChain = _findChainByCurrency(from, chains);
       final dstChain = _findChainByCurrency(to, chains);
 
-      await _ensureTokensCached(
-          fromChain: srcChain, toChain: dstChain, from: from, to: to);
+      await _ensureTokensCached(fromChain: srcChain, toChain: dstChain, from: from, to: to);
 
       final srcToken = _getTokenAddress(currency: from, chain: srcChain);
       final dstToken = _getTokenAddress(currency: to, chain: dstChain);
+
+      if (isReceiveAmount) {
+        final path = await _pickPath(
+          srcChainId: srcChain.chainId,
+          srcToken: srcToken,
+          dstChainId: dstChain.chainId,
+          dstToken: dstToken,
+        );
+        if (path == null || !path.supportsExactOut) {
+          printV('fetchRate: route does not support exact-amount-out for ${from.title} -> ${to.title}');
+          return 0.0;
+        }
+      }
+
+
+      final humanAmountStr = amount.toString();
+      final formattedAmount = AmountConverter.toBaseUnits(
+        humanAmountStr,
+        isReceiveAmount ? to.decimals : from.decimals,
+      );
 
       final params = {
         'actionType': 'swap-action',
@@ -167,16 +208,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         'dstChainId': '${dstChain.chainId}',
         'dstToken': dstToken,
         'slippage': '100',
-        'swapDirection':
-            isReceiveAmount ? 'exact-amount-out' : 'exact-amount-in',
+        'swapDirection': isReceiveAmount ? 'exact-amount-out' : 'exact-amount-in',
         'amount': formattedAmount,
         'recipient': recipientAddress,
       };
 
 
       final uri = Uri.https(_baseUrl, _getAction, params);
-      final response =
-          await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
       if (response.statusCode != 200) {
         printV('fetchRate failed: ${response.body}');
@@ -185,7 +224,6 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final data = json.decode(response.body) as Map<String, dynamic>;
       final exchangeRate = (data['exchangeRate'] as num?)?.toDouble() ?? 0.0;
-
       return exchangeRate;
     } catch (e) {
       printV('fetchRate error: $e');
@@ -203,17 +241,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       final sender = request.refundAddress.trim();
       final recipient = request.toAddress.trim();
       if (sender.isEmpty || recipient.isEmpty) {
-        throw Exception(
-            'Sender (refundAddress) or recipient (toAddress) is empty');
+        throw Exception('Sender (refundAddress) or recipient (toAddress) is empty');
       }
 
-      // Chains
       final chains = await _geSupportedChain();
       if (chains.isEmpty) throw Exception('Failed to fetch supported chains');
       final srcChain = _findChainByCurrency(request.fromCurrency, chains);
       final dstChain = _findChainByCurrency(request.toCurrency, chains);
 
-      // Ensure tokens cached for address/decimals lookup
       await _ensureTokensCached(
         fromChain: srcChain,
         toChain: dstChain,
@@ -221,23 +256,29 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         to: request.toCurrency,
       );
 
-      // Resolve token addresses
-      final srcToken =
-          _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
-      final dstToken =
-          _getTokenAddress(currency: request.toCurrency, chain: dstChain);
+      final srcToken = _getTokenAddress(currency: request.fromCurrency, chain: srcChain);
+      final dstToken = _getTokenAddress(currency: request.toCurrency, chain: dstChain);
 
-      final rawAmount = isFixedRateMode
-          ? double.tryParse(request.toAmount) ?? 0.0
-          : double.tryParse(request.fromAmount) ?? 0.0;
-
-      if (rawAmount <= 0) {
-        throw Exception('Invalid amount');
+      // Optional: ensure path supports exact-out before attempting fixed rate.
+      if (isFixedRateMode) {
+        final path = await _pickPath(
+          srcChainId: srcChain.chainId,
+          srcToken: srcToken,
+          dstChainId: dstChain.chainId,
+          dstToken: dstToken,
+        );
+        if (path == null || !path.supportsExactOut) {
+          throw Exception('This route does not support fixed receive (exact-amount-out)');
+        }
       }
 
-      final formattedAmount = AmountConverter.toMinimalUnits(
-        isFixedRateMode ? request.toCurrency : request.fromCurrency,
-        rawAmount,
+      final amountStr = isFixedRateMode ? request.toAmount : request.fromAmount;
+      final rawAmount = double.tryParse(amountStr) ?? 0.0;
+      if (rawAmount <= 0) throw Exception('Invalid amount');
+
+      final formattedAmount = AmountConverter.toBaseUnits(
+        amountStr,
+        isFixedRateMode ? request.toCurrency.decimals : request.fromCurrency.decimals,
       );
 
       final params = {
@@ -264,31 +305,24 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
       final txId = data['txId'] as String? ?? '';
       final vmId = data['vmId'] as String? ?? '';
-      final txObj = data['tx'] as Map? ?? const {};
-      
+      final txObj = (data['tx'] as Map?) ?? const {};
 
       final txTo = txObj['to']?.toString();
-
       final chainId = txObj['chainId']?.toString();
       final routerData = txObj['data']?.toString();
       final txValue = txObj['value']?.toString() ?? '0';
 
-      final bridgeIds = data['bridgeIds'] as List? ?? const [];
-      if (txId.isEmpty) {
-        throw Exception('No txId returned by getAction');
-      }
+      final bridgeIds = (data['bridgeIds'] as List?) ?? const [];
+      if (txId.isEmpty) throw Exception('No txId returned by getAction');
 
-      // amountIn / amountInMax for approvals
-      final amtIn = data['amountIn'] as Map? ?? const {};
+      final amtIn = (data['amountIn'] as Map?) ?? const {};
       final amtInMax = (data['amountInMax'] as Map?) ?? const {};
       final srcTokenAddr = amtIn['address']?.toString();
-      final srcTokenDecs = (amtIn['decimals'] as num?)?.toInt() ?? 18;
-
-      // required amount for approval = amountInMax.amount (fallback amountIn.amount)
+      final srcTokenDecs = (amtIn['decimals'] as num?)?.toInt() ?? request.fromCurrency.decimals;
       final requiresTokenApproval = data['requiresTokenApproval'] as bool? ?? false;
 
       final reqAmountStr = (amtInMax['amount'] ?? amtIn['amount'])?.toString() ?? '0';
-      final reqAmountRaw = reqAmountStr.replaceAll('n', ''); // store as plain string
+      final reqAmountRaw = reqAmountStr.replaceAll('n', '');
 
       final needToRegisterInSwapXyz = vmId == 'alt-vm' || bridgeIds.contains('alt-vm');
 
@@ -309,18 +343,16 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
         payoutAddress: request.toAddress,
         isSendAll: isSendAll,
         needToRegisterInSwapXyz: needToRegisterInSwapXyz,
-
         sourceTokenAddress: srcTokenAddr ?? srcToken,
         sourceTokenDecimals: srcTokenDecs,
         sourceTokenAmountRaw: reqAmountRaw,
         requiresTokenApproval: requiresTokenApproval,
         routerData: routerData,
         routerValue: txValue,
-        userCurrencyFromRaw:
-            '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
-        userCurrencyToRaw:
-            '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
+        userCurrencyFromRaw: '${request.fromCurrency.title}_${request.fromCurrency.tag ?? ''}',
+        userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
       );
+
       return trade;
     } catch (e) {
       printV('createTrade error: $e');
@@ -767,4 +799,11 @@ class Chain {
       vmId: json['vmId'] as String,
     );
   }
+}
+
+class _PathInfo {
+  final bool supportsExactOut;
+  final String minToAmountHuman;
+
+  _PathInfo({required this.supportsExactOut, required this.minToAmountHuman});
 }
