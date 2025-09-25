@@ -101,6 +101,7 @@ class StatusResponse extends $pb.GeneratedMessage {
   static StatusResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<StatusResponse>(create);
   static StatusResponse? _defaultInstance;
 
+  /// The height of the latest block.
   @$pb.TagNumber(1)
   $core.int get blockHeaderHeight => $_getIZ(0);
   @$pb.TagNumber(1)
@@ -110,6 +111,7 @@ class StatusResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearBlockHeaderHeight() => clearField(1);
 
+  /// The height of the latest MWEB header.
   @$pb.TagNumber(2)
   $core.int get mwebHeaderHeight => $_getIZ(1);
   @$pb.TagNumber(2)
@@ -119,6 +121,7 @@ class StatusResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearMwebHeaderHeight() => clearField(2);
 
+  /// The height at which the MWEB utxo set is synced to.
   @$pb.TagNumber(3)
   $core.int get mwebUtxosHeight => $_getIZ(2);
   @$pb.TagNumber(3)
@@ -128,6 +131,7 @@ class StatusResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearMwebUtxosHeight() => clearField(3);
 
+  /// The timestamp of the latest block.
   @$pb.TagNumber(4)
   $core.int get blockTime => $_getIZ(3);
   @$pb.TagNumber(4)
@@ -183,6 +187,10 @@ class UtxosRequest extends $pb.GeneratedMessage {
   static UtxosRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UtxosRequest>(create);
   static UtxosRequest? _defaultInstance;
 
+  /// The block height from which to start fetching utxos from.
+  /// After all mined utxos have been streamed, unconfirmed and
+  /// newly confirmed utxos will also be streamed. If this is set
+  /// to 0 then all utxos belonging to the account will be fetched.
   @$pb.TagNumber(1)
   $core.int get fromHeight => $_getIZ(0);
   @$pb.TagNumber(1)
@@ -192,6 +200,8 @@ class UtxosRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearFromHeight() => clearField(1);
 
+  /// The scan secret or view key represents the account for
+  /// which utxos should be streamed.
   @$pb.TagNumber(2)
   $core.List<$core.int> get scanSecret => $_getN(1);
   @$pb.TagNumber(2)
@@ -262,6 +272,7 @@ class Utxo extends $pb.GeneratedMessage {
   static Utxo getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Utxo>(create);
   static Utxo? _defaultInstance;
 
+  /// The block height of the utxo, or 0 for unconfirmed.
   @$pb.TagNumber(1)
   $core.int get height => $_getIZ(0);
   @$pb.TagNumber(1)
@@ -271,6 +282,7 @@ class Utxo extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearHeight() => clearField(1);
 
+  /// The value of the utxo in litoshis.
   @$pb.TagNumber(2)
   $fixnum.Int64 get value => $_getI64(1);
   @$pb.TagNumber(2)
@@ -280,6 +292,7 @@ class Utxo extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearValue() => clearField(2);
 
+  /// The MWEB address that the utxo was received on.
   @$pb.TagNumber(3)
   $core.String get address => $_getSZ(2);
   @$pb.TagNumber(3)
@@ -289,6 +302,8 @@ class Utxo extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearAddress() => clearField(3);
 
+  /// The output ID. This functions like a transaction hash,
+  /// but is unique to every utxo.
   @$pb.TagNumber(4)
   $core.String get outputId => $_getSZ(3);
   @$pb.TagNumber(4)
@@ -298,6 +313,7 @@ class Utxo extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   void clearOutputId() => clearField(4);
 
+  /// The timestamp of the block the utxo was mined in.
   @$pb.TagNumber(5)
   $core.int get blockTime => $_getIZ(4);
   @$pb.TagNumber(5)
@@ -363,6 +379,7 @@ class AddressRequest extends $pb.GeneratedMessage {
   static AddressRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AddressRequest>(create);
   static AddressRequest? _defaultInstance;
 
+  /// The starting index of the range.
   @$pb.TagNumber(1)
   $core.int get fromIndex => $_getIZ(0);
   @$pb.TagNumber(1)
@@ -372,6 +389,8 @@ class AddressRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearFromIndex() => clearField(1);
 
+  /// The ending index of the range. The result will contain all
+  /// addresses up to but not including this index.
   @$pb.TagNumber(2)
   $core.int get toIndex => $_getIZ(1);
   @$pb.TagNumber(2)
@@ -381,6 +400,8 @@ class AddressRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearToIndex() => clearField(2);
 
+  /// The scan secret or view key represents the account for
+  /// which addresses should be returned.
   @$pb.TagNumber(3)
   $core.List<$core.int> get scanSecret => $_getN(2);
   @$pb.TagNumber(3)
@@ -390,6 +411,9 @@ class AddressRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearScanSecret() => clearField(3);
 
+  /// The public key of the spend secret for the account. The spend
+  /// key is required for spending utxos but is also required
+  /// for generating addresses.
   @$pb.TagNumber(4)
   $core.List<$core.int> get spendPubkey => $_getN(3);
   @$pb.TagNumber(4)
@@ -440,8 +464,59 @@ class AddressResponse extends $pb.GeneratedMessage {
   static AddressResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AddressResponse>(create);
   static AddressResponse? _defaultInstance;
 
+  /// An array of MWEB addresses within the requested range.
   @$pb.TagNumber(1)
   $core.List<$core.String> get address => $_getList(0);
+}
+
+class LedgerApdu extends $pb.GeneratedMessage {
+  factory LedgerApdu({
+    $core.List<$core.int>? data,
+  }) {
+    final $result = create();
+    if (data != null) {
+      $result.data = data;
+    }
+    return $result;
+  }
+  LedgerApdu._() : super();
+  factory LedgerApdu.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory LedgerApdu.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'LedgerApdu', createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'data', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  LedgerApdu clone() => LedgerApdu()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  LedgerApdu copyWith(void Function(LedgerApdu) updates) => super.copyWith((message) => updates(message as LedgerApdu)) as LedgerApdu;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static LedgerApdu create() => LedgerApdu._();
+  LedgerApdu createEmptyInstance() => create();
+  static $pb.PbList<LedgerApdu> createRepeated() => $pb.PbList<LedgerApdu>();
+  @$core.pragma('dart2js:noInline')
+  static LedgerApdu getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<LedgerApdu>(create);
+  static LedgerApdu? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get data => $_getN(0);
+  @$pb.TagNumber(1)
+  set data($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasData() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearData() => clearField(1);
 }
 
 class SpentRequest extends $pb.GeneratedMessage {
@@ -484,6 +559,7 @@ class SpentRequest extends $pb.GeneratedMessage {
   static SpentRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SpentRequest>(create);
   static SpentRequest? _defaultInstance;
 
+  /// An array of output IDs to perform checks for.
   @$pb.TagNumber(1)
   $core.List<$core.String> get outputId => $_getList(0);
 }
@@ -528,6 +604,9 @@ class SpentResponse extends $pb.GeneratedMessage {
   static SpentResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SpentResponse>(create);
   static SpentResponse? _defaultInstance;
 
+  /// An array of the output IDs that were not found in the
+  /// unspent set. This means that the outputs are either
+  /// unconfirmed or were spent.
   @$pb.TagNumber(1)
   $core.List<$core.String> get outputId => $_getList(0);
 }
@@ -592,6 +671,16 @@ class CreateRequest extends $pb.GeneratedMessage {
   static CreateRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateRequest>(create);
   static CreateRequest? _defaultInstance;
 
+  /// The raw bytes of the serialized transaction. This will be
+  /// a template where the non-MWEB inputs will remain unchanged,
+  /// and the MWEB inputs are specified by TxIns with the outpoint
+  /// hash set to the output ID of the utxo being spent, and the
+  /// outpoint index set to the index of the address that the utxo
+  /// was received on. MWEB outputs are specified by TxOuts with
+  /// the script pubkey set to the serialized scan and spend pubkeys
+  /// of the destination MWEB address. Any non-MWEB outputs will be
+  /// transformed into MWEB peg-outs. If the transaction doesn't
+  /// contain any MWEB i/o then the result will be unchanged.
   @$pb.TagNumber(1)
   $core.List<$core.int> get rawTx => $_getN(0);
   @$pb.TagNumber(1)
@@ -601,6 +690,8 @@ class CreateRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearRawTx() => clearField(1);
 
+  /// The scan secret or view key represents the account that
+  /// the utxos being spent belong to.
   @$pb.TagNumber(2)
   $core.List<$core.int> get scanSecret => $_getN(1);
   @$pb.TagNumber(2)
@@ -610,6 +701,8 @@ class CreateRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearScanSecret() => clearField(2);
 
+  /// The spend secret is the private key necessary for spending
+  /// the utxos belonging to the account.
   @$pb.TagNumber(3)
   $core.List<$core.int> get spendSecret => $_getN(2);
   @$pb.TagNumber(3)
@@ -619,6 +712,7 @@ class CreateRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearSpendSecret() => clearField(3);
 
+  /// The fee rate per KB in litoshis.
   @$pb.TagNumber(4)
   $fixnum.Int64 get feeRatePerKb => $_getI64(3);
   @$pb.TagNumber(4)
@@ -628,6 +722,8 @@ class CreateRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   void clearFeeRatePerKb() => clearField(4);
 
+  /// Whether to skip MWEB transaction creation. This is useful
+  /// for fee estimation.
   @$pb.TagNumber(5)
   $core.bool get dryRun => $_getBF(4);
   @$pb.TagNumber(5)
@@ -683,6 +779,10 @@ class CreateResponse extends $pb.GeneratedMessage {
   static CreateResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CreateResponse>(create);
   static CreateResponse? _defaultInstance;
 
+  /// The raw bytes of the serialized transaction. It will contain
+  /// a single TxOut representing the peg-in required. From this
+  /// it is possible to determine the addtional fee that was added
+  /// by the MWEB transaction.
   @$pb.TagNumber(1)
   $core.List<$core.int> get rawTx => $_getN(0);
   @$pb.TagNumber(1)
@@ -692,8 +792,775 @@ class CreateResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearRawTx() => clearField(1);
 
+  /// The output IDs of any utxos created by the transaction,
+  /// in the same order as in the template.
   @$pb.TagNumber(2)
   $core.List<$core.String> get outputId => $_getList(1);
+}
+
+class PsbtCreateRequest extends $pb.GeneratedMessage {
+  factory PsbtCreateRequest({
+    $core.List<$core.int>? rawTx,
+    $core.Iterable<TxOut>? witnessUtxo,
+  }) {
+    final $result = create();
+    if (rawTx != null) {
+      $result.rawTx = rawTx;
+    }
+    if (witnessUtxo != null) {
+      $result.witnessUtxo.addAll(witnessUtxo);
+    }
+    return $result;
+  }
+  PsbtCreateRequest._() : super();
+  factory PsbtCreateRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtCreateRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtCreateRequest', createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'rawTx', $pb.PbFieldType.OY)
+    ..pc<TxOut>(2, _omitFieldNames ? '' : 'witnessUtxo', $pb.PbFieldType.PM, subBuilder: TxOut.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtCreateRequest clone() => PsbtCreateRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtCreateRequest copyWith(void Function(PsbtCreateRequest) updates) => super.copyWith((message) => updates(message as PsbtCreateRequest)) as PsbtCreateRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtCreateRequest create() => PsbtCreateRequest._();
+  PsbtCreateRequest createEmptyInstance() => create();
+  static $pb.PbList<PsbtCreateRequest> createRepeated() => $pb.PbList<PsbtCreateRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtCreateRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtCreateRequest>(create);
+  static PsbtCreateRequest? _defaultInstance;
+
+  /// The raw bytes of the serialized transaction.
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get rawTx => $_getN(0);
+  @$pb.TagNumber(1)
+  set rawTx($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRawTx() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRawTx() => clearField(1);
+
+  /// Witness utxos for each input.
+  @$pb.TagNumber(2)
+  $core.List<TxOut> get witnessUtxo => $_getList(1);
+}
+
+class TxOut extends $pb.GeneratedMessage {
+  factory TxOut({
+    $fixnum.Int64? value,
+    $core.List<$core.int>? pkScript,
+  }) {
+    final $result = create();
+    if (value != null) {
+      $result.value = value;
+    }
+    if (pkScript != null) {
+      $result.pkScript = pkScript;
+    }
+    return $result;
+  }
+  TxOut._() : super();
+  factory TxOut.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory TxOut.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TxOut', createEmptyInstance: create)
+    ..aInt64(1, _omitFieldNames ? '' : 'value')
+    ..a<$core.List<$core.int>>(2, _omitFieldNames ? '' : 'pkScript', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  TxOut clone() => TxOut()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  TxOut copyWith(void Function(TxOut) updates) => super.copyWith((message) => updates(message as TxOut)) as TxOut;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static TxOut create() => TxOut._();
+  TxOut createEmptyInstance() => create();
+  static $pb.PbList<TxOut> createRepeated() => $pb.PbList<TxOut>();
+  @$core.pragma('dart2js:noInline')
+  static TxOut getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TxOut>(create);
+  static TxOut? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $fixnum.Int64 get value => $_getI64(0);
+  @$pb.TagNumber(1)
+  set value($fixnum.Int64 v) { $_setInt64(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasValue() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearValue() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get pkScript => $_getN(1);
+  @$pb.TagNumber(2)
+  set pkScript($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasPkScript() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPkScript() => clearField(2);
+}
+
+class PsbtResponse extends $pb.GeneratedMessage {
+  factory PsbtResponse({
+    $core.String? psbtB64,
+  }) {
+    final $result = create();
+    if (psbtB64 != null) {
+      $result.psbtB64 = psbtB64;
+    }
+    return $result;
+  }
+  PsbtResponse._() : super();
+  factory PsbtResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtResponse', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtResponse clone() => PsbtResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtResponse copyWith(void Function(PsbtResponse) updates) => super.copyWith((message) => updates(message as PsbtResponse)) as PsbtResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtResponse create() => PsbtResponse._();
+  PsbtResponse createEmptyInstance() => create();
+  static $pb.PbList<PsbtResponse> createRepeated() => $pb.PbList<PsbtResponse>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtResponse>(create);
+  static PsbtResponse? _defaultInstance;
+
+  /// The PSBT in base64 encoding.
+  @$pb.TagNumber(1)
+  $core.String get psbtB64 => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set psbtB64($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPsbtB64() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPsbtB64() => clearField(1);
+}
+
+class PsbtAddInputRequest extends $pb.GeneratedMessage {
+  factory PsbtAddInputRequest({
+    $core.String? psbtB64,
+    $core.List<$core.int>? scanSecret,
+    $core.String? outputId,
+    $core.int? addressIndex,
+  }) {
+    final $result = create();
+    if (psbtB64 != null) {
+      $result.psbtB64 = psbtB64;
+    }
+    if (scanSecret != null) {
+      $result.scanSecret = scanSecret;
+    }
+    if (outputId != null) {
+      $result.outputId = outputId;
+    }
+    if (addressIndex != null) {
+      $result.addressIndex = addressIndex;
+    }
+    return $result;
+  }
+  PsbtAddInputRequest._() : super();
+  factory PsbtAddInputRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtAddInputRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtAddInputRequest', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
+    ..a<$core.List<$core.int>>(2, _omitFieldNames ? '' : 'scanSecret', $pb.PbFieldType.OY)
+    ..aOS(3, _omitFieldNames ? '' : 'outputId')
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'addressIndex', $pb.PbFieldType.OU3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtAddInputRequest clone() => PsbtAddInputRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtAddInputRequest copyWith(void Function(PsbtAddInputRequest) updates) => super.copyWith((message) => updates(message as PsbtAddInputRequest)) as PsbtAddInputRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtAddInputRequest create() => PsbtAddInputRequest._();
+  PsbtAddInputRequest createEmptyInstance() => create();
+  static $pb.PbList<PsbtAddInputRequest> createRepeated() => $pb.PbList<PsbtAddInputRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtAddInputRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtAddInputRequest>(create);
+  static PsbtAddInputRequest? _defaultInstance;
+
+  /// The PSBT in base64 encoding.
+  @$pb.TagNumber(1)
+  $core.String get psbtB64 => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set psbtB64($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPsbtB64() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPsbtB64() => clearField(1);
+
+  /// The scan secret or view key represents the account that
+  /// the utxos being spent belong to.
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get scanSecret => $_getN(1);
+  @$pb.TagNumber(2)
+  set scanSecret($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasScanSecret() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearScanSecret() => clearField(2);
+
+  /// The output ID of the utxo.
+  @$pb.TagNumber(3)
+  $core.String get outputId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set outputId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasOutputId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearOutputId() => clearField(3);
+
+  /// The address index of the utxo.
+  @$pb.TagNumber(4)
+  $core.int get addressIndex => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set addressIndex($core.int v) { $_setUnsignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasAddressIndex() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearAddressIndex() => clearField(4);
+}
+
+class PsbtAddRecipientRequest extends $pb.GeneratedMessage {
+  factory PsbtAddRecipientRequest({
+    $core.String? psbtB64,
+    PsbtRecipient? recipient,
+    $fixnum.Int64? feeRatePerKb,
+  }) {
+    final $result = create();
+    if (psbtB64 != null) {
+      $result.psbtB64 = psbtB64;
+    }
+    if (recipient != null) {
+      $result.recipient = recipient;
+    }
+    if (feeRatePerKb != null) {
+      $result.feeRatePerKb = feeRatePerKb;
+    }
+    return $result;
+  }
+  PsbtAddRecipientRequest._() : super();
+  factory PsbtAddRecipientRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtAddRecipientRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtAddRecipientRequest', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
+    ..aOM<PsbtRecipient>(2, _omitFieldNames ? '' : 'recipient', subBuilder: PsbtRecipient.create)
+    ..a<$fixnum.Int64>(3, _omitFieldNames ? '' : 'feeRatePerKb', $pb.PbFieldType.OU6, defaultOrMaker: $fixnum.Int64.ZERO)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtAddRecipientRequest clone() => PsbtAddRecipientRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtAddRecipientRequest copyWith(void Function(PsbtAddRecipientRequest) updates) => super.copyWith((message) => updates(message as PsbtAddRecipientRequest)) as PsbtAddRecipientRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtAddRecipientRequest create() => PsbtAddRecipientRequest._();
+  PsbtAddRecipientRequest createEmptyInstance() => create();
+  static $pb.PbList<PsbtAddRecipientRequest> createRepeated() => $pb.PbList<PsbtAddRecipientRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtAddRecipientRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtAddRecipientRequest>(create);
+  static PsbtAddRecipientRequest? _defaultInstance;
+
+  /// The PSBT in base64 encoding.
+  @$pb.TagNumber(1)
+  $core.String get psbtB64 => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set psbtB64($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPsbtB64() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPsbtB64() => clearField(1);
+
+  @$pb.TagNumber(2)
+  PsbtRecipient get recipient => $_getN(1);
+  @$pb.TagNumber(2)
+  set recipient(PsbtRecipient v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasRecipient() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRecipient() => clearField(2);
+  @$pb.TagNumber(2)
+  PsbtRecipient ensureRecipient() => $_ensure(1);
+
+  /// The fee rate per KB in litoshis.
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get feeRatePerKb => $_getI64(2);
+  @$pb.TagNumber(3)
+  set feeRatePerKb($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFeeRatePerKb() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFeeRatePerKb() => clearField(3);
+}
+
+class PsbtGetRecipientsRequest extends $pb.GeneratedMessage {
+  factory PsbtGetRecipientsRequest({
+    $core.String? psbtB64,
+  }) {
+    final $result = create();
+    if (psbtB64 != null) {
+      $result.psbtB64 = psbtB64;
+    }
+    return $result;
+  }
+  PsbtGetRecipientsRequest._() : super();
+  factory PsbtGetRecipientsRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtGetRecipientsRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtGetRecipientsRequest', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtGetRecipientsRequest clone() => PsbtGetRecipientsRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtGetRecipientsRequest copyWith(void Function(PsbtGetRecipientsRequest) updates) => super.copyWith((message) => updates(message as PsbtGetRecipientsRequest)) as PsbtGetRecipientsRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtGetRecipientsRequest create() => PsbtGetRecipientsRequest._();
+  PsbtGetRecipientsRequest createEmptyInstance() => create();
+  static $pb.PbList<PsbtGetRecipientsRequest> createRepeated() => $pb.PbList<PsbtGetRecipientsRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtGetRecipientsRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtGetRecipientsRequest>(create);
+  static PsbtGetRecipientsRequest? _defaultInstance;
+
+  /// The PSBT in base64 encoding.
+  @$pb.TagNumber(1)
+  $core.String get psbtB64 => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set psbtB64($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPsbtB64() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPsbtB64() => clearField(1);
+}
+
+class PsbtGetRecipientsResponse extends $pb.GeneratedMessage {
+  factory PsbtGetRecipientsResponse({
+    $core.Iterable<PsbtRecipient>? recipient,
+    $core.Iterable<$core.String>? inputAddress,
+    $fixnum.Int64? fee,
+  }) {
+    final $result = create();
+    if (recipient != null) {
+      $result.recipient.addAll(recipient);
+    }
+    if (inputAddress != null) {
+      $result.inputAddress.addAll(inputAddress);
+    }
+    if (fee != null) {
+      $result.fee = fee;
+    }
+    return $result;
+  }
+  PsbtGetRecipientsResponse._() : super();
+  factory PsbtGetRecipientsResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtGetRecipientsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtGetRecipientsResponse', createEmptyInstance: create)
+    ..pc<PsbtRecipient>(1, _omitFieldNames ? '' : 'recipient', $pb.PbFieldType.PM, subBuilder: PsbtRecipient.create)
+    ..pPS(2, _omitFieldNames ? '' : 'inputAddress')
+    ..aInt64(3, _omitFieldNames ? '' : 'fee')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtGetRecipientsResponse clone() => PsbtGetRecipientsResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtGetRecipientsResponse copyWith(void Function(PsbtGetRecipientsResponse) updates) => super.copyWith((message) => updates(message as PsbtGetRecipientsResponse)) as PsbtGetRecipientsResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtGetRecipientsResponse create() => PsbtGetRecipientsResponse._();
+  PsbtGetRecipientsResponse createEmptyInstance() => create();
+  static $pb.PbList<PsbtGetRecipientsResponse> createRepeated() => $pb.PbList<PsbtGetRecipientsResponse>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtGetRecipientsResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtGetRecipientsResponse>(create);
+  static PsbtGetRecipientsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<PsbtRecipient> get recipient => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.List<$core.String> get inputAddress => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get fee => $_getI64(2);
+  @$pb.TagNumber(3)
+  set fee($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasFee() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFee() => clearField(3);
+}
+
+class PsbtRecipient extends $pb.GeneratedMessage {
+  factory PsbtRecipient({
+    $core.String? address,
+    $fixnum.Int64? value,
+  }) {
+    final $result = create();
+    if (address != null) {
+      $result.address = address;
+    }
+    if (value != null) {
+      $result.value = value;
+    }
+    return $result;
+  }
+  PsbtRecipient._() : super();
+  factory PsbtRecipient.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtRecipient.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtRecipient', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'address')
+    ..aInt64(2, _omitFieldNames ? '' : 'value')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtRecipient clone() => PsbtRecipient()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtRecipient copyWith(void Function(PsbtRecipient) updates) => super.copyWith((message) => updates(message as PsbtRecipient)) as PsbtRecipient;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtRecipient create() => PsbtRecipient._();
+  PsbtRecipient createEmptyInstance() => create();
+  static $pb.PbList<PsbtRecipient> createRepeated() => $pb.PbList<PsbtRecipient>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtRecipient getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtRecipient>(create);
+  static PsbtRecipient? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get address => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set address($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasAddress() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAddress() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get value => $_getI64(1);
+  @$pb.TagNumber(2)
+  set value($fixnum.Int64 v) { $_setInt64(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasValue() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearValue() => clearField(2);
+}
+
+class PsbtSignRequest extends $pb.GeneratedMessage {
+  factory PsbtSignRequest({
+    $core.String? psbtB64,
+    $core.List<$core.int>? scanSecret,
+    $core.List<$core.int>? spendSecret,
+  }) {
+    final $result = create();
+    if (psbtB64 != null) {
+      $result.psbtB64 = psbtB64;
+    }
+    if (scanSecret != null) {
+      $result.scanSecret = scanSecret;
+    }
+    if (spendSecret != null) {
+      $result.spendSecret = spendSecret;
+    }
+    return $result;
+  }
+  PsbtSignRequest._() : super();
+  factory PsbtSignRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtSignRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtSignRequest', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
+    ..a<$core.List<$core.int>>(2, _omitFieldNames ? '' : 'scanSecret', $pb.PbFieldType.OY)
+    ..a<$core.List<$core.int>>(3, _omitFieldNames ? '' : 'spendSecret', $pb.PbFieldType.OY)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtSignRequest clone() => PsbtSignRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtSignRequest copyWith(void Function(PsbtSignRequest) updates) => super.copyWith((message) => updates(message as PsbtSignRequest)) as PsbtSignRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtSignRequest create() => PsbtSignRequest._();
+  PsbtSignRequest createEmptyInstance() => create();
+  static $pb.PbList<PsbtSignRequest> createRepeated() => $pb.PbList<PsbtSignRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtSignRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtSignRequest>(create);
+  static PsbtSignRequest? _defaultInstance;
+
+  /// The PSBT in base64 encoding.
+  @$pb.TagNumber(1)
+  $core.String get psbtB64 => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set psbtB64($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPsbtB64() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPsbtB64() => clearField(1);
+
+  /// The scan secret or view key represents the account that
+  /// the utxos being spent belong to.
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get scanSecret => $_getN(1);
+  @$pb.TagNumber(2)
+  set scanSecret($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasScanSecret() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearScanSecret() => clearField(2);
+
+  /// The spend secret is the private key necessary for spending
+  /// the utxos belonging to the account.
+  @$pb.TagNumber(3)
+  $core.List<$core.int> get spendSecret => $_getN(2);
+  @$pb.TagNumber(3)
+  set spendSecret($core.List<$core.int> v) { $_setBytes(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasSpendSecret() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearSpendSecret() => clearField(3);
+}
+
+class PsbtSignNonMwebRequest extends $pb.GeneratedMessage {
+  factory PsbtSignNonMwebRequest({
+    $core.String? psbtB64,
+    $core.List<$core.int>? privKey,
+    $core.int? index,
+  }) {
+    final $result = create();
+    if (psbtB64 != null) {
+      $result.psbtB64 = psbtB64;
+    }
+    if (privKey != null) {
+      $result.privKey = privKey;
+    }
+    if (index != null) {
+      $result.index = index;
+    }
+    return $result;
+  }
+  PsbtSignNonMwebRequest._() : super();
+  factory PsbtSignNonMwebRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtSignNonMwebRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtSignNonMwebRequest', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
+    ..a<$core.List<$core.int>>(2, _omitFieldNames ? '' : 'privKey', $pb.PbFieldType.OY)
+    ..a<$core.int>(3, _omitFieldNames ? '' : 'index', $pb.PbFieldType.OU3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtSignNonMwebRequest clone() => PsbtSignNonMwebRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtSignNonMwebRequest copyWith(void Function(PsbtSignNonMwebRequest) updates) => super.copyWith((message) => updates(message as PsbtSignNonMwebRequest)) as PsbtSignNonMwebRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtSignNonMwebRequest create() => PsbtSignNonMwebRequest._();
+  PsbtSignNonMwebRequest createEmptyInstance() => create();
+  static $pb.PbList<PsbtSignNonMwebRequest> createRepeated() => $pb.PbList<PsbtSignNonMwebRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtSignNonMwebRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtSignNonMwebRequest>(create);
+  static PsbtSignNonMwebRequest? _defaultInstance;
+
+  /// The PSBT in base64 encoding.
+  @$pb.TagNumber(1)
+  $core.String get psbtB64 => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set psbtB64($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPsbtB64() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPsbtB64() => clearField(1);
+
+  /// The private key necessary for spending the input.
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get privKey => $_getN(1);
+  @$pb.TagNumber(2)
+  set privKey($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasPrivKey() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPrivKey() => clearField(2);
+
+  /// The index of the input to sign.
+  @$pb.TagNumber(3)
+  $core.int get index => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set index($core.int v) { $_setUnsignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasIndex() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearIndex() => clearField(3);
+}
+
+class PsbtExtractRequest extends $pb.GeneratedMessage {
+  factory PsbtExtractRequest({
+    $core.String? psbtB64,
+    $core.bool? unsigned,
+  }) {
+    final $result = create();
+    if (psbtB64 != null) {
+      $result.psbtB64 = psbtB64;
+    }
+    if (unsigned != null) {
+      $result.unsigned = unsigned;
+    }
+    return $result;
+  }
+  PsbtExtractRequest._() : super();
+  factory PsbtExtractRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PsbtExtractRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PsbtExtractRequest', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'psbtB64')
+    ..aOB(2, _omitFieldNames ? '' : 'unsigned')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  PsbtExtractRequest clone() => PsbtExtractRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  PsbtExtractRequest copyWith(void Function(PsbtExtractRequest) updates) => super.copyWith((message) => updates(message as PsbtExtractRequest)) as PsbtExtractRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PsbtExtractRequest create() => PsbtExtractRequest._();
+  PsbtExtractRequest createEmptyInstance() => create();
+  static $pb.PbList<PsbtExtractRequest> createRepeated() => $pb.PbList<PsbtExtractRequest>();
+  @$core.pragma('dart2js:noInline')
+  static PsbtExtractRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PsbtExtractRequest>(create);
+  static PsbtExtractRequest? _defaultInstance;
+
+  /// The PSBT in base64 encoding.
+  @$pb.TagNumber(1)
+  $core.String get psbtB64 => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set psbtB64($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasPsbtB64() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPsbtB64() => clearField(1);
+
+  /// Extract the unsigned transaction.
+  @$pb.TagNumber(2)
+  $core.bool get unsigned => $_getBF(1);
+  @$pb.TagNumber(2)
+  set unsigned($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasUnsigned() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUnsigned() => clearField(2);
 }
 
 class BroadcastRequest extends $pb.GeneratedMessage {
@@ -736,6 +1603,7 @@ class BroadcastRequest extends $pb.GeneratedMessage {
   static BroadcastRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BroadcastRequest>(create);
   static BroadcastRequest? _defaultInstance;
 
+  /// The raw bytes of the serialized transaction.
   @$pb.TagNumber(1)
   $core.List<$core.int> get rawTx => $_getN(0);
   @$pb.TagNumber(1)
@@ -786,6 +1654,7 @@ class BroadcastResponse extends $pb.GeneratedMessage {
   static BroadcastResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<BroadcastResponse>(create);
   static BroadcastResponse? _defaultInstance;
 
+  /// The transaction ID.
   @$pb.TagNumber(1)
   $core.String get txid => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -794,6 +1663,155 @@ class BroadcastResponse extends $pb.GeneratedMessage {
   $core.bool hasTxid() => $_has(0);
   @$pb.TagNumber(1)
   void clearTxid() => clearField(1);
+}
+
+class CoinswapRequest extends $pb.GeneratedMessage {
+  factory CoinswapRequest({
+    $core.List<$core.int>? scanSecret,
+    $core.List<$core.int>? spendSecret,
+    $core.String? outputId,
+    $core.int? addrIndex,
+  }) {
+    final $result = create();
+    if (scanSecret != null) {
+      $result.scanSecret = scanSecret;
+    }
+    if (spendSecret != null) {
+      $result.spendSecret = spendSecret;
+    }
+    if (outputId != null) {
+      $result.outputId = outputId;
+    }
+    if (addrIndex != null) {
+      $result.addrIndex = addrIndex;
+    }
+    return $result;
+  }
+  CoinswapRequest._() : super();
+  factory CoinswapRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CoinswapRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CoinswapRequest', createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'scanSecret', $pb.PbFieldType.OY)
+    ..a<$core.List<$core.int>>(2, _omitFieldNames ? '' : 'spendSecret', $pb.PbFieldType.OY)
+    ..aOS(3, _omitFieldNames ? '' : 'outputId')
+    ..a<$core.int>(4, _omitFieldNames ? '' : 'addrIndex', $pb.PbFieldType.OU3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CoinswapRequest clone() => CoinswapRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CoinswapRequest copyWith(void Function(CoinswapRequest) updates) => super.copyWith((message) => updates(message as CoinswapRequest)) as CoinswapRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CoinswapRequest create() => CoinswapRequest._();
+  CoinswapRequest createEmptyInstance() => create();
+  static $pb.PbList<CoinswapRequest> createRepeated() => $pb.PbList<CoinswapRequest>();
+  @$core.pragma('dart2js:noInline')
+  static CoinswapRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CoinswapRequest>(create);
+  static CoinswapRequest? _defaultInstance;
+
+  /// The scan secret or view key represents the account that
+  /// the utxo belongs to.
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get scanSecret => $_getN(0);
+  @$pb.TagNumber(1)
+  set scanSecret($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasScanSecret() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearScanSecret() => clearField(1);
+
+  /// The spend secret is the private key necessary for spending
+  /// the utxos belonging to the account.
+  @$pb.TagNumber(2)
+  $core.List<$core.int> get spendSecret => $_getN(1);
+  @$pb.TagNumber(2)
+  set spendSecret($core.List<$core.int> v) { $_setBytes(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSpendSecret() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSpendSecret() => clearField(2);
+
+  /// Output ID of the utxo to request a coinswap for.
+  @$pb.TagNumber(3)
+  $core.String get outputId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set outputId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasOutputId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearOutputId() => clearField(3);
+
+  /// Address index of the utxo.
+  @$pb.TagNumber(4)
+  $core.int get addrIndex => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set addrIndex($core.int v) { $_setUnsignedInt32(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasAddrIndex() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearAddrIndex() => clearField(4);
+}
+
+class CoinswapResponse extends $pb.GeneratedMessage {
+  factory CoinswapResponse({
+    $core.String? outputId,
+  }) {
+    final $result = create();
+    if (outputId != null) {
+      $result.outputId = outputId;
+    }
+    return $result;
+  }
+  CoinswapResponse._() : super();
+  factory CoinswapResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory CoinswapResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CoinswapResponse', createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'outputId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  CoinswapResponse clone() => CoinswapResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  CoinswapResponse copyWith(void Function(CoinswapResponse) updates) => super.copyWith((message) => updates(message as CoinswapResponse)) as CoinswapResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CoinswapResponse create() => CoinswapResponse._();
+  CoinswapResponse createEmptyInstance() => create();
+  static $pb.PbList<CoinswapResponse> createRepeated() => $pb.PbList<CoinswapResponse>();
+  @$core.pragma('dart2js:noInline')
+  static CoinswapResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CoinswapResponse>(create);
+  static CoinswapResponse? _defaultInstance;
+
+  /// Output ID of the utxo created by the transaction.
+  @$pb.TagNumber(1)
+  $core.String get outputId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set outputId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasOutputId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearOutputId() => clearField(1);
 }
 
 
