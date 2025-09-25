@@ -2,6 +2,8 @@ module github.com/cake-tech/cake_wallet/cw_mweb/go
 
 go 1.24.2
 
+require github.com/ltcmweb/mwebd v0.1.16
+
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
@@ -23,10 +25,9 @@ require (
 	github.com/kkdai/bstream v1.0.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/ltcmweb/coinswapd v0.1.0 // indirect
-	github.com/ltcmweb/ltcd v0.25.6 // indirect
+	github.com/ltcmweb/ltcd v0.25.11 // indirect
 	github.com/ltcmweb/ltcd/btcec/v2 v2.3.3 // indirect
 	github.com/ltcmweb/ltcd/chaincfg/chainhash v1.0.3 // indirect
-	github.com/ltcmweb/mwebd v0.1.8 // indirect
 	github.com/ltcmweb/neutrino v0.17.4 // indirect
 	github.com/ltcmweb/neutrino/cache v1.1.0 // indirect
 	github.com/ltcmweb/secp256k1 v0.1.1 // indirect
@@ -37,14 +38,14 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	go.etcd.io/bbolt v1.3.10 // indirect
-	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
-	golang.org/x/net v0.35.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240509183442-62759503f434 // indirect
-	google.golang.org/grpc v1.63.2 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
+	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
+	google.golang.org/grpc v1.75.0 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	lukechampine.com/blake3 v1.3.0 // indirect
 )
