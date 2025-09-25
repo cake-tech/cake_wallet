@@ -4,6 +4,8 @@ go 1.24.1
 
 require github.com/ltcmweb/mwebd v0.1.16
 
+require github.com/ltcmweb/mwebd v0.1.16
+
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect

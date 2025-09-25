@@ -4,8 +4,8 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_mweb/mweb_ffi.dart';
+import 'package:cw_mweb/print_verbose.dart';
 import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'mwebd.pbgrpc.dart';
@@ -246,5 +246,16 @@ class CwMweb {
     log("mweb.psbtExtract() called");
     _rpcClient = await stub();
     return await _rpcClient!.psbtExtract(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+  static Future<PsbtResponse> psbtSign(PsbtSignRequest request) async {
+    printV("mweb.psbtSign() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtSign(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtSignNonMweb(PsbtSignNonMwebRequest request) async {
+    printV("mweb.psbtSignNonMweb() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtSignNonMweb(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
 }
