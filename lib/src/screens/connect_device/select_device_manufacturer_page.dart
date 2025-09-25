@@ -34,11 +34,11 @@ class SelectDeviceManufacturerPage extends BasePage {
           image: SvgPicture.asset('assets/images/hardware_wallet/ledger_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.ledger,
         ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
-          hardwareWalletType: HardwareWalletType.bitbox,
-          tag: S.current.new_tag,
-        ),
+        // _DeviceManufacturer(
+        //   image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
+        //   hardwareWalletType: HardwareWalletType.bitbox,
+        //   tag: S.current.new_tag,
+        // ),
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/cupcake_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.cupcake,
@@ -63,6 +63,11 @@ class SelectDeviceManufacturerPage extends BasePage {
   List<_DeviceManufacturer> get comingManufacturers => [
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/trezor_man.svg', height: 25),
+          tag: S.current.coming_soon_tag,
+        ),
+        _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
+          hardwareWalletType: HardwareWalletType.bitbox,
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
