@@ -27,6 +27,22 @@ class CWBitcoin extends Bitcoin {
       BitcoinWalletFromKeysCredentials(name: name, password: password, xpub: xpub);
 
   @override
+  WalletCredentials createLitecoinWalletFromKeys({
+    required String name,
+    required String password,
+    required String xpub,
+    required String scanSecret,
+    required String spendPubkey,
+  }) =>
+      LitecoinWalletFromKeysCredentials(
+        name: name,
+        password: password,
+        xpub: xpub,
+        scanSecret: scanSecret,
+        spendPubkey: spendPubkey,
+      );
+
+  @override
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials(
           {required String name,
           required String password,
@@ -766,6 +782,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<void> commitPsbtUR(Object wallet, List<String> urCodes) {
+    if (wallet is LitecoinWallet) return wallet.commitPsbtUR(urCodes);
     final _wallet = wallet as BitcoinWalletBase;
     return _wallet.commitPsbtUR(urCodes);
   }
