@@ -452,36 +452,25 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
 
     final txHash = srcTransaction?['txHash'] as String?;
 
-    String _fromMinimalToDecimal(String raw, int decimals) {
-      // BigInt division -> decimal string without trailing zeros
-      final bi = BigInt.tryParse(raw) ?? BigInt.zero;
-      if (decimals == 0) return bi.toString();
-      final neg = bi.isNegative ? '-' : '';
-      final s = bi.abs().toString().padLeft(decimals + 1, '0');
-      final whole = s.substring(0, s.length - decimals);
-      final frac = s.substring(s.length - decimals);
-      final fracTrim = frac.replaceFirst(RegExp(r'0+$'), '');
-      return fracTrim.isEmpty ? '$neg$whole' : '$neg$whole.$fracTrim';
-    }
-
     // Minimal-unit amounts like "12000n"
-
     final srcAmountRaw = srcPaymentToken?['amount']?.toString();
     final dstAmountRaw = dstPaymentToken?['amount']?.toString();
     final srcAmountMinimal = _stripN(srcAmountRaw);
     final dstAmountMinimal = _stripN(dstAmountRaw);
 
-    final amount = _fromMinimalToDecimal(srcAmountMinimal, srcDecimals);
-    final receiveAmount = _fromMinimalToDecimal(dstAmountMinimal, dstDecimals);
+    final amount        = AmountConverter.fromBaseUnits(srcAmountMinimal, srcDecimals);
+    final receiveAmount = AmountConverter.fromBaseUnits(dstAmountMinimal, dstDecimals);
 
     final fromCurrency = CryptoCurrency.safeParseCurrencyFromString(fromSymbol);
     final toCurrency = CryptoCurrency.safeParseCurrencyFromString(toSymbol);
 
-    final timestamp = (srcTransaction?['timestamp'] as num?)?.toInt() ??
-        (dstTransaction?['timestamp'] as num?)?.toInt();
+    // Timestamps can be num or "123n"  handle both
+    final srcTs = _parseUnixSeconds(srcTransaction?['timestamp']);
+    final dstTs = _parseUnixSeconds(dstTransaction?['timestamp']);
+    final timestamp = srcTs ?? dstTs;
+
     final createdAt = timestamp != null
-        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true)
-            .toLocal()
+        ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000, isUtc: true).toLocal()
         : null;
 
     return Trade(
@@ -749,6 +738,16 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'TON' => 'TONCOIN',
       _ => network.toUpperCase(),
     };
+  }
+
+  int? _parseUnixSeconds(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toInt();
+    if (value is String) {
+      final clean = _stripN(value);
+      return int.tryParse(clean);
+    }
+    return null;
   }
 
   String _stripN(String? str) {
