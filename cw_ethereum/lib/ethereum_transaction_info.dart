@@ -14,6 +14,7 @@ class EthereumTransactionInfo extends EVMChainTransactionInfo {
     required super.confirmations,
     required super.to,
     required super.from,
+    super.contractAddress,
     super.evmSignatureName,
     super.exponent,
   });
@@ -33,6 +34,7 @@ class EthereumTransactionInfo extends EVMChainTransactionInfo {
       to: data['to'],
       from: data['from'],
       evmSignatureName: data['evmSignatureName'],
+      contractAddress: data['contractAddress'],
     );
   }
 

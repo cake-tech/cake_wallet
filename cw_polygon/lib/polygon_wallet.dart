@@ -102,6 +102,7 @@ class PolygonWallet extends EVMChainWallet {
       tokenSymbol: transactionModel.tokenSymbol ?? "MATIC",
       to: transactionModel.to,
       from: transactionModel.from,
+      contractAddress: transactionModel.contractAddress,
     );
     return model;
   }
