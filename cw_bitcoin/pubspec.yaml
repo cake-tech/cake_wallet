@@ -35,15 +35,15 @@ dependencies:
   grpc: ^4.0.1
   sp_scanner:
     git:
-      url: https://github.com/cake-tech/sp_scanner
-      ref: sp_v4.0.0
+      url: https://github.com/konstantinullrich/sp_scanner
+      ref: sp_v4.0.1
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
   payjoin_flutter:
     git:
-      url: https://github.com/LtbLightning/payjoin-flutter
-      ref: 01ba81f6d9ba063fd1902a7fd1e185c2d56f6002
+      url: https://github.com/konstantinullrich/payjoin-flutter
+      ref: cake-v3
   ledger_flutter_plus: ^1.4.1
   ledger_bitcoin:
     git:
