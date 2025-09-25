@@ -2,8 +2,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_mweb/generated_bindings.g.dart';
+import 'package:cw_mweb/print_verbose.dart';
 import 'package:ffi/ffi.dart';
 
 String libPath = (() {
