@@ -35,7 +35,7 @@ dependencies:
   grpc: ^4.0.1
   sp_scanner:
     git:
-      url: https://github.com/konstantinullrich/sp_scanner
+      url: https://github.com/cake-tech/sp_scanner
       ref: sp_v4.0.1
   bech32:
     git:
