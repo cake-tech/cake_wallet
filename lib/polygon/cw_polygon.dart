@@ -207,19 +207,18 @@ class CWPolygon extends Polygon {
   }
 
   @override
-  Future<List<HardwareAccountData>> getHardwareWalletAccounts(
-    LedgerViewModel ledgerVM, {
-    int index = 0,
-    int limit = 5,
-  }) async {
-    final hardwareWalletService = EVMChainHardwareWalletService(ledgerVM.connection);
-    try {
-      return await hardwareWalletService.getAvailableAccounts(index: index, limit: limit);
-    } catch (err) {
-      printV(err);
-      throw err;
-    }
+  void setBitboxManager(WalletBase wallet, bitbox.BitboxManager manager) {
+    ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
+        .setBitbox(manager, wallet.walletInfo.derivationInfo?.derivationPath);
   }
+
+  @override
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
+      EVMChainLedgerService(connection);
+
+  @override
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager) =>
+      EVMChainBitboxService(manager, chainId: 137);
 
   @override
   List<String> getDefaultTokenContractAddresses() =>
