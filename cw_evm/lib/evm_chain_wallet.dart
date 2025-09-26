@@ -490,7 +490,9 @@ abstract class EVMChainWalletBase
 
       final totalOriginalAmount = EVMChainFormatter.parseEVMChainAmountToDouble(
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-      totalAmount = parseFixed(totalOriginalAmount.toString(), exponent);
+
+      totalAmount = parseFixed(
+          EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -512,7 +514,8 @@ abstract class EVMChainWalletBase
         final totalOriginalAmount =
             EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
 
-        totalAmount =  parseFixed(totalOriginalAmount.toString(), exponent);
+        totalAmount = parseFixed(
+            EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {

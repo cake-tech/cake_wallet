@@ -708,7 +708,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                 final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) *
                     (double.tryParse(request.fromAmount) ?? 0.00);
 
-                if (destinationAmount > 2000 || sendingAmount > 2000) {
+                if (destinationAmount > 5000 || sendingAmount > 5000) {
                   continue;
                 }
               }
