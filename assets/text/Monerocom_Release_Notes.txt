@@ -1,4 +1,3 @@
-Better support for embedded Tor
-Improve sending and swapping flow
-Enhance payment scanning
+Connectivity improvements
+UI enhancements
 Bug fixes
