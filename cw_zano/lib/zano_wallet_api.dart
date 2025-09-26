@@ -238,16 +238,22 @@ mixin ZanoWalletApi {
       printV('get_asset_info empty result');
       return null;
     }
-    final map = jsonDecode(result.body) as Map<String, dynamic>?;
-    if (map!['error'] != null) {
-      printV('get_asset_info $assetId error ${map['error']!['code']} ${map['error']!['message']}');
-      return null;
-    } else if (map['result']!['status']! == 'OK') {
-      final assetDescriptor = ZanoAsset.fromJson(map['result']!['asset_descriptor']! as Map<String, dynamic>);
-      printV('get_asset_info $assetId ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
-      return assetDescriptor;
-    } else {
-      printV('get_asset_info $assetId status ${map['result']!['status']!}');
+    try {
+      final map = jsonDecode(result.body) as Map<String, dynamic>?;
+      if (map!['error'] != null) {
+        printV(
+            'get_asset_info $assetId error ${map['error']!['code']} ${map['error']!['message']}');
+        return null;
+      } else if (map['result']!['status']! == 'OK') {
+        final assetDescriptor = ZanoAsset.fromJson(
+            map['result']!['asset_descriptor']! as Map<String, dynamic>);
+        printV('get_asset_info $assetId ${assetDescriptor.fullName} ${assetDescriptor.ticker}');
+        return assetDescriptor;
+      } else {
+        printV('get_asset_info $assetId status ${map['result']!['status']!}');
+        return null;
+      }
+    } catch (_) {
       return null;
     }
   }
