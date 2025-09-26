@@ -547,6 +547,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @computed
+  bool get
+      isEVM => (wallet.type == WalletType.ethereum) || (wallet.type == WalletType.solana) || (wallet.type == WalletType.polygon);
+
+  @computed
   bool get hasSilentPayments =>
       wallet.type == WalletType.bitcoin &&
       (bitcoin!.getWalletKeys(wallet)["privateKey"] ?? "").isNotEmpty &&
