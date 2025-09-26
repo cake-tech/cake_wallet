@@ -93,8 +93,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "490046a3e074dd7b9aaf7098a5efe61b6246d3b2"
-      resolved-ref: "46e5a2d8a5438cb523a6104b70f5e5125a5663b3"
+      ref: cake-update-v11
+      resolved-ref: bda0e2904effa799ec835b4578cc3fc5d31caa78
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -350,10 +350,10 @@ packages:
     dependency: transitive
     description:
       name: fake_async
-      sha256: "6a95e56b2449df2273fd8c45a662d6947ce1ebb7aafe80e550a3f68297f3cacc"
+      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.2"
+    version: "1.3.3"
   ffi:
     dependency: "direct overridden"
     description:
@@ -784,9 +784,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "01ba81f6d9ba063fd1902a7fd1e185c2d56f6002"
-      resolved-ref: "01ba81f6d9ba063fd1902a7fd1e185c2d56f6002"
-      url: "https://github.com/LtbLightning/payjoin-flutter"
+      ref: cake-v3
+      resolved-ref: "15d64407dd17a63258cd0fdada1e39a16041dd74"
+      url: "https://github.com/konstantinullrich/payjoin-flutter"
     source: git
     version: "0.23.0"
   petitparser:
@@ -1008,8 +1008,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "sp_v4.0.0"
-      resolved-ref: "2554cb8bd3ee1d026bc63e76a30d1226960c7cb4"
+      ref: "sp_v4.0.1"
+      resolved-ref: "40ed3ce8319744907bef3b25bc6e0af8428c8724"
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"

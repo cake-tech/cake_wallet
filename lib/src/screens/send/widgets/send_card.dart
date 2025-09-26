@@ -121,8 +121,9 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            final separator = initialPaymentRequest!.scheme.isNotEmpty ? ":" : "";
-            final uri = initialPaymentRequest!.scheme + separator + initialPaymentRequest!.address;
+            final prefix  = initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
+            final amount = initialPaymentRequest!.amount.isNotEmpty ? "?amount=${initialPaymentRequest!.amount}" : "";
+            final uri = prefix + initialPaymentRequest!.address + amount;
             _handlePaymentFlow(uri, initialPaymentRequest!);
           }
         },
@@ -144,6 +145,10 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
   Future<void> _handlePaymentFlow(String uri, PaymentRequest paymentRequest) async {
     try {
       final result = await paymentViewModel.processAddress(uri);
+
+      if (paymentRequest.contractAddress != null) {
+        await sendViewModel.fetchTokenForContractAddress(paymentRequest.contractAddress!);
+      }
 
       switch (result.type) {
         case PaymentFlowType.singleWallet:
@@ -256,8 +261,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
           }
         });
         await Future.delayed(const Duration(seconds: 2));
-        if (loadingBottomSheetContext != null &&
-            loadingBottomSheetContext!.mounted) {
+        if (loadingBottomSheetContext != null && loadingBottomSheetContext!.mounted) {
           Navigator.of(loadingBottomSheetContext!).pop();
         }
         _applyPaymentRequest(paymentRequest);

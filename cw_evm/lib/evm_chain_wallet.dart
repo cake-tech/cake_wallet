@@ -297,7 +297,7 @@ abstract class EVMChainWalletBase
   /// We are able to pass in:
   /// - The exact amount the user wants to send,
   /// - The addressHex for the receiving wallet,
-  /// - A contract address which would be essential in determining if to calcualate the estimate for ERC20 or native ETH
+  /// - A contract address which would be essential in determining if to calculate the estimate for ERC20 or native ETH
   Future<GasParamsHandler> calculateActualEstimatedFeeForCreateTransaction({
     required amount,
     required String? contractAddress,
@@ -490,7 +490,9 @@ abstract class EVMChainWalletBase
 
       final totalOriginalAmount = EVMChainFormatter.parseEVMChainAmountToDouble(
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-      totalAmount = parseFixed(totalOriginalAmount.toString(), exponent);
+
+      totalAmount = parseFixed(
+          EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -512,7 +514,8 @@ abstract class EVMChainWalletBase
         final totalOriginalAmount =
             EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
 
-        totalAmount =  parseFixed(totalOriginalAmount.toString(), exponent);
+        totalAmount = parseFixed(
+            EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {

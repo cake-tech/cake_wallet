@@ -36,6 +36,7 @@ import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
 import 'package:cake_wallet/src/screens/dev/network_requests.dart';
+import 'package:cake_wallet/src/screens/dev/exchange_provider_logs_page.dart';
 import 'package:cake_wallet/src/screens/dev/secure_preferences_page.dart';
 import 'package:cake_wallet/src/screens/dev/shared_preferences_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/savings_page.dart';
@@ -287,6 +288,7 @@ import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
 import 'package:cake_wallet/src/screens/dev/socket_health_logs_page.dart';
+import 'package:cake_wallet/view_model/dev/exchange_provider_logs_view_model.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 
@@ -818,6 +820,7 @@ Future<void> setup({
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
       getIt.get<FeesViewModel>(),
+      _walletInfoSource,
     ),
   );
 
@@ -1565,6 +1568,9 @@ Future<void> setup({
   getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));
   
   getIt.registerFactory(() => DevNetworkRequests());
+
+  getIt.registerFactory(() => ExchangeProviderLogsViewModel());
+  getIt.registerFactory(() => DevExchangeProviderLogsPage(getIt.get<ExchangeProviderLogsViewModel>()));
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
   

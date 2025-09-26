@@ -291,9 +291,11 @@ abstract class HomeSettingsViewModelBase with Store {
       // - An abandoned/unlaunched project
       // - Incorrect/missing token data
       // - Suspicious manipulation of token data
-      if (tokenInfo.fullyDilutedValuation == '0') {
-        return true;
-      }
+
+      /// commented out as it's failing a lot of legit tokens
+      // if (tokenInfo.fullyDilutedValuation == '0') {
+      //   return true;
+      // }
 
       return false;
     } catch (e) {
