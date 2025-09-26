@@ -29,9 +29,20 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/hardware_wallet/require_hardware_wallet_connection.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/haven/cw_haven.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_refresh_page.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_welcome_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_address_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_alias_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/edit_new_contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/entities/address_edit_request.dart';
+import 'package:cake_wallet/src/screens/address_book/supported_handles_page.dart';
+import 'package:cake_wallet/src/screens/address_book/address_book_page.dart';
 import 'package:cake_wallet/src/screens/dev/monero_background_sync.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_call_profiler.dart';
@@ -98,8 +109,6 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/webview_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
@@ -995,24 +1004,82 @@ Future<void> setup({
   getIt.registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
-  
+
   getIt.registerFactory(() => AnimatedURModel(getIt.get<AppStore>()));
 
   getIt.registerFactoryParam<AnimatedURPage, Map<String, String>, void>((Map<String, String> urQr, _) =>
     AnimatedURPage(getIt.get<AnimatedURModel>(), urQr: urQr));
 
-  getIt.registerFactoryParam<ContactViewModel, ContactRecord?, void>(
-      (ContactRecord? contact, _) => ContactViewModel(_contactSource, contact: contact));
+  getIt.registerFactoryParam<ContactViewModel, AddressEditRequest?, void>(
+        (req, _) => ContactViewModel(_contactSource,getIt<AppStore>().wallet!,getIt<SettingsStore>(), request: req,),
+  );
 
   getIt.registerFactoryParam<ContactListViewModel, CryptoCurrency?, void>(
-      (CryptoCurrency? cur, _) =>
-          ContactListViewModel(_contactSource, _walletInfoSource, cur, getIt.get<SettingsStore>()));
+        (cur, _) => ContactListViewModel(
+      _contactSource,
+      _walletInfoSource,
+      cur,
+      getIt<SettingsStore>(),
+    ),
+  );
 
-  getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, void>((CryptoCurrency? cur, _) =>
-      ContactListPage(getIt.get<ContactListViewModel>(param1: cur), getIt.get<AuthService>()));
+  getIt.registerFactoryParam<AddressBookPage, CryptoCurrency?, void>(
+        (cur, _) => AddressBookPage(
+      getIt.get<ContactListViewModel>(param1: cur),
+      getIt<AuthService>(),
+    ),
+  );
 
-  getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
-      (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
+  getIt.registerFactoryParam<ContactWelcomePage, ContactRecord?, void>(
+        (contact, _) => ContactWelcomePage(
+      contactViewModel: getIt.get<ContactViewModel>(
+        param1: AddressEditRequest.contact(contact),
+      ),
+    ),
+  );
+
+  getIt.registerFactoryParam<ContactPage, ContactRecord, void>(
+        (contact, _) => ContactPage(
+      contactViewModel: getIt.get<ContactViewModel>(
+        param1: AddressEditRequest.contact(contact),
+      ),
+    ),
+  );
+
+  getIt.registerFactoryParam<ContactRefreshPage, ContactRecord, CryptoCurrency>(
+        (contact, cur) => ContactRefreshPage(
+          contactViewModel : getIt.get<ContactViewModel>(param1: AddressEditRequest.contact(contact)),
+          currency: cur,
+        ),
+  );
+
+  getIt.registerFactoryParam<EditAddressPage, List<dynamic>, void>(
+        (list, _) => EditAddressPage(list),
+  );
+
+  getIt.registerFactory<SupportedHandlesPage>(
+        () => SupportedHandlesPage(contactViewModel: getIt<ContactViewModel>()),
+  );
+
+  getIt.registerFactoryParam<EditContactPage, ContactViewModel, void>(
+        (contactViewModel, _) => EditContactPage(contactViewModel: contactViewModel),
+  );
+
+  getIt.registerFactoryParam<EditAliasPage, ContactViewModel, String>(
+        (contactViewModel, handleKey) => EditAliasPage(contactViewModel: contactViewModel,
+          handleKey: handleKey),
+  );
+
+  getIt.registerFactoryParam<EditNewContactPage, ParsedAddress, ContactRecord?>(
+        (parsedAddress, record) {
+      return EditNewContactPage(
+        selectedParsedAddress: parsedAddress,
+        contactViewModel: getIt<ContactViewModel>(
+          param1: AddressEditRequest.contact(record),
+        ),
+      );
+    },
+  );
 
   getIt.registerFactory(() => AddressListPage(getIt.get<WalletAddressListViewModel>()));
 
@@ -1431,10 +1498,12 @@ Future<void> setup({
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolver(
-      yatService: getIt.get<YatService>(),
-      wallet: getIt.get<AppStore>().wallet!,
-      settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerLazySingleton<AddressResolverService>(
+        () => AddressResolverService(
+      yatService: getIt<YatService>(),
+      settingsStore: getIt<SettingsStore>(),
+    ),
+  );
 
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
@@ -1559,21 +1628,21 @@ Future<void> setup({
   getIt.registerFactory(() => DevSharedPreferencesPage(getIt.get<DevSharedPreferences>()));
 
   getIt.registerFactory(() => DevSecurePreferencesPage(getIt.get<DevSecurePreferences>()));
-  
+
   getIt.registerFactory(() => BackgroundSyncLogsViewModel());
-  
+
   getIt.registerFactory(() => DevBackgroundSyncLogsPage(getIt.get<BackgroundSyncLogsViewModel>()));
   
   getIt.registerFactory(() => SocketHealthLogsViewModel());
   getIt.registerFactory(() => DevSocketHealthLogsPage(getIt.get<SocketHealthLogsViewModel>()));
-  
+
   getIt.registerFactory(() => DevNetworkRequests());
 
   getIt.registerFactory(() => ExchangeProviderLogsViewModel());
   getIt.registerFactory(() => DevExchangeProviderLogsPage(getIt.get<ExchangeProviderLogsViewModel>()));
 
   getIt.registerFactory(() => StartTorPage(StartTorViewModel(),));
-  
+
   getIt.registerFactory(() => DEuroViewModel(
     getIt<AppStore>(),
     getIt<BalanceViewModel>(),

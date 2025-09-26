@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/payment_uris.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';

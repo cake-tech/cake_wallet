@@ -277,30 +277,31 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     );
   }
 
-  static Future<Map<String, String>?>? lookupAddressByName(String name) async {
+  static Future<Map<String, String>?> lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
     final response = await ProxyWrapper().get(clearnetUri: uri);
-    
-    if (response.statusCode != 200) {
-      return null;
-    }
+
+    if (response.statusCode != 200) return null;
 
     final body = json.decode(response.body) as Map<String, dynamic>;
     final entries = body['entries'] as List<dynamic>?;
 
-    if (entries == null || entries.isEmpty) {
-      return null;
+    if (entries == null || entries.isEmpty) return null;
+
+    final Map<String, String> map = {
+      for (final e in entries)
+        if (e['chain'] != null && e['address'] != null)
+          (e['chain'] as String).toUpperCase(): e['address'] as String,
+    };
+
+    final owner = body['owner'] as String?;
+    if (owner != null && owner.isNotEmpty) {
+      map.putIfAbsent('THOR', () => owner);
+
+      map['RUNE'] = owner;
     }
 
-    Map<String, String> chainToAddressMap = {};
-
-    for (final entry in entries) {
-      final chain = entry['chain'] as String;
-      final address = entry['address'] as String;
-      chainToAddressMap[chain] = address;
-    }
-
-    return chainToAddressMap;
+    return map.isNotEmpty ? map : null;
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {

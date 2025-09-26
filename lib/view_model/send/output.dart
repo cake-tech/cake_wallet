@@ -1,14 +1,21 @@
+import 'package:cake_wallet/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/balance.dart';
@@ -16,19 +23,11 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/monero/monero.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-
-import 'package:cake_wallet/entities/contact_base.dart';
 
 part 'output.g.dart';
 
@@ -40,7 +39,8 @@ abstract class OutputBase with Store {
   OutputBase(
       this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
       : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
-        key = UniqueKey(),
+      _resolver = getIt<AddressResolverService>(),
+  key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
         cryptoFullBalance = '',
@@ -48,9 +48,12 @@ abstract class OutputBase with Store {
         address = '',
         note = '',
         extractedAddress = '',
-        parsedAddress = ParsedAddress(addresses: []) {
+        parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
+
     _setCryptoNumMaximumFractionDigits();
   }
+
+  final AddressResolverService _resolver;
 
   Key key;
 
@@ -82,7 +85,7 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed && parsedAddress.name.isNotEmpty;
+      parsedAddress.addressSource != AddressSource.notParsed && parsedAddress.handle != null;
 
   @observable
   String? stealthAddress;
@@ -237,6 +240,7 @@ abstract class OutputBase with Store {
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
+
   @action
   void setSendAll(String fullBalance) {
     cryptoFullBalance = fullBalance;
@@ -263,7 +267,7 @@ abstract class OutputBase with Store {
 
   void resetParsedAddress() {
     extractedAddress = '';
-    parsedAddress = ParsedAddress(addresses: []);
+    parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {});
   }
 
   @action
@@ -313,8 +317,8 @@ abstract class OutputBase with Store {
 
   Map<String, dynamic> get extra {
     final fields = <String, dynamic>{};
-    if (parsedAddress.parseFrom == ParseFrom.bip353) {
-      fields['bip353_name'] = parsedAddress.name;
+    if (parsedAddress.addressSource == AddressSource.bip353) {
+      fields['bip353_name'] = parsedAddress.handle;
       fields['bip353_proof'] = parsedAddress.bip353DnsProof;
     }
     return fields;
@@ -355,16 +359,45 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final currency = cryptoCurrencyHandler();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
-    extractedAddress = await extractAddressFromParsed(context, parsedAddress);
-    note = parsedAddress.description;
+    final parsedAddresses = await _resolver.resolve(
+      query: domain,
+      wallet: _wallet,
+      currency: currency,);
+    if (parsedAddresses.isNotEmpty) {
+      parsedAddress = parsedAddresses.first;
+      final confirmed = await showParsedAddressConfirmationAlert(context, parsedAddress);
+      extractedAddress = confirmed ? parsedAddress.parsedAddressByCurrencyMap[currency] ?? '' : '';
+      note = confirmed ? parsedAddress.description : '';
+    }
   }
 
-  void loadContact(ContactBase contact) {
-    address = contact.name;
-    parsedAddress = ParsedAddress.fetchContactAddress(address: contact.address, name: contact.name);
-    extractedAddress = parsedAddress.addresses.first;
-    note = parsedAddress.description;
+  Future<void> loadContact((String, String) selectedContact) async {
+    address = selectedContact.$1;
+    parsedAddress = ParsedAddress(
+        parsedAddressByCurrencyMap: {}, addressSource: AddressSource.contact);
+    extractedAddress = selectedContact.$2;
+    note = parsedAddress.description ?? '';
+  }
+
+  Future<bool> showParsedAddressConfirmationAlert(
+      BuildContext context, ParsedAddress parsedAddress) async {
+    final confirmed = await showPopUp<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.of(context).address_detected,
+              headerTitleText: parsedAddress.profileName.isEmpty
+                  ? null
+                  : parsedAddress.profileName,
+              headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
+                  ? parsedAddress.addressSource.iconPath
+                  : parsedAddress.profileImageUrl,
+              alertContent: S.of(context).extracted_address_content(
+                  '${parsedAddress.handle} (${parsedAddress.addressSource.label})'),
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(true));
+        });
+    return confirmed ?? false;
   }
 }
 

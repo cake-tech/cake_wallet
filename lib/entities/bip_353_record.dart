@@ -2,13 +2,9 @@ import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:basic_utils/basic_utils.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/alert_with_picker_option.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:dnssec_proof/dnssec_proof.dart';
-import 'package:flutter/material.dart';
 
 class Bip353Record {
   Bip353Record({
@@ -102,71 +98,6 @@ class Bip353Record {
 
       return result;
     }
-  }
-
-  static Future<String?> pickBip353AddressChoice(
-    BuildContext context,
-    String bip353Name,
-    Map<String, String> addressMap,
-  ) async {
-    if (addressMap.length == 1) {
-      return addressMap.values.first;
-    }
-
-    final chosenAddress = await _showAddressChoiceDialog(context, bip353Name, addressMap);
-
-    return chosenAddress;
-  }
-
-  static Future<String?> _showAddressChoiceDialog(
-    BuildContext context,
-    String bip353Name,
-    Map<String, String> addressMap,
-  ) async {
-    final entriesList = addressMap.entries.toList();
-    final List<Map<String, String>> displayItems = entriesList.map((entry) {
-      final originalKey = entry.key;
-      final originalValue = entry.value;
-
-      final extendedKeyName = keyDisplayMap[originalKey] ?? originalKey;
-      final truncatedValue = _truncate(originalValue, front: 6, back: 6);
-
-      return {
-        'displayKey': extendedKeyName,
-        'displayValue': truncatedValue,
-        'originalKey': originalKey,
-        'originalValue': originalValue,
-      };
-    }).toList();
-
-    String? selectedOriginalValue;
-
-    if (context.mounted) {
-      await showPopUp<void>(
-        context: context,
-        builder: (dialogContext) {
-          return AlertWithPickerOption(
-            alertTitle:  S.of(context).multiple_addresses_detected + '\n$bip353Name',
-            alertTitleTextSize: 14,
-            alertSubtitle: S.of(context).please_choose_one + ':',
-            options: displayItems,
-            onOptionSelected: (Map<String, String> chosenItem) {
-              selectedOriginalValue = chosenItem['originalValue'];
-            },
-            alertBarrierDismissible: true,
-          );
-        },
-      );
-    }
-    return selectedOriginalValue;
-  }
-
-  static String _truncate(String value, {int front = 6, int back = 6}) {
-    if (value.length <= front + back) return value;
-
-    final start = value.substring(0, front);
-    final end = value.substring(value.length - back);
-    return '$start...$end';
   }
 
 }
