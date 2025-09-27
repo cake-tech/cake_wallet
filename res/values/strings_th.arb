@@ -55,6 +55,7 @@
   "and": "และ",
   "anonpay_description": "สร้าง ${type} ผู้รับสามารถ ${method} ด้วยสกุลเงินดิจิทัลที่รองรับ และคุณจะได้รับเงินในกระเป๋าสตางค์นี้",
   "apk_update": "ปรับปรุง APK",
+  "appearance": "รูปร่าง",
   "approve": "อนุมัติ",
   "approve_request": "อนุมัติคำขอ",
   "approve_tokens": "อนุมัติโทเค็น",

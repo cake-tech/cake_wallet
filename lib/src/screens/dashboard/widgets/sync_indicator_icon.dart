@@ -1,4 +1,4 @@
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -26,7 +26,7 @@ class SyncIndicatorIcon extends StatelessWidget {
 
     if (boolMode) {
       indicatorColor = isSynced
-          ? CustomThemeColors.syncGreen
+          ? CustomThemeColors.syncGreen 
           : CustomThemeColors.syncYellow;
     } else {
       switch (value.toLowerCase()) {

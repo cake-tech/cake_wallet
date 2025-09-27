@@ -19,7 +19,7 @@ class HomeScreenAccountWidget extends StatelessWidget {
     },
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: EdgeInsets.only(top: 25, bottom: 25, left: 25, right: 0),
+        padding: EdgeInsets.all(25.0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -40,22 +40,27 @@ class HomeScreenAccountWidget extends StatelessWidget {
                 SizedBox(
                   height: 5.0,
                 ),
-                Container(
-                  child: Text(
-                    accountName ?? '',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                Row(
+                  children: [
+                    Padding(padding: EdgeInsets.only(left: 20)),
+                    Container(
+                      child: Text(
+                        accountName ?? '',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
                     ),
-                  ),
+                    Container(
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-            Container(
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
             ),
           ],
         ),

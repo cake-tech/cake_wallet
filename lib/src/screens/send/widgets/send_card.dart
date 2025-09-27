@@ -383,7 +383,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                   onPushPasteButton: (context) async {
                     output.resetParsedAddress();
-                    await output.fetchParsedAddress(context);
+                    await output.fetchParsedAddress(context, currentTheme);
 
                     final address =
                         output.isParsedAddress ? output.extractedAddress : output.address;
@@ -765,7 +765,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
-        await output.fetchParsedAddress(context);
+        await output.fetchParsedAddress(context, currentTheme);
       }
     });
 
@@ -807,6 +807,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Picker(
+              currentTheme: currentTheme,
               items: items,
               displayItem: (TransactionPriority priority) =>
                   sendViewModel.feesViewModel.displayFeeRate(priority, customFeeRate?.round()),
@@ -835,6 +836,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
+        currentTheme: currentTheme,
         key: ValueKey('send_page_currency_picker_dialog_button_key'),
         selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
         items: sendViewModel.currencies,

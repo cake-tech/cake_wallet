@@ -24,6 +24,7 @@ class SilentPaymentsSettingsPage extends BasePage {
           child: Column(
             children: [
               SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.current.silent_payments_display_card,
                 value: _silentPaymentsSettingsViewModel.silentPaymentsCardDisplay,
                 onValueChange: (_, bool value) {
@@ -31,6 +32,7 @@ class SilentPaymentsSettingsPage extends BasePage {
                 },
               ),
               SettingsSwitcherCell(
+                currentTheme: currentTheme,
                 title: S.current.silent_payments_always_scan,
                 value: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,
                 onValueChange: (_, bool value) {

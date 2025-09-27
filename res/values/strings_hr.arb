@@ -55,6 +55,7 @@
   "and": "i",
   "anonpay_description": "Generiraj ${type}. Primatelj može ${method} s bilo kojom podržanom kriptovalutom, a vi ćete primiti sredstva u ovaj novčanik.",
   "apk_update": "APK ažuriranje",
+  "appearance": "Izgled",
   "approve": "Odobriti",
   "approve_request": "Odobriti zahtjev",
   "approve_tokens": "Odobriti tokene",

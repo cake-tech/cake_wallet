@@ -70,6 +70,7 @@ class RBFDetailsPage extends BasePage {
 
                 if (item is StandardPickerListItem) {
                   return StandardPickerList(
+                    currentTheme: currentTheme,
                     title: item.title,
                     value: item.value,
                     items: item.items,

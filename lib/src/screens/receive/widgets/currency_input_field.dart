@@ -84,7 +84,7 @@ class CurrencyAmountTextField extends StatelessWidget {
                         child: imageArrow ??
                             Image.asset(
                               'assets/images/arrow_bottom_purple_icon.png',
-                              color: textColor,
+                              color: Theme.of(context).colorScheme.primary,
                               height: 8,
                             ),
                       ),

@@ -55,6 +55,7 @@
   "and": "a",
   "anonpay_description": "Vygenerujte ${type}. Příjemce může ${method} s jakoukoli podporovanou kryptoměnou a vy obdržíte prostředky v této peněžence.",
   "apk_update": "aktualizace APK",
+  "appearance": "Vzhled",
   "approve": "Schvalovat",
   "approve_request": "Schválit žádost",
   "approve_tokens": "Schválit tokeny",

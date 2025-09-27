@@ -15,11 +15,13 @@ class PresentProviderPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final arrowBottom = Image.asset(
       'assets/images/arrow_bottom_purple_icon.png',
-      color: Theme.of(context).colorScheme.onSurface,
+      color: Theme.of(context).colorScheme.primary,
       height: 6,
     );
 
-    return TextButton(
+    return Padding(
+        padding: EdgeInsets.only(left: 10),
+    child: TextButton(
       onPressed: () => presentProviderPicker(context),
       style: ButtonStyle(
         padding: WidgetStateProperty.all(EdgeInsets.zero),
@@ -65,6 +67,7 @@ class PresentProviderPicker extends StatelessWidget {
           )
         ],
       ),
+    ),
     );
   }
 

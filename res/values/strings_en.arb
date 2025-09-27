@@ -55,6 +55,7 @@
   "and": "and",
   "anonpay_description": "Generate ${type}. The recipient can ${method} with any supported cryptocurrency, and you will receive funds in this wallet.",
   "apk_update": "APK update",
+  "appearance": "Appearance",
   "approve": "Approve",
   "approve_request": "Approve Request",
   "approve_tokens": "Approve tokens",

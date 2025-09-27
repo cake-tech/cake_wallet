@@ -55,6 +55,7 @@
   "and": "Und",
   "anonpay_description": "Generieren Sie ${type}. Der Empfänger kann ${method} mit jeder unterstützten Kryptowährung verwenden, und Sie erhalten Geld in dieser Wallet.",
   "apk_update": "APK-Update",
+  "appearance": "Aussehen",
   "approve": "Genehmigen",
   "approve_request": "Anfrage genehmigen",
   "approve_tokens": "Token genehmigen",

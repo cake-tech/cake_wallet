@@ -34,7 +34,7 @@ class SettingActions {
   static SettingActions silentPaymentsSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_silent_payment_settings_button_key'),
     name: (context) => S.of(context).silent_payments_settings,
-    image: 'assets/images/bitcoin_menu.png',
+    image: 'assets/images/crypto/bitcoin.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.silentPaymentsSettings);
     },
@@ -43,7 +43,7 @@ class SettingActions {
   static SettingActions exportOutputsAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_export_outputs_settings_button_key'),
     name: (context) => S.of(context).export_outputs,
-    image: 'assets/images/monero_menu.png',
+    image: 'assets/images/crypto/monero.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.urqrAnimatedPage, arguments: {'export-outputs': 'export-outputs'});
     },
@@ -52,7 +52,7 @@ class SettingActions {
   static SettingActions litecoinMwebSettingAction = SettingActions._(
     key: ValueKey('dashboard_page_menu_widget_litecoin_mweb_settings_button_key'),
     name: (context) => S.of(context).litecoin_mweb_settings,
-    image: 'assets/images/litecoin_menu.png',
+    image: 'assets/images/crypto/litecoin.png',
     onTap: (BuildContext context) {
       Navigator.of(context).pushNamed(Routes.mwebSettings);
     },
