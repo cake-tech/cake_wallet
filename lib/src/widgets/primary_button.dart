@@ -79,6 +79,8 @@ class LoadingPrimaryButton extends StatelessWidget {
     required this.text,
     required this.color,
     required this.textColor,
+    this.width,
+    this.height,
     this.isDisabled = false,
     this.isLoading = false,
     super.key,
@@ -87,6 +89,8 @@ class LoadingPrimaryButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color color;
   final Color textColor;
+  final double? width;
+  final double? height;
   final bool isLoading;
   final bool isDisabled;
   final String text;
@@ -96,8 +100,8 @@ class LoadingPrimaryButton extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
       child: SizedBox(
-        width: double.infinity,
-        height: 52.0,
+        width: width ?? double.infinity,
+        height: height ?? 52.0,
         child: TextButton(
           onPressed: (isLoading || isDisabled)
               ? null

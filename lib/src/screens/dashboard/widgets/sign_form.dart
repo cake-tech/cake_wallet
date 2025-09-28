@@ -73,7 +73,7 @@ class SignFormState extends State<SignForm> with AutomaticKeepAliveClientMixin {
                       ],
                       buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       onSelectedContact: (contact) {
-                        addressController.text = contact.address;
+                        addressController.text = contact.$2;
                       },
                       selectedCurrency: walletTypeToCryptoCurrency(widget.type),
                       fillColor: Theme.of(context).colorScheme.surface,

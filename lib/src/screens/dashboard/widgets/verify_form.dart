@@ -63,7 +63,7 @@ class VerifyFormState extends State<VerifyForm> with AutomaticKeepAliveClientMix
               buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               fillColor: Theme.of(context).colorScheme.surface,
               onSelectedContact: (contact) {
-                addressController.text = contact.address;
+                addressController.text = contact.$2;
               },
               selectedCurrency: walletTypeToCryptoCurrency(widget.type),
             ),

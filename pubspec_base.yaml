@@ -209,6 +209,7 @@ flutter:
     - assets/images/
     - assets/images/flags/
     - assets/images/hardware_wallet/
+    - assets/images/address_providers/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml

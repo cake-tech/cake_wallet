@@ -24,8 +24,7 @@ import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart';
 import 'package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_page.dart';
+import 'package:cake_wallet/src/screens/address_book/address_book_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_dashboard_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
@@ -150,6 +149,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'address_resolver/parsed_address.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
@@ -580,21 +580,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.addressBook:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ContactListPage>(),
+        (context) => getIt.get<AddressBookPage>(),
       );
 
     case Routes.pickerAddressBook:
       final selectedCurrency = settings.arguments as CryptoCurrency?;
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: selectedCurrency));
+          builder: (_) => getIt.get<AddressBookPage>(param1: selectedCurrency));
 
     case Routes.pickerWalletAddress:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<AddressListPage>());
-
-    case Routes.addressBookAddContact:
-      return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<ContactPage>(param1: settings.arguments as ContactRecord?),
-      );
 
     case Routes.showKeys:
       return handleRouteWithPlatformAwareness(

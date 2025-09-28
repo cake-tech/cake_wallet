@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -10,11 +11,9 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -314,14 +313,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
-  bool isSendToSilentPayments(Output output) =>
-      wallet.type == WalletType.bitcoin &&
-      (RegExp(AddressValidator.silentPaymentAddressPatternMainnet).hasMatch(output.address) ||
-          RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-              .hasMatch(output.extractedAddress) ||
-          (output.parsedAddress.addresses.isNotEmpty &&
-              RegExp(AddressValidator.silentPaymentAddressPatternMainnet)
-                  .hasMatch(output.parsedAddress.addresses[0])));
+    bool isSendToSilentPayments(Output output) {
+      if (wallet.type != WalletType.bitcoin) return false;
+
+      final sp = RegExp(AddressValidator.silentPaymentAddressPatternMainnet);
+
+      final address = output.extractedAddress.isNotEmpty
+          ? output.extractedAddress
+          : output.address;
+
+      return sp.hasMatch(address);
+    }
+
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
@@ -353,7 +356,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   List<CryptoCurrency> currencies;
 
   bool get hasYat => outputs
-      .any((out) => out.isParsedAddress && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+      .any((out) => out.isParsedAddress && out.parsedAddress.addressSource == AddressSource.yatRecord);
 
   WalletType get walletType => wallet.type;
 
@@ -472,7 +475,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       outputs.first.address = paymentRequest.address;
       outputs.first.parsedAddress =
-          ParsedAddress(addresses: [paymentRequest.address], name: ocpRequest!.receiverName);
+          ParsedAddress(parsedAddressByCurrencyMap: {currency:paymentRequest.address}, handle: ocpRequest!.receiverName);
       outputs.first.setCryptoAmount(paymentRequest.amount);
       outputs.first.note = ocpRequest!.receiverName;
 
@@ -742,33 +745,31 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
-  ContactRecord? newContactAddress() {
-    final Set<String> contactAddresses =
-        Set.from(contactListViewModel.contacts.map((contact) => contact.address))
-          ..addAll(contactListViewModel.walletContacts.map((contact) => contact.address));
+  String? newContactAddress() {
+    final contacts = contactListViewModel.contacts;
 
-    for (var output in outputs) {
-      String address;
-      if (output.isParsedAddress) {
-        address = output.parsedAddress.addresses.first;
-      } else {
-        address = output.address;
-      }
+    Set<String> allUserAddresses = {};
+    for (final contact in contacts) {
+      allUserAddresses.addAll(contact.allParsedAddresses);
+      allUserAddresses.addAll(contact.allManualAddresses);
+    }
 
-      if (address.isNotEmpty &&
-          !contactAddresses.contains(address) &&
-          selectedCryptoCurrency.raw != -1) {
-        return ContactRecord(
-            contactListViewModel.contactSource,
-            Contact(
-              name: '',
-              address: address,
-              type: selectedCryptoCurrency,
-            ));
+
+    Set<String> outputsAddresses = {};
+    for (final output in outputs) {
+      outputsAddresses.add(output.address);
+    }
+
+    for (final address in outputsAddresses) {
+      if (!allUserAddresses.contains(address)) {
+
+        return address;
       }
     }
+
     return null;
   }
+
 
   String translateErrorMessage(
     Object error,

@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class ImageUtil {
   static Widget getImageFromPath({
@@ -68,6 +72,40 @@ class ImageUtil {
       );
     }
     return img;
+  }
+
+  static Future<String?> saveAvatarLocally(String imageUriOrPath) async {
+    if (imageUriOrPath.isEmpty) return null;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      String ext = p.extension(imageUriOrPath);
+      if (ext.isEmpty) ext = '.png';
+
+      final file = File('${dir.path}/${DateTime.now().millisecondsSinceEpoch}$ext');
+
+      if (imageUriOrPath.startsWith('http')) {
+        final response = await ProxyWrapper()
+            .get(
+          clearnetUri: Uri.parse(imageUriOrPath),
+        )
+            .catchError((error) {
+          throw Exception('HTTP request failed: $error');
+        });
+
+        if (response.statusCode == 200) {
+          await file.writeAsBytes(response.bodyBytes);
+        } else {
+          return null;
+        }
+      } else {
+        await File(imageUriOrPath).copy(file.path);
+      }
+
+      return file.existsSync() ? file.path : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   static Widget _placeholder(double? h, double? w) => (h != null || w != null)

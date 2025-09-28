@@ -10,6 +10,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
@@ -105,6 +106,8 @@ abstract class ContactListViewModelBase with Store {
 
   bool get isEditable => _currency == null;
 
+  CryptoCurrency? get selectedCurrency => _currency;
+
   FilterListOrderType? get orderType => settingsStore.contactListOrder;
 
   bool get ascending => settingsStore.contactListAscending;
@@ -115,24 +118,42 @@ abstract class ContactListViewModelBase with Store {
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
 
-  ObservableList<ContactRecord> get contactsToShow =>
-      ObservableList.of(contacts.where((element) => _isValidForCurrency(element, false)));
+  ObservableList<ContactRecord> get contactsToShow => isEditable ? contacts :
+      ObservableList.of(contacts.where((element) => _isContactValidForCurrency(element)));
 
   @computed
   List<WalletContact> get walletContactsToShow =>
       walletContacts.where((element) => _isValidForCurrency(element, true)).toList();
 
   bool _isValidForCurrency(ContactBase element, bool isWalletContact) {
-    if (_currency == null) return true;
+    if (isEditable) return true;
     if (!element.name.contains('Active') &&
         isWalletContact &&
         (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
 
-    return element.type == _currency ||
-        (element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag) ||
-        _currency.toString() == element.type.tag ||
-        _currency.tag == element.type.toString();
+    return _isMatchToMainCurrency(element.type);
   }
+
+  bool _isContactValidForCurrency(ContactRecord element) {
+
+    final isAnyManualValid = element.original.manualAddresses.keys.any((raw) {
+      final cur = CryptoCurrency.deserialize(raw: raw);
+      return _isMatchToMainCurrency(cur);
+    });
+
+    if (isAnyManualValid) return true;
+
+    final isAnyParsedValid = element.original.parsedByHandle.values.any((currencyMap) =>
+        currencyMap.keys.any((raw) => _isMatchToMainCurrency(CryptoCurrency.deserialize(raw: raw))));
+
+    return isAnyParsedValid;
+  }
+
+  bool _isMatchToMainCurrency (CryptoCurrency cur) =>
+      _currency!= null &&  (cur == _currency ||
+          (cur.tag != null && _currency.tag != null && cur.tag == _currency.tag) ||
+          _currency.toString() == cur.tag ||
+          _currency.tag == cur.toString());
 
   void dispose() => _subscription?.cancel();
 
@@ -141,29 +162,34 @@ abstract class ContactListViewModelBase with Store {
     reorderContacts(contactsSourceCopy);
   }
 
+  Future<void> saveCustomOrderFrom(Iterable<ContactRecord> ordered) async {
+    final orderedContacts = ordered.map((e) => e.original).toList();
+    await reorderContacts(orderedContacts);
+    settingsStore.contactListOrder = FilterListOrderType.Custom;
+  }
+
   void reorderAccordingToContactList() =>
       settingsStore.contactListOrder = FilterListOrderType.Custom;
 
-  Future<void> reorderContacts(List<Contact> contactCopy) async {
-    await contactSource.deleteAll(contactCopy.map((e) => e.key).toList());
-    await contactSource.addAll(contactCopy);
+  Future<void> reorderContacts(List<Contact> ordered) async {
+    final mapByKey = { for (final c in contactSource.values) c.key: c };
+    final keysInNewOrder = ordered.map((c) => c.key).toList();
+    await contactSource.deleteAll(contactSource.keys);
+    await contactSource.addAll(keysInNewOrder.map((k) => mapByKey[k]!));
   }
 
-  Future<void> sortGroupByType() async {
-    List<Contact> contactsSourceCopy = contactSource.values.toList();
-
-    contactsSourceCopy.sort((a, b) => ascending
-        ? a.type.toString().compareTo(b.type.toString())
-        : b.type.toString().compareTo(a.type.toString()));
-
-    await reorderContacts(contactsSourceCopy);
-  }
 
   Future<void> sortAlphabetically() async {
-    List<Contact> contactsSourceCopy = contactSource.values.toList();
+    final contactsSourceCopy = contactSource.values.toList();
 
-    contactsSourceCopy
-        .sort((a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
+    contactsSourceCopy.sort((a, b) {
+      // Trim leading special characters and compare case-insensitively
+      final keyA = a.name.trim().toLowerCase().replaceFirst(RegExp(r'^[^0-9A-Za-z]+'), '');
+      final keyB = b.name.trim().toLowerCase().replaceFirst(RegExp(r'^[^0-9A-Za-z]+'), '');
+
+      return ascending ? keyA.compareTo(keyB) : keyB.compareTo(keyA);
+    });
+
 
     await reorderContacts(contactsSourceCopy);
   }
@@ -190,9 +216,6 @@ abstract class ContactListViewModelBase with Store {
         break;
       case FilterListOrderType.Alphabetical:
         await sortAlphabetically();
-        break;
-      case FilterListOrderType.GroupByType:
-        await sortGroupByType();
         break;
       case FilterListOrderType.Custom:
       default:

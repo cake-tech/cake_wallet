@@ -1,143 +1,127 @@
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nostr/nostr_user.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:flutter/material.dart';
 import 'package:nostr_tools/nostr_tools.dart';
+import 'dart:async' show Completer, TimeoutException, runZonedGuarded;
 
 class NostrProfileHandler {
   static final relayToDomainMap = {
     'relay.snort.social': 'snort.social',
   };
 
-  static Nip05 _nip05 = Nip05();
+  static final Nip05 _nip05 = Nip05();
 
-  static Future<ProfilePointer?> queryProfile(BuildContext context, String nip05Address) async {
-    var profile = await _nip05.queryProfile(nip05Address);
-    if (profile?.pubkey != null) {
-      if (profile?.relays?.isNotEmpty == true) {
-        return profile;
-      } else {
-        await _showErrorDialog(context, S.of(context).no_relays, S.of(context).no_relays_message);
-      }
+  static Future<ProfilePointer?> queryProfile(String nip05Address) async {
+    final profile = await _nip05.queryProfile(nip05Address);
+    if (profile?.pubkey != null && profile?.relays?.isNotEmpty == true) {
+      return profile;
     }
     return null;
   }
 
   static Future<UserMetadata?> processRelays(
-      BuildContext context, ProfilePointer profile, String nip05Address) async {
-    String userDomain = _extractDomain(nip05Address);
-    const int metaData = 0;
+    ProfilePointer profile,
+    String nip05Address,
+  ) async {
+    final userDomain = _extractDomain(nip05Address);
+    const int metaKind = 0;
 
-    for (String relayUrl in profile.relays ?? []) {
-      final relayDomain = _getDomainFromRelayUrl(relayUrl);
-      final formattedRelayDomain = relayToDomainMap[relayDomain] ?? relayDomain;
-      if (formattedRelayDomain == userDomain) {
-        final userDomainData = await _fetchInfoFromRelay(relayUrl, profile.pubkey, [metaData]);
-        if (userDomainData != null) {
-          return userDomainData;
-        }
-      }
-    }
-    await _showErrorDialog(context, S.of(context).no_relays, S.of(context).no_relay_on_domain);
+    // Domain-matched relays first
+    for (final String relayUrl in profile.relays ?? []) {
+      final relayDomain =
+          relayToDomainMap[_getDomainFromRelayUrl(relayUrl)] ?? _getDomainFromRelayUrl(relayUrl);
 
-    String? chosenRelayUrl = await _showRelayChoiceDialog(context, profile.relays ?? []);
-    if (chosenRelayUrl != null) {
-      final userData = await _fetchInfoFromRelay(chosenRelayUrl, profile.pubkey, [metaData]);
-      if (userData != null) {
-        return userData;
+      if (relayDomain == userDomain) {
+        final data = await _fetchInfoFromRelay(relayUrl, profile.pubkey, [metaKind]);
+        if (data != null) return data;
       }
     }
 
+    // Then try every remaining relay
+    for (final String relayUrl in profile.relays ?? []) {
+      final data = await _fetchInfoFromRelay(relayUrl, profile.pubkey, [metaKind]);
+      if (data != null) return data;
+    }
+
+    // Nothing found
     return null;
   }
 
+  static const Duration _relayTimeout = Duration(seconds: 3);
+
   static Future<UserMetadata?> _fetchInfoFromRelay(
       String relayUrl, String userPubKey, List<int> kinds) async {
-    try {
-      final relay = RelayApi(relayUrl: relayUrl);
-      final stream = await relay.connect();
+    // sanitize so obvious junk (like '#') doesn't reach connect()
+    final clean = _sanitizeRelay(relayUrl);
+    if (clean.isEmpty) return null;
 
-      relay.sub([
-        Filter(
-          kinds: kinds,
-          authors: [userPubKey],
-        )
-      ]);
+    final result = Completer<UserMetadata?>();
 
-      await for (var message in stream) {
-        if (message.type == 'EVENT') {
-          final event = message.message as Event;
+    runZonedGuarded(() async {
+      try {
+        final relay = RelayApi(relayUrl: clean);
 
-          final eventContent = json.decode(event.content) as Map<String, dynamic>;
+        final stream = await relay.connect().timeout(
+          _relayTimeout,
+          onTimeout: () {
+            relay.close();
+            throw TimeoutException('Relay connect timeout');
+          },
+        );
 
-          final userMetadata = UserMetadata.fromJson(eventContent);
-          relay.close();
-          return userMetadata;
-        }
+        relay.sub([
+          Filter(kinds: kinds, authors: [userPubKey])
+        ]);
+
+        final sub = stream.listen((msg) {
+          if (msg.type == 'EVENT' && !result.isCompleted) {
+            try {
+              final event = msg.message as Event;
+              final jsonMap = json.decode(event.content) as Map<String, dynamic>;
+              result.complete(UserMetadata.fromJson(jsonMap));
+            } catch (_) {
+              if (!result.isCompleted) result.complete(null);
+            }
+          }
+        }, onError: (_) {
+          if (!result.isCompleted) result.complete(null);
+        }, onDone: () {
+          if (!result.isCompleted) result.complete(null);
+        });
+
+        final value = await result.future.timeout(_relayTimeout, onTimeout: () => null);
+        await sub.cancel();
+        relay.close();
+        if (!result.isCompleted) result.complete(value);
+      } catch (_) {
+        if (!result.isCompleted) result.complete(null);
       }
+    }, (error, stack) {
+      // swallow ALL async errors from the websocket layer (including "was not upgraded to websocket")
+      if (!result.isCompleted) result.complete(null);
+    });
 
-      relay.close();
-      return null;
-    } catch (e) {
-      printV('[!] Error with relay $relayUrl: $e');
-      return null;
-    }
+    return result.future;
   }
 
-  static Future<void> _showErrorDialog(
-      BuildContext context, String title, String errorMessage) async {
-    if (context.mounted) {
-      await showPopUp<void>(
-        context: context,
-        builder: (BuildContext dialogContext) {
-          return AlertWithOneAction(
-            alertTitle: title,
-            alertContent: errorMessage,
-            buttonText: S.of(dialogContext).ok,
-            buttonAction: () => Navigator.of(dialogContext).pop(),
-          );
-        },
-      );
-    }
+  static String _sanitizeRelay(String url) {
+    url = url.replaceFirst(RegExp(r'^https?://'), 'wss://');
+    final uri = Uri.parse(url);
+    return Uri(
+      scheme: uri.scheme.isEmpty ? 'wss' : uri.scheme,
+      host: uri.host,
+      port: uri.hasPort ? uri.port : 443,
+    ).toString();
   }
 
-  static String _extractDomain(String nip05Address) {
-    var parts = nip05Address.split('@');
-    return parts.length == 2 ? parts[1] : '';
-  }
+  static String _extractDomain(String nip05) => nip05.split('@').last;
 
-  static String _getDomainFromRelayUrl(String relayUrl) {
+  static String _getDomainFromRelayUrl(String url) {
     try {
-      var uri = Uri.parse(relayUrl);
-      return uri.host;
-    } catch (e) {
-      printV('Error parsing URL: $e');
+      return Uri.parse(url).host;
+    } catch (_) {
       return '';
     }
-  }
-
-  static Future<String?> _showRelayChoiceDialog(BuildContext context, List<String> relays) async {
-    String? selectedRelay;
-
-    if (context.mounted) {
-      await showPopUp<void>(
-        context: context,
-        builder: (BuildContext dialogContext) {
-          return Picker<String>(
-            selectedAtIndex: 0,
-            title: S.of(dialogContext).choose_relay,
-            items: relays,
-            onItemSelected: (String relay) => selectedRelay = relay,
-          );
-        },
-      );
-    }
-
-    return selectedRelay;
   }
 }

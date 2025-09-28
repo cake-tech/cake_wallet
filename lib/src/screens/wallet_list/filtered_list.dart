@@ -10,6 +10,7 @@ class FilteredList extends StatefulWidget {
     this.canReorder = true,
     this.shrinkWrap = false,
     this.physics,
+    this.itemPadding = const EdgeInsets.symmetric(vertical: 4),
   });
 
   final ObservableList<dynamic> list;
@@ -18,39 +19,51 @@ class FilteredList extends StatefulWidget {
   final bool canReorder;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
+  final EdgeInsets itemPadding;
 
   @override
   FilteredListState createState() => FilteredListState();
 }
 
 class FilteredListState extends State<FilteredList> {
+  Widget _buildPaddedItem(BuildContext ctx, int index) {
+    return Padding(
+      key: ValueKey(widget.list[index]),
+      padding: widget.itemPadding,
+      child: widget.itemBuilder(ctx, index),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.canReorder) {
-      return Observer(
-        builder: (_) => ReorderableListView.builder(
-          shrinkWrap: widget.shrinkWrap,
-          physics: widget.physics ?? const BouncingScrollPhysics(),
-          itemBuilder: widget.itemBuilder,
-          itemCount: widget.list.length,
-          onReorder: (int oldIndex, int newIndex) {
-            if (oldIndex < newIndex) {
-              newIndex -= 1;
-            }
-            final dynamic item = widget.list.removeAt(oldIndex);
-            widget.list.insert(newIndex, item);
-            widget.updateFunction();
-          },
-        ),
-      );
-    } else {
+    if (!widget.canReorder) {
       return Observer(
         builder: (_) => ListView.builder(
+          shrinkWrap: widget.shrinkWrap,
           physics: widget.physics ?? const BouncingScrollPhysics(),
-          itemBuilder: widget.itemBuilder,
           itemCount: widget.list.length,
+          itemBuilder: _buildPaddedItem,
         ),
       );
     }
+
+    return Observer(
+      builder: (_) => ReorderableListView.builder(
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics ?? const BouncingScrollPhysics(),
+        itemCount: widget.list.length,
+        itemBuilder: _buildPaddedItem,
+        onReorder: (oldIndex, newIndex) {
+          if (oldIndex < newIndex) newIndex -= 1;
+          final item = widget.list.removeAt(oldIndex);
+          widget.list.insert(newIndex, item);
+          widget.updateFunction();
+        },
+        proxyDecorator: (child, _, __) => Material(
+          color: Colors.transparent,
+          child: child,
+        ),
+      ),
+    );
   }
 }

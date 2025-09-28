@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import 'package:cake_wallet/utils/image_utill.dart';
 import 'package:flutter/material.dart';
 
 class BaseAlertDialog extends StatelessWidget {
@@ -158,10 +159,7 @@ class BaseAlertDialog extends StatelessWidget {
         radius: 50,
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         child: ClipOval(
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-          ),
+          child: ImageUtil.getImageFromPath(imagePath: imageUrl, fit: BoxFit.cover),
         ),
       ),
     );

@@ -1,5 +1,8 @@
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -36,6 +39,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
     this.hasUnderlineBorder = false,
     this.borderWidth = 1.0,
     this.contentPadding,
+    this.keyboardType,
     this.copyImagePath,
   });
 
@@ -61,12 +65,13 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   final FocusNode? focusNode;
   final T? selectedCurrency;
   final Key? addressKey;
+  final TextInputType? keyboardType;
   final String? copyImagePath;
 
   final Function(BuildContext context)? onPushPasteButton;
   final Function(BuildContext context)? onPushAddressBookButton;
   final Function(BuildContext context)? onPushAddressPickerButton;
-  final Function(ContactBase contact)? onSelectedContact;
+  final Function((String,String))? onSelectedContact;
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +83,7 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
           hasUnderlineBorder: hasUnderlineBorder,
           key: addressKey,
           enableIMEPersonalizedLearning: false,
-          keyboardType: TextInputType.visiblePassword,
+          keyboardType: keyboardType ?? TextInputType.visiblePassword,
           onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
           enabled: isActive,
           controller: controller,
@@ -241,13 +246,19 @@ class AddressTextField<T extends Currency> extends StatelessWidget {
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {
-    final contact = await Navigator.of(context)
+    var contact = await Navigator.of(context)
         .pushNamed(Routes.pickerAddressBook, arguments: selectedCurrency);
 
-    if (contact is ContactBase) {
+    if( contact is WalletContact) {
       controller?.text = contact.address;
       onPushAddressBookButton?.call(context);
-      onSelectedContact?.call(contact);
+      onSelectedContact?.call((contact.name, contact.address));
+    }
+
+    if (contact is (ContactRecord,String)) {
+      controller?.text = contact.$2;
+      onPushAddressBookButton?.call(context);
+      onSelectedContact?.call((contact.$1.name, contact.$2));
     }
   }
 

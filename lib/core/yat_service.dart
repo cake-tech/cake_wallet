@@ -22,34 +22,46 @@ class YatService {
     'LTC': '0x1019'
   };
 
-  Future<List<YatRecord>> fetchYatAddress(String emojiId, String ticker) async {
-    final formattedTicker = ticker.toUpperCase();
-    final formattedEmojiId = emojiId.replaceAll(' ', '');
-    final tag = tags[formattedTicker];
-    final uri = Uri.parse(lookupEmojiUrl(formattedEmojiId)).replace(
-        queryParameters: <String, dynamic>{
-          "tags": tag
-        });
-    final yatRecords = <YatRecord>[];
+  Future<List<YatRecord>> fetchYatAddress(
+      String emojiId,
+      String ticker,
+      ) async {
+    final tagQuery = tags[ticker.toUpperCase()];
+    if (tagQuery == null) return const [];
+
+    final uri = Uri.parse(
+      lookupEmojiUrl(emojiId.replaceAll(' ', '')),
+    ).replace(queryParameters: {'tags': tagQuery});
 
     try {
       final response = await ProxyWrapper().get(clearnetUri: uri);
-      
-      final resBody = json.decode(response.body) as Map<String, dynamic>;
-      final results = resBody["result"] as Map<dynamic, dynamic>;
-      // Favour a subaddress over a standard address.
-      final yatRecord = (
-        results[MONERO_SUB_ADDRESS] ??
-        results[MONERO_STD_ADDRESS] ??
-        results[tag]) as Map<String, dynamic>;
+      final body = json.decode(response.body) as Map<String, dynamic>;
 
-      if (yatRecord.isNotEmpty) {
-        yatRecords.add(YatRecord.fromJson(yatRecord));
+      final res = body['result'];
+      if (res == null) return const [];
+
+      final records = <YatRecord>[];
+
+      if (res is Map) {
+        res.forEach((tag, data) {
+          if (data is Map<String, dynamic>) {
+            records.add(YatRecord.fromJson(data, tag.toString()));
+          }
+        });
       }
 
-      return yatRecords;
+      else if (res is List) {
+        for (final item in res) {
+          if (item is Map<String, dynamic>) {
+            final tag = item['tag']?.toString() ?? '';
+            records.add(YatRecord.fromJson(item, tag));
+          }
+        }
+      }
+
+      return records;
     } catch (_) {
-      return yatRecords;
+      return const [];
     }
   }
 }

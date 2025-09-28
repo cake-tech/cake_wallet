@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/address_resolver/address_resolver_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter_test/flutter_test.dart';
 
