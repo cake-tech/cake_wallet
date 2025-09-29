@@ -81,6 +81,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasBase: hasBase,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
 }
@@ -1666,6 +1667,7 @@ Future<void> generateWalletTypes({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasBase,
 }) async {
   final walletTypesFile = File(walletTypesPath);
 
@@ -1731,6 +1733,10 @@ Future<void> generateWalletTypes({
 
   if (hasWownero) {
     outputContent += '\tWalletType.wownero,\n';
+  }
+
+  if (hasBase) {
+    outputContent += '\tWalletType.base,\n';
   }
 
   outputContent += '];\n';

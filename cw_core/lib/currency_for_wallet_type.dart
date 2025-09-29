@@ -36,6 +36,8 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.dcr;
     case WalletType.dogecoin:
       return CryptoCurrency.doge;
+    case WalletType.base:
+      return CryptoCurrency.base;
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
@@ -72,6 +74,8 @@ WalletType? walletTypeForCurrency(CryptoCurrency currency) {
       return WalletType.zano;
     case CryptoCurrency.dcr:
       return WalletType.decred;
+    case CryptoCurrency.base:
+      return WalletType.base;
     default:
       return null;
   }
