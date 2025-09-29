@@ -64,10 +64,8 @@ class CwMweb {
     }
     printV("Attempting to connect to server on port: $_port");
 
-    // wait for the server to finish starting up before we try to connect to it:
-    await Future.delayed(const Duration(seconds: 8));
-
-    _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
+    final address = InternetAddress("${appDir.path}/mwebd.sock", type: InternetAddressType.unix);
+    _clientChannel = ClientChannel(address, channelShutdownHandler: () {
       _rpcClient = null;
       printV("Channel is shutting down!");
     },
@@ -218,5 +216,35 @@ class CwMweb {
       printV("Error getting utxos: $e");
       rethrow;
     }
+  }
+
+  static Future<PsbtResponse> psbtCreate(PsbtCreateRequest request) async {
+    log("mweb.psbtCreate() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtCreate(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtAddInput(PsbtAddInputRequest request) async {
+    log("mweb.psbtAddInput() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtAddInput(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtResponse> psbtAddRecipient(PsbtAddRecipientRequest request) async {
+    log("mweb.psbtAddRecipient() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtAddRecipient(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<PsbtGetRecipientsResponse> psbtGetRecipients(PsbtGetRecipientsRequest request) async {
+    log("mweb.psbtGetRecipients() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtGetRecipients(request, options: CallOptions(timeout: TIMEOUT_DURATION));
+  }
+
+  static Future<CreateResponse> psbtExtract(PsbtExtractRequest request) async {
+    log("mweb.psbtExtract() called");
+    _rpcClient = await stub();
+    return await _rpcClient!.psbtExtract(request, options: CallOptions(timeout: TIMEOUT_DURATION));
   }
 }
