@@ -447,6 +447,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   void setGlobalLedgerConnection(ledger.LedgerConnection connection);
   String? getLastLedgerCommand();
   Map<String, List<int>> debugCallLength();
+  Map<String, dynamic> getWalletCacheDebug();
 }
 
 abstract class MoneroSubaddressList {
@@ -1746,6 +1747,7 @@ class DefaultSecureStorage extends SecureStorage {
 
   static final _instance = DefaultSecureStorage._(FlutterSecureStorage(
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   ));
    
   final FlutterSecureStorage _secureStorage;

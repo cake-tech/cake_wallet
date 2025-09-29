@@ -116,12 +116,14 @@ class Routes {
 
   static const devMoneroBackgroundSync = '/dev/monero_background_sync';
   static const devMoneroCallProfiler = '/dev/monero_call_profiler';
+  static const devMoneroWalletCacheDebug = '/dev/monero_wallet_cache_debug';
 
   static const devSharedPreferences = '/dev/shared_preferences';
   static const devSecurePreferences = '/dev/secure_preferences';
   static const devBackgroundSyncLogs = '/dev/background_sync_logs';
   static const devSocketHealthLogs = '/dev/socket_health_logs';
   static const devNetworkRequests = '/dev/network_requests';
+  static const devExchangeProviderLogs = '/dev/exchange_provider_logs';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';

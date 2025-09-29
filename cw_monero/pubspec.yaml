@@ -18,7 +18,7 @@ dependencies:
   path_provider: ^2.0.11
   mobx: ^2.0.7+4
   flutter_mobx: ^2.0.6+1
-  intl: ^0.19.0
+  intl: any
   encrypt: ^5.0.1
   polyseed: ^0.0.7
   cw_core:
@@ -26,7 +26,7 @@ dependencies:
   monero:
     git:
       url: https://github.com/mrcyjanek/monero_c
-      ref: b576312e4d466569cd03482b61c597b39a9f4dc3
+      ref: 07f7a7f80735130ebfa5842ddee5139076408c0d
       path: impls/monero.dart
   mutex: ^3.1.0
   ledger_flutter_plus: ^1.4.1

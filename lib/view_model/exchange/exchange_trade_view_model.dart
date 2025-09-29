@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/payment_uris.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -19,12 +20,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/utils/qr_util.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -315,4 +319,80 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isSplToken() ||
         _isTronToken();
   }
+
+  PaymentURI? get paymentUri {
+    final inputAddress = trade.inputAddress;
+    final amount = trade.amount;
+    final fromCurrency = trade.from ?? trade.userCurrencyFrom;
+
+    if (inputAddress == null || inputAddress.isEmpty || fromCurrency == null) {
+      return null;
+    }
+
+    switch (wallet.type) {
+      case WalletType.bitcoin:
+        return BitcoinURI(amount: amount, address: inputAddress);
+      case WalletType.litecoin:
+        return LitecoinURI(amount: amount, address: inputAddress);
+      case WalletType.bitcoinCash:
+        return BitcoinCashURI(amount: amount, address: inputAddress);
+      case WalletType.dogecoin:
+        return DogeURI(amount: amount, address: inputAddress);
+      case WalletType.ethereum:
+        return _createERC681URI(fromCurrency, inputAddress, amount);
+      // TODO: Expand ERC681URI support to Polygon(modify decoding flow for QRs, pay anything, and deep link handling)
+      case WalletType.polygon:
+        return PolygonURI(amount: amount, address: inputAddress);
+      case WalletType.solana:
+        return SolanaURI(amount: amount, address: inputAddress);
+      case WalletType.tron:
+        return TronURI(amount: amount, address: inputAddress);
+      case WalletType.monero:
+        return MoneroURI(amount: amount, address: inputAddress);
+      case WalletType.wownero:
+        return WowneroURI(amount: amount, address: inputAddress);
+      case WalletType.zano:
+        return ZanoURI(amount: amount, address: inputAddress);
+      case WalletType.decred:
+        return DecredURI(amount: amount, address: inputAddress);
+      case WalletType.haven:
+        return HavenURI(amount: amount, address: inputAddress);
+      case WalletType.nano:
+        return NanoURI(amount: amount, address: inputAddress);
+      default:
+        return null;
+    }
+  }
+
+  @action
+  PaymentURI? _createERC681URI(CryptoCurrency currency, String address, String amount) {
+    final chainId = TokenUtilities.getChainId(currency);
+    final isNativeToken = TokenUtilities.isNativeToken(currency);
+
+    if (isNativeToken) {
+      return ERC681URI(
+        chainId: chainId,
+        address: address,
+        amount: amount,
+        contractAddress: null,
+      );
+    } else {
+      if (wallet.type == WalletType.polygon || wallet.type == WalletType.ethereum) {
+        final erc20Token = TokenUtilities.findErc20Token(currency, wallet);
+
+        if (erc20Token != null) {
+          return ERC681URI(
+            chainId: chainId,
+            address: address,
+            amount: amount,
+            contractAddress: erc20Token.contractAddress,
+          );
+        }
+      }
+      return null;
+    }
+  }
+
+  @computed
+  String get qrImage => getQrImage(wallet.type);
 }

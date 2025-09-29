@@ -9,7 +9,7 @@ then
     rm -rf monero_c
     git clone https://github.com/mrcyjanek/monero_c --branch master monero_c
     cd monero_c
-    git checkout b576312e4d466569cd03482b61c597b39a9f4dc3
+    git checkout 07f7a7f80735130ebfa5842ddee5139076408c0d
     git reset --hard
     git submodule update --init --force --recursive
     ./apply_patches.sh monero

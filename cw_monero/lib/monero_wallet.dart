@@ -643,12 +643,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         final coinSpent = coin.spent();
         if (coinSpent == false && coin.subaddrAccount() == walletAddresses.account!.id) {
           final unspent = await MoneroUnspent.fromUnspent(
-            coin.address(),
-            coin.hash(),
-            coin.keyImage(),
-            coin.amount(),
-            coin.frozen(),
-            coin.unlocked(),
+            address: coin.address(),
+            hash: coin.hash(),
+            keyImage: coin.keyImage(),
+            value: coin.amount(),
+            isFrozen: coin.frozen(),
+            isUnlocked: coin.unlocked(),
+            isSpent: coinSpent,
           );
           // TODO: double-check the logic here
           if (unspent.hash.isNotEmpty) {

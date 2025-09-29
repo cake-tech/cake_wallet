@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -230,6 +230,13 @@ jobs:
             popd
           popd
 
+      - name: Fetch reown dependencies
+        run: |
+          set -x -e
+          wget https://static.mrcyjanek.net/lfs/cake-yttrium/x86_64.so -O android/app/src/main/jniLibs/x86_64/libuniffi_yttrium.so
+          wget https://static.mrcyjanek.net/lfs/cake-yttrium/arm64-v8a.so -O android/app/src/main/jniLibs/arm64-v8a/libuniffi_yttrium.so
+          wget https://static.mrcyjanek.net/lfs/cake-yttrium/armeabi-v7a.so -O android/app/src/main/jniLibs/armeabi-v7a/libuniffi_yttrium.so
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/android
@@ -254,7 +261,6 @@ jobs:
           export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
           echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
           pushd scripts/android
-            gomobile init;
             ./build_mwebd.sh --dont-install
           popd
 
@@ -327,3 +333,10 @@ jobs:
         with:
           path: ${{ github.workspace }}/build/app/outputs/flutter-apk
           name: "android apk"
+      
+      - name: 16KB align
+        run: |
+          cd build/app/outputs/flutter-apk
+          for i in arm64-v8a x86_64; do
+            ../../../../scripts/android/check_16kb_align.sh app-$i-release.apk
+          done

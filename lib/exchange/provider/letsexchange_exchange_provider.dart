@@ -13,6 +13,7 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class LetsExchangeExchangeProvider extends ExchangeProvider {
   LetsExchangeExchangeProvider() : super(pairList: supportedPairs(_notSupported));
@@ -102,8 +103,45 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
       if (amountToGet == 0.0) return 0.0;
 
-      return isFixedRateMode ? amount / amountToGet : amountToGet / amount;
-    } catch (e) {
+      final rate = isFixedRateMode ? amount / amountToGet : amountToGet / amount;
+
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'networkFrom': networkFrom,
+          'networkTo': networkTo,
+          'params': params,
+        },
+        responseData: {
+          'amountToGet': amountToGet,
+          'rate': rate,
+          'responseJSON': responseJSON,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'networkFrom': networkFrom,
+          'networkTo': networkTo,
+        },
+      );
       printV(e.toString());
       return 0.0;
     }
@@ -164,6 +202,26 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       
 
       if (response.statusCode != 200) {
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'createTrade',
+          error: Exception('LetsExchange create trade failed: ${response.body}'),
+          stackTrace: StackTrace.current,
+          requestData: {
+            'from': request.fromCurrency.title,
+            'to': request.toCurrency.title,
+            'fromAmount': request.fromAmount,
+            'toAmount': request.toAmount,
+            'toAddress': request.toAddress,
+            'refundAddress': request.refundAddress,
+            'isFixedRateMode': isFixedRateMode,
+            'isSendAll': isSendAll,
+            'networkFrom': networkFrom,
+            'networkTo': networkTo,
+            'tradeParams': tradeParams,
+            'url': uri.toString(),
+          },
+        );
         throw Exception('LetsExchange create trade failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -197,6 +255,40 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         toCurrency = CryptoCurrency.fromString(to);
       }
 
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'createTrade',
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'networkFrom': networkFrom,
+          'networkTo': networkTo,
+          'tradeParams': tradeParams,
+          'url': uri.toString(),
+        },
+        responseData: {
+          'id': id,
+          'from': from,
+          'to': to,
+          'depositAddress': depositAddress,
+          'payoutAddress': payoutAddress,
+          'refundAddress': refundAddress,
+          'depositAmount': depositAmount,
+          'receiveAmount': receiveAmount,
+          'status': status,
+          'createdAt': createdAtString,
+          'expiredAt': expiredAtTimestamp,
+          'extraId': extraId,
+          'statusCode': response.statusCode,
+        },
+      );
+
       return Trade(
         id: id,
         from: fromCurrency,
@@ -215,7 +307,25 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         userCurrencyToRaw: '${request.toCurrency.title}_${request.toCurrency.tag ?? ''}',
         isSendAll: isSendAll,
       );
-    } catch (e) {
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'createTrade',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': request.fromCurrency.title,
+          'to': request.toCurrency.title,
+          'fromAmount': request.fromAmount,
+          'toAmount': request.toAmount,
+          'toAddress': request.toAddress,
+          'refundAddress': request.refundAddress,
+          'isFixedRateMode': isFixedRateMode,
+          'isSendAll': isSendAll,
+          'networkFrom': networkFrom,
+          'networkTo': networkTo,
+        },
+      );
       log(e.toString());
       throw TradeNotCreatedException(description);
     }

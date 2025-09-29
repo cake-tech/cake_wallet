@@ -1,12 +1,16 @@
+import 'package:cw_evm/evm_chain_formatter.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:cw_evm/cw_evm.dart';
-
 void main() {
-  test('adds one to input values', () {
-    final calculator = Calculator();
-    expect(calculator.addOne(2), 3);
-    expect(calculator.addOne(-7), -6);
-    expect(calculator.addOne(0), 1);
+  group('EVMChainFormatter', () {
+    group('truncateDecimals', () {
+      test('no decimals', () => expect(EVMChainFormatter.truncateDecimals("5", 6), "5"));
+      test('less than max decimals',
+          () => expect(EVMChainFormatter.truncateDecimals("5.00001", 6), "5.00001"));
+      test('max decimals',
+          () => expect(EVMChainFormatter.truncateDecimals("5.000001", 6), "5.000001"));
+      test('more than max decimals',
+          () => expect(EVMChainFormatter.truncateDecimals("5.0000001", 6), "5.000000"));
+    });
   });
 }

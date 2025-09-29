@@ -9,7 +9,7 @@ jobs:
   PR_test_build:
     runs-on: linux-amd64
     container:
-      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.27.4-ndkr28-go1.24.1-ruststablenightly
+      image: ghcr.io/cake-tech/cake_wallet:debian12-flutter3.32.0-ndkr28-go1.24.1-ruststablenightly
       env:
         STORE_PASS: test@cake_wallet
         KEY_PASS: test@cake_wallet
@@ -231,6 +231,15 @@ jobs:
       - name: Install Flutter dependencies
         run: |
           flutter pub get
+
+      - name: Build mwebd
+        run: |
+          set -x -e
+          export MWEBD_HASH=$(cat scripts/android/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
+          echo MWEBD_HASH=$MWEBD_HASH >> /etc/environment
+          pushd scripts/android
+            ./build_mwebd.sh --dont-install
+          popd
 
       - name: Build generated code
         run: |

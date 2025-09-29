@@ -21,13 +21,13 @@ import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -39,10 +39,10 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
-import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
@@ -142,7 +142,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     });
 
-    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) => calculateBestRate());
+    bestRateSync = Timer.periodic(Duration(seconds: 10), (timer) {
+      if (tradeState is! TradeIsCreating) {
+        calculateBestRate();
+      }
+    });
 
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     depositAmount = '';
@@ -203,11 +207,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   List<ExchangeProvider> get _allProviders => [
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
-        ThorChainExchangeProvider(tradesStore: trades),
         ChainflipExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
-        // LetsExchangeExchangeProvider(),
+        LetsExchangeExchangeProvider(),
         StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         TrocadorExchangeProvider(
@@ -537,19 +540,27 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             ),
       ),
     );
-    _sortedAvailableProviders.clear();
+
+    // We'll use a new SplayTreeMap to avoid concurrent modification issues
+    final newSortedProviders =
+        SplayTreeMap<double, ExchangeProvider>((double a, double b) => b.compareTo(a));
 
     for (int i = 0; i < result.length; i++) {
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
         try {
-          _sortedAvailableProviders[result[i]] = _providers[i];
+           newSortedProviders[result[i]] = _providers[i];
         } catch (e) {
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map
         }
       }
     }
+
+    // Replace the old map with the new one
+    _sortedAvailableProviders.clear();
+    _sortedAvailableProviders.addAll(newSortedProviders);
+
     if (_sortedAvailableProviders.isNotEmpty) bestRate = _sortedAvailableProviders.keys.first;
   }
 
@@ -638,10 +649,26 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }
     }
 
+    // Ensure we have providers available before attempting to create trade
+    if (_sortedAvailableProviders.isEmpty) {
+      await calculateBestRate();
+
+      if (_sortedAvailableProviders.isEmpty) {
+        tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: S.current.none_of_selected_providers_can_exchange);
+        return;
+      }
+    }
+
     try {
-      for (var i = 0; i < _sortedAvailableProviders.values.length; i++) {
-        final provider = _sortedAvailableProviders.values.toList()[i];
-        final providerRate = _sortedAvailableProviders.keys.toList()[i];
+      // snapshot of providers to avoid concurrent modification issues
+      final providersSnapshot = _sortedAvailableProviders.values.toList();
+      final ratesSnapshot = _sortedAvailableProviders.keys.toList();
+
+      for (var i = 0; i < providersSnapshot.length; i++) {
+        final provider = providersSnapshot[i];
+        final providerRate = ratesSnapshot[i];
 
         if (!(await provider.checkIsAvailable())) continue;
 
@@ -669,12 +696,22 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         if (limitsState is LimitsLoadedSuccessfully) {
           if (double.tryParse(amount) == null) continue;
 
-          if (limits.min != null && double.parse(amount) < limits.min!)
+          if (limits.min != null && double.parse(amount) < limits.min!) {
             continue;
-          else if (limits.max != null && double.parse(amount) > limits.max!)
+          } else if (limits.max != null && double.parse(amount) > limits.max!) {
             continue;
-          else {
+          } else {
             try {
+              if (provider is SwapTradeExchangeProvider) {
+                final destinationAmount = (fiatConversionStore.prices[request.toCurrency] ?? 0.00) *
+                    (double.tryParse(request.toAmount) ?? 0.00);
+                final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) *
+                    (double.tryParse(request.fromAmount) ?? 0.00);
+
+                if (destinationAmount > 5000 || sendingAmount > 5000) {
+                  continue;
+                }
+              }
               tradeState = TradeIsCreating();
               final trade = await provider.createTrade(
                 request: request,
@@ -1059,47 +1096,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   // Adding user's Erc20 tokens to the list of currencies
 
-  Future<Box<Erc20Token>> _openEvmTokensBoxFor(WalletInfo walletInfo) async {
-    final walletKey = walletInfo.name.replaceAll(" ", "_");
-
-    final boxName = switch (walletInfo.type) {
-      WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
-      WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
-      _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
-    };
-
-    if (CakeHive.isBoxOpen(boxName)) {
-      return CakeHive.box<Erc20Token>(boxName);
-    }
-    return CakeHive.openBox<Erc20Token>(boxName);
-  }
-
-  Future<List<Erc20Token>> _loadAllUniqueEvmTokens() async {
-    final evmWallets = walletInfoSource.values.where(
-      (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
-    );
-
-    final seen = <String>{};
-    final unique = <Erc20Token>[];
-
-    for (final wallet in evmWallets) {
-      final chain = wallet.type == WalletType.ethereum ? 'ETH' : 'POL';
-      final box = await _openEvmTokensBoxFor(wallet);
-
-      for (final t in box.values.where((t) => t.enabled)) {
-        final key = '$chain|${t.contractAddress.toLowerCase()}';
-        if (seen.add(key)) {
-          unique.add(t);
-        }
-      }
-    }
-
-    return unique;
-  }
-
   @action
   Future<void> _injectUserEthTokensIntoCurrencyLists() async {
-    final userTokens = await _loadAllUniqueEvmTokens();
+    final userTokens = await TokenUtilities.loadAllUniqueEvmTokens(walletInfoSource);
 
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
@@ -1125,35 +1124,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   // Adding user's Solana tokens to the list of currencies
 
-  Future<Box<SPLToken>> _openSolTokensBoxFor(WalletInfo wallet) async {
-    final boxName = '${wallet.name.replaceAll(" ", "_")}_${SPLToken.boxName}';
-    if (CakeHive.isBoxOpen(boxName)) {
-      return CakeHive.box<SPLToken>(boxName);
-    }
-    return CakeHive.openBox<SPLToken>(boxName);
-  }
-
-  Future<List<SPLToken>> _loadAllUniqueSolTokens() async {
-    final solWallets = walletInfoSource.values.where((wallet) => wallet.type == WalletType.solana);
-    final tokens = <SPLToken>[];
-
-    for (final wallet in solWallets) {
-      final box = await _openSolTokensBoxFor(wallet);
-      tokens.addAll(box.values.where((t) => t.enabled));
-    }
-
-    final seen = <String>{};
-    final unique = <SPLToken>[];
-    for (final token in tokens) {
-      final key = token.mintAddress.toLowerCase();
-      if (!seen.contains(key)) {
-        seen.add(key);
-        unique.add(token);
-      }
-    }
-    return unique;
-  }
-
   bool _listContainsSplToken(List<CryptoCurrency> list, SPLToken token) {
     return list.any((item) {
       if (item is SPLToken) {
@@ -1166,7 +1136,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserSplTokensIntoCurrencyLists() async {
-    final userTokens = await _loadAllUniqueSolTokens();
+    final userTokens = await TokenUtilities.loadAllUniqueSolTokens(walletInfoSource);
 
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
@@ -1182,31 +1152,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   // Adding user's Tron tokens to the list of currencies
 
-  Future<Box<TronToken>> _openTronTokensBoxFor(WalletInfo walletInfo) async {
-    final boxName = '${walletInfo.name.replaceAll(" ", "_")}_${TronToken.boxName}';
-    if (CakeHive.isBoxOpen(boxName)) {
-      return CakeHive.box<TronToken>(boxName);
-    }
-    return CakeHive.openBox<TronToken>(boxName);
-  }
-
-  Future<List<TronToken>> _loadAllUniqueTronTokens() async {
-    final tronWallets = walletInfoSource.values.where((w) => w.type == WalletType.tron);
-
-    final seen = <String>{};
-    final unique = <TronToken>[];
-
-    for (final wallet in tronWallets) {
-      final box = await _openTronTokensBoxFor(wallet);
-      for (final t in box.values.where((t) => t.enabled)) {
-        final key = t.contractAddress.toLowerCase();
-        if (seen.add(key)) unique.add(t);
-      }
-    }
-
-    return unique;
-  }
-
   bool _listContainsTronToken(List<CryptoCurrency> list, TronToken token) {
     return list.any((item) {
       if (item is TronToken) {
@@ -1219,7 +1164,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> _injectUserTronTokensIntoCurrencyLists() async {
-    final userTokens = await _loadAllUniqueTronTokens();
+    final userTokens = await TokenUtilities.loadAllUniqueTronTokens(walletInfoSource);
 
     final toAddReceive = <CryptoCurrency>[];
     final toAddDeposit = <CryptoCurrency>[];
