@@ -12,6 +12,7 @@ const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const zanoOutputPath = 'lib/zano/zano.dart';
 const decredOutputPath = 'lib/decred/decred.dart';
 const dogecoinOutputPath = 'lib/dogecoin/dogecoin.dart';
+const baseOutputPath = 'lib/base/base.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
@@ -32,6 +33,7 @@ Future<void> main(List<String> args) async {
   final hasZano = args.contains('${prefix}zano');
   final hasDecred = args.contains('${prefix}decred');
   final hasDogecoin = args.contains('${prefix}dogecoin');
+  final hasBase = args.contains('${prefix}base');
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
 
   await generateBitcoin(hasBitcoin);
@@ -63,6 +65,7 @@ Future<void> main(List<String> args) async {
     hasZano: hasZano,
     hasDecred: hasDecred,
     hasDogecoin: hasDogecoin,
+    hasBase: hasBase,
   );
   await generateWalletTypes(
     hasMonero: hasMonero,
@@ -1490,6 +1493,7 @@ Future<void> generatePubspec({
   required bool hasZano,
   required bool hasDecred,
   required bool hasDogecoin,
+  required bool hasBase,
 }) async {
   const cwCore = """
   cw_core:
@@ -1558,6 +1562,11 @@ Future<void> generatePubspec({
   cw_dogecoin:
       path: ./cw_dogecoin
   """;
+  const cwBase = """
+  cw_base:
+      path: ./cw_base
+  """;
+  
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
@@ -1625,6 +1634,10 @@ Future<void> generatePubspec({
 
   if (hasDogecoin) {
     output += '\n$cwDogecoin';
+  }
+
+  if (hasBase) {
+    output += '\n$cwBase';
   }
 
   final outputLines = output.split('\n');
