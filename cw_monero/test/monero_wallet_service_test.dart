@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -7,26 +8,28 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'mock/path_provider.dart';
 import 'utils/setup_monero_c.dart';
 
 Future<void> main() async {
   group("MoneroWalletService Tests", () {
-    Hive.init('./test/data/db');
     late MoneroWalletService walletService;
     late File moneroCBinary;
 
     setUpAll(() async {
+      databaseFactory = databaseFactoryFfi;
+      await initDb(pathOverride: './test/data/db');
+      Hive.init('./test/data/db');
       PathProviderPlatform.instance = MockPathProviderPlatform();
 
-      final Box<WalletInfo> walletInfoSource =
-          await Hive.openBox('testWalletInfo');
       final Box<UnspentCoinsInfo> unspentCoinsInfoSource =
           await Hive.openBox('testUnspentCoinsInfo');
 
-      walletService = MoneroWalletService(walletInfoSource, unspentCoinsInfoSource);
+      walletService = MoneroWalletService(unspentCoinsInfoSource);
       moneroCBinary = getMoneroCBinary().copySync(moneroCBinaryName);
     });
 

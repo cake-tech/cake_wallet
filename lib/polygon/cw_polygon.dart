@@ -4,8 +4,8 @@ class CWPolygon extends Polygon {
   @override
   List<String> getPolygonWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
-      PolygonWalletService(walletInfoSource, isDirect, client: PolygonClient());
+  WalletService createPolygonWalletService(bool isDirect) =>
+      PolygonWalletService(isDirect, client: PolygonClient());
 
   @override
   WalletCredentials createPolygonNewWalletCredentials({
@@ -199,10 +199,11 @@ class CWPolygon extends Polygon {
   );
 
   @override
-  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
+  Future<void> setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) async {
+    final derivationInfo = await wallet.walletInfo.getDerivationInfo();
     ((wallet as EVMChainWallet).evmChainPrivateKey as EvmLedgerCredentials).setLedgerConnection(
       connection,
-      wallet.walletInfo.derivationInfo?.derivationPath,
+      derivationInfo.derivationPath,
     );
   }
 

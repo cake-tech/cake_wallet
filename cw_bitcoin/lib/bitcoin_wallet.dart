@@ -46,6 +46,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   BitcoinWalletBase({
     required String password,
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
@@ -68,6 +69,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           xpub: xpub,
           password: password,
           walletInfo: walletInfo,
+          derivationInfo: derivationInfo,
           unspentCoinsInfo: unspentCoinsInfo,
           network: networkParam == null
               ? BitcoinNetwork.mainnet
@@ -132,7 +134,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }) async {
     late Uint8List seedBytes;
 
-    switch (walletInfo.derivationInfo?.derivationType) {
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
+    switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
         seedBytes = await bip39.mnemonicToSeed(
           mnemonic,
@@ -151,6 +155,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       passphrase: passphrase ?? "",
       password: password,
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialSilentAddresses: initialSilentAddresses,
@@ -211,12 +216,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       );
     }
 
-    walletInfo.derivationInfo ??= DerivationInfo();
+    final derivationInfo = await walletInfo.getDerivationInfo();
 
     // set the default if not present:
-    walletInfo.derivationInfo!.derivationPath ??=
+    derivationInfo.derivationPath ??=
         snp?.derivationPath ?? electrum_path;
-    walletInfo.derivationInfo!.derivationType ??=
+    derivationInfo.derivationType ??=
         snp?.derivationType ?? DerivationType.electrum;
 
     Uint8List? seedBytes = null;
@@ -224,7 +229,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final passphrase = keysData.passphrase;
 
     if (mnemonic != null) {
-      switch (walletInfo.derivationInfo!.derivationType) {
+      switch (derivationInfo.derivationType) {
         case DerivationType.electrum:
           seedBytes =
               await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
@@ -245,6 +250,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         password: password,
         passphrase: passphrase,
         walletInfo: walletInfo,
+        derivationInfo: derivationInfo,
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: snp?.addresses,
         initialSilentAddresses: snp?.silentAddresses,
@@ -264,10 +270,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   BitcoinLedgerApp? _bitcoinLedgerApp;
 
   @override
-  void setLedgerConnection(LedgerConnection connection) {
+  Future<void> setLedgerConnection(LedgerConnection connection) async {
     _ledgerConnection = connection;
+    final derivationInfo = await walletInfo.getDerivationInfo();
     _bitcoinLedgerApp = BitcoinLedgerApp(_ledgerConnection!,
-        derivationPath: walletInfo.derivationInfo!.derivationPath!);
+        derivationPath: derivationInfo.derivationPath!);
   }
 
   @override
@@ -491,7 +498,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           : null;
       final index = addressEntry?.index ?? 0;
       final isChange = addressEntry?.isHidden == true ? 1 : 0;
-      final accountPath = walletInfo.derivationInfo?.derivationPath;
+      final derivationInfo = await walletInfo.getDerivationInfo();
+      final accountPath = derivationInfo.derivationPath;
       final derivationPath =
           accountPath != null ? "$accountPath/$isChange/$index" : null;
 

@@ -15,9 +15,8 @@ abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletSer
     EVMChainRestoreWalletFromSeedCredentials,
     EVMChainRestoreWalletFromPrivateKey,
     EVMChainRestoreWalletFromHardware> {
-  EVMChainWalletService(this.walletInfoSource, this.isDirect);
+  EVMChainWalletService(this.isDirect);
 
-  final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
 
   @override
@@ -48,8 +47,10 @@ abstract class EVMChainWalletService<T extends EVMChainWallet> extends WalletSer
   @override
   Future<void> remove(String wallet) async {
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = walletInfoSource.values
-        .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
-    await walletInfoSource.delete(walletInfo.key);
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      throw Exception('Wallet not found');
+    }
+    await WalletInfo.delete(walletInfo);
   }
 }

@@ -15,7 +15,7 @@ String? latestLedgerCommand;
 typedef LedgerCallback = Void Function(Pointer<UnsignedChar>, UnsignedInt);
 NativeCallable<LedgerCallback>? callable;
 
-void enableLedgerExchange(LedgerConnection connection) {
+Future<void> enableLedgerExchange(LedgerConnection connection) async {
   callable?.close();
 
   void callback(Pointer<UnsignedChar> request, int requestLength) async {
