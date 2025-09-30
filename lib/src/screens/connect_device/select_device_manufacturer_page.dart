@@ -49,11 +49,11 @@ class SelectDeviceManufacturerPage extends BasePage {
           hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
-          hardwareWalletType: HardwareWalletType.seedsigner,
-          tag: S.current.new_tag,
-        ),
+        // _DeviceManufacturer(
+        //   image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+        //   hardwareWalletType: HardwareWalletType.seedsigner,
+        //   tag: S.current.new_tag,
+        // ),
       ]
           .where((e) => availableHardwareWalletTypes == null
               ? ![HardwareWalletType.cupcake].contains(e.hardwareWalletType)
@@ -68,6 +68,11 @@ class SelectDeviceManufacturerPage extends BasePage {
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.bitbox,
+          tag: S.current.coming_soon_tag,
+        ),
+        _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+          hardwareWalletType: HardwareWalletType.seedsigner,
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
