@@ -41,7 +41,7 @@ void startAuthenticationStateChange(
     if (state == AuthenticationState.installed &&
         !SettingsStoreBase.walletPasswordDirectInput) {
       try {
-        if (!requireHardwareWalletConnection()) await loadCurrentWallet();
+        if (!(await requireHardwareWalletConnection())) await loadCurrentWallet();
       } catch (error, stack) {
         loginError = error;
         await ExceptionHandler.resetLastPopupDate();
@@ -54,7 +54,7 @@ void startAuthenticationStateChange(
     if ([AuthenticationState.allowed, AuthenticationState.allowedCreate]
         .contains(state)) {
       if (state == AuthenticationState.allowed &&
-          requireHardwareWalletConnection()) {
+          (await requireHardwareWalletConnection())) {
         await navigatorKey.currentState!.pushNamedAndRemoveUntil(
           Routes.connectDevices,
           (route) => false,

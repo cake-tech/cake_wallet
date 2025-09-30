@@ -109,8 +109,8 @@ class CWZano extends Zano {
   // }
 
   @override
-  WalletService createZanoWalletService(Box<WalletInfo> walletInfoSource) {
-    return ZanoWalletService(walletInfoSource);
+  WalletService createZanoWalletService() {
+    return ZanoWalletService();
   }
 
   @override
