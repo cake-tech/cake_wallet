@@ -1,0 +1,5 @@
+-
+  uri: base.nownodes.io
+  is_default: true
+  useSSL: true
+  isEnabledForAutoSwitching: true

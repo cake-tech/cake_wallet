@@ -47,6 +47,7 @@ const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
 const decredDefaultUri = "default-spv-nodes";
 const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
+const baseDefaultNodeUri = 'base.nownodes.io';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -642,6 +643,8 @@ String _getDefaultNodeUri(WalletType type) {
       return decredDefaultUri;
     case WalletType.dogecoin:
       return dogecoinDefaultNodeUri;
+    case WalletType.base:
+      return baseDefaultNodeUri;
     case WalletType.banano:
     case WalletType.none:
       return '';
