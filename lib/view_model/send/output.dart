@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
@@ -114,6 +115,9 @@ abstract class OutputBase with Store {
           case WalletType.polygon:
             _amount = polygon!.formatterPolygonParseAmount(_cryptoAmount);
             break;
+          case WalletType.base:
+            _amount = base!.formatterBaseParseAmount(_cryptoAmount);
+            break;
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
@@ -203,6 +207,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.decred) {
         return decred!.formatterDecredAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.base) {
+        return base!.formatterBaseAmountToDouble(amount: BigInt.from(fee));
       }
     } catch (e) {
       printV(e.toString());
@@ -327,6 +335,7 @@ abstract class OutputBase with Store {
       case WalletType.monero:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.haven:
