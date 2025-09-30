@@ -143,6 +143,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return DecredURI(amount: amount, address: address.address);
       case WalletType.dogecoin:
         return DogeURI(amount: amount, address: address.address);
+      case WalletType.base:
+        return BaseURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

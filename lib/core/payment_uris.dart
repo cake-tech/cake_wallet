@@ -86,6 +86,21 @@ class EthereumURI extends PaymentURI {
   }
 }
 
+class BaseURI extends PaymentURI {
+  BaseURI({required super.amount, required super.address});
+
+  @override
+  String toString() {
+    var base = 'base:$address';
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 class BitcoinCashURI extends PaymentURI {
   BitcoinCashURI({required super.amount, required super.address});
 
