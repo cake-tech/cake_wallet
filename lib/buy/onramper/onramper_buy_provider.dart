@@ -285,7 +285,7 @@ class OnRamperBuyProvider extends BuyProvider {
     final networkWallets =
         '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress';
 
-    final signature = getOnramperSignature("networkWallets=$networkWallets");
+    final signature = await getOnramperSignature("networkWallets=$networkWallets");
 
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
