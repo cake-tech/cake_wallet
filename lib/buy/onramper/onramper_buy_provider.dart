@@ -9,7 +9,6 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -30,6 +29,7 @@ class OnRamperBuyProvider extends BuyProvider {
 
   static const _baseUrl = 'buy.onramper.com';
   static const _baseApiUrl = 'api.onramper.com';
+  static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
   static const quotes = '/quotes';
   static const paymentTypes = '/payment-types';
   static const supported = '/supported';
@@ -45,6 +45,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
   String get _apiKey => secrets.onramperApiKey;
 
+  String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
+
   @override
   String get title => 'Onramper';
 
@@ -59,6 +61,24 @@ class OnRamperBuyProvider extends BuyProvider {
 
   @override
   bool get isAggregator => true;
+
+  Future<String> getOnramperSignature(String query) async {
+    final uri = Uri.https(_cIdBaseUrl, "/api/onramper");
+
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: {'Content-Type': 'application/json', 'x-api-key': _exchangeHelperApiKey},
+      body: json.encode({'query': query}),
+    );
+
+
+    if (response.statusCode == 200) {
+      return (jsonDecode(response.body) as Map<String, dynamic>)['signature'] as String;
+    } else {
+      throw Exception(
+          'Provider currently unavailable. Status: ${response.statusCode} ${response.body}');
+    }
+  }
 
   Future<String?> getRecommendedPaymentType(bool isBuyAction) async {
 
@@ -262,6 +282,11 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final paymentMethod = quote.paymentType == PaymentType.unknown ? quote.customPaymentMethodType : normalizePaymentMethod(quote.paymentType);
 
+    final networkWallets =
+        '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress';
+
+    final signature = getOnramperSignature("networkWallets=$networkWallets");
+
     final uri = Uri.https(_baseUrl, '', {
       'apiKey': _apiKey,
       'txnType': actionType,
@@ -271,7 +296,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'skipTransactionScreen': "true",
       if (paymentMethod != null) 'txnPaymentMethod': paymentMethod,
       'txnOnramp': quote.rampId,
-      'networkWallets': '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress',
+      'networkWallets': networkWallets,
       'supportSwap': "false",
       'primaryColor': primaryColor,
       'secondaryColor': secondaryColor,
@@ -279,6 +304,7 @@ class OnRamperBuyProvider extends BuyProvider {
       'primaryTextColor': primaryTextColor,
       'secondaryTextColor': secondaryTextColor,
       'cardColor': cardColor,
+      'signature': signature,
     });
 
     if (await canLaunchUrl(uri)) {
@@ -423,5 +449,6 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  String getColorStr(Color color) => color.value.toRadixString(16).replaceAll(RegExp(r'^ff'), "");
+  String getColorStr(Color color) =>
+      color.toARGB32().toRadixString(16).replaceAll(RegExp(r'^ff'), "");
 }
