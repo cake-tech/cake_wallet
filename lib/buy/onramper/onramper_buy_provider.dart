@@ -283,7 +283,7 @@ class OnRamperBuyProvider extends BuyProvider {
     final paymentMethod = quote.paymentType == PaymentType.unknown ? quote.customPaymentMethodType : normalizePaymentMethod(quote.paymentType);
 
     final networkWallets =
-        '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title)}:$cryptoCurrencyAddress';
+        '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title).toLowerCase()}:$cryptoCurrencyAddress';
 
     final signature = await getOnramperSignature("networkWallets=$networkWallets");
 
