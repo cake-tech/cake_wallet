@@ -33,7 +33,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   bool isBleEnabled = false;
 
   @override
-  bool get hasBluetooth => Platform.isIOS;
+  bool get hasBluetooth => Platform.isIOS && false; // TODO: remove when we enable bluetooth
 
   @override
   Future<void> updateBleState() async {}
