@@ -50,7 +50,7 @@ abstract class TrezorViewModelBase extends HardwareWalletViewModel with Store {
   bool get isConnected => true;
 
   @override
-  HardwareWalletService getHardwareWalletService(WalletType type) {
+  Future<HardwareWalletService> getHardwareWalletService(WalletType type) {
     switch (type) {
       case WalletType.bitcoin:
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, true);
@@ -66,15 +66,15 @@ abstract class TrezorViewModelBase extends HardwareWalletViewModel with Store {
   }
 
   @override
-  void initWallet(WalletBase wallet) {
+  Future<void> initWallet(WalletBase wallet) async {
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return bitcoin!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
-        return ethereum!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return ethereum!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return polygon!.setHardwareWalletService(wallet, await getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

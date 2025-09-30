@@ -260,17 +260,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   WalletService createBitcoinWalletService(
-      Box<WalletInfo> walletInfoSource,
       Box<UnspentCoinsInfo> unspentCoinSource,
       Box<PayjoinSession> payjoinSessionSource,
       bool isDirect) {
-    return BitcoinWalletService(
-        walletInfoSource, unspentCoinSource, payjoinSessionSource, isDirect);
+    return BitcoinWalletService(unspentCoinSource, payjoinSessionSource, isDirect);
   }
 
-  WalletService createLitecoinWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
-    return LitecoinWalletService(walletInfoSource, unspentCoinSource, isDirect);
+  WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return LitecoinWalletService(unspentCoinSource, isDirect);
   }
 
   @override
@@ -537,8 +534,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
     (wallet as ElectrumWallet).hardwareWalletService = service;
+  }
+
+  @override
+  Future<void> setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) async {
+    await (wallet as ElectrumWallet).setLedgerConnection(connection);
   }
 
   @override

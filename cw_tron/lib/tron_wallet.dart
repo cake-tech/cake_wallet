@@ -42,6 +42,7 @@ abstract class TronWalletBase
     with Store, WalletKeysFile {
   TronWalletBase({
     required WalletInfo walletInfo,
+    required DerivationInfo derivationInfo,
     String? mnemonic,
     String? privateKey,
     required String password,
@@ -57,7 +58,7 @@ abstract class TronWalletBase
         balance = ObservableMap<CryptoCurrency, TronBalance>.of(
           {CryptoCurrency.trx: initialBalance ?? TronBalance(BigInt.zero)},
         ),
-        super(walletInfo) {
+        super(walletInfo, derivationInfo) {
     this.walletInfo = walletInfo;
     transactionHistory = TronTransactionHistory(
         walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
@@ -163,8 +164,11 @@ abstract class TronWalletBase
       );
     }
 
+    final derivationInfo = await walletInfo.getDerivationInfo();
+
     return TronWallet(
       walletInfo: walletInfo,
+      derivationInfo: derivationInfo,
       password: password,
       mnemonic: keysData.mnemonic,
       privateKey: keysData.privateKey,

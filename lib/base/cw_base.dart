@@ -4,7 +4,7 @@ class CWBase extends Base {
   @override
   List<String> getBaseWordList(String language) => EVMChainMnemonics.englishWordlist;
 
-  WalletService createBaseWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) =>
+  WalletService createBaseWalletService(bool isDirect) =>
       BaseWalletService(walletInfoSource, isDirect, client: BaseClient());
 
   @override

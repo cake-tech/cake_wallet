@@ -37,15 +37,11 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> init() async {
-    if (walletInfo.addresses != null) {
-      addressesMap = walletInfo.addresses!;
-    }
-    if (walletInfo.addressInfos != null) {
-      addressInfos = walletInfo.addressInfos!;
-    }
-    if (walletInfo.usedAddresses != null) {
-      usedAddresses = {...walletInfo.usedAddresses!};
-    }
+    addressesMap = await walletInfo.getAddresses();
+    addressInfos = await walletInfo.getAddressInfos();
+    usedAddresses = await walletInfo.getUsedAddresses();
+    manualAddresses = await walletInfo.getManualAddresses();
+    hiddenAddresses = await walletInfo.getHiddenAddresses();
     await updateAddressesInBox();
   }
 
@@ -61,7 +57,15 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
       }
       addressesMap[addr] = "";
       addressInfos[0] ??= [];
-      addressInfos[0]?.add(AddressInfo(address: addr, label: "", accountIndex: 0));
+      addressInfos[0]?.add(
+        WalletInfoAddressInfo(
+          walletInfoId: walletInfo.internalId,
+          mapKey: 0,
+          address: addr,
+          label: "",
+          accountIndex: 0,
+        ),
+      );
     });
 
     // Add used addresses.
@@ -79,11 +83,11 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     await saveAddressesInBox();
   }
 
-  List<AddressInfo> getAddressInfos() {
+  List<WalletInfoAddressInfo> getAddressInfos() {
     if (addressInfos.containsKey(0)) {
       return addressInfos[0]!;
     }
-    return <AddressInfo>[];
+    return <WalletInfoAddressInfo>[];
   }
 
   Future<void> updateAddress(String address, String label) async {
@@ -128,7 +132,15 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     if (!addressesMap.containsKey(addr)) {
       addressesMap[addr] = "";
       addressInfos[0] ??= [];
-      addressInfos[0]?.add(AddressInfo(address: addr, label: label, accountIndex: 0));
+      addressInfos[0]?.add(
+        WalletInfoAddressInfo(
+          walletInfoId: walletInfo.internalId,
+          mapKey: 0,
+          address: addr,
+          label: label,
+          accountIndex: 0,
+        ),
+      );
     }
     selectedAddr = addr;
     await saveAddressesInBox();
