@@ -1,7 +1,7 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 
-class DefaultBaseTokens {
+class DefaultBaseErc20Tokens {
   final List<Erc20Token> _defaultTokens = [
     Erc20Token(
       name: "USD Coin",
@@ -54,7 +54,7 @@ class DefaultBaseTokens {
     ),
   ];
 
-  List<Erc20Token> get initialBaseTokens => _defaultTokens.map((token) {
+  List<Erc20Token> get initialBaseErc20Tokens => _defaultTokens.map((token) {
         String? iconPath;
         try {
           iconPath = CryptoCurrency.all

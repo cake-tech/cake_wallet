@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:cw_base/base_client.dart';
 import 'package:cw_base/base_transaction_history.dart';
 import 'package:cw_base/base_transaction_info.dart';
-import 'package:cw_base/default_base_tokens.dart';
+import 'package:cw_base/default_base_erc20_tokens.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -42,7 +42,7 @@ class BaseWallet extends EVMChainWallet {
 
   @override
   void addInitialTokens([bool isMigration = false]) {
-    final initialErc20Tokens = DefaultBaseTokens().initialBaseTokens;
+    final initialErc20Tokens = DefaultBaseErc20Tokens().initialBaseErc20Tokens;
 
     for (final token in initialErc20Tokens) {
       if (evmChainErc20TokensBox.containsKey(token.contractAddress)) {
@@ -59,7 +59,7 @@ class BaseWallet extends EVMChainWallet {
 
   @override
   List<String> get getDefaultTokenContractAddresses =>
-      DefaultBaseTokens().initialBaseTokens.map((e) => e.contractAddress).toList();
+      DefaultBaseErc20Tokens().initialBaseErc20Tokens.map((e) => e.contractAddress).toList();
 
   @override
   Future<bool> checkIfScanProviderIsEnabled() async {
