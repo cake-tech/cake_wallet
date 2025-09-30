@@ -184,6 +184,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return decredIcon;
       case WalletType.dogecoin:
         return dogeIcon;
+      case WalletType.base:
+        return ethereumIcon;
       case WalletType.none:
         return nonWalletTypeIcon;
     }

@@ -353,6 +353,8 @@ class CommonTestFlows {
         return secrets.polygonTestWalletSeeds;
       case WalletType.solana:
         return secrets.solanaTestWalletSeeds;
+      case WalletType.base:
+        return secrets.baseTestWalletSeeds;
       case WalletType.tron:
         return secrets.tronTestWalletSeeds;
       case WalletType.nano:

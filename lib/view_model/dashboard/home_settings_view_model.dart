@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/erc20_token_info_moralis.dart';
@@ -218,6 +219,9 @@ abstract class HomeSettingsViewModelBase with Store {
         break;
       case WalletType.polygon:
         defaultTokenAddresses = polygon!.getDefaultTokenContractAddresses();
+        break;
+      case WalletType.base:
+        defaultTokenAddresses = base!.getDefaultTokenContractAddresses();
         break;
       case WalletType.solana:
         defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();
