@@ -46,7 +46,6 @@ class PrimaryButton extends StatelessWidget {
                 borderRadius: borderRadius ?? BorderRadius.circular(12.0),
               ),
             ),
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
           ),
           child: Text(
             text,
@@ -228,7 +227,7 @@ class PrimaryImageButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         height: 52.0,
-        child: ElevatedButton(
+        child: TextButton(
           onPressed: onPressed,
           style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(color),

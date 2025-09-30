@@ -131,7 +131,7 @@ class _DashboardPageView extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
 
   @override
   bool get resizeToAvoidBottomInset => false;
@@ -174,7 +174,7 @@ class _DashboardPageView extends BasePage {
           label: S.of(context).wallet_menu,
           child: SvgPicture.asset(
             'assets/images/menu.svg',
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ),

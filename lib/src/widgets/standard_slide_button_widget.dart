@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 
 class StandardSlideButton extends StatefulWidget {
@@ -22,7 +21,7 @@ class StandardSlideButton extends StatefulWidget {
   final String accessibleNavigationModeButtonText;
   final Color? tileBackgroundColor;
   final Color? knobColor;
-  
+
   @override
   StandardSlideButtonState createState() => StandardSlideButtonState();
 }
@@ -39,9 +38,7 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
   Widget build(BuildContext context) {
     final bool accessible = MediaQuery.of(context).accessibleNavigation;
 
-    final tileBackgroundColor = widget.currentTheme.isDark
-        ? CustomThemeColors.backgroundGradientColorDark
-        : CustomThemeColors.backgroundGradientColorLight;
+    final tileBackgroundColor = widget.currentTheme.customColors.backgroundGradientColor;
 
     return accessible
         ? PrimaryButton(

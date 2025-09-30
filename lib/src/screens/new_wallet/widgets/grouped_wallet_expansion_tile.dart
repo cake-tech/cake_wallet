@@ -55,24 +55,19 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     final effectiveTextColor = textColor ??
         (isSelected
             ? Theme.of(context).colorScheme.onPrimary
-            : Theme.of(context).colorScheme.onSecondaryContainer);
+            : Theme.of(context).colorScheme.onSurface);
 
     final effectiveArrowColor = arrowColor ??
         (isSelected
             ? Theme.of(context).colorScheme.onPrimary
-            : Theme.of(context).colorScheme.onSecondaryContainer);
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: borderRadius ?? BorderRadius.all(Radius.circular(30)),
-        color: backgroundColor,
-      ),
-      margin: margin ?? const EdgeInsets.only(bottom: 12.0),
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent,
-          splashFactory: NoSplash.splashFactory,
-        ),
+            : Theme.of(context).colorScheme.onSurfaceVariant);
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 6),
         child: ExpansionTile(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          collapsedBackgroundColor: backgroundColor,
+          backgroundColor: backgroundColor,
           onExpansionChanged: onExpansionChanged,
           initiallyExpanded: shouldShowCurrentWalletPointer
               ? childWallets.any((element) => element.isCurrent)
@@ -108,7 +103,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 trailing: childTrailingWidget?.call(item),
                 onTap: () => onChildItemTapped(item),
                 leading: SizedBox(
-                  width: 60,
+                  width: 64,
                   child: Row(
                     children: [
                       item.isCurrent && shouldShowCurrentWalletPointer
@@ -123,8 +118,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                                 color: currentColor,
                               ),
                             )
-                          : SizedBox(width: 6),
-                      SizedBox(width: 16),
+                          : SizedBox(width: 7),
+                      SizedBox(width: 24),
                       Image.asset(
                         walletTypeToCrypto.iconPath!,
                         width: 32,
@@ -146,7 +141,6 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             },
           ).toList(),
         ),
-      ),
-    );
+      );
   }
 }
