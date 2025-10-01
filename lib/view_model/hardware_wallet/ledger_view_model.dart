@@ -182,11 +182,11 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.bitcoin:
         return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
-        return bitcoin!.setLedgerConnection(wallet, connection);
+        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
-        return ethereum!.setLedgerConnection(wallet, connection);
+        return ethereum!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setLedgerConnection(wallet, connection);
+        return polygon!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

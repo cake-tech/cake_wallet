@@ -777,8 +777,7 @@ abstract class Ethereum {
   Future<PendingTransaction> reinvestDEuroInterest(WalletBase wallet, TransactionPriority priority);
   Future<PendingTransaction> enableDEuroSaving(WalletBase wallet, TransactionPriority priority);
   
-  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
-  void setBitboxManager(WalletBase wallet, bitbox.BitboxManager manager);
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   List<String> getDefaultTokenContractAddresses();
@@ -893,8 +892,7 @@ abstract class Polygon {
   Web3Client? getWeb3Client(WalletBase wallet);
   String getTokenAddress(CryptoCurrency asset);
   
-  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
-  void setBitboxManager(WalletBase wallet, bitbox.BitboxManager manager);
+  void setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
   HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
   List<String> getDefaultTokenContractAddresses();

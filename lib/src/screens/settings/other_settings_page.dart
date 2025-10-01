@@ -27,126 +27,123 @@ class OtherSettingsPage extends BasePage {
   final OtherSettingsViewModel _otherSettingsViewModel;
 
   @override
-  Widget body(BuildContext context) {
-    return Observer(
-      builder: (_) => Container(
-        padding: EdgeInsets.only(top: 10),
-        child: Column(
-          children: [
-            if (_otherSettingsViewModel.displayTransactionPriority)
-              _otherSettingsViewModel.walletType == WalletType.bitcoin
-                  ? SettingsPriorityPickerCell(
-                      title: S.current.settings_fee_priority,
-                      items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                      displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
-                      selectedItem: _otherSettingsViewModel.transactionPriority,
-                      customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
-                      onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
-                      customValue: _otherSettingsViewModel.customBitcoinFeeRate,
-                      maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
-                    )
-                  : SettingsPickerCell(
-                      title: S.current.settings_fee_priority,
-                      items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                      displayItem: _otherSettingsViewModel.getDisplayPriority,
-                      selectedItem: _otherSettingsViewModel.transactionPriority,
-                      onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
-                    ),
-            if (_otherSettingsViewModel.changeRepresentativeEnabled)
+  Widget body(BuildContext context) => Observer(
+        builder: (_) => Container(
+          padding: EdgeInsets.only(top: 10),
+          child: Column(
+            children: [
+              if (_otherSettingsViewModel.displayTransactionPriority)
+                _otherSettingsViewModel.walletType == WalletType.bitcoin
+                    ? SettingsPriorityPickerCell(
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                        displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
+                        onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
+                        customValue: _otherSettingsViewModel.customBitcoinFeeRate,
+                        maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
+                      )
+                    : SettingsPickerCell(
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWalletType(_otherSettingsViewModel.walletType),
+                        displayItem: _otherSettingsViewModel.getDisplayPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                      ),
+              if (_otherSettingsViewModel.changeRepresentativeEnabled)
+                SettingsCellWithArrow(
+                  title: S.current.change_rep,
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.changeRep),
+                ),
+              if (_otherSettingsViewModel.changeHardwareWalletTypeEnabled)
+                SettingsCellWithArrow(
+                  title: "Hardware wallet manufacturer",
+                  handler: (context) => Navigator.of(context)
+                      .pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: {
+                    "showUnavailable": false,
+                    "availableHardwareWalletTypes": [
+                      HardwareWalletType.cupcake,
+                      HardwareWalletType.coldcard,
+                      HardwareWalletType.seedsigner,
+                    ],
+                    "onSelect": (BuildContext context, HardwareWalletType hwType) async {
+                      await _otherSettingsViewModel.onHardwareWalletTypeChanged(hwType);
+                      Navigator.pop(context);
+                    },
+                  }),
+                ),
               SettingsCellWithArrow(
-                title: S.current.change_rep,
-                handler: (context) => Navigator.of(context).pushNamed(Routes.changeRep),
+                title: S.current.settings_terms_and_conditions,
+                handler: (context) => Navigator.of(context).pushNamed(Routes.readDisclaimer),
               ),
-            if (_otherSettingsViewModel.changeHardwareWalletTypeEnabled)
-              SettingsCellWithArrow(
-                title: "Hardware wallet manufacturer",
-                handler: (context) => Navigator.of(context)
-                    .pushNamed(Routes.restoreWalletFromHardwareWallet, arguments: {
-                  "showUnavailable": false,
-                  "availableHardwareWalletTypes": [
-                    HardwareWalletType.cupcake,
-                    HardwareWalletType.coldcard,
-                    HardwareWalletType.seedsigner,
-                  ],
-                  "onSelect": (BuildContext context, HardwareWalletType hwType) async {
-                    await _otherSettingsViewModel.onHardwareWalletTypeChanged(hwType);
-                    Navigator.pop(context);
-                  },
-                }),
-              ),
-            SettingsCellWithArrow(
-              title: S.current.settings_terms_and_conditions,
-              handler: (context) => Navigator.of(context).pushNamed(Routes.readDisclaimer),
-            ),
-            if (FeatureFlag.hasDevOptions &&
-                _otherSettingsViewModel.walletType == WalletType.monero)
-              SettingsCellWithArrow(
-                title: '[dev] monero background sync',
-                handler: (context) =>
-                    Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync),
-              ),
-            if (FeatureFlag.hasDevOptions &&
-                [WalletType.monero, WalletType.wownero, WalletType.zano]
-                    .contains(_otherSettingsViewModel.walletType))
-              SettingsCellWithArrow(
-                title: '[dev] xmr call profiler',
-                handler: (context) => Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
-              ),
-            if (FeatureFlag.hasDevOptions && [WalletType.monero].contains(_otherSettingsViewModel.walletType))
+              if (FeatureFlag.hasDevOptions &&
+                  _otherSettingsViewModel.walletType == WalletType.monero)
+                SettingsCellWithArrow(
+                  title: '[dev] monero background sync',
+                  handler: (context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroBackgroundSync),
+                ),
+              if (FeatureFlag.hasDevOptions &&
+                  [WalletType.monero, WalletType.wownero, WalletType.zano]
+                      .contains(_otherSettingsViewModel.walletType))
+                SettingsCellWithArrow(
+                  title: '[dev] xmr call profiler',
+                  handler: (context) =>
+                      Navigator.of(context).pushNamed(Routes.devMoneroCallProfiler),
+                ),
+              if (FeatureFlag.hasDevOptions &&
+                  [WalletType.monero].contains(_otherSettingsViewModel.walletType))
                 SettingsCellWithArrow(
                   title: '[dev] xmr wallet cache debug',
-                  handler: (BuildContext context) =>
+                  handler: (context) =>
                       Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] shared preferences',
-                  handler: (BuildContext context) =>
+                  handler: (context) =>
                       Navigator.of(context).pushNamed(Routes.devSharedPreferences),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] secure storage preferences',
-                  handler: (BuildContext context) =>
+                  handler: (context) =>
                       Navigator.of(context).pushNamed(Routes.devSecurePreferences),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] background sync logs',
-                  handler: (BuildContext context) =>
+                  handler: (context) =>
                       Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] socket health logs',
-                  handler: (BuildContext context) =>
-                      Navigator.of(context).pushNamed(Routes.devSocketHealthLogs),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devSocketHealthLogs),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] network requests logs',
-                  handler: (BuildContext context) =>
-                      Navigator.of(context).pushNamed(Routes.devNetworkRequests),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devNetworkRequests),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] exchange provider logs',
-                  handler: (BuildContext context) =>
+                  handler: (context) =>
                       Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
                 ),
               if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] *QR tools',
-                  handler: (context) =>
-                      Navigator.of(context).pushNamed(Routes.devQRTools),
+                  handler: (context) => Navigator.of(context).pushNamed(Routes.devQRTools),
                 ),
               Spacer(),
               SettingsVersionCell(
-                  title: S.of(context).version(_otherSettingsViewModel.currentVersion)),
+                title: S.of(context).version(_otherSettingsViewModel.currentVersion),
+              ),
             ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
 }

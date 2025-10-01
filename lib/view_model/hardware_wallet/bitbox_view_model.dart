@@ -100,9 +100,9 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.litecoin:
         return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
-        return ethereum!.setBitboxManager(wallet, bitboxManager);
+        return ethereum!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.polygon:
-        return polygon!.setBitboxManager(wallet, bitboxManager);
+        return polygon!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }
