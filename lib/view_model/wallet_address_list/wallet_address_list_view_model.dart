@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 import 'dart:core';
 
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/payment_uris.dart';
@@ -265,6 +266,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (wallet.type == WalletType.base) {
+      final primaryAddress = base!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
+    }
+
     if (wallet.type == WalletType.solana) {
       final primaryAddress = solana!.getAddress(wallet);
 
@@ -437,7 +444,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           'assets/images/zano_icon.svg',
           'assets/images/more_tokens.svg',
         ];
-
+      case WalletType.base:
       default:
         return [];
     }
@@ -459,6 +466,7 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return 'assets/images/trx_chain_mono.svg';
       case WalletType.zano:
         return 'assets/images/zano_chain_mono.svg';
+      case WalletType.base:
       default:
         return 'assets/images/eth_chain_mono.svg';
     }

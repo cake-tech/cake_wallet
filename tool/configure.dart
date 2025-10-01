@@ -1479,6 +1479,117 @@ abstract class DogeCoin {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateBase(bool hasImplementation) async {
+  final outputFile = File(baseOutputPath);
+  const baseCommonHeaders = """
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/erc20_token.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
+import 'package:web3dart/web3dart.dart';
+
+""";
+  const baseCWHeaders = """
+import 'package:cw_evm/evm_chain_formatter.dart';
+import 'package:cw_evm/evm_chain_mnemonics.dart';
+import 'package:cw_evm/evm_chain_transaction_credentials.dart';
+import 'package:cw_evm/evm_chain_transaction_info.dart';
+import 'package:cw_evm/evm_chain_transaction_priority.dart';
+import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import 'package:cw_evm/evm_chain_hardware_wallet_service.dart';
+import 'package:cw_evm/evm_ledger_credentials.dart';
+import 'package:cw_evm/evm_chain_wallet.dart';
+
+import 'package:cw_base/base_client.dart';
+import 'package:cw_base/base_wallet.dart';
+import 'package:cw_base/base_wallet_service.dart';
+import 'package:cw_base/default_base_erc20_tokens.dart';
+
+import 'package:eth_sig_util/util/utils.dart';
+
+""";
+  const baseCwPart = "part 'cw_base.dart';";
+  const baseContent = """
+abstract class Base {
+  List<String> getBaseWordList(String language);
+  WalletService createBaseWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletCredentials createBaseNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
+  WalletCredentials createBaseRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
+  WalletCredentials createBaseRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  WalletCredentials createBaseHardwareWalletCredentials({required String name, required HardwareAccountData hwAccountData, WalletInfo? walletInfo});
+  String getAddress(WalletBase wallet);
+  String getPrivateKey(WalletBase wallet);
+  String getPublicKey(WalletBase wallet);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getBaseTransactionPrioritySlow();
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority deserializeBaseTransactionPriority(int raw);
+
+  Object createBaseTransactionCredentials(
+    List<Output> outputs, {
+    required TransactionPriority priority,
+    required CryptoCurrency currency,
+    int? feeRate,
+  });
+
+  Object createBaseTransactionCredentialsRaw(
+    List<OutputInfo> outputs, {
+    TransactionPriority? priority,
+    required CryptoCurrency currency,
+    required int feeRate,
+  });
+
+  int formatterBaseParseAmount(String amount);
+  double formatterBaseAmountToDouble({TransactionInfo? transaction, BigInt? amount, int exponent = 18});
+  List<Erc20Token> getERC20Currencies(WalletBase wallet);
+  Future<void> addErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> deleteErc20Token(WalletBase wallet, CryptoCurrency token);
+  Future<void> removeTokenTransactionsInHistory(WalletBase wallet, CryptoCurrency token);
+  Future<Erc20Token?> getErc20Token(WalletBase wallet, String contractAddress);
+
+  Future<PendingTransaction> createTokenApproval(WalletBase wallet, BigInt amount, String spender, CryptoCurrency token, TransactionPriority priority);
+  
+  CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction);
+  void updateBaseScanUsageState(WalletBase wallet, bool isEnabled);
+  Web3Client? getWeb3Client(WalletBase wallet);
+  String getTokenAddress(CryptoCurrency asset);
+  
+  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection);
+  Future<List<HardwareAccountData>> getHardwareWalletAccounts(LedgerViewModel ledgerVM, {int index = 0, int limit = 5});
+  List<String> getDefaultTokenContractAddresses();
+  bool isTokenAlreadyAdded(WalletBase wallet, String contractAddress);
+}
+  """;
+
+  const baseEmptyDefinition = 'Base? base;\n';
+  const baseCWDefinition = 'Base? base = CWBase();\n';
+
+  final output = '$baseCommonHeaders\n' +
+      (hasImplementation ? '$baseCWHeaders\n' : '\n') +
+      (hasImplementation ? '$baseCwPart\n\n' : '\n') +
+      (hasImplementation ? baseCWDefinition : baseEmptyDefinition) +
+      '\n' +
+      baseContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generatePubspec({
   required bool hasMonero,
   required bool hasBitcoin,
