@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -29,6 +31,7 @@ class WalletRestoreFromQRCode {
     'litecoin_wallet': WalletType.litecoin,
     'ethereum-wallet': WalletType.ethereum,
     'polygon-wallet': WalletType.polygon,
+    'base-wallet': WalletType.base,
     'nano-wallet': WalletType.nano,
     'nano_wallet': WalletType.nano,
     'bitcoincash': WalletType.bitcoinCash,
@@ -122,15 +125,13 @@ class WalletRestoreFromQRCode {
 
       formattedUri = seedPhrase != null
           ? '$walletType:?seed=$seedPhrase'
-          : code.startsWith('xpub') 
-            ? '$walletType:?xpub=$code' 
-            : throw Exception('Failed to determine valid seed phrase');
+          : code.startsWith('xpub')
+              ? '$walletType:?xpub=$code'
+              : throw Exception('Failed to determine valid seed phrase');
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = code.startsWith('xpub') 
-        ? '$walletType:?xpub=$code' 
-        :'$walletType:?$query';
+      formattedUri = code.startsWith('xpub') ? '$walletType:?xpub=$code' : '$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
@@ -202,15 +203,7 @@ class WalletRestoreFromQRCode {
           : throw Exception('Unexpected restore mode: spend_key or view_key is invalid');
     }
 
-    if (type == WalletType.ethereum && credentials.containsKey('private_key')) {
-      final privateKey = credentials['private_key'] as String;
-      if (privateKey.isEmpty) {
-        throw Exception('Unexpected restore mode: private_key');
-      }
-      return WalletRestoreMode.keys;
-    }
-
-    if (type == WalletType.polygon && credentials.containsKey('private_key')) {
+    if (isEVMCompatibleChain(type) && credentials.containsKey('private_key')) {
       final privateKey = credentials['private_key'] as String;
       if (privateKey.isEmpty) {
         throw Exception('Unexpected restore mode: private_key');

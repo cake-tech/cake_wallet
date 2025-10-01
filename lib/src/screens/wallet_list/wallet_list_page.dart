@@ -24,6 +24,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -114,21 +115,6 @@ class WalletListBody extends StatefulWidget {
 }
 
 class WalletListBodyState extends State<WalletListBody> {
-  final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
-  final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
-  final decredIcon = Image.asset('assets/images/decred_icon.png', height: 24, width: 24);
-  final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
-  final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
-  final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
-  final bitcoinCashIcon = Image.asset('assets/images/bch_icon.png', height: 24, width: 24);
-  final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
-  final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
-  final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
-  final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
-  final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
-  final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;

@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.d
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
