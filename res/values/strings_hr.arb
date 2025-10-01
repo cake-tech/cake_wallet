@@ -86,6 +86,7 @@
   "backup_password": "Lozinka za sigurnosnu kopiju",
   "balance": "Uravnotežiti",
   "balance_page": "Stranica sa stanjem",
+  "basescan_history": "Basescan povijest",
   "bill_amount": "Iznos računa",
   "billing_address_info": "Ako se od vas zatraži adresa za naplatu, navedite svoju adresu za dostavu",
   "biometric_auth_reason": "Skenirajte svoj otisak prsta za autentifikaciju",

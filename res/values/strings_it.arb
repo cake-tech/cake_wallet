@@ -86,6 +86,7 @@
   "backup_password": "Backup password",
   "balance": "Saldo",
   "balance_page": "Pagina di saldo",
+  "basescan_history": "Storia di Basescan",
   "bill_amount": "Importo della ricevuta",
   "billing_address_info": "Se ti viene richiesto un indirizzo di fatturazione, fornisci il tuo indirizzo di spedizione",
   "biometric_auth_reason": "Scansiona la tua impronta per autenticarti",
