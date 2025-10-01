@@ -535,6 +535,15 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentDogecoinNodeIdKey,
           );
           break;
+        case 52:
+          await addWalletNodeList(nodes: nodes, type: WalletType.base);
+          await _changeDefaultNode(
+            nodes: nodes,
+            sharedPreferences: sharedPreferences,
+            type: WalletType.base,
+            currentNodePreferenceKey: PreferencesKey.currentBaseNodeIdKey,
+          );
+          break;
         default:
           break;
       }
@@ -1044,6 +1053,7 @@ Future<void> checkCurrentNodes(
   final currentHavenNodeId = sharedPreferences.getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentEthereumNodeId = sharedPreferences.getInt(PreferencesKey.currentEthereumNodeIdKey);
   final currentPolygonNodeId = sharedPreferences.getInt(PreferencesKey.currentPolygonNodeIdKey);
+  final currentBaseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
   final currentNanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
   final currentNanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
   final currentDecredNodeId = sharedPreferences.getInt(PreferencesKey.currentDecredNodeIdKey);
@@ -1067,6 +1077,8 @@ Future<void> checkCurrentNodes(
       nodeSource.values.firstWhereOrNull((node) => node.key == currentEthereumNodeId);
   final currentPolygonNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentPolygonNodeId);
+  final currentBaseNodeServer =
+      nodeSource.values.firstWhereOrNull((node) => node.key == currentBaseNodeId);
   final currentNanoNodeServer =
       nodeSource.values.firstWhereOrNull((node) => node.key == currentNanoNodeId);
   final currentDecredNodeServer =
@@ -1156,6 +1168,12 @@ Future<void> checkCurrentNodes(
     final node = Node(uri: polygonDefaultNodeUri, type: WalletType.polygon);
     await nodeSource.add(node);
     await sharedPreferences.setInt(PreferencesKey.currentPolygonNodeIdKey, node.key as int);
+  }
+
+  if (currentBaseNodeServer == null) {
+    final node = Node(uri: baseDefaultNodeUri, type: WalletType.base);
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(PreferencesKey.currentBaseNodeIdKey, node.key as int);
   }
 
   if (currentSolanaNodeServer == null) {

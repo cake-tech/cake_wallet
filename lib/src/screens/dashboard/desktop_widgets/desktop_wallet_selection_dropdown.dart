@@ -38,6 +38,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
   final polygonIcon = Image.asset('assets/images/matic_icon.png', height: 24, width: 24);
   final bitcoinCashIcon = Image.asset('assets/images/bch_icon.png', height: 24, width: 24);
+  final baseIcon = Image.asset('assets/images/base_icon.png', height: 24, width: 24);
   final nanoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final bananoIcon = Image.asset('assets/images/nano_icon.png', height: 24, width: 24);
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
@@ -185,7 +186,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
       case WalletType.dogecoin:
         return dogeIcon;
       case WalletType.base:
-        return ethereumIcon;
+        return baseIcon;
       case WalletType.none:
         return nonWalletTypeIcon;
     }

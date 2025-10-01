@@ -137,6 +137,7 @@ class DFXBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.solana:
       case WalletType.tron:
         final r = await wallet.signMessage(message);

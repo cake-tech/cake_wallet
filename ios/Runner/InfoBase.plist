@@ -302,6 +302,26 @@
                 <string>dogecoin-wallet</string>
             </array>
         </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>base</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>base</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>base-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>base-wallet</string>
+            </array>
+        </dict>
     </array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>

@@ -102,6 +102,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.solana:
       case WalletType.tron:
         return await wallet.signMessage(message);

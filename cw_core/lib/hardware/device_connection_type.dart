@@ -12,6 +12,7 @@ enum DeviceConnectionType {
       case WalletType.litecoin:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
         if (isIOS) return [DeviceConnectionType.ble];
         return [DeviceConnectionType.ble, DeviceConnectionType.usb];
       default:

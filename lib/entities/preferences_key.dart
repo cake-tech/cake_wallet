@@ -8,6 +8,7 @@ class PreferencesKey {
   static const currentZanoNodeIdKey = 'current_node_id_zano';
   static const currentEthereumNodeIdKey = 'current_node_id_eth';
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
+  static const currentBaseNodeIdKey = 'current_node_id_base';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
   static const currentDecredNodeIdKey = 'current_node_id_decred';
@@ -49,6 +50,7 @@ class PreferencesKey {
   static const litecoinTransactionPriority = 'current_fee_priority_litecoin';
   static const ethereumTransactionPriority = 'current_fee_priority_ethereum';
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
+  static const baseTransactionPriority = 'current_fee_priority_base';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
