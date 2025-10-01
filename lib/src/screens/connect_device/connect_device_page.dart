@@ -186,121 +186,121 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
-      padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                    child: Text(
-                      description,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Offstage(
-                    offstage: !longWait,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                      child: Text(
-                        S.of(context).if_you_dont_see_your_device,
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Observer(
-                    builder: (_) => Offstage(
-                      offstage: widget.hardwareWalletVM.isBleEnabled ||
-                          !widget.hardwareWalletVM.hasBluetooth,
-                      child: Padding(
+  Widget build(BuildContext context) => Center(
+        child: Container(
+          width: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint,
+          padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
                         padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                         child: Text(
-                          S.of(context).ledger_please_enable_bluetooth,
+                          description,
                           style: Theme.of(context).textTheme.titleMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
-                    ),
+                      Offstage(
+                        offstage: !longWait,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                          child: Text(
+                            S.of(context).if_you_dont_see_your_device,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Observer(
+                        builder: (_) => Offstage(
+                          offstage: widget.hardwareWalletVM.isBleEnabled ||
+                              !widget.hardwareWalletVM.hasBluetooth,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                            child: Text(
+                              S.of(context).ledger_please_enable_bluetooth,
+                              style: Theme.of(context).textTheme.titleMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (bleDevices.length > 0) ...[
+                        Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                          child: Container(
+                            width: double.infinity,
+                            child: Text(
+                              S.of(context).bluetooth,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ),
+                        ...bleDevices
+                            .map(
+                              (device) => Padding(
+                                padding: EdgeInsets.only(bottom: 20),
+                                child: DeviceTile(
+                                  onPressed: () => _connectToDevice(device),
+                                  title: device.name,
+                                  leading: _getDeviceTileLeading(device.type),
+                                  connectionType: device.connectionType,
+                                ),
+                              ),
+                            )
+                            .toList()
+                      ],
+                      if (usbDevices.length > 0) ...[
+                        Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                          child: Container(
+                            width: double.infinity,
+                            child: Text(
+                              S.of(context).usb,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ),
+                        ...usbDevices
+                            .map(
+                              (device) => Padding(
+                                padding: EdgeInsets.only(bottom: 20),
+                                child: DeviceTile(
+                                  onPressed: () => _connectToDevice(device),
+                                  title: device.name,
+                                  leading: _getDeviceTileLeading(device.type),
+                                  connectionType: device.connectionType,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ],
+                      if (widget.allowChangeWallet) ...[
+                        PrimaryButton(
+                          text: S.of(context).wallets,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          onPressed: _onChangeWallet,
+                        )
+                      ],
+                    ],
                   ),
-                  if (bleDevices.length > 0) ...[
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                      child: Container(
-                        width: double.infinity,
-                        child: Text(
-                          S.of(context).bluetooth,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    ),
-                    ...bleDevices
-                        .map(
-                          (device) => Padding(
-                            padding: EdgeInsets.only(bottom: 20),
-                            child: DeviceTile(
-                              onPressed: () => _connectToDevice(device),
-                              title: device.name,
-                              leading: _getDeviceTileLeading(device.type),
-                              connectionType: device.connectionType,
-                            ),
-                          ),
-                        )
-                        .toList()
-                  ],
-                  if (usbDevices.length > 0) ...[
-                    Padding(
-                      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                      child: Container(
-                        width: double.infinity,
-                        child: Text(
-                          S.of(context).usb,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
-                    ),
-                    ...usbDevices
-                        .map(
-                          (device) => Padding(
-                            padding: EdgeInsets.only(bottom: 20),
-                            child: DeviceTile(
-                              onPressed: () => _connectToDevice(device),
-                              title: device.name,
-                              leading: _getDeviceTileLeading(device.type),
-                              connectionType: device.connectionType,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ],
-                  if (widget.allowChangeWallet) ...[
-                    PrimaryButton(
-                      text: S.of(context).wallets,
-                      color: Theme.of(context).colorScheme.primary,
-                      textColor: Theme.of(context).colorScheme.onPrimary,
-                      onPressed: _onChangeWallet,
-                    )
-                  ],
-                ],
+                ),
               ),
-            ),
+              PrimaryButton(
+                text: S.of(context).how_to_connect,
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                onPressed: () => _onHowToConnect(context),
+              )
+            ],
           ),
-          PrimaryButton(
-            text: S.of(context).how_to_connect,
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-            onPressed: () => _onHowToConnect(context),
-          )
-        ],
-      ),
-    );
-  }
+        ),
+      );
 
   void _onChangeWallet() {
     Navigator.of(context).pushNamed(
