@@ -77,6 +77,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get usePolygonScan => _settingsStore.usePolygonScan;
 
   @computed
+  bool get useBaseScan => _settingsStore.useBaseScan;
+
+  @computed
   bool get useTronGrid => _settingsStore.useTronGrid;
 
   @computed
@@ -112,6 +115,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
+
+  bool get canUseBaseScan => _wallet.type == WalletType.base;
 
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
