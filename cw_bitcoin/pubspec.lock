@@ -92,7 +92,7 @@ packages:
   bitbox_flutter:
     dependency: "direct main"
     description:
-      path: "../../bitbox_flutter"
+      path: "../scripts/bitbox_flutter"
       relative: true
     source: path
     version: "0.0.1"
@@ -604,8 +604,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/ledger-bitcoin"
-      ref: e8ab1a98493dfdd2277edde07a66b8d378ca70f6
-      resolved-ref: e8ab1a98493dfdd2277edde07a66b8d378ca70f6
+      ref: "6e6ce17c2ba5cfe3d16a60d53f930db8e827b8f3"
+      resolved-ref: "6e6ce17c2ba5cfe3d16a60d53f930db8e827b8f3"
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -1163,7 +1163,7 @@ packages:
       sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.1"
+    version: "15.0.0"
   watcher:
     dependency: "direct overridden"
     description:

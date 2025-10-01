@@ -171,7 +171,7 @@ abstract class Bitcoin {
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
-  WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub});
+  WalletCredentials createBitcoinWalletFromKeys({required String name, required String password, required String xpub, HardwareWalletType? hardwareWalletType});
   WalletCredentials createBitcoinNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic});
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
@@ -216,7 +216,7 @@ abstract class Bitcoin {
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions(Object wallet);
-  List<ReceivePageOption> getLitecoinReceivePageOptions();
+  List<ReceivePageOption> getLitecoinReceivePageOptions(Object wallet);
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
   bool isPayjoinAvailable(Object wallet);
   bool hasSelectedSilentPayments(Object wallet);

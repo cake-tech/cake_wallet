@@ -111,7 +111,7 @@ class QRWidget extends StatelessWidget {
                                     ),
                                     if (addressListViewModel.isPayjoinUnavailable &&
                                         !addressListViewModel.isSilentPayments &&
-                                        !addressListViewModel.isCupcake) ...[
+                                        !addressListViewModel.isBitcoinViewOnly) ...[
                                       GestureDetector(
                                         onTap: () => _onPayjoinInactivePressed(context),
                                         child: Row(
