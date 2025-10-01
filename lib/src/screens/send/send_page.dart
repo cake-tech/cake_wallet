@@ -440,18 +440,21 @@ class SendPage extends BasePage {
                               }
 
                               if (sendViewModel.wallet.isHardwareWallet) {
-                                if (!sendViewModel.ledgerViewModel!.isConnected) {
+                                if (!sendViewModel.hardwareWalletViewModel!.isConnected) {
                                   await Navigator.of(context).pushNamed(Routes.connectDevices,
                                       arguments: ConnectDevicePageParams(
                                         walletType: sendViewModel.walletType,
+                                        hardwareWalletType:
+                                            sendViewModel.wallet.walletInfo.hardwareWalletType!,
                                         onConnectDevice: (BuildContext context, _) {
-                                          sendViewModel.ledgerViewModel!
-                                              .setLedger(sendViewModel.wallet);
+                                          sendViewModel.hardwareWalletViewModel!
+                                              .initWallet(sendViewModel.wallet);
                                           Navigator.of(context).pop();
                                         },
                                       ));
                                 } else {
-                                  sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                  sendViewModel.hardwareWalletViewModel!
+                                      .initWallet(sendViewModel.wallet);
                                 }
                               }
 
