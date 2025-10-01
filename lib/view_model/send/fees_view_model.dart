@@ -91,12 +91,12 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
         return transactionPriority == bitcoinCash!.getBitcoinCashTransactionPrioritySlow();
       case WalletType.polygon:
         return transactionPriority == polygon!.getPolygonTransactionPrioritySlow();
+      case WalletType.base:
+        return transactionPriority == base!.getBaseTransactionPrioritySlow();
       case WalletType.decred:
         return transactionPriority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.dogecoin:
         return transactionPriority == dogecoin!.getDogeCoinTransactionPrioritySlow();
-      case WalletType.base:
-        return transactionPriority == base!.getBaseTransactionPrioritySlow();
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:

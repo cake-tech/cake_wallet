@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -45,6 +46,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -215,6 +217,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     switch (type) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
       case WalletType.tron:
       case WalletType.solana:
         return wallet.currency;
@@ -708,6 +711,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.polygon:
         return polygon!.createPolygonTransactionCredentials(outputs,
             priority: priority!, currency: selectedCryptoCurrency);
+      case WalletType.base:
+        return base!.createBaseTransactionCredentials(outputs,
+            priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.solana:
         return solana!
             .createSolanaTransactionCredentials(outputs, currency: selectedCryptoCurrency);
@@ -833,6 +839,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     if (walletType == WalletType.ethereum ||
         walletType == WalletType.polygon ||
+        walletType == WalletType.base ||
         walletType == WalletType.haven) {
       if (errorMessage.contains('gas required exceeds allowance')) {
         return S.current.gas_exceeds_allowance;

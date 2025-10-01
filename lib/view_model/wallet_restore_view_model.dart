@@ -92,6 +92,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   late final bool hasRestoreFromPrivateKey = [
     WalletType.ethereum,
     WalletType.polygon,
+    WalletType.base,
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
@@ -264,6 +265,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.polygon:
           return polygon!.createPolygonRestoreWalletFromPrivateKey(
+            name: name,
+            password: password,
+            privateKey: options['private_key'] as String,
+          );
+        case WalletType.base:
+          return base!.createBaseRestoreWalletFromPrivateKey(
             name: name,
             password: password,
             privateKey: options['private_key'] as String,

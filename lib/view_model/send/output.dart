@@ -200,6 +200,10 @@ abstract class OutputBase with Store {
         return polygon!.formatterPolygonAmountToDouble(amount: BigInt.from(fee));
       }
 
+      if (_wallet.type == WalletType.base) {
+        return base!.formatterBaseAmountToDouble(amount: BigInt.from(fee));
+      }
+
       if (_wallet.type == WalletType.zano) {
         return zano!.formatterIntAmountToDouble(
             amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
@@ -207,10 +211,6 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.decred) {
         return decred!.formatterDecredAmountToDouble(amount: fee);
-      }
-
-      if (_wallet.type == WalletType.base) {
-        return base!.formatterBaseAmountToDouble(amount: BigInt.from(fee));
       }
     } catch (e) {
       printV(e.toString());
