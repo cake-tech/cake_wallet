@@ -307,6 +307,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         wallet.currency == CryptoCurrency.maticpoly &&
         tradeFrom?.tag == CryptoCurrency.maticpoly.tag;
 
+    bool _isBaseToken() =>
+        wallet.currency == CryptoCurrency.baseEth && tradeFrom?.tag == CryptoCurrency.baseEth.title;
+
     bool _isTronToken() =>
         wallet.currency == CryptoCurrency.trx && tradeFrom?.tag == CryptoCurrency.trx.title;
 
@@ -318,7 +321,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isEthToken() ||
         _isPolygonToken() ||
         _isSplToken() ||
-        _isTronToken();
+        _isTronToken() ||
+        _isBaseToken();
   }
 
   PaymentURI? get paymentUri {

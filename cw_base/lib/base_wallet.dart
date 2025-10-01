@@ -28,7 +28,7 @@ class BaseWallet extends EVMChainWallet {
     required super.client,
     required super.encryptionFileUtils,
     super.passphrase,
-  }) : super(nativeCurrency: CryptoCurrency.eth);
+  }) : super(nativeCurrency: CryptoCurrency.baseEth);
 
   @override
   Future<void> initErc20TokensBox() async {

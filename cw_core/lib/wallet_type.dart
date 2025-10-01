@@ -264,6 +264,8 @@ WalletType? cryptoCurrencyToWalletType(CryptoCurrency type) {
       return WalletType.decred;
     case CryptoCurrency.doge:
       return WalletType.dogecoin;
+    case CryptoCurrency.baseEth:
+      return WalletType.base;
     default:
       return null;
   }

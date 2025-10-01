@@ -15,8 +15,9 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
     case WalletType.haven:
       return CryptoCurrency.xhv;
     case WalletType.ethereum:
-    case WalletType.base:
       return CryptoCurrency.eth;
+    case WalletType.base:
+      return CryptoCurrency.baseEth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
