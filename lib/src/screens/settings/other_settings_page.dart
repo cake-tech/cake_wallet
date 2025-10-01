@@ -99,42 +99,54 @@ class OtherSettingsPage extends BasePage {
                       Navigator.of(context).pushNamed(Routes.devMoneroWalletCacheDebug),
                 ),
               if (FeatureFlag.hasDevOptions)
-              SettingsCellWithArrow(
-                title: '[dev] shared preferences',
-                handler: (context) => Navigator.of(context).pushNamed(Routes.devSharedPreferences),
-              ),
-            if (FeatureFlag.hasDevOptions)
-              SettingsCellWithArrow(
-                title: '[dev] secure storage preferences',
-                handler: (context) => Navigator.of(context).pushNamed(Routes.devSecurePreferences),
-              ),
-            if (FeatureFlag.hasDevOptions)
-              SettingsCellWithArrow(
-                title: '[dev] background sync logs',
-                handler: (context) => Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
-              ),
-            if (FeatureFlag.hasDevOptions)
-              SettingsCellWithArrow(
-                title: '[dev] socket health logs',
-                handler: (context) => Navigator.of(context).pushNamed(Routes.devSocketHealthLogs),
-              ),
-            if (FeatureFlag.hasDevOptions)
-              SettingsCellWithArrow(
-                title: '[dev] network requests logs',
-                handler: (context) => Navigator.of(context).pushNamed(Routes.devNetworkRequests),
-              ),
-            if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] shared preferences',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSharedPreferences),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] secure storage preferences',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSecurePreferences),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] background sync logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] socket health logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devSocketHealthLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] network requests logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devNetworkRequests),
+                ),
+              if (FeatureFlag.hasDevOptions)
+                SettingsCellWithArrow(
+                  title: '[dev] exchange provider logs',
+                  handler: (BuildContext context) =>
+                      Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs),
+                ),
+              if (FeatureFlag.hasDevOptions)
                 SettingsCellWithArrow(
                   title: '[dev] *QR tools',
                   handler: (context) =>
                       Navigator.of(context).pushNamed(Routes.devQRTools),
-                ),Spacer(),
-            SettingsVersionCell(
-              title: S.of(context).version(_otherSettingsViewModel.currentVersion),
-            ),
-          ],
-        ),
-      ),
+                ),
+              Spacer(),
+              SettingsVersionCell(
+                  title: S.of(context).version(_otherSettingsViewModel.currentVersion)),
+            ],
+          ),
+        );
+      },
     );
   }
 }

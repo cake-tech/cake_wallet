@@ -8,6 +8,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -32,7 +33,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   bool isBleEnabled = false;
 
   @override
-  bool get hasBluetooth => Platform.isIOS;
+  bool get hasBluetooth => Platform.isIOS && false; // TODO: remove when we enable bluetooth
 
   @override
   Future<void> updateBleState() async {}
@@ -54,9 +55,14 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
     _isConnecting = true;
 
     try {
+      final appDocDir = await getAppDir();
+
       await bitboxManager.connect(device.device);
+      printV("Got Connection", file: '${appDocDir.path}/error.txt');
       await bitboxManager.initBitBox();
+      printV("Bitbox initialized!", file: '${appDocDir.path}/error.txt');
       await bitboxManager.channelHashVerify();
+      printV("Bitbox channel-hash verified!", file: '${appDocDir.path}/error.txt');
       _isConnecting = false;
       return true;
     } catch (e) {
