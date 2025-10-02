@@ -275,7 +275,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         )
                                       : SizedBox(width: 6),
                                   Image.asset(
-                                    walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                    walletTypeToCryptoCurrency(wallet.type).normalizedIconPath!,
                                     width: 32,
                                     height: 32,
                                   ),

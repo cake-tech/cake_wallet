@@ -95,7 +95,7 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                                 isSelected:
                                     walletGroupsDisplayViewModel.selectedSingleWallet == wallet,
                                 leadingWidget: Image.asset(
-                                  walletTypeToCryptoCurrency(wallet.type).iconPath!,
+                                  walletTypeToCryptoCurrency(wallet.type).normalizedIconPath!,
                                   width: 32,
                                   height: 32,
                                 ),

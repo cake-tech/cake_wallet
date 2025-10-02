@@ -43,3 +43,12 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
   }
 }
+
+extension CryptoCurrencyForWalletType on CryptoCurrency {
+  String? get normalizedIconPath {
+    if (this == CryptoCurrency.baseEth) {
+      return 'assets/images/base_icon.png';
+    }
+    return iconPath;
+  }
+}
