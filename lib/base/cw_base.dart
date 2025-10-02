@@ -166,9 +166,9 @@ class CWBase extends Base {
   @override
   CryptoCurrency assetOfTransaction(WalletBase wallet, TransactionInfo transaction) {
     transaction as EVMChainTransactionInfo;
-    if (transaction.tokenSymbol == CryptoCurrency.maticpoly.title ||
-        transaction.tokenSymbol == "MATIC") {
-      return CryptoCurrency.maticpoly;
+    if (transaction.tokenSymbol == CryptoCurrency.baseEth.title ||
+        transaction.tokenSymbol == "BASE") {
+      return CryptoCurrency.baseEth;
     }
 
     wallet as BaseWallet;

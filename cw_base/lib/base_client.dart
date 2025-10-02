@@ -65,7 +65,7 @@ class BaseClient extends EVMChainClient {
 
         return res
             .map(
-              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'BASE'),
+              (e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'),
             )
             .toList();
       }
@@ -91,7 +91,7 @@ class BaseClient extends EVMChainClient {
 
       if (response.statusCode >= 200 && response.statusCode < 300 && jsonResponse['status'] != 0) {
         return (jsonResponse['result'] as List)
-            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'BASE'))
+            .map((e) => EVMChainTransactionModel.fromJson(e as Map<String, dynamic>, 'ETH'))
             .toList();
       }
 

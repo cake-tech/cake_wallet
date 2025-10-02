@@ -77,7 +77,7 @@ class BaseWallet extends EVMChainWallet {
       contractAddress: token.contractAddress,
       decimal: token.decimal,
       enabled: token.enabled,
-      tag: token.tag ?? 'BASE',
+      tag: token.tag ?? 'ETH',
       iconPath: iconPath,
       isPotentialScam: token.isPotentialScam,
     );

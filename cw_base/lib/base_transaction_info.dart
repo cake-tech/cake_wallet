@@ -37,5 +37,5 @@ class BaseTransactionInfo extends EVMChainTransactionInfo {
   }
 
   @override
-  String get feeCurrency => 'BASE';
+  String get feeCurrency => 'ETH';
 }
