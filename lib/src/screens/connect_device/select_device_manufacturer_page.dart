@@ -34,6 +34,11 @@ class SelectDeviceManufacturerPage extends BasePage {
           image: SvgPicture.asset('assets/images/hardware_wallet/ledger_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.ledger,
         ),
+        _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/trezor_man.svg', height: 25),
+          hardwareWalletType: HardwareWalletType.trezor,
+          tag: S.current.new_tag,
+        ),
         // _DeviceManufacturer(
         //   image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
         //   hardwareWalletType: HardwareWalletType.bitbox,
@@ -49,11 +54,11 @@ class SelectDeviceManufacturerPage extends BasePage {
           hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
-        // _DeviceManufacturer(
-        //   image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
-        //   hardwareWalletType: HardwareWalletType.seedsigner,
-        //   tag: S.current.new_tag,
-        // ),
+        _DeviceManufacturer(
+          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+          hardwareWalletType: HardwareWalletType.seedsigner,
+          tag: S.current.new_tag,
+        ),
       ]
           .where((e) => availableHardwareWalletTypes == null
               ? ![HardwareWalletType.cupcake].contains(e.hardwareWalletType)
@@ -61,10 +66,6 @@ class SelectDeviceManufacturerPage extends BasePage {
           .toList();
 
   List<_DeviceManufacturer> get comingManufacturers => [
-        _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/trezor_man.svg', height: 25),
-          tag: S.current.coming_soon_tag,
-        ),
         _DeviceManufacturer(
           image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
           hardwareWalletType: HardwareWalletType.bitbox,
@@ -90,52 +91,55 @@ class SelectDeviceManufacturerPage extends BasePage {
         child: Center(
           child: Container(
             padding: EdgeInsets.only(left: 24, right: 24),
-            child: Column(
-              children: [
-                ...availableManufacturers.map(
-                  (manufacturer) => Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: ManufacturerOptionTile(
-                      image: manufacturer.image,
-                      tag: manufacturer.tag,
-                      onPressed: () {
-                        if (onSelect != null)
-                          return onSelect!.call(context, manufacturer.hardwareWalletType!);
-
-                        if (isAirgappedWallet(manufacturer.hardwareWalletType)) {
-                          _onScanQRCode(context, manufacturer.hardwareWalletType!);
-                        } else if (manufacturer.hardwareWalletType != null) {
-                          Navigator.pushNamed(context, Routes.connectHardwareWallet,
-                              arguments: [manufacturer.hardwareWalletType]);
-                        }
-                      },
-                      isDarkTheme: currentTheme.isDark,
-                    ),
-                  ),
-                ),
-                if (showUnavailable) ...[
-                  Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 10),
-                    child: DottedDivider(color: Theme.of(context).colorScheme.surfaceContainer),
-                  ),
-                  ...comingManufacturers.map(
+            height: double.infinity,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  ...availableManufacturers.map(
                     (manufacturer) => Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: ManufacturerOptionTile(
                         image: manufacturer.image,
                         tag: manufacturer.tag,
-                        onPressed: () =>
-                            Fluttertoast.showToast(msg: 'One more tap and it might work'),
-                        // Ester egg
+                        onPressed: () {
+                          if (onSelect != null)
+                            return onSelect!.call(context, manufacturer.hardwareWalletType!);
+
+                          if (isAirgappedWallet(manufacturer.hardwareWalletType)) {
+                            _onScanQRCode(context, manufacturer.hardwareWalletType!);
+                          } else if (manufacturer.hardwareWalletType != null) {
+                            Navigator.pushNamed(context, Routes.connectHardwareWallet,
+                                arguments: [manufacturer.hardwareWalletType]);
+                          }
+                        },
                         isDarkTheme: currentTheme.isDark,
-                        isUnavailable: true,
                       ),
                     ),
                   ),
-                ]
-              ],
+                  if (showUnavailable) ...[
+                    Padding(
+                      padding: EdgeInsets.only(top: 20, bottom: 10),
+                      child: DottedDivider(color: Theme.of(context).colorScheme.surfaceContainer),
+                    ),
+                    ...comingManufacturers.map(
+                      (manufacturer) => Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: ManufacturerOptionTile(
+                          image: manufacturer.image,
+                          tag: manufacturer.tag,
+                          onPressed: () =>
+                              Fluttertoast.showToast(msg: 'One more tap and it might work'),
+                          // Ester egg
+                          isDarkTheme: currentTheme.isDark,
+                          isUnavailable: true,
+                        ),
+                      ),
+                    ),
+                  ]
+                ],
+              ),
+              ),
             ),
-          ),
         ),
       );
 

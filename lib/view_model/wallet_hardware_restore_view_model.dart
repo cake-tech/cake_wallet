@@ -102,10 +102,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
         throw Exception('Unexpected type: ${type.toString()}');
     }
 
-    if (hardwareWalletVM is LedgerViewModel)
-      credentials.hardwareWalletType = HardwareWalletType.ledger;
-    else
-      credentials.hardwareWalletType = HardwareWalletType.bitbox;
+    credentials.hardwareWalletType = hardwareWalletVM.hardwareWalletType;
 
     return credentials;
   }

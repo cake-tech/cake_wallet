@@ -199,6 +199,10 @@ class CWEthereum extends Ethereum {
       EVMChainBitboxService(manager);
 
   @override
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect) =>
+      EVMChainTrezorService(connect);
+
+  @override
   List<String> getDefaultTokenContractAddresses() {
     return DefaultEthereumErc20Tokens().initialErc20Tokens.map((e) => e.contractAddress).toList();
   }

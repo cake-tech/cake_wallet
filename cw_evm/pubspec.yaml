@@ -33,6 +33,10 @@ dependencies:
       ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
   bitbox_flutter:
     path: ../scripts/bitbox_flutter
+  trezor_connect:
+    git:
+      url: https://github.com/cake-tech/trezor_connect
+      ref: 498058f50dc77ad60b4c6c1e57ef848673377e67
 
 dependency_overrides:
   web3dart:

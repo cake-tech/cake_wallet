@@ -218,6 +218,10 @@ class CWPolygon extends Polygon {
       EVMChainBitboxService(manager, chainId: 137);
 
   @override
+  HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect) =>
+      EVMChainTrezorService(connect, chainId: 137);
+
+  @override
   List<String> getDefaultTokenContractAddresses() =>
       DefaultPolygonErc20Tokens().initialPolygonErc20Tokens.map((e) => e.contractAddress).toList();
 

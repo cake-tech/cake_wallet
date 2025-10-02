@@ -35,6 +35,8 @@ enum HardwareWalletType {
   seedsigner,
   @HiveField(5)
   keystone,
+  @HiveField(6)
+  trezor,
 }
 
 @HiveType(typeId: DerivationInfo.typeId)

@@ -345,6 +345,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
         (_) => getIt.get<NewWalletTypePage>(
           param1: NewWalletTypeArguments(
             onTypeSelected: (BuildContext context, WalletType type) {
+              if (hardwareWalletType == HardwareWalletType.trezor) {
+                Navigator.of(context).pushNamed(Routes.chooseHardwareWalletAccount,
+                    arguments: [type, hardwareWalletType]);
+                return;
+              }
+
               final arguments = ConnectDevicePageParams(
                 walletType: type,
                 hardwareWalletType: hardwareWalletType,

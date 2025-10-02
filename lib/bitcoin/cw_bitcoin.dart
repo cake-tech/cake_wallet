@@ -561,6 +561,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  HardwareWalletService getTrezorHardwareWalletService(
+      trezor.TrezorConnect connect, bool isBitcoin) {
+    return BitcoinTrezorService(connect);
+  }
+
+  @override
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.silentAddresses
