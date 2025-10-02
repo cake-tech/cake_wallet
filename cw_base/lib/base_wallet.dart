@@ -98,7 +98,7 @@ class BaseWallet extends EVMChainWallet {
       confirmations: transactionModel.confirmations,
       ethFee: BigInt.from(transactionModel.gasUsed) * transactionModel.gasPrice,
       exponent: transactionModel.tokenDecimal ?? 18,
-      tokenSymbol: transactionModel.tokenSymbol ?? "BASE",
+      tokenSymbol: transactionModel.tokenSymbol ?? "ETH",
       to: transactionModel.to,
       from: transactionModel.from,
       contractAddress: transactionModel.contractAddress,
