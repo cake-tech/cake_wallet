@@ -61,6 +61,7 @@ class WalletRestoreFromQRCode {
     final extracted = sortedKeys.firstWhereOrNull((key) => code.toLowerCase().contains(key));
 
     if (code.startsWith("xpub")) return WalletType.bitcoin;
+    if (code.startsWith("zpub")) return WalletType.bitcoin;
 
     if (extracted == null) {
       // Special case for view-only monero wallet
@@ -112,9 +113,11 @@ class WalletRestoreFromQRCode {
     if (code == null) throw Exception("Unexpected scan QR code value: aborted");
     if (code.isEmpty) throw Exception('Unexpected scan QR code value: value is empty');
 
+    if (code.startsWith("[")) code = code.substring(code.indexOf("]") + 1);
+
     String formattedUri = '';
     WalletType? walletType = _extractWalletType(code);
-
+    final prefix = code.startsWith('xpub') ? 'xpub' : code.startsWith('zpub') ? 'zpub' : '????';
     if (walletType == null) {
       await _specifyWalletAssets(context, "Can't determine wallet type, please pick it manually");
       walletType =
@@ -125,13 +128,15 @@ class WalletRestoreFromQRCode {
 
       formattedUri = seedPhrase != null
           ? '$walletType:?seed=$seedPhrase'
-          : code.startsWith('xpub')
-              ? '$walletType:?xpub=$code'
-              : throw Exception('Failed to determine valid seed phrase');
+          : code.startsWith(prefix) 
+            ? '$walletType:?$prefix=$code' 
+            : throw Exception('Failed to determine valid seed phrase');
     } else {
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
-      formattedUri = code.startsWith('xpub') ? '$walletType:?xpub=$code' : '$walletType:?$query';
+      formattedUri = code.startsWith(prefix) 
+        ? '$walletType:?$prefix=$code' 
+        :'$walletType:?$query';
     }
 
     final uri = Uri.parse(formattedUri);
@@ -168,7 +173,8 @@ class WalletRestoreFromQRCode {
       throw Exception('Unexpected restore mode: tx_payment_id is invalid');
     }
 
-    if (credentials.containsKey("xpub")) {
+    if (credentials.containsKey("xpub") ||
+        credentials.containsKey("zpub")) {
       return WalletRestoreMode.keys;
     }
 

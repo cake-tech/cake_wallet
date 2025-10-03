@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class RestoredWallet {
@@ -43,6 +44,9 @@ class RestoredWallet {
       }
     } catch (e) {
       // fine, we don't care, it is only for monero anyway
+    }
+    if (json['zpub'] != null) {
+      json['xpub'] = convertZpubToXpub(json['zpub'] as String);
     }
     json['view_key'] ??= json['xpub'];
     final height = json['height'] as String?;

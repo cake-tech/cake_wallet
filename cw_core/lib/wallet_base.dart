@@ -62,6 +62,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  HardwareWalletType? get hardwareWalletType => walletInfo.hardwareWalletType;
+
   bool get hasRescan => false;
 
   Future<void> connectToNode({required Node node});

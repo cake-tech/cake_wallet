@@ -21,10 +21,12 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -463,8 +465,9 @@ class WalletListBodyState extends State<WalletListBody> {
               Routes.connectDevices,
               arguments: ConnectDevicePageParams(
                 walletType: WalletType.monero,
+                hardwareWalletType: HardwareWalletType.ledger,
                 onConnectDevice: (context, ledgerVM) async {
-                  monero!.setGlobalLedgerConnection(ledgerVM.connection);
+                  if (ledgerVM is LedgerViewModel) monero!.setGlobalLedgerConnection(ledgerVM.connection);
                   didConnect = true;
                   Navigator.of(context).pop();
                 },

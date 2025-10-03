@@ -1,7 +1,7 @@
-import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'dart:io';
 
+import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
@@ -11,13 +11,13 @@ import 'package:cake_wallet/src/screens/setup_2fa/widgets/popup_cancellable_aler
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/new_wallet_type_view_model.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -52,7 +52,7 @@ class NewWalletTypePage extends BasePage {
         isCreate: newWalletTypeArguments.isCreate,
         newWalletTypeViewModel: newWalletTypeViewModel,
         onTypeSelected: newWalletTypeArguments.onTypeSelected,
-        isHardwareWallet: newWalletTypeArguments.isHardwareWallet,
+        hardwareWalletType: newWalletTypeArguments.hardwareWalletType,
       );
 }
 
@@ -62,14 +62,16 @@ class WalletTypeForm extends StatefulWidget {
     required this.isCreate,
     required this.newWalletTypeViewModel,
     this.onTypeSelected,
-    required this.isHardwareWallet,
+    this.hardwareWalletType,
   });
 
   final bool isCreate;
   final Image walletImage;
   final NewWalletTypeViewModel newWalletTypeViewModel;
   final void Function(BuildContext, WalletType)? onTypeSelected;
-  final bool isHardwareWallet;
+  final HardwareWalletType? hardwareWalletType;
+
+  bool get isHardwareWallet => hardwareWalletType != null;
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -91,7 +93,9 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     types = filteredTypes = availableWalletTypes
         .where((element) =>
             !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(element, Platform.isIOS).isNotEmpty)
+            DeviceConnectionType.supportedConnectionTypes(
+                    element, widget.hardwareWalletType!, Platform.isIOS)
+                .isNotEmpty)
         .toList();
     super.initState();
 
@@ -149,7 +153,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                           isSelected: selected == type,
                           onTap: () => setState(() => selected = type),
                           deviceConnectionTypes: widget.isHardwareWallet
-                              ? DeviceConnectionType.supportedConnectionTypes(type, Platform.isIOS)
+                              ? DeviceConnectionType.supportedConnectionTypes(
+                                  type, widget.hardwareWalletType!, Platform.isIOS)
                               : [],
                         ),
                       ),

@@ -10,8 +10,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -24,16 +24,16 @@ class DFXBuyProvider extends BuyProvider {
   DFXBuyProvider({
     required WalletBase wallet,
     bool isTestEnvironment = false,
-    LedgerViewModel? ledgerVM,
+    HardwareWalletViewModel? hardwareWalletVM,
   }) : super(
-      wallet: wallet,
-      isTestEnvironment: isTestEnvironment,
-      ledgerVM: ledgerVM,
-      supportedCryptoList: supportedCryptoToFiatPairs(
-          notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-      supportedFiatList: supportedFiatToCryptoPairs(
-          notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto)
-  );
+          wallet: wallet,
+          isTestEnvironment: isTestEnvironment,
+          hardwareWalletVM: hardwareWalletVM,
+          supportedCryptoList: supportedCryptoToFiatPairs(
+              notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
+          supportedFiatList: supportedFiatToCryptoPairs(
+              notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto),
+        );
 
   static const _baseUrl = 'api.dfx.swiss';
 
@@ -104,8 +104,7 @@ class DFXBuyProvider extends BuyProvider {
   // }
 
   Future<String> auth(String walletAddress) async {
-    final signMessage = await getSignature(
-        await getSignMessage(walletAddress), walletAddress);
+    final signMessage = await getSignature(await getSignMessage(walletAddress), walletAddress);
 
     final requestBody = jsonEncode({
       'wallet': walletName,
@@ -119,7 +118,6 @@ class DFXBuyProvider extends BuyProvider {
       headers: {'Content-Type': 'application/json'},
       body: requestBody,
     );
-    
 
     if (response.statusCode == 201) {
       final responseBody = jsonDecode(response.body);
@@ -140,14 +138,13 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.base:
       case WalletType.solana:
       case WalletType.tron:
-        final r = await wallet.signMessage(message);
-        return r;
+        return wallet.signMessage(message);
       case WalletType.monero:
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.zano:
-        return await wallet.signMessage(message, address: walletAddress);
+        return wallet.signMessage(message, address: walletAddress);
       default:
         throw Exception("WalletType is not available for DFX ${wallet.type}");
     }
@@ -337,16 +334,17 @@ class DFXBuyProvider extends BuyProvider {
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
     if (wallet.isHardwareWallet) {
-      if (!ledgerVM!.isConnected) {
+      if (!hardwareWalletVM!.isConnected) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(
                 walletType: wallet.walletInfo.type,
-                onConnectDevice: (BuildContext context, LedgerViewModel ledgerVM) {
-                  ledgerVM.setLedger(wallet);
+                hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
+                onConnectDevice: (context, hwwVM) {
+                  hwwVM.initWallet(wallet);
                   Navigator.of(context).pop();
                 }));
       } else {
-        ledgerVM!.setLedger(wallet);
+        hardwareWalletVM!.initWallet(wallet);
       }
     }
 
@@ -371,14 +369,13 @@ class DFXBuyProvider extends BuyProvider {
       }
     } catch (e) {
       await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: "DFX.swiss",
-                alertContent: S.of(context).buy_provider_unavailable + ': $e',
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
+        context: context,
+        builder: (context) => AlertWithOneAction(
+            alertTitle: "DFX.swiss",
+            alertContent: '${S.of(context).buy_provider_unavailable}: $e',
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop()),
+      );
     }
   }
 

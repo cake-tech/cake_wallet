@@ -116,6 +116,8 @@ dependencies:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
+  bitbox_flutter:
+    path: ./scripts/bitbox_flutter
   hashlib: 1.19.2
   on_chain:
     git:
@@ -186,6 +188,10 @@ dependency_overrides:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: 60817d4b20144f9da9029f5034790272795b9d38
+  ledger_usb_plus:
+    git:
+      url: https://github.com/konstantinullrich/ledger-usb-plus
+      ref: dad482c847c0d0eedceabbb40d3478e64b65e630
   socks5_proxy:
     git:
       url: https://github.com/LacticWhale/socks_dart.git
