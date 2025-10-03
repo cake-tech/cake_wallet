@@ -1520,8 +1520,6 @@ import 'package:cw_evm/evm_chain_transaction_credentials.dart';
 import 'package:cw_evm/evm_chain_transaction_info.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
-import 'package:cw_evm/evm_chain_hardware_wallet_service.dart';
-import 'package:cw_evm/evm_ledger_credentials.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 
 import 'package:cw_base/base_client.dart';

@@ -445,7 +445,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           'assets/images/zano_icon.svg',
           'assets/images/more_tokens.svg',
         ];
-      case WalletType.base:
       default:
         return [];
     }
@@ -467,7 +466,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return 'assets/images/trx_chain_mono.svg';
       case WalletType.zano:
         return 'assets/images/zano_chain_mono.svg';
-      case WalletType.base:
       default:
         return 'assets/images/eth_chain_mono.svg';
     }
