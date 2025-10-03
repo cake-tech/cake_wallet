@@ -251,6 +251,14 @@ jobs:
             ./build_monero_all.sh
           popd
 
+      - name: Build Bitbox Flutter
+        run: |
+          set -x -e
+          pushd scripts
+            gomobile init;
+            ./build_bitbox_flutter.sh
+          popd
+
       - name: Install Flutter dependencies
         run: |
           flutter pub get

@@ -29,7 +29,8 @@ import 'package:cw_evm/evm_chain_transaction_history.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_chain_wallet_addresses.dart';
-import 'package:cw_evm/evm_ledger_credentials.dart';
+import 'package:cw_evm/hardware/evm_bitbox_credentials.dart';
+import 'package:cw_evm/hardware/evm_ledger_credentials.dart';
 import 'package:hex/hex.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -207,8 +208,11 @@ abstract class EVMChainWalletBase
     // check for Already existing scam tokens, cuz users can get scammed twice ¯\_(ツ)_/¯
     await _checkForExistingScamTokens();
 
-    if (walletInfo.isHardwareWallet) {
+    if (walletInfo.hardwareWalletType == HardwareWalletType.ledger) {
       _evmChainPrivateKey = EvmLedgerCredentials(walletInfo.address);
+      walletAddresses.address = walletInfo.address;
+    } else if (walletInfo.hardwareWalletType == HardwareWalletType.bitbox) {
+      _evmChainPrivateKey = EvmBitboxCredentials(walletInfo.address);
       walletAddresses.address = walletInfo.address;
     } else {
       _evmChainPrivateKey = await getPrivateKey(
@@ -297,7 +301,7 @@ abstract class EVMChainWalletBase
   /// We are able to pass in:
   /// - The exact amount the user wants to send,
   /// - The addressHex for the receiving wallet,
-  /// - A contract address which would be essential in determining if to calcualate the estimate for ERC20 or native ETH
+  /// - A contract address which would be essential in determining if to calculate the estimate for ERC20 or native ETH
   Future<GasParamsHandler> calculateActualEstimatedFeeForCreateTransaction({
     required amount,
     required String? contractAddress,
@@ -490,7 +494,9 @@ abstract class EVMChainWalletBase
 
       final totalOriginalAmount = EVMChainFormatter.parseEVMChainAmountToDouble(
           outputs.fold(0, (acc, value) => acc + (value.formattedCryptoAmount ?? 0)));
-      totalAmount = parseFixed(totalOriginalAmount.toString(), exponent);
+
+      totalAmount = parseFixed(
+          EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
 
       final gasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
         amount: totalAmount,
@@ -512,7 +518,8 @@ abstract class EVMChainWalletBase
         final totalOriginalAmount =
             EVMChainFormatter.parseEVMChainAmountToDouble(output.formattedCryptoAmount ?? 0);
 
-        totalAmount =  parseFixed(totalOriginalAmount.toString(), exponent);
+        totalAmount = parseFixed(
+            EVMChainFormatter.truncateDecimals(totalOriginalAmount.toString(), exponent), exponent);
       }
 
       if (output.sendAll && transactionCurrency is Erc20Token) {
@@ -544,7 +551,8 @@ abstract class EVMChainWalletBase
       }
     }
 
-    if (transactionCurrency is Erc20Token && isHardwareWallet) {
+    if (transactionCurrency is Erc20Token &&
+        walletInfo.hardwareWalletType == HardwareWalletType.ledger) {
       await (_evmChainPrivateKey as EvmLedgerCredentials)
           .provideERC20Info(transactionCurrency.contractAddress, _client.chainId);
     }

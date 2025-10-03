@@ -33,7 +33,7 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreVi
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
-      {required WalletType type, this.restoredWallet})
+      {required WalletType type, this.restoredWallet, this.hardwareWalletType})
       : isButtonEnabled = restoredWallet != null,
         hasPassphrase = false,
         mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
@@ -102,6 +102,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   ].contains(type);
 
   final RestoredWallet? restoredWallet;
+  final HardwareWalletType? hardwareWalletType;
 
   @observable
   WalletRestoreMode mode;
@@ -226,6 +227,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             xpub: viewKey!,
+            hardwareWalletType: hardwareWalletType,
           );
 
         case WalletType.monero:

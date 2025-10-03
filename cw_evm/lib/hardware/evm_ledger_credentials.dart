@@ -76,6 +76,8 @@ class EvmLedgerCredentials extends CredentialsWithKnownAddress {
 
     final sig = await ethereumLedgerApp!.signMessage(payload);
 
+    if (sig.isEmpty) throw Exception("No Signature received from device!");
+
     final r = sig.sublist(1, 1 + 32);
     final s = sig.sublist(1 + 32, 1 + 32 + 32);
     final v = [sig[0]];

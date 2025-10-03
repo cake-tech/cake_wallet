@@ -28,7 +28,6 @@ import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -208,7 +207,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   List<ExchangeProvider> get _allProviders => [
         ChangeNowExchangeProvider(settingsStore: _settingsStore),
         SideShiftExchangeProvider(),
-        ThorChainExchangeProvider(tradesStore: trades),
         ChainflipExchangeProvider(tradesStore: trades),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
@@ -550,7 +548,12 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     for (int i = 0; i < result.length; i++) {
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
-        newSortedProviders[result[i]] = _providers[i];
+        try {
+           newSortedProviders[result[i]] = _providers[i];
+        } catch (e) {
+          // will throw "Concurrent modification during iteration" error if modified at the same
+          // time [createTrade] is called, as this is not a normal map, but a sorted map
+        }
       }
     }
 
@@ -705,7 +708,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
                 final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) *
                     (double.tryParse(request.fromAmount) ?? 0.00);
 
-                if (destinationAmount > 2000 || sendingAmount > 2000) {
+                if (destinationAmount > 5000 || sendingAmount > 5000) {
                   continue;
                 }
               }
