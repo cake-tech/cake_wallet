@@ -64,6 +64,7 @@ class SendPage extends BasePage {
   final PaymentRequest? initialPaymentRequest;
 
   bool _effectsInstalled = false;
+  bool _sendInProgress = false;
   ContactRecord? newContactAddress;
 
   @override
@@ -412,6 +413,9 @@ class SendPage extends BasePage {
                           return LoadingPrimaryButton(
                             key: ValueKey('send_page_send_button_key'),
                             onPressed: () async {
+                              // Prevent double taps
+                              if (_sendInProgress) return;
+
                               //Request dummy node to get the focus out of the text fields
                               FocusScope.of(context).requestFocus(FocusNode());
 
@@ -436,18 +440,21 @@ class SendPage extends BasePage {
                               }
 
                               if (sendViewModel.wallet.isHardwareWallet) {
-                                if (!sendViewModel.ledgerViewModel!.isConnected) {
+                                if (!sendViewModel.hardwareWalletViewModel!.isConnected) {
                                   await Navigator.of(context).pushNamed(Routes.connectDevices,
                                       arguments: ConnectDevicePageParams(
                                         walletType: sendViewModel.walletType,
+                                        hardwareWalletType:
+                                            sendViewModel.wallet.walletInfo.hardwareWalletType!,
                                         onConnectDevice: (BuildContext context, _) {
-                                          sendViewModel.ledgerViewModel!
-                                              .setLedger(sendViewModel.wallet);
+                                          sendViewModel.hardwareWalletViewModel!
+                                              .initWallet(sendViewModel.wallet);
                                           Navigator.of(context).pop();
                                         },
                                       ));
                                 } else {
-                                  sendViewModel.ledgerViewModel!.setLedger(sendViewModel.wallet);
+                                  sendViewModel.hardwareWalletViewModel!
+                                      .initWallet(sendViewModel.wallet);
                                 }
                               }
 
@@ -467,6 +474,8 @@ class SendPage extends BasePage {
                                 }
                               }
 
+                              _sendInProgress = true;
+
                               final check = sendViewModel.shouldDisplayTotp();
                               authService.authenticateAction(
                                 context,
@@ -474,6 +483,8 @@ class SendPage extends BasePage {
                                 onAuthSuccess: (value) async {
                                   if (value) {
                                     await sendViewModel.createTransaction();
+                                  } else {
+                                    _sendInProgress = false;
                                   }
                                 },
                               );
@@ -522,6 +533,7 @@ class SendPage extends BasePage {
       }
 
       if (state is FailureState) {
+        _sendInProgress = false;
         WidgetsBinding.instance.addPostFrameCallback(
           (_) {
             showPopUp<void>(
@@ -602,11 +614,13 @@ class SendPage extends BasePage {
             );
 
             if (result == null) sendViewModel.dismissTransaction();
+            _sendInProgress = false;
           }
         });
       }
 
       if (state is TransactionCommitted) {
+        _sendInProgress = false;
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (!context.mounted) {
             return;
