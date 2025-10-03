@@ -101,7 +101,6 @@ class GroupedWalletExpansionTile extends StatelessWidget {
               final currentColor = item.isCurrent
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.surface;
-              final walletTypeToCrypto = walletTypeToCryptoCurrency(item.type);
               return ListTile(
                 contentPadding: EdgeInsets.zero,
                 key: ValueKey(item.name),
@@ -126,7 +125,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                           : SizedBox(width: 6),
                       SizedBox(width: 16),
                       Image.asset(
-                        walletTypeToCrypto.normalizedIconPath!,
+                        walletTypeToCryptoCurrency(item.type).normalizedIconPath!,
                         width: 32,
                         height: 32,
                       ),

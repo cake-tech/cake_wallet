@@ -110,7 +110,7 @@ class CommonTestFlows {
 
   void confirmAllAvailableWalletTypeIconsDisplayCorrectly() {
     for (var walletType in availableWalletTypes) {
-      final imageUrl = walletTypeToCryptoCurrency(walletType).iconPath;
+      final imageUrl = walletTypeToCryptoCurrency(walletType).normalizedIconPath;
 
       final walletIconFinder = find.image(
         Image.asset(
