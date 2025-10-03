@@ -49,6 +49,7 @@ Future<void> main(List<String> args) async {
   // await generateBanano(hasEthereum);
   await generateDecred(hasDecred);
   await generateDogecoin(hasDogecoin);
+  await generateBase(hasBase);
 
   await generatePubspec(
     hasMonero: hasMonero,
