@@ -206,6 +206,9 @@ class CWPolygon extends Polygon {
     } else if (service is EVMChainBitboxService) {
       ((wallet as EVMChainWallet).evmChainPrivateKey as EvmBitboxCredentials)
           .setBitbox(service.manager, wallet.walletInfo.derivationInfo?.derivationPath);
+    } else if (service is EVMChainTrezorService) {
+      ((wallet as EVMChainWallet).evmChainPrivateKey as EvmTrezorCredentials)
+          .setTrezorConnect(service.connect, wallet.walletInfo.derivationInfo?.derivationPath);
     }
   }
 

@@ -37,7 +37,6 @@ import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -942,7 +941,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     );
 
     if (token != null) {
-      selectedCryptoCurrency = token as CryptoCurrency;
+      selectedCryptoCurrency = token;
     }
   }
 }

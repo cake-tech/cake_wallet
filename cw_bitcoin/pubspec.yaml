@@ -57,7 +57,7 @@ dependencies:
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
-      ref: 498058f50dc77ad60b4c6c1e57ef848673377e67
+      ref: cc1dcdb7cfbee948161a1a4b341f0be3e4e5cfa4
   bitbox_flutter:
     path: ../scripts/bitbox_flutter
   socks_socket:

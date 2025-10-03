@@ -236,8 +236,11 @@ class WalletInfo extends HiveObject {
     return showIntroCakePayCard!;
   }
 
-  bool get isHardwareWallet =>
-      [HardwareWalletType.ledger, HardwareWalletType.bitbox].contains(hardwareWalletType);
+  bool get isHardwareWallet => [
+        HardwareWalletType.bitbox,
+        HardwareWalletType.ledger,
+        HardwareWalletType.trezor
+      ].contains(hardwareWalletType);
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 
