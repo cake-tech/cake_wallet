@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedURPage extends BasePage {
@@ -51,11 +52,21 @@ class AnimatedURPage extends BasePage {
     return first.split('/')[0];
   }
 
+  bool get isKeystone =>
+      animatedURmodel.wallet.walletInfo.hardwareWalletType ==
+      HardwareWalletType.keystone;
+
   @override
   Widget body(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (isKeystone)
+          Padding(
+            padding: const EdgeInsets.only(top: 32.0),
+            child: Image.asset('assets/images/hardware_wallet/keystone_scan_title.png',
+                width: 160, height: 36),
+          ),
         Padding(
           padding: const EdgeInsets.all(32.0),
           child: URQR(
@@ -66,15 +77,19 @@ class AnimatedURPage extends BasePage {
         if (["ur:xmr-txunsigned", "ur:xmr-output", "ur:psbt", BBQR.header]
             .contains(urQrType)) ...{
           Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SizedBox(
-              width: double.maxFinite,
-              child: PrimaryButton(
-                onPressed: () => _continue(context),
-                text: "Scan QR Code",
-                color: Theme.of(context).colorScheme.primary,
-                textColor: Theme.of(context).colorScheme.onPrimary,
+          SafeArea(
+            top: false,
+            minimum: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: SizedBox(
+                width: double.maxFinite,
+                child: PrimaryButton(
+                  onPressed: () => _continue(context),
+                  text: "Scan QR Code",
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                )
               ),
             ),
           ),

@@ -143,6 +143,15 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: OptionTile(
+                        key: ValueKey('restore_options_from_keystone_button_key'),
+                        onPressed: () => _onScanQRCode(context),
+                        image: imageRestoreQR,
+                        title: S.of(context).restore_title_from_keystone,
+                        description: S.of(context).restore_description_from_keystone),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 24),
+                    child: OptionTile(
                         key: ValueKey('restore_options_from_qr_button_key'),
                         onPressed: () => _onScanQRCode(context),
                         image: imageRestoreQR,

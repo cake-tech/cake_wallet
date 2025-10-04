@@ -104,6 +104,14 @@ class WalletRestoreFromQRCode {
     return null;
   }
 
+  static bool _shouldDecrypt(String code) {
+    final codeParsed = json.decode(code);
+    if (codeParsed["source"] == "Keystone" && codeParsed["encrypted"] == true) {
+      return true;
+    }
+    return false;
+  }
+
   static Future<RestoredWallet> scanQRCodeForRestoring(BuildContext context) async {
     String? code = await presentQRScanner(context);
     if (code == null) throw Exception("Unexpected scan QR code value: aborted");
@@ -126,6 +134,15 @@ class WalletRestoreFromQRCode {
             ? '$walletType:?xpub=$code' 
             : throw Exception('Failed to determine valid seed phrase');
     } else {
+      if (walletType == WalletType.monero && _shouldDecrypt(code)) {
+        final possibleDecryptedCode = await Navigator.pushNamed(context, Routes.restoreFromKeystonePrivateMode,
+            arguments: code);
+        if (possibleDecryptedCode == null) {
+          throw Exception('Failed to decrypt the keystone');
+        }
+        code = possibleDecryptedCode as String;
+      }
+
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
       formattedUri = code.startsWith('xpub') 

@@ -66,6 +66,7 @@ import 'package:cake_wallet/src/screens/buy/payment_method_options_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_external_send_page.dart';
 import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
+import 'package:cake_wallet/src/screens/restore/restore_from_keystone_private_mode_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
@@ -816,7 +817,7 @@ Future<void> setup({
       getIt.get<BalanceViewModel>(),
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
-      getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
+      getIt.get<AppStore>().wallet!.isLedger ? getIt.get<LedgerViewModel>() : null,
       coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
       getIt.get<FeesViewModel>(),
@@ -1079,12 +1080,12 @@ Future<void> setup({
   getIt.registerFactory<RobinhoodBuyProvider>(() => RobinhoodBuyProvider(
       wallet: getIt.get<AppStore>().wallet!,
       ledgerVM:
-          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
+          getIt.get<AppStore>().wallet!.isLedger ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<DFXBuyProvider>(() => DFXBuyProvider(
       wallet: getIt.get<AppStore>().wallet!,
       ledgerVM:
-          getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null));
+          getIt.get<AppStore>().wallet!.isLedger ? getIt.get<LedgerViewModel>() : null));
 
   getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
         appStore: getIt.get<AppStore>(),
@@ -1333,6 +1334,9 @@ Future<void> setup({
   getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupServiceV3>()));
 
   getIt.registerFactory(() => RestoreFromBackupPage(getIt.get<RestoreFromBackupViewModel>()));
+
+  getIt.registerFactoryParam<RestoreFromKeystonePrivateModePage, String, void>(
+      (String code, _) => RestoreFromKeystonePrivateModePage(code));
 
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>(
       (Trade trade, _) => TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));

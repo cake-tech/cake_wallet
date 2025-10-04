@@ -13,11 +13,13 @@ class PinCodeWidget extends StatefulWidget {
     required this.onChangedPin,
     required this.hasLengthSwitcher,
     this.onChangedPinLength,
+    this.title,
   }) : super(key: key);
 
   final void Function(String pin, PinCodeState state) onFullPin;
   final void Function(String pin) onChangedPin;
   final void Function(int length)? onChangedPinLength;
+  final String? title;
   final bool hasLengthSwitcher;
   final int initialPinLength;
 
@@ -51,7 +53,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     super.initState();
     pinLength = widget.initialPinLength;
     pin = '';
-    title = S.current.enter_your_pin;
+    title = widget.title ?? S.current.enter_your_pin;
     _aspectRatio = 0;
     _focusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -237,6 +237,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             address: address!,
             password: password,
             language: 'English',
+            hardwareWalletType: restoredWallet?.source == 'Keystone' ? HardwareWalletType.keystone : null,
           );
 
         case WalletType.ethereum:

@@ -25,6 +25,8 @@ enum DerivationType {
 enum HardwareWalletType {
   @HiveField(0)
   ledger,
+  @HiveField(1)
+  keystone,
 }
 
 @HiveType(typeId: DerivationInfo.typeId)
@@ -225,6 +227,12 @@ class WalletInfo extends HiveObject {
   }
 
   bool get isHardwareWallet => hardwareWalletType != null;
+
+  bool get isConnectableHardwareWallet => isLedger;
+
+  bool get isLedger => hardwareWalletType == HardwareWalletType.ledger;
+
+  bool get isKeystone => hardwareWalletType == HardwareWalletType.keystone;
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 

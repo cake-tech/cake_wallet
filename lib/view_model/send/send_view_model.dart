@@ -491,7 +491,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     try {
       if (!(state is IsExecutingState)) state = IsExecutingState();
 
-      if (wallet.isHardwareWallet) {
+      if (wallet.isLedger) {
         state = IsAwaitingDeviceResponseState();
         if (walletType == WalletType.monero)
           _ledgerTxStateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
