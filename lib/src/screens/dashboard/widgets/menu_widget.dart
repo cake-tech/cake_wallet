@@ -33,6 +33,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.bananoIcon = Image.asset('assets/images/nano_icon.png'),
         this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png'),
         this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
+        this.baseIcon = Image.asset('assets/images/base_icon.png'),
         this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
         this.tronIcon = Image.asset('assets/images/trx_icon.png'),
         this.wowneroIcon = Image.asset('assets/images/wownero_icon.png'),
@@ -60,6 +61,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image nanoIcon;
   Image bananoIcon;
   Image polygonIcon;
+  Image baseIcon;
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
@@ -249,6 +251,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return polygonIcon;
       case WalletType.solana:
         return solanaIcon;
+      case WalletType.base:
+        return baseIcon;
       case WalletType.tron:
         return tronIcon;
       case WalletType.wownero:

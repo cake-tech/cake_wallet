@@ -86,6 +86,7 @@
   "backup_password": "Mot de passe de sauvegarde",
   "balance": "Solde",
   "balance_page": "Page Solde",
+  "basescan_history": "HISTOIRE DE BASESCAN",
   "bill_amount": "Montant de la facture",
   "billing_address_info": "Si une adresse de facturation vous est demandée, indiquez votre adresse de livraison",
   "biometric_auth_reason": "Scannez votre empreinte digitale pour vous authentifier",

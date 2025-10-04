@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -148,7 +149,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                         padding: EdgeInsets.only(top: 10),
                         child: SelectButton(
                           image: Image.asset(
-                            walletTypeToCryptoCurrency(_walletHardwareRestoreVM.type).iconPath ??
+                            walletTypeToCryptoCurrency(_walletHardwareRestoreVM.type).normalizedIconPath ??
                                 '',
                             height: 24,
                             width: 24,

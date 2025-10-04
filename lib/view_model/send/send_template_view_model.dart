@@ -1,6 +1,7 @@
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
@@ -55,6 +56,7 @@ abstract class SendTemplateViewModelBase with Store {
       _wallet.type != WalletType.haven &&
       _wallet.type != WalletType.ethereum &&
       _wallet.type != WalletType.polygon &&
+      _wallet.type != WalletType.base &&
       _wallet.type != WalletType.solana &&
       _wallet.type != WalletType.tron;
 

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/base/base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/dogecoin/dogecoin.dart';
@@ -28,6 +29,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return dogecoin!.getTransactionPriorities();
     case WalletType.polygon:
       return polygon!.getTransactionPriorities();
+    case WalletType.base:
+      return base!.getTransactionPriorities();
     // no such thing for nano/banano/solana/tron:
     case WalletType.nano:
     case WalletType.banano:

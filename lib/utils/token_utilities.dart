@@ -1,3 +1,4 @@
+import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -13,14 +14,14 @@ class TokenUtilities {
     Box<WalletInfo> walletInfoSource,
   ) async {
     final evmWallets = walletInfoSource.values.where(
-      (w) => w.type == WalletType.ethereum || w.type == WalletType.polygon,
+      (w) =>  isEVMCompatibleChain(w.type),
     );
 
     final seen = <String>{};
     final unique = <Erc20Token>[];
 
     for (final wallet in evmWallets) {
-      final chain = wallet.type == WalletType.ethereum ? 'ETH' : 'POL';
+      final chain = getTokenNameBasedOnWalletType(wallet.type);
       final box = await _openEvmTokensBoxFor(wallet);
 
       for (final t in box.values.where((t) => t.enabled)) {
@@ -88,6 +89,7 @@ class TokenUtilities {
     switch (walletType) {
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.base:
         final tokens = await loadAllUniqueEvmTokens(walletInfoSource);
         for (final t in tokens) {
           if (t.contractAddress.toLowerCase() == lower) return t;
@@ -117,6 +119,7 @@ class TokenUtilities {
     final boxName = switch (walletInfo.type) {
       WalletType.ethereum => '${walletKey}_${Erc20Token.ethereumBoxName}',
       WalletType.polygon => '${walletKey}_${Erc20Token.polygonBoxName}',
+      WalletType.base => '${walletKey}_${Erc20Token.baseBoxName}',
       _ => '${walletKey}_${Erc20Token.ethereumBoxName}',
     };
 

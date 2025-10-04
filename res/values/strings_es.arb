@@ -86,6 +86,7 @@
   "backup_password": "Contraseña de respaldo",
   "balance": "Balance",
   "balance_page": "Página de saldo",
+  "basescan_history": "Historia de Basescan",
   "bill_amount": "Importe de la factura",
   "billing_address_info": "Si se le solicita una dirección de facturación, proporcione su dirección de envío",
   "biometric_auth_reason": "Escanee su huella digital para autenticar",
