@@ -90,8 +90,6 @@ class TransactionsPage extends StatelessWidget {
                                 return Container();
                               }
 
-                              if (item.transaction.amount == 0.0) return Container();
-
                               final transaction = item.transaction;
                               final transactionType =
                                   dashboardViewModel.getTransactionType(transaction);
