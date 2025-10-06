@@ -241,6 +241,7 @@ abstract class OutputBase with Store {
   void setSendAll(String fullBalance) {
     cryptoFullBalance = fullBalance;
     sendAll = true;
+    _updateFiatAmount();
   }
 
   @action
