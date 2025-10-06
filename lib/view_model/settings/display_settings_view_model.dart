@@ -42,6 +42,10 @@ abstract class DisplaySettingsViewModelBase with Store {
   ThemeMode get themeMode => _themeStore.themeMode;
 
   @computed
+  bool get isBlackThemeOledEnabled =>
+      _themeStore.currentTheme is BlackTheme && _themeStore.isOled;
+
+  @computed
   bool get disabledFiatApiMode => _settingsStore.fiatApiMode == FiatApiMode.disabled;
 
   @computed
@@ -116,6 +120,10 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   Future<void> onThemeSelected(MaterialThemeBase newTheme) async {
+    if (newTheme is BlackTheme && _themeStore.isOled) {
+      await setTheme(BlackTheme(newTheme.accentColor, isOled: true));
+      return;
+    }
     await setTheme(newTheme);
   }
 
@@ -132,9 +140,20 @@ abstract class DisplaySettingsViewModelBase with Store {
       );
 
       if (newTheme != currentTheme) {
-        await onThemeSelected(newTheme);
+        if (newTheme is BlackTheme && _themeStore.isOled) {
+          await onThemeSelected(BlackTheme(newTheme.accentColor, isOled: true));
+        } else {
+          await onThemeSelected(newTheme);
+        }
       }
     } catch (_) {}
+  }
+
+  @action
+  Future<void> setBlackThemeOled(bool value) async {
+    if (_themeStore.currentTheme is BlackTheme) {
+      await _themeStore.setOledEnabled(value);
+    }
   }
 
   bool isThemeSelected(MaterialThemeBase theme) {

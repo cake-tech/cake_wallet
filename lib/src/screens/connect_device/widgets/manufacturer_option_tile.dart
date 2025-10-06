@@ -1,11 +1,11 @@
-import 'package:cake_wallet/themes/utils/custom_theme_colors.dart';
+import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class ManufacturerOptionTile extends StatelessWidget {
   const ManufacturerOptionTile({
     required this.onPressed,
     required this.image,
-    required this.isDarkTheme,
+    required this.currentTheme,
     this.tag,
     this.isUnavailable = false,
   });
@@ -14,7 +14,7 @@ class ManufacturerOptionTile extends StatelessWidget {
   final Widget image;
   final String? tag;
   final bool isUnavailable;
-  final bool isDarkTheme;
+  final MaterialThemeBase currentTheme; 
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -28,12 +28,8 @@ class ManufacturerOptionTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               gradient: LinearGradient(
                 colors: [
-                  isDarkTheme
-                      ? CustomThemeColors.cardGradientColorPrimaryDark
-                      : CustomThemeColors.cardGradientColorPrimaryLight,
-                  isDarkTheme
-                      ? CustomThemeColors.cardGradientColorSecondaryDark
-                      : CustomThemeColors.cardGradientColorSecondaryLight,
+                  currentTheme.customColors.cardGradientColorPrimary,
+                  currentTheme.customColors.cardGradientColorSecondary,
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

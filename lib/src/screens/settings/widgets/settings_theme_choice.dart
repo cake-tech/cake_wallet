@@ -1,5 +1,8 @@
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -22,7 +25,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
         final availableAccentColors = _displaySettingsViewModel.availableAccentColors;
 
         return Container(
-          height: currentTheme.hasAccentColors ? 306 : 236,
+          height: getHeight(currentTheme, currentTheme.hasAccentColors),
           padding: EdgeInsets.all(12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -48,7 +51,9 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(cellRadius),
                             border: isSelected
-                                ? Border.all(color: Theme.of(context).colorScheme.primary, strokeAlign: BorderSide.strokeAlignOutside)
+                                ? Border.all(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    strokeAlign: BorderSide.strokeAlignOutside)
                                 : null,
                           ),
                           child: ClipRRect(
@@ -107,10 +112,30 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                   ],
                 ),
               ],
+              if (_displaySettingsViewModel.currentTheme is BlackTheme)
+                SettingsSwitcherCell(
+                  currentTheme: currentTheme,
+                  title: 'OLED mode',
+                  value: _displaySettingsViewModel.isBlackThemeOledEnabled,
+                  onValueChange: (_, bool value) {
+                    _displaySettingsViewModel.setBlackThemeOled(value);
+                  },
+                  padding: EdgeInsets.zero,
+                ),
             ],
           ),
         );
       },
     );
+  }
+
+  double getHeight(MaterialThemeBase theme, bool hasAccentColors) {
+    if (theme is BlackTheme && hasAccentColors) return 356;
+
+    if (hasAccentColors) 
+      return 306;
+    
+
+    return 236;
   }
 }

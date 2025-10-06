@@ -7,6 +7,7 @@ import 'package:cake_wallet/themes/utils/theme_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'material_base_theme.dart';
+import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
 
 part 'theme_store.g.dart';
 
@@ -20,6 +21,9 @@ abstract class ThemeStoreBase with Store {
   @observable
   ThemeMode _themeMode = ThemeMode.system;
 
+  @observable
+  bool _isOled = false;
+
   @computed
   MaterialThemeBase get currentTheme => _currentTheme;
 
@@ -28,6 +32,9 @@ abstract class ThemeStoreBase with Store {
 
   @computed
   bool get isDarkMode => _currentTheme.isDark;
+
+  @computed
+  bool get isOled => _isOled;
 
   @computed
   bool get hasCustomTheme => sharedPreferences.getInt(PreferencesKey.currentTheme) != null;
@@ -46,6 +53,8 @@ abstract class ThemeStoreBase with Store {
 
     _currentTheme = theme;
     await sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw);
+    _isOled = theme is BlackTheme ? theme.isOled : false;
+    await sharedPreferences.setBool(PreferencesKey.blackThemeOled, _isOled);
   }
 
   @action
@@ -67,6 +76,18 @@ abstract class ThemeStoreBase with Store {
 
     if (_isThemeCompatibleWithMode(savedTheme, mode)) {
       await setTheme(savedTheme);
+    }
+  }
+
+  @action
+  Future<void> setOledEnabled(bool value) async {
+    if (_isOled == value) return;
+    _isOled = value;
+    await sharedPreferences.setBool(PreferencesKey.blackThemeOled, value);
+
+    if (_currentTheme is BlackTheme) {
+      final current = _currentTheme as BlackTheme;
+      await setTheme(BlackTheme(current.accentColor, isOled: value));
     }
   }
 
@@ -127,6 +148,7 @@ abstract class ThemeStoreBase with Store {
   /// Loads the saved theme from SharedPreferences
   Future<void> loadSavedTheme({bool isFromBackup = false}) async {
     try {
+      _isOled = sharedPreferences.getBool(PreferencesKey.blackThemeOled) ?? false;
       final theme = savedCustomTheme;
 
       if (!hasCustomTheme || theme == null) {
@@ -134,7 +156,12 @@ abstract class ThemeStoreBase with Store {
         return;
       }
 
-      if (_currentTheme != theme) {
+      if (theme is BlackTheme) {
+        final adjusted = BlackTheme(theme.accentColor, isOled: _isOled);
+        if (_currentTheme != adjusted) {
+          await setTheme(adjusted);
+        }
+      } else if (_currentTheme != theme) {
         await setTheme(theme);
       }
 

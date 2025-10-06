@@ -13,12 +13,14 @@ class SettingsSwitcherCell extends StandardListRow {
     this.leading,
     void Function(BuildContext context)? onTap,
     Key? key,
+    this.padding,
   }) : super(title: title, isSelected: false, decoration: decoration, onTap: onTap, key: key);
 
   final bool value;
   final void Function(BuildContext context, bool value)? onValueChange;
   final Widget? leading;
   final MaterialThemeBase currentTheme;
+  final EdgeInsets? padding;
 
   @override
   Widget buildTrailing(BuildContext context) => StandardSwitch(
@@ -33,7 +35,7 @@ class SettingsSwitcherCell extends StandardListRow {
     final trailing = buildTrailing(context);
     return Container(
       height: 56,
-      padding: EdgeInsets.only(left: 12, right: 12),
+      padding: padding ?? EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
         onPressed: () {
           if (onTap != null) {
@@ -43,6 +45,7 @@ class SettingsSwitcherCell extends StandardListRow {
           }
         },
         style: ButtonStyle(
+          padding: WidgetStateProperty.all(padding ?? null),
           //backgroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.surfaceContainer),
           shape: WidgetStateProperty.all(
             RoundedRectangleBorder(

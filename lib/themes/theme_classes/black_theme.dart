@@ -18,9 +18,10 @@ enum BlackThemeAccentColor implements ThemeAccentColor {
 }
 
 class BlackTheme extends MaterialThemeBase {
-  BlackTheme(this.accentColor);
+  BlackTheme(this.accentColor, {this.isOled = false});
 
   final BlackThemeAccentColor accentColor;
+  final bool isOled;
 
   @override
   Brightness get brightness => Brightness.dark;
@@ -38,7 +39,7 @@ class BlackTheme extends MaterialThemeBase {
   Color get errorColor => const Color(0xFFFFB4AB);
 
   @override
-  Color get surfaceColor => const Color(0xFF131314);
+  Color get surfaceColor => isOled ? const Color(0xFF000000) : const Color(0xFF131314);
 
   @override
   Color get tertiaryColor => const Color(0xFFDEBFC5);
@@ -62,9 +63,10 @@ class BlackTheme extends MaterialThemeBase {
         errorContainer: const Color(0xFFC53636),
         onErrorContainer: const Color(0xFFFFDAD6),
         surface: surfaceColor,
+        background: surfaceColor,
         onSurface: const Color(0xFFE6E1E3),
         onSurfaceVariant: const Color(0xFFB4B4B4),
-        surfaceContainerLowest: Color(0xFF0F0E0F),
+        surfaceContainerLowest: isOled ? const Color(0xFF000000) : const Color(0xFF0F0E0F),
         surfaceContainerLow: Color(0xFF1C1B1C),
         surfaceContainer: Color(0xFF211F20),
         surfaceContainerHigh: Color(0xFF2B292B),
@@ -175,13 +177,16 @@ class BlackTheme extends MaterialThemeBase {
         fontFamily: fontFamily,
         brightness: brightness,
         colorScheme: colorScheme,
+        scaffoldBackgroundColor: surfaceColor,
+        canvasColor: surfaceColor,
+        cardColor: colorScheme.surface,
         textTheme: textTheme,
         appBarTheme: AppBarTheme(
-          backgroundColor: colorScheme.surface,
+          backgroundColor: surfaceColor,
           foregroundColor: colorScheme.onSurface,
           elevation: 0,
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: colorScheme.surface,
           elevation: 1,
           shape: RoundedRectangleBorder(
@@ -258,7 +263,9 @@ class BlackTheme extends MaterialThemeBase {
       BlackThemeAccentColor.bitcoinYellow => 13,
       BlackThemeAccentColor.moneroOrange => 14,
     };
-    return baseValue;
+    if (!isOled) return baseValue;
+    // OLED encodes as 100 + base to avoid collisions
+    return 100 + baseValue;
   }
 
   @override
@@ -276,8 +283,11 @@ class BlackTheme extends MaterialThemeBase {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is BlackTheme && runtimeType == other.runtimeType && accentColor == other.accentColor;
+      other is BlackTheme &&
+          runtimeType == other.runtimeType &&
+          accentColor == other.accentColor &&
+          isOled == other.isOled;
 
   @override
-  int get hashCode => accentColor.hashCode;
+  int get hashCode => Object.hash(accentColor, isOled);
 }

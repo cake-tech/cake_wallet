@@ -1,5 +1,6 @@
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
+import 'package:cake_wallet/themes/theme_classes/black_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -23,7 +24,7 @@ class ThemeProvider extends StatelessWidget {
         final theme = currentTheme.themeData;
         final themeMode = themeStore.themeMode;
 
-        final isCustomTheme = ThemeList.all.contains(currentTheme);
+        final isCustomTheme = ThemeList.all.contains(currentTheme) || currentTheme is BlackTheme;
         if (isCustomTheme) {
           return materialAppBuilder(context, theme, theme, themeMode);
         }

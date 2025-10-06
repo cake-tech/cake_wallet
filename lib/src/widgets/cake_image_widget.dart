@@ -41,7 +41,6 @@ class CakeImageWidget extends StatelessWidget {
               width: width,
               color: color,
               fit: fit ?? BoxFit.contain,
-              color: color,
             )
           : Image.asset(
               imageUrl!,
