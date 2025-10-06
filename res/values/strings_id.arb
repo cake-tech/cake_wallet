@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay memungkinkan Anda untuk dengan mudah membeli kartu hadiah dengan aset virtual, yang dapat digunakan segera di lebih dari 150.000 pedagang di Amerika Serikat.",
+  "accent_color": "Warna aksen",
   "account": "Akun",
   "accounts": "Akun",
   "accounts_subaddresses": "Akun dan sub-alamat",
@@ -569,6 +570,7 @@
   "offline": "Offline",
   "ok": "OK",
   "old_fee": "Biaya lama",
+  "oled_mode": "Mode OLED",
   "onion_link": "Tautan bawang",
   "online": "Online",
   "onramper_option_description": "Beli crypto dengan cepat dengan banyak metode pembayaran. Tersedia di sebagian besar negara. Spread dan biaya bervariasi.",

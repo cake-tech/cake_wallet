@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay umożliwia łatwe kupowanie kart podarunkowych z wirtualnymi saldami, które można natychmiast wydać u ponad 150 000 sprzedawców.",
+  "accent_color": "Kolor akcentu",
   "account": "Konto",
   "accounts": "Konta",
   "accounts_subaddresses": "Konta i podadresy",
@@ -569,6 +570,7 @@
   "offline": "Offline",
   "ok": "Ok",
   "old_fee": "Stara opłata",
+  "oled_mode": "Tryb OLED",
   "onion_link": "Link .onion",
   "online": "online",
   "onramper_option_description": "Szybko kup kryptowaluty z wieloma metodami płatności. Dostępne w większości krajów. Ceny i opłaty różnią się.",

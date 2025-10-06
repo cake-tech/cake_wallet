@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay umožňuje jednoduše nakupovat dárkové karty pomocí virtuálních prostředků, které lze okamžitě uplatnit u více než 150 000 obchodníků ve Spojených státech.",
+  "accent_color": "Accent Color",
   "account": "Účet",
   "accounts": "Účty",
   "accounts_subaddresses": "Účty a subadresy",
@@ -569,6 +570,7 @@
   "offline": "Offline",
   "ok": "OK",
   "old_fee": "Starý poplatek",
+  "oled_mode": "OLED režim",
   "onion_link": "Cibulový odkaz",
   "online": "Online",
   "onramper_option_description": "Rychle si koupte krypto s mnoha metodami plateb. K dispozici ve většině zemí. Rozpětí a poplatky se liší.",

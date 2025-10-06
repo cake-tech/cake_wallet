@@ -77,7 +77,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Accent color',
+                      S.of(context).accent_color,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     Container(
@@ -115,7 +115,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
               if (_displaySettingsViewModel.currentTheme is BlackTheme)
                 SettingsSwitcherCell(
                   currentTheme: currentTheme,
-                  title: 'OLED mode',
+                  title: S.current.oled_mode,
                   value: _displaySettingsViewModel.isBlackThemeOledEnabled,
                   onValueChange: (_, bool value) {
                     _displaySettingsViewModel.setBlackThemeOled(value);
@@ -132,9 +132,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
   double getHeight(MaterialThemeBase theme, bool hasAccentColors) {
     if (theme is BlackTheme && hasAccentColors) return 356;
 
-    if (hasAccentColors) 
-      return 306;
-    
+    if (hasAccentColors) return 306;
 
     return 236;
   }

@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay ti consente di acquistare facilmente buoni regalo con asset virtuali, spendibili istantaneamente presso oltre 150.000 commercianti negli Stati Uniti.",
+  "accent_color": "Colore accento",
   "account": "Conto",
   "accounts": "Conti",
   "accounts_subaddresses": "Accounts e sottoindirizzi",
@@ -569,6 +570,7 @@
   "offline": "Offline",
   "ok": "OK",
   "old_fee": "Vecchia commissione",
+  "oled_mode": "Modalità OLED",
   "onion_link": "Link Onion",
   "online": "in linea",
   "onramper_option_description": "Acquista rapidamente la criptovaluta con molti metodi di pagamento. Disponibile nella maggior parte dei paesi. Gli spread e le commissioni variano.",

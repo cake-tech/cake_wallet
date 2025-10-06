@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay vam omogućuje jednostavnu kupnju darovnih kartica s virtualnim sredstvima, koja se trenutno mogu potrošiti kod više od 150 000 trgovaca u Sjedinjenim Državama.",
+  "accent_color": "Naglašena boja",
   "account": "Račun",
   "accounts": "Računi",
   "accounts_subaddresses": "Računi i podadrese",
@@ -569,6 +570,7 @@
   "offline": "izvan mreže",
   "ok": "OK",
   "old_fee": "Stara naknada",
+  "oled_mode": "OLED način",
   "onion_link": "Poveznica luka",
   "online": "Na mreži",
   "onramper_option_description": "Brzo kupite kriptovalute s mnogim načinima plaćanja. Dostupno u većini zemalja. Širenja i naknade variraju.",

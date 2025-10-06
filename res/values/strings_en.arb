@@ -1,5 +1,6 @@
 {
   "about_cake_pay": "Cake Pay allows you to easily buy gift cards with virtual assets, spendable instantly at over 150,000 merchants in the United States.",
+  "accent_color": "Accent color",
   "account": "Account",
   "accounts": "Accounts",
   "accounts_subaddresses": "Accounts and subaddresses",
@@ -569,6 +570,7 @@
   "offline": "Offline",
   "ok": "OK",
   "old_fee": "Old fee",
+  "oled_mode": "OLED mode",
   "onion_link": "Onion link",
   "online": "Online",
   "onramper_option_description": "Quickly buy crypto with many payment methods. Available in most countries. Spreads and fees vary.",
