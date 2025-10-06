@@ -80,14 +80,12 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   late TextEditingController _amountController;
   late TextEditingController _amountFiatController;
   late TextEditingController _addressController;
-  late TextEditingController _noteController;
 
   final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
   final _receiveAmountFiatDebounce = Debounce(Duration(milliseconds: 500));
   final FocusNode _amountFocus = FocusNode();
   final FocusNode _amountFiatFocus = FocusNode();
   final FocusNode _addressFocus = FocusNode();
-  final FocusNode _noteFocus = FocusNode();
   final _formKey = GlobalKey<FormState>();
 
   ReactionDisposer? _receiveAmountReaction;
@@ -110,8 +108,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
             : '0.00');
     _amountFiatController =
         TextEditingController(text: widget.exchangeViewModel.receiveAmountFiatFormatted);
-    _noteController =
-        TextEditingController(text: widget.paymentFlowResult.addressDetectionResult?.note ?? '');
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _setUpReactions(
@@ -127,11 +123,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _amountController.dispose();
     _amountFiatController.dispose();
     _addressController.dispose();
-    _noteController.dispose();
     _amountFocus.dispose();
     _amountFiatFocus.dispose();
     _addressFocus.dispose();
-    _noteFocus.dispose();
     _receiveAmountReaction?.call();
     _receiveAddressReaction?.call();
     _tradeStateReaction?.call();
@@ -263,14 +257,6 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               hintText: 'Destination Address',
               focusNode: _addressFocus,
               controller: _addressController,
-            ),
-            const SizedBox(height: 8),
-            SwapConfirmationTextfield(
-              maxLines: 1,
-              key: ValueKey('swap_confirmation_bottomsheet_note_textfield_key'),
-              hintText: 'Transaction Note',
-              focusNode: _noteFocus,
-              controller: _noteController,
             ),
             SizedBox(height: 8),
             Center(
