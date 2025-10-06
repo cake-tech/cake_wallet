@@ -14,9 +14,11 @@ class SettingsSwitcherCell extends StandardListRow {
     void Function(BuildContext context)? onTap,
     Key? key,
     this.padding,
+    this.switchBackgroundColor,
   }) : super(title: title, isSelected: false, decoration: decoration, onTap: onTap, key: key);
 
   final bool value;
+  final Color? switchBackgroundColor;
   final void Function(BuildContext context, bool value)? onValueChange;
   final Widget? leading;
   final MaterialThemeBase currentTheme;
@@ -27,6 +29,7 @@ class SettingsSwitcherCell extends StandardListRow {
         currentTheme: currentTheme,
         value: value,
         onTapped: () => onValueChange?.call(context, !value),
+        backgroundColor: switchBackgroundColor,
       );
 
   @override

@@ -121,6 +121,7 @@ class SettingsThemeChoicesCell extends StatelessWidget {
                     _displaySettingsViewModel.setBlackThemeOled(value);
                   },
                   padding: EdgeInsets.zero,
+                  switchBackgroundColor: currentTheme.colorScheme.secondaryContainer,
                 ),
             ],
           ),
