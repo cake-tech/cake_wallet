@@ -11,8 +11,10 @@ import 'package:cake_wallet/src/widgets/bottom_sheet/swap_details_bottom_sheet.d
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -174,7 +176,23 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               hintText: 'Amount (${detectedCurrencyName})',
               focusNode: _amountFocus,
               controller: _amountController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              keyboardType: TextInputType.numberWithOptions(decimal: true, signed: false),
+              inputFormatters: [
+                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
+              ],
+              onChanged: (value) {
+                final sanitized = value.replaceAll(',', '.').withMaxDecimals(
+                    widget.paymentFlowResult.addressDetectionResult?.detectedCurrency?.decimals ??
+                        0);
+                if (sanitized != _amountController.text) {
+                  // Update text while preserving a sane cursor position to avoid auto-selection
+                  _amountController.value = _amountController.value.copyWith(
+                    text: sanitized,
+                    selection: TextSelection.collapsed(offset: sanitized.length),
+                    composing: TextRange.empty,
+                  );
+                }
+              },
               validator: (value) {
                 return AmountValidator(
                   isAutovalidate: true,
@@ -407,6 +425,8 @@ class SwapConfirmationTextfield extends StatelessWidget {
     this.maxLines = 1,
     this.validator,
     this.keyboardType,
+    this.onChanged,
+    this.inputFormatters,
   });
 
   final FocusNode focusNode;
@@ -417,7 +437,8 @@ class SwapConfirmationTextfield extends StatelessWidget {
   final int maxLines;
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
-
+  final void Function(String)? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -462,6 +483,8 @@ class SwapConfirmationTextfield extends StatelessWidget {
                   maxLines: maxLines,
                   validator: validator,
                   keyboardType: keyboardType,
+                  onChanged: onChanged,
+                  inputFormatters: inputFormatters,
                 ),
         ],
       ),
