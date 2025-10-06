@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/di.dart';
@@ -98,6 +96,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
   bool _showingFailureDialog = false;
   bool _showingSwapDetailsDialog = false;
+  bool _isUserTypingFiat = false;
 
   @override
   void initState() {
@@ -181,9 +180,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                 FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]')),
               ],
               onChanged: (value) {
-                final sanitized = value.replaceAll(',', '.').withMaxDecimals(
-                    widget.paymentFlowResult.addressDetectionResult?.detectedCurrency?.decimals ??
-                        0);
+                final sanitized = value
+                    .replaceAll(',', '.')
+                    .withMaxDecimals(widget.exchangeViewModel.receiveCurrency.decimals);
                 if (sanitized != _amountController.text) {
                   // Update text while preserving a sane cursor position to avoid auto-selection
                   _amountController.value = _amountController.value.copyWith(
@@ -311,7 +310,7 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
     _receiveAmountFiatReaction =
         reaction((_) => exchangeViewModel.receiveAmountFiatFormatted, (String amount) {
-      if (_amountFiatController.text != amount) {
+      if (!_isUserTypingFiat && _amountFiatController.text != amount) {
         _amountFiatController.text = amount;
       }
     });
@@ -389,9 +388,14 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
 
     _amountFiatController.addListener(() {
       if (_amountFiatController.text != exchangeViewModel.receiveAmountFiatFormatted) {
+        _isUserTypingFiat = true;
         _receiveAmountFiatDebounce.run(() {
           exchangeViewModel.loadLimits();
           exchangeViewModel.setReceiveAmountFromFiat(fiatAmount: _amountFiatController.text);
+          // Reset the flag after the debounced operation completes
+          Future.delayed(Duration(milliseconds: 100), () {
+            _isUserTypingFiat = false;
+          });
         });
       }
     });
@@ -399,6 +403,17 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
     _amountFocus.addListener(() {
       if (_amountFocus.hasFocus) {
         exchangeViewModel.enableFixedRateMode();
+      }
+    });
+
+    _amountFiatFocus.addListener(() {
+      if (_amountFiatFocus.hasFocus) {
+        _isUserTypingFiat = true;
+      } else {
+        // Reset the flag when user stops focusing on the field
+        Future.delayed(Duration(milliseconds: 200), () {
+          _isUserTypingFiat = false;
+        });
       }
     });
 
