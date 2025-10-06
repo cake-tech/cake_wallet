@@ -44,7 +44,9 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
       {required bool displayWalletPassword, RestoredWallet? restoredWallet})
       : formKey = GlobalKey<FormState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
-        nameController = TextEditingController(),
+        nameController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.name)
+            : TextEditingController(),
         addressController = restoredWallet != null
             ? TextEditingController(text: restoredWallet.address)
             : TextEditingController(),
@@ -57,7 +59,9 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
         privateKeyController = restoredWallet != null
             ? TextEditingController(text: restoredWallet.privateKey)
             : TextEditingController(),
-        nameTextEditingController = TextEditingController(),
+        nameTextEditingController = restoredWallet != null
+            ? TextEditingController(text: restoredWallet.name)
+            : TextEditingController(),
         passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
         repeatedPasswordTextEditingController =
             displayWalletPassword ? TextEditingController() : null;

@@ -706,16 +706,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             continue;
           } else {
             try {
-              if (provider is SwapTradeExchangeProvider) {
-                final destinationAmount = (fiatConversionStore.prices[request.toCurrency] ?? 0.00) *
-                    (double.tryParse(request.toAmount) ?? 0.00);
-                final sendingAmount = (fiatConversionStore.prices[request.fromCurrency] ?? 0.00) *
-                    (double.tryParse(request.fromAmount) ?? 0.00);
-
-                if (destinationAmount > 5000 || sendingAmount > 5000) {
-                  continue;
-                }
-              }
               tradeState = TradeIsCreating();
               final trade = await provider.createTrade(
                 request: request,
