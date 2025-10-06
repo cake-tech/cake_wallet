@@ -453,7 +453,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @action
   void setReceiveAmountFromFiat({required String fiatAmount}) {
     final _enteredAmount = double.tryParse(fiatAmount.replaceAll(',', '.')) ?? 0.0;
-    final crypto = _enteredAmount / fiatConversionStore.prices[receiveCurrency]!;
+    final price = fiatConversionStore.prices[receiveCurrency];
+    if (price == null || price == 0.0) return;
+
+    final crypto = _enteredAmount / price;
     final receiveAmountTmp = _cryptoNumberFormat.format(crypto);
     if (receiveAmount != receiveAmountTmp) {
       changeReceiveAmount(amount: receiveAmountTmp.withMaxDecimals(receiveCurrency.decimals));
@@ -550,7 +553,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       if (result[i] != 0) {
         /// add this provider as its valid for this trade
         try {
-           newSortedProviders[result[i]] = _providers[i];
+          newSortedProviders[result[i]] = _providers[i];
         } catch (e) {
           // will throw "Concurrent modification during iteration" error if modified at the same
           // time [createTrade] is called, as this is not a normal map, but a sorted map
