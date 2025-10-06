@@ -423,6 +423,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                     fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     controller: extractedAddressController,
                     readOnly: true,
+                    enableInteractiveSelection: false,
                     textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
