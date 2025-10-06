@@ -8,8 +8,11 @@ class ThemeList {
     darkTheme,
     lightTheme,
     blackThemeCakePrimary,
+    blackThemeBCHGreen,
     blackThemeBitcoinYellow,
     blackThemeMoneroOrange,
+    blackThemeTronRed,
+    blackThemeFrostingPurple,
   ];
 
   static final lightTheme = LightTheme();
@@ -33,6 +36,24 @@ class ThemeList {
     isOled: true,
   );
 
+  static final blackThemeBCHGreen = BlackTheme(BlackThemeAccentColor.bchGreen);
+  static final blackThemeBCHGreenOled = BlackTheme(
+    BlackThemeAccentColor.bchGreen,
+    isOled: true,
+  );
+
+  static final blackThemeTronRed = BlackTheme(BlackThemeAccentColor.tronRed);
+  static final blackThemeTronRedOled = BlackTheme(
+    BlackThemeAccentColor.tronRed,
+    isOled: true,
+  );
+
+  static final blackThemeFrostingPurple = BlackTheme(BlackThemeAccentColor.frostingPurple);
+  static final blackThemeFrostingPurpleOled = BlackTheme(
+    BlackThemeAccentColor.frostingPurple,
+    isOled: true,
+  );
+
   static MaterialThemeBase deserialize({required int raw}) {
     switch (raw) {
       case 0:
@@ -52,15 +73,27 @@ class ThemeList {
       case 12:
         return blackThemeCakePrimary;
       case 13:
-        return blackThemeBitcoinYellow;
+        return blackThemeBCHGreen;
       case 14:
+        return blackThemeBitcoinYellow;
+      case 15:
         return blackThemeMoneroOrange;
+      case 16:
+        return blackThemeTronRed;
+      case 17:
+        return blackThemeFrostingPurple;
       case 112:
         return blackThemeCakePrimaryOled;
       case 113:
-        return blackThemeBitcoinYellowOled;
+        return blackThemeBCHGreenOled;
       case 114:
+        return blackThemeBitcoinYellowOled;
+      case 115:
         return blackThemeMoneroOrangeOled;
+      case 116:
+        return blackThemeTronRedOled;
+      case 117:
+        return blackThemeFrostingPurpleOled;
       default:
         return blackThemeCakePrimary;
     }

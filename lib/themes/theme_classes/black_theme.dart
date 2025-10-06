@@ -5,8 +5,11 @@ import 'package:cake_wallet/themes/custom_theme_colors/black_theme_custom_colors
 
 enum BlackThemeAccentColor implements ThemeAccentColor {
   cakePrimary(Color(0xFF52B6F0), 'Cake Primary'),
+  bchGreen(Color(0xFF44BA52), 'BCH Green'),
   bitcoinYellow(Color(0xFFFFC107), 'Bitcoin Yellow'),
-  moneroOrange(Color(0xFFFF5F2A), 'Monero Orange');
+  moneroOrange(Color(0xFFFF6600), 'Monero Orange'),
+  tronRed(Color(0xFFFF4242), 'Tron Red'),
+  frostingPurple(Color(0xFFBABAF3), 'Frosting Purple');
 
   const BlackThemeAccentColor(this.color, this.name);
 
@@ -260,8 +263,11 @@ class BlackTheme extends MaterialThemeBase {
   int get raw {
     final baseValue = switch (accentColor) {
       BlackThemeAccentColor.cakePrimary => 12,
-      BlackThemeAccentColor.bitcoinYellow => 13,
-      BlackThemeAccentColor.moneroOrange => 14,
+      BlackThemeAccentColor.bchGreen => 13,
+      BlackThemeAccentColor.bitcoinYellow => 14,
+      BlackThemeAccentColor.moneroOrange => 15,
+      BlackThemeAccentColor.tronRed => 16,
+      BlackThemeAccentColor.frostingPurple => 17,
     };
     if (!isOled) return baseValue;
     // OLED encodes as 100 + base to avoid collisions

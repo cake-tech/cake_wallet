@@ -49,8 +49,8 @@ class DarkTheme extends MaterialThemeBase {
         surfaceContainerLowest: Color(0xFF171C30),
         surfaceContainerLow: Color(0xFF2D385C),
         surfaceContainer: Color(0xFF24335B),
-        surfaceContainerHigh: Color(0xFF212C47),
-        surfaceContainerHighest: Color(0xFF2A3B67),
+        surfaceContainerHigh: Color(0xFF2A3E73),
+        surfaceContainerHighest: Color(0xFF334C8C),
         outline: const Color(0xFF9EACC1),
         outlineVariant: const Color(0xFF3E5579),
       );

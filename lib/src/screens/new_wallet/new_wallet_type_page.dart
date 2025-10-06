@@ -143,8 +143,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                           key: ValueKey('new_wallet_type_${type.name}_button_key'),
                           image: Image.asset(
                             walletTypeToCryptoCurrency(type).iconPath ?? '',
-                            height: 24,
-                            width: 24,
+                            height: 28,
+                            width: 28,
                           ),
                           text: walletTypeToDisplayName(type),
                           showTrailingIcon: false,

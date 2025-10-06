@@ -71,6 +71,7 @@ class DashBoardRoundedCardWidget extends StatelessWidget {
             style: TextButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
+                side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
               ),
               padding: EdgeInsets.only(left: 24, top: 24, right: 20, bottom: 24),
             ),

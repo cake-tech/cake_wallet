@@ -84,6 +84,7 @@ class BalanceRowWidget extends StatelessWidget {
             onPressed: _showToast,
             onLongPress: () => dashboardViewModel.balanceViewModel.switchBalanceValue(),
             style: TextButton.styleFrom(
+              side: BorderSide(width: 1.25, color: Theme.of(context).colorScheme.surfaceContainerHigh),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             ),
             child: Container(
@@ -138,7 +139,7 @@ class BalanceRowWidget extends StatelessWidget {
                           AutoSizeText(
                             availableBalance,
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 24,
                                   height: 1,
