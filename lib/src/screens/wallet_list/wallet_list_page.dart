@@ -307,7 +307,7 @@ class WalletListBodyState extends State<WalletListBody> {
                               trailingWidget: wallet.isCurrent
                                   ? null
                                   : EditWalletButtonWidget(
-                                      width: 48,
+                                      width: 64,
                                       onTap: () {
                                         Navigator.of(context).pushNamed(
                                           Routes.walletEdit,
