@@ -15,7 +15,6 @@ import 'package:cake_wallet/src/widgets/provider_optoin_tile.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/buy/buy_sell_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -322,7 +321,7 @@ class BuySellPage extends BasePage {
       if (!_cryptoAddressFocus.hasFocus && cryptoAddressController.text.isNotEmpty) {
         final domain = cryptoAddressController.text;
         buySellViewModel.cryptoCurrencyAddress = await fetchParsedAddress(
-            context, domain, buySellViewModel.cryptoCurrency, currentTheme);
+            context, domain, buySellViewModel.cryptoCurrency);
       }
     });
 
@@ -385,7 +384,6 @@ class BuySellPage extends BasePage {
   Widget _exchangeCardsSection(BuildContext context) {
     final fiatExchangeCard = Observer(
       builder: (_) => ExchangeCard(
-        currentTheme: currentTheme,
         cardInstanceName: 'fiat_currency_trade_card',
         onDispose: disposeBestRateSync,
         amountFocusNode: _fiatAmountFocus,
@@ -421,7 +419,6 @@ class BuySellPage extends BasePage {
 
     final cryptoExchangeCard = Observer(
       builder: (_) => ExchangeCard(
-        currentTheme: currentTheme,
         cardInstanceName: 'crypto_currency_trade_card',
         onDispose: disposeBestRateSync,
         amountFocusNode: _cryptoAmountFocus,
@@ -513,10 +510,9 @@ class BuySellPage extends BasePage {
     BuildContext context,
     String domain,
     CryptoCurrency currency,
-    MaterialThemeBase currentTheme,
   ) async {
     final parsedAddress =
-        await getIt.get<AddressResolver>().resolve(context, domain, currency, currentTheme);
+        await getIt.get<AddressResolver>().resolve(context, domain, currency);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }

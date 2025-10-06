@@ -53,7 +53,6 @@ class DisplaySettingsPage extends BasePage {
                 },
               ),
               SettingsPickerCell<SyncStatusDisplayMode>(
-                currentTheme: currentTheme,
                 title: S.current.sync_status_display_mode,
                 items: SyncStatusDisplayMode.values.toList(),
                 selectedItem: _displaySettingsViewModel.syncStatusDisplayMode,
@@ -65,7 +64,6 @@ class DisplaySettingsPage extends BasePage {
               //if (!isHaven) it does not work correctly
               if (!_displaySettingsViewModel.disabledFiatApiMode)
                 SettingsPickerCell<FiatCurrency>(
-                  currentTheme: currentTheme,
                   title: S.of(context).settings_currency,
                   searchHintText: S.of(context).search_currency,
                   items: FiatCurrency.all,
@@ -82,7 +80,6 @@ class DisplaySettingsPage extends BasePage {
                   },
                 ),
               SettingsPickerCell<String>(
-                currentTheme: currentTheme,
                 title: S.of(context).settings_change_language,
                 searchHintText: S.of(context).search_language,
                 items: LanguageService.list.keys.toList(),

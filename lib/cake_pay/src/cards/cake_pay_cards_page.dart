@@ -10,13 +10,11 @@ import 'package:cake_wallet/cake_pay/src/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/filter_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
 import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_card_info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/tab_view_wrapper_widget.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -213,7 +211,6 @@ Future<void> showCountryPicker(
   await showPopUp<void>(
       context: context,
       builder: (_) => Picker(
-        currentTheme: currentTheme,
           title: S.of(context).select_your_country,
           items: cardsListViewModel.availableCountries,
           images: cardsListViewModel.availableCountries

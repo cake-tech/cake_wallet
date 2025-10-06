@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/anonpay_currency_input_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -20,7 +19,6 @@ class AnonInvoiceForm extends StatelessWidget {
     required this.emailController,
     required this.descriptionController,
     required this.depositAmountFocus,
-    required this.currentTheme,
   })  : _nameFocusNode = FocusNode(),
         _emailFocusNode = FocusNode(),
         _descriptionFocusNode = FocusNode() {
@@ -41,7 +39,6 @@ class AnonInvoiceForm extends StatelessWidget {
   final FocusNode _descriptionFocusNode;
   final GlobalKey<FormState> formKey;
   final bool isInvoice;
-  final MaterialThemeBase currentTheme;
   
   @override
   Widget build(BuildContext context) {
@@ -133,7 +130,6 @@ class AnonInvoiceForm extends StatelessWidget {
   void _presentPicker(BuildContext context) {
     showPopUp<void>(
       builder: (_) => CurrencyPicker(
-        currentTheme: currentTheme,
         selectedAtIndex: anonInvoicePageViewModel.selectedCurrencyIndex,
         items: anonInvoicePageViewModel.currencies,
         hintText: S.of(context).search_currency,

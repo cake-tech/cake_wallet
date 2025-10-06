@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class StandardPickerList<T> extends StatefulWidget {
@@ -16,7 +15,6 @@ class StandardPickerList<T> extends StatefulWidget {
     required this.customItemIndex,
     required this.customValue,
     this.maxValue,
-    required this.currentTheme,
   }) : super(key: key);
 
   final String title;
@@ -29,7 +27,6 @@ class StandardPickerList<T> extends StatefulWidget {
   final int selectedIdx;
   final double customValue;
   final double? maxValue;
-  final MaterialThemeBase currentTheme;
 
   @override
   _StandardPickerListState<T> createState() => _StandardPickerListState<T>();
@@ -60,7 +57,6 @@ class _StandardPickerListState<T> extends State<StandardPickerList<T>> {
         Padding(
           padding: const EdgeInsets.only(left: 24, right: 24, top: 0, bottom: 24),
           child: Picker(
-            currentTheme: widget.currentTheme,
             items: widget.items,
             displayItem: adaptedDisplayItem,
             selectedAtIndex: selectedIdx,

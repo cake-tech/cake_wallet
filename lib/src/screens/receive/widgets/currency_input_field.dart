@@ -1,6 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +14,6 @@ class CurrencyAmountTextField extends StatelessWidget {
     this.allAmountButton = false,
     this.isPickerEnable = false,
     this.isSelected = false,
-    this.currentThemeType = ThemeType.dark,
     this.onTapPicker,
     this.padding,
     this.imageArrow,
@@ -54,7 +52,6 @@ class CurrencyAmountTextField extends StatelessWidget {
   final bool isAmountEditable;
   final FormFieldValidator<String>? currencyValueValidator;
   final bool isPickerEnable;
-  final ThemeType currentThemeType;
   final bool isSelected;
   final bool allAmountButton;
   final VoidCallback? allAmountCallback;

@@ -121,8 +121,11 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
       WidgetsBinding.instance.addPostFrameCallback(
         (timeStamp) {
           if (mounted) {
-            final prefix  = initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
-            final amount = initialPaymentRequest!.amount.isNotEmpty ? "?amount=${initialPaymentRequest!.amount}" : "";
+            final prefix =
+                initialPaymentRequest!.scheme.isNotEmpty ? "${initialPaymentRequest!.scheme}:" : "";
+            final amount = initialPaymentRequest!.amount.isNotEmpty
+                ? "?amount=${initialPaymentRequest!.amount}"
+                : "";
             final uri = prefix + initialPaymentRequest!.address + amount;
             _handlePaymentFlow(uri, initialPaymentRequest!);
           }
@@ -385,7 +388,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
                       ),
                   onPushPasteButton: (context) async {
                     output.resetParsedAddress();
-                    await output.fetchParsedAddress(context, currentTheme);
+                    await output.fetchParsedAddress(context);
 
                     final address =
                         output.isParsedAddress ? output.extractedAddress : output.address;
@@ -767,7 +770,7 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
 
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
-        await output.fetchParsedAddress(context, currentTheme);
+        await output.fetchParsedAddress(context);
       }
     });
 
@@ -809,7 +812,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Picker(
-              currentTheme: currentTheme,
               items: items,
               displayItem: (TransactionPriority priority) =>
                   sendViewModel.feesViewModel.displayFeeRate(priority, customFeeRate?.round()),
@@ -838,7 +840,6 @@ class SendCardState extends State<SendCard> with AutomaticKeepAliveClientMixin<S
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-        currentTheme: currentTheme,
         key: ValueKey('send_page_currency_picker_dialog_button_key'),
         selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
         items: sendViewModel.currencies,

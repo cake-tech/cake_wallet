@@ -5,7 +5,6 @@ import 'package:cake_wallet/nostr/nostr_user.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:nostr_tools/nostr_tools.dart';
@@ -33,7 +32,6 @@ class NostrProfileHandler {
     BuildContext context,
     ProfilePointer profile,
     String nip05Address,
-    MaterialThemeBase currentTheme,
   ) async {
     String userDomain = _extractDomain(nip05Address);
     const int metaData = 0;
@@ -51,7 +49,7 @@ class NostrProfileHandler {
     await _showErrorDialog(context, S.of(context).no_relays, S.of(context).no_relay_on_domain);
 
     String? chosenRelayUrl =
-        await _showRelayChoiceDialog(context, profile.relays ?? [], currentTheme);
+        await _showRelayChoiceDialog(context, profile.relays ?? []);
     if (chosenRelayUrl != null) {
       final userData = await _fetchInfoFromRelay(chosenRelayUrl, profile.pubkey, [metaData]);
       if (userData != null) {
@@ -130,7 +128,6 @@ class NostrProfileHandler {
   static Future<String?> _showRelayChoiceDialog(
     BuildContext context,
     List<String> relays,
-    MaterialThemeBase currentTheme,
   ) async {
     String? selectedRelay;
 
@@ -139,7 +136,6 @@ class NostrProfileHandler {
         context: context,
         builder: (BuildContext dialogContext) {
           return Picker<String>(
-            currentTheme: currentTheme,
             selectedAtIndex: 0,
             title: S.of(dialogContext).choose_relay,
             items: relays,

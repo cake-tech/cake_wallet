@@ -188,7 +188,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   static const kmd = CryptoCurrency(title: 'KMD', fullName: 'Komodo', raw: 48, name: 'kmd', iconPath: 'assets/images/kmd_icon.png', decimals: 8);
   static const mana = CryptoCurrency(title: 'MANA', tag: 'ETH', fullName: 'Decentraland', raw: 49, name: 'mana', iconPath: 'assets/images/mana_icon.png', decimals: 18);
   static const maticpoly = CryptoCurrency(title: 'POL', tag: 'POL', fullName: 'Polygon', raw: 50, name: 'maticpoly', iconPath: 'assets/images/crypto/polygon.png', decimals: 18);
-  static const matic = CryptoCurrency(title: 'MATIC', tag: 'ETH', fullName: 'Polygon', raw: 51, name: 'matic', iconPath: 'assets/images/matic_icon.png', decimals: 18);
+  static const matic = CryptoCurrency(title: 'MATIC', tag: 'ETH', fullName: 'Polygon', raw: 51, name: 'matic', iconPath: 'assets/images/crypto/polygon.png', decimals: 18);
   static const mkr = CryptoCurrency(title: 'MKR', tag: 'ETH', fullName: 'Maker', raw: 52, name: 'mkr', iconPath: 'assets/images/mkr_icon.png', decimals: 18);
   static const near = CryptoCurrency(title: 'NEAR', fullName: 'NEAR Protocol', raw: 53, name: 'near', iconPath: 'assets/images/near_icon.png', decimals: 24);
   static const oxt = CryptoCurrency(title: 'OXT', tag: 'ETH', fullName: 'Orchid', raw: 54, name: 'oxt', iconPath: 'assets/images/oxt_icon.png', decimals: 18);

@@ -94,10 +94,7 @@ class ExchangeTradePage extends BasePage {
 }
 
 class ExchangeTradeForm extends StatefulWidget {
-  ExchangeTradeForm(
-    this.exchangeTradeViewModel,
-    this.currentTheme,
-  );
+  ExchangeTradeForm(this.exchangeTradeViewModel, this.currentTheme);
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
   final MaterialThemeBase currentTheme;
@@ -162,7 +159,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   : Offstage(),
               _ExchangeTradeItemsCardSection(
                 viewModel: widget.exchangeTradeViewModel,
-                currentTheme: widget.currentTheme,
               ),
             ],
           );
@@ -280,8 +276,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 isScrollControlled: true,
                 builder: (BuildContext bottomSheetContext) {
                   return ConfirmSendingBottomSheet(
-                    key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     currentTheme: widget.currentTheme,
+                    key: ValueKey('exchange_trade_page_confirm_sending_bottom_sheet_key'),
                     footerType: FooterType.slideActionButton,
                     walletType: widget.exchangeTradeViewModel.sendViewModel.walletType,
                     titleText: S.of(bottomSheetContext).confirm_transaction,
@@ -355,24 +351,18 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 }
 
 class _ExchangeTradeItemsCardSection extends StatelessWidget {
-  const _ExchangeTradeItemsCardSection({
-    required this.viewModel,
-    required this.currentTheme,
-  });
+  const _ExchangeTradeItemsCardSection({required this.viewModel});
 
   final ExchangeTradeViewModel viewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
     final firstExchangeCard = ExchangeTradeCardItemWidget(
-      currentTheme: currentTheme,
       isReceiveDetailsCard: true,
       exchangeTradeViewModel: viewModel,
     );
 
     final secondExchangeCard = ExchangeTradeCardItemWidget(
-      currentTheme: currentTheme,
       isReceiveDetailsCard: false,
       exchangeTradeViewModel: viewModel,
     );

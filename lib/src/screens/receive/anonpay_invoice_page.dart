@@ -112,7 +112,6 @@ class AnonPayInvoicePage extends BasePage {
                 return Padding(
                   padding: EdgeInsets.fromLTRB(24, 120, 24, 0),
                   child: AnonInvoiceForm(
-                    currentTheme: currentTheme,
                     nameController: _nameController,
                     descriptionController: _descriptionController,
                     amountController: _amountController,

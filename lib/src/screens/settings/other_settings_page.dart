@@ -35,7 +35,6 @@ class OtherSettingsPage extends BasePage {
               if (_otherSettingsViewModel.displayTransactionPriority)
                 _otherSettingsViewModel.walletType == WalletType.bitcoin
                     ? SettingsPriorityPickerCell(
-                      currentTheme: currentTheme,
                         title: S.current.settings_fee_priority,
                         items: priorityForWalletType(_otherSettingsViewModel.walletType),
                         displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
@@ -46,7 +45,6 @@ class OtherSettingsPage extends BasePage {
                         maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
                       )
                     : SettingsPickerCell(
-                        currentTheme: currentTheme,
                         title: S.current.settings_fee_priority,
                         items: priorityForWalletType(_otherSettingsViewModel.walletType),
                         displayItem: _otherSettingsViewModel.getDisplayPriority,

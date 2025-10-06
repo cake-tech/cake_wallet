@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -15,7 +14,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
     this.isGridView = false,
     this.matchingCriteria,
     this.onItemSelected,
-    required this.currentTheme,
     Key? key,
   }) : super(
           title: title,
@@ -27,7 +25,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
             await showPopUp<void>(
               context: context,
               builder: (_) => Picker(
-                currentTheme: currentTheme,
                 items: items,
                 displayItem: displayItem,
                 selectedAtIndex: selectedAtIndex,
@@ -51,8 +48,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final String? searchHintText;
   final bool isGridView;
   final bool Function(ItemType, String)? matchingCriteria;
-  final MaterialThemeBase currentTheme;
-  
+
   @override
   Widget buildTrailing(BuildContext context) {
     return Text(

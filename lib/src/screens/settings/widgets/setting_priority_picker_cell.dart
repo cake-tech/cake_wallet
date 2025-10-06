@@ -1,25 +1,23 @@
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 
 class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
-  SettingsPriorityPickerCell(
-      {required String title,
-      required this.selectedItem,
-      required this.items,
-      this.displayItem,
-      this.images,
-      this.searchHintText,
-      this.isGridView = false,
-      this.matchingCriteria,
-      this.customValue,
-      this.maxValue,
-      this.customItemIndex,
-      this.onItemSelected,
-      required this.currentTheme})
-      : super(
+  SettingsPriorityPickerCell({
+    required String title,
+    required this.selectedItem,
+    required this.items,
+    this.displayItem,
+    this.images,
+    this.searchHintText,
+    this.isGridView = false,
+    this.matchingCriteria,
+    this.customValue,
+    this.maxValue,
+    this.customItemIndex,
+    this.onItemSelected,
+  }) : super(
             title: title,
             isSelected: false,
             onTap: (BuildContext context) async {
@@ -32,7 +30,6 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
                   return StatefulBuilder(
                     builder: (BuildContext context, StateSetter setState) {
                       return Picker(
-                        currentTheme: currentTheme,
                         items: items,
                         displayItem: (ItemType item) => displayItem!(item, sliderValue.round()),
                         selectedAtIndex: selectedAtIndex,
@@ -67,7 +64,6 @@ class SettingsPriorityPickerCell<ItemType> extends StandardListRow {
   double? customValue;
   double? maxValue;
   int? customItemIndex;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget buildTrailing(BuildContext context) {

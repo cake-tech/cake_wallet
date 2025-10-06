@@ -1,4 +1,3 @@
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,8 +15,12 @@ class SeedLanguagePickerOption {
 }
 
 final List<SeedLanguagePickerOption> seedLanguages = [
-  SeedLanguagePickerOption('English', S.current.seed_language_english,
-      Image.asset('assets/images/flags/usa.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.bip39]),
+  SeedLanguagePickerOption(
+    'English',
+    S.current.seed_language_english,
+    Image.asset('assets/images/flags/usa.png'),
+    [MoneroSeedType.legacy, MoneroSeedType.polyseed, MoneroSeedType.bip39],
+  ),
   SeedLanguagePickerOption('Chinese (Simplified)', S.current.seed_language_chinese,
       Image.asset('assets/images/flags/chn.png'), [MoneroSeedType.legacy, MoneroSeedType.polyseed]),
   SeedLanguagePickerOption('Chinese (Traditional)', S.current.seed_language_chinese_traditional,
@@ -49,19 +52,17 @@ const defaultSeedLanguage = 'English';
 enum Places { topLeft, topRight, bottomLeft, bottomRight, inside }
 
 class SeedLanguagePicker extends StatefulWidget {
-  SeedLanguagePicker(
-      {Key? key,
-      this.selected = defaultSeedLanguage,
-      this.seedType = MoneroSeedType.defaultSeedType,
-      required this.onItemSelected,
-      required this.currentTheme})
-      : super(key: key);
+  SeedLanguagePicker({
+    Key? key,
+    this.selected = defaultSeedLanguage,
+    this.seedType = MoneroSeedType.defaultSeedType,
+    required this.onItemSelected,
+  }) : super(key: key);
 
   final MoneroSeedType seedType;
   final String selected;
   final Function(String) onItemSelected;
-  final MaterialThemeBase currentTheme;
-  
+
   @override
   SeedLanguagePickerState createState() => SeedLanguagePickerState(
       selected: selected, onItemSelected: onItemSelected, seedType: seedType);
@@ -81,7 +82,6 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
         .where((SeedLanguagePickerOption e) => e.supportedSeedTypes.contains(seedType));
 
     return Picker(
-      currentTheme: widget.currentTheme,
       selectedAtIndex: availableSeedLanguages.map((e) => e.name).toList().indexOf(selected),
       items: availableSeedLanguages.map((e) => e.name).toList(),
       images: availableSeedLanguages.map((e) => e.image).toList(),

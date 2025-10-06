@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cw_core/currency.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,6 @@ import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 class ExchangeCard<T extends Currency> extends StatefulWidget {
   ExchangeCard({
     Key? key,
-    required this.currentTheme,
     required this.initialCurrency,
     required this.initialAddress,
     required this.initialWalletName,
@@ -84,7 +82,6 @@ class ExchangeCard<T extends Currency> extends StatefulWidget {
   final Function()? onDispose;
   final String cardInstanceName;
   final Color fillColor;
-  final MaterialThemeBase currentTheme;
   
   @override
   ExchangeCardState<T> createState() => ExchangeCardState<T>();
@@ -451,7 +448,6 @@ class ExchangeCardState<T extends Currency> extends State<ExchangeCard<T>> {
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-        currentTheme: widget.currentTheme,
         key: ValueKey('${_cardInstanceName}_currency_picker_dialog_button_key'),
         selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
         items: widget.currencies,

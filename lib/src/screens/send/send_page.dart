@@ -794,7 +794,7 @@ class SendPage extends BasePage {
     }
 
     output.resetParsedAddress();
-    await output.fetchParsedAddress(context, currentTheme);
+    await output.fetchParsedAddress(context);
   }
 
   Output _defineCurrentOutput() {
@@ -820,7 +820,6 @@ class SendPage extends BasePage {
   void presentCurrencyPicker(BuildContext context) async {
     await showPopUp<CryptoCurrency>(
         builder: (_) => Picker(
-              currentTheme: currentTheme,
               items: sendViewModel.currencies,
               displayItem: (Object item) => item.toString(),
               selectedAtIndex:

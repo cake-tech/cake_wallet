@@ -105,7 +105,6 @@ class ExchangeTemplatePage extends BasePage {
                             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                             child: Observer(
                               builder: (_) => ExchangeCard(
-                                currentTheme: currentTheme,
                                 cardInstanceName: 'deposit_exchange_template_card',
                                 amountFocusNode: _depositAmountFocus,
                                 key: depositKey,
@@ -139,7 +138,6 @@ class ExchangeTemplatePage extends BasePage {
                             padding: EdgeInsets.only(top: 29, left: 24, right: 24),
                             child: Observer(
                               builder: (_) => ExchangeCard(
-                                currentTheme: currentTheme,
                                 cardInstanceName: 'receive_exchange_template_card',
                                 amountFocusNode: _receiveAmountFocus,
                                 key: receiveKey,

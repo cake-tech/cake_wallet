@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/src/widgets/search_bar_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,6 @@ class Picker<Item> extends StatefulWidget {
     this.borderColor,
     this.onSliderChanged,
     this.matchingCriteria,
-    required this.currentTheme,
   }) : assert(hintText == null || matchingCriteria != null) {
     // make sure that if the search field is enabled then there is a searching criteria provided
     if (sliderValue != null && maxValue != null) {
@@ -65,22 +64,19 @@ class Picker<Item> extends StatefulWidget {
   final Function(double)? onSliderChanged;
   final bool Function(Item, String)? matchingCriteria;
   final double? maxValue;
-  final MaterialThemeBase currentTheme;
 
   @override
-  _PickerState<Item> createState() =>
-      _PickerState<Item>(items, images, onItemSelected, currentTheme);
+  _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
 }
 
 class _PickerState<Item> extends State<Picker<Item>> {
-  _PickerState(this.items, this.images, this.onItemSelected, this.currentTheme);
+  _PickerState(this.items, this.images, this.onItemSelected);
 
   final Function(Item) onItemSelected;
   List<Item> items;
   List<Image> images;
   List<Item> filteredItems = [];
   List<Image> filteredImages = [];
-  final MaterialThemeBase currentTheme;
   final TextEditingController searchController = TextEditingController();
 
   ScrollController controller = ScrollController();
@@ -527,8 +523,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
         Expanded(
           child: Slider(
             activeColor: Theme.of(context).colorScheme.primary,
-            inactiveColor: currentTheme.customColors.toggleColorOffState,
-            thumbColor: currentTheme.customColors.toggleKnobStateColor,
+            inactiveColor: context.customColors.toggleColorOffState,
+            thumbColor: context.customColors.toggleKnobStateColor,
             value: widget.sliderValue == null || widget.sliderValue! < 1 ? 1 : widget.sliderValue!,
             onChanged: isActivated ? widget.onSliderChanged : null,
             min: widget.minValue ?? 1,

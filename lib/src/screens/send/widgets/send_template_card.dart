@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/currency_input_field.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/template_view_model.dart';
@@ -15,17 +14,16 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:mobx/mobx.dart';
 
 class SendTemplateCard extends StatelessWidget {
-  SendTemplateCard(
-      {super.key,
-      required this.template,
-      required this.index,
-      required this.sendTemplateViewModel,
-      required this.currentTheme});
+  SendTemplateCard({
+    super.key,
+    required this.template,
+    required this.index,
+    required this.sendTemplateViewModel,
+  });
 
   final TemplateViewModel template;
   final int index;
   final SendTemplateViewModel sendTemplateViewModel;
-  final MaterialThemeBase currentTheme;
 
   final _addressController = TextEditingController();
   final _cryptoAmountController = TextEditingController();
@@ -94,11 +92,11 @@ class SendTemplateCard extends StatelessWidget {
                         ],
                         onPushPasteButton: (context) async {
                           template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context, currentTheme);
+                          await template.output.fetchParsedAddress(context);
                         },
                         onPushAddressBookButton: (context) async {
                           template.output.resetParsedAddress();
-                          await template.output.fetchParsedAddress(context, currentTheme);
+                          await template.output.fetchParsedAddress(context);
                         },
                         buttonColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         textStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -250,7 +248,6 @@ class SendTemplateCard extends StatelessWidget {
     showPopUp<void>(
       context: context,
       builder: (_) => CurrencyPicker(
-        currentTheme: currentTheme,
         selectedAtIndex: sendTemplateViewModel.walletCurrencies.indexOf(template.selectedCurrency),
         items: sendTemplateViewModel.walletCurrencies,
         hintText: S.of(context).search_currency,

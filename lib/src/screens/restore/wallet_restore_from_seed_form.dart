@@ -204,7 +204,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 await showPopUp<void>(
                   context: context,
                   builder: (_) => Picker(
-                    currentTheme: widget.currentTheme,
                     items: _getItems(),
                     selectedAtIndex: isPolyseed
                         ? 1
@@ -258,7 +257,6 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                   await showPopUp<void>(
                     context: context,
                     builder: (_) => SeedLanguagePicker(
-                      currentTheme: widget.currentTheme,
                       selected: language,
                       onItemSelected: (lang) => _changeLanguage(lang, isPolyseed || isBip39),
                       seedType: widget.seedSettingsViewModel.moneroSeedType,

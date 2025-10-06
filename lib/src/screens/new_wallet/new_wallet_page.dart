@@ -18,7 +18,6 @@ import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -45,7 +44,8 @@ class NewWalletPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-            (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
+      (BuildContext context, Widget scaffold) =>
+          GradientBackground(scaffold: scaffold, currentTheme: currentTheme);
 
   @override
   String get title => S.current.new_wallet;
@@ -64,7 +64,6 @@ class NewWalletPage extends BasePage {
         currentTheme.isDark ? welcomeImageDark : welcomeImageLight,
         _seedSettingsViewModel,
         isChildWallet,
-        currentTheme,
       );
 }
 
@@ -74,14 +73,12 @@ class WalletNameForm extends StatefulWidget {
     this.walletImage,
     this._seedSettingsViewModel,
     this.isChildWallet,
-    this.currentTheme,
   );
 
   final WalletNewVM _walletNewVM;
   final bool isChildWallet;
   final String walletImage;
   final SeedSettingsViewModel _seedSettingsViewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
@@ -232,11 +229,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   color: Theme.of(context).colorScheme.onSurface,
                                 ),
                             placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1.4,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             hintText: S.of(context).password,
                           ),
                           BaseTextFormField(
@@ -251,11 +248,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                   color: Theme.of(context).colorScheme.onSurface,
                                 ),
                             placeholderTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    height: 1.4,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  height: 1.4,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
                             hintText: S.of(context).repeat_wallet_password,
                           ),
                         ],
@@ -276,7 +273,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
                             await showPopUp<void>(
                               context: context,
                               builder: (_) => Picker(
-                                currentTheme: widget.currentTheme,
                                 items: MoneroSeedType.all
                                     .where((e) => // exclude bip39 in case of Wownero
                                         widget._walletNewVM.type != WalletType.wownero ||
@@ -296,7 +292,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     builder: (BuildContext build) => Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: SeedLanguageSelector(
-                        currentTheme: widget.currentTheme,
                         borderRadius: BorderRadius.circular(10),
                         key: _languageSelectorKey,
                         buttonKey: ValueKey('new_wallet_page_seed_language_selector_button_key'),

@@ -144,7 +144,6 @@ class ContactPage extends BasePage {
   void _presentCurrencyPicker(BuildContext context) {
     showPopUp<void>(
       builder: (_) => CurrencyPicker(
-        currentTheme: currentTheme,
         selectedAtIndex: contactViewModel.currency != null
             ? contactViewModel.currencies.indexOf(contactViewModel.currency!)
             : -1,

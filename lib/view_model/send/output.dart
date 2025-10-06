@@ -8,7 +8,6 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
@@ -353,10 +352,10 @@ abstract class OutputBase with Store {
     _cryptoNumberFormat.maximumFractionDigits = maximumFractionDigits;
   }
 
-  Future<void> fetchParsedAddress(BuildContext context, MaterialThemeBase currentTheme) async {
+  Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final currency = cryptoCurrencyHandler();
-    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency, currentTheme);
+    parsedAddress = await getIt.get<AddressResolver>().resolve(context, domain, currency);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;
   }

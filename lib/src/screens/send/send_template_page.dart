@@ -83,7 +83,6 @@ class SendTemplatePage extends BasePage {
                       itemBuilder: (_, index) {
                         final template = sendTemplateViewModel.recipients[index];
                         return SendTemplateCard(
-                          currentTheme: currentTheme,
                           template: template,
                           index: index,
                           sendTemplateViewModel: sendTemplateViewModel,

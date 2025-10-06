@@ -211,7 +211,6 @@ class QRWidget extends StatelessWidget {
                               amountFocusNode: amountTextFieldFocusNode,
                               amountController: amountController,
                               padding: EdgeInsets.only(top: 20, left: _width / 4),
-                              currentThemeType: currentTheme.type,
                               isAmountEditable: true,
                               tag: addressListViewModel.selectedCurrency.tag,
                               onTapPicker: () => _presentPicker(context),
@@ -295,7 +294,6 @@ class QRWidget extends StatelessWidget {
   void _presentPicker(BuildContext context) async {
     await showPopUp<void>(
       builder: (_) => CurrencyPicker(
-        currentTheme: currentTheme,
         selectedAtIndex: addressListViewModel.selectedCurrencyIndex,
         items: addressListViewModel.currencies,
         hintText: S.of(context).search_currency,
