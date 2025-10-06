@@ -365,7 +365,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   alertTitle: '',
                   alertContent: S.of(context).wallet_name_exists,
                   buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
+                  buttonAction: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
+                  });
             });
       } else {
         await _walletNewVM.create(

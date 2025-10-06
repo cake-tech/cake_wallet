@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,6 +27,23 @@ class CryptoBalanceWidget extends StatelessWidget {
   final DashboardViewModel dashboardViewModel;
   final btcLockLight = 'assets/images/btc_lock_light.png';
   final btcLockDark = 'assets/images/btc_lock_dark.png';
+
+  String? get hardwareWalletIcon {
+    switch (dashboardViewModel.wallet.hardwareWalletType) {
+      case null:
+        return null;
+      case HardwareWalletType.ledger:
+        return "assets/images/hardware_wallet/device_ledger_nano_x.svg";
+      case HardwareWalletType.bitbox:
+        return "assets/images/hardware_wallet/device_bitbox.svg";
+      case HardwareWalletType.cupcake:
+        return "assets/images/cupcake.svg";
+      case HardwareWalletType.coldcard:
+      case HardwareWalletType.seedsigner:
+      case HardwareWalletType.keystone:
+        return "assets/images/hardware_wallet/device_qr.svg";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +104,10 @@ class CryptoBalanceWidget extends StatelessWidget {
                                     maxLines: 1,
                                     textAlign: TextAlign.center,
                                   ),
-                                  if (dashboardViewModel.wallet.isHardwareWallet)
+                                  if (hardwareWalletIcon != null)
                                     Container(
-                                      child: Image.asset(
-                                        'assets/images/hardware_wallet/ledger_nano_x.png',
+                                      child: SvgPicture.asset(
+                                        hardwareWalletIcon!,
                                         width: 24,
                                         color: Theme.of(context).colorScheme.onSurface,
                                       ),

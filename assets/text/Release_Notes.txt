@@ -1,5 +1,4 @@
-Better support for embedded Tor
-Improve sending and swapping flow
-Enhance payment scanning
-Silent Payments enhancements and better reliability
+Payjoin enhancements
+Connectivity improvements
+UI enhancements
 Bug fixes

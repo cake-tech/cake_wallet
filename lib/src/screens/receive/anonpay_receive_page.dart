@@ -13,10 +13,18 @@ import 'package:cake_wallet/utils/brightness_util.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
 
-class AnonPayReceivePage extends BasePage {
+class AnonPayReceivePageArgs {
   final AnonpayInfoBase invoiceInfo;
+  final String? qrImage;
 
-  AnonPayReceivePage({required this.invoiceInfo});
+  AnonPayReceivePageArgs({required this.invoiceInfo, this.qrImage});
+}
+
+class AnonPayReceivePage extends BasePage {
+  AnonPayReceivePage({required this.args}) : invoiceInfo = args.invoiceInfo;
+
+  final AnonPayReceivePageArgs args;
+  final AnonpayInfoBase invoiceInfo;
 
   @override
   String get title => S.current.receive;
@@ -105,6 +113,7 @@ class AnonPayReceivePage extends BasePage {
                         arguments: QrViewData(
                           data: invoiceInfo.clearnetUrl,
                           version: qr.QrVersions.auto,
+                          embeddedImagePath: args.qrImage,
                         ));
                   });
                 },
@@ -124,6 +133,8 @@ class AnonPayReceivePage extends BasePage {
                         child: QrImage(
                           data: invoiceInfo.clearnetUrl,
                           version: qr.QrVersions.auto,
+                          embeddedImagePath: args.qrImage,
+                          size: 230,
                         ),
                       ),
                     ),
