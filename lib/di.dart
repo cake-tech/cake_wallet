@@ -415,7 +415,8 @@ Future<void> setup({
 
   getIt.registerLazySingleton(() => BitboxViewModel());
 
-  getIt.registerLazySingleton(() => TrezorConnect("cakewallet://trezor_connect"));
+  getIt.registerLazySingleton(() => TrezorConnect("cakewallet://trezor_connect",
+      appName: "Cake Wallet"));
   getIt.registerLazySingleton(() => TrezorViewModel(getIt<TrezorConnect>()));
 
   final secretStore = await SecretStoreBase.load(getIt.get<SecureStorage>());

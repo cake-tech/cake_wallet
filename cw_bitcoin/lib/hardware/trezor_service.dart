@@ -8,6 +8,7 @@ import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:ledger_bitcoin/psbt.dart';
 import 'package:trezor_connect/trezor_connect.dart';
 
 class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWalletService {
@@ -27,21 +28,59 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
     final accounts = await connect.getPublicKeyBundle(requestParams);
 
     return accounts?.map((account) {
-          final hd = Bip32Slip10Secp256k1.fromExtendedKey(account.xpub).childKey(Bip32KeyIndex(0));
-          final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
-          return HardwareAccountData(
-            address: address,
-            xpub: account.xpub,
-            accountIndex: account.path[2] - 0x80000000, // unharden the path to get the index
-            derivationPath: account.serializedPath,
-          );
-        }).toList() ??
+      final hd = Bip32Slip10Secp256k1.fromExtendedKey(account.xpub).childKey(Bip32KeyIndex(0));
+      final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
+      return HardwareAccountData(
+        address: address,
+        xpub: account.xpub,
+        accountIndex: account.path[2] - 0x80000000, // unharden the path to get the index
+        derivationPath: account.serializedPath,
+      );
+    }).toList() ??
         [];
   }
 
   @override
-  Future<Uint8List> signTransaction({required String transaction}) =>
-      throw UnimplementedError(); // ToDo (Konsti)
+  Future<Uint8List> signTransaction({required String transaction}) async {
+    final psbt = PsbtV2()
+      ..deserialize(base64Decode(transaction));
+
+    final inputs = <TrezorTxInput>[];
+    final inputCount = psbt.getGlobalInputCount();
+    for (var i = 0; i < inputCount; i++) {
+      final inputTxRaw = psbt.getInputNonWitnessUtxo(i);
+      final inputTx = BtcTransaction.fromRaw(hex.encode(inputTxRaw!));
+      final inputOutputIndex = psbt.getInputOutputIndex(i);
+
+      final publicKeys = psbt.inputMaps[i].keys.where((e) => e.startsWith("06"));
+      final pubkey = Uint8List.fromList(hex.decode(publicKeys.first.substring(2)));
+
+      inputs.add(TrezorTxInput(
+        prevHash: hex.encode(psbt.getInputPreviousTxid(i).reversed.toList()),
+        prevIndex: inputOutputIndex,
+        amount: inputTx.outputs[inputOutputIndex].amount.toInt(),
+        addressPath: psbt.getInputBip32Derivation(i, pubkey)!.$2,
+        sequence: psbt.getInputSequence(i),
+          scriptType: "SPENDWITNESS"
+      ));
+    }
+
+    final outputs = <TrezorTxOutput>[];
+    final outputCount = psbt.getGlobalOutputCount();
+    for (var i = 0; i < outputCount; i++) {
+      final script = Script.fromRaw(byteData: psbt.getOutputScript(i));
+      outputs.add(TrezorTxOutput(
+        amount: psbt.getOutputAmount(i),
+        address: script.toAddress(),
+        scriptType: _getScriptType(script.getAddressType()!)
+        // ToDo: addressPath: psbt.getOutputBip32Derivation(i, pubkey).$2, // To highlight change outputs
+      ));
+    }
+
+    final signedTx = await connect.signTransaction(coin: 'btc', inputs: inputs, outputs: outputs);
+
+    return Uint8List.fromList(BytesUtils.fromHexString(signedTx!.serializedTx));
+  }
 
   @override
   Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) async {
@@ -51,5 +90,23 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
   }
 
   @override
-  Future<Uint8List> getMasterFingerprint() => throw UnimplementedError(); // ToDo (Konsti)
+  Future<Uint8List> getMasterFingerprint() async => Uint8List.fromList([0, 0, 0, 0]);
+
+  String _getScriptType(BitcoinAddressType addressType) {
+    switch (addressType) {
+      case P2pkhAddressType.p2pkh:
+        return "PAYTOADDRESS";
+      case P2shAddressType.p2wpkhInP2sh:
+        return "PAYTOSCRIPTHASH";
+      case SegwitAddresType.p2tr:
+        return "PAYTOTAPROOT";
+      case SegwitAddresType.p2wsh:
+        return "PAYTOP2SHWITNESS";
+      case SegwitAddresType.p2wpkh:
+        return "PAYTOWITNESS";
+      default:
+        throw Exception("Unknown Address Type");
+    }
+
+  }
 }

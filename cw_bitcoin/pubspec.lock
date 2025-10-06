@@ -1095,8 +1095,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "498058f50dc77ad60b4c6c1e57ef848673377e67"
-      resolved-ref: "498058f50dc77ad60b4c6c1e57ef848673377e67"
+      ref: "5c3557656801df684d8c7e905085244f8448d7af"
+      resolved-ref: "5c3557656801df684d8c7e905085244f8448d7af"
       url: "https://github.com/cake-tech/trezor_connect"
     source: git
     version: "0.0.1"

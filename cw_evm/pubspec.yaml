@@ -36,7 +36,7 @@ dependencies:
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
-      ref: cc1dcdb7cfbee948161a1a4b341f0be3e4e5cfa4
+      ref: 59b3ceec158d3393b20d0c596cab2abcc62ac8e4
 
 dependency_overrides:
   web3dart:
