@@ -4,11 +4,13 @@ import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:ledger_bitcoin/psbt.dart';
+import 'package:ledger_litecoin/src/tx_utils/transaction.dart';
 import 'package:trezor_connect/trezor_connect.dart';
 
 class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWalletService {
@@ -28,22 +30,21 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
     final accounts = await connect.getPublicKeyBundle(requestParams);
 
     return accounts?.map((account) {
-      final hd = Bip32Slip10Secp256k1.fromExtendedKey(account.xpub).childKey(Bip32KeyIndex(0));
-      final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
-      return HardwareAccountData(
-        address: address,
-        xpub: account.xpub,
-        accountIndex: account.path[2] - 0x80000000, // unharden the path to get the index
-        derivationPath: account.serializedPath,
-      );
-    }).toList() ??
+          final hd = Bip32Slip10Secp256k1.fromExtendedKey(account.xpub).childKey(Bip32KeyIndex(0));
+          final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
+          return HardwareAccountData(
+            address: address,
+            xpub: account.xpub,
+            accountIndex: account.path[2] - 0x80000000, // unharden the path to get the index
+            derivationPath: account.serializedPath,
+          );
+        }).toList() ??
         [];
   }
 
   @override
   Future<Uint8List> signTransaction({required String transaction}) async {
-    final psbt = PsbtV2()
-      ..deserialize(base64Decode(transaction));
+    final psbt = PsbtV2()..deserialize(base64Decode(transaction));
 
     final inputs = <TrezorTxInput>[];
     final inputCount = psbt.getGlobalInputCount();
@@ -56,13 +57,12 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
       final pubkey = Uint8List.fromList(hex.decode(publicKeys.first.substring(2)));
 
       inputs.add(TrezorTxInput(
-        prevHash: hex.encode(psbt.getInputPreviousTxid(i).reversed.toList()),
-        prevIndex: inputOutputIndex,
-        amount: inputTx.outputs[inputOutputIndex].amount.toInt(),
-        addressPath: psbt.getInputBip32Derivation(i, pubkey)!.$2,
-        sequence: psbt.getInputSequence(i),
-          scriptType: "SPENDWITNESS"
-      ));
+          prevHash: hex.encode(psbt.getInputPreviousTxid(i).reversed.toList()),
+          prevIndex: inputOutputIndex,
+          amount: inputTx.outputs[inputOutputIndex].amount.toInt(),
+          addressPath: psbt.getInputBip32Derivation(i, pubkey)!.$2,
+          sequence: psbt.getInputSequence(i),
+          scriptType: "SPENDWITNESS"));
     }
 
     final outputs = <TrezorTxOutput>[];
@@ -70,11 +70,11 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
     for (var i = 0; i < outputCount; i++) {
       final script = Script.fromRaw(byteData: psbt.getOutputScript(i));
       outputs.add(TrezorTxOutput(
-        amount: psbt.getOutputAmount(i),
-        address: script.toAddress(),
-        scriptType: _getScriptType(script.getAddressType()!)
-        // ToDo: addressPath: psbt.getOutputBip32Derivation(i, pubkey).$2, // To highlight change outputs
-      ));
+          amount: psbt.getOutputAmount(i),
+          address: script.toAddress(),
+          scriptType: _getScriptType(script.getAddressType()!)
+          // ToDo: addressPath: psbt.getOutputBip32Derivation(i, pubkey).$2, // To highlight change outputs
+          ));
     }
 
     final signedTx = await connect.signTransaction(coin: 'btc', inputs: inputs, outputs: outputs);
@@ -91,22 +91,97 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
 
   @override
   Future<Uint8List> getMasterFingerprint() async => Uint8List.fromList([0, 0, 0, 0]);
+}
 
-  String _getScriptType(BitcoinAddressType addressType) {
-    switch (addressType) {
-      case P2pkhAddressType.p2pkh:
-        return "PAYTOADDRESS";
-      case P2shAddressType.p2wpkhInP2sh:
-        return "PAYTOSCRIPTHASH";
-      case SegwitAddresType.p2tr:
-        return "PAYTOTAPROOT";
-      case SegwitAddresType.p2wsh:
-        return "PAYTOP2SHWITNESS";
-      case SegwitAddresType.p2wpkh:
-        return "PAYTOWITNESS";
-      default:
-        throw Exception("Unknown Address Type");
+class LitecoinTrezorService extends HardwareWalletService with LitecoinHardwareWalletService {
+  LitecoinTrezorService(this.connect);
+
+  final TrezorConnect connect;
+
+  @override
+  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
+    final indexRange = List.generate(limit, (i) => i + index);
+    final requestParams = <TrezorGetPublicKeyParams>[];
+    final xpubVersion = Bip44Conf.litecoinMainNet.altKeyNetVer;
+
+    for (final i in indexRange) {
+      final derivationPath = "m/84'/2'/$i'";
+      requestParams.add(TrezorGetPublicKeyParams(path: derivationPath, coin: "LTC"));
     }
 
+    final accounts = await connect.getPublicKeyBundle(requestParams);
+
+    return accounts?.map((account) {
+          final hd = Bip32Slip10Secp256k1.fromExtendedKey(account.xpub, xpubVersion)
+              .childKey(Bip32KeyIndex(0));
+
+          final address = generateP2WPKHAddress(hd: hd, index: 0, network: LitecoinNetwork.mainnet);
+          return HardwareAccountData(
+            address: address,
+            xpub: account.xpub,
+            accountIndex: account.path[2] - 0x80000000, // unharden the path to get the index
+            derivationPath: account.serializedPath,
+          );
+        }).toList() ??
+        [];
+  }
+
+  @override
+  Future<String> signLitecoinTransaction(
+      {required List<BitcoinBaseOutput> outputs,
+      required List<LedgerTransaction> inputs,
+      required Map<String, PublicKeyWithDerivationPath> publicKeys}) async {
+    final readyInputs = <TrezorTxInput>[];
+    for (final input in inputs) {
+      final inputTx = BtcTransaction.fromRaw(input.rawTx);
+      final inputOutputIndex = input.outputIndex;
+
+      readyInputs.add(TrezorTxInput(
+        prevHash: inputTx.txId(),
+        prevIndex: inputOutputIndex,
+        amount: inputTx.outputs[inputOutputIndex].amount.toInt(),
+        addressPath: Bip32PathParser.parse(input.ownerDerivationPath).toList(),
+        sequence: input.sequence,
+        scriptType: "SPENDWITNESS",
+      ));
+    }
+
+    final readyOutputs = <TrezorTxOutput>[];
+    for (final output in outputs) {
+      final maybeChangePath = publicKeys[(output as BitcoinOutput).address.pubKeyHash()];
+
+      readyOutputs.add(TrezorTxOutput(
+        amount: output.toOutput.amount.toInt(),
+        address: maybeChangePath != null
+            ? null
+            : output.toOutput.scriptPubKey.toAddress(network: LitecoinNetwork.mainnet),
+        scriptType: _getScriptType(output.toOutput.scriptPubKey.getAddressType()!),
+        addressPath: maybeChangePath != null
+            ? Bip32PathParser.parse(maybeChangePath.derivationPath).toList()
+            : null,
+      ));
+    }
+
+    final signedTx =
+        await connect.signTransaction(coin: 'LTC', inputs: readyInputs, outputs: readyOutputs);
+
+    return signedTx!.serializedTx;
+  }
+}
+
+String _getScriptType(BitcoinAddressType addressType) {
+  switch (addressType) {
+    case P2pkhAddressType.p2pkh:
+      return "PAYTOADDRESS";
+    case P2shAddressType.p2wpkhInP2sh:
+      return "PAYTOSCRIPTHASH";
+    case SegwitAddresType.p2tr:
+      return "PAYTOTAPROOT";
+    case SegwitAddresType.p2wsh:
+      return "PAYTOP2SHWITNESS";
+    case SegwitAddresType.p2wpkh:
+      return "PAYTOWITNESS";
+    default:
+      throw Exception("Unknown Address Type");
   }
 }

@@ -537,11 +537,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  void setLedgerConnection(WalletBase wallet, ledger.LedgerConnection connection) {
-    (wallet as ElectrumWallet).setLedgerConnection(connection);
-  }
-
-  @override
   void setHardwareWalletService(WalletBase wallet, HardwareWalletService service) {
     (wallet as ElectrumWallet).hardwareWalletService = service;
   }
@@ -563,7 +558,8 @@ class CWBitcoin extends Bitcoin {
   @override
   HardwareWalletService getTrezorHardwareWalletService(
       trezor.TrezorConnect connect, bool isBitcoin) {
-    return BitcoinTrezorService(connect);
+    if (isBitcoin) return BitcoinTrezorService(connect);
+    return LitecoinTrezorService(connect);
   }
 
   @override

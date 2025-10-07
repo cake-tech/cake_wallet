@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -42,7 +43,6 @@ import 'package:cw_core/output_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hive/hive.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:ledger_litecoin/ledger_litecoin.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -1368,16 +1368,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     return false;
   }
 
-  LedgerConnection? _ledgerConnection;
-  LitecoinLedgerApp? _litecoinLedgerApp;
-
-  @override
-  void setLedgerConnection(LedgerConnection connection) {
-    _ledgerConnection = connection;
-    _litecoinLedgerApp = LitecoinLedgerApp(_ledgerConnection!,
-        derivationPath: walletInfo.derivationInfo!.derivationPath!);
-  }
-
   @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
     required List<BitcoinBaseOutput> outputs,
@@ -1406,23 +1396,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       ));
     }
 
-    String? changePath;
-    for (final output in outputs) {
-      final maybeChangePath = publicKeys[(output as BitcoinOutput).address.pubKeyHash()];
-      if (maybeChangePath != null) changePath ??= maybeChangePath.derivationPath;
-    }
-
-    final rawHex = await _litecoinLedgerApp!.createTransaction(
-        inputs: readyInputs,
-        outputs: outputs
-            .map((e) => TransactionOutput.fromBigInt((e as BitcoinOutput).value,
-                Uint8List.fromList(e.address.toScriptPubKey().toBytes())))
-            .toList(),
-        changePath: changePath,
-        sigHashType: 0x01,
-        additionals: ["bech32"],
-        isSegWit: true,
-        useTrustedInputForSegwit: true);
+    final rawHex = await (hardwareWalletService as LitecoinHardwareWalletService)
+        .signLitecoinTransaction(outputs: outputs, inputs: readyInputs, publicKeys: publicKeys);
 
     return BtcTransaction.fromRaw(rawHex);
   }
