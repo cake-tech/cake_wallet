@@ -194,7 +194,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       !(sendingState is TransactionCommitted)),
                   child: LoadingPrimaryButton(
                     key: ValueKey('exchange_trade_page_send_from_cake_button_key'),
-                    isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty,
+                    isDisabled: trade.inputAddress == null || trade.inputAddress!.isEmpty ||
+                        sendingState is ExecutedSuccessfullyState,
                     isLoading: sendingState is IsExecutingState,
                     onPressed: () => widget.exchangeTradeViewModel.confirmSending(),
                     text: S.current.send_from_cake_wallet,
@@ -272,9 +273,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         }
 
         if (state is ExecutedSuccessfullyState) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (context.mounted) {
-              showModalBottomSheet<void>(
+              final result = await showModalBottomSheet<bool>(
                 context: context,
                 isDismissible: false,
                 isScrollControlled: true,
@@ -311,6 +312,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   );
                 },
               );
+
+              if  (result == null) widget.exchangeTradeViewModel.sendViewModel.dismissTransaction();
+
             }
           });
         }

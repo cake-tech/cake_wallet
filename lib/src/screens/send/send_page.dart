@@ -488,7 +488,7 @@ class SendPage extends BasePage {
                                 sendViewModel.state is TransactionCommitting ||
                                 sendViewModel.state is IsAwaitingDeviceResponseState ||
                                 sendViewModel.state is LoadingTemplateExecutingState,
-                            isDisabled: !sendViewModel.isReadyForSend,
+                            isDisabled: !sendViewModel.isReadyForSend || sendViewModel.state is ExecutedSuccessfullyState,
                           );
                         },
                       )
