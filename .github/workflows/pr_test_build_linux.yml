@@ -186,6 +186,19 @@ jobs:
             pushd torch_dart
               tar -xzf ../torch_dart.tar.gz
             popd
+            rm ./torch_dart.tar.gz
+          popd
+
+      - name: Fetch prebuilt Reown
+        run: |
+          set -x -e
+          pushd scripts
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
           popd
 
       - name: Execute Build and Setup Commands

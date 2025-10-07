@@ -202,14 +202,20 @@ jobs:
             pushd torch_dart
               tar -xzf ../torch_dart.tar.gz
             popd
+            rm ./torch_dart.tar.gz
           popd
 
-      - name: Fetch reown dependencies
+      - name: Fetch prebuilt Reown
         run: |
           set -x -e
-          wget https://static.mrcyjanek.net/lfs/cake-yttrium/x86_64.so -O android/app/src/main/jniLibs/x86_64/libuniffi_yttrium.so
-          wget https://static.mrcyjanek.net/lfs/cake-yttrium/arm64-v8a.so -O android/app/src/main/jniLibs/arm64-v8a/libuniffi_yttrium.so
-          wget https://static.mrcyjanek.net/lfs/cake-yttrium/armeabi-v7a.so -O android/app/src/main/jniLibs/armeabi-v7a/libuniffi_yttrium.so
+          pushd scripts
+            wget https://github.com/cake-tech/reown_flutter/releases/download/v0.0.4/reown_flutter-v0.0.4.tar.gz -O reown_flutter.tar.gz
+            mkdir reown_flutter
+            pushd reown_flutter
+              tar -xzf ../reown_flutter.tar.gz
+            popd
+            rm ./reown_flutter.tar.gz
+          popd
 
       - name: Execute Build and Setup Commands
         run: |
