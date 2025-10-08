@@ -542,6 +542,32 @@ abstract class EVMChainWalletBase
       maxFeePerGasForTransaction = gasFeesModel.maxFeePerGas;
 
       if (output.sendAll && transactionCurrency is! Erc20Token) {
+        if (_client.chainId == 8453) {
+          // Add a safety buffer for Base chain to account for gas price fluctuations
+          // Use 1% buffer or minimum 1000 wei (0.000001 ETH), whichever is higher
+          final gasBufferPercent =
+              estimatedFeesForTransaction * BigInt.from(101) ~/ BigInt.from(100);
+          final gasBufferMin = estimatedFeesForTransaction + BigInt.from(1000);
+          final gasBuffer = gasBufferPercent > gasBufferMin ? gasBufferPercent : gasBufferMin;
+
+          totalAmount = (currencyBalance.balance - gasBuffer);
+
+          // Re-estimate gas with the correct amount to get more accurate gas estimation
+          final refinedGasFeesModel = await calculateActualEstimatedFeeForCreateTransaction(
+            amount: totalAmount,
+            receivingAddressHex: toAddress,
+            priority: _credentials.priority!,
+            contractAddress: contractAddress,
+          );
+
+          // Use the higher of the two gas estimations to be safe
+          final refinedGasFee = BigInt.from(refinedGasFeesModel.estimatedGasFee);
+          estimatedFeesForTransaction = refinedGasFee > gasBuffer ? refinedGasFee : gasBuffer;
+          estimatedGasUnitsForTransaction = refinedGasFeesModel.estimatedGasUnits;
+          maxFeePerGasForTransaction = refinedGasFeesModel.maxFeePerGas;
+        }
+
+        // Final amount calculation with the higher gas estimation
         totalAmount = (currencyBalance.balance - estimatedFeesForTransaction);
       }
 
@@ -886,7 +912,7 @@ abstract class EVMChainWalletBase
   /// EtherScan for Ethereum.
   ///
   /// PolygonScan for Polygon.
-  /// 
+  ///
   /// BaseScan for Base.
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {
