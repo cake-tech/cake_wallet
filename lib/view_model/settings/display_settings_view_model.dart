@@ -194,10 +194,13 @@ abstract class DisplaySettingsViewModelBase with Store {
   @action
   Future<void> setThemeMode(ThemeMode value) async {
     await _themeStore.setThemeMode(value);
-
-    final matchingTheme = getFirstMatchingTheme(value);
-    if (matchingTheme != null) {
-      await setTheme(matchingTheme);
+    // We won't override the saved custom theme when switching to system mode.
+    // We'll just let the ThemeStore resolve it based on system brightness and saved theme.
+    if (value != ThemeMode.system) {
+      final matchingTheme = getFirstMatchingTheme(value);
+      if (matchingTheme != null) {
+        await setTheme(matchingTheme);
+      }
     }
   }
 

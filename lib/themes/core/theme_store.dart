@@ -45,6 +45,18 @@ abstract class ThemeStoreBase with Store {
     return raw != null ? ThemeList.deserialize(raw: raw) : null;
   }
 
+  @computed
+  MaterialThemeBase? get savedDarkTheme {
+    final raw = sharedPreferences.getInt(PreferencesKey.savedDarkTheme);
+    return raw != null ? ThemeList.deserialize(raw: raw) : null;
+  }
+
+  @computed
+  MaterialThemeBase? get savedLightTheme {
+    final raw = sharedPreferences.getInt(PreferencesKey.savedLightTheme);
+    return raw != null ? ThemeList.deserialize(raw: raw) : null;
+  }
+
   late SharedPreferences sharedPreferences;
 
   @action
@@ -55,6 +67,13 @@ abstract class ThemeStoreBase with Store {
     await sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw);
     _isOled = theme is BlackTheme ? theme.isOled : false;
     await sharedPreferences.setBool(PreferencesKey.blackThemeOled, _isOled);
+
+    // Save preferred themes for system mode
+    if (theme.isDark) {
+      await sharedPreferences.setInt(PreferencesKey.savedDarkTheme, theme.raw);
+    } else {
+      await sharedPreferences.setInt(PreferencesKey.savedLightTheme, theme.raw);
+    }
   }
 
   @action
@@ -64,12 +83,13 @@ abstract class ThemeStoreBase with Store {
     _themeMode = mode;
     await _saveThemeModeToPrefs(mode);
 
-    if (!hasCustomTheme) {
-      if (mode == ThemeMode.system) {
-        await setTheme(getThemeFromSystem());
-      }
+    if (mode == ThemeMode.system) {
+      // We'll always use getThemeFromSystem() for system mode to respect saved themes
+      await setTheme(getThemeFromSystem());
       return;
     }
+
+    if (!hasCustomTheme) return;
 
     final savedTheme = savedCustomTheme;
     if (savedTheme == null) return;
@@ -214,7 +234,28 @@ abstract class ThemeStoreBase with Store {
 
   MaterialThemeBase getThemeFromSystem() {
     final systemBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
-    return systemBrightness == Brightness.dark ? ThemeList.darkTheme : ThemeList.lightTheme;
+
+    if (systemBrightness == Brightness.dark) {
+      // Prefer saved dark theme when available
+      try {
+        final savedDark = savedDarkTheme;
+        if (savedDark != null) {
+          if (savedDark is BlackTheme) {
+            // We'll use the OLED flag from the saved theme itself, not from separate preference
+            return BlackTheme(savedDark.accentColor, isOled: savedDark.isOled);
+          }
+          return savedDark;
+        }
+      } catch (_) {}
+      return ThemeList.darkTheme;
+    }
+
+    // Light system preference: prefer saved light theme when available
+    try {
+      final savedLight = savedLightTheme;
+      if (savedLight != null) return savedLight;
+    } catch (_) {}
+    return ThemeList.lightTheme;
   }
 
   /// Checks if a theme is compatible with a theme mode
