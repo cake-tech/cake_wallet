@@ -40,7 +40,6 @@ part 'wallet_address_list_view_model.g.dart';
 
 class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
 
-
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required AppStore appStore,
@@ -445,6 +444,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
           'assets/images/zano_icon.svg',
           'assets/images/more_tokens.svg',
         ];
+      case WalletType.base:
+        return [
+          'assets/images/eth_icon.svg',
+          'assets/images/usdc_icon.svg',
+          'assets/images/more_tokens.svg',
+        ];
       default:
         return [];
     }
@@ -466,6 +471,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
         return 'assets/images/trx_chain_mono.svg';
       case WalletType.zano:
         return 'assets/images/zano_chain_mono.svg';
+      case WalletType.base:
+        return 'assets/images/base_chain_mono.svg';
       default:
         return 'assets/images/eth_chain_mono.svg';
     }
