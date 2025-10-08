@@ -25,11 +25,13 @@ class NodeForm extends StatefulWidget {
   final WalletType? type;
 
   @override
-  State<StatefulWidget> createState() => _NodeFormState(editingNode: this.editingNode);
+  State<StatefulWidget> createState() =>
+      _NodeFormState(nodeViewModel: nodeViewModel, editingNode: this.editingNode);
 }
 
 class _NodeFormState extends State<NodeForm> {
   _NodeFormState({
+    required this.nodeViewModel,
     Node? editingNode,
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
         _pathController = TextEditingController(text: editingNode?.path.toString()),
@@ -41,50 +43,52 @@ class _NodeFormState extends State<NodeForm> {
         _passwordController = TextEditingController(text: editingNode?.password),
         _socksAddressController = TextEditingController(text: editingNode?.socksProxyAddress) {
     if (editingNode != null) {
-      widget.nodeViewModel
-        ..setAddress((editingNode.uri.host.toString()))
-        ..setPath((editingNode.path.toString()))
-        ..setPort((editingNode.uri.hasPort ? editingNode.uri.port.toString() : ''))
-        ..setPassword((editingNode.password ?? ''))
-        ..setLogin((editingNode.login ?? ''))
-        ..setSSL((editingNode.isSSL))
-        ..setTrusted((editingNode.trusted))
-        ..setIsEnabledForAutoSwitching((editingNode.isEnabledForAutoSwitching))
-        ..setSocksProxy((editingNode.useSocksProxy))
-        ..setSocksProxyAddress((editingNode.socksProxyAddress ?? ''));
+      nodeViewModel
+        ..setAddress(editingNode.uri.host.toString())
+        ..setPath(editingNode.path.toString())
+        ..setPort(editingNode.uri.hasPort ? editingNode.uri.port.toString() : '')
+        ..setPassword(editingNode.password ?? '')
+        ..setLogin(editingNode.login ?? '')
+        ..setSSL(editingNode.isSSL)
+        ..setTrusted(editingNode.trusted)
+        ..setIsEnabledForAutoSwitching(editingNode.isEnabledForAutoSwitching)
+        ..setSocksProxy(editingNode.useSocksProxy)
+        ..setSocksProxyAddress(editingNode.socksProxyAddress ?? '');
     }
 
-    if (widget.nodeViewModel.hasAuthCredentials) {
-      reaction((_) => widget.nodeViewModel.login, (String login) {
+    if (nodeViewModel.hasAuthCredentials) {
+      reaction((_) => nodeViewModel.login, (String login) {
         if (login != _loginController.text) _loginController.text = login;
       });
 
-      reaction((_) => widget.nodeViewModel.password, (String password) {
+      reaction((_) => nodeViewModel.password, (String password) {
         if (password != _passwordController.text) _passwordController.text = password;
       });
     }
-    reaction((_) => widget.nodeViewModel.address, (String address) {
+    reaction((_) => nodeViewModel.address, (String address) {
       if (address != _addressController.text) {
         _addressController.text = address;
       }
     });
 
-    reaction((_) => widget.nodeViewModel.port, (String port) {
+    reaction((_) => nodeViewModel.port, (String port) {
       if (port != _portController.text) _portController.text = port;
     });
 
-    reaction((_) => widget.nodeViewModel.path, (String path) {
+    reaction((_) => nodeViewModel.path, (String path) {
       if (path != _pathController.text) _pathController.text = path;
     });
 
-    _addressController.addListener(() => widget.nodeViewModel.address = _addressController.text);
-    _pathController.addListener(() => widget.nodeViewModel.path = _pathController.text);
-    _portController.addListener(() => widget.nodeViewModel.port = _portController.text);
-    _loginController.addListener(() => widget.nodeViewModel.login = _loginController.text);
-    _passwordController.addListener(() => widget.nodeViewModel.password = _passwordController.text);
+    _addressController.addListener(() => nodeViewModel.address = _addressController.text);
+    _pathController.addListener(() => nodeViewModel.path = _pathController.text);
+    _portController.addListener(() => nodeViewModel.port = _portController.text);
+    _loginController.addListener(() => nodeViewModel.login = _loginController.text);
+    _passwordController.addListener(() => nodeViewModel.password = _passwordController.text);
     _socksAddressController
-        .addListener(() => widget.nodeViewModel.socksProxyAddress = _socksAddressController.text);
+        .addListener(() => nodeViewModel.socksProxyAddress = _socksAddressController.text);
   }
+
+  final NodeCreateOrEditViewModel nodeViewModel;
 
   final TextEditingController _addressController;
   final TextEditingController _pathController;
@@ -109,7 +113,7 @@ class _NodeFormState extends State<NodeForm> {
             )
           ]),
           const SizedBox(height: 10),
-          if (widget.nodeViewModel.hasPathSupport) ...[
+          if (nodeViewModel.hasPathSupport) ...[
             Row(children: <Widget>[
               Expanded(
                 child: BaseTextFormField(
@@ -140,10 +144,10 @@ class _NodeFormState extends State<NodeForm> {
               children: [
                 Observer(
                   builder: (_) => StandardCheckbox(
-                    value: widget.nodeViewModel.useSSL,
+                    value: nodeViewModel.useSSL,
                     borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     iconColor: Theme.of(context).colorScheme.primary,
-                    onChanged: (value) => widget.nodeViewModel.useSSL = value,
+                    onChanged: (value) => nodeViewModel.useSSL = value,
                     caption: S.of(context).use_ssl,
                   ),
                 )
@@ -159,10 +163,10 @@ class _NodeFormState extends State<NodeForm> {
               children: [
                 Observer(
                   builder: (_) => StandardCheckbox(
-                    value: widget.nodeViewModel.isEnabledForAutoSwitching,
+                    value: nodeViewModel.isEnabledForAutoSwitching,
                     borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                     iconColor: Theme.of(context).colorScheme.primary,
-                    onChanged: (value) => widget.nodeViewModel.isEnabledForAutoSwitching = value,
+                    onChanged: (value) => nodeViewModel.isEnabledForAutoSwitching = value,
                     caption: S.current.enable_for_auto_switching,
                   ),
                 ),
@@ -170,7 +174,7 @@ class _NodeFormState extends State<NodeForm> {
             ),
           ),
           const SizedBox(height: 10),
-          if (widget.nodeViewModel.hasAuthCredentials) ...[
+          if (nodeViewModel.hasAuthCredentials) ...[
             Row(children: <Widget>[
               Expanded(
                 child: BaseTextFormField(
@@ -196,10 +200,10 @@ class _NodeFormState extends State<NodeForm> {
                 children: [
                   Observer(
                     builder: (_) => StandardCheckbox(
-                      value: widget.nodeViewModel.trusted,
+                      value: nodeViewModel.trusted,
                       borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       iconColor: Theme.of(context).colorScheme.primary,
-                      onChanged: (value) => widget.nodeViewModel.trusted = value,
+                      onChanged: (value) => nodeViewModel.trusted = value,
                       caption: S.of(context).trusted,
                     ),
                   ),
@@ -208,7 +212,7 @@ class _NodeFormState extends State<NodeForm> {
             ),
             Observer(
               builder: (_) => Column(children: [
-                if (widget.nodeViewModel.usesEmbeddedProxy) ...[
+                if (nodeViewModel.usesEmbeddedProxy) ...[
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Row(
@@ -216,7 +220,7 @@ class _NodeFormState extends State<NodeForm> {
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         StandardCheckbox(
-                          value: widget.nodeViewModel.usesEmbeddedProxy,
+                          value: nodeViewModel.usesEmbeddedProxy,
                           gradientBackground: false,
                           borderColor: Theme.of(context).dividerColor,
                           iconColor: Theme.of(context).colorScheme.primary,
@@ -234,19 +238,19 @@ class _NodeFormState extends State<NodeForm> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       StandardCheckbox(
-                        value: widget.nodeViewModel.useSocksProxy,
+                        value: nodeViewModel.useSocksProxy,
                         borderColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                         iconColor: Theme.of(context).colorScheme.primary,
                         onChanged: (value) {
                           if (!value) _socksAddressController.text = '';
-                          widget.nodeViewModel.useSocksProxy = value;
+                          nodeViewModel.useSocksProxy = value;
                         },
                         caption: 'SOCKS Proxy',
                       ),
                     ],
                   ),
                 ),
-                if (widget.nodeViewModel.useSocksProxy) ...[
+                if (nodeViewModel.useSocksProxy) ...[
                   const SizedBox(height: 10),
                   Row(children: <Widget>[
                     Expanded(
