@@ -375,10 +375,6 @@
   "exchange_result_write_down_trade_id": "Please copy or write down the trade ID to continue.",
   "exchange_sync_alert_content": "Please wait until your wallet is synchronized",
   "exchange_trade_result_confirm": "By pressing send from Cake Wallet, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown below. Or you can send from your external wallet to the address/QR code on the send from external wallet details page.\n\nPlease press either of the buttons to continue or go back to change the amounts.",
-  "@exchange_trade_result_confirm": {
-
-    "description": "Brand must remain 'Cake Wallet' (proper case). Do not translate."
-},
   "expired": "Expired",
   "expires": "Expires",
   "expiresOn": "Expires on",
