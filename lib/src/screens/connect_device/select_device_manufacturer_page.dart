@@ -29,33 +29,57 @@ class SelectDeviceManufacturerPage extends BasePage {
   @override
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
+  ColorFilter get _colorFilter =>
+      ColorFilter.mode(currentTheme.colorScheme.onSurface, BlendMode.srcIn);
+
   List<_DeviceManufacturer> get availableManufacturers => [
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/ledger_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/ledger_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.ledger,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/trezor_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/trezor_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.trezor,
           tag: S.current.new_tag,
         ),
         // _DeviceManufacturer(
-        //   image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
+        //   image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25,
+        //             colorFilter: _colorFilter,),
         //   hardwareWalletType: HardwareWalletType.bitbox,
         //   tag: S.current.new_tag,
         // ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/cupcake_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/cupcake_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.cupcake,
           tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/coldcard_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/coldcard_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.coldcard,
           tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/seedsigner_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.seedsigner,
           tag: S.current.new_tag,
         ),
@@ -67,21 +91,37 @@ class SelectDeviceManufacturerPage extends BasePage {
 
   List<_DeviceManufacturer> get comingManufacturers => [
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/bitbox_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/bitbox_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.bitbox,
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/seedsigner_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/seedsigner_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           hardwareWalletType: HardwareWalletType.seedsigner,
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/foundation_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/foundation_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset('assets/images/hardware_wallet/keystone_man.svg', height: 25),
+          image: SvgPicture.asset(
+            'assets/images/hardware_wallet/keystone_man.svg',
+            height: 25,
+            colorFilter: _colorFilter,
+          ),
           tag: S.current.coming_soon_tag,
         ),
       ];
@@ -138,8 +178,8 @@ class SelectDeviceManufacturerPage extends BasePage {
                   ]
                 ],
               ),
-              ),
             ),
+          ),
         ),
       );
 
