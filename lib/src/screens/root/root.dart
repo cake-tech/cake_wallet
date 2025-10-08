@@ -153,6 +153,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         break;
       case AppLifecycleState.resumed:
+
+        // Reset inactive state when app resumes
+        if (_isInactive) setState(() => _setInactive(false));
+
         widget.authService.requireAuth().then((value) {
           if (mounted) {
             setState(() {
@@ -201,8 +205,13 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void didChangePlatformBrightness() {
+    // Only handle theme changes when the app is active (not in background)
+    if (_isInactive) return;
+
     if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
       Future.delayed(Duration(milliseconds: Platform.isIOS ? 500 : 0), () {
+        // Double-check that app is still active before applying theme change
+        if (_isInactive) return;
 
         final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
         if (widget.appStore.themeStore.currentTheme != systemTheme) {
@@ -273,6 +282,16 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       _postFrameCallback = false;
       _setInactive(false);
     });
+
+    // Apply any missed theme changes after successful authentication
+    if (widget.appStore.themeStore.themeMode == ThemeMode.system) {
+      Future.delayed(Duration(milliseconds: 100), () {
+        final systemTheme = widget.appStore.themeStore.getThemeFromSystem();
+        if (widget.appStore.themeStore.currentTheme != systemTheme) {
+          widget.appStore.themeStore.setTheme(systemTheme);
+        }
+      });
+    }
   }
 
   void _setInactive(bool value) {

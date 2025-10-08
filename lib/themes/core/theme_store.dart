@@ -47,14 +47,22 @@ abstract class ThemeStoreBase with Store {
 
   @computed
   MaterialThemeBase? get savedDarkTheme {
-    final raw = sharedPreferences.getInt(PreferencesKey.savedDarkTheme);
-    return raw != null ? ThemeList.deserialize(raw: raw) : null;
+    try {
+      final raw = sharedPreferences.getInt(PreferencesKey.savedDarkTheme);
+      return raw != null ? ThemeList.deserialize(raw: raw) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   @computed
   MaterialThemeBase? get savedLightTheme {
-    final raw = sharedPreferences.getInt(PreferencesKey.savedLightTheme);
-    return raw != null ? ThemeList.deserialize(raw: raw) : null;
+    try {
+      final raw = sharedPreferences.getInt(PreferencesKey.savedLightTheme);
+      return raw != null ? ThemeList.deserialize(raw: raw) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   late SharedPreferences sharedPreferences;
