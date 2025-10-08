@@ -305,7 +305,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     outputs: widget.exchangeTradeViewModel.sendViewModel.outputs,
                     onSlideActionComplete: () async {
                       if (bottomSheetContext.mounted) {
-                        Navigator.of(bottomSheetContext).pop();
+                        Navigator.of(bottomSheetContext).pop(true);
                       }
                       widget.exchangeTradeViewModel.sendViewModel.commitTransaction(context);
                     },
