@@ -682,6 +682,10 @@ class CakePayBuyCardPage extends BasePage {
 
           final BuildContext sheetParentCtx = usePageContextLater ? context : _overlayCtx;
 
+          if (!sheetParentCtx.mounted) {
+            return;
+          }
+
           await showModalBottomSheet<void>(
             context: sheetParentCtx,
             useRootNavigator: !usePageContextLater,
