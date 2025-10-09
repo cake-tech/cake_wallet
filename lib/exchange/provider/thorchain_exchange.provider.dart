@@ -11,6 +11,7 @@ import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
+import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
 class ThorChainExchangeProvider extends ExchangeProvider {
   ThorChainExchangeProvider({required this.tradesStore})
@@ -88,9 +89,41 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       final responseJSON = await _getSwapQuote(params);
 
       final expectedAmountOut = responseJSON['expected_amount_out'] as String? ?? '0.0';
+      final rate = _thorChainAmountToDouble(expectedAmountOut) / amount;
 
-      return _thorChainAmountToDouble(expectedAmountOut) / amount;
-    } catch (e) {
+      ExchangeProviderLogger.logSuccess(
+        provider: description,
+        function: 'fetchRate',
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+          'params': params,
+        },
+        responseData: {
+          'expectedAmountOut': expectedAmountOut,
+          'rate': rate,
+          'responseJSON': responseJSON,
+        },
+      );
+
+      return rate;
+    } catch (e, s) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: 'fetchRate',
+        error: e,
+        stackTrace: s,
+        requestData: {
+          'from': from.title,
+          'to': to.title,
+          'amount': amount,
+          'isFixedRateMode': isFixedRateMode,
+          'isReceiveAmount': isReceiveAmount,
+        },
+      );
       printV(e.toString());
       return 0.0;
     }
@@ -146,6 +179,29 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     if (directAmountOutResponse != null) {
       receiveAmount = _thorChainAmountToDouble(directAmountOutResponse).toString();
     }
+
+    ExchangeProviderLogger.logSuccess(
+      provider: description,
+      function: 'createTrade',
+      requestData: {
+        'from': request.fromCurrency.title,
+        'to': request.toCurrency.title,
+        'fromAmount': request.fromAmount,
+        'toAmount': request.toAmount,
+        'toAddress': request.toAddress,
+        'refundAddress': request.refundAddress,
+        'isFixedRateMode': isFixedRateMode,
+        'isSendAll': isSendAll,
+        'params': params,
+      },
+      responseData: {
+        'inputAddress': inputAddress,
+        'memo': memo,
+        'directAmountOutResponse': directAmountOutResponse,
+        'receiveAmount': receiveAmount,
+        'responseJSON': responseJSON,
+      },
+    );
 
     return Trade(
       id: '',
@@ -256,10 +312,30 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
     
     if (response.statusCode != 200) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: '_getSwapQuote',
+        error: Exception('Unexpected HTTP status: ${response.statusCode}'),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'params': params,
+          'url': uri.toString(),
+        },
+      );
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
 
     if (response.body.contains('error')) {
+      ExchangeProviderLogger.logError(
+        provider: description,
+        function: '_getSwapQuote',
+        error: Exception('Unexpected response: ${response.body}'),
+        stackTrace: StackTrace.current,
+        requestData: {
+          'params': params,
+          'url': uri.toString(),
+        },
+      );
       throw Exception('Unexpected response: ${response.body}');
     }
 

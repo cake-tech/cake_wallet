@@ -73,7 +73,8 @@ class ExchangeTradeExternalSendPage extends BasePage {
                                       Routes.fullscreenQR,
                                       arguments: QrViewData(
                                         embeddedImagePath: exchangeTradeViewModel.qrImage,
-                                        data: exchangeTradeViewModel.trade.inputAddress ??
+                                        data: exchangeTradeViewModel.paymentUri?.toString() ??
+                                            exchangeTradeViewModel.trade.inputAddress ??
                                             fetchingLabel,
                                       ),
                                     );
@@ -92,7 +93,8 @@ class ExchangeTradeExternalSendPage extends BasePage {
                                       ),
                                     ),
                                     child: QrImage(
-                                      data: exchangeTradeViewModel.trade.inputAddress ??
+                                      data: exchangeTradeViewModel.paymentUri?.toString() ??
+                                          exchangeTradeViewModel.trade.inputAddress ??
                                           fetchingLabel,
                                       embeddedImagePath: exchangeTradeViewModel.qrImage,
                                       size: 230,
