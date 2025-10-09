@@ -107,12 +107,20 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.dogecoin:
         return wallet.signMessage(message);
       case WalletType.litecoin:
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
         return wallet.signMessage(message, address: wallet.walletAddresses.address);
-      default:
+      case WalletType.monero:
+      case WalletType.none:
+      case WalletType.haven:
+      case WalletType.nano:
+      case WalletType.banano:
+      case WalletType.wownero:
+      case WalletType.zano:
+      case WalletType.decred:
         throw Exception("Wallet Type ${wallet.type.name} is not available for Robinhood");
     }
   }
