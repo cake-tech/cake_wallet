@@ -45,7 +45,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final wowneroIcon = Image.asset('assets/images/crypto/wownero.png', height: 24, width: 24);
   final zanoIcon = Image.asset('assets/images/crypto/zano.png', height: 24, width: 24);
   final decredIcon = Image.asset('assets/images/crypto/decred.png', height: 24, width: 24);
-  final dogeIcon = Image.asset('assets/images/dogecoin.png', height: 24, width: 24);
+  final dogeIcon = Image.asset('assets/images/crypto/dogecoin.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
