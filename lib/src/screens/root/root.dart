@@ -114,14 +114,14 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     widget.linkViewModel.currentLink = uri;
 
+    if (uri.toString().startsWith(widget.trezorConnect.callbackBackUri)) {
+      widget.trezorConnect.handleCallback(uri);
+      return;
+    }
+
     bool requireAuth = await widget.authService.requireAuth();
 
     if (!requireAuth && widget.authenticationStore.state == AuthenticationState.allowed) {
-      if (uri.toString().startsWith(widget.trezorConnect.callbackBackUri)) {
-        widget.trezorConnect.handleCallback(uri);
-        return;
-      }
-
       _navigateToDeepLinkScreen();
       return;
     }
@@ -133,11 +133,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           if (widget.appStore.wallet == null) {
             waitForWalletInstance(context);
           } else {
-            if (uri.toString().startsWith(widget.trezorConnect.callbackBackUri)) {
-              widget.trezorConnect.handleCallback(uri);
-              return;
-            }
-
             _navigateToDeepLinkScreen();
           }
           _deepLinksReactionDisposer?.call();
