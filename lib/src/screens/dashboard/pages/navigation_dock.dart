@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/main_actions.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
@@ -9,11 +9,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 class NavigationDock extends StatelessWidget {
   const NavigationDock({
     required this.dashboardViewModel,
-    required this.currentTheme,
   });
 
   final DashboardViewModel dashboardViewModel;
-  final MaterialThemeBase currentTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +26,7 @@ class NavigationDock extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: _getColors(context, currentTheme),
+                      colors: _getColors(context),
                     ),
                   )
                 : null,
@@ -39,7 +37,7 @@ class NavigationDock extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: _getColors(context, currentTheme),
+                  colors: _getColors(context),
                 ),
               ),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 16),
@@ -96,15 +94,15 @@ class NavigationDock extends StatelessWidget {
     );
   }
 
-  List<Color> _getColors(BuildContext context, MaterialThemeBase currentTheme) {
+  List<Color> _getColors(BuildContext context) {
     return <Color>[
-      currentTheme.customColors.backgroundGradientColor.withAlpha(5),
-      currentTheme.customColors.backgroundGradientColor.withAlpha(50),
-      currentTheme.customColors.backgroundGradientColor.withAlpha(125),
-      currentTheme.customColors.backgroundGradientColor.withAlpha(150),
-      currentTheme.customColors.backgroundGradientColor.withAlpha(200),
-      currentTheme.customColors.backgroundGradientColor,
-      currentTheme.customColors.backgroundGradientColor,
+      context.customColors.backgroundGradientColor.withAlpha(5),
+      context.customColors.backgroundGradientColor.withAlpha(50),
+      context.customColors.backgroundGradientColor.withAlpha(125),
+      context.customColors.backgroundGradientColor.withAlpha(150),
+      context.customColors.backgroundGradientColor.withAlpha(200),
+      context.customColors.backgroundGradientColor,
+      context.customColors.backgroundGradientColor,
     ];
   }
 }

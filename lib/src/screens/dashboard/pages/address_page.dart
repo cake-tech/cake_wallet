@@ -94,7 +94,7 @@ class AddressPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold,);
+      (BuildContext context, Widget scaffold) => GradientBackground(scaffold: scaffold);
 
   @override
   Widget? trailing(BuildContext context) {
@@ -150,7 +150,6 @@ class AddressPage extends BasePage {
                   addressListViewModel: addressListViewModel,
                   amountTextFieldFocusNode: _cryptoAmountFocus,
                   amountController: _amountController,
-                  currentTheme: dashboardViewModel.appStore.themeStore.currentTheme,
                 ),
               ),
             ),

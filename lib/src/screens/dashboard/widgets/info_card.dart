@@ -1,6 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/dashboard_card_widget.dart';
-import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
@@ -9,7 +8,6 @@ class InfoCard extends StatelessWidget {
   final String title;
   final String description;
   final String image;
-  final MaterialThemeBase currentTheme;
   final Function() leftButtonAction;
   final Function() rightButtonAction;
 
@@ -24,14 +22,12 @@ class InfoCard extends StatelessWidget {
     required this.leftButtonAction,
     required this.rightButtonAction,
     required this.image,
-    required this.currentTheme,
     this.hintWidget,
   });
 
   @override
   Widget build(BuildContext context) {
     return DashBoardRoundedCardWidget(
-      currentTheme: currentTheme,
       marginH: 0,
       marginV: 0,
       customBorder: 30,
